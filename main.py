@@ -2,9 +2,7 @@ import threading
 
 import colorama
 
-from network import RealmSession
-from utils.Logger import Logger
-
+from network.realm import RealmSession
 
 if __name__ == '__main__':
     # initialize colorama to make ansi codes work in Windows
