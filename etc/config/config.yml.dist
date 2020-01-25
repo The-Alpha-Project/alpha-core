@@ -1,0 +1,55 @@
+Database:
+    Connection:
+        host: 127.0.0.1
+        username: root
+        password: pwd
+        sqlalchemy_connection_string: "mysql+pymysql://{user}:{password}@{host}/{db_name}?charset=utf8mb4"
+
+    DBNames:
+        world_db: alpha_world
+        realm_db: alpha_realm
+
+Server:
+    Connection:
+        RealmProxy:
+            host: 127.0.0.1
+            port: 9090
+
+        RealmServer:
+            host: 127.0.0.1
+            port: 9100
+            realm_name: alphacore
+
+        WorldServer:
+          # if located on vps or any another external server, you should set external ip instead of localhost
+          host: 127.0.0.1
+          port: 8100
+
+    Settings:
+        min_timeout: 0.01
+
+    General:
+        # Message of the day ('@' for the newline)
+        motd: Welcome to an alpha-core based server
+
+World:
+    Gameplay:
+        update_dist: 200
+
+    Chat:
+        ChatRange:
+            say_range: 25
+            yell_range: 300
+
+Unit:
+    Defaults:
+        base_min_damage: 1.0
+        base_max_damage: 2.0
+        base_attack_time: 2000
+        bounding_radius: 0.388999998569489
+        combat_reach: 1.5
+
+    Player:
+        Defaults:
+            min_level: 1
+            max_level: 25
