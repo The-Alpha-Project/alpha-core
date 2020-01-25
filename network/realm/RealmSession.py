@@ -28,7 +28,7 @@ class LoginServer(socketserver.BaseRequestHandler):
 
     @staticmethod
     def start():
-        Logger.debug('Login server started.')
+        Logger.info('Login server started.')
         with socketserver.TCPServer((config.Server.Connection.RealmServer.host,
                                      config.Server.Connection.RealmServer.port), LoginServer) as login_instance:
             login_instance.allow_reuse_address = True
@@ -41,7 +41,7 @@ class ProxyServer(socketserver.BaseRequestHandler):
 
     @staticmethod
     def start():
-        Logger.debug('Proxy server started.')
+        Logger.info('Proxy server started.')
         with socketserver.TCPServer((config.Server.Connection.RealmProxy.host,
                                      config.Server.Connection.RealmProxy.port), ProxyServer) as proxy_instance:
             proxy_instance.allow_reuse_address = True

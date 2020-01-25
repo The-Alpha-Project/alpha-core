@@ -3,19 +3,15 @@ from enum import Enum
 
 
 class DebugColorLevel(Enum):
-
-    INFO            = Back.WHITE + Fore.BLACK
-    WARNING         = Fore.YELLOW
-    CRITICAL        = Fore.YELLOW + Style.BRIGHT
-    ERROR           = Fore.RED + Style.BRIGHT
-    SUCCESS         = Fore.GREEN + Style.BRIGHT
-    DEBUG           = Fore.CYAN + Style.BRIGHT
-    TEST            = Fore.MAGENTA + Style.BRIGHT
-    NOTIFICATION    = Fore.BLUE + Style.BRIGHT
+    INFO = Fore.BLUE + Style.BRIGHT
+    WARNING = Fore.YELLOW + Style.BRIGHT
+    ERROR = Fore.RED + Style.BRIGHT
+    SUCCESS = Fore.GREEN + Style.BRIGHT
+    DEBUG = Fore.CYAN + Style.BRIGHT
+    TEST = Fore.MAGENTA + Style.BRIGHT
 
 
 class Logger(object):
-
     LABEL = ''
 
     @staticmethod
