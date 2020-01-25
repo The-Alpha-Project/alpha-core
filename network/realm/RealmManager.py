@@ -1,5 +1,7 @@
 import socketserver
 
+from struct import pack
+
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from network.packet.PacketWriter import *
@@ -10,21 +12,21 @@ class LoginServer(socketserver.BaseRequestHandler):
         self.serve_realm(self.request)
 
     @staticmethod
-    def serve_realm(request):
+    def serve_realm(socket):
         name_bytes = PacketWriter.string_to_bytes(config.Server.Connection.RealmServer.realm_name)
         address_bytes = PacketWriter.string_to_bytes(('%s:%s' % (config.Server.Connection.RealmProxy.host,
                                                                  config.Server.Connection.RealmProxy.port)))
         packet = pack(
-            '>B%us%usL' % (len(name_bytes), len(address_bytes)),
+            '!B%us%usL' % (len(name_bytes), len(address_bytes)),
             1,
             name_bytes,
             address_bytes,
             0
         )
 
-        Logger.debug('Sending realmlist to %s...' % request.getpeername()[0])
-        request.sendall(packet)
-        request.close()
+        Logger.debug('Sending realmlist to %s...' % socket.getpeername()[0])
+        socket.sendall(packet)
+        socket.close()
 
     @staticmethod
     def start():
@@ -37,7 +39,20 @@ class LoginServer(socketserver.BaseRequestHandler):
 
 class ProxyServer(socketserver.BaseRequestHandler):
     def handle(self):
-        pass
+        self.redirect_to_world(self.request)
+
+    @staticmethod
+    def redirect_to_world(socket):
+        world_bytes = PacketWriter.string_to_bytes(('%s:%s' % (config.Server.Connection.WorldServer.host,
+                                                               config.Server.Connection.WorldServer.port)))
+        packet = pack(
+            '!%us' % len(world_bytes),
+            world_bytes
+        )
+
+        Logger.debug('Redirecting %s to world server...' % socket.getpeername()[0])
+        socket.sendall(packet)
+        socket.close()
 
     @staticmethod
     def start():
