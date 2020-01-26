@@ -26,11 +26,12 @@ Server:
           port: 8100
 
     Settings:
+        supported_client: 3368
         min_timeout: 0.01
 
     General:
-        # Message of the day ('@' for the newline)
-        motd: Welcome to an alpha-core based server
+        # Message of the day
+        motd: Welcome to an alpha-core server
 
 World:
     Gameplay:
