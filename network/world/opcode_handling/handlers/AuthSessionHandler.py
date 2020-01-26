@@ -9,7 +9,7 @@ from utils.constants.AuthCodes import *
 class AuthSessionHandler(object):
 
     @staticmethod
-    def handle(socket, packet):
+    def handle(world_session, socket, packet):
         version, login = unpack(
             '<II', packet[:8]
         )
@@ -30,3 +30,5 @@ class AuthSessionHandler(object):
             auth_code
         )
         socket.sendall(packet)
+        import random
+        world_session.account_id = random.random()

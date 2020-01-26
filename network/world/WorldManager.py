@@ -1,4 +1,5 @@
 import socketserver
+import threading
 
 from struct import pack
 from time import sleep
@@ -10,10 +11,18 @@ from network.packet.PacketReader import *
 from network.world.opcode_handling.Definitions import *
 
 
-class WorldServer(socketserver.BaseRequestHandler):
+class ThreadedWorldServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    pass
+
+
+class WorldServerHandler(socketserver.BaseRequestHandler):
+    def __init__(self, request, client_address, server):
+        super().__init__(request, client_address, server)
+        self.account_id = -1
+
     def handle(self):
         self.auth_challenge(self.request)
-        while self.receive(self.request) != -1:
+        while self.receive(self, self.request) != -1:
             sleep(0.01)
 
     @staticmethod
@@ -29,7 +38,7 @@ class WorldServer(socketserver.BaseRequestHandler):
         socket.sendall(packet)
 
     @staticmethod
-    def receive(socket):
+    def receive(self, socket):
         try:
             data = socket.recv(8192)
             reader = PacketReader(data)
@@ -37,7 +46,7 @@ class WorldServer(socketserver.BaseRequestHandler):
                 handler = Definitions.get_handler_from_packet(reader.opcode)
                 if handler:
                     Logger.debug('Handling %s' % OpCode(reader.opcode))
-                    handler(socket, reader.data)
+                    handler(self, socket, reader.data)
             else:
                 Logger.warning('Empty data, skipping.')
                 socket.close()
@@ -48,7 +57,9 @@ class WorldServer(socketserver.BaseRequestHandler):
     @staticmethod
     def start():
         Logger.info('World server started.')
-        with socketserver.TCPServer((config.Server.Connection.WorldServer.host,
-                                     config.Server.Connection.WorldServer.port), WorldServer) as world_instance:
+        with ThreadedWorldServer((config.Server.Connection.WorldServer.host,
+                                  config.Server.Connection.WorldServer.port), WorldServerHandler) as world_instance:
             world_instance.allow_reuse_address = True
-            world_instance.serve_forever()
+            world_session_thread = threading.Thread(target=world_instance.serve_forever())
+            world_session_thread.daemon = True
+            world_session_thread.start()

@@ -6,7 +6,7 @@ from network.packet.PacketWriter import *
 class PingHandler(object):
 
     @staticmethod
-    def handle(socket, packet):
+    def handle(world_session, socket, packet):
         ping_data = unpack(
             '<I', packet
         )
@@ -18,3 +18,4 @@ class PingHandler(object):
             ping_data[0]
         )
         socket.sendall(packet)
+        print(world_session.account_id)

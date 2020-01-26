@@ -1,4 +1,5 @@
 import socketserver
+import threading
 
 from struct import pack
 
@@ -7,7 +8,11 @@ from utils.Logger import Logger
 from network.packet.PacketWriter import *
 
 
-class LoginServer(socketserver.BaseRequestHandler):
+class ThreadedLoginServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    pass
+
+
+class LoginServerHandler(socketserver.BaseRequestHandler):
     def handle(self):
         self.serve_realm(self.request)
 
@@ -31,10 +36,16 @@ class LoginServer(socketserver.BaseRequestHandler):
     @staticmethod
     def start():
         Logger.info('Login server started.')
-        with socketserver.TCPServer((config.Server.Connection.RealmServer.host,
-                                     config.Server.Connection.RealmServer.port), LoginServer) as login_instance:
+        with ThreadedLoginServer((config.Server.Connection.RealmServer.host,
+                                  config.Server.Connection.RealmServer.port), LoginServerHandler) as login_instance:
             login_instance.allow_reuse_address = True
-            login_instance.serve_forever()
+            login_session_thread = threading.Thread(target=login_instance.serve_forever())
+            login_session_thread.daemon = True
+            login_session_thread.start()
+
+
+class ThreadedProxyServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    pass
 
 
 class ProxyServer(socketserver.BaseRequestHandler):
@@ -57,7 +68,9 @@ class ProxyServer(socketserver.BaseRequestHandler):
     @staticmethod
     def start():
         Logger.info('Proxy server started.')
-        with socketserver.TCPServer((config.Server.Connection.RealmProxy.host,
-                                     config.Server.Connection.RealmProxy.port), ProxyServer) as proxy_instance:
+        with ThreadedProxyServer((config.Server.Connection.RealmProxy.host,
+                                  config.Server.Connection.RealmProxy.port), ProxyServer) as proxy_instance:
             proxy_instance.allow_reuse_address = True
-            proxy_instance.serve_forever()
+            proxy_session_thread = threading.Thread(target=proxy_instance.serve_forever())
+            proxy_session_thread.daemon = True
+            proxy_session_thread.start()
