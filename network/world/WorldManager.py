@@ -19,10 +19,10 @@ class WorldServer(socketserver.BaseRequestHandler):
 
     @staticmethod
     def auth_challenge(socket):
-        header = PacketWriter.get_packet_header(OpCode.SMSG_AUTH_CHALLENGE)
-
+        fmt = PacketWriter.get_packet_header_format(OpCode.SMSG_AUTH_CHALLENGE) + 'B' * 6
+        header = PacketWriter.get_packet_header(OpCode.SMSG_AUTH_CHALLENGE, fmt)
         packet = pack(
-            PacketWriter.get_packet_header_format(OpCode.SMSG_AUTH_CHALLENGE) + 'B' * 6,
+            fmt,
             header[0],
             header[1],
             header[2],
@@ -35,9 +35,11 @@ class WorldServer(socketserver.BaseRequestHandler):
     @staticmethod
     def receive(socket):
         data = socket.recv(4096)
-        packet = PacketReader(data)
-        handler = Definitions.get_handler_from_packet(packet.opcode)
-        Logger.debug(handler)
+        reader = PacketReader(data)
+        handler = Definitions.get_handler_from_packet(reader.opcode)
+        if handler:
+            Logger.debug('Handling %s' % OpCode(reader.opcode))
+            handler(socket, data)
 
     @staticmethod
     def start():

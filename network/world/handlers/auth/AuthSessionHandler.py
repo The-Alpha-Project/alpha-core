@@ -1,3 +1,10 @@
+from struct import pack
+
+from network.packet.PacketWriter import *
+
+
 class AuthSessionHandler(object):
-    def handle(self, packet):
-        pass
+
+    @staticmethod
+    def handle(socket, packet):
+        print(packet)
