@@ -1,4 +1,4 @@
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 from enum import Enum
 
 
@@ -15,45 +15,45 @@ class Logger(object):
     LABEL = ''
 
     @staticmethod
-    def colorize_message(color: DebugColorLevel, msg: str):
-        return f'{color.value}{Logger.LABEL}{Style.RESET_ALL} {msg}'
+    def colorize_message(color, msg):
+        return '%s%s%s %s' % (color.value, Logger.LABEL, Style.RESET_ALL, msg)
 
     @staticmethod
-    def debug(msg: str):
+    def debug(msg):
         Logger.LABEL = '[DEBUG]'
         print(Logger.colorize_message(DebugColorLevel.DEBUG, msg))
 
     @staticmethod
-    def warning(msg: str):
+    def warning(msg):
         Logger.LABEL = '[WARNING]'
         print(Logger.colorize_message(DebugColorLevel.WARNING, msg))
 
     @staticmethod
-    def critical(msg: str):
+    def critical(msg):
         Logger.LABEL = '[CRITICAL]'
         print(Logger.colorize_message(DebugColorLevel.CRITICAL, msg))
 
     @staticmethod
-    def error(msg: str):
+    def error(msg):
         Logger.LABEL = '[ERROR]'
         print(Logger.colorize_message(DebugColorLevel.ERROR, msg))
 
     @staticmethod
-    def info(msg: str):
+    def info(msg):
         Logger.LABEL = '[INFO]'
         print(Logger.colorize_message(DebugColorLevel.INFO, msg))
 
     @staticmethod
-    def test(msg: str):
+    def test(msg):
         Logger.LABEL = '[TEST]'
         print(Logger.colorize_message(DebugColorLevel.TEST, msg))
 
     @staticmethod
-    def success(msg: str):
+    def success(msg):
         Logger.LABEL = '[SUCCESS]'
         print(Logger.colorize_message(DebugColorLevel.SUCCESS, msg))
 
     @staticmethod
-    def notify(msg: str):
+    def notify(msg):
         Logger.LABEL = '[NOTIFICATION]'
         print(Logger.colorize_message(DebugColorLevel.NOTIFICATION, msg))
