@@ -21,7 +21,6 @@ class WorldServer(socketserver.BaseRequestHandler):
             header[1],
             header[2],
             header[3],
-            header[4],
             0, 0, 0, 0, 0, 0
         )
 
