@@ -29,7 +29,7 @@ class RealmDatabaseManager(object):
         account = realm_session.query(Account).filter_by(name=username).first()
         if account:
             if account.password == password:
-                return 1
+                return 1, account
             else:
-                return 0
-        return -1
+                return 0, None
+        return -1, None

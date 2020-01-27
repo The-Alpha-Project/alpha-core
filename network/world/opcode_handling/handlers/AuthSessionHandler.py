@@ -24,7 +24,7 @@ class AuthSessionHandler(object):
         if version != config.Server.Settings.supported_client:
             auth_code = AuthCode.AUTH_VERSION_MISMATCH.value
 
-        login_res = RealmDatabaseManager.account_try_login(username, password)
+        login_res, world_session.account = RealmDatabaseManager.account_try_login(username, password)
         if login_res == 0:
             auth_code = AuthCode.AUTH_INCORRECT_PASSWORD.value
         elif login_res == -1:
