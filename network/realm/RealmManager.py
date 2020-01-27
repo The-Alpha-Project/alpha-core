@@ -12,7 +12,7 @@ class ThreadedLoginServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 
-class LoginServerHandler(socketserver.BaseRequestHandler):
+class LoginServerSessionHandler(socketserver.BaseRequestHandler):
     def handle(self):
         self.serve_realm(self.request)
 
@@ -22,7 +22,7 @@ class LoginServerHandler(socketserver.BaseRequestHandler):
         address_bytes = PacketWriter.string_to_bytes(('%s:%s' % (config.Server.Connection.RealmProxy.host,
                                                                  config.Server.Connection.RealmProxy.port)))
         packet = pack(
-            '!B%us%usL' % (len(name_bytes), len(address_bytes)),
+            '!B%us%usI' % (len(name_bytes), len(address_bytes)),
             1,
             name_bytes,
             address_bytes,
@@ -37,7 +37,7 @@ class LoginServerHandler(socketserver.BaseRequestHandler):
     def start():
         Logger.info('Login server started.')
         with ThreadedLoginServer((config.Server.Connection.RealmServer.host,
-                                  config.Server.Connection.RealmServer.port), LoginServerHandler) as login_instance:
+                                  config.Server.Connection.RealmServer.port), LoginServerSessionHandler) as login_instance:
             login_instance.allow_reuse_address = True
             login_session_thread = threading.Thread(target=login_instance.serve_forever())
             login_session_thread.daemon = True
@@ -48,7 +48,7 @@ class ThreadedProxyServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 
-class ProxyServer(socketserver.BaseRequestHandler):
+class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
     def handle(self):
         self.redirect_to_world(self.request)
 
@@ -69,7 +69,7 @@ class ProxyServer(socketserver.BaseRequestHandler):
     def start():
         Logger.info('Proxy server started.')
         with ThreadedProxyServer((config.Server.Connection.RealmProxy.host,
-                                  config.Server.Connection.RealmProxy.port), ProxyServer) as proxy_instance:
+                                  config.Server.Connection.RealmProxy.port), ProxyServerSessionHandler) as proxy_instance:
             proxy_instance.allow_reuse_address = True
             proxy_session_thread = threading.Thread(target=proxy_instance.serve_forever())
             proxy_session_thread.daemon = True

@@ -9,21 +9,22 @@ from utils.Logger import Logger
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from network.world.opcode_handling.Definitions import *
+from database.realm.RealmDatabaseManager import *
 
 
 class ThreadedWorldServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 
-class WorldServerHandler(socketserver.BaseRequestHandler):
+class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     def __init__(self, request, client_address, server):
         super().__init__(request, client_address, server)
-        self.account_id = -1
+        self.account = None
 
     def handle(self):
         self.auth_challenge(self.request)
         while self.receive(self, self.request) != -1:
-            sleep(0.01)
+            sleep(0.001)
 
     @staticmethod
     def auth_challenge(socket):
@@ -47,9 +48,6 @@ class WorldServerHandler(socketserver.BaseRequestHandler):
                 if handler:
                     Logger.debug('Handling %s' % OpCode(reader.opcode))
                     handler(self, socket, reader.data)
-            else:
-                Logger.warning('Empty data, skipping.')
-                socket.close()
         except OSError:
             Logger.warning('Tried to interact with a closed socket.')
             return -1
@@ -57,8 +55,11 @@ class WorldServerHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def start():
         Logger.info('World server started.')
-        with ThreadedWorldServer((config.Server.Connection.WorldServer.host,
-                                  config.Server.Connection.WorldServer.port), WorldServerHandler) as world_instance:
+
+        RealmDatabaseManager.load_tables()
+
+        with ThreadedWorldServer((config.Server.Connection.WorldServer.host, config.Server.Connection.WorldServer.port),
+                                 WorldServerSessionHandler) as world_instance:
             world_instance.allow_reuse_address = True
             world_session_thread = threading.Thread(target=world_instance.serve_forever())
             world_session_thread.daemon = True

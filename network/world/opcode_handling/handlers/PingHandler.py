@@ -18,4 +18,3 @@ class PingHandler(object):
             ping_data[0]
         )
         socket.sendall(packet)
-        print(world_session.account_id)

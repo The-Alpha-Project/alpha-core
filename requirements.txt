@@ -1,2 +1,4 @@
 PyYAML
 colorama
+SQLAlchemy
+pymysql

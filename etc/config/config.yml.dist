@@ -3,11 +3,10 @@ Database:
         host: 127.0.0.1
         username: root
         password: pwd
-        sqlalchemy_connection_string: "mysql+pymysql://{user}:{password}@{host}/{db_name}?charset=utf8mb4"
 
     DBNames:
-        world_db: alpha_world
         realm_db: alpha_realm
+        world_db: alpha_world
 
 Server:
     Connection:

@@ -69,8 +69,6 @@ CREATE TABLE `character_inventory` (
   PRIMARY KEY (`guid`),
   KEY `idx_guid` (`owner`),
   KEY `Player` (`player`),
-  KEY `item_template_idx` (`item_template`),
-  CONSTRAINT `item_template` FOREIGN KEY (`item_template`) REFERENCES `item_template` (`entry`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `player_guid` FOREIGN KEY (`player`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -1,9 +1,12 @@
+import hashlib
+
 from struct import pack, unpack
 
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from utils.ConfigManager import config
 from utils.constants.AuthCodes import *
+from database.realm.RealmDatabaseManager import *
 
 
 class AuthSessionHandler(object):
@@ -14,13 +17,18 @@ class AuthSessionHandler(object):
             '<II', packet[:8]
         )
         username, password = PacketReader.read_string(packet, 8).strip().split()
+        password = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
         auth_code = AuthCode.AUTH_OK.value
 
         if version != config.Server.Settings.supported_client:
             auth_code = AuthCode.AUTH_VERSION_MISMATCH.value
 
-        # TODO: Handle account login stuff
+        login_res = RealmDatabaseManager.account_try_login(username, password)
+        if login_res == 0:
+            auth_code = AuthCode.AUTH_INCORRECT_PASSWORD.value
+        elif login_res == -1:
+            auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT.value
 
         fmt = PacketWriter.get_packet_header_format(OpCode.SMSG_AUTH_RESPONSE) + 'B'
         header = PacketWriter.get_packet_header(OpCode.SMSG_AUTH_RESPONSE, fmt)
