@@ -61,7 +61,7 @@ class Character(Base):
     account = Column(ForeignKey(u'accounts.id', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"))
     name = Column(String(12), nullable=False, index=True, server_default=text("''"))
     race = Column(Integer, nullable=False, server_default=text("'0'"))
-    _class = Column('class', Integer, nullable=False, server_default=text("'0'"))
+    class_ = Column('class', Integer, nullable=False, server_default=text("'0'"))
     gender = Column(Integer, nullable=False, server_default=text("'0'"))
     level = Column(Integer, nullable=False, server_default=text("'0'"))
     xp = Column(Integer, nullable=False, server_default=text("'0'"))

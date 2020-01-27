@@ -5,6 +5,7 @@ import socket
 from struct import pack
 from time import sleep
 
+from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from database.realm.RealmDatabaseManager import *

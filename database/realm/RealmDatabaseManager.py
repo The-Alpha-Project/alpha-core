@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 
 from database.realm.RealmModels import *
@@ -33,3 +33,24 @@ class RealmDatabaseManager(object):
             else:
                 return 0, None
         return -1, None
+
+    @staticmethod
+    def account_get_characters(account_id):
+        characters = realm_session.query(Character).filter_by(account=account_id).all()
+        return characters if characters else []
+
+    # Character stuff
+
+    @staticmethod
+    def character_get_next_available_guid():
+        max_id = realm_session.query(func.max(Character.guid)).scalar()
+        return max_id + 1 if max_id else 1
+
+    @staticmethod
+    def character_does_name_exist(name_to_check):
+        name = realm_session.query(Character.name).filter_by(name=name_to_check).first()
+        return name is not None
+
+    @staticmethod
+    def character_create(character):
+        realm_session.add(character)
