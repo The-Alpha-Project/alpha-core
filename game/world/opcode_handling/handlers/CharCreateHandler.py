@@ -15,8 +15,6 @@ class CharCreateHandler(object):
         race, class_, gender, skin, face, hairstyle, haircolor, facialhair, unk = unpack(
             '<BBBBBBBBB', packet[len(name)+1:]
         )
-        fmt = PacketWriter.get_packet_header_format(OpCode.SMSG_CHAR_CREATE) + 'B'
-        header = PacketWriter.get_packet_header(OpCode.SMSG_CHAR_CREATE, fmt)
 
         result = CharCreate.CHAR_CREATE_SUCCESS.value
         if RealmDatabaseManager.character_does_name_exist(name):
@@ -37,11 +35,7 @@ class CharCreateHandler(object):
                                   level=1)
             RealmDatabaseManager.character_create(character)
 
-        packet = pack(
-            fmt,
-            header[0], header[1], header[2], header[3], header[4], header[5],
-            result
-        )
-        socket.sendall(packet)
+        data = pack('!B', result)
+        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHAR_CREATE, data))
 
         return 0

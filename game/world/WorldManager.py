@@ -31,15 +31,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def auth_challenge(sck):
-        fmt = PacketWriter.get_packet_header_format(OpCode.SMSG_AUTH_CHALLENGE) + 'B' * 6
-        header = PacketWriter.get_packet_header(OpCode.SMSG_AUTH_CHALLENGE, fmt)
-        packet = pack(
-            fmt,
-            header[0], header[1], header[2], header[3],
-            0, 0, 0, 0, 0, 0
-        )
-
-        sck.sendall(packet)
+        data = pack('6B', 0, 0, 0, 0, 0, 0)
+        sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))
 
     @staticmethod
     def receive(self, sck):

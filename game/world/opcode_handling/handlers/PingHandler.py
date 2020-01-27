@@ -10,13 +10,8 @@ class PingHandler(object):
         ping_data = unpack(
             '<I', packet
         )
-        fmt = PacketWriter.get_packet_header_format(OpCode.SMSG_PONG) + 'L'
-        header = PacketWriter.get_packet_header(OpCode.SMSG_PONG, fmt)
-        packet = pack(
-            fmt,
-            header[0], header[1], header[2], header[3], header[4], header[5],
-            ping_data[0]
-        )
-        socket.sendall(packet)
+
+        data = pack('!L', ping_data[0])
+        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_PONG, data))
 
         return 0
