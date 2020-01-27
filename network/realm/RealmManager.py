@@ -1,5 +1,6 @@
 import socketserver
 import threading
+import socket
 
 from struct import pack
 
@@ -14,10 +15,14 @@ class ThreadedLoginServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 class LoginServerSessionHandler(socketserver.BaseRequestHandler):
     def handle(self):
-        self.serve_realm(self.request)
+        try:
+            self.serve_realm(self.request)
+        finally:
+            self.request.shutdown(socket.SHUT_RDWR)
+            self.request.close()
 
     @staticmethod
-    def serve_realm(socket):
+    def serve_realm(sck):
         name_bytes = PacketWriter.string_to_bytes(config.Server.Connection.RealmServer.realm_name)
         address_bytes = PacketWriter.string_to_bytes(('%s:%s' % (config.Server.Connection.RealmProxy.host,
                                                                  config.Server.Connection.RealmProxy.port)))
@@ -29,9 +34,8 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
             0
         )
 
-        Logger.debug('Sending realmlist to %s...' % socket.getpeername()[0])
-        socket.sendall(packet)
-        socket.close()
+        Logger.debug('Sending realmlist to %s...' % sck.getpeername()[0])
+        sck.sendall(packet)
 
     @staticmethod
     def start():
@@ -50,10 +54,14 @@ class ThreadedProxyServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
     def handle(self):
-        self.redirect_to_world(self.request)
+        try:
+            self.redirect_to_world(self.request)
+        finally:
+            self.request.shutdown(socket.SHUT_RDWR)
+            self.request.close()
 
     @staticmethod
-    def redirect_to_world(socket):
+    def redirect_to_world(sck):
         world_bytes = PacketWriter.string_to_bytes(('%s:%s' % (config.Server.Connection.WorldServer.host,
                                                                config.Server.Connection.WorldServer.port)))
         packet = pack(
@@ -61,9 +69,8 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
             world_bytes
         )
 
-        Logger.debug('Redirecting %s to world server...' % socket.getpeername()[0])
-        socket.sendall(packet)
-        socket.close()
+        Logger.debug('Redirecting %s to world server...' % sck.getpeername()[0])
+        sck.sendall(packet)
 
     @staticmethod
     def start():

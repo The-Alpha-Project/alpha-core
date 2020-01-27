@@ -1,5 +1,6 @@
 import socketserver
 import threading
+import socket
 
 from struct import pack
 from time import sleep
@@ -22,12 +23,16 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         self.account = None
 
     def handle(self):
-        self.auth_challenge(self.request)
-        while self.receive(self, self.request) != -1:
-            sleep(0.001)
+        try:
+            self.auth_challenge(self.request)
+            while self.receive(self, self.request) != -1:
+                sleep(0.001)
+        finally:
+            self.request.shutdown(socket.SHUT_RDWR)
+            self.request.close()
 
     @staticmethod
-    def auth_challenge(socket):
+    def auth_challenge(sck):
         fmt = PacketWriter.get_packet_header_format(OpCode.SMSG_AUTH_CHALLENGE) + 'B' * 6
         header = PacketWriter.get_packet_header(OpCode.SMSG_AUTH_CHALLENGE, fmt)
         packet = pack(
@@ -36,18 +41,18 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             0, 0, 0, 0, 0, 0
         )
 
-        socket.sendall(packet)
+        sck.sendall(packet)
 
     @staticmethod
-    def receive(self, socket):
+    def receive(self, sck):
         try:
-            data = socket.recv(8192)
+            data = sck.recv(8192)
             reader = PacketReader(data)
             if reader.opcode:
                 handler = Definitions.get_handler_from_packet(reader.opcode)
                 if handler:
                     Logger.debug('Handling %s' % OpCode(reader.opcode))
-                    handler(self, socket, reader.data)
+                    handler(self, sck, reader.data)
         except OSError:
             Logger.warning('Tried to interact with a closed socket.')
             return -1
