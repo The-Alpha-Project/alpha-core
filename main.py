@@ -2,8 +2,8 @@ import threading
 
 import colorama
 
-from network.realm import RealmManager
-from network.world import WorldManager
+from game.realm import RealmManager
+from game.world import WorldManager
 
 if __name__ == '__main__':
     # initialize colorama to make ansi codes work in Windows

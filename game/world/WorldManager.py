@@ -5,11 +5,8 @@ import socket
 from struct import pack
 from time import sleep
 
-from utils.ConfigManager import config
-from utils.Logger import Logger
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
-from network.world.opcode_handling.Definitions import *
 from database.realm.RealmDatabaseManager import *
 
 

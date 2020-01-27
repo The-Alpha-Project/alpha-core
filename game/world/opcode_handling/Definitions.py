@@ -1,9 +1,9 @@
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
 
-from network.world.opcode_handling.handlers.AuthSessionHandler import AuthSessionHandler
-from network.world.opcode_handling.handlers.PingHandler import PingHandler
-from network.world.opcode_handling.handlers.CharEnumHandler import CharEnumHandler
+from game.world import AuthSessionHandler
+from game.world import PingHandler
+from game.world import CharEnumHandler
 
 
 HANDLER_DEFINITIONS = {
