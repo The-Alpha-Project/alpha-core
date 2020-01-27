@@ -52,7 +52,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                 handler = Definitions.get_handler_from_packet(reader.opcode)
                 if handler:
                     Logger.debug('Handling %s' % OpCode(reader.opcode))
-                    handler(self, sck, reader.data)
+                    if handler(self, sck, reader.data) != 0:
+                        return -1
         except OSError:
             Logger.warning('Tried to interact with a closed socket.')
             return -1

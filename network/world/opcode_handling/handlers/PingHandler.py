@@ -18,3 +18,5 @@ class PingHandler(object):
             ping_data[0]
         )
         socket.sendall(packet)
+
+        return 0

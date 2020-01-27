@@ -38,5 +38,5 @@ class AuthSessionHandler(object):
             auth_code
         )
         socket.sendall(packet)
-        import random
-        world_session.account_id = random.random()
+
+        return 0 if auth_code == AuthCode.AUTH_OK.value else -1

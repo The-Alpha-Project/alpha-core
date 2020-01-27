@@ -15,3 +15,5 @@ class CharEnumHandler(object):
             0
         )
         socket.sendall(packet)
+
+        return 0
