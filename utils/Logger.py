@@ -29,11 +29,6 @@ class Logger(object):
         print(Logger.colorize_message(DebugColorLevel.WARNING, msg))
 
     @staticmethod
-    def critical(msg):
-        Logger.LABEL = '[CRITICAL]'
-        print(Logger.colorize_message(DebugColorLevel.CRITICAL, msg))
-
-    @staticmethod
     def error(msg):
         Logger.LABEL = '[ERROR]'
         print(Logger.colorize_message(DebugColorLevel.ERROR, msg))
@@ -52,8 +47,3 @@ class Logger(object):
     def success(msg):
         Logger.LABEL = '[SUCCESS]'
         print(Logger.colorize_message(DebugColorLevel.SUCCESS, msg))
-
-    @staticmethod
-    def notify(msg):
-        Logger.LABEL = '[NOTIFICATION]'
-        print(Logger.colorize_message(DebugColorLevel.NOTIFICATION, msg))

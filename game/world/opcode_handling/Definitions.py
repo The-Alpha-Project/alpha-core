@@ -5,13 +5,17 @@ from game.world.opcode_handling.handlers.AuthSessionHandler import AuthSessionHa
 from game.world.opcode_handling.handlers.PingHandler import PingHandler
 from game.world.opcode_handling.handlers.CharEnumHandler import CharEnumHandler
 from game.world.opcode_handling.handlers.CharCreateHandler import CharCreateHandler
+from game.world.opcode_handling.handlers.CharDeleteHandler import CharDeleteHandler
+from game.world.opcode_handling.handlers.PlayerLoginHandler import PlayerLoginHandler
 
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
     OpCode.CMSG_PING: PingHandler.handle,
     OpCode.CMSG_CHAR_ENUM: CharEnumHandler.handle,
-    OpCode.CMSG_CHAR_CREATE: CharCreateHandler.handle
+    OpCode.CMSG_CHAR_CREATE: CharCreateHandler.handle,
+    OpCode.CMSG_CHAR_DELETE: CharDeleteHandler.handle,
+    OpCode.CMSG_PLAYER_LOGIN: PlayerLoginHandler.handle
 }
 
 

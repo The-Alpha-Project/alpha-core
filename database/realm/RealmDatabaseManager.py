@@ -47,6 +47,10 @@ class RealmDatabaseManager(object):
         return max_id + 1 if max_id else 1
 
     @staticmethod
+    def character_get_by_guid(guid):
+        return realm_session.query(Character).filter_by(guid=guid).first()
+
+    @staticmethod
     def character_does_name_exist(name_to_check):
         name = realm_session.query(Character.name).filter_by(name=name_to_check).first()
         return name is not None
@@ -54,3 +58,12 @@ class RealmDatabaseManager(object):
     @staticmethod
     def character_create(character):
         realm_session.add(character)
+
+    @staticmethod
+    def character_delete(guid):
+        char_to_delete = RealmDatabaseManager.character_get_by_guid(guid)
+        if char_to_delete:
+            realm_session.delete(char_to_delete)
+            return 0
+        Logger.error('Error deleting character with guid %s.' % guid)
+        return -1
