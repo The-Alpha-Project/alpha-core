@@ -27,6 +27,7 @@ Server:
     Settings:
         supported_client: 3368
         min_timeout: 0.01
+        realm_saving_interval_seconds: 60
 
     General:
         # Message of the day

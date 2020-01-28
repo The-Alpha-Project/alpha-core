@@ -11,6 +11,8 @@ realm_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % 
                                                                                  config.Database.DBNames.realm_db))
 SessionHolder = sessionmaker(bind=realm_db_engine)
 realm_session = SessionHolder()
+# To always keep in memory the db data
+realm_session.expire_on_commit = False
 
 
 class RealmDatabaseManager(object):
@@ -21,6 +23,10 @@ class RealmDatabaseManager(object):
         realm_session.add_all(realm_session.query(CharacterInventory))
         realm_session.add_all(realm_session.query(CharacterSocial))
         realm_session.add_all(realm_session.query(Ticket))
+
+    @staticmethod
+    def save():
+        realm_session.commit()
 
     # Account stuff
 
@@ -65,5 +71,4 @@ class RealmDatabaseManager(object):
         if char_to_delete:
             realm_session.delete(char_to_delete)
             return 0
-        Logger.error('Error deleting character with guid %s.' % guid)
         return -1

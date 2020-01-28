@@ -2,8 +2,12 @@ import threading
 
 import colorama
 
+from apscheduler.schedulers.background import BackgroundScheduler
+
 from game.realm import RealmManager
 from game.world import WorldManager
+from utils.ConfigManager import config
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
 
 if __name__ == '__main__':
     # initialize colorama to make ansi codes work in Windows
@@ -17,6 +21,12 @@ if __name__ == '__main__':
 
     world_thread = threading.Thread(target=WorldManager.WorldServerSessionHandler.start)
     world_thread.start()
+
+    realm_saving_scheduler = BackgroundScheduler()
+    realm_saving_scheduler._daemon = True
+    realm_saving_scheduler.add_job(RealmDatabaseManager.save, 'interval',
+                                   seconds=config.Server.Settings.realm_saving_interval_seconds)
+    realm_saving_scheduler.start()
 
 
 
