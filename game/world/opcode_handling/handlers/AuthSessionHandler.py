@@ -7,6 +7,7 @@ from network.packet.PacketReader import *
 from utils.ConfigManager import config
 from utils.constants.AuthCodes import *
 from database.realm.RealmDatabaseManager import *
+from game.realm.AccountManager import AccountManager
 
 
 class AuthSessionHandler(object):
@@ -24,7 +25,7 @@ class AuthSessionHandler(object):
         if version != config.Server.Settings.supported_client:
             auth_code = AuthCode.AUTH_VERSION_MISMATCH.value
 
-        login_res, world_session.account = RealmDatabaseManager.account_try_login(username, password)
+        login_res, world_session.account_mgr = RealmDatabaseManager.account_try_login(username, password)
         if login_res == 0:
             auth_code = AuthCode.AUTH_INCORRECT_PASSWORD.value
         elif login_res == -1:

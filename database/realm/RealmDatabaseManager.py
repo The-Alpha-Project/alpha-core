@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 from database.realm.RealmModels import *
 from utils.ConfigManager import *
+from game.realm.AccountManager import AccountManager
 
 
 realm_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (config.Database.Connection.username,
@@ -35,7 +36,7 @@ class RealmDatabaseManager(object):
         account = realm_session.query(Account).filter_by(name=username).first()
         if account:
             if account.password == password:
-                return 1, account
+                return 1, AccountManager(account)
             else:
                 return 0, None
         return -1, None

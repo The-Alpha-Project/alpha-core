@@ -9,6 +9,7 @@ from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from database.realm.RealmDatabaseManager import *
+from utils.Logger import Logger
 
 
 class ThreadedWorldServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -18,7 +19,8 @@ class ThreadedWorldServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     def __init__(self, request, client_address, server):
         super().__init__(request, client_address, server)
-        self.account = None
+        self.account_mgr = None
+        self.player_mgr = None
 
     def handle(self):
         try:
@@ -53,7 +55,9 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     def start():
         Logger.info('World server started.')
 
+        Logger.info('Loading realm tables...')
         RealmDatabaseManager.load_tables()
+        Logger.info('Realm tables loaded.')
 
         ThreadedWorldServer.allow_reuse_address = True
         with ThreadedWorldServer((config.Server.Connection.WorldServer.host, config.Server.Connection.WorldServer.port),

@@ -1,0 +1,703 @@
+from enum import Enum
+
+
+class ObjectTypes(Enum):
+    TYPE_OBJECT = 1
+    TYPE_ITEM = 2
+    TYPE_CONTAINER = 6
+    TYPE_UNIT = 8
+    TYPE_PLAYER = 16
+    TYPE_GAMEOBJECT = 32
+    TYPE_DYNAMICOBJECT = 64
+    TYPE_CORPSE = 128
+    TYPE_AIGROUP = 256
+    TYPE_AREATRIGGER = 512
+
+
+class ObjectTypeIds(Enum):
+    TYPEID_OBJECT = 0
+    TYPEID_ITEM = 1
+    TYPEID_CONTAINER = 2
+    TYPEID_UNIT = 3
+    TYPEID_PLAYER = 4
+    TYPEID_GAMEOBJECT = 5
+    TYPEID_DYNAMICOBJECT = 6
+    TYPEID_CORPSE = 7
+
+
+class UpdateTypes(Enum):
+    UPDATE_PARTIAL = 0
+    #  1 byte  - MASK
+    #  8 bytes - GUID
+    #  Goto Update Block
+    UPDATE_MOVEMENT = 1
+    #  1 byte  - MASK
+    #  8 bytes - GUID
+    #  Goto Position Update
+    UPDATE_FULL = 2
+    #  1 byte  - MASK
+    #  8 bytes - GUID
+    #  1 byte - Object Type (*)
+    #  Goto Position Update
+    #  Goto Update Block
+    UPDATE_OUT_OF_RANGE = 3
+    #  4 bytes - Count
+    #  Loop Count Times:    #  1 byte  - MASK
+    #  8 bytes - GUID
+    UPDATE_IN_RANGE = 4
+
+
+# Some might be unused on Alpha
+class HIGH_GUID(Enum):
+    HIGHGUID_ITEM = 0x40000000
+    HIGHGUID_CONTAINER = 0x40000000
+    HIGHGUID_PLAYER = 0x00000000
+    HIGHGUID_GAMEOBJECT = 0xF1100000
+    HIGHGUID_TRANSPORT = 0xF1200000
+    HIGHGUID_UNIT = 0xF1300000
+    HIGHGUID_PET = 0xF1400000
+    HIGHGUID_VEHICLE = 0xF1500000
+    HIGHGUID_DYNAMICOBJECT = 0xF1000000
+    HIGHGUID_CORPSE = 0xF1010000
+    HIGHGUID_MO_TRANSPORT = 0x1FC00000
+    HIGHGUID_GROUP = 0x1F500000
+    HIGHGUID_GUILD = 0x1FF60000
+
+
+class Factions(Enum):
+    ALLIANCE = 4
+    HORDE = 6
+
+
+class NpcFlags(Enum):
+    NPC_FLAG_NONE = 0x0
+    NPC_FLAG_GOSSIP = 0x1
+    NPC_FLAG_QUESTGIVER = 0x2
+    NPC_FLAG_VENDOR = 0x3
+    NPC_FLAG_FLIGHTMASTER = 0x4
+    NPC_FLAG_TRAINER = 0x8
+    NPC_FLAG_BINDER = 0x10  # Appears to be similar to inn keeper?
+    NPC_FLAG_BANKER = 0x20
+    NPC_FLAG_TABARDDESIGNER = 0x40
+    NPC_FLAG_PETITIONER = 0x80
+
+    NPC_FLAG_SPIRITHEALER = 0x00000020
+    NPC_FLAG_SPIRITGUIDE = 0x00000040
+    NPC_FLAG_INNKEEPER = 0x00000080
+
+
+# COMBAT INFORMATION
+class HitInfo(Enum):
+    NORMALSWING = 0x00000000
+    UNK1 = 0x00000001  # req correct packet structure
+    AFFECTS_VICTIM = 0x00000002
+    OFFHAND = 0x00000004
+    UNK2 = 0x00000008
+    MISS = 0x00000010
+    FULL_ABSORB = 0x00000020
+    PARTIAL_ABSORB = 0x00000040
+    FULL_RESIST = 0x00000080
+    PARTIAL_RESIST = 0x00000100
+    CRITICALHIT = 0x00000200  # critical hit
+    BLOCK = 0x00002000  # blocked damage
+    GLANCING = 0x00010000
+    CRUSHING = 0x00020000
+    NO_ANIMATION = 0x00040000
+    SWINGNOHITSOUND = 0x00200000  # unused?
+    RAGE_GAIN = 0x00800000
+
+
+class VictimStates(Enum):
+    VS_NONE = 0  # set when attacker misses
+    VS_WOUND = 1  # victim got clear/blocked hit
+    VS_DODGE = 2
+    VS_PARRY = 3
+    VS_INTERRUPT = 4
+    VS_BLOCK = 5  # unused? not set when blocked even on full block
+    VS_EVADE = 6
+    VS_IMMUNE = 7
+    VS_DEFLECT = 8
+
+
+class ProcFlags(Enum):
+    NONE = 0x00000000
+
+    KILLED = 0x00000001  # 00 Killed by agressor - not sure about this flag
+    KILL = 0x00000002  # 01 Kill target (in most cases need XP/Honor reward)
+
+    DONE_MELEE_AUTO_ATTACK = 0x00000004  # 02 Done melee auto attack
+    TAKEN_MELEE_AUTO_ATTACK = 0x00000008  # 03 Taken melee auto attack
+
+    DONE_SPELL_MELEE_DMG_CLASS = 0x00000010  # 04 Done attack by Spell that has dmg class melee
+    TAKEN_SPELL_MELEE_DMG_CLASS = 0x00000020  # 05 Taken attack by Spell that has dmg class melee
+
+    DONE_RANGED_AUTO_ATTACK = 0x00000040  # 06 Done ranged auto attack
+    TAKEN_RANGED_AUTO_ATTACK = 0x00000080  # 07 Taken ranged auto attack
+
+    DONE_SPELL_RANGED_DMG_CLASS = 0x00000100  # 08 Done attack by Spell that has dmg class ranged
+    TAKEN_SPELL_RANGED_DMG_CLASS = 0x00000200  # 09 Taken attack by Spell that has dmg class ranged
+
+    DONE_SPELL_NONE_DMG_CLASS_POS = 0x00000400  # 10 Done positive spell that has dmg class none
+    TAKEN_SPELL_NONE_DMG_CLASS_POS = 0x00000800  # 11 Taken positive spell that has dmg class none
+
+    DONE_SPELL_NONE_DMG_CLASS_NEG = 0x00001000  # 12 Done negative spell that has dmg class none
+    TAKEN_SPELL_NONE_DMG_CLASS_NEG = 0x00002000  # 13 Taken negative spell that has dmg class none
+
+    DONE_SPELL_MAGIC_DMG_CLASS_POS = 0x00004000  # 14 Done positive spell that has dmg class magic
+    TAKEN_SPELL_MAGIC_DMG_CLASS_POS = 0x00008000  # 15 Taken positive spell that has dmg class magic
+
+    DONE_SPELL_MAGIC_DMG_CLASS_NEG = 0x00010000  # 16 Done negative spell that has dmg class magic
+    TAKEN_SPELL_MAGIC_DMG_CLASS_NEG = 0x00020000  # 17 Taken negative spell that has dmg class magic
+
+    DONE_PERIODIC = 0x00040000  # 18 Successful do periodic (damage / healing)
+    TAKEN_PERIODIC = 0x00080000  # 19 Taken spell periodic (damage / healing)
+
+    TAKEN_DAMAGE = 0x00100000  # 20 Taken any damage
+    DONE_TRAP_ACTIVATION = 0x00200000  # 21 On trap activation (possibly needs name change to ON_GAMEOBJECT_CAST or USE)
+
+    DONE_MAINHAND_ATTACK = 0x00400000  # 22 Done main-hand melee attacks (spell and autoattack)
+    DONE_OFFHAND_ATTACK = 0x00800000  # 23 Done off-hand melee attacks (spell and autoattack)
+
+    DEATH = 0x01000000  # 24 Died in any way
+
+    # flag masks
+    AUTO_ATTACK_MASK = DONE_MELEE_AUTO_ATTACK.value | TAKEN_MELEE_AUTO_ATTACK.value | DONE_RANGED_AUTO_ATTACK.value | TAKEN_RANGED_AUTO_ATTACK.value
+
+    MELEE_MASK = DONE_MELEE_AUTO_ATTACK.value | TAKEN_MELEE_AUTO_ATTACK.value | DONE_SPELL_MELEE_DMG_CLASS.value | TAKEN_SPELL_MELEE_DMG_CLASS.value | DONE_MAINHAND_ATTACK.value | DONE_OFFHAND_ATTACK.value
+
+    RANGED_MASK = DONE_RANGED_AUTO_ATTACK.value | TAKEN_RANGED_AUTO_ATTACK.value | DONE_SPELL_RANGED_DMG_CLASS.value | TAKEN_SPELL_RANGED_DMG_CLASS.value
+
+    SPELL_MASK = DONE_SPELL_MELEE_DMG_CLASS.value | TAKEN_SPELL_MELEE_DMG_CLASS.value | DONE_SPELL_RANGED_DMG_CLASS.value | TAKEN_SPELL_RANGED_DMG_CLASS.value | DONE_SPELL_NONE_DMG_CLASS_POS.value | TAKEN_SPELL_NONE_DMG_CLASS_POS.value | DONE_SPELL_NONE_DMG_CLASS_NEG.value | TAKEN_SPELL_NONE_DMG_CLASS_NEG.value | DONE_SPELL_MAGIC_DMG_CLASS_POS.value | TAKEN_SPELL_MAGIC_DMG_CLASS_POS.value | DONE_SPELL_MAGIC_DMG_CLASS_NEG.value | TAKEN_SPELL_MAGIC_DMG_CLASS_NEG.value
+
+    SPELL_CAST_MASK = SPELL_MASK.value | DONE_TRAP_ACTIVATION.value | RANGED_MASK.value
+
+    PERIODIC_MASK = DONE_PERIODIC.value | TAKEN_PERIODIC.value
+
+    DONE_HIT_MASK = DONE_MELEE_AUTO_ATTACK.value | DONE_RANGED_AUTO_ATTACK.value | DONE_SPELL_MELEE_DMG_CLASS.value | DONE_SPELL_RANGED_DMG_CLASS.value | DONE_SPELL_NONE_DMG_CLASS_POS.value | DONE_SPELL_NONE_DMG_CLASS_NEG.value | DONE_SPELL_MAGIC_DMG_CLASS_POS.value | DONE_SPELL_MAGIC_DMG_CLASS_NEG.value | DONE_PERIODIC.value | DONE_MAINHAND_ATTACK.value | DONE_OFFHAND_ATTACK.value
+
+    TAKEN_HIT_MASK = TAKEN_MELEE_AUTO_ATTACK.value | TAKEN_RANGED_AUTO_ATTACK.value | TAKEN_SPELL_MELEE_DMG_CLASS.value | TAKEN_SPELL_RANGED_DMG_CLASS.value | TAKEN_SPELL_NONE_DMG_CLASS_POS.value | TAKEN_SPELL_NONE_DMG_CLASS_NEG.value | TAKEN_SPELL_MAGIC_DMG_CLASS_POS.value | TAKEN_SPELL_MAGIC_DMG_CLASS_NEG.value | TAKEN_PERIODIC.value | TAKEN_DAMAGE.value
+
+    REQ_SPELL_PHASE_MASK = SPELL_MASK.value & DONE_HIT_MASK.value
+
+
+class ProcFlagsExLegacy(Enum):
+    NONE = 0x0000000  # If none can tigger on Hit/Crit only (passive spells MUST defined by SpellFamily flag)
+    NORMAL_HIT = 0x0000001  # If set only from normal hit (only damage spells)
+    CRITICAL_HIT = 0x0000002
+    MISS = 0x0000004
+    RESIST = 0x0000008
+    DODGE = 0x0000010
+    PARRY = 0x0000020
+    BLOCK = 0x0000040
+    EVADE = 0x0000080
+    IMMUNE = 0x0000100
+    DEFLECT = 0x0000200
+    ABSORB = 0x0000400
+    REFLECT = 0x0000800
+    INTERRUPT = 0x0001000  # Melee hit result can be Interrupt (not used)
+    FULL_BLOCK = 0x0002000  # block al attack damage
+    RESERVED2 = 0x0004000
+    NOT_ACTIVE_SPELL = 0x0008000  # Spell mustn't do damage/heal to proc
+    EX_TRIGGER_ALWAYS = 0x0010000  # If set trigger always no matter of hit result
+    EX_ONE_TIME_TRIGGER = 0x0020000  # If set trigger always but only one time (not implemented yet)
+    ONLY_ACTIVE_SPELL = 0x0040000  # Spell has to do damage/heal to proc
+
+    # Flags for internal use - do not use these in db!
+    INTERNAL_CANT_PROC = 0x0800000
+    INTERNAL_DOT = 0x1000000
+    INTERNAL_HOT = 0x2000000
+    INTERNAL_TRIGGERED = 0x4000000
+    INTERNAL_REQ_FAMILY = 0x8000000
+
+
+class AttackTypes(Enum):
+    BASE_ATTACK = 0
+    OFFHAND_ATTACK = 1
+
+
+class TradeSkillCategories(Enum):
+    TRADESKILL_OPTIMAL = 0x0
+    TRADESKILL_MEDIUM = 0x1
+    TRADESKILL_EASY = 0x2
+    TRADESKILL_TRIVIAL = 0x3
+    NUM_TRADESKILL_CATEGORIES = 0x4
+
+
+class TradeStatuses(Enum):
+    TRADE_STATUS_PLAYER_BUSY = 0x0
+    TRADE_STATUS_PROPOSED = 0x1
+    TRADE_STATUS_INITIATED = 0x2
+    TRADE_STATUS_CANCELLED = 0x3
+    TRADE_STATUS_ACCEPTED = 0x4
+    TRADE_STATUS_ALREADY_TRADING = 0x5
+    TRADE_STATUS_PLAYER_NOT_FOUND = 0x6
+    TRADE_STATUS_STATE_CHANGED = 0x7
+    TRADE_STATUS_COMPLETE = 0x8
+    TRADE_STATUS_UNACCEPTED = 0x9
+    TRADE_STATUS_TOO_FAR_AWAY = 0xA
+    TRADE_STATUS_WRONG_FACTION = 0xB
+    TRADE_STATUS_FAILED = 0xC
+    TRADE_STATUS_DEAD = 0xD
+    TRADE_STATUS_PETITION = 0xE
+    TRADE_STATUS_PLAYER_IGNORED = 0xF
+
+
+class CraftLevelCategories(Enum):
+    CRAFT_NONE = 0x0
+    CRAFT_OPTIMAL = 0x1
+    CRAFT_MEDIUM = 0x2
+    CRAFT_EASY = 0x3
+    CRAFT_TRIVIAL = 0x4
+    NUM_CRAFT_CATEGORIES = 0x5
+
+
+class TrainerServices(Enum):
+    TRAINER_SERVICE_AVAILABLE = 0x0
+    TRAINER_SERVICE_UNAVAILABLE = 0x1
+    TRAINER_SERVICE_USED = 0x2
+    TRAINER_SERVICE_NOT_SHOWN = 0x3
+    TRAINER_SERVICE_NEVER = 0x4
+    TRAINER_SERVICE_NO_PET = 0x5
+    NUM_TRAINER_SERVICE_TYPES = 0x6
+
+
+class TrainerTypes(Enum):
+    TRAINER_TYPE_GENERAL = 0x0
+    TRAINER_TYPE_TALENTS = 0x1
+    TRAINER_TYPE_TRADESKILLS = 0x2
+    TRAINER_TYPE_PET = 0x3
+
+
+class UnitDynamicTypes(Enum):
+    UNIT_DYNAMIC_NONE = 0x0000
+    UNIT_DYNAMIC_LOOTABLE = 0x0001
+    UNIT_DYNAMIC_TRACK_UNIT = 0x0002
+    UNIT_DYNAMIC_TAPPED = 0x0004  # Lua_UnitIsTapped - Indicates the target as grey for the client.
+    UNIT_DYNAMIC_ROOTED = 0x0008
+    UNIT_DYNAMIC_SPECIALINFO = 0x0010
+    UNIT_DYNAMIC_DEAD = 0x0020
+
+
+class LootTypes(Enum):
+    LOOT_TYPE_NOTALLOWED = 0
+    LOOT_TYPE_CORPSE = 1
+    LOOT_TYPE_SKINNING = 2
+    LOOT_TYPE_FISHING = 3
+
+
+class QuestStatuses(Enum):
+    QUEST_STATUS_NONE = 0
+    QUEST_STATUS_COMPLETE = 1
+    QUEST_STATUS_UNAVAILABLE = 2
+    QUEST_STATUS_INCOMPLETE = 3
+    QUEST_STATUS_AVAILABLE = 4
+    QUEST_STATUS_FAILED = 5
+    MAX_QUEST_STATUS = 6
+
+
+class QuestFailedReasons(Enum):
+    INVALIDREASON_DONT_HAVE_REQ = 0
+    INVALIDREASON_QUEST_FAILED_LOW_LEVEL = 1  # You are not high enough level for that quest.
+    INVALIDREASON_QUEST_FAILED_WRONG_RACE = 6  # That quest is not available to your race.
+    INVALIDREASON_QUEST_ONLY_ONE_TIMED = 12  # You can only be on one timed quest at a time.
+    INVALIDREASON_QUEST_ALREADY_ON = 13  # You are already on that quest
+    INVALIDREASON_QUEST_FAILED_MISSING_ITEMS = 21  # You don't have the required items with you. Check storage.
+    INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY = 23  # You don't have enough money for that quest.
+
+
+class QuestGiverStatuses(Enum):
+    QUEST_GIVER_NONE = 0x0
+    QUEST_GIVER_TRIVIAL = 0x1
+    QUEST_GIVER_FUTURE = 0x2
+    QUEST_GIVER_REWARD = 0x3
+    QUEST_GIVER_QUEST = 0x4
+    QUEST_GIVER_NUMITEMS = 0x5
+
+
+class SkillTypes(Enum):
+    MAX_SKILL = 1  # These are always max when added i.e. language/riding
+    WEAPON_SKILL = 2
+    CLASS_SKILL = 3
+    SECONDARY_SKILL = 4
+
+
+class GameObjectTypes(Enum):
+    TYPE_DOOR = 0x0
+    TYPE_BUTTON = 0x1
+    TYPE_QUESTGIVER = 0x2
+    TYPE_CHEST = 0x3
+    TYPE_BINDER = 0x4
+    TYPE_GENERIC = 0x5
+    TYPE_TRAP = 0x6
+    TYPE_CHAIR = 0x7
+    TYPE_SPELL_FOCUS = 0x8
+    TYPE_TEXT = 0x9
+    TYPE_GOOBER = 0xA
+    TYPE_TRANSPORT = 0xB
+    TYPE_AREADAMAGE = 0xC
+    TYPE_CAMERA = 0xD
+    TYPE_MAP_OBJECT = 0xE
+    TYPE_MO_TRANSPORT = 0xF
+    TYPE_DUEL_ARBITER = 0x10
+    TYPE_FISHINGNODE = 0x11
+    TYPE_RITUAL = 0x12
+    NUM_GAMEOBJECT_TYPE = 0x13
+
+
+class GameObjectStates(Enum):
+    GO_STATE_ACTIVE = 0  # show in world as used and not reset (closed door open)
+    GO_STATE_READY = 1  # show in world as ready (closed door close)
+    GO_STATE_ACTIVE_ALTERNATIVE = 2  # show in world as used in alt way and not reset (closed door open by cannon fire)
+
+
+class Emotes(Enum):
+    NONE = 0
+    AGREE = 1
+    AMAZE = 2
+    ANGRY = 3
+    APOLOGIZE = 4
+    APPLAUD = 5
+    BASHFUL = 6
+    BECKON = 7
+    BEG = 8
+    BITE = 9
+    BLEED = 10
+    BLINK = 11
+    BLUSH = 12
+    BONK = 13
+    BORED = 14
+    BOUNCE = 15
+    BRB = 16
+    BOW = 17
+    BURP = 18
+    BYE = 19
+    CACKLE = 20
+    CHEER = 21
+    CHICKEN = 22
+    CHUCKLE = 23
+    CLAP = 24
+    CONFUSED = 25
+    CONGRATULATE = 26
+    COUGH = 27
+    COWER = 28
+    CRACK = 29
+    CRINGE = 30
+    CRY = 31
+    CURIOUS = 32
+    CURTSEY = 33
+    DANCE = 34
+    DRINK = 35
+    DROOL = 36
+    EAT = 37
+    EYE = 38
+    FART = 39
+    FIDGET = 40
+    FLEX = 41
+    FROWN = 42
+    GASP = 43
+    GAZE = 44
+    GIGGLE = 45
+    GLARE = 46
+    GLOAT = 47
+    GREET = 48
+    GRIN = 49
+    GROAN = 50
+    GROVEL = 51
+    GUFFAW = 52
+    HAIL = 53
+    HAPPY = 54
+    HELLO = 55
+    HUG = 56
+    HUNGRY = 57
+    KISS = 58
+    KNEEL = 59
+    LAUGH = 60
+    LAYDOWN = 61
+    MASSAGE = 62
+    MOAN = 63
+    MOON = 64
+    MOURN = 65
+    NO = 66
+    NOD = 67
+    NOSEPICK = 68
+    PANIC = 69
+    PEER = 70
+    PLEAD = 71
+    POINT = 72
+    POKE = 73
+    PRAY = 74
+    ROAR = 75
+    ROFL = 76
+    RUDE = 77
+    SALUTE = 78
+    SCRATCH = 79
+    SEXY = 80
+    SHAKE = 81
+    SHOUT = 82
+    SHRUG = 83
+    SHY = 84
+    SIGH = 85
+    SIT = 86
+    SLEEP = 87
+    SNARL = 88
+    SPIT = 89
+    STARE = 90
+    SURPRISED = 91
+    SURRENDER = 92
+    TALK = 93
+    TALKEX = 94
+    TALKQ = 95
+    TAP = 96
+    THANK = 97
+    THREATEN = 98
+    TIRED = 99
+    VICTORY = 100
+    WAVE = 101
+    WELCOME = 102
+    WHINE = 103
+    WHISTLE = 104
+    WORK = 105
+    YAWN = 106
+    BOGGLE = 107
+    CALM = 108
+    COLD = 109
+    COMFORT = 110
+    CUDDLE = 111
+    DUCK = 112
+    INSULT = 113
+    INTRODUCE = 114
+    JK = 115
+    LICK = 116
+    LISTEN = 117
+    LOST = 118
+    MOCK = 119
+    PONDER = 120
+    POUNCE = 121
+    PRAISE = 122
+    PURR = 123
+    PUZZLE = 124
+    RAISE = 125
+    READY = 126
+    SHIMMY = 127
+    SHIVER = 128
+    SHOO = 129
+    SLAP = 130
+    SMIRK = 131
+    SNIFF = 132
+    SNUB = 133
+    SOOTHE = 134
+    STINK = 135
+    TAUNT = 136
+    TEASE = 137
+    THIRSTY = 138
+    VETO = 139
+    SNICKER = 140
+    STAND = 141
+    TICKLE = 142
+    VIOLIN = 143
+    SMILE = 163
+
+
+class ChatMsgs(Enum):
+    CHAT_MSG_SAY = 0x00
+    CHAT_MSG_PARTY = 0x01
+    CHAT_MSG_GUILD = 0x02
+    CHAT_MSG_OFFICER = 0x03
+    CHAT_MSG_YELL = 0x04
+    CHAT_MSG_WHISPER = 0x05
+    CHAT_MSG_WHISPER_INFORM = 0x06
+    CHAT_MSG_EMOTE = 0x07
+    CHAT_MSG_TEXT_EMOTE = 0x08
+    CHAT_MSG_SYSTEM = 0x09
+    CHAT_MSG_MONSTER_SAY = 0x0A
+    CHAT_MSG_MONSTER_YELL = 0x0B
+    CHAT_MSG_MONSTER_EMOTE = 0x0C
+    CHAT_MSG_CHANNEL = 0x0D
+    CHAT_MSG_CHANNEL_JOIN = 0x0E
+    CHAT_MSG_CHANNEL_LEAVE = 0xF
+    CHAT_MSG_CHANNEL_LIST = 0x10
+    CHAT_MSG_CHANNEL_NOTICE = 0x11
+    CHAT_MSG_CHANNEL_NOTICE_USER = 0x12
+    CHAT_MSG_AFK = 0x13
+    CHAT_MSG_DND = 0x14
+    CHAT_MSG_IGNORED = 0x16
+    CHAT_MSG_SKILL = 0x17
+    CHAT_MSG_LOOT = 0x18
+
+
+class ChatFlags(Enum):
+    CHAT_TAG_NONE = 0
+    CHAT_TAG_AFK = 1
+    CHAT_TAG_DND = 2
+    CHAT_TAG_GM = 3
+
+
+class MoveFlags(Enum):
+    MOVEFLAG_FORWARD = 0x1
+    MOVEFLAG_BACKWARD = 0x2
+    MOVEFLAG_STRAFE_LEFT = 0x4
+    MOVEFLAG_STRAFE_RIGHT = 0x8
+    MOVEFLAG_LEFT = 0x10
+    MOVEFLAG_RIGHT = 0x20
+    MOVEFLAG_PITCH_UP = 0x40
+    MOVEFLAG_PITCH_DOWN = 0x80
+    MOVEFLAG_WALK = 0x100
+    MOVEFLAG_TIME_VALID = 0x200
+    MOVEFLAG_IMMOBILIZED = 0x400
+    MOVEFLAG_DONTCOLLIDE = 0x800
+    MOVEFLAG_REDIRECTED = 0x1000
+    MOVEFLAG_ROOTED = 0x2000
+    MOVEFLAG_FALLING = 0x4000
+    MOVEFLAG_FALLEN_FAR = 0x8000
+    MOVEFLAG_PENDING_STOP = 0x10000
+    MOVEFLAG_PENDING_UNSTRAFE = 0x20000
+    MOVEFLAG_PENDING_FALL = 0x40000
+    MOVEFLAG_PENDING_FORWARD = 0x80000
+    MOVEFLAG_PENDING_BACKWARD = 0x100000
+    MOVEFLAG_PENDING_STR_LEFT = 0x200000
+    MOVEFLAG_PENDING_STR_RGHT = 0x400000
+    MOVEFLAG_PEND_MOVE_MASK = 0x180000
+    MOVEFLAG_PEND_STRAFE_MASK = 0x600000
+    MOVEFLAG_PENDING_MASK = 0x7F0000
+    MOVEFLAG_MOVED = 0x800000
+    MOVEFLAG_SLIDING = 0x1000000
+    MOVEFLAG_SWIMMING = 0x2000000
+    MOVEFLAG_SPLINE_MOVER = 0x4000000
+    MOVEFLAG_SPEED_DIRTY = 0x8000000
+    MOVEFLAG_HALTED = 0x10000000
+    MOVEFLAG_NUDGE = 0x20000000
+    MOVEFLAG_FALL_MASK = 0x100C000
+    MOVEFLAG_LOCAL = 0x500F400
+    MOVEFLAG_MOVE_MASK = 0x3
+    MOVEFLAG_TURN_MASK = 0x30
+    MOVEFLAG_PITCH_MASK = 0xC0
+    MOVEFLAG_STRAFE_MASK = 0xC
+    MOVEFLAG_MOTION_MASK = 0xFF
+    MOVEFLAG_STOPPED_MASK = 0x3100F
+
+
+class BuyResults(Enum):
+    BUY_ERR_CANT_FIND_ITEM = 0
+    BUY_ERR_ITEM_ALREADY_SOLD = 1
+    BUY_ERR_NOT_ENOUGHT_MONEY = 2
+    BUY_ERR_SELLER_DONT_LIKE_YOU = 4
+    BUY_ERR_DISTANCE_TOO_FAR = 5
+    BUY_ERR_ITEM_SOLD_OUT = 7
+    BUY_ERR_CANT_CARRY_MORE = 8
+    BUY_ERR_RANK_REQUIRE = 11
+    BUY_ERR_REPUTATION_REQUIRE = 12
+
+
+class SellResults(Enum):
+    SELL_OK = 0
+    SELL_ERR_CANT_FIND_ITEM = 1
+    SELL_ERR_CANT_SELL_ITEM = 2  # merchant doesn't like that item
+    SELL_ERR_CANT_FIND_VENDOR = 3  # merchant doesn't like you
+    SELL_ERR_YOU_DONT_OWN_THAT_ITEM = 4  # you don't own that item
+    SELL_ERR_UNK = 5  # nothing appears...
+    SELL_ERR_ONLY_EMPTY_BAG = 6  # can only do with empty bags
+
+
+class ItemBondingTypes(Enum):
+    NO_BIND = 0
+    BIND_WHEN_PICKED_UP = 1
+    BIND_WHEN_EQUIPPED = 2
+    BIND_WHEN_USE = 3
+    BIND_QUEST_ITEM = 4
+
+
+class PartyOperations(Enum):
+    PARTY_OP_INVITE = 0
+    PARTY_OP_LEAVE = 2
+
+
+class PartyResults(Enum):
+    ERR_PARTY_RESULT_OK = 0
+    ERR_BAD_PLAYER_NAME_S = 1
+    ERR_TARGET_NOT_IN_GROUP_S = 2
+    ERR_TARGET_NOT_IN_INSTANCE_S = 3
+    ERR_GROUP_FULL = 4
+    ERR_ALREADY_IN_GROUP_S = 5
+    ERR_NOT_IN_GROUP = 6
+    ERR_NOT_LEADER = 7
+    ERR_PLAYER_WRONG_FACTION = 8
+    ERR_IGNORING_YOU_S = 9
+    ERR_INVITE_RESTRICTED = 13
+
+
+class LootMethods(Enum):
+    LOOT_METHOD_FREEFORALL = 0x0
+    LOOT_METHOD_ROUNDROBIN = 0x1
+    LOOT_METHOD_MASTERLOOTER = 0x2
+    LOOT_METHOD_MAX = 0x3
+
+
+class ActionButtonTypes(Enum):
+    ACTION_BUTTON_SPELL = 0x00
+    ACTION_BUTTON_ITEM = 0xFF
+
+
+class PlayerFlags(Enum):
+    PLAYER_FLAGS_NONE = 0x0
+    PLAYER_FLAGS_GROUP_LEADER = 0x1
+    PLAYER_FLAGS_AFK = 0x4
+    PLAYER_FLAGS_DND = 0x8
+    PLAYER_FLAGS_GM = 0x10
+
+
+class BankSlots(Enum):
+    BANK_SLOT_ITEM_START = 39
+    BANK_SLOT_ITEM_END = 63
+    BANK_SLOT_BAG_START = 63
+    BANK_SLOT_BAG_END = 69
+
+
+class BankSlotErrors(Enum):
+    BANKSLOT_ERROR_FAILED_TOO_MANY = 0
+    BANKSLOT_ERROR_INSUFFICIENT_FUNDS = 1
+    BANKSLOT_ERROR_NOTBANKER = 2
+    BANKSLOT_ERROR_OK = 3
+
+
+class FriendResults(Enum):
+    FRIEND_DB_ERROR = 0x0
+    FRIEND_LIST_FULL = 0x1
+    FRIEND_ONLINE = 0x2
+    FRIEND_OFFLINE = 0x3
+    FRIEND_NOT_FOUND = 0x4
+    FRIEND_REMOVED = 0x5
+    FRIEND_ADDED_ONLINE = 0x6
+    FRIEND_ADDED_OFFLINE = 0x7
+    FRIEND_ALREADY = 0x8
+    FRIEND_SELF = 0x9
+    FRIEND_ENEMY = 0xA
+    FRIEND_IGNORE_FULL = 0xB
+    FRIEND_IGNORE_SELF = 0xC
+    FRIEND_IGNORE_NOT_FOUND = 0xD
+    FRIEND_IGNORE_ALREADY = 0xE
+    FRIEND_IGNORE_ADDED = 0xF
+    FRIEND_IGNORE_REMOVED = 0x10
+
+
+class FriendStatuses(Enum):
+    FRIEND_STATUS_OFFLINE = 0
+    FRIEND_STATUS_ONLINE = 1
+    FRIEND_STATUS_AFK = 2
+    FRIEND_STATUS_UNK3 = 3
+    FRIEND_STATUS_DND = 4
+
+
+class WhoPartyStatuses(Enum):
+    WHO_PARTY_STATUS_NOT_IN_PARTY = 0x0
+    WHO_PARTY_STATUS_IN_PARTY = 0x1
+    WHO_PARTY_STATUS_LFG = 0x2
+
+
+class WhoSortTypes(Enum):
+    WHO_SORT_ZONE = 0x0
+    WHO_SORT_LEVEL = 0x1
+    WHO_SORT_CLASS = 0x2
+    WHO_SORT_GROUP = 0x3
+    WHO_SORT_NAME = 0x4
+    WHO_SORT_RACE = 0x5
+    WHO_SORT_GUILD = 0x6

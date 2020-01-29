@@ -1,0 +1,2 @@
+class ObjectManager(object):
+    pass

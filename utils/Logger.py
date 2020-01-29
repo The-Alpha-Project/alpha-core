@@ -1,6 +1,8 @@
 from colorama import Fore, Style
 from enum import Enum
 
+from utils.ConfigManager import config
+
 
 class DebugColorLevel(Enum):
     INFO = Fore.BLUE + Style.BRIGHT
@@ -8,7 +10,6 @@ class DebugColorLevel(Enum):
     ERROR = Fore.RED + Style.BRIGHT
     SUCCESS = Fore.GREEN + Style.BRIGHT
     DEBUG = Fore.CYAN + Style.BRIGHT
-    TEST = Fore.MAGENTA + Style.BRIGHT
 
 
 class Logger(object):
@@ -20,8 +21,9 @@ class Logger(object):
 
     @staticmethod
     def debug(msg):
-        Logger.LABEL = '[DEBUG]'
-        print(Logger.colorize_message(DebugColorLevel.DEBUG, msg))
+        if config.Server.Settings.debug:
+            Logger.LABEL = '[DEBUG]'
+            print(Logger.colorize_message(DebugColorLevel.DEBUG, msg))
 
     @staticmethod
     def warning(msg):
@@ -37,11 +39,6 @@ class Logger(object):
     def info(msg):
         Logger.LABEL = '[INFO]'
         print(Logger.colorize_message(DebugColorLevel.INFO, msg))
-
-    @staticmethod
-    def test(msg):
-        Logger.LABEL = '[TEST]'
-        print(Logger.colorize_message(DebugColorLevel.TEST, msg))
 
     @staticmethod
     def success(msg):

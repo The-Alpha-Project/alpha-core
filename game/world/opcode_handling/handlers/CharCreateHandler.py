@@ -22,7 +22,7 @@ class CharCreateHandler(object):
 
         if result == CharCreate.CHAR_CREATE_SUCCESS.value:
             character = Character(guid=RealmDatabaseManager.character_get_next_available_guid(),
-                                  account=world_session.account.id,
+                                  account=world_session.account_mgr.account.id,
                                   name=name,
                                   race=race,
                                   class_=class_,
