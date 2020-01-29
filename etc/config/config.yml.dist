@@ -36,6 +36,7 @@ Server:
 
 World:
     Gameplay:
+        game_speed: 0.01666667
         update_dist: 200
 
     Chat:
@@ -48,6 +49,7 @@ Unit:
         base_min_damage: 1.0
         base_max_damage: 2.0
         base_attack_time: 2000
+        offhand_attack_time: 1000
         bounding_radius: 0.388999998569489
         combat_reach: 1.5
 

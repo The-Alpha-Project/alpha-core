@@ -2,6 +2,7 @@ from struct import pack, unpack
 
 from network.packet.PacketWriter import *
 from database.realm.RealmDatabaseManager import *
+from utils.Logger import Logger
 from utils.constants.CharCodes import *
 
 

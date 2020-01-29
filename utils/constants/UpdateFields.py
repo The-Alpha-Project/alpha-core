@@ -2,11 +2,11 @@ from enum import Enum
 
 
 class ObjectFields(Enum):
-    OBJECT_FIELD_GUID = 0x0 // 0
-    OBJECT_FIELD_TYPE = 0x2 // 2
-    OBJECT_FIELD_ENTRY = 0x3 // 3
-    OBJECT_FIELD_SCALE_X = 0x4 // 4
-    OBJECT_FIELD_PADDING = 0x5 // 5
+    OBJECT_FIELD_GUID = 0x0 # 0
+    OBJECT_FIELD_TYPE = 0x2 # 2
+    OBJECT_FIELD_ENTRY = 0x3 # 3
+    OBJECT_FIELD_SCALE_X = 0x4 # 4
+    OBJECT_FIELD_PADDING = 0x5 # 5
     OBJECT_END = 0x6
 
 
