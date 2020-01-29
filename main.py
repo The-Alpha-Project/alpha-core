@@ -8,6 +8,7 @@ from game.realm import RealmManager
 from game.world import WorldManager
 from utils.ConfigManager import config
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from utils.Logger import Logger
 
 if __name__ == '__main__':
     # initialize colorama to make ansi codes work in Windows
@@ -27,6 +28,3 @@ if __name__ == '__main__':
     realm_saving_scheduler.add_job(RealmDatabaseManager.save, 'interval',
                                    seconds=config.Server.Settings.realm_saving_interval_seconds)
     realm_saving_scheduler.start()
-
-
-
