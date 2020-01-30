@@ -46,7 +46,7 @@ class PlayerManager(UnitManager):
         return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('!8I', 0, 0, 0, 0, 0, 0, 0, 0))
 
     def get_initial_spells(self):
-        return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, pack('!BHHHH', 0, 0, 133, 1, 0))  # TODO Test with spell 133
+        return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, pack('!BHHHH', 0, 1, 133, 1, 0))  # TODO Test with spell 133
 
     def get_query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.player.name)
