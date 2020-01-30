@@ -36,7 +36,8 @@ class PlayerManager(UnitManager):
 
         self.guid = player.guid
         self.display_id = 278  # temp
-        self.object_type = ObjectTypes.TYPE_PLAYER.value | ObjectTypes.TYPE_UNIT.value | ObjectTypes.TYPE_OBJECT.value
+        self.level = player.level
+        self.object_type = ObjectTypes.TYPE_PLAYER.value
         self.bytes_0 = player.race | player.class_ | player.gender | 0  # power type, handle later
         self.player_bytes = player.skin | player.face | player.hairstyle | player.haircolour
         self.player_bytes_2 = player.extra_flags | player.bankslots | player.facialhair | 0
@@ -60,7 +61,7 @@ class PlayerManager(UnitManager):
         )
         return PacketWriter.get_packet(OpCode.SMSG_NAME_QUERY_RESPONSE, player_data)
 
-    def get_player_build_update_packet(self, deflate=False):
+    def get_player_build_update_packet(self):
         data = pack(
             '!LIIfILIIIIIIIIIIIIIIIIIIIIIIIIIIIliiiiiffIIiiiiiiiiiiiiIfIIIIIIIIIIfffI',
             self.guid,
@@ -136,7 +137,4 @@ class PlayerManager(UnitManager):
             self.base_mana
         )
 
-        if deflate:
-            return PacketWriter.get_packet(OpCode.SMSG_COMPRESSED_UPDATE_OBJECT, self._deflate(data))
-        else:
-            return PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
+        return data

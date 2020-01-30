@@ -107,7 +107,7 @@ class ObjectManager(object):
         for x in range(0, update_mask):
             data += pack('!I', 4294967295)
 
-        return PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
+        return data
 
     def _deflate(self, data):
         return zlib.compress(data)[2:-4]

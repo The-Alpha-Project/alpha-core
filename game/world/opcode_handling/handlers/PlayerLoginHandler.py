@@ -29,15 +29,16 @@ class PlayerLoginHandler(object):
         socket.sendall(world_session.player_mgr.get_tutorial_packet())
         socket.sendall(world_session.player_mgr.get_initial_spells())
         socket.sendall(world_session.player_mgr.get_query_details())
-        socket.sendall(world_session.player_mgr.get_build_object_update_packet())
-        socket.sendall(world_session.player_mgr.get_player_build_update_packet(deflate=True))
+        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                               world_session.player_mgr.get_build_object_update_packet() +
+                                               world_session.player_mgr.get_player_build_update_packet()))
 
         return 0
 
     @staticmethod
     def _get_login_timespeed():
         data = pack(
-            '!if',
+            '!If',
             PlayerLoginHandler._get_secs_to_time_bit_fields(),  # game time (secs) to bit
             config.World.Gameplay.game_speed
         )
@@ -47,9 +48,11 @@ class PlayerLoginHandler(object):
     def _get_secs_to_time_bit_fields():
         local = time.localtime()
 
-        return ((local.tm_year - 100) << 24 |
-                local.tm_mon << 20 |
-                (local.tm_mday - 1) << 14 |
-                local.tm_wday << 11 |
-                (local.tm_hour - 3) << 6 |
-                local.tm_min)
+        year = local.tm_year - 2000
+        month = local.tm_mon - 1
+        day = local.tm_mday - 1
+        day_of_week = local.tm_wday
+        hour = local.tm_hour
+        minute = local.tm_min
+
+        return ((((minute + (hour << 6)) + (day_of_week << 11)) + (day << 14)) + (month << 20)) + (year << 24)
