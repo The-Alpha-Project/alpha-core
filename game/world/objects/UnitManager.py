@@ -53,6 +53,7 @@ class UnitManager(ObjectManager):
                  resistance_3=0,
                  resistance_4=0,
                  resistance_5=0,
+                 stand_state=0,
                  bytes_1=0,  # stand state, shapeshift form, sheathstate
                  mod_cast_speed=1,
                  dynamic_flags=0,
@@ -112,6 +113,7 @@ class UnitManager(ObjectManager):
         self.resistance_3 = resistance_3
         self.resistance_4 = resistance_4
         self.resistance_5 = resistance_5
+        self.stand_state = stand_state
         self.bytes_1 = bytes_1  # stand state, shapeshift form, sheathstate
         self.mod_cast_speed = mod_cast_speed
         self.dynamic_flags = dynamic_flags

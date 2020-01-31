@@ -60,17 +60,17 @@ class ObjectManager(object):
 
     def get_update_mask(self):
         mask = 0
-        if self.object_type == ObjectTypes.TYPE_CONTAINER:
+        if self.object_type == ObjectTypes.TYPE_CONTAINER.value:
             mask += ContainerFields.CONTAINER_END.value
-        if self.object_type == ObjectTypes.TYPE_ITEM:
+        if self.object_type == ObjectTypes.TYPE_ITEM.value:
             mask += ItemFields.ITEM_END.value
-        if self.object_type == ObjectTypes.TYPE_PLAYER:
+        if self.object_type == ObjectTypes.TYPE_PLAYER.value:
             mask += PlayerFields.PLAYER_END.value
-        if self.object_type == ObjectTypes.TYPE_UNIT:
+        if self.object_type == ObjectTypes.TYPE_UNIT.value:
             mask += UnitFields.UNIT_END.value
-        if self.object_type == ObjectTypes.TYPE_OBJECT:
+        if self.object_type == ObjectTypes.TYPE_OBJECT.value:
             mask += ObjectFields.OBJECT_END.value
-        if self.object_type == ObjectTypes.TYPE_GAMEOBJECT:
+        if self.object_type == ObjectTypes.TYPE_GAMEOBJECT.value:
             mask += GameObjectFields.GAMEOBJECT_END.value
         return (mask + 31) / 32
 
@@ -99,11 +99,12 @@ class ObjectManager(object):
             self.swim_speed,
             self.turn_rate,
             1,  # Flags, 1 - Player, 0 - Bot
-            1 if self.object_type == ObjectTypes.TYPE_PLAYER.value else 0,  # AttackCycle
+            1 if self.object_type >= ObjectTypes.TYPE_PLAYER.value else 0,  # AttackCycle
             0,  # TimerId
             self.combat_target if isinstance(self, UnitManager.UnitManager) else 0,  # Victim GUID
             update_mask
         )
+
         for x in range(0, update_mask):
             data += pack('!I', 4294967295)
 

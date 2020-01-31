@@ -1,3 +1,5 @@
+from struct import pack, unpack
+
 from game.world.objects.UnitManager import UnitManager
 from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import ObjectTypes
@@ -18,29 +20,37 @@ class PlayerManager(UnitManager):
                  dodge_percentage=0,
                  parry_percentage=0,
                  base_mana=0,
+                 sheath_state=0,
+                 combo_points=0,
                  **kwargs):
         super().__init__(**kwargs)
 
         self.player = player
         self.num_inv_slots = num_inv_slots
-        self.player_bytes = player_bytes
         self.xp = xp
         self.next_level_xp = next_level_xp
-        self.player_bytes_2 = player_bytes_2
         self.talent_points = talent_points
         self.skill_points = skill_points
         self.block_percentage = block_percentage
         self.dodge_percentage = dodge_percentage
         self.parry_percentage = parry_percentage
         self.base_mana = base_mana
+        self.sheath_state = sheath_state
+        self.combo_points = combo_points
 
         self.guid = player.guid
-        self.display_id = 278  # temp
         self.level = player.level
-        self.object_type = ObjectTypes.TYPE_PLAYER.value
-        self.bytes_0 = player.race | player.class_ | player.gender | 0  # power type, handle later
-        self.player_bytes = player.skin | player.face | player.hairstyle | player.haircolour
-        self.player_bytes_2 = player.extra_flags | player.bankslots | player.facialhair | 0
+        self.object_type = ObjectTypes.TYPE_OBJECT.value | ObjectTypes.TYPE_PLAYER.value | ObjectTypes.TYPE_UNIT.value
+        self.bytes_0 = unpack('<I', pack('<4B', player.race, player.class_, player.gender, 1))[0]  # power type, handle later
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
+        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
+        self.player_bytes = unpack('<I', pack('<4B', player.skin, player.face, player.hairstyle, player.haircolour))[0]
+        self.player_bytes_2 = unpack('<I', pack('<4B', player.extra_flags, player.bankslots, player.facialhair, 0))[0]
+
+        # test
+        self.health = 1
+        self.max_health = 1
+        self.display_id = 278
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)
