@@ -43,7 +43,9 @@ class RealmDatabaseManager(object):
 
     @staticmethod
     def account_create(username, password, ip):
-        realm_session.add(Account(name=username, password=password, ip=ip, gmlevel=0))
+        account = Account(name=username, password=password, ip=ip, gmlevel=0)
+        realm_session.add(account)
+        return AccountManager(account)
 
     @staticmethod
     def account_get_characters(account_id):

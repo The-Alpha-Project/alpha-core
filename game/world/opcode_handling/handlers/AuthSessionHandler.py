@@ -30,7 +30,8 @@ class AuthSessionHandler(object):
             auth_code = AuthCode.AUTH_INCORRECT_PASSWORD.value
         elif login_res == -1:
             if config.Server.Settings.auto_create_accounts:
-                RealmDatabaseManager.account_create(username, password, socket.getpeername()[0])
+                world_session.account_mgr = RealmDatabaseManager.account_create(username, password,
+                                                                                socket.getpeername()[0])
             else:
                 auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT.value
 
