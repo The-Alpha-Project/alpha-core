@@ -27,7 +27,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
         address_bytes = PacketWriter.string_to_bytes(('%s:%s' % (config.Server.Connection.RealmProxy.host,
                                                                  config.Server.Connection.RealmProxy.port)))
         packet = pack(
-            '!B%us%usI' % (len(name_bytes), len(address_bytes)),
+            '<B%us%usI' % (len(name_bytes), len(address_bytes)),
             1,
             name_bytes,
             address_bytes,
@@ -67,7 +67,7 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
         world_bytes = PacketWriter.string_to_bytes(('%s:%s' % (config.Server.Connection.WorldServer.host,
                                                                config.Server.Connection.WorldServer.port)))
         packet = pack(
-            '!%us' % len(world_bytes),
+            '<%us' % len(world_bytes),
             world_bytes
         )
 

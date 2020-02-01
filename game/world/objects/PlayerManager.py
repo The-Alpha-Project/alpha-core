@@ -44,31 +44,32 @@ class PlayerManager(UnitManager):
         self.sheath_state = sheath_state
         self.combo_points = combo_points
 
-        self.guid = player.guid
-        self.level = player.level
-        self.object_type = ObjectTypes.TYPE_OBJECT.value | ObjectTypes.TYPE_PLAYER.value | ObjectTypes.TYPE_UNIT.value
-        self.bytes_0 = unpack('<I', pack('<4B', player.race, player.class_, player.gender, 1))[0]  # power type, handle later
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
-        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
-        self.player_bytes = unpack('<I', pack('<4B', player.skin, player.face, player.hairstyle, player.haircolour))[0]
-        self.player_bytes_2 = unpack('<I', pack('<4B', player.extra_flags, player.bankslots, player.facialhair, 0))[0]
+        if player:
+            self.guid = player.guid
+            self.level = player.level
+            self.object_type = ObjectTypes.TYPE_OBJECT.value | ObjectTypes.TYPE_PLAYER.value | ObjectTypes.TYPE_UNIT.value
+            self.bytes_0 = unpack('<I', pack('<4B', player.race, player.class_, player.gender, 1))[0]  # power type, handle later
+            self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
+            self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
+            self.player_bytes = unpack('<I', pack('<4B', player.skin, player.face, player.hairstyle, player.haircolour))[0]
+            self.player_bytes_2 = unpack('<I', pack('<4B', player.extra_flags, player.bankslots, player.facialhair, 0))[0]
 
-        # test
-        self.health = 1
-        self.max_health = 1
-        self.display_id = 278
+            # test
+            self.health = 1
+            self.max_health = 1
+            self.display_id = 278
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)
-        return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('!8I', 0, 0, 0, 0, 0, 0, 0, 0))
+        return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('<8I', 0, 0, 0, 0, 0, 0, 0, 0))
 
     def get_initial_spells(self):
-        return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, pack('!BHHHH', 0, 1, 133, 1, 0))  # TODO Test with spell 133
+        return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, pack('<BHHHH', 0, 1, 133, 1, 0))  # TODO Test with spell 133
 
     def get_query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.player.name)
         player_data = pack(
-            '!Q%usIII' % len(name_bytes),
+            '<Q%usIII' % len(name_bytes),
             self.player.guid,
             name_bytes,
             self.player.race,

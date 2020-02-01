@@ -31,7 +31,7 @@ class AuthSessionHandler(object):
         elif login_res == -1:
             auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT.value
 
-        data = pack('!B', auth_code)
+        data = pack('<B', auth_code)
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
 
         return 0 if auth_code == AuthCode.AUTH_OK.value else -1

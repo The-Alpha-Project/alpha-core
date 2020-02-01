@@ -76,7 +76,7 @@ class ObjectManager(object):
     def create_update_packet(self):
         update_mask = int(self.get_update_mask())
         data = pack(
-            '!IBQBQfffffffffIIffffIIIQB',
+            '<IBQBQfffffffffIIffffIIIQB',
             1,  # Number of transactions
             2,
             self.guid,
@@ -105,6 +105,6 @@ class ObjectManager(object):
         )
 
         for x in range(0, update_mask):
-            data += pack('!I', 4294967295)
+            data += pack('<I', 0xFFFFFFFF)
 
         return data

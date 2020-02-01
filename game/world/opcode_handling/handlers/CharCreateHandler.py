@@ -35,7 +35,7 @@ class CharCreateHandler(object):
                                   level=1)
             RealmDatabaseManager.character_create(character)
 
-        data = pack('!B', result)
+        data = pack('<B', result)
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHAR_CREATE, data))
 
         return 0

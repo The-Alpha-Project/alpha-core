@@ -33,13 +33,13 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def auth_challenge(sck):
-        data = pack('6B', 0, 0, 0, 0, 0, 0)
+        data = pack('<6B', 0, 0, 0, 0, 0, 0)
         sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))
 
     @staticmethod
     def receive(self, sck):
         try:
-            data = sck.recv(8192)
+            data = sck.recv(1024)
             reader = PacketReader(data)
             if reader.opcode:
                 handler = Definitions.get_handler_from_packet(reader.opcode)

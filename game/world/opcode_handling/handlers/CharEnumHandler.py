@@ -11,7 +11,7 @@ class CharEnumHandler(object):
         characters = RealmDatabaseManager.account_get_characters(world_session.account_mgr.account.id)
         count = len(characters)
 
-        data = pack('!B', count)
+        data = pack('<B', count)
         for character in characters:
             data += CharEnumHandler.get_char_packet(character)
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHAR_ENUM, data))
@@ -21,7 +21,7 @@ class CharEnumHandler(object):
     @staticmethod
     def get_char_packet(character):
         name_bytes = PacketWriter.string_to_bytes(character.name)
-        char_fmt = '!Q%usBBBBBBBBBIIfffIIIIIBIBIBIBIBIBIBIBIBIBIBIBIBIBIBIBIBIBIBIB' % len(name_bytes)
+        char_fmt = '<Q%usBBBBBBBBBIIfffIIIIIBIBIBIBIBIBIBIBIBIBIBIBIBIBIBIBIBIBIBIB' % len(name_bytes)
         char_packet = pack(
             char_fmt,
             character.guid,

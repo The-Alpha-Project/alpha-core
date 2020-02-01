@@ -16,7 +16,7 @@ class PlayerLoginHandler(object):
 
     @staticmethod
     def handle(world_session, socket, packet):
-        guid = unpack('>Q', packet)[0]
+        guid = unpack('<Q', packet)[0]
 
         world_session.player_mgr = PlayerManager(RealmDatabaseManager.character_get_by_guid(guid))
         if not world_session.player_mgr.player:
