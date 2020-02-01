@@ -67,6 +67,11 @@ class PlayerManager(UnitManager):
             self.max_health = 1
             self.display_id = 278
             self.movement_flags = 0x08000000
+            self.map_ = 0
+            self.zone = 12
+            self.location.x = -8945
+            self.location.y = -120
+            self.location.z = 90
 
     def complete_login(self):
         self.is_online = True
