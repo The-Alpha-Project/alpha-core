@@ -53,6 +53,12 @@ class PlayerManager(UnitManager):
             self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
             self.player_bytes = unpack('<I', pack('<4B', player.skin, player.face, player.hairstyle, player.haircolour))[0]
             self.player_bytes_2 = unpack('<I', pack('<4B', player.extra_flags, player.bankslots, player.facialhair, 0))[0]
+            self.map_ = player.map
+            self.zone = player.zone
+            self.location.x = player.position_x
+            self.location_y = player.position_y
+            self.location_z = player.position_z
+            self.orientation = player.orientation
 
             # test
             self.health = 1
