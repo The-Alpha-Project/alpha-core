@@ -9,8 +9,8 @@ from utils.constants.CharCodes import *
 class CharDeleteHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, packet):
-        guid = unpack('<Q', packet)[0]
+    def handle(world_session, socket, reader):
+        guid = unpack('<Q', reader.data)[0]
         res = CharDelete.CHAR_DELETE_SUCCESS.value
         if RealmDatabaseManager.character_delete(guid) != 0:
             res = CharDelete.CHAR_DELETE_FAILED.value

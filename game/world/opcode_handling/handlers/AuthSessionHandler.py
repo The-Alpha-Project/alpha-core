@@ -13,11 +13,11 @@ from game.realm.AccountManager import AccountManager
 class AuthSessionHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, packet):
+    def handle(world_session, socket, reader):
         version, login = unpack(
-            '<II', packet[:8]
+            '<II', reader.data[:8]
         )
-        username, password = PacketReader.read_string(packet, 8).strip().split()
+        username, password = PacketReader.read_string(reader.data, 8).strip().split()
         password = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
         auth_code = AuthCode.AUTH_OK.value

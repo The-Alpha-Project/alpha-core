@@ -17,8 +17,8 @@ from game.world.managers.ChatManager import ChatManager
 class PlayerLoginHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, packet):
-        guid = unpack('<Q', packet)[0]
+    def handle(world_session, socket, reader):
+        guid = unpack('<Q', reader.data)[0]
 
         world_session.player_mgr = PlayerManager(RealmDatabaseManager.character_get_by_guid(guid))
         if not world_session.player_mgr.player:

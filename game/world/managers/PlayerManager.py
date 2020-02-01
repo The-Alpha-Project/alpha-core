@@ -58,8 +58,8 @@ class PlayerManager(UnitManager):
             self.map_ = player.map
             self.zone = player.zone
             self.location.x = player.position_x
-            self.location_y = player.position_y
-            self.location_z = player.position_z
+            self.location.y = player.position_y
+            self.location.z = player.position_z
             self.orientation = player.orientation
 
             # test

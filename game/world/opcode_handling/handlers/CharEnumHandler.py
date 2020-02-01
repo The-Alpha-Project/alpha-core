@@ -7,7 +7,7 @@ from database.realm.RealmDatabaseManager import *
 class CharEnumHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, packet):
+    def handle(world_session, socket, reader):
         characters = RealmDatabaseManager.account_get_characters(world_session.account_mgr.account.id)
         count = len(characters)
 

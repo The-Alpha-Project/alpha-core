@@ -10,6 +10,7 @@ from game.world.opcode_handling.handlers.PlayerLoginHandler import PlayerLoginHa
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from game.world.opcode_handling.handlers.TimeQueryHandler import TimeQueryHandler
 from game.world.opcode_handling.handlers.LogoutRequestHandler import LogoutRequestHandler
+from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
 
 HANDLER_DEFINITIONS = {
@@ -21,7 +22,30 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_PLAYER_LOGIN: PlayerLoginHandler.handle,
     OpCode.CMSG_NAME_QUERY: NameQueryHandler.handle,
     OpCode.CMSG_QUERY_TIME: TimeQueryHandler.handle,
-    OpCode.CMSG_LOGOUT_REQUEST: LogoutRequestHandler.handle
+    OpCode.CMSG_LOGOUT_REQUEST: LogoutRequestHandler.handle,
+
+    OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_ROOT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_SET_PITCH: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_SET_FACING: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_STOP_SWIM: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_SWIM: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_SET_WALK_MODE: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_SET_RUN_MODE: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_STOP_PITCH: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_PITCH_DOWN: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_PITCH_UP: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_STOP_TURN: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_TURN_LEFT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_TURN_RIGHT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_JUMP: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_STOP_STRAFE: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_STRAFE_RIGHT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_STRAFE_LEFT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_STOP: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_BACKWARD: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_FORWARD: MovementHandler.handle_movement_status,
 }
 
 

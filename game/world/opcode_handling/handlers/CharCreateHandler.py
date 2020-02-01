@@ -9,11 +9,11 @@ from utils.constants.CharCodes import *
 class CharCreateHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, packet):
+    def handle(world_session, socket, reader):
         # In reality, names with more than 1 upper letter were allowed in Alpha, but I don't like that
-        name = PacketReader.read_string(packet, 0).capitalize()
+        name = PacketReader.read_string(reader.data, 0).capitalize()
         race, class_, gender, skin, face, hairstyle, haircolor, facialhair, unk = unpack(
-            '<BBBBBBBBB', packet[len(name)+1:]
+            '<BBBBBBBBB', reader.data[len(name)+1:]
         )
 
         result = CharCreate.CHAR_CREATE_SUCCESS.value
