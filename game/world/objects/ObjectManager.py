@@ -14,7 +14,7 @@ class ObjectManager(object):
     def __init__(self,
                  guid=0,
                  entry=0,
-                 object_type=ObjectTypes.TYPE_OBJECT,
+                 object_type=None,
                  walk_speed=2.5,
                  running_speed=7.0,
                  swim_speed=4.72222223,
@@ -36,7 +36,7 @@ class ObjectManager(object):
                  map_=0):
         self.guid = guid
         self.entry = entry
-        self.object_type = object_type
+        self.object_type = [ObjectTypes.TYPE_OBJECT]
         self.walk_speed = walk_speed
         self.running_speed = running_speed
         self.swim_speed = swim_speed
@@ -57,19 +57,25 @@ class ObjectManager(object):
         self.zone = zone
         self.map_ = map_
 
+    def get_object_type_value(self):
+        type_value = 0
+        for type_ in self.object_type:
+            type_value |= type_.value
+        return type_value
+
     def get_update_mask(self):
         mask = 0
-        if self.object_type == ObjectTypes.TYPE_CONTAINER.value:
+        if ObjectTypes.TYPE_CONTAINER in self.object_type:
             mask += ContainerFields.CONTAINER_END.value
-        if self.object_type == ObjectTypes.TYPE_ITEM.value:
+        if ObjectTypes.TYPE_ITEM in self.object_type:
             mask += ItemFields.ITEM_END.value
-        if self.object_type == ObjectTypes.TYPE_PLAYER.value:
+        if ObjectTypes.TYPE_PLAYER in self.object_type:
             mask += PlayerFields.PLAYER_END.value
-        if self.object_type == ObjectTypes.TYPE_UNIT.value:
+        if ObjectTypes.TYPE_UNIT in self.object_type:
             mask += UnitFields.UNIT_END.value
-        if self.object_type == ObjectTypes.TYPE_OBJECT.value:
+        if ObjectTypes.TYPE_OBJECT in self.object_type:
             mask += ObjectFields.OBJECT_END.value
-        if self.object_type == ObjectTypes.TYPE_GAMEOBJECT.value:
+        if ObjectTypes.TYPE_GAMEOBJECT in self.object_type:
             mask += GameObjectFields.GAMEOBJECT_END.value
         return (mask + 31) / 32
 
@@ -80,7 +86,7 @@ class ObjectManager(object):
             1,  # Number of transactions
             2,
             self.guid,
-            self.object_type,
+            self.get_object_type_value(),
             self.transport_id,
             self.transport.x,
             self.transport.y,
@@ -98,7 +104,7 @@ class ObjectManager(object):
             self.swim_speed,
             self.turn_rate,
             1,  # Flags, 1 - Player, 0 - Bot
-            1 if self.object_type >= ObjectTypes.TYPE_PLAYER.value else 0,  # AttackCycle
+            1 if ObjectTypes.TYPE_PLAYER in self.object_type else 0,  # AttackCycle
             0,  # TimerId
             self.combat_target if isinstance(self, UnitManager.UnitManager) else 0,  # Victim GUID
             update_mask

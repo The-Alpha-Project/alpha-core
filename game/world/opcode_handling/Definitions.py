@@ -7,6 +7,8 @@ from game.world.opcode_handling.handlers.CharEnumHandler import CharEnumHandler
 from game.world.opcode_handling.handlers.CharCreateHandler import CharCreateHandler
 from game.world.opcode_handling.handlers.CharDeleteHandler import CharDeleteHandler
 from game.world.opcode_handling.handlers.PlayerLoginHandler import PlayerLoginHandler
+from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
+from game.world.opcode_handling.handlers.TimeQueryHandler import TimeQueryHandler
 
 
 HANDLER_DEFINITIONS = {
@@ -15,7 +17,9 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_CHAR_ENUM: CharEnumHandler.handle,
     OpCode.CMSG_CHAR_CREATE: CharCreateHandler.handle,
     OpCode.CMSG_CHAR_DELETE: CharDeleteHandler.handle,
-    OpCode.CMSG_PLAYER_LOGIN: PlayerLoginHandler.handle
+    OpCode.CMSG_PLAYER_LOGIN: PlayerLoginHandler.handle,
+    OpCode.CMSG_NAME_QUERY: NameQueryHandler.handle,
+    OpCode.CMSG_QUERY_TIME: TimeQueryHandler.handle
 }
 
 

@@ -47,7 +47,7 @@ class PlayerManager(UnitManager):
         if player:
             self.guid = player.guid
             self.level = player.level
-            self.object_type = ObjectTypes.TYPE_OBJECT.value | ObjectTypes.TYPE_PLAYER.value | ObjectTypes.TYPE_UNIT.value
+            self.object_type.append(ObjectTypes.TYPE_PLAYER)
             self.bytes_0 = unpack('<I', pack('<4B', player.race, player.class_, player.gender, 1))[0]  # power type, handle later
             self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
             self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
@@ -87,7 +87,7 @@ class PlayerManager(UnitManager):
     def get_update_packet(self):
         # Object fields
         self.update_packet_factory.update(self.update_packet_factory.object_values, ObjectFields.OBJECT_FIELD_GUID.value, self.player.guid, 'Q')
-        self.update_packet_factory.update(self.update_packet_factory.object_values, ObjectFields.OBJECT_FIELD_TYPE.value, self.object_type, 'I')
+        self.update_packet_factory.update(self.update_packet_factory.object_values, ObjectFields.OBJECT_FIELD_TYPE.value, self.get_object_type_value(), 'I')
         self.update_packet_factory.update(self.update_packet_factory.object_values, ObjectFields.OBJECT_FIELD_ENTRY.value, self.entry, 'I')
         self.update_packet_factory.update(self.update_packet_factory.object_values, ObjectFields.OBJECT_FIELD_SCALE_X.value, self.scale, 'f')
 

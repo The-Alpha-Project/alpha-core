@@ -2,6 +2,7 @@ from struct import pack
 
 from game.world.objects.ObjectManager import ObjectManager
 from utils.ConfigManager import config
+from utils.constants.ObjectCodes import ObjectTypes
 
 
 class UnitManager(ObjectManager):
@@ -121,3 +122,5 @@ class UnitManager(ObjectManager):
         self.dynamic_flags = dynamic_flags
         self.damage = damage  # current damage, max damage
         self.bytes_2 = bytes_2  # combo points, 0, 0, 0
+
+        self.object_type.append(ObjectTypes.TYPE_UNIT)
