@@ -1,4 +1,4 @@
-from struct import pack
+from struct import pack, unpack
 import zlib
 
 from utils.constants.UpdateFields import *
@@ -21,7 +21,11 @@ class UpdatePacketFactory(object):
         self.update_packet = b''
 
     def update(self, values_list, pos, value, value_type):
-        values_list.insert(pos, pack('<%s' % value_type, value))
+        if value_type.lower() == 'q':
+            self.update(values_list, pos, int(value & 0xFFFFFFFF), 'I')
+            self.update(values_list, pos + 1, int(value >> 32), 'I')
+        else:
+            values_list[pos] = pack('<%s' % value_type, value)
 
     def init_lists(self):
         self.object_values = [pack('<I', 0)] * ObjectFields.OBJECT_END.value

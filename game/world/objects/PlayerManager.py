@@ -105,7 +105,7 @@ class PlayerManager(UnitManager):
         self.update_packet_factory.update(self.update_packet_factory.unit_values, UnitFields.UNIT_FIELD_MAXPOWER3.value, self.max_power_3, 'I')
         self.update_packet_factory.update(self.update_packet_factory.unit_values, UnitFields.UNIT_FIELD_MAXPOWER4.value, self.max_power_4, 'I')
         self.update_packet_factory.update(self.update_packet_factory.unit_values, UnitFields.UNIT_FIELD_LEVEL.value, self.level, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, UnitFields.UNIT_FIELD_FACTIONTEMPLATE.value, self.faction, 'Q')
+        self.update_packet_factory.update(self.update_packet_factory.unit_values, UnitFields.UNIT_FIELD_FACTIONTEMPLATE.value, self.faction, 'I')
         self.update_packet_factory.update(self.update_packet_factory.unit_values, UnitFields.UNIT_FIELD_BYTES_0.value, self.bytes_0, 'I')
         self.update_packet_factory.update(self.update_packet_factory.unit_values, UnitFields.UNIT_FIELD_STAT0.value, self.stat_0, 'I')
         self.update_packet_factory.update(self.update_packet_factory.unit_values, UnitFields.UNIT_FIELD_STAT1.value, self.stat_1, 'I')
