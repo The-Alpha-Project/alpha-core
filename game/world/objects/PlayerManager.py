@@ -64,6 +64,7 @@ class PlayerManager(UnitManager):
             self.health = 1
             self.max_health = 1
             self.display_id = 278
+            self.movement_flags = 0x08000000
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)

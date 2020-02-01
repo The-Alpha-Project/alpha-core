@@ -10,6 +10,7 @@ from game.world.objects.ObjectManager import ObjectManager
 from game.world.objects.PlayerManager import PlayerManager
 from utils.constants.ObjectCodes import ObjectTypes
 from utils.ConfigManager import config
+from utils.constants.ObjectCodes import UpdateTypes
 
 
 class PlayerLoginHandler(object):
@@ -30,9 +31,10 @@ class PlayerLoginHandler(object):
         socket.sendall(world_session.player_mgr.get_initial_spells())
         socket.sendall(world_session.player_mgr.get_query_details())
 
-        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                               world_session.player_mgr.create_update_packet() +
-                                               world_session.player_mgr.get_update_packet()))
+        socket.sendall(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT,
+            world_session.player_mgr.create_update_packet(UpdateTypes.UPDATE_IN_RANGE.value) +
+            world_session.player_mgr.get_update_packet()))
 
         return 0
 

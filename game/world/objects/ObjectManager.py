@@ -79,14 +79,14 @@ class ObjectManager(object):
             mask += GameObjectFields.GAMEOBJECT_END.value
         return (mask + 31) / 32
 
-    def create_update_packet(self):
+    def create_update_packet(self, update_type):
         update_mask = int(self.get_update_mask())
         data = pack(
             '<IBQBQfffffffffIIffffIIIQB',
             1,  # Number of transactions
             2,
             self.guid,
-            self.get_object_type_value(),
+            update_type,
             self.transport_id,
             self.transport.x,
             self.transport.y,
