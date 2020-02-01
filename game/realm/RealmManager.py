@@ -79,7 +79,7 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
         Logger.info('Proxy server started.')
 
         ThreadedProxyServer.allow_reuse_address = True
-        with ThreadedProxyServer((config.Server.Connection.RealmProxy.host,
+        with ThreadedProxyServer((config.Server.Connection.RealmServer.host,
                                   config.Server.Connection.RealmProxy.port), ProxyServerSessionHandler) \
                 as proxy_instance:
             proxy_session_thread = threading.Thread(target=proxy_instance.serve_forever())

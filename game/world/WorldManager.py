@@ -62,7 +62,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         Logger.info('Realm tables loaded.')
 
         ThreadedWorldServer.allow_reuse_address = True
-        with ThreadedWorldServer((config.Server.Connection.WorldServer.host, config.Server.Connection.WorldServer.port),
+        with ThreadedWorldServer((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port),
                                  WorldServerSessionHandler) as world_instance:
             world_session_thread = threading.Thread(target=world_instance.serve_forever())
             world_session_thread.daemon = True
