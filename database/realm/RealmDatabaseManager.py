@@ -42,6 +42,10 @@ class RealmDatabaseManager(object):
         return -1, None
 
     @staticmethod
+    def account_create(username, password, ip):
+        realm_session.add(Account(name=username, password=password, ip=ip, gmlevel=0))
+
+    @staticmethod
     def account_get_characters(account_id):
         characters = realm_session.query(Character).filter_by(account=account_id).all()
         return characters if characters else []

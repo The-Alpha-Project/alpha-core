@@ -24,6 +24,7 @@ Server:
           port: 8100
 
     Settings:
+        auto_create_accounts: True
         debug: True
         supported_client: 3368
         realm_saving_interval_seconds: 60

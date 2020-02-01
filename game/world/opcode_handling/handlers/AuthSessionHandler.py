@@ -29,7 +29,10 @@ class AuthSessionHandler(object):
         if login_res == 0:
             auth_code = AuthCode.AUTH_INCORRECT_PASSWORD.value
         elif login_res == -1:
-            auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT.value
+            if config.Server.Settings.auto_create_accounts:
+                RealmDatabaseManager.account_create(username, password, socket.getpeername()[0])
+            else:
+                auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT.value
 
         data = pack('<B', auth_code)
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
