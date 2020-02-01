@@ -1,3 +1,5 @@
+from struct import pack
+
 from game.world.objects.ObjectManager import ObjectManager
 from utils.ConfigManager import config
 

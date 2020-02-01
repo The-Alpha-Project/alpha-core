@@ -1,6 +1,5 @@
 from struct import pack
 from math import pi
-import zlib
 
 from game.world.objects import UnitManager
 from utils.constants.ObjectCodes import ObjectTypes
@@ -74,7 +73,7 @@ class ObjectManager(object):
             mask += GameObjectFields.GAMEOBJECT_END.value
         return (mask + 31) / 32
 
-    def get_build_object_update_packet(self):
+    def create_update_packet(self):
         update_mask = int(self.get_update_mask())
         data = pack(
             '!IBQBQfffffffffIIffffIIIQB',
@@ -109,6 +108,3 @@ class ObjectManager(object):
             data += pack('!I', 4294967295)
 
         return data
-
-    def _deflate(self, data):
-        return zlib.compress(data)[2:-4]
