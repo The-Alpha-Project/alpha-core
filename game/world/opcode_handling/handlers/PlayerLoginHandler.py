@@ -3,14 +3,15 @@ import time
 from struct import pack, unpack
 
 from network.packet.PacketWriter import *
-from game.world.objects.PlayerManager import PlayerManager
+from game.world.managers.PlayerManager import PlayerManager
 from database.realm.RealmDatabaseManager import *
 from utils.Logger import Logger
-from game.world.objects.ObjectManager import ObjectManager
-from game.world.objects.PlayerManager import PlayerManager
+from game.world.managers.ObjectManager import ObjectManager
+from game.world.managers.PlayerManager import PlayerManager
 from utils.constants.ObjectCodes import ObjectTypes
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import UpdateTypes
+from game.world.managers.ChatManager import ChatManager
 
 
 class PlayerLoginHandler(object):
@@ -30,11 +31,15 @@ class PlayerLoginHandler(object):
         socket.sendall(world_session.player_mgr.get_tutorial_packet())
         socket.sendall(world_session.player_mgr.get_initial_spells())
         socket.sendall(world_session.player_mgr.get_query_details())
+        # MotD
+        ChatManager.send_system_message(world_session, config.Server.General.motd)
 
         socket.sendall(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
             world_session.player_mgr.create_update_packet(UpdateTypes.UPDATE_IN_RANGE.value) +
             world_session.player_mgr.get_update_packet()))
+
+        world_session.player_mgr.complete_login()
 
         return 0
 

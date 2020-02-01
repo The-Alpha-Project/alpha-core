@@ -1,6 +1,6 @@
 from struct import pack, unpack
 
-from game.world.objects.UnitManager import UnitManager
+from game.world.managers.UnitManager import UnitManager
 from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import ObjectTypes
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
@@ -24,6 +24,7 @@ class PlayerManager(UnitManager):
                  base_mana=0,
                  sheath_state=0,
                  combo_points=0,
+                 is_online=False,
                  **kwargs):
         super().__init__(**kwargs)
 
@@ -32,6 +33,7 @@ class PlayerManager(UnitManager):
                                                           ObjectTypes.TYPE_PLAYER.value])
 
         self.player = player
+        self.is_online = is_online
         self.num_inv_slots = num_inv_slots
         self.xp = xp
         self.next_level_xp = next_level_xp
@@ -65,6 +67,12 @@ class PlayerManager(UnitManager):
             self.max_health = 1
             self.display_id = 278
             self.movement_flags = 0x08000000
+
+    def complete_login(self):
+        self.is_online = True
+
+    def logout(self):
+        self.is_online = False
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)

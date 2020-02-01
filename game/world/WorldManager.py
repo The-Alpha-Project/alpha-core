@@ -28,6 +28,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             while self.receive(self, self.request) != -1:
                 sleep(0.001)
         finally:
+            self.player_mgr.is_online = False
+
             self.request.shutdown(socket.SHUT_RDWR)
             self.request.close()
 

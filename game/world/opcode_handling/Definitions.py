@@ -9,6 +9,7 @@ from game.world.opcode_handling.handlers.CharDeleteHandler import CharDeleteHand
 from game.world.opcode_handling.handlers.PlayerLoginHandler import PlayerLoginHandler
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from game.world.opcode_handling.handlers.TimeQueryHandler import TimeQueryHandler
+from game.world.opcode_handling.handlers.LogoutRequestHandler import LogoutRequestHandler
 
 
 HANDLER_DEFINITIONS = {
@@ -19,7 +20,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_CHAR_DELETE: CharDeleteHandler.handle,
     OpCode.CMSG_PLAYER_LOGIN: PlayerLoginHandler.handle,
     OpCode.CMSG_NAME_QUERY: NameQueryHandler.handle,
-    OpCode.CMSG_QUERY_TIME: TimeQueryHandler.handle
+    OpCode.CMSG_QUERY_TIME: TimeQueryHandler.handle,
+    OpCode.CMSG_LOGOUT_REQUEST: LogoutRequestHandler.handle
 }
 
 

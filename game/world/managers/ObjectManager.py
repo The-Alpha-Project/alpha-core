@@ -1,10 +1,10 @@
 from struct import pack
 from math import pi
 
-from game.world.objects import UnitManager
+from game.world.managers import UnitManager
 from utils.constants.ObjectCodes import ObjectTypes
 from utils.ConfigManager import config
-from game.world.objects.abstractions.Vector import Vector
+from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.UpdateFields \
     import ContainerFields, ItemFields, PlayerFields, UnitFields, ObjectFields, GameObjectFields

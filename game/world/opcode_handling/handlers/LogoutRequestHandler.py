@@ -1,13 +1,13 @@
 from struct import pack, unpack
 
 from network.packet.PacketWriter import *
-from game.world.managers.PlayerManager import PlayerManager
 
 
-class NameQueryHandler(object):
+class LogoutRequestHandler(object):
 
     @staticmethod
     def handle(world_session, socket, packet):
-        socket.sendall(world_session.player_mgr.get_query_details())
+        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
+        world_session.player_mgr.logout()
 
         return 0
