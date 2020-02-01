@@ -29,9 +29,10 @@ class PlayerLoginHandler(object):
         socket.sendall(world_session.player_mgr.get_tutorial_packet())
         socket.sendall(world_session.player_mgr.get_initial_spells())
         socket.sendall(world_session.player_mgr.get_query_details())
-        socket.sendall(PacketWriter.deflate(PacketWriter.get_packet(OpCode.SMSG_COMPRESSED_UPDATE_OBJECT,
-                                                                    world_session.player_mgr.create_update_packet() +
-                                                                    world_session.player_mgr.get_update_packet())))
+
+        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                               world_session.player_mgr.create_update_packet() +
+                                               world_session.player_mgr.get_update_packet()))
 
         return 0
 

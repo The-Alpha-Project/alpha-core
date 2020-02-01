@@ -14,15 +14,13 @@ class PacketWriter(object):
         # Packet header for SMSG_AUTH_CHALLENGE : Size: 2 bytes + Cmd: 2 bytes
         # Packet header : Size: 2 bytes + Cmd: 4 bytes
         size = (4 if opcode == OpCode.SMSG_AUTH_CHALLENGE else 6) + len(data) - 2
-        base_header = pack('!4B',
+        base_header = pack('4B',
                            int(size / 0x100),
                            int(size % 0x100),
                            int(opcode.value % 0x100),
                            int(opcode.value / 0x100))
         if opcode == OpCode.SMSG_AUTH_CHALLENGE:
             return base_header + data
-        elif opcode == OpCode.SMSG_COMPRESSED_UPDATE_OBJECT:
-            return base_header + pack('!BBI', 0, 0, len(data)) + data
         else:
             return base_header + pack('!BB', 0, 0) + data
 
