@@ -5,6 +5,7 @@ from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import ObjectTypes
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
+from database.realm.RealmDatabaseManager import *
 
 
 class PlayerManager(UnitManager):
@@ -67,17 +68,13 @@ class PlayerManager(UnitManager):
             self.max_health = 1
             self.display_id = 278
             self.movement_flags = 0x08000000
-            self.map_ = 0
-            self.zone = 12
-            self.location.x = -8945
-            self.location.y = -120
-            self.location.z = 90
 
     def complete_login(self):
         self.is_online = True
 
     def logout(self):
         self.is_online = False
+        self._sync_player()
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)
@@ -99,6 +96,8 @@ class PlayerManager(UnitManager):
         return PacketWriter.get_packet(OpCode.SMSG_NAME_QUERY_RESPONSE, player_data)
 
     def get_update_packet(self):
+        self._sync_player()
+
         # Object fields
         self.update_packet_factory.update(self.update_packet_factory.object_values, ObjectFields.OBJECT_FIELD_GUID.value, self.player.guid, 'Q')
         self.update_packet_factory.update(self.update_packet_factory.object_values, ObjectFields.OBJECT_FIELD_TYPE.value, self.get_object_type_value(), 'I')
@@ -177,3 +176,21 @@ class PlayerManager(UnitManager):
         self.update_packet_factory.update(self.update_packet_factory.player_values, PlayerFields.PLAYER_BASE_MANA.value, self.base_mana, 'I')
 
         return self.update_packet_factory.build_packet()
+
+    def _sync_player(self):
+        if self.player and self.player.guid == self.guid:
+            self.player.level = self.level
+            self.player.xp = self.xp
+            self.player.talent_points = self.talent_points
+            self.player.skillpoints = self.skill_points
+            self.player.position_x = self.location.x
+            self.player.position_y = self.location.y
+            self.player.position_z = self.location.z
+            self.player.map = self.map_
+            self.player.orientation = self.orientation
+            self.player.zone = self.zone
+            self.player.health = self.health
+            self.player.power1 = self.power_1
+            self.player.power2 = self.power_2
+            self.player.power3 = self.power_3
+            self.player.power4 = self.power_4

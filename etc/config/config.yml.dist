@@ -7,6 +7,7 @@ Database:
     DBNames:
         realm_db: alpha_realm
         world_db: alpha_world
+        dbc_db: alpha_dbc
 
 Server:
     Connection:

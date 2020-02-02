@@ -12,7 +12,7 @@ realm_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % 
                                                                                  config.Database.DBNames.realm_db))
 SessionHolder = sessionmaker(bind=realm_db_engine)
 realm_session = SessionHolder()
-# To always keep in memory the db data
+# To always keep the db data in memory
 realm_session.expire_on_commit = False
 
 
@@ -27,7 +27,11 @@ class RealmDatabaseManager(object):
 
     @staticmethod
     def save():
-        realm_session.commit()
+        try:
+            realm_session.commit()
+        except:
+            realm_session.rollback()
+            raise
 
     # Account stuff
 
@@ -49,7 +53,7 @@ class RealmDatabaseManager(object):
 
     @staticmethod
     def account_get_characters(account_id):
-        characters = realm_session.query(Character).filter_by(account=account_id).all()
+        characters = realm_session.query(Character).filter_by(account_id=account_id).all()
         return characters if characters else []
 
     # Character stuff

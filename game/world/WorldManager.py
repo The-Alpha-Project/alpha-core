@@ -17,20 +17,20 @@ class ThreadedWorldServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 
 class WorldServerSessionHandler(socketserver.BaseRequestHandler):
-    def __init__(self, request, client_address, server):
+    def __init__(self, request, client_address, server, account_mgr=None, player_mgr=None):
         super().__init__(request, client_address, server)
-        self.account_mgr = None
-        self.player_mgr = None
+        self.account_mgr = account_mgr
+        self.player_mgr = player_mgr
 
     def handle(self):
         try:
             self.auth_challenge(self.request)
             while self.receive(self, self.request) != -1:
                 sleep(0.001)
-        finally:
+
             if self.player_mgr:
                 self.player_mgr.is_online = False
-
+        finally:
             self.request.shutdown(socket.SHUT_RDWR)
             self.request.close()
 

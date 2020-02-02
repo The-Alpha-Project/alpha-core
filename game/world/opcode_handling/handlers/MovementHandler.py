@@ -25,9 +25,23 @@ class MovementHandler(object):
                                                          pitch,
                                                          flags))
             socket.sendall(movement_data)
+
+            world_session.player_mgr.transport_id = transport_guid
+
+            world_session.player_mgr.transport_x = transport_x
+            world_session.player_mgr.transport_y = transport_y
+            world_session.player_mgr.transport_z = transport_z
+            world_session.player_mgr.transport_orientation = transport_o
+
+            world_session.player_mgr.location.x = x
+            world_session.player_mgr.location.y = y
+            world_session.player_mgr.location.z = z
+            world_session.player_mgr.orientation = o
+
+            world_session.player_mgr.pitch = pitch
+            world_session.player_mgr.movement_flags = flags
+
         except error:
             Logger.error('Error while handling %s, skipping.' % OpCode(reader.opcode))
-
-        # TODO: Update in DB
 
         return 0

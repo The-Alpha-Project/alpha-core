@@ -50,15 +50,15 @@ class CharacterSocial(Base):
     friend = Column(ForeignKey(u'characters.guid', ondelete=u'CASCADE', onupdate=u'CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
     ignore = Column(Integer, nullable=False, server_default=text("'0'"))
 
-    character = relationship(u'Character', primaryjoin='CharacterSocial.friend == Character.guid')
-    character1 = relationship(u'Character', primaryjoin='CharacterSocial.guid == Character.guid')
+    character_friend = relationship(u'Character', primaryjoin='CharacterSocial.friend == Character.guid')
+    character_ignore = relationship(u'Character', primaryjoin='CharacterSocial.guid == Character.guid')
 
 
 class Character(Base):
     __tablename__ = 'characters'
 
     guid = Column(Integer, primary_key=True, server_default=text("'0'"))
-    account = Column(ForeignKey(u'accounts.id', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+    account_id = Column('account', ForeignKey(u'accounts.id', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"))
     name = Column(String(12), nullable=False, index=True, server_default=text("''"))
     race = Column(Integer, nullable=False, server_default=text("'0'"))
     class_ = Column('class', Integer, nullable=False, server_default=text("'0'"))
@@ -94,7 +94,7 @@ class Character(Base):
     power4 = Column(Integer, nullable=False, server_default=text("'0'"))
     power5 = Column(Integer, nullable=False, server_default=text("'0'"))
 
-    account1 = relationship(u'Account')
+    account = relationship(u'Account')
 
 
 class Ticket(Base):

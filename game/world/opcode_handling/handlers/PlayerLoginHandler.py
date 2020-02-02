@@ -6,6 +6,7 @@ from network.packet.PacketWriter import *
 from game.world.managers.PlayerManager import PlayerManager
 from database.realm.RealmDatabaseManager import *
 from utils.Logger import Logger
+from utils.constants.UnitCodes import Races
 from game.world.managers.ObjectManager import ObjectManager
 from game.world.managers.PlayerManager import PlayerManager
 from utils.constants.ObjectCodes import ObjectTypes
@@ -39,9 +40,20 @@ class PlayerLoginHandler(object):
             world_session.player_mgr.create_update_packet(UpdateTypes.UPDATE_IN_RANGE.value) +
             world_session.player_mgr.get_update_packet()))
 
+        PlayerLoginHandler.send_cinematic(world_session.player_mgr.player, socket)
+
         world_session.player_mgr.complete_login()
 
         return 0
+
+    @staticmethod
+    def send_cinematic(player, socket):
+        if player.race == Races.RACE_UNDEAD.value:
+            data = pack(
+                '<I', 2  # Undead cinematic, ONLY undeads have intro cinematic.
+            )
+            socket.sendall(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
+
 
     @staticmethod
     def _get_login_timespeed():

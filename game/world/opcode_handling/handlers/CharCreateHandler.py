@@ -22,7 +22,7 @@ class CharCreateHandler(object):
 
         if result == CharCreate.CHAR_CREATE_SUCCESS.value:
             character = Character(guid=RealmDatabaseManager.character_get_next_available_guid(),
-                                  account=world_session.account_mgr.account.id,
+                                  account_id=world_session.account_mgr.account.id,
                                   name=name,
                                   race=race,
                                   class_=class_,
@@ -33,6 +33,12 @@ class CharCreateHandler(object):
                                   haircolour=haircolor,
                                   facialhair=facialhair,
                                   level=1)
+            # TODO hardcoded start location
+            character.position_x = -8900
+            character.position_y = -120
+            character.position_z = 90
+            character.map = 0
+            character.zone = 12
             RealmDatabaseManager.character_create(character)
 
         data = pack('<B', result)
