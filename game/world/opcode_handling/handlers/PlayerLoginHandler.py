@@ -54,7 +54,6 @@ class PlayerLoginHandler(object):
             )
             socket.sendall(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
 
-
     @staticmethod
     def _get_login_timespeed():
         data = pack(
