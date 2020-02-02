@@ -18,3 +18,16 @@ class ChatManager(object):
             ChatFlags.CHAT_TAG_NONE.value
         )
         world_session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_MESSAGECHAT, data))
+
+    @staticmethod
+    def send_chat_message(world_session, message, chat_type, lang):
+        message_bytes = PacketWriter.string_to_bytes(message)
+        data = pack(
+            '<BIQ%usB' % len(message_bytes),
+            chat_type.value,
+            0,  # lang, disregard for now––not implemented
+            world_session.player_mgr.guid,
+            message_bytes,
+            ChatFlags.CHAT_TAG_NONE.value
+        )
+        world_session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_MESSAGECHAT, data))
