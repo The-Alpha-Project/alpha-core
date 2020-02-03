@@ -18,9 +18,7 @@ class ChatHandler(object):
                 or chat_type == ChatMsgs.CHAT_MSG_YELL:
             message = PacketReader.read_string(reader.data[8:], 0)
 
-            if len(message) == 0:
-                return 0
-
-            ChatManager.send_chat_message(world_session, message, chat_type, lang)
+            if len(message) > 0:
+                ChatManager.send_chat_message(world_session, message, chat_type, lang)
 
         return 0
