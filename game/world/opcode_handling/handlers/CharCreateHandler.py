@@ -34,11 +34,11 @@ class CharCreateHandler(object):
                                   facialhair=facialhair,
                                   level=1)
             # TODO hardcoded start location
-            character.position_x = -8900
-            character.position_y = -120
-            character.position_z = 90
+            character.position_x = 1676
+            character.position_y = 1677
+            character.position_z = 122
             character.map = 0
-            character.zone = 12
+            character.zone = 85
             RealmDatabaseManager.character_create(character)
 
         data = pack('<B', result)

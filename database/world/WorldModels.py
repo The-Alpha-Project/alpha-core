@@ -1,0 +1,918 @@
+# coding: utf-8
+from sqlalchemy import CHAR, Column, Float, ForeignKey, Index, String, Table, Text, text
+from sqlalchemy.dialects.mysql import INTEGER, LONGTEXT, MEDIUMINT, SMALLINT, TINYINT
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+metadata = Base.metadata
+
+
+class AppliedUpdate(Base):
+    __tablename__ = 'applied_updates'
+
+    id = Column(String(9), primary_key=True, server_default=text("'000000000'"))
+
+
+class AreatriggerTeleport(Base):
+    __tablename__ = 'areatrigger_teleport'
+
+    id = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"), comment='Identifier')
+    name = Column(Text)
+    required_level = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    required_item = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    required_item2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    required_quest_done = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    target_map = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    target_position_x = Column(Float, nullable=False, server_default=text("'0'"))
+    target_position_y = Column(Float, nullable=False, server_default=text("'0'"))
+    target_position_z = Column(Float, nullable=False, server_default=text("'0'"))
+    target_orientation = Column(Float, nullable=False, server_default=text("'0'"))
+
+
+class CreatureModelInfo(Base):
+    __tablename__ = 'creature_model_info'
+
+    modelid = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
+    bounding_radius = Column(Float, nullable=False, server_default=text("'0'"))
+    combat_reach = Column(Float, nullable=False, server_default=text("'0'"))
+    gender = Column(TINYINT(3), nullable=False, server_default=text("'2'"))
+    modelid_other_gender = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    modelid_other_team = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+
+class CreatureSpell(Base):
+    __tablename__ = 'creature_spells'
+
+    entry = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
+    name = Column(String(255), nullable=False, server_default=text("''"))
+    spellId_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    probability_1 = Column(TINYINT(3), nullable=False, server_default=text("'100'"))
+    castTarget_1 = Column(TINYINT(2), nullable=False, server_default=text("'1'"))
+    targetParam1_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    targetParam2_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    castFlags_1 = Column(TINYINT(2), nullable=False, server_default=text("'0'"))
+    delayInitialMin_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayInitialMax_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMin_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMax_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    scriptId_1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spellId_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    probability_2 = Column(TINYINT(3), nullable=False, server_default=text("'100'"))
+    castTarget_2 = Column(TINYINT(2), nullable=False, server_default=text("'1'"))
+    targetParam1_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    targetParam2_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    castFlags_2 = Column(TINYINT(2), nullable=False, server_default=text("'0'"))
+    delayInitialMin_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayInitialMax_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMin_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMax_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    scriptId_2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spellId_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    probability_3 = Column(TINYINT(3), nullable=False, server_default=text("'100'"))
+    castTarget_3 = Column(TINYINT(2), nullable=False, server_default=text("'1'"))
+    targetParam1_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    targetParam2_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    castFlags_3 = Column(TINYINT(2), nullable=False, server_default=text("'0'"))
+    delayInitialMin_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayInitialMax_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMin_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMax_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    scriptId_3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spellId_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    probability_4 = Column(TINYINT(3), nullable=False, server_default=text("'100'"))
+    castTarget_4 = Column(TINYINT(2), nullable=False, server_default=text("'1'"))
+    targetParam1_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    targetParam2_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    castFlags_4 = Column(TINYINT(2), nullable=False, server_default=text("'0'"))
+    delayInitialMin_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayInitialMax_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMin_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMax_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    scriptId_4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spellId_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    probability_5 = Column(TINYINT(3), nullable=False, server_default=text("'100'"))
+    castTarget_5 = Column(TINYINT(2), nullable=False, server_default=text("'1'"))
+    targetParam1_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    targetParam2_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    castFlags_5 = Column(TINYINT(2), nullable=False, server_default=text("'0'"))
+    delayInitialMin_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayInitialMax_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMin_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMax_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    scriptId_5 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spellId_6 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    probability_6 = Column(TINYINT(3), nullable=False, server_default=text("'100'"))
+    castTarget_6 = Column(TINYINT(2), nullable=False, server_default=text("'1'"))
+    targetParam1_6 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    targetParam2_6 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    castFlags_6 = Column(TINYINT(2), nullable=False, server_default=text("'0'"))
+    delayInitialMin_6 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayInitialMax_6 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMin_6 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMax_6 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    scriptId_6 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spellId_7 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    probability_7 = Column(TINYINT(3), nullable=False, server_default=text("'100'"))
+    castTarget_7 = Column(TINYINT(2), nullable=False, server_default=text("'1'"))
+    targetParam1_7 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    targetParam2_7 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    castFlags_7 = Column(TINYINT(2), nullable=False, server_default=text("'0'"))
+    delayInitialMin_7 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayInitialMax_7 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMin_7 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMax_7 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    scriptId_7 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spellId_8 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    probability_8 = Column(TINYINT(3), nullable=False, server_default=text("'100'"))
+    castTarget_8 = Column(TINYINT(2), nullable=False, server_default=text("'1'"))
+    targetParam1_8 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    targetParam2_8 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    castFlags_8 = Column(TINYINT(2), nullable=False, server_default=text("'0'"))
+    delayInitialMin_8 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayInitialMax_8 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMin_8 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    delayRepeatMax_8 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    scriptId_8 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+
+t_creature_spells_scripts = Table(
+    'creature_spells_scripts', metadata,
+    Column('id', MEDIUMINT(8), nullable=False, server_default=text("'0'")),
+    Column('delay', INTEGER(10), nullable=False, server_default=text("'0'")),
+    Column('command', MEDIUMINT(8), nullable=False, server_default=text("'0'")),
+    Column('datalong', MEDIUMINT(8), nullable=False, server_default=text("'0'")),
+    Column('datalong2', INTEGER(10), nullable=False, server_default=text("'0'")),
+    Column('datalong3', INTEGER(10), nullable=False, server_default=text("'0'")),
+    Column('datalong4', INTEGER(10), nullable=False, server_default=text("'0'")),
+    Column('target_param1', INTEGER(10), nullable=False, server_default=text("'0'")),
+    Column('target_param2', INTEGER(10), nullable=False, server_default=text("'0'")),
+    Column('target_type', TINYINT(3), nullable=False, server_default=text("'0'")),
+    Column('data_flags', TINYINT(3), nullable=False, server_default=text("'0'")),
+    Column('dataint', INTEGER(11), nullable=False, server_default=text("'0'")),
+    Column('dataint2', INTEGER(11), nullable=False, server_default=text("'0'")),
+    Column('dataint3', INTEGER(11), nullable=False, server_default=text("'0'")),
+    Column('dataint4', INTEGER(11), nullable=False, server_default=text("'0'")),
+    Column('x', Float, nullable=False, server_default=text("'0'")),
+    Column('y', Float, nullable=False, server_default=text("'0'")),
+    Column('z', Float, nullable=False, server_default=text("'0'")),
+    Column('o', Float, nullable=False, server_default=text("'0'")),
+    Column('condition_id', MEDIUMINT(8), nullable=False, server_default=text("'0'")),
+    Column('comments', String(255), nullable=False)
+)
+
+
+class Creature(Base):
+    __tablename__ = 'creatures'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
+    display_id1 = Column(MEDIUMINT(8), nullable=False, index=True, server_default=text("'0'"))
+    display_id2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    display_id3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    display_id4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    name = Column(CHAR(100), nullable=False, index=True, server_default=text("'0'"))
+    subname = Column(CHAR(100))
+    gossip_menu_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    level_min = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    level_max = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    health_min = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    health_max = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    mana_min = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    mana_max = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    armor = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    faction = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    npc_flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    speed_walk = Column(Float, nullable=False, server_default=text("'1'"), comment='Result of 2.5/2.5, most common value')
+    speed_run = Column(Float, nullable=False, server_default=text("'1.14286'"), comment='Result of 8.0/7.0, most common value')
+    scale = Column(Float, nullable=False, server_default=text("'1'"))
+    detection_range = Column(Float, nullable=False, server_default=text("'20'"))
+    call_for_help_range = Column(Float, nullable=False, server_default=text("'5'"))
+    leash_range = Column(Float, nullable=False, server_default=text("'0'"))
+    rank = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    xp_multiplier = Column(Float, nullable=False, server_default=text("'1'"))
+    dmg_min = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_max = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_school = Column(TINYINT(4), nullable=False, server_default=text("'0'"))
+    attack_power = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    dmg_multiplier = Column(Float, nullable=False, server_default=text("'1'"))
+    base_attack_time = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    ranged_attack_time = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    unit_class = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    unit_flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    dynamic_flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    beast_family = Column(TINYINT(4), nullable=False, server_default=text("'0'"))
+    trainer_type = Column(TINYINT(4), nullable=False, server_default=text("'0'"))
+    trainer_spell = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    trainer_class = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    trainer_race = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    ranged_dmg_min = Column(Float, nullable=False, server_default=text("'0'"))
+    ranged_dmg_max = Column(Float, nullable=False, server_default=text("'0'"))
+    ranged_attack_power = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    type_flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    loot_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    pickpocket_loot_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    skinning_loot_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    holy_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    fire_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    nature_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    frost_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    shadow_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    arcane_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    spell_id1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spell_id2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spell_id3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spell_id4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spell_list_id = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    pet_spell_list_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    gold_min = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    gold_max = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ai_name = Column(CHAR(64), nullable=False, server_default=text("''"))
+    movement_type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    inhabit_type = Column(TINYINT(3), nullable=False, server_default=text("'3'"))
+    civilian = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    racial_leader = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    regeneration = Column(TINYINT(3), nullable=False, server_default=text("'3'"))
+    equipment_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    trainer_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    vendor_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    mechanic_immune_mask = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    school_immune_mask = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    flags_extra = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    script_name = Column(CHAR(64), nullable=False, server_default=text("''"))
+
+    quest_involved = relationship('Quest', secondary='creature_involvedrelation')
+    quest_relation = relationship('Quest', secondary='creature_questrelation')
+
+
+class Gameobject(Base):
+    __tablename__ = 'gameobjects'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
+    type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    displayId = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    name = Column(String(100), nullable=False, index=True, server_default=text("''"))
+    castBarCaption = Column(String(100), nullable=False, server_default=text("''"))
+    faction = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    size = Column(Float, nullable=False, server_default=text("'1'"))
+    data1 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    data2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    data3 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    data4 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    data5 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    data6 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    data7 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    data8 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    data9 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    data10 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    mingold = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    maxgold = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ScriptName = Column(String(64), nullable=False, server_default=text("''"))
+
+
+class ItemTemplate(Base):
+    __tablename__ = 'item_template'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
+    _class = Column('class', TINYINT(3), nullable=False, index=True, server_default=text("'0'"))
+    subclass = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    name = Column(String(255), nullable=False, server_default=text("''"))
+    description = Column(String(255), nullable=False, server_default=text("''"))
+    display_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    quality = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    buy_count = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    buy_price = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    sell_price = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    inventory_type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    allowable_class = Column(MEDIUMINT(9), nullable=False, server_default=text("'-1'"))
+    allowable_race = Column(MEDIUMINT(9), nullable=False, server_default=text("'-1'"))
+    item_level = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    required_level = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    required_skill = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    required_skill_rank = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    required_spell = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    required_honor_rank = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    required_city_rank = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    required_reputation_faction = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    required_reputation_rank = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    max_count = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    stackable = Column(SMALLINT(5), nullable=False, server_default=text("'1'"))
+    container_slots = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    stat_type1 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    stat_value1 = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    stat_type2 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    stat_value2 = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    stat_type3 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    stat_value3 = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    stat_type4 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    stat_value4 = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    stat_type5 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    stat_value5 = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    stat_type6 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    stat_value6 = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    stat_type7 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    stat_value7 = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    stat_type8 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    stat_value8 = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    stat_type9 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    stat_value9 = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    stat_type10 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    stat_value10 = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    delay = Column(SMALLINT(5), nullable=False, server_default=text("'1000'"))
+    range_mod = Column(Float, nullable=False, server_default=text("'0'"))
+    ammo_type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    dmg_min1 = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_max1 = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_type1 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    dmg_min2 = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_max2 = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_type2 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    dmg_min3 = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_max3 = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_type3 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    dmg_min4 = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_max4 = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_type4 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    dmg_min5 = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_max5 = Column(Float, nullable=False, server_default=text("'0'"))
+    dmg_type5 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    block = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    armor = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    holy_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    fire_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    nature_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    frost_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    shadow_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    arcane_res = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    spellid_1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spelltrigger_1 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    spellcharges_1 = Column(TINYINT(4), nullable=False, server_default=text("'0'"))
+    spellppmrate_1 = Column(Float, nullable=False, server_default=text("'0'"))
+    spellcooldown_1 = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))
+    spellcategory_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    spellcategorycooldown_1 = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))
+    spellid_2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spelltrigger_2 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    spellcharges_2 = Column(TINYINT(4), nullable=False, server_default=text("'0'"))
+    spellppmrate_2 = Column(Float, nullable=False, server_default=text("'0'"))
+    spellcooldown_2 = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))
+    spellcategory_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    spellcategorycooldown_2 = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))
+    spellid_3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spelltrigger_3 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    spellcharges_3 = Column(TINYINT(4), nullable=False, server_default=text("'0'"))
+    spellppmrate_3 = Column(Float, nullable=False, server_default=text("'0'"))
+    spellcooldown_3 = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))
+    spellcategory_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    spellcategorycooldown_3 = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))
+    spellid_4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spelltrigger_4 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    spellcharges_4 = Column(TINYINT(4), nullable=False, server_default=text("'0'"))
+    spellppmrate_4 = Column(Float, nullable=False, server_default=text("'0'"))
+    spellcooldown_4 = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))
+    spellcategory_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    spellcategorycooldown_4 = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))
+    spellid_5 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spelltrigger_5 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    spellcharges_5 = Column(TINYINT(4), nullable=False, server_default=text("'0'"))
+    spellppmrate_5 = Column(Float, nullable=False, server_default=text("'0'"))
+    spellcooldown_5 = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))
+    spellcategory_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    spellcategorycooldown_5 = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))
+    bonding = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    page_text = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    page_language = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    page_material = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    start_quest = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    lock_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    material = Column(TINYINT(4), nullable=False, server_default=text("'0'"))
+    sheath = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    random_property = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    set_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    max_durability = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    area_bound = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    map_bound = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    duration = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    bag_family = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    disenchant_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    food_type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    min_money_loot = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    max_money_loot = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    extra_flags = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
+
+
+class NpcText(Base):
+    __tablename__ = 'npc_text'
+
+    id = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
+    text0_0 = Column(LONGTEXT, nullable=False)
+    text0_1 = Column(LONGTEXT, nullable=False)
+    lang0 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    prob0 = Column(Float, nullable=False, server_default=text("'0'"))
+    em0_0 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em0_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em0_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em0_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em0_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em0_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    text1_0 = Column(LONGTEXT, nullable=False)
+    text1_1 = Column(LONGTEXT, nullable=False)
+    lang1 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    prob1 = Column(Float, nullable=False, server_default=text("'0'"))
+    em1_0 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em1_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em1_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em1_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em1_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em1_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    text2_0 = Column(LONGTEXT, nullable=False)
+    text2_1 = Column(LONGTEXT, nullable=False)
+    lang2 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    prob2 = Column(Float, nullable=False, server_default=text("'0'"))
+    em2_0 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em2_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em2_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em2_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em2_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em2_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    text3_0 = Column(LONGTEXT, nullable=False)
+    text3_1 = Column(LONGTEXT, nullable=False)
+    lang3 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    prob3 = Column(Float, nullable=False, server_default=text("'0'"))
+    em3_0 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em3_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em3_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em3_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em3_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em3_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    text4_0 = Column(LONGTEXT, nullable=False)
+    text4_1 = Column(LONGTEXT, nullable=False)
+    lang4 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    prob4 = Column(Float, nullable=False, server_default=text("'0'"))
+    em4_0 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em4_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em4_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em4_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em4_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em4_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    text5_0 = Column(LONGTEXT, nullable=False)
+    text5_1 = Column(LONGTEXT, nullable=False)
+    lang5 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    prob5 = Column(Float, nullable=False, server_default=text("'0'"))
+    em5_0 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em5_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em5_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em5_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em5_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em5_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    text6_0 = Column(LONGTEXT, nullable=False)
+    text6_1 = Column(LONGTEXT, nullable=False)
+    lang6 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    prob6 = Column(Float, nullable=False, server_default=text("'0'"))
+    em6_0 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em6_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em6_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em6_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em6_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em6_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    text7_0 = Column(LONGTEXT, nullable=False)
+    text7_1 = Column(LONGTEXT, nullable=False)
+    lang7 = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    prob7 = Column(Float, nullable=False, server_default=text("'0'"))
+    em7_0 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em7_1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em7_2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em7_3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em7_4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    em7_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+
+
+class PlayerClasslevelstat(Base):
+    __tablename__ = 'player_classlevelstats'
+
+    id = Column(INTEGER(10), primary_key=True, nullable=False, index=True)
+    _class = Column('class', TINYINT(3), primary_key=True, nullable=False)
+    level = Column(TINYINT(3), primary_key=True, nullable=False)
+    basehp = Column(SMALLINT(5), nullable=False)
+    basemana = Column(SMALLINT(5), nullable=False)
+
+
+class PlayerLevelstat(Base):
+    __tablename__ = 'player_levelstats'
+
+    id = Column(INTEGER(11), primary_key=True, nullable=False, index=True)
+    race = Column(TINYINT(3), primary_key=True, nullable=False)
+    _class = Column('class', TINYINT(3), primary_key=True, nullable=False)
+    level = Column(TINYINT(3), primary_key=True, nullable=False)
+    str = Column(TINYINT(3), nullable=False)
+    agi = Column(TINYINT(3), nullable=False)
+    sta = Column(TINYINT(3), nullable=False)
+    inte = Column(TINYINT(3), nullable=False)
+    spi = Column(TINYINT(3), nullable=False)
+
+
+class Playercreateinfo(Base):
+    __tablename__ = 'playercreateinfo'
+
+    id = Column(INTEGER(10), primary_key=True, nullable=False, index=True)
+    race = Column(TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
+    _class = Column('class', TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
+    map = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    zone = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    position_x = Column(Float, nullable=False, server_default=text("'0'"))
+    position_y = Column(Float, nullable=False, server_default=text("'0'"))
+    position_z = Column(Float, nullable=False, server_default=text("'0'"))
+    orientation = Column(Float, nullable=False, server_default=text("'0'"))
+
+
+class PlayercreateinfoAction(Base):
+    __tablename__ = 'playercreateinfo_action'
+    __table_args__ = (
+        Index('playercreateinfo_race_class_index', 'race', 'class'),
+    )
+
+    id = Column(INTEGER(10), primary_key=True, nullable=False, index=True)
+    race = Column(TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
+    _class = Column('class', TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
+    button = Column(SMALLINT(5), primary_key=True, nullable=False, server_default=text("'0'"))
+    action = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    type = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+
+
+class PlayercreateinfoItem(Base):
+    __tablename__ = 'playercreateinfo_item'
+    __table_args__ = (
+        Index('playercreateinfo_race_class_index', 'race', 'class'),
+    )
+
+    id = Column(INTEGER(10), primary_key=True, index=True)
+    race = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    _class = Column('class', TINYINT(3), nullable=False, server_default=text("'0'"))
+    itemid = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    amount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+
+
+class PlayercreateinfoSkill(Base):
+    __tablename__ = 'playercreateinfo_skill'
+
+    id = Column(INTEGER(10), primary_key=True, nullable=False, index=True)
+    race = Column(TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
+    _class = Column('class', TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
+    Skill = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    SkillMin = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    SkillMax = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    Note = Column(String(255))
+
+
+class PlayercreateinfoSpell(Base):
+    __tablename__ = 'playercreateinfo_spell'
+
+    id = Column(INTEGER(10), primary_key=True, nullable=False, index=True)
+    race = Column(TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
+    _class = Column('class', TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
+    Spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    Note = Column(String(255))
+
+
+class Quest(Base):
+    __tablename__ = 'quests'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
+    Method = Column(TINYINT(3), nullable=False, server_default=text("'2'"))
+    ZoneOrSort = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+    MinLevel = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    MaxLevel = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    QuestLevel = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    Type = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RequiredClasses = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RequiredRaces = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RequiredSkill = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RequiredSkillValue = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RepObjectiveFaction = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RepObjectiveValue = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    RequiredMinRepFaction = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RequiredMinRepValue = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    RequiredMaxRepFaction = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RequiredMaxRepValue = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    SuggestedPlayers = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    LimitTime = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    QuestFlags = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    SpecialFlags = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    PrevQuestId = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    NextQuestId = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    ExclusiveGroup = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    NextQuestInChain = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    SrcItemId = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    SrcItemCount = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    SrcSpell = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    Title = Column(Text)
+    Details = Column(Text)
+    Objectives = Column(Text)
+    OfferRewardText = Column(Text)
+    RequestItemsText = Column(Text)
+    EndText = Column(Text)
+    ObjectiveText1 = Column(Text)
+    ObjectiveText2 = Column(Text)
+    ObjectiveText3 = Column(Text)
+    ObjectiveText4 = Column(Text)
+    ReqItemId1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ReqItemId2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ReqItemId3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ReqItemId4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ReqItemCount1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqItemCount2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqItemCount3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqItemCount4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqSourceId1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ReqSourceId2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ReqSourceId3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ReqSourceId4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ReqSourceCount1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqSourceCount2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqSourceCount3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqSourceCount4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqCreatureOrGOId1 = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    ReqCreatureOrGOId2 = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    ReqCreatureOrGOId3 = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    ReqCreatureOrGOId4 = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    ReqCreatureOrGOCount1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqCreatureOrGOCount2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqCreatureOrGOCount3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqCreatureOrGOCount4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    ReqSpellCast1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ReqSpellCast2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ReqSpellCast3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ReqSpellCast4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewChoiceItemId1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewChoiceItemId2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewChoiceItemId3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewChoiceItemId4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewChoiceItemId5 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewChoiceItemId6 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewChoiceItemCount1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RewChoiceItemCount2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RewChoiceItemCount3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RewChoiceItemCount4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RewChoiceItemCount5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RewChoiceItemCount6 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RewItemId1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewItemId2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewItemId3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewItemId4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewItemCount1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RewItemCount2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RewItemCount3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RewItemCount4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RewRepFaction1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"), comment='faction id from Faction.dbc in this case')
+    RewRepFaction2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"), comment='faction id from Faction.dbc in this case')
+    RewRepFaction3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"), comment='faction id from Faction.dbc in this case')
+    RewRepFaction4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"), comment='faction id from Faction.dbc in this case')
+    RewRepFaction5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"), comment='faction id from Faction.dbc in this case')
+    RewRepValue1 = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    RewRepValue2 = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    RewRepValue3 = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    RewRepValue4 = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    RewRepValue5 = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    RewOrReqMoney = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    RewMoneyMaxLevel = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    RewSpell = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewSpellCast = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewMailTemplateId = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    RewMailDelaySecs = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    RewMailMoney = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    PointMapId = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    PointX = Column(Float, nullable=False, server_default=text("'0'"))
+    PointY = Column(Float, nullable=False, server_default=text("'0'"))
+    PointOpt = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    DetailsEmote1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    DetailsEmote2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    DetailsEmote3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    DetailsEmote4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    DetailsEmoteDelay1 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    DetailsEmoteDelay2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    DetailsEmoteDelay3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    DetailsEmoteDelay4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    IncompleteEmote = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    CompleteEmote = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    OfferRewardEmote1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    OfferRewardEmote2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    OfferRewardEmote3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    OfferRewardEmote4 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    OfferRewardEmoteDelay1 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    OfferRewardEmoteDelay2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    OfferRewardEmoteDelay3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    OfferRewardEmoteDelay4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    StartScript = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    CompleteScript = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+
+class Worldport(Base):
+    __tablename__ = 'worldports'
+
+    entry = Column(INTEGER(11), primary_key=True)
+    x = Column(Float, nullable=False, server_default=text("'0'"))
+    y = Column(Float, nullable=False, server_default=text("'0'"))
+    z = Column(Float, nullable=False, server_default=text("'0'"))
+    map = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    name = Column(String(255), nullable=False, server_default=text("''"))
+
+
+t_creature_involvedrelation = Table(
+    'creature_involvedrelation', metadata,
+    Column('entry', ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
+    Column('quest', ForeignKey('quests.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
+)
+
+
+class CreatureLootTemplate(Base):
+    __tablename__ = 'creature_loot_template'
+
+    entry = Column(ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='entry 0 used for player insignia loot')
+    item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
+    groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
+    maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+    creature = relationship('Creature')
+    item_template = relationship('ItemTemplate')
+
+
+t_creature_questrelation = Table(
+    'creature_questrelation', metadata,
+    Column('entry', ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
+    Column('quest', ForeignKey('quests.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
+)
+
+
+class GameobjectLootTemplate(Base):
+    __tablename__ = 'gameobject_loot_template'
+
+    entry = Column(ForeignKey('gameobjects.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
+    groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
+    maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+    gameobject = relationship('Gameobject')
+    item_template = relationship('ItemTemplate')
+
+
+class ItemLootTemplate(Base):
+    __tablename__ = 'item_loot_template'
+
+    entry = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    item = Column(ForeignKey('item_template.entry', ondelete='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
+    groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
+    maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+    item_template = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.entry == ItemTemplate.entry')
+    item_template1 = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.item == ItemTemplate.entry')
+
+
+t_npc_trainer = Table(
+    'npc_trainer', metadata,
+    Column('entry', ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, server_default=text("'0'")),
+    Column('spell', MEDIUMINT(8), nullable=False, server_default=text("'0'")),
+    Column('spellcost', INTEGER(10), nullable=False, server_default=text("'0'")),
+    Column('spellpointcost', INTEGER(10), nullable=False, server_default=text("'0'")),
+    Column('reqskill', SMALLINT(5), nullable=False, server_default=text("'0'")),
+    Column('reqskillvalue', SMALLINT(5), nullable=False, server_default=text("'0'")),
+    Column('reqlevel', TINYINT(3), nullable=False, server_default=text("'0'")),
+    Index('entry_spell', 'entry', 'spell', unique=True)
+)
+
+
+class NpcVendor(Base):
+    __tablename__ = 'npc_vendor'
+
+    entry = Column(ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    maxcount = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    incrtime = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    itemflags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+
+    creature = relationship('Creature')
+    item_template = relationship('ItemTemplate')
+
+
+class PickpocketingLootTemplate(Base):
+    __tablename__ = 'pickpocketing_loot_template'
+
+    entry = Column(ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
+    groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
+    maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+    creature = relationship('Creature')
+    item_template = relationship('ItemTemplate')
+
+
+class ReferenceLoot(Base):
+    __tablename__ = 'reference_loot'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
+    groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
+    maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    lootcondition = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    condition_value1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    condition_value2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+    item_template = relationship('ItemTemplate')
+
+
+class ReferenceLootTemplate(Base):
+    __tablename__ = 'reference_loot_template'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
+    groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
+    maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+    item_template = relationship('ItemTemplate')
+
+
+class SkinningLootTemplate(Base):
+    __tablename__ = 'skinning_loot_template'
+
+    entry = Column(ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
+    groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
+    maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+    creature = relationship('Creature')
+    item_template = relationship('ItemTemplate')
+
+
+class SpawnsCreature(Base):
+    __tablename__ = 'spawns_creatures'
+
+    spawn_id = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
+    spawn_entry = Column(ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"), comment='Creature Identifier')
+    spawn_map = Column(SMALLINT(5), nullable=False, index=True, server_default=text("'0'"), comment='Map Identifier')
+    spawn_displayid = Column(ForeignKey('creatures.display_id1', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+    spawn_equipmentid = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
+    spawn_positionX = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_positionY = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_positionZ = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_orientation = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_spawntime = Column(INTEGER(10), nullable=False, server_default=text("'120'"))
+    spawn_spawndist = Column(Float, nullable=False, server_default=text("'5'"))
+    spawn_currentwaypoint = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    spawn_curhealth = Column(INTEGER(10), nullable=False, server_default=text("'1'"))
+    spawn_curmana = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    spawn_deathstate = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    spawn_movetype = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+
+    creature = relationship('Creature', primaryjoin='SpawnsCreature.spawn_displayid == Creature.display_id1')
+    creature1 = relationship('Creature', primaryjoin='SpawnsCreature.spawn_entry == Creature.entry')
+    npc_text = relationship('NpcText', secondary='npc_gossip')
+
+
+class SpawnsGameobject(Base):
+    __tablename__ = 'spawns_gameobjects'
+
+    spawn_id = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
+    displayid = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    spawn_entry = Column(ForeignKey('gameobjects.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"), comment='Gameobject Identifier')
+    spawn_map = Column(SMALLINT(5), nullable=False, server_default=text("'0'"), comment='Map Identifier')
+    spawn_positionX = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_positionY = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_positionZ = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_orientation = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_rotation0 = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_rotation1 = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_rotation2 = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_rotation3 = Column(Float, nullable=False, server_default=text("'0'"))
+    spawn_spawntime = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    spawn_animprogress = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    spawn_state = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+
+    gameobject = relationship('Gameobject')
+
+
+t_npc_gossip = Table(
+    'npc_gossip', metadata,
+    Column('npc_guid', ForeignKey('spawns_creatures.spawn_id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'")),
+    Column('textid', ForeignKey('npc_text.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+)
