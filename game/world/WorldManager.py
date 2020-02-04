@@ -59,8 +59,6 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def start():
-        Logger.info('World server started.')
-
         Logger.info('Loading realm tables...')
         RealmDatabaseManager.load_tables()
         Logger.info('Realm tables loaded.')
@@ -72,6 +70,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         Logger.info('Loading world tables...')
         WorldDatabaseManager.load_tables()
         Logger.info('World tables loaded.')
+
+        Logger.info('World server started.')
 
         ThreadedWorldServer.allow_reuse_address = True
         with ThreadedWorldServer((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port),

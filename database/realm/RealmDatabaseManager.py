@@ -11,33 +11,33 @@ realm_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % 
                                                                                  config.Database.Connection.host,
                                                                                  config.Database.DBNames.realm_db))
 SessionHolder = sessionmaker(bind=realm_db_engine)
-realm_session = SessionHolder()
+realm_db_session = SessionHolder()
 # To always keep the db data in memory
-realm_session.expire_on_commit = False
+realm_db_session.expire_on_commit = False
 
 
 class RealmDatabaseManager(object):
     @staticmethod
     def load_tables():
-        realm_session.add_all(realm_session.query(Account))
-        realm_session.add_all(realm_session.query(Character))
-        realm_session.add_all(realm_session.query(CharacterInventory))
-        realm_session.add_all(realm_session.query(CharacterSocial))
-        realm_session.add_all(realm_session.query(Ticket))
+        realm_db_session.add_all(realm_db_session.query(Account))
+        realm_db_session.add_all(realm_db_session.query(Character))
+        realm_db_session.add_all(realm_db_session.query(CharacterInventory))
+        realm_db_session.add_all(realm_db_session.query(CharacterSocial))
+        realm_db_session.add_all(realm_db_session.query(Ticket))
 
     @staticmethod
     def save():
         try:
-            realm_session.commit()
+            realm_db_session.commit()
         except:
-            realm_session.rollback()
+            realm_db_session.rollback()
             raise
 
     # Account stuff
 
     @staticmethod
     def account_try_login(username, password):
-        account = realm_session.query(Account).filter_by(name=username).first()
+        account = realm_db_session.query(Account).filter_by(name=username).first()
         if account:
             if account.password == password:
                 return 1, AccountManager(account)
@@ -48,38 +48,38 @@ class RealmDatabaseManager(object):
     @staticmethod
     def account_create(username, password, ip):
         account = Account(name=username, password=password, ip=ip, gmlevel=0)
-        realm_session.add(account)
+        realm_db_session.add(account)
         return AccountManager(account)
 
     @staticmethod
     def account_get_characters(account_id):
-        characters = realm_session.query(Character).filter_by(account_id=account_id).all()
+        characters = realm_db_session.query(Character).filter_by(account_id=account_id).all()
         return characters if characters else []
 
     # Character stuff
 
     @staticmethod
     def character_get_next_available_guid():
-        max_id = realm_session.query(func.max(Character.guid)).scalar()
+        max_id = realm_db_session.query(func.max(Character.guid)).scalar()
         return max_id + 1 if max_id else 1
 
     @staticmethod
     def character_get_by_guid(guid):
-        return realm_session.query(Character).filter_by(guid=guid).first()
+        return realm_db_session.query(Character).filter_by(guid=guid).first()
 
     @staticmethod
     def character_does_name_exist(name_to_check):
-        name = realm_session.query(Character.name).filter_by(name=name_to_check).first()
+        name = realm_db_session.query(Character.name).filter_by(name=name_to_check).first()
         return name is not None
 
     @staticmethod
     def character_create(character):
-        realm_session.add(character)
+        realm_db_session.add(character)
 
     @staticmethod
     def character_delete(guid):
         char_to_delete = RealmDatabaseManager.character_get_by_guid(guid)
         if char_to_delete:
-            realm_session.delete(char_to_delete)
+            realm_db_session.delete(char_to_delete)
             return 0
         return -1

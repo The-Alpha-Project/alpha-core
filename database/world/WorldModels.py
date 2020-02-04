@@ -8,7 +8,7 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
-class AppliedUpdate(Base):
+class AppliedUpdates(Base):
     __tablename__ = 'applied_updates'
 
     id = Column(String(9), primary_key=True, server_default=text("'000000000'"))
@@ -162,7 +162,7 @@ t_creature_spells_scripts = Table(
 )
 
 
-class Creature(Base):
+class Creatures(Base):
     __tablename__ = 'creatures'
 
     entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
@@ -241,11 +241,11 @@ class Creature(Base):
     flags_extra = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     script_name = Column(CHAR(64), nullable=False, server_default=text("''"))
 
-    quest_involved = relationship('Quest', secondary='creature_involvedrelation')
-    quest_relation = relationship('Quest', secondary='creature_questrelation')
+    quest_involved = relationship('Quests', secondary='creature_involvedrelation')
+    quest_relation = relationship('Quests', secondary='creature_questrelation')
 
 
-class Gameobject(Base):
+class Gameobjects(Base):
     __tablename__ = 'gameobjects'
 
     entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
@@ -489,7 +489,7 @@ class NpcText(Base):
     em7_5 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
 
 
-class PlayerClasslevelstat(Base):
+class PlayerClasslevelstats(Base):
     __tablename__ = 'player_classlevelstats'
 
     id = Column(INTEGER(10), primary_key=True, nullable=False, index=True)
@@ -499,7 +499,7 @@ class PlayerClasslevelstat(Base):
     basemana = Column(SMALLINT(5), nullable=False)
 
 
-class PlayerLevelstat(Base):
+class PlayerLevelstats(Base):
     __tablename__ = 'player_levelstats'
 
     id = Column(INTEGER(11), primary_key=True, nullable=False, index=True)
@@ -576,7 +576,7 @@ class PlayercreateinfoSpell(Base):
     Note = Column(String(255))
 
 
-class Quest(Base):
+class Quests(Base):
     __tablename__ = 'quests'
 
     entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
@@ -708,7 +708,7 @@ class Quest(Base):
     CompleteScript = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
 
-class Worldport(Base):
+class Worldports(Base):
     __tablename__ = 'worldports'
 
     entry = Column(INTEGER(11), primary_key=True)
@@ -737,7 +737,7 @@ class CreatureLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('Creature')
+    creature = relationship('Creatures')
     item_template = relationship('ItemTemplate')
 
 
@@ -759,7 +759,7 @@ class GameobjectLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    gameobject = relationship('Gameobject')
+    gameobject = relationship('Gameobjects')
     item_template = relationship('ItemTemplate')
 
 
@@ -800,7 +800,7 @@ class NpcVendor(Base):
     incrtime = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     itemflags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('Creature')
+    creature = relationship('Creatures')
     item_template = relationship('ItemTemplate')
 
 
@@ -815,7 +815,7 @@ class PickpocketingLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('Creature')
+    creature = relationship('Creatures')
     item_template = relationship('ItemTemplate')
 
 
@@ -860,11 +860,11 @@ class SkinningLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('Creature')
+    creature = relationship('Creatures')
     item_template = relationship('ItemTemplate')
 
 
-class SpawnsCreature(Base):
+class SpawnsCreatures(Base):
     __tablename__ = 'spawns_creatures'
 
     spawn_id = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
@@ -884,12 +884,12 @@ class SpawnsCreature(Base):
     spawn_deathstate = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     spawn_movetype = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('Creature', primaryjoin='SpawnsCreature.spawn_displayid == Creature.display_id1')
-    creature1 = relationship('Creature', primaryjoin='SpawnsCreature.spawn_entry == Creature.entry')
+    creature = relationship('Creatures', primaryjoin='SpawnsCreatures.spawn_displayid == Creatures.display_id1')
+    creature1 = relationship('Creatures', primaryjoin='SpawnsCreatures.spawn_entry == Creatures.entry')
     npc_text = relationship('NpcText', secondary='npc_gossip')
 
 
-class SpawnsGameobject(Base):
+class SpawnsGameobjects(Base):
     __tablename__ = 'spawns_gameobjects'
 
     spawn_id = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
@@ -908,7 +908,7 @@ class SpawnsGameobject(Base):
     spawn_animprogress = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     spawn_state = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
 
-    gameobject = relationship('Gameobject')
+    gameobject = relationship('Gameobjects')
 
 
 t_npc_gossip = Table(
