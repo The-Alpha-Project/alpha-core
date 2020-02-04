@@ -1,4 +1,4 @@
-from struct import pack, unpack, error
+from struct import pack, unpack, error, calcsize
 
 from network.packet.PacketWriter import *
 from utils.constants.OpCodes import OpCode
@@ -10,6 +10,11 @@ class MovementHandler(object):
     @staticmethod
     def handle_movement_status(world_session, socket, reader):
         movement_fmt = '<QfffffffffI'
+
+        if len(reader.data) > 48:
+            reader.data = reader.data[:48]  # hackfix to avoid handling extra bytes received
+            Logger.warning('Received more than 48 bytes of movement data: %s' % reader.data)
+
         try:
             transport_guid, transport_x, transport_y, transport_z, transport_o, x, y, z, o, pitch, flags = \
                 unpack(movement_fmt, reader.data)

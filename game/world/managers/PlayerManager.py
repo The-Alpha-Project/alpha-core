@@ -56,7 +56,7 @@ class PlayerManager(UnitManager):
             self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
             self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
             self.player_bytes = unpack('<I', pack('<4B', player.skin, player.face, player.hairstyle, player.haircolour))[0]
-            self.player_bytes_2 = unpack('<I', pack('<4B', player.extra_flags, player.bankslots, player.facialhair, 0))[0]
+            self.player_bytes_2 = unpack('>I', pack('>4B', player.extra_flags, player.bankslots, player.facialhair, 0))[0]
             self.map_ = player.map
             self.zone = player.zone
             self.location.x = player.position_x
@@ -70,6 +70,8 @@ class PlayerManager(UnitManager):
             self.health = 1
             self.max_health = 1
             self.movement_flags = 0x08000000
+            self.power_1=100
+            self.max_power_1=100
 
     def set_player_variables(self):
         race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
