@@ -13,7 +13,7 @@ class MovementHandler(object):
 
         if len(reader.data) > 48:
             reader.data = reader.data[:48]  # hackfix to avoid handling extra bytes received
-            Logger.warning('Received more than 48 bytes of movement data: %s' % reader.data)
+            Logger.warning('[%s] Received more than 48 bytes of movement data: %s' % (OpCode(reader.opcode), reader.data))
 
         try:
             transport_guid, transport_x, transport_y, transport_z, transport_o, x, y, z, o, pitch, flags = \
