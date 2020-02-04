@@ -45,7 +45,7 @@ class AreaTrigger(Base):
     Radius = Column(Float, nullable=False, server_default=text("'0'"))
 
 
-class BankBagSlotPrice(Base):
+class BankBagSlotPrices(Base):
     __tablename__ = 'BankBagSlotPrices'
 
     ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
@@ -220,7 +220,7 @@ class ChrProficiency(Base):
     Proficiency_ItemSubClassMask_16 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
 
 
-class ChrRace(Base):
+class ChrRaces(Base):
     __tablename__ = 'ChrRaces'
 
     ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
@@ -887,7 +887,7 @@ class SpellAuraName(Base):
     Name_Mask = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
 
 
-class SpellCastTime(Base):
+class SpellCastTimes(Base):
     __tablename__ = 'SpellCastTimes'
 
     ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
@@ -992,7 +992,7 @@ class SpellItemEnchantment(Base):
     ItemVisual = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
 
 
-class SpellRadiu(Base):
+class SpellRadius(Base):
     __tablename__ = 'SpellRadius'
 
     ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
@@ -1197,7 +1197,7 @@ class WorldMapContinent(Base):
     ContinentOffsetY = Column(Float, nullable=False, server_default=text("'0'"))
 
 
-class WorldSafeLoc(Base):
+class WorldSafeLocs(Base):
     __tablename__ = 'WorldSafeLocs'
 
     ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))

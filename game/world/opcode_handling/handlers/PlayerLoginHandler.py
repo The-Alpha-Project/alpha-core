@@ -5,6 +5,7 @@ from struct import pack, unpack
 from network.packet.PacketWriter import *
 from game.world.managers.PlayerManager import PlayerManager
 from database.realm.RealmDatabaseManager import *
+from database.dbc.DbcDatabaseManager import *
 from utils.Logger import Logger
 from utils.constants.UnitCodes import Races
 from game.world.managers.ObjectManager import ObjectManager
@@ -48,9 +49,11 @@ class PlayerLoginHandler(object):
 
     @staticmethod
     def send_cinematic(player, socket):
-        if player.race == Races.RACE_UNDEAD.value:
+        # Sadly, ONLY undeads have intro cinematic.
+        cinematic_id = DbcDatabaseManager.chr_races_get_by_race(player.race).CinematicSequenceID
+        if cinematic_id != 0:
             data = pack(
-                '<I', 2  # Undead cinematic, ONLY undeads have intro cinematic.
+                '<I', cinematic_id
             )
             socket.sendall(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
 

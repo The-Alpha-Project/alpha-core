@@ -6,6 +6,7 @@ from utils.constants.ObjectCodes import ObjectTypes
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.realm.RealmDatabaseManager import *
+from database.dbc.DbcDatabaseManager import *
 
 
 class PlayerManager(UnitManager):
@@ -63,11 +64,16 @@ class PlayerManager(UnitManager):
             self.location.z = player.position_z
             self.orientation = player.orientation
 
+            self.set_player_variables()
+
             # test
             self.health = 1
             self.max_health = 1
-            self.display_id = 278
             self.movement_flags = 0x08000000
+
+    def set_player_variables(self):
+        race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
+        self.display_id = race.MaleDisplayId if self.player.gender == 0 else race.FemaleDisplayId
 
     def complete_login(self):
         self.is_online = True

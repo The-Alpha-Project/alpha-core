@@ -9,6 +9,9 @@ from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from database.realm.RealmDatabaseManager import *
+from database.dbc.DbcDatabaseManager import *
+from database.world.WorldDatabaseManager import *
+
 from utils.Logger import Logger
 
 
@@ -61,6 +64,14 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         Logger.info('Loading realm tables...')
         RealmDatabaseManager.load_tables()
         Logger.info('Realm tables loaded.')
+
+        Logger.info('Loading dbc tables...')
+        DbcDatabaseManager.load_tables()
+        Logger.info('Dbc tables loaded.')
+
+        Logger.info('Loading world tables...')
+        WorldDatabaseManager.load_tables()
+        Logger.info('World tables loaded.')
 
         ThreadedWorldServer.allow_reuse_address = True
         with ThreadedWorldServer((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port),

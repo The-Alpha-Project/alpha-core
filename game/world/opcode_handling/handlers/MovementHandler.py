@@ -41,8 +41,6 @@ class MovementHandler(object):
             world_session.player_mgr.pitch = pitch
             world_session.player_mgr.movement_flags = flags
 
-            print('%u %u %u' % (x, y, z))
-
         except error:
             Logger.error('Error while handling %s, skipping. Data: %s' % (OpCode(reader.opcode), reader.data))
         return 0
