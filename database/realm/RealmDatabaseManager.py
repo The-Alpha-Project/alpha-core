@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, func
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.realm.RealmModels import *
 from utils.ConfigManager import *
@@ -10,7 +10,7 @@ realm_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % 
                                                                                  config.Database.Connection.password,
                                                                                  config.Database.Connection.host,
                                                                                  config.Database.DBNames.realm_db))
-SessionHolder = sessionmaker(bind=realm_db_engine)
+SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine))
 realm_db_session = SessionHolder()
 # To always keep the db data in memory
 realm_db_session.expire_on_commit = False

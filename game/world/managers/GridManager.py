@@ -1,0 +1,2 @@
+class GridManager(object):
+    pass

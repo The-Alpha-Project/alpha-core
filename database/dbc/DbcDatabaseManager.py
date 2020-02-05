@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, func
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.dbc.DbcModels import *
 from utils.ConfigManager import *
@@ -8,7 +8,7 @@ dbc_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (c
                                                                                config.Database.Connection.password,
                                                                                config.Database.Connection.host,
                                                                                config.Database.DBNames.dbc_db))
-SessionHolder = sessionmaker(bind=dbc_db_engine)
+SessionHolder = scoped_session(sessionmaker(bind=dbc_db_engine))
 dbc_db_session = SessionHolder()
 # To always keep the db data in memory (this database should be read only anyway).
 dbc_db_session.expire_on_commit = False
