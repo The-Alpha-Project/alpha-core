@@ -1,5 +1,4 @@
-from game.world.managers.ObjectManager import ObjectManager
-from utils.ConfigManager import config
+from game.world.managers.objects.ObjectManager import ObjectManager
 from utils.constants.ObjectCodes import ObjectTypes
 
 

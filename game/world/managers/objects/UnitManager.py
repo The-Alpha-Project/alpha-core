@@ -1,6 +1,4 @@
-from struct import pack
-
-from game.world.managers.ObjectManager import ObjectManager
+from game.world.managers.objects.ObjectManager import ObjectManager
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes
 

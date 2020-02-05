@@ -1,11 +1,11 @@
-from struct import pack, unpack
+from struct import unpack
 
-from game.world.managers.UnitManager import UnitManager
+from game.world.managers.GridManager import GridManager
+from game.world.managers.objects.UnitManager import UnitManager
 from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import ObjectTypes
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
-from database.realm.RealmDatabaseManager import *
 from database.dbc.DbcDatabaseManager import *
 
 
@@ -79,6 +79,7 @@ class PlayerManager(UnitManager):
 
     def complete_login(self):
         self.is_online = True
+        GridManager.add_or_get(self, store=True)
 
     def logout(self):
         self.is_online = False

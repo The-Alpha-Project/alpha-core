@@ -1,11 +1,12 @@
 from struct import pack
 from math import pi
 
-from game.world.managers import UnitManager
+from game.world.managers.objects import UnitManager
 from utils.constants.ObjectCodes import ObjectTypes
 from utils.ConfigManager import config
 from game.world.managers.abstractions.Vector import Vector
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
+from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields \
     import ContainerFields, ItemFields, PlayerFields, UnitFields, ObjectFields, GameObjectFields
 
@@ -119,3 +120,7 @@ class ObjectManager(object):
 
     def get_type(self):
         return ObjectTypes.TYPE_OBJECT
+
+    def get_destroy_packet(self):
+        data = pack('<Q', self.guid)
+        return PacketWriter.get_packet(OpCode.SMSG_DESTROY_OBJECT, data)

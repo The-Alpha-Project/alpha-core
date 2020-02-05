@@ -1,5 +1,7 @@
 import math
+import threading
 
+from game.world.managers.abstractions.Vector import Vector
 from utils.constants.ObjectCodes import ObjectTypes
 
 TOLERANCE = 0.00001
@@ -9,6 +11,7 @@ GRIDS = dict()
 
 
 class GridManager(object):
+
     @staticmethod
     def add_or_get(worldobject, store=False):
         grid_coords = GridManager.GridCoords(worldobject.location, worldobject.map_)
@@ -22,6 +25,65 @@ class GridManager(object):
             grid.add(worldobject)
 
         return grid
+
+    @staticmethod
+    def update_object(worldobject):
+        if worldobject.current_grid in GRIDS:
+            grid = GRIDS[worldobject.current_grid]
+            if grid.contains(worldobject):
+                return  # Same grid, ignore
+
+            grid.remove(worldobject)
+            grid.send_all(worldobject.get_destroy_packet())
+
+        grid_coords = GridManager.GridCoords(worldobject.location, worldobject.map_)
+        if grid_coords.key in GRIDS:
+            GRIDS[grid_coords.key].add(worldobject)
+        else:
+            GridManager.add_or_get(worldobject, store=True)
+
+    @staticmethod
+    def remove_object(worldobject):
+        grid = GRIDS[worldobject.current_grid]
+        grid.remove(worldobject)
+        grid.send_all_in_range(worldobject.get_destroy_packet(), range_=GRID_SIZE)
+
+    @staticmethod
+    def get_surrounding(worldobject, x_s=-1, x_m=1, y_s=-1, y_m=1):
+        vector = worldobject.location
+        near_grids = set()
+
+        for x in range(x_s, x_m+1):
+            for y in range(y_s, y_m+1):
+                grid_coords = GridManager.GridCoords(Vector(vector.x + (x * GRID_SIZE), vector.y + (y * GRID_SIZE), 0),
+                                                     worldobject.map_)
+                if grid_coords.key in GRIDS:
+                    near_grids.add(GRIDS[grid_coords.key])
+
+        return near_grids
+
+    @staticmethod
+    def send_surrounding(packet, worldobject, exclude_self=False):
+        for grid in GridManager.get_surrounding(worldobject):
+            grid.send_all(packet, source=None if exclude_self else worldobject)
+
+    @staticmethod
+    def send_surrounding_in_range(packet, worldobject, range_, exclude_self=False):
+        for grid in GridManager.get_surrounding(worldobject):
+            grid.send_all_in_range(packet, range_, source=None if exclude_self else worldobject)
+
+    @staticmethod
+    def get_surrounding_objects(worldobject, object_types):
+        surrounding_objects = set()
+        for grid in GridManager.get_surrounding(worldobject):
+            if ObjectTypes.TYPE_PLAYER in object_types:
+                surrounding_objects.update(grid.players)
+            if ObjectTypes.TYPE_UNIT in object_types:
+                surrounding_objects.update(grid.creatures)
+            if ObjectTypes.TYPE_GAMEOBJECT in object_types:
+                surrounding_objects.update(grid.gameobjects)
+
+        return surrounding_objects
 
     class GridCoords(object):
         def __init__(self, vector, map_):
@@ -94,16 +156,19 @@ class Grid(object):
         elif worldobject.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects.pop(worldobject.guid, None)
 
-    def send_all(self, packet, source):
+    def send_all(self, packet, source=None):
         for player in self.players:
-            if player.is_online and player.guid != source.guid:
-                player.request.sendall(packet)
+            if player.is_online:
+                if source and player.guid == source.guid:
+                    continue
+                threading.Thread(target=player.request.sendall, args=(packet,)).start()
 
-    def send_all_in_range(self, packet, source, range_):
+    def send_all_in_range(self, packet, range_, source=None):
         if range_ <= 0:
             self.send_all(packet, source)
         else:
             for player in self.players:
-                if player.is_online and player.location.distance(source.location) <= range_ \
-                        and player.guid != source.guid:
-                    player.request.sendall(packet)
+                if player.is_online and player.location.distance(source.location) <= range_:
+                    if source and player.guid == source.guid:
+                        continue
+                    threading.Thread(target=player.request.sendall, args=(packet,)).start()

@@ -1,9 +1,3 @@
-from struct import pack, unpack
-
-from network.packet.PacketWriter import *
-from game.world.managers.PlayerManager import PlayerManager
-
-
 class NameQueryHandler(object):
 
     @staticmethod

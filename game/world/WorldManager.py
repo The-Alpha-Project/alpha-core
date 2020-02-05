@@ -5,6 +5,7 @@ import socket
 from struct import pack
 from time import sleep
 
+from game.world.managers.GridManager import GridManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
@@ -33,6 +34,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
             if self.player_mgr:
                 self.player_mgr.is_online = False
+                GridManager.remove_object(self.player_mgr)
         finally:
             self.request.shutdown(socket.SHUT_RDWR)
             self.request.close()

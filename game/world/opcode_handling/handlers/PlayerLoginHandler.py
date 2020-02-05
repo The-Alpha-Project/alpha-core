@@ -1,16 +1,12 @@
 import time
 
-from struct import pack, unpack
+from struct import unpack
 
 from network.packet.PacketWriter import *
-from game.world.managers.PlayerManager import PlayerManager
 from database.realm.RealmDatabaseManager import *
 from database.dbc.DbcDatabaseManager import *
 from utils.Logger import Logger
-from utils.constants.UnitCodes import Races
-from game.world.managers.ObjectManager import ObjectManager
-from game.world.managers.PlayerManager import PlayerManager
-from utils.constants.ObjectCodes import ObjectTypes
+from game.world.managers.objects.PlayerManager import PlayerManager
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import UpdateTypes
 from game.world.managers.ChatManager import ChatManager
