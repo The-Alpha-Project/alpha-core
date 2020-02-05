@@ -57,6 +57,8 @@ class ObjectManager(object):
         self.zone = zone
         self.map_ = map_
 
+        self.current_grid = ''
+
     def get_object_type_value(self):
         type_value = 0
         for type_ in self.object_type:
@@ -114,3 +116,6 @@ class ObjectManager(object):
             data += pack('<I', 0xFFFFFFFF)
 
         return data
+
+    def get_type(self):
+        return ObjectTypes.TYPE_OBJECT

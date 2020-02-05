@@ -202,3 +202,6 @@ class PlayerManager(UnitManager):
             self.player.power2 = self.power_2
             self.player.power3 = self.power_3
             self.player.power4 = self.power_4
+
+    def get_type(self):
+        return ObjectTypes.TYPE_PLAYER

@@ -124,3 +124,6 @@ class UnitManager(ObjectManager):
         self.bytes_2 = bytes_2  # combo points, 0, 0, 0
 
         self.object_type.append(ObjectTypes.TYPE_UNIT)
+
+    def get_type(self):
+        return ObjectTypes.TYPE_UNIT
