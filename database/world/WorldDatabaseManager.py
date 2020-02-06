@@ -17,6 +17,8 @@ world_db_session.expire_on_commit = False
 class WorldDatabaseManager(object):
     @staticmethod
     def load_tables():
+        WorldDatabaseManager.load_single_table(Playercreateinfo)
+        """
         WorldDatabaseManager.load_single_table(AreatriggerTeleport)
         WorldDatabaseManager.load_single_table(CreatureModelInfo)
         WorldDatabaseManager.load_single_table(CreatureSpell)
@@ -43,6 +45,7 @@ class WorldDatabaseManager(object):
         WorldDatabaseManager.load_single_table(SkinningLootTemplate)
         WorldDatabaseManager.load_single_table(SpawnsCreatures)
         WorldDatabaseManager.load_single_table(SpawnsGameobjects)
+        """
 
     @staticmethod
     def load_single_table(table):  # Hackfix

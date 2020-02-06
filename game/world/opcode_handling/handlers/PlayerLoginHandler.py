@@ -39,7 +39,7 @@ class PlayerLoginHandler(object):
 
         PlayerLoginHandler.send_cinematic(world_session.player_mgr.player, socket)
 
-        world_session.player_mgr.complete_login()
+        world_session.player_mgr.complete_login(world_session)
 
         return 0
 

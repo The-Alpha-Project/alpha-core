@@ -7,6 +7,7 @@ from utils.constants.ObjectCodes import ObjectTypes
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.dbc.DbcDatabaseManager import *
+from utils.constants.ObjectCodes import ChatFlags
 
 
 class PlayerManager(UnitManager):
@@ -33,6 +34,7 @@ class PlayerManager(UnitManager):
         self.update_packet_factory = UpdatePacketFactory([ObjectTypes.TYPE_OBJECT.value,
                                                           ObjectTypes.TYPE_UNIT.value,
                                                           ObjectTypes.TYPE_PLAYER.value])
+        self.session = None
 
         self.player = player
         self.is_online = is_online
@@ -64,6 +66,8 @@ class PlayerManager(UnitManager):
             self.location.z = player.position_z
             self.orientation = player.orientation
 
+            self.is_gm = self.player.account.gmlevel > 0
+            self.chat_flags = ChatFlags.CHAT_TAG_GM.value if self.is_gm else ChatFlags.CHAT_TAG_NONE.value
             self.set_player_variables()
 
             # test
@@ -77,13 +81,16 @@ class PlayerManager(UnitManager):
         race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
         self.display_id = race.MaleDisplayId if self.player.gender == 0 else race.FemaleDisplayId
 
-    def complete_login(self):
+    def complete_login(self, world_session):
         self.is_online = True
+        self.session = world_session
         GridManager.add_or_get(self, store=True)
 
     def logout(self):
-        self.is_online = False
         self._sync_player()
+        self.is_online = False
+        self.session = None
+        GridManager.remove_object(self)
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)

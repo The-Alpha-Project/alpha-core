@@ -33,8 +33,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                 sleep(0.001)
 
             if self.player_mgr:
-                self.player_mgr.is_online = False
-                GridManager.remove_object(self.player_mgr)
+                self.player_mgr.logout()
         finally:
             self.request.shutdown(socket.SHUT_RDWR)
             self.request.close()

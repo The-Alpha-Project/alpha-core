@@ -46,7 +46,7 @@ class GridManager(object):
     def remove_object(worldobject):
         grid = GRIDS[worldobject.current_grid]
         grid.remove(worldobject)
-        grid.send_all_in_range(worldobject.get_destroy_packet(), range_=GRID_SIZE)
+        grid.send_all_in_range(worldobject.get_destroy_packet(), source=worldobject, range_=GRID_SIZE)
 
     @staticmethod
     def get_surrounding(worldobject, x_s=-1, x_m=1, y_s=-1, y_m=1):
@@ -63,14 +63,14 @@ class GridManager(object):
         return near_grids
 
     @staticmethod
-    def send_surrounding(packet, worldobject, exclude_self=False):
+    def send_surrounding(packet, worldobject, include_self=True):
         for grid in GridManager.get_surrounding(worldobject):
-            grid.send_all(packet, source=None if exclude_self else worldobject)
+            grid.send_all(packet, source=None if include_self else worldobject)
 
     @staticmethod
-    def send_surrounding_in_range(packet, worldobject, range_, exclude_self=False):
+    def send_surrounding_in_range(packet, worldobject, range_, include_self=True):
         for grid in GridManager.get_surrounding(worldobject):
-            grid.send_all_in_range(packet, range_, source=None if exclude_self else worldobject)
+            grid.send_all_in_range(packet, range_, worldobject, include_self)
 
     @staticmethod
     def get_surrounding_objects(worldobject, object_types):
@@ -157,18 +157,18 @@ class Grid(object):
             self.gameobjects.pop(worldobject.guid, None)
 
     def send_all(self, packet, source=None):
-        for player in self.players:
-            if player.is_online:
-                if source and player.guid == source.guid:
+        for guid, player_mgr in self.players.items():
+            if player_mgr.is_online:
+                if source and player_mgr.guid == source.guid:
                     continue
-                threading.Thread(target=player.request.sendall, args=(packet,)).start()
+                threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
 
-    def send_all_in_range(self, packet, range_, source=None):
+    def send_all_in_range(self, packet, range_, source, include_self=True):
         if range_ <= 0:
             self.send_all(packet, source)
         else:
-            for player in self.players:
-                if player.is_online and player.location.distance(source.location) <= range_:
-                    if source and player.guid == source.guid:
+            for guid, player_mgr in self.players.items():
+                if player_mgr.is_online and player_mgr.location.distance(source.location) <= range_:
+                    if not include_self and player_mgr.guid == source.guid:
                         continue
-                    threading.Thread(target=player.request.sendall, args=(packet,)).start()
+                    threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
