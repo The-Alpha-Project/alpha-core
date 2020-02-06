@@ -2,7 +2,7 @@ from struct import pack
 from math import pi
 
 from game.world.managers.objects import UnitManager
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds
 from utils.ConfigManager import config
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter
@@ -95,15 +95,14 @@ class ObjectManager(object):
         )
         return data
 
-
-    def create_update_packet(self, update_type):
+    def create_update_packet(self):
         length, update_mask = self.get_update_mask()
         data = pack(
             '<IBQBQfffffffffIIffffIIIQB',
             1,  # Number of transactions
             2,
             self.guid,
-            update_type,
+            self.get_type_id().value,
             self.transport_id,
             self.transport.x,
             self.transport.y,
@@ -121,7 +120,7 @@ class ObjectManager(object):
             self.swim_speed,
             self.turn_rate,
             1,  # Flags, 1 - Player, 0 - Bot
-            1 if ObjectTypes.TYPE_PLAYER in self.object_type else 0,  # AttackCycle
+            1 if self.get_type_id() == ObjectTypeIds.TYPEID_PLAYER else 0,  # AttackCycle
             0,  # TimerId
             self.combat_target if isinstance(self, UnitManager.UnitManager) else 0,  # Victim GUID
             int(update_mask)
@@ -134,6 +133,9 @@ class ObjectManager(object):
 
     def get_type(self):
         return ObjectTypes.TYPE_OBJECT
+
+    def get_type_id(self):
+        return ObjectTypeIds.TYPEID_OBJECT
 
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)

@@ -3,7 +3,7 @@ from struct import unpack
 from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.objects.UnitManager import UnitManager
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes
+from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.dbc.DbcDatabaseManager import *
@@ -113,12 +113,12 @@ class PlayerManager(UnitManager):
         )
         return PacketWriter.get_packet(OpCode.SMSG_NAME_QUERY_RESPONSE, player_data)
 
-    def get_update_packet(self, update_type=UpdateTypes.UPDATE_IN_RANGE.value, full=False):
+    def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL.value):
         self._sync_player()
 
         packet = b''
-        if full:
-            packet += self.create_update_packet(update_type)
+        if update_type == UpdateTypes.UPDATE_FULL.value:
+            packet += self.create_update_packet()
         else:
             packet += self.create_partial_update_packet()
 
@@ -210,7 +210,8 @@ class PlayerManager(UnitManager):
 
         # TODO: Don't do a full update if not needed
         GridManager.send_surrounding(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_PARTIAL.value, full=False)), self, include_self=False)
+            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_PARTIAL.value)), self,
+            include_self=False)
 
     def _sync_player(self):
         if self.player and self.player.guid == self.guid:
@@ -232,3 +233,6 @@ class PlayerManager(UnitManager):
 
     def get_type(self):
         return ObjectTypes.TYPE_PLAYER
+
+    def get_type_id(self):
+        return ObjectTypeIds.TYPEID_PLAYER

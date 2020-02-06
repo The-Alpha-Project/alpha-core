@@ -1,5 +1,5 @@
 from game.world.managers.objects.ObjectManager import ObjectManager
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds
 
 
 class GameObjectManager(ObjectManager):
@@ -8,3 +8,6 @@ class GameObjectManager(ObjectManager):
 
     def get_type(self):
         return ObjectTypes.TYPE_GAMEOBJECT
+
+    def get_type_id(self):
+        return ObjectTypeIds.TYPEID_GAMEOBJECT

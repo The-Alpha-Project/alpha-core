@@ -34,7 +34,7 @@ class PlayerLoginHandler(object):
 
         socket.sendall(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
-            world_session.player_mgr.get_update_packet(full=True)))
+            world_session.player_mgr.get_update_packet()))
 
         PlayerLoginHandler.send_cinematic(world_session.player_mgr.player, socket)
 
