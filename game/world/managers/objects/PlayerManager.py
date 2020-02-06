@@ -1,9 +1,9 @@
 from struct import unpack
 
-from game.world.managers.GridManager import GridManager
+from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.objects.UnitManager import UnitManager
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.dbc.DbcDatabaseManager import *
@@ -84,13 +84,15 @@ class PlayerManager(UnitManager):
     def complete_login(self, world_session):
         self.is_online = True
         self.session = world_session
-        GridManager.add_or_get(self, store=True)
+        GridManager.update_object(self)
+        self.update_surrounding()
 
     def logout(self):
         self._sync_player()
         self.is_online = False
         self.session = None
         GridManager.remove_object(self)
+        self.update_surrounding()
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)
@@ -111,8 +113,14 @@ class PlayerManager(UnitManager):
         )
         return PacketWriter.get_packet(OpCode.SMSG_NAME_QUERY_RESPONSE, player_data)
 
-    def get_update_packet(self):
+    def get_update_packet(self, update_type=UpdateTypes.UPDATE_IN_RANGE.value, full=False):
         self._sync_player()
+
+        packet = b''
+        if full:
+            packet += self.create_update_packet(update_type)
+        else:
+            packet += self.create_partial_update_packet()
 
         # Object fields
         self.update_packet_factory.update(self.update_packet_factory.object_values, ObjectFields.OBJECT_FIELD_GUID.value, self.player.guid, 'Q')
@@ -191,7 +199,18 @@ class PlayerManager(UnitManager):
         self.update_packet_factory.update(self.update_packet_factory.player_values, PlayerFields.PLAYER_PARRY_PERCENTAGE.value, self.parry_percentage, 'f')
         self.update_packet_factory.update(self.update_packet_factory.player_values, PlayerFields.PLAYER_BASE_MANA.value, self.base_mana, 'I')
 
-        return self.update_packet_factory.build_packet()
+        return packet + self.update_packet_factory.build_packet()
+
+    def update_surrounding(self):
+        grid = GRIDS[self.current_grid]
+
+        for guid, player in grid.players.items():
+            if player.guid != self.guid:
+                self.session.request.sendall(player.get_destroy_packet())
+
+        # TODO: Don't do a full update if not needed
+        GridManager.send_surrounding(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_PARTIAL.value, full=False)), self, include_self=False)
 
     def _sync_player(self):
         if self.player and self.player.guid == self.guid:

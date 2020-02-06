@@ -80,10 +80,24 @@ class ObjectManager(object):
             mask += ObjectFields.OBJECT_END.value
         if ObjectTypes.TYPE_GAMEOBJECT in self.object_type:
             mask += GameObjectFields.GAMEOBJECT_END.value
-        return (mask + 31) / 32
+
+        return mask, (mask + 31) / 32
+
+    def create_partial_update_packet(self):
+        length, update_mask = self.get_update_mask()
+        data = pack(
+            '<IBQBI',
+            1,  # Number of transactions
+            0,
+            self.guid,
+            int(update_mask),
+            length
+        )
+        return data
+
 
     def create_update_packet(self, update_type):
-        update_mask = int(self.get_update_mask())
+        length, update_mask = self.get_update_mask()
         data = pack(
             '<IBQBQfffffffffIIffffIIIQB',
             1,  # Number of transactions
@@ -110,10 +124,10 @@ class ObjectManager(object):
             1 if ObjectTypes.TYPE_PLAYER in self.object_type else 0,  # AttackCycle
             0,  # TimerId
             self.combat_target if isinstance(self, UnitManager.UnitManager) else 0,  # Victim GUID
-            update_mask
+            int(update_mask)
         )
 
-        for x in range(0, update_mask):
+        for x in range(0, int(update_mask)):
             data += pack('<I', 0xFFFFFFFF)
 
         return data
