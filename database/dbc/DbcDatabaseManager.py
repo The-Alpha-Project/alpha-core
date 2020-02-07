@@ -41,3 +41,8 @@ class DbcDatabaseManager(object):
     @staticmethod
     def chr_races_get_by_race(race):
         return dbc_db_session.query(ChrRaces).filter_by(ID=race).first()
+
+    # AreaTrigger
+    @staticmethod
+    def area_trigger_get_by_id(trigger_id):
+        return dbc_db_session.query(AreaTrigger).filter_by(ID=trigger_id).first()

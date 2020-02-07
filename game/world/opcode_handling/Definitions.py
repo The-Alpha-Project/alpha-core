@@ -11,6 +11,8 @@ from game.world.opcode_handling.handlers.PlayerLoginHandler import PlayerLoginHa
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from game.world.opcode_handling.handlers.TimeQueryHandler import TimeQueryHandler
 from game.world.opcode_handling.handlers.LogoutRequestHandler import LogoutRequestHandler
+from game.world.opcode_handling.handlers.WorldTeleportHandler import WorldTeleportHandler
+from game.world.opcode_handling.handlers.AreaTriggerHandler import AreaTriggerHandler
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
 
@@ -25,6 +27,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_NAME_QUERY: NameQueryHandler.handle,
     OpCode.CMSG_QUERY_TIME: TimeQueryHandler.handle,
     OpCode.CMSG_LOGOUT_REQUEST: LogoutRequestHandler.handle,
+    OpCode.CMSG_WORLD_TELEPORT: WorldTeleportHandler.handle,
+    OpCode.CMSG_AREATRIGGER: AreaTriggerHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

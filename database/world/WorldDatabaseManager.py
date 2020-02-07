@@ -18,8 +18,8 @@ class WorldDatabaseManager(object):
     @staticmethod
     def load_tables():
         WorldDatabaseManager.load_single_table(Playercreateinfo)
-        """
         WorldDatabaseManager.load_single_table(AreatriggerTeleport)
+        """
         WorldDatabaseManager.load_single_table(CreatureModelInfo)
         WorldDatabaseManager.load_single_table(CreatureSpell)
         WorldDatabaseManager.load_single_table(Creatures)
@@ -56,3 +56,9 @@ class WorldDatabaseManager(object):
     @staticmethod
     def player_create_info_get(race, class_):
         return world_db_session.query(Playercreateinfo).filter_by(race=race, _class=class_).first()
+
+    # Area trigger stuff
+
+    @staticmethod
+    def area_trigger_teleport_get_by_id(trigger_id):
+        return world_db_session.query(AreatriggerTeleport).filter_by(id=trigger_id).first()

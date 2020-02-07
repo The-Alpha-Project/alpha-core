@@ -31,7 +31,6 @@ class ObjectManager(object):
                  transport_id=0,
                  transport=Vector(),
                  transport_orientation=0,
-                 orientation=0,
                  pitch=0,
                  zone=0,
                  map_=0):
@@ -53,7 +52,6 @@ class ObjectManager(object):
         self.transport_id = transport_id
         self.transport = transport
         self.transport_orientation = transport_orientation
-        self.orientation = orientation
         self.pitch = pitch
         self.zone = zone
         self.map_ = map_
@@ -111,7 +109,7 @@ class ObjectManager(object):
             self.location.x,
             self.location.y,
             self.location.z,
-            self.orientation,
+            self.location.o,
             self.pitch,
             self.movement_flags,
             0,  # Fall Time?

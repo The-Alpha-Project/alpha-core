@@ -64,7 +64,7 @@ class PlayerManager(UnitManager):
             self.location.x = player.position_x
             self.location.y = player.position_y
             self.location.z = player.position_z
-            self.orientation = player.orientation
+            self.location.o = player.orientation
 
             self.is_gm = self.player.account.gmlevel > 0
             self.chat_flags = ChatFlags.CHAT_TAG_GM.value if self.is_gm else ChatFlags.CHAT_TAG_NONE.value
@@ -223,13 +223,48 @@ class PlayerManager(UnitManager):
             self.player.position_y = self.location.y
             self.player.position_z = self.location.z
             self.player.map = self.map_
-            self.player.orientation = self.orientation
+            self.player.orientation = self.location.o
             self.player.zone = self.zone
             self.player.health = self.health
             self.player.power1 = self.power_1
             self.player.power2 = self.power_2
             self.player.power3 = self.power_3
             self.player.power4 = self.power_4
+
+    def teleport(self, map_, location):
+        # Same map and not inside instance
+        if self.map_ == map_ and self.map_ <= 1:
+            data = pack(
+                '<Q9fI',
+                self.transport_id,
+                self.transport.x,
+                self.transport.y,
+                self.transport.z,
+                self.transport.o,
+                location.x,
+                location.y,
+                location.z,
+                location.o,
+                0,  # ?
+                0x08000000  # MovementFlags
+            )
+            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_MOVE_WORLDPORT_ACK, data))
+        # Loading screen
+        else:
+            data = pack('<I', map_)
+            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING, data))
+
+            GridManager.send_surrounding(self.get_destroy_packet(), self, include_self=True)
+
+            data = pack(
+                '<B4f',
+                map_,
+                location.x,
+                location.y,
+                location.z,
+                location.o
+            )
+            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
 
     def get_type(self):
         return ObjectTypes.TYPE_PLAYER
