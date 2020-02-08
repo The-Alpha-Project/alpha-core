@@ -28,6 +28,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_QUERY_TIME: TimeQueryHandler.handle,
     OpCode.CMSG_LOGOUT_REQUEST: LogoutRequestHandler.handle,
     OpCode.CMSG_WORLD_TELEPORT: WorldTeleportHandler.handle,
+    OpCode.MSG_MOVE_WORLDPORT_ACK: WorldTeleportHandler.handle_ack,
+    OpCode.SMSG_MOVE_WORLDPORT_ACK: WorldTeleportHandler.handle_ack,
     OpCode.CMSG_AREATRIGGER: AreaTriggerHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,

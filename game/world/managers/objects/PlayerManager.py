@@ -73,7 +73,6 @@ class PlayerManager(UnitManager):
             # test
             self.health = 1
             self.max_health = 1
-            self.movement_flags = 0x08000000
             self.power_1=100
             self.max_power_1=100
 
@@ -210,7 +209,7 @@ class PlayerManager(UnitManager):
 
         # TODO: Don't do a full update if not needed
         GridManager.send_surrounding(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_PARTIAL.value)), self,
+            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL.value)), self,
             include_self=False)
 
     def _sync_player(self):
