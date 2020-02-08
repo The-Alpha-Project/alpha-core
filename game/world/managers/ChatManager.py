@@ -17,7 +17,7 @@ class ChatManager(object):
     def send_chat_message(world_session, message, chat_type, lang, range_):
         GridManager.send_surrounding_in_range(ChatManager._get_message_packet(world_session.player_mgr.guid,
                                                                               world_session.player_mgr.chat_flags,
-                                                                              message, chat_type, lang),
+                                                                              message, chat_type, 0), # TODO Handle language
                                               world_session.player_mgr, range_)
 
     @staticmethod

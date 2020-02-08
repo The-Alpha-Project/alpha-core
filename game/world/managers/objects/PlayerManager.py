@@ -90,7 +90,6 @@ class PlayerManager(UnitManager):
         self.session = None
         self.is_online = False
         GridManager.remove_object(self)
-        self.update_surrounding(destroy=False)
         self._sync_player()
 
     def get_tutorial_packet(self):
