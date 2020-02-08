@@ -11,7 +11,6 @@ class NameQueryHandler(object):
     def handle(world_session, socket, reader):
         guid = unpack('<Q', reader.data)
         player = RealmDatabaseManager.character_get_by_guid(guid)
-        print(player.name)
         if player:
             socket.sendall(NameQueryHandler.get_query_details(player))
 
