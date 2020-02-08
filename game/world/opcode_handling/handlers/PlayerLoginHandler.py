@@ -28,7 +28,6 @@ class PlayerLoginHandler(object):
 
         socket.sendall(world_session.player_mgr.get_tutorial_packet())
         socket.sendall(world_session.player_mgr.get_initial_spells())
-        socket.sendall(world_session.player_mgr.get_query_details())
         # MotD
         ChatManager.send_system_message(world_session, config.Server.General.motd)
 

@@ -87,11 +87,11 @@ class PlayerManager(UnitManager):
         self.update_surrounding()
 
     def logout(self):
-        self._sync_player()
-        self.is_online = False
         self.session = None
+        self.is_online = False
         GridManager.remove_object(self)
-        self.update_surrounding()
+        self.update_surrounding(destroy=False)
+        self._sync_player()
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)
@@ -100,24 +100,13 @@ class PlayerManager(UnitManager):
     def get_initial_spells(self):
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, pack('<BHHHH', 0, 1, 133, 1, 0))  # TODO Test with spell 133
 
-    def get_query_details(self):
-        name_bytes = PacketWriter.string_to_bytes(self.player.name)
-        player_data = pack(
-            '<Q%usIII' % len(name_bytes),
-            self.player.guid,
-            name_bytes,
-            self.player.race,
-            self.player.gender,
-            self.player.class_
-        )
-        return PacketWriter.get_packet(OpCode.SMSG_NAME_QUERY_RESPONSE, player_data)
-
-    def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL.value):
+    def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL.value, is_self=True):
         self._sync_player()
 
         packet = b''
         if update_type == UpdateTypes.UPDATE_FULL.value:
-            packet += self.create_update_packet()
+            packet += self.create_update_packet(is_self)
+        # TODO: Partial update still not working
         else:
             packet += self.create_partial_update_packet()
 
@@ -200,17 +189,18 @@ class PlayerManager(UnitManager):
 
         return packet + self.update_packet_factory.build_packet()
 
-    def update_surrounding(self):
-        grid = GRIDS[self.current_grid]
+    def update_surrounding(self, destroy=True):
+        if destroy:
+            grid = GRIDS[self.current_grid]
 
-        for guid, player in grid.players.items():
-            if player.guid != self.guid:
-                self.session.request.sendall(player.get_destroy_packet())
+            for guid, player in grid.players.items():
+                if player.guid != self.guid:
+                    self.session.request.sendall(player.get_destroy_packet())
 
         # TODO: Don't do a full update if not needed
         GridManager.send_surrounding(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL.value)), self,
-            include_self=False)
+            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL.value,
+                                                              is_self=False)), self, include_self=False)
 
     def _sync_player(self):
         if self.player and self.player.guid == self.guid:
