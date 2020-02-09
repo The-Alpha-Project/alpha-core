@@ -10,6 +10,7 @@ class DebugColorLevel(Enum):
     ERROR = Fore.RED + Style.BRIGHT
     SUCCESS = Fore.GREEN + Style.BRIGHT
     DEBUG = Fore.CYAN + Style.BRIGHT
+    ANTICHEAT = Fore.LIGHTBLUE_EX + Style.BRIGHT
 
 
 class Logger(object):
@@ -44,3 +45,8 @@ class Logger(object):
     def success(msg):
         Logger.LABEL = '[SUCCESS]'
         print(Logger.colorize_message(DebugColorLevel.SUCCESS, msg))
+
+    @staticmethod
+    def anticheat(msg):
+        Logger.LABEL = '[ANTICHEAT]'
+        print(Logger.colorize_message(DebugColorLevel.ANTICHEAT, msg))

@@ -1,4 +1,5 @@
 from struct import unpack
+from math import pi
 
 from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.objects.UnitManager import UnitManager
@@ -253,6 +254,37 @@ class PlayerManager(UnitManager):
                 location.o
             )
             self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
+
+    def change_speed(self, speed=0):
+        if speed <= 0:
+            speed = 7.0  # Default run speed
+        elif speed >= 56:
+            speed = 56  # Max speed without glitches
+        self.running_speed = speed
+        data = pack('<f', speed)
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
+
+    def change_swim_speed(self, swim_speed=0):
+        if swim_speed <= 0:
+            swim_speed = 4.7222223  # Default swim speed
+        self.swim_speed = swim_speed
+        data = pack('<f', swim_speed)
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
+
+    def change_walk_speed(self, walk_speed=0):
+        if walk_speed <= 0:
+            walk_speed = 2.5  # Default walk speed
+        self.swim_speed = walk_speed
+        data = pack('<f', walk_speed)
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
+
+    def change_turn_speed(self, turn_speed=0):
+        if turn_speed <= 0:
+            turn_speed = pi  # Default turn rate speed
+        self.turn_rate = turn_speed
+        data = pack('<f', turn_speed)
+        # TODO NOT WORKING
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 
     def get_type(self):
         return ObjectTypes.TYPE_PLAYER

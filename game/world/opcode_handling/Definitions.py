@@ -13,6 +13,7 @@ from game.world.opcode_handling.handlers.TimeQueryHandler import TimeQueryHandle
 from game.world.opcode_handling.handlers.LogoutRequestHandler import LogoutRequestHandler
 from game.world.opcode_handling.handlers.WorldTeleportHandler import WorldTeleportHandler
 from game.world.opcode_handling.handlers.AreaTriggerHandler import AreaTriggerHandler
+from game.world.opcode_handling.handlers.SpeedCheatHandler import SpeedCheatHandler
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
 
@@ -28,9 +29,15 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_QUERY_TIME: TimeQueryHandler.handle,
     OpCode.CMSG_LOGOUT_REQUEST: LogoutRequestHandler.handle,
     OpCode.CMSG_WORLD_TELEPORT: WorldTeleportHandler.handle,
+    OpCode.MSG_MOVE_TELEPORT_CHEAT: WorldTeleportHandler.handle,
     OpCode.MSG_MOVE_WORLDPORT_ACK: WorldTeleportHandler.handle_ack,
     OpCode.SMSG_MOVE_WORLDPORT_ACK: WorldTeleportHandler.handle_ack,
     OpCode.CMSG_AREATRIGGER: AreaTriggerHandler.handle,
+    OpCode.MSG_MOVE_SET_RUN_SPEED_CHEAT: SpeedCheatHandler.handle,
+    OpCode.MSG_MOVE_SET_SWIM_SPEED_CHEAT: SpeedCheatHandler.handle,
+    OpCode.MSG_MOVE_SET_ALL_SPEED_CHEAT: SpeedCheatHandler.handle,
+    OpCode.MSG_MOVE_SET_WALK_SPEED: SpeedCheatHandler.handle,
+    OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT: SpeedCheatHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

@@ -20,7 +20,7 @@ class PlayerLoginHandler(object):
 
         world_session.player_mgr = PlayerManager(RealmDatabaseManager.character_get_by_guid(guid))
         if not world_session.player_mgr.player:
-            Logger.error('Character with wrong guid (%u) tried to login.' % guid)
+            Logger.anticheat('Character with wrong guid (%u) tried to login.' % guid)
             return -1
 
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
