@@ -8,11 +8,15 @@ from game.realm import RealmManager
 from game.world import WorldManager
 from utils.ConfigManager import config
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from signal import signal, SIGPIPE, SIG_DFL
 from utils.Logger import Logger
 
 if __name__ == '__main__':
     # initialize colorama to make ansi codes work in Windows
     colorama.init()
+
+    # https://stackoverflow.com/a/30091579
+    signal(SIGPIPE, SIG_DFL)
 
     login_thread = threading.Thread(target=RealmManager.LoginServerSessionHandler.start)
     login_thread.start()

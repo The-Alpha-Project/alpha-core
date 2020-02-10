@@ -46,7 +46,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def receive(self, sck):
         try:
-            data = sck.recv(1024)
+            data = sck.recv(2048)
             reader = PacketReader(data)
             if reader.opcode:
                 handler = Definitions.get_handler_from_packet(reader.opcode)
