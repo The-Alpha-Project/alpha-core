@@ -63,6 +63,7 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_STOP: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_START_BACKWARD: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_START_FORWARD: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_COLLIDE_REDIRECT: MovementHandler.handle_movement_status  # TODO: Actually handle fall damage, or just ignore it
 }
 
 
