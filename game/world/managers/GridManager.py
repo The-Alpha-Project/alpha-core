@@ -35,7 +35,6 @@ class GridManager(object):
             if worldobject.current_grid in GRIDS:
                 grid = GRIDS[worldobject.current_grid]
                 grid.remove(worldobject)
-                grid.send_all(worldobject.get_destroy_packet())
 
             if grid_coords in GRIDS:
                 GRIDS[grid_coords].add(worldobject)
