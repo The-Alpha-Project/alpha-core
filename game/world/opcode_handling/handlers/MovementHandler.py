@@ -1,5 +1,6 @@
 from struct import pack, unpack, error, calcsize
 
+from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import *
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
@@ -19,18 +20,6 @@ class MovementHandler(object):
             transport_guid, transport_x, transport_y, transport_z, transport_o, x, y, z, o, pitch, flags = \
                 unpack(movement_fmt, reader.data)
 
-            movement_data = PacketWriter.get_packet(OpCode(reader.opcode),
-                                                    pack(movement_fmt,
-                                                         transport_guid,
-                                                         transport_x,
-                                                         transport_y,
-                                                         transport_z,
-                                                         transport_o,
-                                                         x, y, z, o,
-                                                         pitch,
-                                                         flags))
-            socket.sendall(movement_data)
-
             world_session.player_mgr.transport_id = transport_guid
 
             world_session.player_mgr.transport_x = transport_x
@@ -45,6 +34,15 @@ class MovementHandler(object):
 
             world_session.player_mgr.pitch = pitch
             world_session.player_mgr.movement_flags = flags
+
+            movement_data = pack('<Q%us' % len(reader.data),
+                        world_session.player_mgr.guid,
+                        reader.data)
+
+            GridManager.send_surrounding(PacketWriter.get_packet(OpCode(reader.opcode), movement_data),
+                                         world_session.player_mgr, include_self=False)
+            GridManager.update_object(world_session.player_mgr)
+            world_session.player_mgr.sync_player()
 
         except error:
             Logger.error('Error while handling %s, skipping. Data: %s' % (OpCode(reader.opcode), reader.data))

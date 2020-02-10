@@ -14,11 +14,12 @@ class GridManager(object):
 
     @staticmethod
     def add_or_get(worldobject, store=False):
-        grid_coords = GridManager.GridCoords(worldobject.location, worldobject.map_)
-        if grid_coords.key in GRIDS:
-            grid = GRIDS[grid_coords.key]
+        min_x, min_y, max_x, max_y = GridManager.generate_coord_data(worldobject.location)
+        grid_coords = GridManager.get_grid_key(worldobject.location, worldobject.map_)
+        if grid_coords in GRIDS:
+            grid = GRIDS[grid_coords]
         else:
-            grid = Grid(grid_coords.min_x, grid_coords.min_y, grid_coords.max_x, grid_coords.max_y, grid_coords.map_)
+            grid = Grid(min_x, min_y, max_x, max_y, worldobject.map_)
             GRIDS[grid.key] = grid
 
         if store:
@@ -28,19 +29,18 @@ class GridManager(object):
 
     @staticmethod
     def update_object(worldobject):
-        if worldobject.current_grid in GRIDS:
-            grid = GRIDS[worldobject.current_grid]
-            if grid.contains(worldobject):
-                return  # Same grid, ignore
+        grid_coords = GridManager.get_grid_key(worldobject.location, worldobject.map_)
 
-            grid.remove(worldobject)
-            grid.send_all(worldobject.get_destroy_packet())
+        if grid_coords != worldobject.current_grid:
+            if worldobject.current_grid in GRIDS:
+                grid = GRIDS[worldobject.current_grid]
+                grid.remove(worldobject)
+                grid.send_all(worldobject.get_destroy_packet())
 
-        grid_coords = GridManager.GridCoords(worldobject.location, worldobject.map_)
-        if grid_coords.key in GRIDS:
-            GRIDS[grid_coords.key].add(worldobject)
-        else:
-            GridManager.add_or_get(worldobject, store=True)
+            if grid_coords in GRIDS:
+                GRIDS[grid_coords].add(worldobject)
+            else:
+                GridManager.add_or_get(worldobject, store=True)
 
     @staticmethod
     def remove_object(worldobject):
@@ -55,10 +55,10 @@ class GridManager(object):
 
         for x in range(x_s, x_m+1):
             for y in range(y_s, y_m+1):
-                grid_coords = GridManager.GridCoords(Vector(vector.x + (x * GRID_SIZE), vector.y + (y * GRID_SIZE), 0),
+                grid_coords = GridManager.get_grid_key(Vector(vector.x + (x * GRID_SIZE), vector.y + (y * GRID_SIZE), 0),
                                                      worldobject.map_)
-                if grid_coords.key in GRIDS:
-                    near_grids.add(GRIDS[grid_coords.key])
+                if grid_coords in GRIDS:
+                    near_grids.add(GRIDS[grid_coords])
 
         return near_grids
 
@@ -74,29 +74,36 @@ class GridManager(object):
 
     @staticmethod
     def get_surrounding_objects(worldobject, object_types):
-        surrounding_objects = set()
+        surrounding_objects = []
         for grid in GridManager.get_surrounding(worldobject):
             if ObjectTypes.TYPE_PLAYER in object_types:
-                surrounding_objects.update(grid.players)
+                surrounding_objects.append(grid.players)
             if ObjectTypes.TYPE_UNIT in object_types:
-                surrounding_objects.update(grid.creatures)
+                surrounding_objects.append(grid.creatures)
             if ObjectTypes.TYPE_GAMEOBJECT in object_types:
-                surrounding_objects.update(grid.gameobjects)
+                surrounding_objects.append(grid.gameobjects)
 
         return surrounding_objects
 
-    class GridCoords(object):
-        def __init__(self, vector, map_):
-            self.mod_x = vector.x / GRID_SIZE
-            self.mod_y = vector.y / GRID_SIZE
+    @staticmethod
+    def generate_coord_data(vector):
+        mod_x = vector.x / GRID_SIZE
+        mod_y = vector.y / GRID_SIZE
 
-            self.max_x = math.ceil(self.mod_x) * GRID_SIZE - TOLERANCE
-            self.max_y = math.ceil(self.mod_y) * GRID_SIZE - TOLERANCE
-            self.min_x = self.max_x - GRID_SIZE + TOLERANCE
-            self.min_y = self.max_y - GRID_SIZE + TOLERANCE
-            self.map_ = map_
-            self.key = '%u:%u:%u:%u%u' % (round(self.min_x, 5), round(self.min_y, 5), round(self.max_x, 5),
-                                          round(self.max_y, 5), self.map_)
+        max_x = math.ceil(mod_x) * GRID_SIZE - TOLERANCE
+        max_y = math.ceil(mod_y) * GRID_SIZE - TOLERANCE
+        min_x = max_x - GRID_SIZE + TOLERANCE
+        min_y = max_y - GRID_SIZE + TOLERANCE
+
+        return min_x, min_y, max_x, max_y
+
+    @staticmethod
+    def get_grid_key(vector, map_):
+        min_x, min_y, max_x, max_y = GridManager.generate_coord_data(vector)
+        key = '%u:%u:%u:%u%u' % (round(min_x, 5), round(min_y, 5), round(max_x, 5),
+                                      round(max_y, 5), map_)
+
+        return key
 
 
 class Grid(object):

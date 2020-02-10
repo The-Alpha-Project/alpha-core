@@ -85,13 +85,14 @@ class PlayerManager(UnitManager):
         self.is_online = True
         self.session = world_session
         GridManager.update_object(self)
-        self.update_surrounding()
+        self.update_surrounding(destroy=False)
+        # TODO something weird happens, when you log in, other players may appear at your location until they move
 
     def logout(self):
         self.session = None
         self.is_online = False
         GridManager.remove_object(self)
-        self._sync_player()
+        self.sync_player()
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)
@@ -100,8 +101,112 @@ class PlayerManager(UnitManager):
     def get_initial_spells(self):
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, pack('<BHHHH', 0, 1, 133, 1, 0))  # TODO Test with spell 133
 
+    def update_surrounding(self, destroy=True):
+        if destroy:
+            grid = GRIDS[self.current_grid]
+
+            for guid, player in grid.players.items():
+                if player.guid != self.guid:
+                    self.session.request.sendall(player.get_destroy_packet())
+
+        # TODO: Don't do a full update if not needed
+        GridManager.send_surrounding(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL.value,
+                                                              is_self=False)), self, include_self=False)
+
+        for guid, player in GridManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER])[0].items():
+            if self.guid != guid:
+                self.session.request.sendall(
+                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                            player.get_update_packet(update_type=UpdateTypes.UPDATE_FULL.value,
+                                                                     is_self=False)))
+
+    def sync_player(self):
+        if self.player and self.player.guid == self.guid:
+            self.player.level = self.level
+            self.player.xp = self.xp
+            self.player.talent_points = self.talent_points
+            self.player.skillpoints = self.skill_points
+            self.player.position_x = self.location.x
+            self.player.position_y = self.location.y
+            self.player.position_z = self.location.z
+            self.player.map = self.map_
+            self.player.orientation = self.location.o
+            self.player.zone = self.zone
+            self.player.health = self.health
+            self.player.power1 = self.power_1
+            self.player.power2 = self.power_2
+            self.player.power3 = self.power_3
+            self.player.power4 = self.power_4
+
+    def teleport(self, map_, location):
+        # Same map and not inside instance
+        if self.map_ == map_ and self.map_ <= 1:
+            data = pack(
+                '<Q9fI',
+                self.transport_id,
+                self.transport.x,
+                self.transport.y,
+                self.transport.z,
+                self.transport.o,
+                location.x,
+                location.y,
+                location.z,
+                location.o,
+                0,  # ?
+                0x08000000  # MovementFlags
+            )
+            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_MOVE_WORLDPORT_ACK, data))
+        # Loading screen
+        else: # TODO Not working
+            data = pack('<I', map_)
+            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING, data))
+
+            data = pack(
+                '<B4f',
+                map_,
+                location.x,
+                location.y,
+                location.z,
+                location.o
+            )
+            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
+
+
+    def change_speed(self, speed=0):
+        if speed <= 0:
+            speed = 7.0  # Default run speed
+        elif speed >= 56:
+            speed = 56  # Max speed without glitches
+        self.running_speed = speed
+        data = pack('<f', speed)
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
+
+    def change_swim_speed(self, swim_speed=0):
+        if swim_speed <= 0:
+            swim_speed = 4.7222223  # Default swim speed
+        self.swim_speed = swim_speed
+        data = pack('<f', swim_speed)
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
+
+    def change_walk_speed(self, walk_speed=0):
+        if walk_speed <= 0:
+            walk_speed = 2.5  # Default walk speed
+        self.swim_speed = walk_speed
+        data = pack('<f', walk_speed)
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
+
+    def change_turn_speed(self, turn_speed=0):
+        if turn_speed <= 0:
+            turn_speed = pi  # Default turn rate speed
+        self.turn_rate = turn_speed
+        data = pack('<f', turn_speed)
+        # TODO NOT WORKING
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
+
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL.value, is_self=True):
-        self._sync_player()
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
+        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
 
         packet = b''
         if update_type == UpdateTypes.UPDATE_FULL.value:
@@ -188,103 +293,6 @@ class PlayerManager(UnitManager):
         self.update_packet_factory.update(self.update_packet_factory.player_values, PlayerFields.PLAYER_BASE_MANA.value, self.base_mana, 'I')
 
         return packet + self.update_packet_factory.build_packet()
-
-    def update_surrounding(self, destroy=True):
-        if destroy:
-            grid = GRIDS[self.current_grid]
-
-            for guid, player in grid.players.items():
-                if player.guid != self.guid:
-                    self.session.request.sendall(player.get_destroy_packet())
-
-        # TODO: Don't do a full update if not needed
-        GridManager.send_surrounding(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL.value,
-                                                              is_self=False)), self, include_self=False)
-
-    def _sync_player(self):
-        if self.player and self.player.guid == self.guid:
-            self.player.level = self.level
-            self.player.xp = self.xp
-            self.player.talent_points = self.talent_points
-            self.player.skillpoints = self.skill_points
-            self.player.position_x = self.location.x
-            self.player.position_y = self.location.y
-            self.player.position_z = self.location.z
-            self.player.map = self.map_
-            self.player.orientation = self.location.o
-            self.player.zone = self.zone
-            self.player.health = self.health
-            self.player.power1 = self.power_1
-            self.player.power2 = self.power_2
-            self.player.power3 = self.power_3
-            self.player.power4 = self.power_4
-
-    def teleport(self, map_, location):
-        # Same map and not inside instance
-        if self.map_ == map_ and self.map_ <= 1:
-            data = pack(
-                '<Q9fI',
-                self.transport_id,
-                self.transport.x,
-                self.transport.y,
-                self.transport.z,
-                self.transport.o,
-                location.x,
-                location.y,
-                location.z,
-                location.o,
-                0,  # ?
-                0x08000000  # MovementFlags
-            )
-            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_MOVE_WORLDPORT_ACK, data))
-        # Loading screen
-        else:
-            data = pack('<I', map_)
-            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING, data))
-
-            GridManager.send_surrounding(self.get_destroy_packet(), self, include_self=True)
-
-            data = pack(
-                '<B4f',
-                map_,
-                location.x,
-                location.y,
-                location.z,
-                location.o
-            )
-            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
-
-    def change_speed(self, speed=0):
-        if speed <= 0:
-            speed = 7.0  # Default run speed
-        elif speed >= 56:
-            speed = 56  # Max speed without glitches
-        self.running_speed = speed
-        data = pack('<f', speed)
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
-
-    def change_swim_speed(self, swim_speed=0):
-        if swim_speed <= 0:
-            swim_speed = 4.7222223  # Default swim speed
-        self.swim_speed = swim_speed
-        data = pack('<f', swim_speed)
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
-
-    def change_walk_speed(self, walk_speed=0):
-        if walk_speed <= 0:
-            walk_speed = 2.5  # Default walk speed
-        self.swim_speed = walk_speed
-        data = pack('<f', walk_speed)
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
-
-    def change_turn_speed(self, turn_speed=0):
-        if turn_speed <= 0:
-            turn_speed = pi  # Default turn rate speed
-        self.turn_rate = turn_speed
-        data = pack('<f', turn_speed)
-        # TODO NOT WORKING
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 
     def get_type(self):
         return ObjectTypes.TYPE_PLAYER
