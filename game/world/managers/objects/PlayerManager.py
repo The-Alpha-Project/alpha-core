@@ -166,7 +166,7 @@ class PlayerManager(UnitManager):
                 '<B4f',
                 map_,
                 location.x,
-                location.y + 5,
+                location.y,
                 location.z,
                 location.o
             )
