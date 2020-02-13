@@ -8,8 +8,8 @@ class ZoneUpdateHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) == 4:  # Avoid handling empty zone update packet
-            zone = unpack('<I', reader.data)[0]
+        if len(reader.data) >= 4:  # Avoid handling empty zone update packet
+            zone = unpack('<I', reader.data[:4])[0]
             world_session.player_mgr.zone = zone
 
         return 0

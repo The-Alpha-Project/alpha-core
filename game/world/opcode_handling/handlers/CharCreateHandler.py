@@ -24,8 +24,7 @@ class CharCreateHandler(object):
 
         if result == CharCreate.CHAR_CREATE_SUCCESS.value:
             map_, zone, x, y, z, o = CharCreateHandler.get_starting_location(race, class_)
-            character = Character(guid=RealmDatabaseManager.character_get_next_available_guid(),
-                                  account_id=world_session.account_mgr.account.id,
+            character = Character(account_id=world_session.account_mgr.account.id,
                                   name=name,
                                   race=race,
                                   class_=class_,

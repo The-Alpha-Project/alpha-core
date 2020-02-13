@@ -11,8 +11,8 @@ class CharDeleteHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         guid = 0
-        if len(reader.data) == 8:  # Avoid handling empty area char delete packet
-            guid = unpack('<Q', reader.data)[0]
+        if len(reader.data) >= 8:  # Avoid handling empty area char delete packet
+            guid = unpack('<Q', reader.data[:8])[0]
 
         res = CharDelete.CHAR_DELETE_SUCCESS.value
         if guid == 0 or RealmDatabaseManager.character_delete(guid) != 0:

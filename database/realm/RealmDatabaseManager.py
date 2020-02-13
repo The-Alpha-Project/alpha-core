@@ -59,11 +59,6 @@ class RealmDatabaseManager(object):
     # Character stuff
 
     @staticmethod
-    def character_get_next_available_guid():
-        max_id = realm_db_session.query(func.max(Character.guid)).scalar()
-        return max_id + 1 if max_id else 1
-
-    @staticmethod
     def character_get_by_guid(guid):
         return realm_db_session.query(Character).filter_by(guid=guid).first()
 

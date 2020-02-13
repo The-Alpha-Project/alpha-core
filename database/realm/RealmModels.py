@@ -57,7 +57,7 @@ class CharacterSocial(Base):
 class Character(Base):
     __tablename__ = 'characters'
 
-    guid = Column(Integer, primary_key=True, server_default=text("'0'"))
+    guid = Column(Integer, primary_key=True, autoincrement=True, server_default=text("'0'"))
     account_id = Column('account', ForeignKey(u'accounts.id', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"))
     name = Column(String(12), nullable=False, index=True, server_default=text("''"))
     race = Column(Integer, nullable=False, server_default=text("'0'"))

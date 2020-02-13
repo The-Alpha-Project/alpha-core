@@ -9,8 +9,9 @@ class NameQueryHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) == 8:  # Avoid handling empty name query packet
-            guid = unpack('<Q', reader.data)
+        print('QUERY RECEIVED %s' % reader.data)
+        if len(reader.data) >= 8:  # Avoid handling empty name query packet
+            guid = unpack('<Q', reader.data[:8])[0]
             player = RealmDatabaseManager.character_get_by_guid(guid)
             if player:
                 socket.sendall(NameQueryHandler.get_query_details(player))

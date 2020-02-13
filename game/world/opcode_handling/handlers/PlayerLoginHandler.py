@@ -16,10 +16,10 @@ class PlayerLoginHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) != 8:  # Avoid handling wrong player login packet
+        if len(reader.data) < 8:  # Avoid handling wrong player login packet
             return -1
 
-        guid = unpack('<Q', reader.data)[0]
+        guid = unpack('<Q', reader.data[:8])[0]
 
         world_session.player_mgr = PlayerManager(RealmDatabaseManager.character_get_by_guid(guid))
         if not world_session.player_mgr.player:
