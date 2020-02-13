@@ -5,6 +5,7 @@ from network.packet.PacketReader import *
 from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import *
 from utils.constants.CharCodes import *
+from utils.ConfigManager import config
 
 
 class CharCreateHandler(object):
@@ -40,7 +41,7 @@ class CharCreateHandler(object):
                                   position_y=y,
                                   position_z=z,
                                   orientation=o,
-                                  level=1)
+                                  level=config.Unit.Player.Defaults.starting_level)
             RealmDatabaseManager.character_create(character)
 
         data = pack('<B', result)

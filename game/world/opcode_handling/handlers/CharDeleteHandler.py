@@ -10,9 +10,12 @@ class CharDeleteHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        guid = unpack('<Q', reader.data)[0]
+        guid = 0
+        if len(reader.data) == 8:  # Avoid handling empty area char delete packet
+            guid = unpack('<Q', reader.data)[0]
+
         res = CharDelete.CHAR_DELETE_SUCCESS.value
-        if RealmDatabaseManager.character_delete(guid) != 0:
+        if guid == 0 or RealmDatabaseManager.character_delete(guid) != 0:
             res = CharDelete.CHAR_DELETE_FAILED.value
             Logger.error('Error deleting character with guid %s.' % guid)
 

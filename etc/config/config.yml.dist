@@ -55,5 +55,5 @@ Unit:
 
     Player:
         Defaults:
-            min_level: 1
+            starting_level: 1
             max_level: 25

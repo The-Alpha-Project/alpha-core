@@ -166,10 +166,11 @@ class PlayerManager(UnitManager):
                 '<B4f',
                 map_,
                 location.x,
-                location.y,
+                location.y + 5,
                 location.z,
                 location.o
             )
+
             self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
 
     def change_speed(self, speed=0):
