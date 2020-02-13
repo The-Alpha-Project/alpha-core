@@ -86,7 +86,6 @@ class PlayerManager(UnitManager):
         self.session = world_session
         GridManager.update_object(self)
         self.update_surrounding(destroy=False)
-        # TODO something weird happens, when you log in, other players may appear at your location until they move
 
     def logout(self):
         self.session = None
