@@ -6,7 +6,7 @@ class Vector(object):
         self.x = x
         self.y = y
         self.z = z
-        self.o = 0
+        self.o = o
 
     def __add__(self, other):
         return Vector(self.x + other.x, self.y + other.y, self.z + other.z)

@@ -52,10 +52,11 @@ class GridManager(object):
         vector = worldobject.location
         near_grids = set()
 
-        for x in range(x_s, x_m+1):
-            for y in range(y_s, y_m+1):
-                grid_coords = GridManager.get_grid_key(Vector(vector.x + (x * GRID_SIZE), vector.y + (y * GRID_SIZE), 0),
-                                                     worldobject.map_)
+        for x in range(x_s, x_m + 1):
+            for y in range(y_s, y_m + 1):
+                grid_coords = GridManager.get_grid_key(
+                    Vector(vector.x + (x * GRID_SIZE), vector.y + (y * GRID_SIZE), 0),
+                    worldobject.map_)
                 if grid_coords in GRIDS:
                     near_grids.add(GRIDS[grid_coords])
 
@@ -100,9 +101,13 @@ class GridManager(object):
     def get_grid_key(vector, map_):
         min_x, min_y, max_x, max_y = GridManager.generate_coord_data(vector)
         key = '%u:%u:%u:%u%u' % (round(min_x, 5), round(min_y, 5), round(max_x, 5),
-                                      round(max_y, 5), map_)
+                                 round(max_y, 5), map_)
 
         return key
+
+    @staticmethod
+    def get_grids():
+        return GRIDS
 
 
 class Grid(object):

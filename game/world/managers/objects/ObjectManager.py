@@ -27,9 +27,9 @@ class ObjectManager(object):
                  display_id=0,
                  scale=1,
                  bounding_radius=config.Unit.Defaults.bounding_radius,
-                 location=Vector(),
+                 location=None,
                  transport_id=0,
-                 transport=Vector(),
+                 transport=None,
                  transport_orientation=0,
                  pitch=0,
                  zone=0,
@@ -48,9 +48,9 @@ class ObjectManager(object):
         self.display_id = display_id
         self.scale = scale
         self.bounding_radius = bounding_radius
-        self.location = location
+        self.location = Vector()
         self.transport_id = transport_id
-        self.transport = transport
+        self.transport = Vector()
         self.transport_orientation = transport_orientation
         self.pitch = pitch
         self.zone = zone

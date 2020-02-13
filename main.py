@@ -11,6 +11,7 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from signal import signal, SIGPIPE, SIG_DFL
 from utils.Logger import Logger
 
+
 if __name__ == '__main__':
     # initialize colorama to make ansi codes work in Windows
     colorama.init()
