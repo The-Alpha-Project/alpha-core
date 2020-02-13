@@ -26,10 +26,14 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         self.account_mgr = account_mgr
         self.player_mgr = player_mgr
 
+        self.keep_alive = False
+
     def handle(self):
         try:
             self.auth_challenge(self.request)
-            while self.receive(self, self.request) != -1:
+            self.keep_alive = True
+
+            while self.receive(self, self.request) != -1 and self.keep_alive:
                 sleep(0.001)
 
             if self.player_mgr:

@@ -3,6 +3,7 @@ from struct import pack, unpack, error
 from game.world.managers.ChatManager import ChatManager
 from utils.constants.ObjectCodes import ChatMsgs, ChatFlags
 from utils.ConfigManager import config
+from game.world.managers.CommandManager import CommandManager
 from utils.Logger import Logger
 
 
@@ -20,8 +21,11 @@ class ChatHandler(object):
             message = PacketReader.read_string(reader.data[8:], 0)
 
             if len(message) > 0:
-                ChatManager.send_chat_message(world_session, message, chat_type, lang,
-                                              ChatHandler.get_range_by_type(chat_type))
+                if message.startswith('.') and len(message) > 1 and message[1] != '.':
+                    CommandManager.handle_command(world_session, message)
+                else:
+                    ChatManager.send_chat_message(world_session, message, chat_type, lang,
+                                                  ChatHandler.get_range_by_type(chat_type))
 
         return 0
 

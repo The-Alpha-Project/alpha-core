@@ -158,7 +158,7 @@ class PlayerManager(UnitManager):
             )
             self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_MOVE_WORLDPORT_ACK, data))
         # Loading screen
-        else: # TODO Not working
+        else:  # TODO Not working
             data = pack('<I', map_)
             self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING, data))
 
@@ -171,7 +171,6 @@ class PlayerManager(UnitManager):
                 location.o
             )
             self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
-
 
     def change_speed(self, speed=0):
         if speed <= 0:
