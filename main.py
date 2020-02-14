@@ -3,12 +3,12 @@ import threading
 import colorama
 
 from apscheduler.schedulers.background import BackgroundScheduler
+from sys import platform
 
 from game.realm import RealmManager
 from game.world import WorldManager
 from utils.ConfigManager import config
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from signal import signal, SIGPIPE, SIG_DFL
 from utils.Logger import Logger
 
 
@@ -16,8 +16,10 @@ if __name__ == '__main__':
     # initialize colorama to make ansi codes work in Windows
     colorama.init()
 
-    # https://stackoverflow.com/a/30091579
-    signal(SIGPIPE, SIG_DFL)
+    if platform != 'win32':
+        from signal import signal, SIGPIPE, SIG_DFL
+        # https://stackoverflow.com/a/30091579
+        signal(SIGPIPE, SIG_DFL)
 
     login_thread = threading.Thread(target=RealmManager.LoginServerSessionHandler.start)
     login_thread.start()
