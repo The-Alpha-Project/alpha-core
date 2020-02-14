@@ -36,8 +36,11 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             while self.receive(self, self.request) != -1 and self.keep_alive:
                 sleep(0.001)
 
-            if self.player_mgr:
-                self.player_mgr.logout()
+            try:
+                if self.player_mgr:
+                    self.player_mgr.logout()
+            except AttributeError:
+                pass
         finally:
             self.request.shutdown(socket.SHUT_RDWR)
             self.request.close()
