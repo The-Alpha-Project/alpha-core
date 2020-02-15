@@ -1,4 +1,4 @@
-import threading
+from multiprocessing import Process
 
 import colorama
 
@@ -21,14 +21,14 @@ if __name__ == '__main__':
         # https://stackoverflow.com/a/30091579
         signal(SIGPIPE, SIG_DFL)
 
-    login_thread = threading.Thread(target=RealmManager.LoginServerSessionHandler.start)
-    login_thread.start()
+    login_process = Process(target=RealmManager.LoginServerSessionHandler.start)
+    login_process.start()
 
-    proxy_thread = threading.Thread(target=RealmManager.ProxyServerSessionHandler.start)
-    proxy_thread.start()
+    proxy_process = Process(target=RealmManager.ProxyServerSessionHandler.start)
+    proxy_process.start()
 
-    world_thread = threading.Thread(target=WorldManager.WorldServerSessionHandler.start)
-    world_thread.start()
+    world_process = Process(target=WorldManager.WorldServerSessionHandler.start)
+    world_process.start()
 
     realm_saving_scheduler = BackgroundScheduler()
     realm_saving_scheduler._daemon = True
