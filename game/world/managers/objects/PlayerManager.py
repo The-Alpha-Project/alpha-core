@@ -5,6 +5,7 @@ from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.objects.UnitManager import UnitManager
 from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.dbc.DbcDatabaseManager import *
@@ -52,10 +53,12 @@ class PlayerManager(UnitManager):
         self.combo_points = combo_points
 
         if player:
+            self.set_player_variables()
+
             self.guid = player.guid
             self.level = player.level
             self.object_type.append(ObjectTypes.TYPE_PLAYER)
-            self.bytes_0 = unpack('<I', pack('<4B', player.race, player.class_, player.gender, 1))[0]  # power type, handle later
+            self.bytes_0 = unpack('<I', pack('<4B', player.race, player.class_, player.gender, self.power_type))[0]  # power type, handle later
             self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
             self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
             self.player_bytes = unpack('<I', pack('<4B', player.skin, player.face, player.hairstyle, player.haircolour))[0]
@@ -69,17 +72,51 @@ class PlayerManager(UnitManager):
 
             self.is_gm = self.player.account.gmlevel > 0
             self.chat_flags = ChatFlags.CHAT_TAG_GM.value if self.is_gm else ChatFlags.CHAT_TAG_NONE.value
-            self.set_player_variables()
 
             # test
             self.health = 1
             self.max_health = 1
-            self.power_1=100
-            self.max_power_1=100
+            self.max_power_1 = 100
+            self.power_1 = 100
+            self.max_power_2 = 1000
+            self.power_2 = 0
+            self.max_power_3 = 100
+            self.power_4 = 100
+            self.max_power_4 = 100
+            self.power_4 = 100
 
     def set_player_variables(self):
         race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
+
+        self.faction = race.FactionID
+
         self.display_id = race.MaleDisplayId if self.player.gender == 0 else race.FemaleDisplayId
+
+        if self.player.class_ == Classes.CLASS_WARRIOR.value:
+            self.power_type = PowerTypes.TYPE_RAGE.value
+        elif self.player.class_ == Classes.CLASS_HUNTER.value:
+            self.power_type = PowerTypes.TYPE_FOCUS.value
+        elif self.player.class_ == Classes.CLASS_ROGUE.value:
+            self.power_type = PowerTypes.TYPE_ENERGY.value
+        else:
+            self.power_type = PowerTypes.TYPE_MANA.value
+
+        if self.player.race == Races.RACE_HUMAN.value:
+            self.bounding_radius = 0.306 if self.player.gender == Genders.GENDER_MALE.value else 0.208
+        elif self.player.race == Races.RACE_ORC.value:
+            self.bounding_radius = 0.372 if self.player.gender == Genders.GENDER_MALE.value else 0.236
+        elif self.player.race == Races.RACE_DWARF.value:
+            self.bounding_radius = 0.347
+        elif self.player.race == Races.RACE_NIGHT_ELF.value:
+            self.bounding_radius = 0.389 if self.player.gender == Genders.GENDER_MALE.value else 0.306
+        elif self.player.race == Races.RACE_UNDEAD.value:
+            self.bounding_radius = 0.383
+        elif self.player.race == Races.RACE_TAUREN.value:
+            self.bounding_radius = 0.9747 if self.player.gender == Genders.GENDER_MALE.value else 0.8725
+        elif self.player.race == Races.RACE_GNOME.value:
+            self.bounding_radius = 0.3519
+        elif self.player.race == Races.RACE_TROLL.value:
+            self.bounding_radius = 0.306
 
     def complete_login(self, world_session):
         self.is_online = True

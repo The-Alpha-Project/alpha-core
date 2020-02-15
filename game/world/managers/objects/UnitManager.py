@@ -8,10 +8,11 @@ class UnitManager(ObjectManager):
                  channel_spell=0,
                  channel_object=0,
                  health=0,
-                 power_1=0,
-                 power_2=0,
-                 power_3=0,
-                 power_4=0,
+                 power_type=0,
+                 power_1=0,  # mana
+                 power_2=0,  # rage
+                 power_3=0,  # focus
+                 power_4=0,  # energy
                  max_health=0,
                  max_power_1=0,
                  max_power_2=0,
@@ -68,6 +69,7 @@ class UnitManager(ObjectManager):
         self.channel_spell = channel_spell
         self.channel_object = channel_object
         self.health = health
+        self.power_type = power_type
         self.power_1 = power_1
         self.power_2 = power_2
         self.power_3 = power_3
