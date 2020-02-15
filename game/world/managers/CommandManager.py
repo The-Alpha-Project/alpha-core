@@ -15,14 +15,13 @@ class CommandManager(object):
 
         command = command_msg[1:terminator_index].strip()
         args = command_msg[terminator_index:].strip()
-        command_func = None
 
         if command in PLAYER_COMMAND_DEFINITIONS:
             command_func = PLAYER_COMMAND_DEFINITIONS.get(command)
         elif command in GM_COMMAND_DEFINITIONS and world_session.player_mgr.is_gm:
             command_func = GM_COMMAND_DEFINITIONS.get(command)
         else:
-            ChatManager.send_system_message(world_session, 'Command not found.')
+            ChatManager.send_system_message(world_session, 'Command not found, type .help for help.')
             return
 
         if command_func:
@@ -31,6 +30,19 @@ class CommandManager(object):
                 ChatManager.send_system_message(world_session, 'Wrong arguments for <%s> command: %s' % (command, res))
             elif res:
                 ChatManager.send_system_message(world_session, res)
+
+    @staticmethod
+    def help(world_session, args):
+        help_str = ''
+
+        if world_session.player_mgr.is_gm:
+            gm_commands = [k for k in GM_COMMAND_DEFINITIONS.keys()]
+            help_str += '[GM Commands]: \n%s\n\n' % ', '.join(gm_commands)
+
+        player_commands = [k for k in PLAYER_COMMAND_DEFINITIONS.keys()]
+        help_str += '[Player Commands]: \n%s' % ', '.join(player_commands)
+
+        return 0, help_str
 
     @staticmethod
     def speed(world_session, args):
@@ -65,13 +77,25 @@ class CommandManager(object):
             return 0, ''
         return -1, '"%s" not found.' % tel_name
 
+    @staticmethod
+    def port(world_session, args):
+        try:
+            x, y, z, map_ = args.split()
+            tel_location = Vector(x, y, z)
+            world_session.player_mgr.teleport(map_, tel_location)
+
+            return 0, ''
+        except ValueError:
+            return -1, 'please use the "x y z map" format.'
+
 
 PLAYER_COMMAND_DEFINITIONS = {
-
+    'help': CommandManager.help
 }
 
 GM_COMMAND_DEFINITIONS = {
     'speed': CommandManager.speed,
     'gps': CommandManager.gps,
-    'tel': CommandManager.tel
+    'tel': CommandManager.tel,
+    'port': CommandManager.port
 }
