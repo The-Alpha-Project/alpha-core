@@ -81,8 +81,8 @@ class CommandManager(object):
     def port(world_session, args):
         try:
             x, y, z, map_ = args.split()
-            tel_location = Vector(x, y, z)
-            world_session.player_mgr.teleport(map_, tel_location)
+            tel_location = Vector(float(x), float(y), float(z))
+            world_session.player_mgr.teleport(int(map_), tel_location)
 
             return 0, ''
         except ValueError:
