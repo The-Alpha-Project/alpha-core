@@ -41,6 +41,8 @@ class GridManager(object):
             else:
                 GridManager.add_or_get(worldobject, store=True)
 
+            worldobject.update_surrounding()
+
     @staticmethod
     def remove_object(worldobject):
         grid = GRIDS[worldobject.current_grid]

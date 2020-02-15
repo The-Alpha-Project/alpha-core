@@ -95,7 +95,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def start():
-        Logger.info('World server started.')
+        Logger.success('World server started.')
 
         ThreadedWorldServer.allow_reuse_address = True
         with ThreadedWorldServer((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port),

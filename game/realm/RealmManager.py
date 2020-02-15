@@ -39,7 +39,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def start():
-        Logger.info('Login server started.')
+        Logger.success('Login server started.')
 
         ThreadedLoginServer.allow_reuse_address = True
         with ThreadedLoginServer((config.Server.Connection.RealmServer.host,
@@ -76,7 +76,7 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def start():
-        Logger.info('Proxy server started.')
+        Logger.success('Proxy server started.')
 
         ThreadedProxyServer.allow_reuse_address = True
         with ThreadedProxyServer((config.Server.Connection.RealmServer.host,
