@@ -22,12 +22,11 @@ class PlayerLoginHandler(object):
         guid = unpack('<Q', reader.data[:8])[0]
 
         world_session.player_mgr = PlayerManager(
-            RealmDatabaseManager.character_get_by_guid(world_session.realm_db_session, guid))
+            RealmDatabaseManager.character_get_by_guid(world_session.realm_db_session, guid), world_session)
         world_session.player_mgr.session = world_session
         if not world_session.player_mgr.player:
             Logger.anticheat('Character with wrong guid (%u) tried to login.' % guid)
             return -1
-        world_session.player_mgr.init_player()
 
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
                                                PlayerLoginHandler._get_login_timespeed()))
@@ -43,7 +42,7 @@ class PlayerLoginHandler(object):
 
         PlayerLoginHandler.send_cinematic(world_session, world_session.player_mgr.player, socket)
 
-        world_session.player_mgr.complete_login(world_session)
+        world_session.player_mgr.complete_login()
 
         return 0
 

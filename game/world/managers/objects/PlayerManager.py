@@ -16,6 +16,7 @@ class PlayerManager(UnitManager):
 
     def __init__(self,
                  player=None,
+                 session=None,
                  num_inv_slots=0x89,  # Paperdoll + Bag slots + Bag space
                  player_bytes=0,  # skin, face, hair style, hair color
                  xp=0,
@@ -36,7 +37,7 @@ class PlayerManager(UnitManager):
         self.update_packet_factory = UpdatePacketFactory([ObjectTypes.TYPE_OBJECT.value,
                                                           ObjectTypes.TYPE_UNIT.value,
                                                           ObjectTypes.TYPE_PLAYER.value])
-        self.session = None
+        self.session = session
 
         self.player = player
         self.is_online = is_online
@@ -51,12 +52,7 @@ class PlayerManager(UnitManager):
         self.base_mana = base_mana
         self.sheath_state = sheath_state
         self.combo_points = combo_points
-        self.player_bytes = player_bytes
-        self.player_bytes_2 = player_bytes_2
-        self.is_gm = False
-        self.chat_flags = ChatFlags.CHAT_TAG_NONE.value
 
-    def init_player(self):
         if self.player:
             self.set_player_variables()
 
@@ -123,7 +119,7 @@ class PlayerManager(UnitManager):
         elif self.player.race == Races.RACE_TROLL.value:
             self.bounding_radius = 0.306
 
-    def complete_login(self, world_session):
+    def complete_login(self):
         self.is_online = True
         GridManager.update_object(self)
         self.update_surrounding()

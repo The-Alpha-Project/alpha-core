@@ -61,6 +61,10 @@ class RealmDatabaseManager(object):
         return realm_db_session.query(Character).filter_by(guid=guid).first()
 
     @staticmethod
+    def character_get_by_name(realm_db_session, name):
+        return realm_db_session.query(Character).filter_by(name=name).first()
+
+    @staticmethod
     def character_does_name_exist(realm_db_session, name_to_check):
         name = realm_db_session.query(Character.name).filter_by(name=name_to_check).first()
         return name is not None

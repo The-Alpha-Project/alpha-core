@@ -14,11 +14,20 @@ class ChatManager(object):
                                                                       message, ChatMsgs.CHAT_MSG_SYSTEM, 0))
 
     @staticmethod
-    def send_chat_message(world_session, message, chat_type, lang, range_):
-        GridManager.send_surrounding_in_range(ChatManager._get_message_packet(world_session.player_mgr.guid,
-                                                                              world_session.player_mgr.chat_flags,
+    def send_chat_message(world_session, guid, chat_flags, message, chat_type, lang, range_):
+        GridManager.send_surrounding_in_range(ChatManager._get_message_packet(guid,
+                                                                              chat_flags,
                                                                               message, chat_type, 0), # TODO Handle language
                                               world_session.player_mgr, range_)
+
+    @staticmethod
+    def send_whisper(sender, receiver, message, lang):
+        sender_packet = ChatManager._get_message_packet(receiver.guid, receiver.chat_flags, message,
+                                                        ChatMsgs.CHAT_MSG_WHISPER_INFORM, lang)
+        sender.session.request.sendall(sender_packet)
+        receiver_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
+                                                          ChatMsgs.CHAT_MSG_WHISPER, lang)
+        receiver.session.request.sendall(receiver_packet)
 
     @staticmethod
     def _get_message_packet(guid, chat_flags, message, chat_type, lang):
