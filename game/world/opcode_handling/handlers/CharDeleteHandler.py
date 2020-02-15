@@ -15,7 +15,7 @@ class CharDeleteHandler(object):
             guid = unpack('<Q', reader.data[:8])[0]
 
         res = CharDelete.CHAR_DELETE_SUCCESS.value
-        if guid == 0 or RealmDatabaseManager.character_delete(guid) != 0:
+        if guid == 0 or RealmDatabaseManager.character_delete(world_session.realm_db_session, guid) != 0:
             res = CharDelete.CHAR_DELETE_FAILED.value
             Logger.error('Error deleting character with guid %s.' % guid)
 

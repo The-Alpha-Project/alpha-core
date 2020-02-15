@@ -51,24 +51,29 @@ class PlayerManager(UnitManager):
         self.base_mana = base_mana
         self.sheath_state = sheath_state
         self.combo_points = combo_points
+        self.player_bytes = player_bytes
+        self.player_bytes_2 = player_bytes_2
+        self.is_gm = False
+        self.chat_flags = ChatFlags.CHAT_TAG_NONE.value
 
-        if player:
+    def init_player(self):
+        if self.player:
             self.set_player_variables()
 
-            self.guid = player.guid
-            self.level = player.level
+            self.guid = self.player.guid
+            self.level = self.player.level
             self.object_type.append(ObjectTypes.TYPE_PLAYER)
-            self.bytes_0 = unpack('<I', pack('<4B', player.race, player.class_, player.gender, self.power_type))[0]  # power type, handle later
+            self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.player.gender, self.power_type))[0]
             self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
             self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
-            self.player_bytes = unpack('<I', pack('<4B', player.skin, player.face, player.hairstyle, player.haircolour))[0]
-            self.player_bytes_2 = unpack('>I', pack('>4B', player.extra_flags, player.bankslots, player.facialhair, 0))[0]
-            self.map_ = player.map
-            self.zone = player.zone
-            self.location.x = player.position_x
-            self.location.y = player.position_y
-            self.location.z = player.position_z
-            self.location.o = player.orientation
+            self.player_bytes = unpack('<I', pack('<4B', self.player.skin, self.player.face, self.player.hairstyle, self.player.haircolour))[0]
+            self.player_bytes_2 = unpack('>I', pack('>4B', self.player.extra_flags, self.player.bankslots, self.player.facialhair, 0))[0]
+            self.map_ = self.player.map
+            self.zone = self.player.zone
+            self.location.x = self.player.position_x
+            self.location.y = self.player.position_y
+            self.location.z = self.player.position_z
+            self.location.o = self.player.orientation
 
             self.is_gm = self.player.account.gmlevel > 0
             self.chat_flags = ChatFlags.CHAT_TAG_GM.value if self.is_gm else ChatFlags.CHAT_TAG_NONE.value
@@ -86,7 +91,7 @@ class PlayerManager(UnitManager):
             self.power_4 = 100
 
     def set_player_variables(self):
-        race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
+        race = DbcDatabaseManager.chr_races_get_by_race(self.session.dbc_db_session, self.player.race)
 
         self.faction = race.FactionID
 
@@ -120,7 +125,6 @@ class PlayerManager(UnitManager):
 
     def complete_login(self, world_session):
         self.is_online = True
-        self.session = world_session
         GridManager.update_object(self)
         self.update_surrounding()
 

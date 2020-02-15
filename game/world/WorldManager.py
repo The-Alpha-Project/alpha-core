@@ -4,6 +4,7 @@ import socket
 
 from struct import pack
 from time import sleep
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from game.world.managers.GridManager import GridManager
 from game.world.opcode_handling.Definitions import Definitions
@@ -26,12 +27,25 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         self.account_mgr = account_mgr
         self.player_mgr = player_mgr
 
+        self.realm_db_session = None
+        self.world_db_session = None
+        self.dbc_db_session = None
+
         self.keep_alive = False
 
     def handle(self):
         try:
             self.auth_challenge(self.request)
             self.keep_alive = True
+            self.realm_db_session = RealmDatabaseManager.acquire_session()
+            self.world_db_session = WorldDatabaseManager.acquire_session()
+            self.dbc_db_session = DbcDatabaseManager.acquire_session()
+
+            realm_saving_scheduler = BackgroundScheduler()
+            realm_saving_scheduler._daemon = True
+            realm_saving_scheduler.add_job(self.save_realm, 'interval',
+                                           seconds=config.Server.Settings.realm_saving_interval_seconds)
+            realm_saving_scheduler.start()
 
             while self.receive(self, self.request) != -1 and self.keep_alive:
                 sleep(0.001)
@@ -39,11 +53,25 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             try:
                 if self.player_mgr:
                     self.player_mgr.logout()
+
+                if self.realm_db_session:
+                    RealmDatabaseManager.close(self.realm_db_session)
+                if self.world_db_session:
+                    WorldDatabaseManager.close(self.world_db_session)
+                if self.dbc_db_session:
+                    DbcDatabaseManager.close(self.dbc_db_session)
             except AttributeError:
                 pass
         finally:
             self.request.shutdown(socket.SHUT_RDWR)
             self.request.close()
+
+    def save_realm(self):
+        try:
+            if self.realm_db_session:
+                RealmDatabaseManager.save(self.realm_db_session)
+        except AttributeError:
+            pass
 
     @staticmethod
     def auth_challenge(sck):
@@ -67,18 +95,6 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def start():
-        Logger.info('Loading realm tables...')
-        RealmDatabaseManager.load_tables()
-        Logger.info('Realm tables loaded.')
-
-        Logger.info('Loading dbc tables...')
-        DbcDatabaseManager.load_tables()
-        Logger.info('Dbc tables loaded.')
-
-        Logger.info('Loading world tables...')
-        WorldDatabaseManager.load_tables()
-        Logger.info('World tables loaded.')
-
         Logger.info('World server started.')
 
         ThreadedWorldServer.allow_reuse_address = True

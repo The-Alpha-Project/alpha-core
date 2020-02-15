@@ -25,12 +25,14 @@ class AuthSessionHandler(object):
         if version != config.Server.Settings.supported_client:
             auth_code = AuthCode.AUTH_VERSION_MISMATCH.value
 
-        login_res, world_session.account_mgr = RealmDatabaseManager.account_try_login(username, password)
+        login_res, world_session.account_mgr = RealmDatabaseManager.account_try_login(world_session.realm_db_session,
+                                                                                      username, password)
         if login_res == 0:
             auth_code = AuthCode.AUTH_INCORRECT_PASSWORD.value
         elif login_res == -1:
             if config.Server.Settings.auto_create_accounts:
-                world_session.account_mgr = RealmDatabaseManager.account_create(username, password,
+                world_session.account_mgr = RealmDatabaseManager.account_create(world_session.realm_db_session,
+                                                                                username, password,
                                                                                 socket.getpeername()[0])
             else:
                 auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT.value

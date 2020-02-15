@@ -19,11 +19,11 @@ class CharCreateHandler(object):
         )
 
         result = CharCreate.CHAR_CREATE_SUCCESS.value
-        if RealmDatabaseManager.character_does_name_exist(name):
+        if RealmDatabaseManager.character_does_name_exist(world_session.realm_db_session, name):
             result = CharCreate.CHAR_CREATE_NAME_IN_USE.value
 
         if result == CharCreate.CHAR_CREATE_SUCCESS.value:
-            map_, zone, x, y, z, o = CharCreateHandler.get_starting_location(race, class_)
+            map_, zone, x, y, z, o = CharCreateHandler.get_starting_location(world_session, race, class_)
             character = Character(account_id=world_session.account_mgr.account.id,
                                   name=name,
                                   race=race,
@@ -41,7 +41,7 @@ class CharCreateHandler(object):
                                   position_z=z,
                                   orientation=o,
                                   level=config.Unit.Player.Defaults.starting_level)
-            RealmDatabaseManager.character_create(character)
+            RealmDatabaseManager.character_create(world_session.realm_db_session, character)
 
         data = pack('<B', result)
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHAR_CREATE, data))
@@ -49,6 +49,6 @@ class CharCreateHandler(object):
         return 0
 
     @staticmethod
-    def get_starting_location(race, class_):
-        info = WorldDatabaseManager.player_create_info_get(race, class_)
+    def get_starting_location(world_session, race, class_):
+        info = WorldDatabaseManager.player_create_info_get(world_session.world_db_session, race, class_)
         return info.map, info.zone, info.position_x, info.position_y, info.position_z, info.orientation

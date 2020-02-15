@@ -9,64 +9,40 @@ world_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % 
                                                                                  config.Database.Connection.host,
                                                                                  config.Database.DBNames.world_db))
 SessionHolder = scoped_session(sessionmaker(bind=world_db_engine))
-world_db_session = SessionHolder()
-# To always keep the db data in memory (this database should be read only anyway).
-world_db_session.expire_on_commit = False
 
 
 class WorldDatabaseManager(object):
     @staticmethod
-    def load_tables():
-        WorldDatabaseManager.load_single_table(Playercreateinfo)
-        WorldDatabaseManager.load_single_table(AreatriggerTeleport)
-        """
-        WorldDatabaseManager.load_single_table(CreatureModelInfo)
-        WorldDatabaseManager.load_single_table(CreatureSpell)
-        WorldDatabaseManager.load_single_table(Creatures)
-        WorldDatabaseManager.load_single_table(Gameobjects)
-        WorldDatabaseManager.load_single_table(ItemTemplate)
-        WorldDatabaseManager.load_single_table(NpcText)
-        WorldDatabaseManager.load_single_table(PlayerClasslevelstats)
-        WorldDatabaseManager.load_single_table(PlayerLevelstats)
-        WorldDatabaseManager.load_single_table(Playercreateinfo)
-        WorldDatabaseManager.load_single_table(PlayercreateinfoAction)
-        WorldDatabaseManager.load_single_table(PlayercreateinfoItem)
-        WorldDatabaseManager.load_single_table(PlayercreateinfoSkill)
-        WorldDatabaseManager.load_single_table(PlayercreateinfoSpell)
-        WorldDatabaseManager.load_single_table(Quests)
-        """
-        WorldDatabaseManager.load_single_table(Worldports)
-        """
-        WorldDatabaseManager.load_single_table(CreatureLootTemplate)
-        WorldDatabaseManager.load_single_table(GameobjectLootTemplate)
-        WorldDatabaseManager.load_single_table(ItemLootTemplate)
-        WorldDatabaseManager.load_single_table(NpcVendor)
-        WorldDatabaseManager.load_single_table(PickpocketingLootTemplate)
-        WorldDatabaseManager.load_single_table(ReferenceLoot)
-        WorldDatabaseManager.load_single_table(ReferenceLootTemplate)
-        WorldDatabaseManager.load_single_table(SkinningLootTemplate)
-        WorldDatabaseManager.load_single_table(SpawnsCreatures)
-        WorldDatabaseManager.load_single_table(SpawnsGameobjects)
-        """
+    def acquire_session():
+        world_db_session = SessionHolder()
+        return world_db_session
 
     @staticmethod
-    def load_single_table(table):  # Hackfix
-        world_db_session.add_all(world_db_session.query(table).all())
+    def save(world_db_session):
+        try:
+            world_db_session.commit()
+        except:
+            world_db_session.rollback()
+            raise
+
+    @staticmethod
+    def close(world_db_session):
+        world_db_session.remove()
 
     # Player stuff
 
     @staticmethod
-    def player_create_info_get(race, class_):
+    def player_create_info_get(world_db_session, race, class_):
         return world_db_session.query(Playercreateinfo).filter_by(race=race, _class=class_).first()
 
     # Area trigger stuff
 
     @staticmethod
-    def area_trigger_teleport_get_by_id(trigger_id):
+    def area_trigger_teleport_get_by_id(world_db_session, trigger_id):
         return world_db_session.query(AreatriggerTeleport).filter_by(id=trigger_id).first()
 
     # Worldport stuff
 
     @staticmethod
-    def get_location_by_name(name):
+    def get_location_by_name(world_db_session, name):
         return world_db_session.query(Worldports).filter(Worldports.name.like('%' + name + '%')).first()

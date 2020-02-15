@@ -2,7 +2,6 @@ from multiprocessing import Process
 
 import colorama
 
-from apscheduler.schedulers.background import BackgroundScheduler
 from sys import platform
 
 from game.realm import RealmManager
@@ -29,9 +28,3 @@ if __name__ == '__main__':
 
     world_process = Process(target=WorldManager.WorldServerSessionHandler.start)
     world_process.start()
-
-    realm_saving_scheduler = BackgroundScheduler()
-    realm_saving_scheduler._daemon = True
-    realm_saving_scheduler.add_job(RealmDatabaseManager.save, 'interval',
-                                   seconds=config.Server.Settings.realm_saving_interval_seconds)
-    realm_saving_scheduler.start()
