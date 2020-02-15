@@ -34,7 +34,9 @@ class WorldDatabaseManager(object):
         WorldDatabaseManager.load_single_table(PlayercreateinfoSkill)
         WorldDatabaseManager.load_single_table(PlayercreateinfoSpell)
         WorldDatabaseManager.load_single_table(Quests)
+        """
         WorldDatabaseManager.load_single_table(Worldports)
+        """
         WorldDatabaseManager.load_single_table(CreatureLootTemplate)
         WorldDatabaseManager.load_single_table(GameobjectLootTemplate)
         WorldDatabaseManager.load_single_table(ItemLootTemplate)
@@ -62,3 +64,9 @@ class WorldDatabaseManager(object):
     @staticmethod
     def area_trigger_teleport_get_by_id(trigger_id):
         return world_db_session.query(AreatriggerTeleport).filter_by(id=trigger_id).first()
+
+    # Worldport stuff
+
+    @staticmethod
+    def get_location_by_name(name):
+        return world_db_session.query(Worldports).filter(Worldports.name.like('%' + name + '%')).first()
