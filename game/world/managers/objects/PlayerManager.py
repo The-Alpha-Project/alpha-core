@@ -122,7 +122,7 @@ class PlayerManager(UnitManager):
         self.is_online = True
         self.session = world_session
         GridManager.update_object(self)
-        self.update_surrounding(destroy=False)
+        self.update_surrounding()
 
     def logout(self):
         self.session = None
@@ -137,7 +137,7 @@ class PlayerManager(UnitManager):
     def get_initial_spells(self):
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, pack('<BHHHH', 0, 1, 133, 1, 0))  # TODO Test with spell 133
 
-    def update_surrounding(self, destroy=True):
+    def update_surrounding(self, destroy=False):
         if destroy:
             grid = GRIDS[self.current_grid]
 
@@ -176,6 +176,8 @@ class PlayerManager(UnitManager):
             self.player.power4 = self.power_4
 
     def teleport(self, map_, location):
+        GridManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
+
         # Same map and not inside instance
         if self.map_ == map_ and self.map_ <= 1:
             data = pack(
@@ -194,7 +196,7 @@ class PlayerManager(UnitManager):
             )
             self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_MOVE_WORLDPORT_ACK, data))
         # Loading screen
-        else:  # TODO Not working
+        else:
             data = pack('<I', map_)
             self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING, data))
 
@@ -208,6 +210,12 @@ class PlayerManager(UnitManager):
             )
 
             self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
+
+        self.map_ = map_
+        self.location.x = location.x
+        self.location.y = location.y
+        self.location.z = location.z
+        self.location.o = location.o
 
     def change_speed(self, speed=0):
         if speed <= 0:

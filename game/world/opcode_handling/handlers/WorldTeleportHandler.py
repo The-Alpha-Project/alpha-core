@@ -21,8 +21,10 @@ class WorldTeleportHandler(object):
 
     @staticmethod
     def handle_ack(world_session, socket, reader):
+        socket.sendall(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT, world_session.player_mgr.get_update_packet(is_self=True)))
         GridManager.send_surrounding(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, world_session.player_mgr.get_update_packet(is_self=True)),
-            world_session.player_mgr, include_self=True)
+            OpCode.SMSG_UPDATE_OBJECT, world_session.player_mgr.get_update_packet(is_self=False)),
+            world_session.player_mgr, include_self=False)
 
         return 0

@@ -76,5 +76,6 @@ class RealmDatabaseManager(object):
         char_to_delete = RealmDatabaseManager.character_get_by_guid(guid)
         if char_to_delete:
             realm_db_session.delete(char_to_delete)
+            realm_db_session.flush()
             return 0
         return -1
