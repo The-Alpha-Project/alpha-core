@@ -137,6 +137,12 @@ class PlayerManager(UnitManager):
     def get_initial_spells(self):
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, pack('<BHHHH', 0, 1, 133, 1, 0))  # TODO Test with spell 133
 
+    def get_action_buttons(self):
+        data = b''
+        for x in range(0, 120):  # max action buttons
+            data += pack('<I', 0)  # TODO: Handle action buttons later
+        return PacketWriter.get_packet(OpCode.SMSG_ACTION_BUTTONS, data)
+
     def update_surrounding(self, destroy=False):
         if destroy:
             grid = GRIDS[self.current_grid]
