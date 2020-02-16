@@ -5,7 +5,9 @@ import socket
 from struct import pack
 from time import sleep
 from apscheduler.schedulers.background import BackgroundScheduler
+from uuid import uuid1
 
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
@@ -24,6 +26,7 @@ class ThreadedWorldServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     def __init__(self, request, client_address, server, account_mgr=None, player_mgr=None):
         super().__init__(request, client_address, server)
+
         self.account_mgr = account_mgr
         self.player_mgr = player_mgr
 
@@ -36,6 +39,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     def handle(self):
         try:
             self.auth_challenge(self.request)
+
             self.keep_alive = True
             self.realm_db_session = RealmDatabaseManager.acquire_session()
             self.world_db_session = WorldDatabaseManager.acquire_session()
@@ -64,10 +68,16 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                 pass
         finally:
             try:
-                self.request.shutdown(socket.SHUT_RDWR)
-                self.request.close()
+                self.disconnect()
             except OSError:
-                Logger.error('[%s] Tried to close the socket and failed.' % self.client_address[0])
+                pass
+
+    def disconnect(self):
+        self.keep_alive = False
+        WorldSessionStateHandler.remove(self)
+
+        self.request.shutdown(socket.SHUT_RDWR)
+        self.request.close()
 
     def save_realm(self):
         try:

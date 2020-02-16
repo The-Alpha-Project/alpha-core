@@ -2,6 +2,8 @@ import hashlib
 
 from struct import pack, unpack
 
+from game.world import WorldManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from utils.ConfigManager import config
@@ -36,6 +38,9 @@ class AuthSessionHandler(object):
                                                                                 socket.getpeername()[0])
             else:
                 auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT.value
+
+        WorldSessionStateHandler.disonnect_old_session(world_session)
+        WorldSessionStateHandler.add(world_session)
 
         data = pack('<B', auth_code)
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
