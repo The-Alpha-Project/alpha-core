@@ -34,7 +34,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
             0
         )
 
-        Logger.debug('Sending realmlist to %s...' % sck.getpeername()[0])
+        Logger.debug('[%s] Sending realmlist...' % sck.getpeername()[0])
         sck.sendall(packet)
 
     @staticmethod
@@ -71,7 +71,7 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
             world_bytes
         )
 
-        Logger.debug('Redirecting %s to world server...' % sck.getpeername()[0])
+        Logger.debug('[%s] Redirecting to world server...' % sck.getpeername()[0])
         sck.sendall(packet)
 
     @staticmethod

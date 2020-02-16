@@ -70,13 +70,14 @@ HANDLER_DEFINITIONS = {
 class Definitions(object):
 
     @staticmethod
-    def get_handler_from_packet(opcode):
+    def get_handler_from_packet(world_session, opcode):
         try:
             opcode_name = OpCode(opcode)
             if opcode_name in HANDLER_DEFINITIONS:
                 return HANDLER_DEFINITIONS.get(OpCode(opcode))
             else:
-                Logger.warning('Received %s OpCode but is not handled.' % opcode_name)
+                Logger.warning('[%s] Received %s OpCode but is not handled.' % (world_session.client_address[0],
+                                                                                opcode_name))
         except ValueError:
-            Logger.error('Received unknown OpCode (%u)' % opcode)
+            Logger.error('[%s] Received unknown OpCode (%u)' % (world_session.client_address[0], opcode))
         return None

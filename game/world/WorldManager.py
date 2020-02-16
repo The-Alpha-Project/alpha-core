@@ -47,7 +47,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                                            seconds=config.Server.Settings.realm_saving_interval_seconds)
             realm_saving_scheduler.start()
 
-            while self.receive(self, self.request) != -1 and self.keep_alive:
+            while self.receive(self.request) != -1 and self.keep_alive:
                 sleep(0.001)
 
             try:
@@ -63,8 +63,11 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             except AttributeError:
                 pass
         finally:
-            self.request.shutdown(socket.SHUT_RDWR)
-            self.request.close()
+            try:
+                self.request.shutdown(socket.SHUT_RDWR)
+                self.request.close()
+            except OSError:
+                Logger.error('[%s] Tried to close the socked and failed.' % self.client_address[0])
 
     def save_realm(self):
         try:
@@ -73,24 +76,22 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         except AttributeError:
             pass
 
-    @staticmethod
-    def auth_challenge(sck):
+    def auth_challenge(self, sck):
         data = pack('<6B', 0, 0, 0, 0, 0, 0)
         sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))
 
-    @staticmethod
     def receive(self, sck):
         try:
             data = sck.recv(2048)
             reader = PacketReader(data)
             if reader.opcode:
-                handler = Definitions.get_handler_from_packet(reader.opcode)
+                handler = Definitions.get_handler_from_packet(self, reader.opcode)
                 if handler:
-                    Logger.debug('Handling %s' % OpCode(reader.opcode))
+                    Logger.debug('[%s] Handling %s' % (self.client_address[0], OpCode(reader.opcode)))
                     if handler(self, sck, reader) != 0:
                         return -1
         except OSError:
-            Logger.warning('Tried to interact with a closed socket.')
+            Logger.error('[%s] Tried to interact with a closed socket.' % self.client_address[0])
             return -1
 
     @staticmethod
