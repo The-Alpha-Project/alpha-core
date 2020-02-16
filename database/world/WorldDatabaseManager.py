@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, scoped_session
+from difflib import SequenceMatcher
 
 from database.world.WorldModels import *
 from utils.ConfigManager import *
@@ -45,4 +46,11 @@ class WorldDatabaseManager(object):
 
     @staticmethod
     def get_location_by_name(world_db_session, name):
-        return world_db_session.query(Worldports).filter(Worldports.name.like('%' + name + '%')).first()
+        best_matching_location = None
+        best_matching_ratio = 0
+        locations = world_db_session.query(Worldports).filter(Worldports.name.like('%' + name + '%')).all()
+        for location in locations:
+            ratio = SequenceMatcher(None, location.name, name).ratio()
+            if ratio > best_matching_ratio:
+                best_matching_location = location
+        return best_matching_location

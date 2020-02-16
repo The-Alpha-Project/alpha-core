@@ -74,7 +74,7 @@ class CommandManager(object):
             tel_location = Vector(location.x, location.y, location.z)
             world_session.player_mgr.teleport(location.map, tel_location)
 
-            return 0, ''
+            return 0, 'Teleported to "%s".' % location.name
         return -1, '"%s" not found.' % tel_name
 
     @staticmethod
