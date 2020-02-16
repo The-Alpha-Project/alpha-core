@@ -67,7 +67,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                 self.request.shutdown(socket.SHUT_RDWR)
                 self.request.close()
             except OSError:
-                Logger.error('[%s] Tried to close the socked and failed.' % self.client_address[0])
+                Logger.error('[%s] Tried to close the socket and failed.' % self.client_address[0])
 
     def save_realm(self):
         try:
