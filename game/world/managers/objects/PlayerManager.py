@@ -75,6 +75,8 @@ class PlayerManager(UnitManager):
             self.chat_flags = ChatFlags.CHAT_TAG_GM.value if self.is_gm else ChatFlags.CHAT_TAG_NONE.value
 
             # test
+            self.xp = 0
+            self.next_level_xp = 200
             self.health = 1
             self.max_health = 1
             self.max_power_1 = 100
@@ -198,7 +200,7 @@ class PlayerManager(UnitManager):
                 location.z,
                 location.o,
                 0,  # ?
-                0x08000000  # MovementFlags
+                0  # MovementFlags
             )
             self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_MOVE_WORLDPORT_ACK, data))
         # Loading screen
