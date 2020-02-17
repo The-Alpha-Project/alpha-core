@@ -132,7 +132,7 @@ class PlayerManager(UnitManager):
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)
-        return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('<8I', 0, 0, 0, 0, 0, 0, 0, 0))
+        return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('<5I', 0, 0, 0, 0, 0))
 
     def get_initial_spells(self):
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, pack('<BHHHH', 0, 1, 133, 1, 0))  # TODO Test with spell 133
