@@ -35,12 +35,15 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         self.dbc_db_session = None
 
         self.keep_alive = False
+        self.is_alive = False
 
     def handle(self):
         try:
             self.auth_challenge(self.request)
 
             self.keep_alive = True
+            self.is_alive = True
+
             self.realm_db_session = RealmDatabaseManager.acquire_session()
             self.world_db_session = WorldDatabaseManager.acquire_session()
             self.dbc_db_session = DbcDatabaseManager.acquire_session()
@@ -73,11 +76,13 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                 pass
 
     def disconnect(self):
-        self.keep_alive = False
-        WorldSessionStateHandler.remove(self)
+        if self.is_alive:
+            self.keep_alive = False
+            self.is_alive = False
+            WorldSessionStateHandler.remove(self)
 
-        self.request.shutdown(socket.SHUT_RDWR)
-        self.request.close()
+            self.request.shutdown(socket.SHUT_RDWR)
+            self.request.close()
 
     def save_realm(self):
         try:
