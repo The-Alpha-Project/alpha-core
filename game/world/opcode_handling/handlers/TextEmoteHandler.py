@@ -50,11 +50,11 @@ class TextEmoteHandler(object):
                 elif emote_text_id == Emotes.STAND.value:
                     world_session.player_mgr.stand_state = state
                 elif emote_text_id == Emotes.SLEEP:
-                    if not world_session.player_mgr.stand_state != StandState.UNIT_SLEEPING.value:
+                    if world_session.player_mgr.stand_state != StandState.UNIT_SLEEPING.value:
                         state = StandState.UNIT_SLEEPING.value
                     world_session.player_mgr.stand_state = state
                 elif emote_text_id == Emotes.SLEEP:
-                    if not world_session.player_mgr.stand_state != StandState.UNIT_KNEEL.value:
+                    if world_session.player_mgr.stand_state != StandState.UNIT_KNEEL.value:
                         state = StandState.UNIT_KNEEL.value
                     world_session.player_mgr.stand_state = state
                 else:
