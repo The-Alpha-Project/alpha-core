@@ -28,7 +28,7 @@ class WorldDatabaseManager(object):
 
     @staticmethod
     def close(world_db_session):
-        world_db_session.remove()
+        world_db_session.close()
 
     # Player stuff
 

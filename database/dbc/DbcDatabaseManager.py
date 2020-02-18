@@ -29,7 +29,7 @@ class DbcDatabaseManager(object):
 
     @staticmethod
     def close(dbc_db_session):
-        dbc_db_session.remove()
+        dbc_db_session.close()
 
     # ChrRaces
 

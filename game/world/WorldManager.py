@@ -65,7 +65,10 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             try:
                 if self.player_mgr:
                     self.player_mgr.logout()
+            except AttributeError:
+                pass
 
+            try:
                 if self.realm_db_session:
                     RealmDatabaseManager.close(self.realm_db_session)
                 if self.world_db_session:
