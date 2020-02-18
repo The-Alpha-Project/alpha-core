@@ -131,7 +131,6 @@ class UnitManager(ObjectManager):
 
         self.is_alive = True
         self.is_sitting = False
-        self.creature_template = None
 
     def play_emote(self, emote):
         if emote != 0:

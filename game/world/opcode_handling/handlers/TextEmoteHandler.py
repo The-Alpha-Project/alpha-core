@@ -28,7 +28,7 @@ class TextEmoteHandler(object):
                     player_name_bytes = PacketWriter.string_to_bytes(target.player.name)
                     data += pack('<%us' % len(player_name_bytes),
                                  player_name_bytes)
-                elif target.get_type() == ObjectTypes.TYPE_UNIT:
+                elif target.get_type() == ObjectTypes.TYPE_UNIT and target.creature_template:
                     unit_name_bytes = PacketWriter.string_to_bytes(target.creature_template.name)
                     data += pack('<%us' % len(unit_name_bytes),
                                  unit_name_bytes)
