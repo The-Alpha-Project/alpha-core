@@ -45,9 +45,10 @@ class GridManager(object):
 
     @staticmethod
     def remove_object(worldobject):
-        grid = GRIDS[worldobject.current_grid]
-        grid.remove(worldobject)
-        grid.send_all_in_range(worldobject.get_destroy_packet(), source=worldobject, range_=GRID_SIZE)
+        if worldobject.current_grid in GRIDS:
+            grid = GRIDS[worldobject.current_grid]
+            grid.remove(worldobject)
+            grid.send_all_in_range(worldobject.get_destroy_packet(), source=worldobject, range_=GRID_SIZE)
 
     @staticmethod
     def get_surrounding(worldobject, x_s=-1, x_m=1, y_s=-1, y_m=1):
@@ -86,6 +87,40 @@ class GridManager(object):
                 surrounding_objects.append(grid.gameobjects)
 
         return surrounding_objects
+
+    @staticmethod
+    def get_surrounding_players(worldobject):
+        return GridManager.get_surrounding_objects(worldobject, [ObjectTypes.TYPE_PLAYER])
+
+    @staticmethod
+    def get_surrounding_units(worldobject, include_players=False):
+        object_types = [ObjectTypes.TYPE_PLAYER, ObjectTypes.TYPE_UNIT] if include_players else [ObjectTypes.TYPE_UNIT]
+        return GridManager.get_surrounding_objects(worldobject, object_types)
+
+    @staticmethod
+    def get_surrounding_gameobjects(worldobject):
+        return GridManager.get_surrounding_objects(worldobject, [ObjectTypes.TYPE_GAMEOBJECT])
+
+    @staticmethod
+    def get_surrounding_player_by_guid(worldobject, guid):
+        for p_guid, player in GridManager.get_surrounding_players(worldobject)[0].items():
+            if p_guid == guid:
+                return player
+        return None
+
+    @staticmethod
+    def get_surrounding_unit_by_guid(worldobject, guid, include_players=False):
+        for u_guid, unit in GridManager.get_surrounding_units(worldobject, include_players)[0].items():
+            if u_guid == guid:
+                return unit
+        return None
+
+    @staticmethod
+    def get_surrounding_gameobject_by_guid(worldobject, guid):
+        for g_guid, gameobject in GridManager.get_surrounding_gameobjects(worldobject)[0].items():
+            if g_guid == guid:
+                return gameobject
+        return None
 
     @staticmethod
     def generate_coord_data(vector):

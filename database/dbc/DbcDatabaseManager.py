@@ -38,6 +38,13 @@ class DbcDatabaseManager(object):
         return dbc_db_session.query(ChrRaces).filter_by(ID=race).first()
 
     # AreaTrigger
+
     @staticmethod
     def area_trigger_get_by_id(dbc_db_session, trigger_id):
         return dbc_db_session.query(AreaTrigger).filter_by(ID=trigger_id).first()
+
+    # EmoteText
+
+    @staticmethod
+    def emote_text_get_by_id(dbc_db_session, emote_id):
+        return dbc_db_session.query(EmotesText).filter_by(ID=emote_id).first()

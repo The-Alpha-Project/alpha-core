@@ -1,4 +1,8 @@
+from struct import pack
+
+from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds
 
@@ -124,6 +128,16 @@ class UnitManager(ObjectManager):
         self.bytes_2 = bytes_2  # combo points, 0, 0, 0
 
         self.object_type.append(ObjectTypes.TYPE_UNIT)
+
+        self.is_alive = True
+        self.is_sitting = False
+        self.creature_template = None
+
+    def play_emote(self, emote):
+        if emote != 0:
+            data = pack('<IQ', emote, self.guid)
+            GridManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data),
+                                                  self, config.World.Chat.ChatRange.emote_range)
 
     def get_type(self):
         return ObjectTypes.TYPE_UNIT

@@ -4,7 +4,7 @@ from math import pi
 from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.objects.UnitManager import UnitManager
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds
+from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
@@ -123,6 +123,9 @@ class PlayerManager(UnitManager):
 
     def complete_login(self):
         self.is_online = True
+        if self.is_gm:
+            # TODO NOT WORKING
+            self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM.value
         GridManager.update_object(self)
         self.update_surrounding()
 
@@ -259,6 +262,7 @@ class PlayerManager(UnitManager):
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL.value, is_self=True):
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
+        self.player_bytes_2 = unpack('>I', pack('>4B', self.player.extra_flags, self.player.bankslots, self.player.facialhair, 0))[0]
 
         packet = b''
         if update_type == UpdateTypes.UPDATE_FULL.value:

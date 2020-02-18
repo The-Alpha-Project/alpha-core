@@ -41,8 +41,9 @@ World:
 
     Chat:
         ChatRange:
-            say_range: 25
+            say_range: 50
             yell_range: 300
+            emote_range: 50
 
 Unit:
     Defaults:

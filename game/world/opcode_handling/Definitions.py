@@ -16,6 +16,7 @@ from game.world.opcode_handling.handlers.AreaTriggerHandler import AreaTriggerHa
 from game.world.opcode_handling.handlers.SpeedCheatHandler import SpeedCheatHandler
 from game.world.opcode_handling.handlers.ZoneUpdateHandler import ZoneUpdateHandler
 from game.world.opcode_handling.handlers.BugHandler import BugHandler
+from game.world.opcode_handling.handlers.TextEmoteHandler import TextEmoteHandler
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
 
@@ -42,6 +43,7 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT: SpeedCheatHandler.handle,
     OpCode.CMSG_ZONEUPDATE: ZoneUpdateHandler.handle,
     OpCode.CMSG_BUG: BugHandler.handle,
+    OpCode.CMSG_TEXT_EMOTE: TextEmoteHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

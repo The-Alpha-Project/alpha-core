@@ -57,26 +57,26 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             while self.receive(self.request) != -1 and self.keep_alive:
                 sleep(0.001)
 
-            try:
-                if self.player_mgr:
-                    self.player_mgr.logout()
-
-                if self.realm_db_session:
-                    RealmDatabaseManager.close(self.realm_db_session)
-                if self.world_db_session:
-                    WorldDatabaseManager.close(self.world_db_session)
-                if self.dbc_db_session:
-                    DbcDatabaseManager.close(self.dbc_db_session)
-            except AttributeError:
-                pass
         finally:
             try:
                 self.disconnect()
+            except AttributeError:
+                pass
             except OSError:
                 pass
 
     def disconnect(self):
         if self.is_alive:
+            if self.player_mgr:
+                self.player_mgr.logout()
+
+            if self.realm_db_session:
+                RealmDatabaseManager.close(self.realm_db_session)
+            if self.world_db_session:
+                WorldDatabaseManager.close(self.world_db_session)
+            if self.dbc_db_session:
+                DbcDatabaseManager.close(self.dbc_db_session)
+
             self.keep_alive = False
             self.is_alive = False
             WorldSessionStateHandler.remove(self)
@@ -107,6 +107,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                         return -1
         except OSError:
             Logger.error('[%s] Tried to interact with a closed socket.' % self.client_address[0])
+            self.disconnect()
             return -1
 
     @staticmethod
