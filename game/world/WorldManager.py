@@ -58,31 +58,32 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                 sleep(0.001)
 
         finally:
-            try:
-                self.disconnect()
-            except AttributeError:
-                pass
-            except OSError:
-                pass
+            self.disconnect()
 
     def disconnect(self):
         if self.is_alive:
-            if self.player_mgr:
-                self.player_mgr.logout()
+            try:
+                if self.player_mgr:
+                    self.player_mgr.logout()
 
-            if self.realm_db_session:
-                RealmDatabaseManager.close(self.realm_db_session)
-            if self.world_db_session:
-                WorldDatabaseManager.close(self.world_db_session)
-            if self.dbc_db_session:
-                DbcDatabaseManager.close(self.dbc_db_session)
+                if self.realm_db_session:
+                    RealmDatabaseManager.close(self.realm_db_session)
+                if self.world_db_session:
+                    WorldDatabaseManager.close(self.world_db_session)
+                if self.dbc_db_session:
+                    DbcDatabaseManager.close(self.dbc_db_session)
+            except AttributeError:
+                pass
 
             self.keep_alive = False
             self.is_alive = False
             WorldSessionStateHandler.remove(self)
 
-            self.request.shutdown(socket.SHUT_RDWR)
-            self.request.close()
+            try:
+                self.request.shutdown(socket.SHUT_RDWR)
+                self.request.close()
+            except OSError:
+                pass
 
     def save_realm(self):
         try:

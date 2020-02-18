@@ -29,7 +29,7 @@ class RealmDatabaseManager(object):
 
     @staticmethod
     def close(realm_db_session):
-        realm_db_session.remove()
+        realm_db_session.close()
 
     # Account stuff
 
