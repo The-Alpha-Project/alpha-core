@@ -5,6 +5,7 @@ from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.ChatManager import ChatManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
 
 
 class CommandManager(object):
@@ -47,8 +48,18 @@ class CommandManager(object):
     @staticmethod
     def speed(world_session, args):
         try:
-            speed = float(args)
+            speed = 7.0 * float(args)
             world_session.player_mgr.change_speed(speed)
+
+            return 0, ''
+        except ValueError:
+            return -1, 'wrong speed value.'
+
+    @staticmethod
+    def swim_speed(world_session, args):
+        try:
+            speed = 4.7222223 * float(args)
+            world_session.player_mgr.change_swim_speed(speed)
 
             return 0, ''
         except ValueError:
@@ -88,6 +99,41 @@ class CommandManager(object):
         except ValueError:
             return -1, 'please use the "x y z map" format.'
 
+    @staticmethod
+    def tickets(world_session, args):
+        tickets = RealmDatabaseManager.ticket_get_all(world_session.realm_db_session)
+        for ticket in tickets:
+            ticket_text = '%s[%s]|r %s: %s from %s.' % ('|cFFFF0000' if ticket.is_bug else '|cFF00FFFF',
+                                                        ticket.id,
+                                                        ticket.submit_time,
+                                                        'Bug report' if ticket.is_bug else 'Suggestion',
+                                                        ticket.character_name)
+            ChatManager.send_system_message(world_session, ticket_text)
+        return 0, '%u tickets shown.' % len(tickets)
+
+    @staticmethod
+    def rticket(world_session, args):
+        try:
+            ticket_id = int(args)
+            ticket = RealmDatabaseManager.ticket_get_by_id(world_session.realm_db_session, ticket_id)
+            if ticket:
+                return 0, '%s[%s] %s:|r %s' % ('|cFFFF0000' if ticket.is_bug else '|cFF00FFFF', ticket_id,
+                                               ticket.character_name, ticket.text_body)
+            return -1, 'ticket not found.'
+        except ValueError:
+            return -1, 'please specify a valid ticket id.'
+
+    @staticmethod
+    def dticket(world_session, args):
+        try:
+            ticket_id = int(args)
+            if RealmDatabaseManager.ticket_delete(world_session.realm_db_session, ticket_id) == 0:
+                return 0, 'Ticket %u deleted.' % ticket_id
+            return -1, 'ticket not found.'
+
+        except ValueError:
+            return -1, 'please specify a valid ticket id.'
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help
@@ -95,7 +141,11 @@ PLAYER_COMMAND_DEFINITIONS = {
 
 GM_COMMAND_DEFINITIONS = {
     'speed': CommandManager.speed,
+    'swimspeed': CommandManager.swim_speed,
     'gps': CommandManager.gps,
     'tel': CommandManager.tel,
-    'port': CommandManager.port
+    'port': CommandManager.port,
+    'tickets': CommandManager.tickets,
+    'rticket': CommandManager.rticket,
+    'dticket': CommandManager.dticket
 }

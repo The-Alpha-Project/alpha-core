@@ -82,3 +82,29 @@ class RealmDatabaseManager(object):
             realm_db_session.commit()
             return 0
         return -1
+
+    # Ticket stuff
+
+    @staticmethod
+    def ticket_add(realm_db_session, ticket):
+        realm_db_session.add(ticket)
+        realm_db_session.commit()
+
+    @staticmethod
+    def ticket_get_by_id(realm_db_session, ticket_id):
+        ticket = realm_db_session.query(Ticket).filter_by(id=ticket_id).first()
+        return ticket
+
+    @staticmethod
+    def ticket_delete(realm_db_session, ticket_id):
+        ticket_to_delete = RealmDatabaseManager.ticket_get_by_id(realm_db_session, ticket_id)
+        if ticket_to_delete:
+            realm_db_session.delete(ticket_to_delete)
+            realm_db_session.commit()
+            return 0
+        return -1
+
+    @staticmethod
+    def ticket_get_all(realm_db_session):
+        tickets = realm_db_session.query(Ticket).all()
+        return tickets if tickets else []

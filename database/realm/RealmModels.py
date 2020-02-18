@@ -100,7 +100,7 @@ class Character(Base):
 class Ticket(Base):
     __tablename__ = 'tickets'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     is_bug = Column(Integer, nullable=False, server_default=text("'0'"))
     account_name = Column(String(250), nullable=False, server_default=text("''"))
     account_id = Column(ForeignKey(u'accounts.id', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"))
