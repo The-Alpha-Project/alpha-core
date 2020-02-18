@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class ItemClassesclass(Enum):
+class ItemClasses(Enum):
     ITEM_CLASS_CONSUMABLE = 0
     ITEM_CLASS_CONTAINER = 1
     ITEM_CLASS_WEAPON = 2
@@ -20,7 +20,7 @@ class ItemClassesclass(Enum):
     ITEM_CLASS_JUNK = 15
 
 
-class ItemSubClassesclass(Enum):
+class ItemSubClasses(Enum):
     # Consumable
     ITEM_SUBCLASS_CONSUMABLE = 0
     ITEM_SUBCLASS_FOOD = 1
@@ -127,7 +127,7 @@ class ItemSubClassesclass(Enum):
     ITEM_SUBCLASS_MOUNT = 5
 
 
-class InventoryTypesclass(Enum):
+class InventoryTypes(Enum):
     NONE_EQUIP = 0x00
     HEAD = 0x01
     NECK = 0x02
@@ -210,7 +210,7 @@ class InventoryStats(Enum):
     STAMINA = 7
 
 
-class InventoryErrorclass(Enum):
+class InventoryError(Enum):
     EQUIP_ERR_OK = 0
     EQUIP_ERR_CANT_EQUIP_LEVEL_I = 1  # ERR_CANT_EQUIP_LEVEL_I
     EQUIP_ERR_CANT_EQUIP_SKILL = 2  # ERR_CANT_EQUIP_SKILL

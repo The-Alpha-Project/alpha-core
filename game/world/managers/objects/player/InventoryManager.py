@@ -1,0 +1,2 @@
+class InventoryManager(object):
+    pass

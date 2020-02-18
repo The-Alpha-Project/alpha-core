@@ -6,9 +6,8 @@ from network.packet.PacketWriter import *
 from database.realm.RealmDatabaseManager import *
 from database.dbc.DbcDatabaseManager import *
 from utils.Logger import Logger
-from game.world.managers.objects.PlayerManager import PlayerManager
+from game.world.managers.objects.player.PlayerManager import PlayerManager
 from utils.ConfigManager import config
-from utils.constants.ObjectCodes import UpdateTypes
 from game.world.managers.ChatManager import ChatManager
 
 

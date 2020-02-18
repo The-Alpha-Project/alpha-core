@@ -12,11 +12,15 @@ from database.dbc.DbcDatabaseManager import *
 from utils.constants.ObjectCodes import ChatFlags
 
 
+MAX_ACTION_BUTTONS = 120
+
+
 class PlayerManager(UnitManager):
 
     def __init__(self,
                  player=None,
                  session=None,
+                 inventory=None,
                  num_inv_slots=0x89,  # Paperdoll + Bag slots + Bag space
                  player_bytes=0,  # skin, face, hair style, hair color
                  xp=0,
@@ -52,6 +56,7 @@ class PlayerManager(UnitManager):
         self.base_mana = base_mana
         self.sheath_state = sheath_state
         self.combo_points = combo_points
+        self.inventory = inventory
 
         if self.player:
             self.set_player_variables()
@@ -144,7 +149,7 @@ class PlayerManager(UnitManager):
 
     def get_action_buttons(self):
         data = b''
-        for x in range(0, 120):  # max action buttons
+        for x in range(0, MAX_ACTION_BUTTONS):
             data += pack('<I', 0)  # TODO: Handle action buttons later
         return PacketWriter.get_packet(OpCode.SMSG_ACTION_BUTTONS, data)
 
