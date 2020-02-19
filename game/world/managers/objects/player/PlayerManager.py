@@ -236,6 +236,7 @@ class PlayerManager(UnitManager):
         self.location.z = location.z
         self.location.o = location.o
 
+    # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
         if speed <= 0:
             speed = 7.0  # Default run speed
@@ -248,6 +249,8 @@ class PlayerManager(UnitManager):
     def change_swim_speed(self, swim_speed=0):
         if swim_speed <= 0:
             swim_speed = 4.7222223  # Default swim speed
+        elif swim_speed >= 56:
+            swim_speed = 56  # Max possible swim speed
         self.swim_speed = swim_speed
         data = pack('<f', swim_speed)
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
@@ -255,6 +258,8 @@ class PlayerManager(UnitManager):
     def change_walk_speed(self, walk_speed=0):
         if walk_speed <= 0:
             walk_speed = 2.5  # Default walk speed
+        elif walk_speed >= 56:
+            walk_speed = 56  # Max speed without glitches
         self.swim_speed = walk_speed
         data = pack('<f', walk_speed)
         self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
