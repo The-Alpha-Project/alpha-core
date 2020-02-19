@@ -98,7 +98,9 @@ class PlayerManager(UnitManager):
 
         self.faction = race.FactionID
 
-        self.display_id = race.MaleDisplayId if self.player.gender == 0 else race.FemaleDisplayId
+        is_male = self.player.gender == Genders.GENDER_MALE.value
+
+        self.display_id = race.MaleDisplayId if is_male else race.FemaleDisplayId
 
         if self.player.class_ == Classes.CLASS_WARRIOR.value:
             self.power_type = PowerTypes.TYPE_RAGE.value
@@ -110,17 +112,18 @@ class PlayerManager(UnitManager):
             self.power_type = PowerTypes.TYPE_MANA.value
 
         if self.player.race == Races.RACE_HUMAN.value:
-            self.bounding_radius = 0.306 if self.player.gender == Genders.GENDER_MALE.value else 0.208
+            self.bounding_radius = 0.306 if is_male else 0.208
         elif self.player.race == Races.RACE_ORC.value:
-            self.bounding_radius = 0.372 if self.player.gender == Genders.GENDER_MALE.value else 0.236
+            self.bounding_radius = 0.372 if is_male else 0.236
         elif self.player.race == Races.RACE_DWARF.value:
             self.bounding_radius = 0.347
         elif self.player.race == Races.RACE_NIGHT_ELF.value:
-            self.bounding_radius = 0.389 if self.player.gender == Genders.GENDER_MALE.value else 0.306
+            self.bounding_radius = 0.389 if is_male else 0.306
         elif self.player.race == Races.RACE_UNDEAD.value:
             self.bounding_radius = 0.383
         elif self.player.race == Races.RACE_TAUREN.value:
-            self.bounding_radius = 0.9747 if self.player.gender == Genders.GENDER_MALE.value else 0.8725
+            self.bounding_radius = 0.9747 if is_male else 0.8725
+            self.scale = 1.3 if is_male else 1.25
         elif self.player.race == Races.RACE_GNOME.value:
             self.bounding_radius = 0.3519
         elif self.player.race == Races.RACE_TROLL.value:
