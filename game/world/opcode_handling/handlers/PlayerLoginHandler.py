@@ -5,6 +5,7 @@ from struct import unpack
 from network.packet.PacketWriter import *
 from database.realm.RealmDatabaseManager import *
 from database.dbc.DbcDatabaseManager import *
+from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.Logger import Logger
 from game.world.managers.objects.player.PlayerManager import PlayerManager
 from utils.ConfigManager import config
@@ -36,9 +37,10 @@ class PlayerLoginHandler(object):
         # MotD
         ChatManager.send_system_message(world_session, config.Server.General.motd)
 
-        socket.sendall(PacketWriter.get_packet(
+        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
             world_session.player_mgr.get_update_packet()))
+        socket.sendall(update_packet)
 
         PlayerLoginHandler.send_cinematic(world_session, world_session.player_mgr.player, socket)
 

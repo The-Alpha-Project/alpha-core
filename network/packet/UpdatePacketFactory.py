@@ -1,8 +1,10 @@
 from struct import pack, unpack
 import zlib
 
+from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import *
 from utils.constants.ObjectCodes import *
+from network.packet.PacketWriter import PacketWriter
 
 
 class UpdatePacketFactory(object):
@@ -56,3 +58,12 @@ class UpdatePacketFactory(object):
 
         self.init_lists()
         return self.update_packet
+
+    @staticmethod
+    def compress_if_needed(update_packet):
+        if len(update_packet) > 100:
+            compressed_packet_data = PacketWriter.deflate(update_packet[6:])
+            compressed_data = pack('<I', len(update_packet) - 6)
+            compressed_data += compressed_packet_data
+            update_packet = PacketWriter.get_packet(OpCode.SMSG_COMPRESSED_UPDATE_OBJECT, compressed_data)
+        return update_packet

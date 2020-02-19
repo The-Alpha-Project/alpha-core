@@ -165,9 +165,10 @@ class PlayerManager(UnitManager):
                     self.session.request.sendall(player.get_destroy_packet())
 
         # TODO: Don't do a full update if not needed
-        GridManager.send_surrounding(PacketWriter.get_packet(
+        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL.value,
-                                                              is_self=False)), self, include_self=False)
+                                                              is_self=False)))
+        GridManager.send_surrounding(update_packet, self, include_self=False)
 
         for guid, player in GridManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER])[0].items():
             if self.guid != guid:
@@ -361,7 +362,8 @@ class PlayerManager(UnitManager):
         self.update_packet_factory.update(self.update_packet_factory.player_values, PlayerFields.PLAYER_PARRY_PERCENTAGE.value, self.parry_percentage, 'f')
         self.update_packet_factory.update(self.update_packet_factory.player_values, PlayerFields.PLAYER_BASE_MANA.value, self.base_mana, 'I')
 
-        return packet + self.update_packet_factory.build_packet()
+        update_packet = packet + self.update_packet_factory.build_packet()
+        return update_packet
 
     def get_type(self):
         return ObjectTypes.TYPE_PLAYER

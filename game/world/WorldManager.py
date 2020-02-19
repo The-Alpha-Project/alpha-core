@@ -110,7 +110,6 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                     if handler(self, sck, reader) != 0:
                         return -1
         except OSError:
-            Logger.error('[%s] Tried to interact with a closed socket.' % self.client_address[0])
             self.disconnect()
             return -1
 

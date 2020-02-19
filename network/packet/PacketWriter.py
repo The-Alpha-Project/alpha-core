@@ -26,4 +26,4 @@ class PacketWriter(object):
 
     @staticmethod
     def deflate(data):
-        return zlib.compress(data)[2:-4]
+        return zlib.compress(data)
