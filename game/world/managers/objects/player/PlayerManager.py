@@ -368,7 +368,7 @@ class PlayerManager(UnitManager):
 
     # override
     def update(self):
-        now = int(round(time() * 1000))  # milliseconds
+        now = time()
 
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
