@@ -81,14 +81,16 @@ class ObjectManager(object):
 
         return (mask + 31) / 32
 
-    def create_partial_update_packet(self):
+    def create_partial_update_packet(self, update_packet_factory):
         update_mask = self.get_update_mask()
+        updated_fields_mask = update_packet_factory.get_updated_fields_mask()
         data = pack(
-            '<IBQBI',
+            '<IBQI%us' % len(updated_fields_mask),
             1,  # Number of transactions
             0,
             self.guid,
-            int(update_mask)
+            int(update_mask),
+            updated_fields_mask
         )
         return data
 
