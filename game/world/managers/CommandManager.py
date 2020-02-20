@@ -134,6 +134,33 @@ class CommandManager(object):
         except ValueError:
             return -1, 'please specify a valid ticket id.'
 
+    @staticmethod
+    def goplayer(world_session, args):
+        player_name = args
+        is_online = True
+
+        player = GridManager.find_player_by_name(player_name)
+        player_location = None
+        map_ = 0
+
+        if player:
+            player_location = player.location
+            map_ = player.map_
+        else:
+            is_online = False
+            player = RealmDatabaseManager.character_get_by_name(world_session.realm_db_session, player_name)
+
+        if player:
+            if not is_online:
+                player_location = Vector(float(player.position_x), float(player.position_y), float(player.position_z))
+                map_ = player.map
+        else:
+            return -1, 'player not found.'
+
+        world_session.player_mgr.teleport(int(map_), player_location)
+
+        return 0, 'Teleported to player %s (%s).' % (player_name.capitalize(), 'Online' if is_online else 'Offline')
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help
@@ -147,5 +174,6 @@ GM_COMMAND_DEFINITIONS = {
     'port': CommandManager.port,
     'tickets': CommandManager.tickets,
     'rticket': CommandManager.rticket,
-    'dticket': CommandManager.dticket
+    'dticket': CommandManager.dticket,
+    'goplayer': CommandManager.goplayer
 }
