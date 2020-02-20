@@ -58,6 +58,7 @@ class PlayerManager(UnitManager):
         self.sheath_state = sheath_state
         self.combo_points = combo_points
         self.inventory = inventory
+        self.is_lfg = False
 
         if self.player:
             self.set_player_variables()
