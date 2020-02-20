@@ -21,11 +21,16 @@ class RealmDatabaseManager(object):
 
     @staticmethod
     def save(realm_db_session):
+        error = False
         try:
             realm_db_session.commit()
         except:
-            realm_db_session.rollback()
+            error = True
             raise
+        finally:
+            if error:
+                realm_db_session.rollback()
+            return not error
 
     @staticmethod
     def close(realm_db_session):

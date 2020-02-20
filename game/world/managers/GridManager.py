@@ -103,21 +103,21 @@ class GridManager(object):
 
     @staticmethod
     def get_surrounding_player_by_guid(worldobject, guid):
-        for p_guid, player in GridManager.get_surrounding_players(worldobject)[0].items():
+        for p_guid, player in list(GridManager.get_surrounding_players(worldobject)[0].items()):
             if p_guid == guid:
                 return player
         return None
 
     @staticmethod
     def get_surrounding_unit_by_guid(worldobject, guid, include_players=False):
-        for u_guid, unit in GridManager.get_surrounding_units(worldobject, include_players)[0].items():
+        for u_guid, unit in list(GridManager.get_surrounding_units(worldobject, include_players)[0].items()):
             if u_guid == guid:
                 return unit
         return None
 
     @staticmethod
     def get_surrounding_gameobject_by_guid(worldobject, guid):
-        for g_guid, gameobject in GridManager.get_surrounding_gameobjects(worldobject)[0].items():
+        for g_guid, gameobject in list(GridManager.get_surrounding_gameobjects(worldobject)[0].items()):
             if g_guid == guid:
                 return gameobject
         return None
@@ -149,7 +149,7 @@ class GridManager(object):
     @staticmethod
     def find_player_by_guid(guid_to_search):
         for key, grid in GRIDS.items():
-            for guid, player in grid.players.items():
+            for guid, player in list(grid.players.items()):
                 if guid == guid_to_search:
                     return player
         return None
@@ -157,7 +157,7 @@ class GridManager(object):
     @staticmethod
     def find_player_by_name(name_to_search):
         for key, grid in GRIDS.items():
-            for guid, player in grid.players.items():
+            for guid, player in list(grid.players.items()):
                 if player.player.name.lower() == name_to_search.lower():
                     return player
         return None
@@ -165,7 +165,7 @@ class GridManager(object):
     @staticmethod
     def update_players():
         for key, grid in GRIDS.items():
-            for guid, player in grid.players.items():
+            for guid, player in list(grid.players.items()):
                 threading.Thread(target=player.update).start()
 
 
@@ -227,7 +227,7 @@ class Grid(object):
             self.gameobjects.pop(worldobject.guid, None)
 
     def send_all(self, packet, source=None):
-        for guid, player_mgr in self.players.items():
+        for guid, player_mgr in list(self.players.items()):
             if player_mgr.is_online:
                 if source and player_mgr.guid == source.guid:
                     continue
@@ -237,7 +237,7 @@ class Grid(object):
         if range_ <= 0:
             self.send_all(packet, source)
         else:
-            for guid, player_mgr in self.players.items():
+            for guid, player_mgr in list(self.players.items()):
                 if player_mgr.is_online and player_mgr.location.distance(source.location) <= range_:
                     if not include_self and player_mgr.guid == source.guid:
                         continue

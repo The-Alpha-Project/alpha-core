@@ -162,7 +162,7 @@ class PlayerManager(UnitManager):
         if destroy:
             grid = GRIDS[self.current_grid]
 
-            for guid, player in grid.players.items():
+            for guid, player in list(grid.players.items()):
                 if player.guid != self.guid:
                     self.session.request.sendall(player.get_destroy_packet())
 
@@ -171,7 +171,7 @@ class PlayerManager(UnitManager):
                                                               is_self=False)))
         GridManager.send_surrounding(update_packet, self, include_self=False)
 
-        for guid, player in GridManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER])[0].items():
+        for guid, player in list(GridManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER])[0].items()):
             if self.guid != guid:
                 self.session.request.sendall(
                     PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,

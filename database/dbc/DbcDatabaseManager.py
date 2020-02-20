@@ -21,11 +21,16 @@ class DbcDatabaseManager(object):
 
     @staticmethod
     def save(dbc_db_session):
+        error = False
         try:
             dbc_db_session.commit()
         except:
-            dbc_db_session.rollback()
+            error = True
             raise
+        finally:
+            if error:
+                dbc_db_session.rollback()
+            return not error
 
     @staticmethod
     def close(dbc_db_session):

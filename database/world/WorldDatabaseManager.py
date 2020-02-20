@@ -20,11 +20,16 @@ class WorldDatabaseManager(object):
 
     @staticmethod
     def save(world_db_session):
+        error = False
         try:
             world_db_session.commit()
         except:
-            world_db_session.rollback()
+            error = True
             raise
+        finally:
+            if error:
+                world_db_session.rollback()
+            return not error
 
     @staticmethod
     def close(world_db_session):
