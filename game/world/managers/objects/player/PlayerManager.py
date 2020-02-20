@@ -1,3 +1,4 @@
+from time import time
 from struct import unpack
 from math import pi
 
@@ -138,10 +139,11 @@ class PlayerManager(UnitManager):
         self.update_surrounding()
 
     def logout(self):
+        self.sync_player()
+        self.session.save_realm()
         self.session = None
         self.is_online = False
         GridManager.remove_object(self)
-        self.sync_player()
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)
@@ -364,8 +366,20 @@ class PlayerManager(UnitManager):
         update_packet = packet + self.update_packet_factory.build_packet()
         return update_packet
 
+    # override
+    def update(self):
+        now = int(round(time() * 1000))  # milliseconds
+
+        if now > self.last_tick > 0:
+            elapsed = now - self.last_tick
+            self.player.totaltime += elapsed
+            self.player.leveltime += elapsed
+        self.last_tick = now
+
+    # override
     def get_type(self):
         return ObjectTypes.TYPE_PLAYER
 
+    # override
     def get_type_id(self):
         return ObjectTypeIds.TYPEID_PLAYER

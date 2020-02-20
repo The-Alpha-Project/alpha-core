@@ -67,8 +67,10 @@ class ItemManager(ObjectManager):
     def get_inv_slot_by_type(self, inventory_type):
         return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0].value
 
+    # override
     def get_type(self):
         return ObjectTypes.TYPE_ITEM
 
+    # override
     def get_type_id(self):
         return ObjectTypeIds.TYPEID_ITEM

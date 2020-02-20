@@ -57,6 +57,7 @@ class ObjectManager(object):
         self.map_ = map_
 
         self.current_grid = ''
+        self.last_tick = 0
 
     def get_object_type_value(self):
         type_value = 0
@@ -130,9 +131,15 @@ class ObjectManager(object):
 
         return data
 
+    # override
+    def update(self):
+        pass
+
+    # override
     def get_type(self):
         return ObjectTypes.TYPE_OBJECT
 
+    # override
     def get_type_id(self):
         return ObjectTypeIds.TYPEID_OBJECT
 

@@ -114,8 +114,17 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             return -1
 
     @staticmethod
+    def schedule_updates():
+        player_update_scheduler = BackgroundScheduler()
+        player_update_scheduler._daemon = True
+        player_update_scheduler.add_job(GridManager.update_players, 'interval', seconds=0.05)
+        player_update_scheduler.start()
+
+    @staticmethod
     def start():
         Logger.success('World server started.')
+
+        WorldServerSessionHandler.schedule_updates()
 
         ThreadedWorldServer.allow_reuse_address = True
         with ThreadedWorldServer((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port),

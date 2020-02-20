@@ -162,6 +162,12 @@ class GridManager(object):
                     return player
         return None
 
+    @staticmethod
+    def update_players():
+        for key, grid in GRIDS.items():
+            for guid, player in grid.players.items():
+                threading.Thread(target=player.update).start()
+
 
 class Grid(object):
     def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, zones=None, gameobjects=None,

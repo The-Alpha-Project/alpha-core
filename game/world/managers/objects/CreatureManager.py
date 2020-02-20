@@ -8,8 +8,10 @@ class CreatureManager(UnitManager):
 
         self.creature_template = creature_template
 
+    # override
     def get_type(self):
         return ObjectTypes.TYPE_UNIT
 
+    # override
     def get_type_id(self):
         return ObjectTypeIds.TYPEID_UNIT

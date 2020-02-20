@@ -17,6 +17,7 @@ from game.world.opcode_handling.handlers.SpeedCheatHandler import SpeedCheatHand
 from game.world.opcode_handling.handlers.ZoneUpdateHandler import ZoneUpdateHandler
 from game.world.opcode_handling.handlers.BugHandler import BugHandler
 from game.world.opcode_handling.handlers.TextEmoteHandler import TextEmoteHandler
+from game.world.opcode_handling.handlers.PlayedTimeHandler import PlayedTimeHandler
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
 
@@ -44,6 +45,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_ZONEUPDATE: ZoneUpdateHandler.handle,
     OpCode.CMSG_BUG: BugHandler.handle,
     OpCode.CMSG_TEXT_EMOTE: TextEmoteHandler.handle,
+    OpCode.CMSG_PLAYED_TIME: PlayedTimeHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

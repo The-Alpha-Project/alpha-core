@@ -138,8 +138,10 @@ class UnitManager(ObjectManager):
             GridManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data),
                                                   self, config.World.Chat.ChatRange.emote_range)
 
+    # override
     def get_type(self):
         return ObjectTypes.TYPE_UNIT
 
+    # override
     def get_type_id(self):
         return ObjectTypeIds.TYPEID_UNIT
