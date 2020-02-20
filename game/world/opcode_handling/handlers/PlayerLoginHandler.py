@@ -50,14 +50,15 @@ class PlayerLoginHandler(object):
 
     @staticmethod
     def send_cinematic(world_session, player, socket):
-        # Sadly, ONLY undeads have intro cinematic.
-        cinematic_id = DbcDatabaseManager.chr_races_get_by_race(
-            world_session.dbc_db_session, player.race).CinematicSequenceID
-        if cinematic_id != 0:
-            data = pack(
-                '<I', cinematic_id
-            )
-            socket.sendall(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
+        if player.totaltime == 0:
+            # Sadly, ONLY undeads have intro cinematic.
+            cinematic_id = DbcDatabaseManager.chr_races_get_by_race(
+                world_session.dbc_db_session, player.race).CinematicSequenceID
+            if cinematic_id != 0:
+                data = pack(
+                    '<I', cinematic_id
+                )
+                socket.sendall(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
 
     @staticmethod
     def _get_login_timespeed():
