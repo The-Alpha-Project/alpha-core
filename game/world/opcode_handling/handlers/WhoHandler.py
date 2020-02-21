@@ -41,10 +41,15 @@ class WhoHandler(object):
                 user_strings.append(user_string)
                 current_size += len(user_string)
 
-            found_count = 0
-            player_results = []
+            online_count = 0
+            player_count = 0
+            player_data = b''
             for key, grid in list(GridManager.get_grids().items()):
                 for guid, player in list(grid.players.items()):
+                    online_count += 1
+                    if player_count == 49:
+                        continue
+
                     if player.level < level_min or player.level > level_max:
                         continue
                     if player_name and not player_name.lower() in player.player.name.lower:
@@ -74,14 +79,9 @@ class WhoHandler(object):
                         if skip:
                             continue
 
-                    player_results.append(player)
-                    found_count += 1
-
-                data = pack('<2I', 49 if found_count > 49 else found_count, found_count)
-                for player in player_results:
                     player_name_bytes = PacketWriter.string_to_bytes(player.player.name)
                     guild_name_bytes = PacketWriter.string_to_bytes(player.guild_manager.guild_name)
-                    data += pack(
+                    player_data += pack(
                         '<%us%us5I' % (len(player_name_bytes), len(guild_name_bytes)),
                         player_name_bytes,
                         guild_name_bytes,
@@ -91,7 +91,9 @@ class WhoHandler(object):
                         player.zone,
                         player.group_status
                     )
+                    player_count += 1
 
+                data = pack('<2I', player_count, online_count if online_count > 49 else player_count) + player_data
                 socket.sendall(PacketWriter.get_packet(OpCode.SMSG_WHO, data))
 
         return 0
