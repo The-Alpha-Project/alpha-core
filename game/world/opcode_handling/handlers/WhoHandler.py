@@ -1,6 +1,7 @@
 from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
@@ -11,7 +12,7 @@ class WhoHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         if len(reader.data) > 0:  # Avoid handling empty who packet
-            # TODO: Search for guild
+            # TODO: Search for guild and faction handling
             level_min, level_max = unpack('<2I', reader.data[:8])
 
             current_size = 8
@@ -44,54 +45,53 @@ class WhoHandler(object):
             online_count = 0
             player_count = 0
             player_data = b''
-            for key, grid in list(GridManager.get_grids().items()):
-                for guid, player in list(grid.players.items()):
-                    online_count += 1
-                    if player_count == 49:
-                        continue
+            for player in WorldSessionStateHandler.get_online_players():
+                online_count += 1
+                if player_count == 49:
+                    continue
 
-                    if player.level < level_min or player.level > level_max:
-                        continue
-                    if player_name and not player_name.lower() in player.player.name.lower:
-                        continue
-                    if guild_name and guild_name.lower() not in player.guild_manager.guild_name.lower():
-                        continue
-                    if class_mask != 0xFFFFFFFF and class_mask & player.class_mask != player.class_mask:
-                        continue
-                    if race_mask != 0xFFFFFFFF and race_mask & player.race_mask != player.race_mask:
-                        continue
-                    if zone_count > 0:
-                        area = WorldDatabaseManager.area_get_by_id(world_session.world_db_session, player.zone)
-                        if area:
-                            skip = True
-                            for zone in zones:
-                                if zone == area.zone_id or area.zone_id == 0 and zone == area.entry:
-                                    skip = False
-                                    break
-                            if skip:
-                                continue
-                    if user_strings_count > 0:
+                if player.level < level_min or player.level > level_max:
+                    continue
+                if player_name and not player_name.lower() in player.player.name.lower:
+                    continue
+                if guild_name and guild_name.lower() not in player.guild_manager.guild_name.lower():
+                    continue
+                if class_mask != 0xFFFFFFFF and class_mask & player.class_mask != player.class_mask:
+                    continue
+                if race_mask != 0xFFFFFFFF and race_mask & player.race_mask != player.race_mask:
+                    continue
+                if zone_count > 0:
+                    area = WorldDatabaseManager.area_get_by_id(world_session.world_db_session, player.zone)
+                    if area:
                         skip = True
-                        for string in user_strings:
-                            if string.lower() in player.player.name.lower():
+                        for zone in zones:
+                            if zone == area.zone_id or area.zone_id == 0 and zone == area.entry:
                                 skip = False
                                 break
                         if skip:
                             continue
+                if user_strings_count > 0:
+                    skip = True
+                    for string in user_strings:
+                        if string.lower() in player.player.name.lower():
+                            skip = False
+                            break
+                    if skip:
+                        continue
 
-                    player_name_bytes = PacketWriter.string_to_bytes(player.player.name)
-                    guild_name_bytes = PacketWriter.string_to_bytes(player.guild_manager.guild_name)
-                    player_data += pack(
-                        '<%us%us5I' % (len(player_name_bytes), len(guild_name_bytes)),
-                        player_name_bytes,
-                        guild_name_bytes,
-                        player.level,
-                        player.player.class_,
-                        player.player.race,
-                        player.zone,
-                        player.group_status
-                    )
-                    player_count += 1
+                player_name_bytes = PacketWriter.string_to_bytes(player.player.name)
+                guild_name_bytes = PacketWriter.string_to_bytes(player.guild_manager.guild_name)
+                player_data += pack(
+                    '<%us%us5I' % (len(player_name_bytes), len(guild_name_bytes)),
+                    player_name_bytes,
+                    guild_name_bytes,
+                    player.level,
+                    player.player.class_,
+                    player.player.race,
+                    player.zone,
+                    player.group_status
+                )
+                player_count += 1
 
                 data = pack('<2I', player_count, online_count if online_count > 49 else player_count) + player_data
                 socket.sendall(PacketWriter.get_packet(OpCode.SMSG_WHO, data))

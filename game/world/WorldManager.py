@@ -24,11 +24,11 @@ class ThreadedWorldServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 
 class WorldServerSessionHandler(socketserver.BaseRequestHandler):
-    def __init__(self, request, client_address, server, account_mgr=None, player_mgr=None):
+    def __init__(self, request, client_address, server):
         super().__init__(request, client_address, server)
 
-        self.account_mgr = account_mgr
-        self.player_mgr = player_mgr
+        self.account_mgr = None
+        self.player_mgr = None
 
         self.realm_db_session = None
         self.world_db_session = None
@@ -41,12 +41,15 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         try:
             self.auth_challenge(self.request)
 
-            self.keep_alive = True
-            self.is_alive = True
+            self.player_mgr = None
+            self.account_mgr = None
 
             self.realm_db_session = RealmDatabaseManager.acquire_session()
             self.world_db_session = WorldDatabaseManager.acquire_session()
             self.dbc_db_session = DbcDatabaseManager.acquire_session()
+
+            self.keep_alive = True
+            self.is_alive = True
 
             realm_saving_scheduler = BackgroundScheduler()
             realm_saving_scheduler._daemon = True

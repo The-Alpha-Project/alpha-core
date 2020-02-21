@@ -18,7 +18,7 @@ class WorldSessionStateHandler(object):
     @staticmethod
     def disonnect_old_session(new_session):
         for session in WORLD_SESSIONS:
-            if session.account_mgr.account.id == new_session.account_mgr.account.id:
+            if session.account_mgr and session.account_mgr.account.id == new_session.account_mgr.account.id:
                 session.disconnect()
                 break
 
@@ -27,15 +27,19 @@ class WorldSessionStateHandler(object):
         return WORLD_SESSIONS
 
     @staticmethod
+    def get_online_players():
+        return [session.player_mgr for session in WORLD_SESSIONS if session.player_mgr and session.player_mgr.is_online]
+
+    @staticmethod
     def get_session_by_account_id(account_id):
         for session in WORLD_SESSIONS:
-            if session.account_mgr.account.id == account_id:
+            if session.account_mgr and session.account_mgr.account.id == account_id:
                 return session
         return None
 
     @staticmethod
     def get_session_by_character_guid(character_guid):
         for session in WORLD_SESSIONS:
-            if session.player_mgr.guid == character_guid:
+            if session.player_mgr and session.player_mgr.guid == character_guid:
                 return session
         return None

@@ -136,8 +136,8 @@ class PlayerManager(UnitManager):
         elif self.player.race == Races.RACE_TROLL:
             self.bounding_radius = 0.306
 
-        self.race_mask = 1 << (self.player.race)
-        self.class_mask = 1 << (self.player.class_)
+        self.race_mask = 1 << self.player.race
+        self.class_mask = 1 << self.player.class_
 
     def complete_login(self):
         self.is_online = True
@@ -150,9 +150,10 @@ class PlayerManager(UnitManager):
     def logout(self):
         self.sync_player()
         self.session.save_realm()
+        GridManager.remove_object(self)
+        self.session.player_mgr = None
         self.session = None
         self.is_online = False
-        GridManager.remove_object(self)
 
     def get_tutorial_packet(self):
         # Not handling any tutorial (are them even implemented?)
