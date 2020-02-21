@@ -13,18 +13,6 @@ class Classes(Enum):
     CLASS_DRUID = 11
 
 
-class ClassMask(Enum):
-    CLASS_WARRIOR = 1 << 0
-    CLASS_PALADIN = 1 << 1
-    CLASS_HUNTER = 1 << 2
-    CLASS_ROGUE = 1 << 3
-    CLASS_PRIEST = 1 << 4
-    CLASS_SHAMAN = 1 << 6
-    CLASS_MAGE = 1 << 7
-    CLASS_WARLOCK = 1 << 8
-    CLASS_DRUID = 1 << 10
-
-
 class Races(Enum):
     RACE_HUMAN = 1
     RACE_ORC = 2
@@ -34,17 +22,6 @@ class Races(Enum):
     RACE_TAUREN = 6
     RACE_GNOME = 7
     RACE_TROLL = 8
-
-
-class RaceMask(Enum):
-    RACE_HUMAN = 1 << 0
-    RACE_ORC = 1 << 1
-    RACE_DWARF = 1 << 2
-    RACE_NIGHT_ELF = 1 << 3
-    RACE_UNDEAD = 1 << 4
-    RACE_TAUREN = 1 << 5
-    RACE_GNOME = 1 << 6
-    RACE_TROLL = 1 << 7
 
 
 class Genders(Enum):

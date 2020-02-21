@@ -30,6 +30,20 @@ class AreatriggerTeleport(Base):
     target_orientation = Column(Float, nullable=False, server_default=text("'0'"))
 
 
+class AreaTemplate(Base):
+    __tablename__ = 'area_template'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"), comment='Identifier')
+    map_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    zone_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    explore_flag = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    flags = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    area_level = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    name = Column(Text, nullable=False, server_default=text(""))
+    team = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    liquid_type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+
+
 class CreatureModelInfo(Base):
     __tablename__ = 'creature_model_info'
 

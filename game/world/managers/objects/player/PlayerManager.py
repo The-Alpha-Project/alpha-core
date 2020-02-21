@@ -4,8 +4,9 @@ from math import pi
 
 from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.objects.UnitManager import UnitManager
+from game.world.managers.objects.player.GuildManager import GuildManager
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags
+from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
@@ -57,8 +58,11 @@ class PlayerManager(UnitManager):
         self.base_mana = base_mana
         self.sheath_state = sheath_state
         self.combo_points = combo_points
+
         self.inventory = inventory
-        self.is_lfg = False
+        self.group_status = WhoPartyStatuses.WHO_PARTY_STATUS_NOT_IN_PARTY.value
+        self.race_mask = 0
+        self.class_mask = 0
 
         if self.player:
             self.set_player_variables()
@@ -94,6 +98,7 @@ class PlayerManager(UnitManager):
             self.power_4 = 100
             self.max_power_4 = 100
             self.power_4 = 100
+            self.guild_manager = GuildManager()
 
     def set_player_variables(self):
         race = DbcDatabaseManager.chr_races_get_by_race(self.session.dbc_db_session, self.player.race)
@@ -130,6 +135,9 @@ class PlayerManager(UnitManager):
             self.bounding_radius = 0.3519
         elif self.player.race == Races.RACE_TROLL.value:
             self.bounding_radius = 0.306
+
+        self.race_mask = 1 << (self.player.race)
+        self.class_mask = 1 << (self.player.class_)
 
     def complete_login(self):
         self.is_online = True

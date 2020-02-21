@@ -47,6 +47,12 @@ class WorldDatabaseManager(object):
     def area_trigger_teleport_get_by_id(world_db_session, trigger_id):
         return world_db_session.query(AreatriggerTeleport).filter_by(id=trigger_id).first()
 
+    # Area Template stuff
+
+    @staticmethod
+    def area_get_by_id(world_db_session, area_id):
+        return world_db_session.query(AreaTemplate).filter_by(entry=area_id).first()
+
     # Worldport stuff
 
     @staticmethod

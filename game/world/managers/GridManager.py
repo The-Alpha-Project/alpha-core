@@ -148,7 +148,7 @@ class GridManager(object):
 
     @staticmethod
     def find_player_by_guid(guid_to_search):
-        for key, grid in GRIDS.items():
+        for key, grid in list(GRIDS.items()):
             for guid, player in list(grid.players.items()):
                 if guid == guid_to_search:
                     return player
@@ -156,7 +156,7 @@ class GridManager(object):
 
     @staticmethod
     def find_player_by_name(name_to_search):
-        for key, grid in GRIDS.items():
+        for key, grid in list(GRIDS.items()):
             for guid, player in list(grid.players.items()):
                 if player.player.name.lower() == name_to_search.lower():
                     return player
@@ -164,7 +164,7 @@ class GridManager(object):
 
     @staticmethod
     def update_players():
-        for key, grid in GRIDS.items():
+        for key, grid in list(GRIDS.items()):
             for guid, player in list(grid.players.items()):
                 threading.Thread(target=player.update).start()
 
