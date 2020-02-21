@@ -42,14 +42,21 @@ class PlayerLoginHandler(object):
             world_session.player_mgr.get_update_packet(update_type=UpdateTypes.UPDATE_FULL)))
         socket.sendall(update_packet)
 
-        PlayerLoginHandler.send_cinematic(world_session, world_session.player_mgr.player, socket)
+        PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
+
+        PlayerLoginHandler._clear_who_list(socket)  # Clear Who list on login, otherwise the last search will appear
 
         world_session.player_mgr.complete_login()
 
         return 0
 
     @staticmethod
-    def send_cinematic(world_session, player, socket):
+    def _clear_who_list(socket):
+        data = pack('<2I', 0, 0)
+        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_WHO, data))
+
+    @staticmethod
+    def _send_cinematic(world_session, player, socket):
         if player.totaltime == 0:
             # Sadly, ONLY undeads have intro cinematic.
             cinematic_id = DbcDatabaseManager.chr_races_get_by_race(
