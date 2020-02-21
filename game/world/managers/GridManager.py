@@ -146,28 +146,6 @@ class GridManager(object):
     def get_grids():
         return GRIDS
 
-    @staticmethod
-    def find_player_by_guid(guid_to_search):
-        for key, grid in list(GRIDS.items()):
-            for guid, player in list(grid.players.items()):
-                if guid == guid_to_search:
-                    return player
-        return None
-
-    @staticmethod
-    def find_player_by_name(name_to_search):
-        for key, grid in list(GRIDS.items()):
-            for guid, player in list(grid.players.items()):
-                if player.player.name.lower() == name_to_search.lower():
-                    return player
-        return None
-
-    @staticmethod
-    def update_players():
-        for key, grid in list(GRIDS.items()):
-            for guid, player in list(grid.players.items()):
-                threading.Thread(target=player.update).start()
-
 
 class Grid(object):
     def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, zones=None, gameobjects=None,

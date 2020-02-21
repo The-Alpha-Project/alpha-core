@@ -1,3 +1,4 @@
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
 from network.packet.PacketReader import *
 from struct import pack, unpack, error
@@ -28,7 +29,7 @@ class ChatHandler(object):
         # Whisper
         elif chat_type == ChatMsgs.CHAT_MSG_WHISPER:
             target_name = PacketReader.read_string(reader.data, 8).strip()
-            target_player_mgr = GridManager.find_player_by_name(target_name)
+            target_player_mgr = WorldSessionStateHandler.find_player_by_name(target_name)
             if not target_player_mgr:
                 ChatManager.send_system_message(world_session, 'No player named \'%s\' is currently playing.'
                                                 % target_name.capitalize())

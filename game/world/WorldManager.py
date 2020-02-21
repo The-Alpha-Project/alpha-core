@@ -120,7 +120,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     def schedule_updates():
         player_update_scheduler = BackgroundScheduler()
         player_update_scheduler._daemon = True
-        player_update_scheduler.add_job(GridManager.update_players, 'interval', seconds=0.05)
+        player_update_scheduler.add_job(WorldSessionStateHandler.update_players, 'interval', seconds=0.05)
         player_update_scheduler.start()
 
     @staticmethod

@@ -1,5 +1,6 @@
 from struct import pack
 
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -139,7 +140,7 @@ class CommandManager(object):
         player_name = args
         is_online = True
 
-        player = GridManager.find_player_by_name(player_name)
+        player = WorldSessionStateHandler.find_player_by_name(player_name)
         player_location = None
         map_ = 0
 
