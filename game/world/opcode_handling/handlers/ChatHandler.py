@@ -14,7 +14,6 @@ class ChatHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         chat_type, lang = unpack('<2I', reader.data[:8])
-        chat_type = ChatMsgs(chat_type)
         message = ''
         guid = 0
         chat_flags = 0

@@ -17,8 +17,8 @@ class PacketWriter(object):
         base_header = pack('<4B',
                            int(size / 0x100),
                            int(size % 0x100),
-                           int(opcode.value % 0x100),
-                           int(opcode.value / 0x100))
+                           int(opcode % 0x100),
+                           int(opcode / 0x100))
         if opcode == OpCode.SMSG_AUTH_CHALLENGE:
             return base_header + data
         else:

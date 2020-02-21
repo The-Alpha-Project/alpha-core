@@ -1,7 +1,7 @@
-from enum import Enum, IntFlag
+from enum import IntEnum, IntFlag
 
 
-class Classes(Enum):
+class Classes(IntEnum):
     CLASS_WARRIOR = 1
     CLASS_PALADIN = 2
     CLASS_HUNTER = 3
@@ -13,7 +13,7 @@ class Classes(Enum):
     CLASS_DRUID = 11
 
 
-class Races(Enum):
+class Races(IntEnum):
     RACE_HUMAN = 1
     RACE_ORC = 2
     RACE_DWARF = 3
@@ -24,12 +24,12 @@ class Races(Enum):
     RACE_TROLL = 8
 
 
-class Genders(Enum):
+class Genders(IntEnum):
     GENDER_MALE = 0
     GENDER_FEMALE = 1
 
 
-class PowerTypes(Enum):
+class PowerTypes(IntEnum):
     TYPE_MANA = 0
     TYPE_RAGE = 1
     TYPE_FOCUS = 2
@@ -38,7 +38,7 @@ class PowerTypes(Enum):
     POWER_HEALTH = 0xFFFFFFFE
 
 
-class UnitFlags(Enum):
+class UnitFlags(IntEnum):
     UNIT_FLAG_SHEATHE = 0x40000000
     UNIT_FLAG_GHOST = 0x10000
     UNIT_FLAG_SNEAK = 0x8000
@@ -57,7 +57,7 @@ class UnitFlags(Enum):
     UNIT_FLAG_LOOTING = 0x400
 
 
-class StandState(Enum):
+class StandState(IntEnum):
     UNIT_STANDING = 0x0
     UNIT_SITTING = 0x1
     UNIT_SITTINGCHAIR = 0x2
@@ -73,14 +73,14 @@ class StandState(Enum):
     UNIT_NUMCHAIRSTATES = 0x3
 
 
-class SheathState(Enum):
+class SheathState(IntEnum):
     SHEATH_STATE_UNARMED = 0
     SHEATH_STATE_MELEE = 1
     SHEATH_STATE_RANGED = 2
 
 
 # This is from 1.12, might be wrong
-class ObjectSpawnFlags(Enum):
+class ObjectSpawnFlags(IntEnum):
     SPAWN_FLAG_ACTIVE = 0x01
     SPAWN_FLAG_DISABLED = 0x02
     SPAWN_FLAG_RANDOM_RESPAWN_TIME = 0x04
@@ -92,7 +92,7 @@ class ObjectSpawnFlags(Enum):
 
 # This is from 1.12, might be wrong
 # Used in SMSG_MONSTER_MOVE
-class SplineFlags(Enum):
+class SplineFlags(IntEnum):
     SPLINEFLAG_NONE = 0x00000000
     SPLINEFLAG_WALKMODE = 0x00000100
     SPLINEFLAG_FLYING = 0x00000200

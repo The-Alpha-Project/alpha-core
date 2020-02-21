@@ -10,7 +10,7 @@ class ChatManager(object):
     @staticmethod
     def send_system_message(world_session, message):
         world_session.request.sendall(ChatManager._get_message_packet(world_session.player_mgr.guid,
-                                                                      ChatFlags.CHAT_TAG_NONE.value,
+                                                                      ChatFlags.CHAT_TAG_NONE,
                                                                       message, ChatMsgs.CHAT_MSG_SYSTEM, 0))
 
     @staticmethod
@@ -34,7 +34,7 @@ class ChatManager(object):
         message_bytes = PacketWriter.string_to_bytes(message)
         data = pack(
             '<BIQ%usB' % len(message_bytes),
-            chat_type.value,
+            chat_type,
             lang,
             guid,
             message_bytes,

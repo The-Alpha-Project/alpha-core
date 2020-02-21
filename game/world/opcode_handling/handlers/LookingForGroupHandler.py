@@ -18,8 +18,8 @@ class LookingForGroupHandler(object):
         if len(reader.data) >= 4:  # Avoid handling empty LFG set packet
             is_lfg = bool(unpack('<I', reader.data)[0])
 
-            if world_session.player_mgr.group_status != WhoPartyStatuses.WHO_PARTY_STATUS_IN_PARTY.value:
-                world_session.player_mgr.group_status = WhoPartyStatuses.WHO_PARTY_STATUS_LFG.value if is_lfg \
-                    else WhoPartyStatuses.WHO_PARTY_STATUS_NOT_IN_PARTY.value
+            if world_session.player_mgr.group_status != WhoPartyStatuses.WHO_PARTY_STATUS_IN_PARTY:
+                world_session.player_mgr.group_status = WhoPartyStatuses.WHO_PARTY_STATUS_LFG if is_lfg \
+                    else WhoPartyStatuses.WHO_PARTY_STATUS_NOT_IN_PARTY
 
         return 0

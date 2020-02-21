@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class AuthCode(Enum):
+class AuthCode(IntEnum):
     AUTH_OK = 0x0C
     AUTH_FAILED = 0x0D
     AUTH_REJECT = 0x0E

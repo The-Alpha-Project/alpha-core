@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class ItemClasses(Enum):
+class ItemClasses(IntEnum):
     ITEM_CLASS_CONSUMABLE = 0
     ITEM_CLASS_CONTAINER = 1
     ITEM_CLASS_WEAPON = 2
@@ -20,7 +20,7 @@ class ItemClasses(Enum):
     ITEM_CLASS_JUNK = 15
 
 
-class ItemSubClasses(Enum):
+class ItemSubClasses(IntEnum):
     # Consumable
     ITEM_SUBCLASS_CONSUMABLE = 0
     ITEM_SUBCLASS_FOOD = 1
@@ -127,7 +127,7 @@ class ItemSubClasses(Enum):
     ITEM_SUBCLASS_MOUNT = 5
 
 
-class InventoryTypes(Enum):
+class InventoryTypes(IntEnum):
     NONE_EQUIP = 0x00
     HEAD = 0x01
     NECK = 0x02
@@ -158,7 +158,7 @@ class InventoryTypes(Enum):
     NUM_TYPES = 0x1B
 
 
-class InventorySlots(Enum):
+class InventorySlots(IntEnum):
     SLOT_HEAD = 0
     SLOT_NECK = 1
     SLOT_SHOULDERS = 2
@@ -200,7 +200,7 @@ class InventorySlots(Enum):
     SLOT_BANK_END = 69
 
 
-class InventoryStats(Enum):
+class InventoryStats(IntEnum):
     HEALTH = 0
     POWER = 1  # Mana energy etc
     AGILITY = 3
@@ -210,7 +210,7 @@ class InventoryStats(Enum):
     STAMINA = 7
 
 
-class InventoryError(Enum):
+class InventoryError(IntEnum):
     EQUIP_ERR_OK = 0
     EQUIP_ERR_CANT_EQUIP_LEVEL_I = 1  # ERR_CANT_EQUIP_LEVEL_I
     EQUIP_ERR_CANT_EQUIP_SKILL = 2  # ERR_CANT_EQUIP_SKILL

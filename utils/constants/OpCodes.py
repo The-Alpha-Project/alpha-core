@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class OpCode(Enum):
+class OpCode(IntEnum):
     CMSG_BOOTME = 0x0001
     CMSG_DBLOOKUP = 0x0002
     SMSG_DBLOOKUP = 0x0003

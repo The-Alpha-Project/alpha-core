@@ -14,9 +14,9 @@ class CharDeleteHandler(object):
         if len(reader.data) >= 8:  # Avoid handling empty area char delete packet
             guid = unpack('<Q', reader.data[:8])[0]
 
-        res = CharDelete.CHAR_DELETE_SUCCESS.value
+        res = CharDelete.CHAR_DELETE_SUCCESS
         if guid == 0 or RealmDatabaseManager.character_delete(world_session.realm_db_session, guid) != 0:
-            res = CharDelete.CHAR_DELETE_FAILED.value
+            res = CharDelete.CHAR_DELETE_FAILED
             Logger.error('Error deleting character with guid %s.' % guid)
 
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHAR_DELETE, pack('<B', res)))

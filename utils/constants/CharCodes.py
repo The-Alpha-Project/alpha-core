@@ -1,14 +1,14 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class CharList(Enum):
+class CharList(IntEnum):
     CHAR_LIST_RETRIEVING = 0x24
     CHAR_LIST_RETRIEVED = 0x25
     CHAR_LIST_FAILED = 0x26
     LAST_CHAR_LIST_RESULT = 0x27
 
 
-class CharCreate(Enum):
+class CharCreate(IntEnum):
     CHAR_CREATE_IN_PROGRESS = 0x27
     CHAR_CREATE_SUCCESS = 0x28
     CHAR_CREATE_ERROR = 0x28
@@ -18,14 +18,14 @@ class CharCreate(Enum):
     LAST_CHAR_CREATE_RESULT = 0x2D
 
 
-class CharDelete(Enum):
+class CharDelete(IntEnum):
     CHAR_DELETE_IN_PROGRESS = 0x2D
     CHAR_DELETE_SUCCESS = 0x2E
     CHAR_DELETE_FAILED = 0x2F
     LAST_CHAR_DELETE_RESULT = 0x30
 
 
-class CharLogin(Enum):
+class CharLogin(IntEnum):
     CHAR_LOGIN_IN_PROGRESS = 0x30
     CHAR_LOGIN_SUCCESS = 0x31
     CHAR_LOGIN_NO_WORLD = 0x32

@@ -24,11 +24,11 @@ class WorldTeleportHandler(object):
     def handle_ack(world_session, socket, reader):
         socket.sendall(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
-            world_session.player_mgr.get_update_packet(update_type=UpdateTypes.UPDATE_FULL.value, is_self=True)))
+            world_session.player_mgr.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
 
         GridManager.send_surrounding(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
-            world_session.player_mgr.get_update_packet(update_type=UpdateTypes.UPDATE_FULL.value, is_self=False)),
+            world_session.player_mgr.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=False)),
             world_session.player_mgr,
             include_self=False)
 

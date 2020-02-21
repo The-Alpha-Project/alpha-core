@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class ObjectFields(Enum):
+class ObjectFields(IntEnum):
     OBJECT_FIELD_GUID = 0x0 # 0
     OBJECT_FIELD_TYPE = 0x2 # 2
     OBJECT_FIELD_ENTRY = 0x3 # 3
@@ -10,7 +10,7 @@ class ObjectFields(Enum):
     OBJECT_END = 0x6
 
 
-class ItemFields(Enum):
+class ItemFields(IntEnum):
     ITEM_FIELD_OWNER = 0x0
     ITEM_FIELD_CONTAINED = 0x2
     ITEM_FIELD_CREATOR = 0x4
@@ -23,14 +23,14 @@ class ItemFields(Enum):
     ITEM_END = 0x1E
 
 
-class ContainerFields(Enum):
+class ContainerFields(IntEnum):
     CONTAINER_FIELD_NUM_SLOTS = 0x0
     CONTAINER_ALIGN_PAD = 0x1
     CONTAINER_FIELD_SLOT_1 = 0x2
     CONTAINER_END = 0x2A
 
 
-class UnitFields(Enum):
+class UnitFields(IntEnum):
     UNIT_FIELD_CHARM = 0x0
     UNIT_FIELD_SUMMON = 0x2
     UNIT_FIELD_CHARMEDBY = 0x4
@@ -98,7 +98,7 @@ class UnitFields(Enum):
     UNIT_END = 0xB2
 
 
-class PlayerFields(Enum):
+class PlayerFields(IntEnum):
     PLAYER_FIELD_INV_SLOT_1 = 0x0
     PLAYER_FIELD_PACK_SLOT_1 = 0x2E
     PLAYER_FIELD_BANK_SLOT_1 = 0x4E
@@ -129,7 +129,7 @@ class PlayerFields(Enum):
     PLAYER_END = 0x1C2
 
 
-class GameObjectFields(Enum):
+class GameObjectFields(IntEnum):
     GAMEOBJECT_DISPLAYID = 0x0
     GAMEOBJECT_FLAGS = 0x1
     GAMEOBJECT_ROTATION = 0x2
@@ -144,7 +144,7 @@ class GameObjectFields(Enum):
     GAMEOBJECT_END = 0xE
 
 
-class DynamicObjectFields(Enum):
+class DynamicObjectFields(IntEnum):
     DYNAMICOBJECT_CASTER = 0x0
     DYNAMICOBJECT_BYTES = 0x2
     DYNAMICOBJECT_SPELLID = 0x3

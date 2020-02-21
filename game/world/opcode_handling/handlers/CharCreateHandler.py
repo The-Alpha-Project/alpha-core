@@ -18,11 +18,11 @@ class CharCreateHandler(object):
             '<BBBBBBBBB', reader.data[len(name)+1:]
         )
 
-        result = CharCreate.CHAR_CREATE_SUCCESS.value
+        result = CharCreate.CHAR_CREATE_SUCCESS
         if RealmDatabaseManager.character_does_name_exist(world_session.realm_db_session, name):
-            result = CharCreate.CHAR_CREATE_NAME_IN_USE.value
+            result = CharCreate.CHAR_CREATE_NAME_IN_USE
 
-        if result == CharCreate.CHAR_CREATE_SUCCESS.value:
+        if result == CharCreate.CHAR_CREATE_SUCCESS:
             map_, zone, x, y, z, o = CharCreateHandler.get_starting_location(world_session, race, class_)
             character = Character(account_id=world_session.account_mgr.account.id,
                                   name=name,

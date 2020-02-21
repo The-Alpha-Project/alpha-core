@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class SpellTargetType(Enum):
+class SpellTargetType(IntEnum):
     TARGET_TYPE_CASTER = 0x0
     TARGET_TYPE_UNIT = 0x1
     TARGET_TYPE_FRIENDLY = 0x2
@@ -21,7 +21,7 @@ class SpellTargetType(Enum):
     NUM_SPELL_TARGET_TYPES = 0x10
 
 
-class SpellCheckCastResult(Enum):
+class SpellCheckCastResult(IntEnum):
     SPELL_FAILED_AFFECTING_COMBAT = 0x0
     SPELL_FAILED_ALREADY_HAVE_CHARM = 0x1
     SPELL_FAILED_ALREADY_HAVE_SUMMON = 0x2
@@ -112,7 +112,7 @@ class SpellCheckCastResult(Enum):
     SPELL_CAST_OK = 0x57
 
 
-class SpellAttributes(Enum):
+class SpellAttributes(IntEnum):
     SPELL_ATTR_UNK0 = 0x00000001  # 0
     SPELL_ATTR_RANGED = 0x00000002  # 1 All ranged abilites have this flag
     SPELL_ATTR_ON_NEXT_SWING_1 = 0x00000004  # 2 on next swing
@@ -147,7 +147,7 @@ class SpellAttributes(Enum):
     SPELL_ATTR_CANT_CANCEL = 0x80000000  # 31 positive aura can't be canceled
 
 
-class SpellAttributesEx(Enum):
+class SpellAttributesEx(IntEnum):
     SPELL_ATTR_EX_UNK0 = 0x00000001  # 0
     SPELL_ATTR_EX_DRAIN_ALL_POWER = 0x00000002  # 1 use all power (Only paladin Lay of Hands and Bunyanize)
     SPELL_ATTR_EX_CHANNELED_1 = 0x00000004  # 2 channeled 1
@@ -182,7 +182,7 @@ class SpellAttributesEx(Enum):
     SPELL_ATTR_EX_UNK31 = 0x80000000  # 31
 
 
-class SpellSchools(Enum):
+class SpellSchools(IntEnum):
     SPELL_SCHOOL_NORMAL = 0  # < Physical Armor
     SPELL_SCHOOL_HOLY = 1
     SPELL_SCHOOL_FIRE = 2
@@ -191,34 +191,34 @@ class SpellSchools(Enum):
     SPELL_SCHOOL_SHADOW = 5
 
 
-class SpellSchoolMask(Enum):
+class SpellSchoolMask(IntEnum):
     SPELL_SCHOOL_MASK_NONE = 0x00  # doesn't exist
-    SPELL_SCHOOL_MASK_NORMAL = (1 << SpellSchools.SPELL_SCHOOL_NORMAL.value)  # PHYSICAL (Armor)
-    SPELL_SCHOOL_MASK_HOLY = (1 << SpellSchools.SPELL_SCHOOL_HOLY.value)
-    SPELL_SCHOOL_MASK_FIRE = (1 << SpellSchools.SPELL_SCHOOL_FIRE.value)
-    SPELL_SCHOOL_MASK_NATURE = (1 << SpellSchools.SPELL_SCHOOL_NATURE.value)
-    SPELL_SCHOOL_MASK_FROST = (1 << SpellSchools.SPELL_SCHOOL_FROST.value)
-    SPELL_SCHOOL_MASK_SHADOW = (1 << SpellSchools.SPELL_SCHOOL_SHADOW.value)
+    SPELL_SCHOOL_MASK_NORMAL = (1 << SpellSchools.SPELL_SCHOOL_NORMAL)  # PHYSICAL (Armor)
+    SPELL_SCHOOL_MASK_HOLY = (1 << SpellSchools.SPELL_SCHOOL_HOLY)
+    SPELL_SCHOOL_MASK_FIRE = (1 << SpellSchools.SPELL_SCHOOL_FIRE)
+    SPELL_SCHOOL_MASK_NATURE = (1 << SpellSchools.SPELL_SCHOOL_NATURE)
+    SPELL_SCHOOL_MASK_FROST = (1 << SpellSchools.SPELL_SCHOOL_FROST)
+    SPELL_SCHOOL_MASK_SHADOW = (1 << SpellSchools.SPELL_SCHOOL_SHADOW)
     SPELL_SCHOOL_MASK_SPELL = (
-                SPELL_SCHOOL_MASK_FIRE.value | SPELL_SCHOOL_MASK_NATURE.value | SPELL_SCHOOL_MASK_FROST.value | SPELL_SCHOOL_MASK_SHADOW.value)
-    SPELL_SCHOOL_MASK_MAGIC = (SPELL_SCHOOL_MASK_HOLY.value | SPELL_SCHOOL_MASK_SPELL.value)
-    SPELL_SCHOOL_MASK_ALL = (SPELL_SCHOOL_MASK_NORMAL.value | SPELL_SCHOOL_MASK_MAGIC.value)
+                SPELL_SCHOOL_MASK_FIRE | SPELL_SCHOOL_MASK_NATURE | SPELL_SCHOOL_MASK_FROST | SPELL_SCHOOL_MASK_SHADOW)
+    SPELL_SCHOOL_MASK_MAGIC = (SPELL_SCHOOL_MASK_HOLY | SPELL_SCHOOL_MASK_SPELL)
+    SPELL_SCHOOL_MASK_ALL = (SPELL_SCHOOL_MASK_NORMAL | SPELL_SCHOOL_MASK_MAGIC)
 
 
-class SpellState(Enum):
+class SpellState(IntEnum):
     SPELL_STATE_PREPARING = 0  # cast time delay period non channeled spell
     SPELL_STATE_CASTING = 1  # channeled time period spell casting state
     SPELL_STATE_FINISHED = 2  # cast finished to success or fail
     SPELL_STATE_DELAYED = 3  # spell casted but need time to hit target(s)
 
 
-class CurrentSpellType(Enum):
+class CurrentSpellType(IntEnum):
     CURRENT_MELEE_SPELL = 0
     CURRENT_GENERIC_SPELL = 1
     CURRENT_CHANNELED_SPELL = 2
 
 
-class SpellEffects(Enum):
+class SpellEffects(IntEnum):
     SPELL_EFFECT_NONE = 0x0
     SPELL_EFFECT_INSTAKILL = 0x1
     SPELL_EFFECT_SCHOOL_DAMAGE = 0x2
@@ -307,7 +307,7 @@ class SpellEffects(Enum):
     SPELL_EFFECT_ACTIVATE_OBJECT = 0x56
 
 
-class SpellInterruptFlags(Enum):
+class SpellInterruptFlags(IntEnum):
     SPELL_INTERRUPT_FLAG_MOVEMENT = 0x01
     SPELL_INTERRUPT_FLAG_DAMAGE = 0x02
     SPELL_INTERRUPT_FLAG_INTERRUPT = 0x04
@@ -316,7 +316,7 @@ class SpellInterruptFlags(Enum):
     # SPELL_INTERRUPT_UNK             = 0x20               # unk 564 of 727 spells having this spell start with "Glyph"
 
 
-class SpellChannelInterruptFlags(Enum):
+class SpellChannelInterruptFlags(IntEnum):
     CHANNEL_FLAG_DAMAGE = 0x0002
     CHANNEL_FLAG_MOVEMENT = 0x0008
     CHANNEL_FLAG_TURNING = 0x0010
@@ -324,7 +324,7 @@ class SpellChannelInterruptFlags(Enum):
     CHANNEL_FLAG_DELAY = 0x4000
 
 
-class SpellAuraInterruptFlags(Enum):
+class SpellAuraInterruptFlags(IntEnum):
     AURA_INTERRUPT_FLAG_UNK0 = 0x00000001  # 0    removed when getting hit by a negative spell?
     AURA_INTERRUPT_FLAG_DAMAGE = 0x00000002  # 1    removed by any damage
     AURA_INTERRUPT_FLAG_UNK2 = 0x00000004  # 2
@@ -352,7 +352,7 @@ class SpellAuraInterruptFlags(Enum):
     AURA_INTERRUPT_FLAG_DIRECT_DAMAGE = 0x01000000  # 24   removed by any direct damage
 
 
-class SpellImplicitTargets(Enum):
+class SpellImplicitTargets(IntEnum):
     TARGET_NOTHING = 0
     TARGET_SELF = 1
     TARGET_RANDOM_ENEMY_CHAIN_IN_AREA = 2  # Only one spell has this one but regardless it's a target type after all
@@ -400,7 +400,7 @@ class SpellImplicitTargets(Enum):
     TARGET_NONCOMBAT_PET = 90
 
 
-class SpellMissInfo(Enum):
+class SpellMissInfo(IntEnum):
     MISS_NONE = 0x0
     MISS_PHYSICAL = 0x1
     MISS_RESIST = 0x2
@@ -414,7 +414,7 @@ class SpellMissInfo(Enum):
     MISS_NUMMISSTYPES = 0xA
 
 
-class SpellDamageType(Enum):
+class SpellDamageType(IntEnum):
     SPELL_TYPE_NONMELEE = 0
     SPELL_TYPE_DOT = 1
     SPELL_TYPE_HEAL = 2

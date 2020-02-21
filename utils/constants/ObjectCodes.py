@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class ObjectTypes(Enum):
+class ObjectTypes(IntEnum):
     TYPE_OBJECT = 1
     TYPE_ITEM = 2
     TYPE_CONTAINER = 6
@@ -14,7 +14,7 @@ class ObjectTypes(Enum):
     TYPE_AREATRIGGER = 512
 
 
-class ObjectTypeIds(Enum):
+class ObjectTypeIds(IntEnum):
     TYPEID_OBJECT = 0
     TYPEID_ITEM = 1
     TYPEID_CONTAINER = 2
@@ -25,7 +25,7 @@ class ObjectTypeIds(Enum):
     TYPEID_CORPSE = 7
 
 
-class UpdateTypes(Enum):
+class UpdateTypes(IntEnum):
     UPDATE_PARTIAL = 0
     #  1 byte  - MASK
     #  8 bytes - GUID
@@ -48,7 +48,7 @@ class UpdateTypes(Enum):
 
 
 # Some might be unused on Alpha
-class HIGH_GUID(Enum):
+class HIGH_GUID(IntEnum):
     HIGHGUID_ITEM = 0x40000000
     HIGHGUID_CONTAINER = 0x40000000
     HIGHGUID_PLAYER = 0x00000000
@@ -64,12 +64,12 @@ class HIGH_GUID(Enum):
     HIGHGUID_GUILD = 0x1FF60000
 
 
-class Factions(Enum):
+class Factions(IntEnum):
     ALLIANCE = 4
     HORDE = 6
 
 
-class NpcFlags(Enum):
+class NpcFlags(IntEnum):
     NPC_FLAG_NONE = 0x0
     NPC_FLAG_GOSSIP = 0x1
     NPC_FLAG_QUESTGIVER = 0x2
@@ -87,7 +87,7 @@ class NpcFlags(Enum):
 
 
 # COMBAT INFORMATION
-class HitInfo(Enum):
+class HitInfo(IntEnum):
     NORMALSWING = 0x00000000
     UNK1 = 0x00000001  # req correct packet structure
     AFFECTS_VICTIM = 0x00000002
@@ -107,7 +107,7 @@ class HitInfo(Enum):
     RAGE_GAIN = 0x00800000
 
 
-class VictimStates(Enum):
+class VictimStates(IntEnum):
     VS_NONE = 0  # set when attacker misses
     VS_WOUND = 1  # victim got clear/blocked hit
     VS_DODGE = 2
@@ -119,7 +119,7 @@ class VictimStates(Enum):
     VS_DEFLECT = 8
 
 
-class ProcFlags(Enum):
+class ProcFlags(IntEnum):
     NONE = 0x00000000
 
     KILLED = 0x00000001  # 00 Killed by agressor - not sure about this flag
@@ -180,7 +180,7 @@ class ProcFlags(Enum):
     REQ_SPELL_PHASE_MASK = SPELL_MASK & DONE_HIT_MASK
 
 
-class ProcFlagsExLegacy(Enum):
+class ProcFlagsExLegacy(IntEnum):
     NONE = 0x0000000  # If none can tigger on Hit/Crit only (passive spells MUST defined by SpellFamily flag)
     NORMAL_HIT = 0x0000001  # If set only from normal hit (only damage spells)
     CRITICAL_HIT = 0x0000002
@@ -210,12 +210,12 @@ class ProcFlagsExLegacy(Enum):
     INTERNAL_REQ_FAMILY = 0x8000000
 
 
-class AttackTypes(Enum):
+class AttackTypes(IntEnum):
     BASE_ATTACK = 0
     OFFHAND_ATTACK = 1
 
 
-class TradeSkillCategories(Enum):
+class TradeSkillCategories(IntEnum):
     TRADESKILL_OPTIMAL = 0x0
     TRADESKILL_MEDIUM = 0x1
     TRADESKILL_EASY = 0x2
@@ -223,7 +223,7 @@ class TradeSkillCategories(Enum):
     NUM_TRADESKILL_CATEGORIES = 0x4
 
 
-class TradeStatuses(Enum):
+class TradeStatuses(IntEnum):
     TRADE_STATUS_PLAYER_BUSY = 0x0
     TRADE_STATUS_PROPOSED = 0x1
     TRADE_STATUS_INITIATED = 0x2
@@ -242,7 +242,7 @@ class TradeStatuses(Enum):
     TRADE_STATUS_PLAYER_IGNORED = 0xF
 
 
-class CraftLevelCategories(Enum):
+class CraftLevelCategories(IntEnum):
     CRAFT_NONE = 0x0
     CRAFT_OPTIMAL = 0x1
     CRAFT_MEDIUM = 0x2
@@ -251,7 +251,7 @@ class CraftLevelCategories(Enum):
     NUM_CRAFT_CATEGORIES = 0x5
 
 
-class TrainerServices(Enum):
+class TrainerServices(IntEnum):
     TRAINER_SERVICE_AVAILABLE = 0x0
     TRAINER_SERVICE_UNAVAILABLE = 0x1
     TRAINER_SERVICE_USED = 0x2
@@ -261,14 +261,14 @@ class TrainerServices(Enum):
     NUM_TRAINER_SERVICE_TYPES = 0x6
 
 
-class TrainerTypes(Enum):
+class TrainerTypes(IntEnum):
     TRAINER_TYPE_GENERAL = 0x0
     TRAINER_TYPE_TALENTS = 0x1
     TRAINER_TYPE_TRADESKILLS = 0x2
     TRAINER_TYPE_PET = 0x3
 
 
-class UnitDynamicTypes(Enum):
+class UnitDynamicTypes(IntEnum):
     UNIT_DYNAMIC_NONE = 0x0000
     UNIT_DYNAMIC_LOOTABLE = 0x0001
     UNIT_DYNAMIC_TRACK_UNIT = 0x0002
@@ -278,14 +278,14 @@ class UnitDynamicTypes(Enum):
     UNIT_DYNAMIC_DEAD = 0x0020
 
 
-class LootTypes(Enum):
+class LootTypes(IntEnum):
     LOOT_TYPE_NOTALLOWED = 0
     LOOT_TYPE_CORPSE = 1
     LOOT_TYPE_SKINNING = 2
     LOOT_TYPE_FISHING = 3
 
 
-class QuestStatuses(Enum):
+class QuestStatuses(IntEnum):
     QUEST_STATUS_NONE = 0
     QUEST_STATUS_COMPLETE = 1
     QUEST_STATUS_UNAVAILABLE = 2
@@ -295,7 +295,7 @@ class QuestStatuses(Enum):
     MAX_QUEST_STATUS = 6
 
 
-class QuestFailedReasons(Enum):
+class QuestFailedReasons(IntEnum):
     INVALIDREASON_DONT_HAVE_REQ = 0
     INVALIDREASON_QUEST_FAILED_LOW_LEVEL = 1  # You are not high enough level for that quest.
     INVALIDREASON_QUEST_FAILED_WRONG_RACE = 6  # That quest is not available to your race.
@@ -305,7 +305,7 @@ class QuestFailedReasons(Enum):
     INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY = 23  # You don't have enough money for that quest.
 
 
-class QuestGiverStatuses(Enum):
+class QuestGiverStatuses(IntEnum):
     QUEST_GIVER_NONE = 0x0
     QUEST_GIVER_TRIVIAL = 0x1
     QUEST_GIVER_FUTURE = 0x2
@@ -314,14 +314,14 @@ class QuestGiverStatuses(Enum):
     QUEST_GIVER_NUMITEMS = 0x5
 
 
-class SkillTypes(Enum):
+class SkillTypes(IntEnum):
     MAX_SKILL = 1  # These are always max when added i.e. language/riding
     WEAPON_SKILL = 2
     CLASS_SKILL = 3
     SECONDARY_SKILL = 4
 
 
-class GameObjectTypes(Enum):
+class GameObjectTypes(IntEnum):
     TYPE_DOOR = 0x0
     TYPE_BUTTON = 0x1
     TYPE_QUESTGIVER = 0x2
@@ -344,13 +344,13 @@ class GameObjectTypes(Enum):
     NUM_GAMEOBJECT_TYPE = 0x13
 
 
-class GameObjectStates(Enum):
+class GameObjectStates(IntEnum):
     GO_STATE_ACTIVE = 0  # show in world as used and not reset (closed door open)
     GO_STATE_READY = 1  # show in world as ready (closed door close)
     GO_STATE_ACTIVE_ALTERNATIVE = 2  # show in world as used in alt way and not reset (closed door open by cannon fire)
 
 
-class Emotes(Enum):
+class Emotes(IntEnum):
     NONE = 0
     AGREE = 1
     AMAZE = 2
@@ -498,7 +498,7 @@ class Emotes(Enum):
     SMILE = 163
 
 
-class ChatMsgs(Enum):
+class ChatMsgs(IntEnum):
     CHAT_MSG_SAY = 0x00
     CHAT_MSG_PARTY = 0x01
     CHAT_MSG_GUILD = 0x02
@@ -525,14 +525,14 @@ class ChatMsgs(Enum):
     CHAT_MSG_LOOT = 0x18
 
 
-class ChatFlags(Enum):
+class ChatFlags(IntEnum):
     CHAT_TAG_NONE = 0
     CHAT_TAG_AFK = 1
     CHAT_TAG_DND = 2
     CHAT_TAG_GM = 3
 
 
-class MoveFlags(Enum):
+class MoveFlags(IntEnum):
     MOVEFLAG_FORWARD = 0x1
     MOVEFLAG_BACKWARD = 0x2
     MOVEFLAG_STRAFE_LEFT = 0x4
@@ -576,7 +576,7 @@ class MoveFlags(Enum):
     MOVEFLAG_STOPPED_MASK = 0x3100F
 
 
-class BuyResults(Enum):
+class BuyResults(IntEnum):
     BUY_ERR_CANT_FIND_ITEM = 0
     BUY_ERR_ITEM_ALREADY_SOLD = 1
     BUY_ERR_NOT_ENOUGHT_MONEY = 2
@@ -588,7 +588,7 @@ class BuyResults(Enum):
     BUY_ERR_REPUTATION_REQUIRE = 12
 
 
-class SellResults(Enum):
+class SellResults(IntEnum):
     SELL_OK = 0
     SELL_ERR_CANT_FIND_ITEM = 1
     SELL_ERR_CANT_SELL_ITEM = 2  # merchant doesn't like that item
@@ -598,7 +598,7 @@ class SellResults(Enum):
     SELL_ERR_ONLY_EMPTY_BAG = 6  # can only do with empty bags
 
 
-class ItemBondingTypes(Enum):
+class ItemBondingTypes(IntEnum):
     NO_BIND = 0
     BIND_WHEN_PICKED_UP = 1
     BIND_WHEN_EQUIPPED = 2
@@ -606,12 +606,12 @@ class ItemBondingTypes(Enum):
     BIND_QUEST_ITEM = 4
 
 
-class PartyOperations(Enum):
+class PartyOperations(IntEnum):
     PARTY_OP_INVITE = 0
     PARTY_OP_LEAVE = 2
 
 
-class PartyResults(Enum):
+class PartyResults(IntEnum):
     ERR_PARTY_RESULT_OK = 0
     ERR_BAD_PLAYER_NAME_S = 1
     ERR_TARGET_NOT_IN_GROUP_S = 2
@@ -625,19 +625,19 @@ class PartyResults(Enum):
     ERR_INVITE_RESTRICTED = 13
 
 
-class LootMethods(Enum):
+class LootMethods(IntEnum):
     LOOT_METHOD_FREEFORALL = 0x0
     LOOT_METHOD_ROUNDROBIN = 0x1
     LOOT_METHOD_MASTERLOOTER = 0x2
     LOOT_METHOD_MAX = 0x3
 
 
-class ActionButtonTypes(Enum):
+class ActionButtonTypes(IntEnum):
     ACTION_BUTTON_SPELL = 0x00
     ACTION_BUTTON_ITEM = 0xFF
 
 
-class PlayerFlags(Enum):
+class PlayerFlags(IntEnum):
     PLAYER_FLAGS_NONE = 0x0
     PLAYER_FLAGS_GROUP_LEADER = 0x1
     PLAYER_FLAGS_AFK = 0x4
@@ -645,21 +645,21 @@ class PlayerFlags(Enum):
     PLAYER_FLAGS_GM = 0x10
 
 
-class BankSlots(Enum):
+class BankSlots(IntEnum):
     BANK_SLOT_ITEM_START = 39
     BANK_SLOT_ITEM_END = 63
     BANK_SLOT_BAG_START = 63
     BANK_SLOT_BAG_END = 69
 
 
-class BankSlotErrors(Enum):
+class BankSlotErrors(IntEnum):
     BANKSLOT_ERROR_FAILED_TOO_MANY = 0
     BANKSLOT_ERROR_INSUFFICIENT_FUNDS = 1
     BANKSLOT_ERROR_NOTBANKER = 2
     BANKSLOT_ERROR_OK = 3
 
 
-class FriendResults(Enum):
+class FriendResults(IntEnum):
     FRIEND_DB_ERROR = 0x0
     FRIEND_LIST_FULL = 0x1
     FRIEND_ONLINE = 0x2
@@ -679,7 +679,7 @@ class FriendResults(Enum):
     FRIEND_IGNORE_REMOVED = 0x10
 
 
-class FriendStatuses(Enum):
+class FriendStatuses(IntEnum):
     FRIEND_STATUS_OFFLINE = 0
     FRIEND_STATUS_ONLINE = 1
     FRIEND_STATUS_AFK = 2
@@ -687,13 +687,13 @@ class FriendStatuses(Enum):
     FRIEND_STATUS_DND = 4
 
 
-class WhoPartyStatuses(Enum):
+class WhoPartyStatuses(IntEnum):
     WHO_PARTY_STATUS_NOT_IN_PARTY = 0x0
     WHO_PARTY_STATUS_IN_PARTY = 0x1
     WHO_PARTY_STATUS_LFG = 0x2
 
 
-class WhoSortTypes(Enum):
+class WhoSortTypes(IntEnum):
     WHO_SORT_ZONE = 0x0
     WHO_SORT_LEVEL = 0x1
     WHO_SORT_CLASS = 0x2

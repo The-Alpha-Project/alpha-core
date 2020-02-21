@@ -62,23 +62,23 @@ class ObjectManager(object):
     def get_object_type_value(self):
         type_value = 0
         for type_ in self.object_type:
-            type_value |= type_.value
+            type_value |= type_
         return type_value
 
     def get_update_mask(self):
         mask = 0
         if ObjectTypes.TYPE_CONTAINER in self.object_type:
-            mask += ContainerFields.CONTAINER_END.value
+            mask += ContainerFields.CONTAINER_END
         if ObjectTypes.TYPE_ITEM in self.object_type:
-            mask += ItemFields.ITEM_END.value
+            mask += ItemFields.ITEM_END
         if ObjectTypes.TYPE_PLAYER in self.object_type:
-            mask += PlayerFields.PLAYER_END.value
+            mask += PlayerFields.PLAYER_END
         if ObjectTypes.TYPE_UNIT in self.object_type:
-            mask += UnitFields.UNIT_END.value
+            mask += UnitFields.UNIT_END
         if ObjectTypes.TYPE_OBJECT in self.object_type:
-            mask += ObjectFields.OBJECT_END.value
+            mask += ObjectFields.OBJECT_END
         if ObjectTypes.TYPE_GAMEOBJECT in self.object_type:
-            mask += GameObjectFields.GAMEOBJECT_END.value
+            mask += GameObjectFields.GAMEOBJECT_END
 
         return (mask + 31) / 32
 
@@ -102,7 +102,7 @@ class ObjectManager(object):
             1,  # Number of transactions
             2,
             self.guid,
-            self.get_type_id().value,
+            self.get_type_id(),
             self.transport_id,
             self.transport.x,
             self.transport.y,

@@ -59,13 +59,13 @@ class ItemManager(ObjectManager):
         self.object_type.append(ObjectTypes.TYPE_ITEM)
 
     def is_container(self):
-        return self.inventory_type == InventoryTypes.BAG.value
+        return self.inventory_type == InventoryTypes.BAG
 
     def is_equipped(self):
-        return self.current_slot < InventorySlots.SLOT_BAG1.value
+        return self.current_slot < InventorySlots.SLOT_BAG1
 
     def get_inv_slot_by_type(self, inventory_type):
-        return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0].value
+        return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0]
 
     # override
     def get_type(self):
