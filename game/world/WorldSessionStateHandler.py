@@ -25,7 +25,7 @@ class WorldSessionStateHandler(object):
 
     @staticmethod
     def get_world_sessions():
-        return WORLD_SESSIONS
+        return list(WORLD_SESSIONS)
 
     @staticmethod
     def get_session_by_account_id(account_id):
