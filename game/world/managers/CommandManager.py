@@ -162,6 +162,32 @@ class CommandManager(object):
 
         return 0, 'Teleported to player %s (%s).' % (player_name.capitalize(), 'Online' if is_online else 'Offline')
 
+    @staticmethod
+    def summon(world_session, args):
+        player_name = args
+        is_online = True
+
+        player = WorldSessionStateHandler.find_player_by_name(player_name)
+
+        if player:
+            player.teleport(world_session.player_mgr.map_, world_session.player_mgr.location)
+        else:
+            is_online = False
+            player = RealmDatabaseManager.character_get_by_name(world_session.realm_db_session, player_name)
+
+        if player:
+            if not is_online:
+                player.map = world_session.player_mgr.map_
+                player.zone = world_session.player_mgr.zone
+                player.position_x = world_session.player_mgr.location.x
+                player.position_y = world_session.player_mgr.location.y
+                player.position_z = world_session.player_mgr.location.z
+                RealmDatabaseManager.save(world_session.realm_db_session)
+        else:
+            return -1, 'player not found.'
+
+        return 0, 'Summoned player %s (%s).' % (player_name.capitalize(), 'Online' if is_online else 'Offline')
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help
@@ -176,5 +202,6 @@ GM_COMMAND_DEFINITIONS = {
     'tickets': CommandManager.tickets,
     'rticket': CommandManager.rticket,
     'dticket': CommandManager.dticket,
-    'goplayer': CommandManager.goplayer
+    'goplayer': CommandManager.goplayer,
+    'summon': CommandManager.summon,
 }
