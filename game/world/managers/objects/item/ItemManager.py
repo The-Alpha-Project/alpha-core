@@ -243,28 +243,28 @@ class ItemManager(ObjectManager):
 
             # Item fields
             self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner, 'Q')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ItemFields.ITEM_FIELD_CREATOR, self.item_instance.player, 'Q')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ItemFields.ITEM_FIELD_CONTAINED, self.is_contained, 'Q')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount, 'I')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ItemFields.ITEM_FIELD_FLAGS, self.item_template.flags, 'I')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_CREATOR, self.item_instance.player, 'Q')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_CONTAINED, self.is_contained, 'Q')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount, 'I')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_FLAGS, self.item_template.flags, 'I')
 
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ItemFields.ITEM_FIELD_SPELL_CHARGES, self.item_instance.SpellCharges1, 'i')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ItemFields.ITEM_FIELD_SPELL_CHARGES + 1, self.item_instance.SpellCharges2, 'i')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ItemFields.ITEM_FIELD_SPELL_CHARGES + 2, self.item_instance.SpellCharges3, 'i')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ItemFields.ITEM_FIELD_SPELL_CHARGES + 3, self.item_instance.SpellCharges4, 'i')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ItemFields.ITEM_FIELD_SPELL_CHARGES + 4, self.item_instance.SpellCharges5, 'i')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_SPELL_CHARGES, self.item_instance.SpellCharges1, 'i')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_SPELL_CHARGES + 1, self.item_instance.SpellCharges2, 'i')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_SPELL_CHARGES + 2, self.item_instance.SpellCharges3, 'i')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_SPELL_CHARGES + 3, self.item_instance.SpellCharges4, 'i')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_SPELL_CHARGES + 4, self.item_instance.SpellCharges5, 'i')
 
             # Container fields
             if self.is_container() and isinstance(self, ContainerManager):
-                self.update_packet_factory.update(self.update_packet_factory.object_values,
-                                                  self.update_packet_factory.updated_object_fields,
+                self.update_packet_factory.update(self.update_packet_factory.container_values,
+                                                  self.update_packet_factory.updated_container_fields,
                                                   ContainerFields.CONTAINER_FIELD_NUM_SLOTS,
                                                   self.item_template.container_slots, 'I')
 
                 for x in range(0, MAX_BAG_SLOTS):
                     guid = self.sorted_slots[x] if x in self.sorted_slots else 0
-                    self.update_packet_factory.update(self.update_packet_factory.object_values,
-                                                      self.update_packet_factory.updated_object_fields,
+                    self.update_packet_factory.update(self.update_packet_factory.container_values,
+                                                      self.update_packet_factory.updated_container_fields,
                                                       ContainerFields.CONTAINER_FIELD_SLOT_1 + x * 2,
                                                       guid, 'Q')
 
