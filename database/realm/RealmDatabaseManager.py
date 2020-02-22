@@ -77,21 +77,21 @@ class RealmDatabaseManager(object):
     @staticmethod
     def character_create(realm_db_session, character):
         realm_db_session.add(character)
-        realm_db_session.commit()
+        RealmDatabaseManager.save(realm_db_session)
 
     @staticmethod
     def character_delete(realm_db_session, guid):
         char_to_delete = RealmDatabaseManager.character_get_by_guid(realm_db_session, guid)
         if char_to_delete:
             realm_db_session.delete(char_to_delete)
-            realm_db_session.commit()
+            RealmDatabaseManager.save(realm_db_session)
             return 0
         return -1
 
     @staticmethod
     def character_inventory_add_item(realm_db_session, item):
         realm_db_session.add(item)
-        realm_db_session.commit()
+        RealmDatabaseManager.save(realm_db_session)
 
     @staticmethod
     def character_get_inventory(realm_db_session, guid):
@@ -102,7 +102,7 @@ class RealmDatabaseManager(object):
     @staticmethod
     def ticket_add(realm_db_session, ticket):
         realm_db_session.add(ticket)
-        realm_db_session.commit()
+        RealmDatabaseManager.save(realm_db_session)
 
     @staticmethod
     def ticket_get_by_id(realm_db_session, ticket_id):
@@ -114,7 +114,7 @@ class RealmDatabaseManager(object):
         ticket_to_delete = RealmDatabaseManager.ticket_get_by_id(realm_db_session, ticket_id)
         if ticket_to_delete:
             realm_db_session.delete(ticket_to_delete)
-            realm_db_session.commit()
+            RealmDatabaseManager.save(realm_db_session)
             return 0
         return -1
 
