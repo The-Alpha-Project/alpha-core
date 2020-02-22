@@ -80,6 +80,11 @@ class RealmDatabaseManager(object):
         RealmDatabaseManager.save(realm_db_session)
 
     @staticmethod
+    def character_inventory_get(realm_db_session, character_guid):
+        character_inventory = realm_db_session.query(CharacterInventory).filter_by(owner=character_guid).all()
+        return character_inventory if character_inventory else []
+
+    @staticmethod
     def character_delete(realm_db_session, guid):
         char_to_delete = RealmDatabaseManager.character_get_by_guid(realm_db_session, guid)
         if char_to_delete:

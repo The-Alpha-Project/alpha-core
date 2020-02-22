@@ -2,7 +2,7 @@ from struct import pack
 from math import pi
 
 from game.world.managers.objects import UnitManager
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes
 from utils.ConfigManager import config
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter
@@ -133,6 +133,10 @@ class ObjectManager(object):
 
     # override
     def update(self):
+        pass
+
+    # override
+    def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
         pass
 
     # override

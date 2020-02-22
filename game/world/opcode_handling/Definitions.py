@@ -19,6 +19,7 @@ from game.world.opcode_handling.handlers.BugHandler import BugHandler
 from game.world.opcode_handling.handlers.TextEmoteHandler import TextEmoteHandler
 from game.world.opcode_handling.handlers.PlayedTimeHandler import PlayedTimeHandler
 from game.world.opcode_handling.handlers.LookingForGroupHandler import LookingForGroupHandler
+from game.world.opcode_handling.handlers.ItemQuerySingleHandler import ItemQuerySingleHandler
 from game.world.opcode_handling.handlers.WhoHandler import WhoHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
@@ -52,6 +53,7 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_LOOKING_FOR_GROUP: LookingForGroupHandler.handle,
     OpCode.CMSG_SET_LOOKING_FOR_GROUP: LookingForGroupHandler.handle_set,
     OpCode.CMSG_WHO: WhoHandler.handle,
+    OpCode.CMSG_ITEM_QUERY_SINGLE: ItemQuerySingleHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

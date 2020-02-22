@@ -306,6 +306,7 @@ class PlayerManager(UnitManager):
                 self.spells.append(spell_to_load)
 
     # TODO: UPDATE_PARTIAL is not being used anywhere (it's implemented but not sure if it works correctly).
+    # override
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]

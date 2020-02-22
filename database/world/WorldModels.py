@@ -289,7 +289,7 @@ class ItemTemplate(Base):
     __tablename__ = 'item_template'
 
     entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
-    _class = Column('class', TINYINT(3), nullable=False, index=True, server_default=text("'0'"))
+    class_ = Column('class', TINYINT(3), nullable=False, index=True, server_default=text("'0'"))
     subclass = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     name = Column(String(255), nullable=False, server_default=text("''"))
     description = Column(String(255), nullable=False, server_default=text("''"))

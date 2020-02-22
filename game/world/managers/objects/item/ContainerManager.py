@@ -1,4 +1,5 @@
 from game.world.managers.objects.item.ItemManager import ItemManager
+from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.ItemCodes import InventorySlots
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds
 
@@ -6,10 +7,15 @@ MAX_BAG_SLOTS = 20
 
 
 class ContainerManager(ItemManager):
-    def __init__(self, items, item_template=None, item_instance=None, is_backpack=False, **kwargs):
+    def __init__(self, owner, item_template=None, item_instance=None, is_backpack=False, **kwargs):
         super().__init__(item_template, item_instance, **kwargs)
+
+        self.update_packet_factory = UpdatePacketFactory([ObjectTypes.TYPE_ITEM,
+                                                          ObjectTypes.TYPE_CONTAINER])
+
+        self.owner = owner
         self.is_backpack = is_backpack
-        self.items = items
+        self.items = []
 
         self.sorted_slots = dict()
 
@@ -25,6 +31,7 @@ class ContainerManager(ItemManager):
             return False
 
         item.current_slot = slot
+        item.is_contained = self.owner if self.is_backpack else self.guid
         self.sorted_slots[slot] = item
         return True
 
