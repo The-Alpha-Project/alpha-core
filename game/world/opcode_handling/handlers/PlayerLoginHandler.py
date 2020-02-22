@@ -2,6 +2,7 @@ import time
 
 from struct import unpack
 
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketWriter import *
 from database.realm.RealmDatabaseManager import *
 from database.dbc.DbcDatabaseManager import *
@@ -31,6 +32,9 @@ class PlayerLoginHandler(object):
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
                                                PlayerLoginHandler._get_login_timespeed()))
 
+        world_session.player_mgr.load_skills()
+        world_session.player_mgr.load_spells()
+
         socket.sendall(world_session.player_mgr.get_tutorial_packet())
         socket.sendall(world_session.player_mgr.get_initial_spells())
         socket.sendall(world_session.player_mgr.get_action_buttons())
@@ -44,7 +48,7 @@ class PlayerLoginHandler(object):
 
         PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
 
-        PlayerLoginHandler._clear_who_list(socket)  # Clear Who list on login, otherwise the last search will appear
+        #PlayerLoginHandler._clear_who_list(socket)  # Clear Who list on login, otherwise the last search will appear
 
         world_session.player_mgr.complete_login()
 

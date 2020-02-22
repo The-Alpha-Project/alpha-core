@@ -203,5 +203,5 @@ GM_COMMAND_DEFINITIONS = {
     'rticket': CommandManager.rticket,
     'dticket': CommandManager.dticket,
     'goplayer': CommandManager.goplayer,
-    'summon': CommandManager.summon,
+    'summon': CommandManager.summon
 }

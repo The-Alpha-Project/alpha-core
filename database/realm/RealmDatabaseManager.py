@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, func
+from sqlalchemy.exc import StatementError
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.realm.RealmModels import *
@@ -24,9 +25,8 @@ class RealmDatabaseManager(object):
         error = False
         try:
             realm_db_session.commit()
-        except:
+        except StatementError:
             error = True
-            raise
         finally:
             if error:
                 realm_db_session.rollback()

@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, func
+from sqlalchemy.exc import StatementError
 from sqlalchemy.orm import sessionmaker, scoped_session
 from difflib import SequenceMatcher
 
@@ -23,9 +24,8 @@ class WorldDatabaseManager(object):
         error = False
         try:
             world_db_session.commit()
-        except:
+        except StatementError:
             error = True
-            raise
         finally:
             if error:
                 world_db_session.rollback()
@@ -40,6 +40,18 @@ class WorldDatabaseManager(object):
     @staticmethod
     def player_create_info_get(world_db_session, race, class_):
         return world_db_session.query(Playercreateinfo).filter_by(race=race, _class=class_).first()
+
+    @staticmethod
+    def player_create_spell_get(world_db_session, race, class_):
+        return world_db_session.query(PlayercreateinfoSpell).filter_by(race=race, _class=class_).all()
+
+    @staticmethod
+    def player_create_skill_get(world_db_session, race, class_):
+        return world_db_session.query(PlayercreateinfoSkill).filter_by(race=race, _class=class_).all()
+
+    @staticmethod
+    def player_create_item_get(world_db_session, race, class_):
+        return world_db_session.query(PlayercreateinfoItem).filter_by(race=race, _class=class_).all()
 
     # Area trigger stuff
 

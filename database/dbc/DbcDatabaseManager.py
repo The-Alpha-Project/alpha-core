@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, func
+from sqlalchemy.exc import StatementError
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.dbc.DbcModels import *
@@ -24,9 +25,8 @@ class DbcDatabaseManager(object):
         error = False
         try:
             dbc_db_session.commit()
-        except:
+        except StatementError:
             error = True
-            raise
         finally:
             if error:
                 dbc_db_session.rollback()
@@ -53,3 +53,15 @@ class DbcDatabaseManager(object):
     @staticmethod
     def emote_text_get_by_id(dbc_db_session, emote_id):
         return dbc_db_session.query(EmotesText).filter_by(ID=emote_id).first()
+
+    # Spell
+
+    @staticmethod
+    def spell_get_by_id(dbc_db_session, spell_id):
+        return dbc_db_session.query(Spell).filter_by(ID=spell_id).first()
+
+    # Skill
+
+    @staticmethod
+    def skill_get_by_id(dbc_db_session, skill_id):
+        return dbc_db_session.query(SkillLine).filter_by(ID=skill_id).first()

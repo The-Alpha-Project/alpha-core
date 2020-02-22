@@ -2,6 +2,7 @@ from time import time
 from struct import unpack
 from math import pi
 
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.GuildManager import GuildManager
@@ -63,6 +64,8 @@ class PlayerManager(UnitManager):
         self.group_status = WhoPartyStatuses.WHO_PARTY_STATUS_NOT_IN_PARTY
         self.race_mask = 0
         self.class_mask = 0
+        self.spells = []
+        self.skills = []
 
         if self.player:
             self.set_player_variables()
@@ -160,7 +163,12 @@ class PlayerManager(UnitManager):
         return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('<5I', 0, 0, 0, 0, 0))
 
     def get_initial_spells(self):
-        return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, pack('<BHHHH', 0, 1, 133, 1, 0))  # TODO Test with spell 133
+        data = pack('<BH', 0, len(self.spells))
+        for spell in self.spells:
+            data += pack('<2H', spell.ID, 0)
+        data += pack('<H', 0)
+
+        return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 
     def get_action_buttons(self):
         data = b''
@@ -283,6 +291,19 @@ class PlayerManager(UnitManager):
         data = pack('<f', turn_speed)
         # TODO NOT WORKING
         self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
+
+    def load_skills(self):
+        for skill in WorldDatabaseManager.player_create_skill_get(self.session.world_db_session, self.player.race,
+                                                                  self.player.class_):
+            skill_to_add = DbcDatabaseManager.skill_get_by_id(self.session.dbc_db_session, skill.Skill)
+            self.skills.append(skill_to_add)
+
+    def load_spells(self):
+        for spell in WorldDatabaseManager.player_create_spell_get(self.session.world_db_session, self.player.race,
+                                                                  self.player.class_):
+            spell_to_load = DbcDatabaseManager.spell_get_by_id(self.session.dbc_db_session, spell.Spell)
+            if spell_to_load:
+                self.spells.append(spell_to_load)
 
     # TODO: UPDATE_PARTIAL is not being used anywhere (it's implemented but not sure if it works correctly).
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
