@@ -27,7 +27,7 @@ class AppliedUpdate(Base):
 class CharacterInventory(Base):
     __tablename__ = 'character_inventory'
 
-    guid = Column(Integer, primary_key=True)
+    guid = Column(Integer, primary_key=True, autoincrement=True)
     owner = Column(Integer, nullable=False, index=True, server_default=text("'0'"))
     player = Column(ForeignKey(u'characters.guid', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"))
     bag = Column(Integer, nullable=False, server_default=text("'0'"))

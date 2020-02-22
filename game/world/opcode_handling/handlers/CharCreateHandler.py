@@ -1,5 +1,6 @@
 from struct import pack, unpack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from database.realm.RealmDatabaseManager import *
@@ -52,3 +53,7 @@ class CharCreateHandler(object):
     def get_starting_location(world_session, race, class_):
         info = WorldDatabaseManager.player_create_info_get(world_session.world_db_session, race, class_)
         return info.map, info.zone, info.position_x, info.position_y, info.position_z, info.orientation
+
+    @staticmethod
+    def get_starting_items(world_session, race, class_):
+        start_items = DbcDatabaseManager.char_start_outfit_get(world_session.dbc_db_session, race, class_)

@@ -68,7 +68,7 @@ class WorldDatabaseManager(object):
     # Worldport stuff
 
     @staticmethod
-    def get_location_by_name(world_db_session, name):
+    def worldport_get_by_name(world_db_session, name):
         best_matching_location = None
         best_matching_ratio = 0
         locations = world_db_session.query(Worldports).filter(Worldports.name.like('%' + name + '%')).all()
@@ -77,3 +77,9 @@ class WorldDatabaseManager(object):
             if ratio > best_matching_ratio:
                 best_matching_location = location
         return best_matching_location
+
+    # Item stuff
+
+    @staticmethod
+    def item_template_get_by_entry(world_db_session, entry):
+        return world_db_session.query(ItemTemplate).filter_by(entry=entry).first()

@@ -80,7 +80,7 @@ class CommandManager(object):
     @staticmethod
     def tel(world_session, args):
         tel_name = args.split()[0]
-        location = WorldDatabaseManager.get_location_by_name(world_session.world_db_session, tel_name)
+        location = WorldDatabaseManager.worldport_get_by_name(world_session.world_db_session, tel_name)
 
         if location:
             tel_location = Vector(location.x, location.y, location.z)

@@ -1,3 +1,6 @@
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.realm.RealmModels import CharacterInventory
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds
@@ -38,34 +41,46 @@ class ItemManager(ObjectManager):
     def __init__(self,
                  item_template,
                  item_instance,
-                 inventory_type=0,
                  current_slot=0,
-                 stack_count=1,
-                 soulbound=False,
                  **kwargs):
         super().__init__(**kwargs)
 
         self.item_template = item_template
         self.item_instance = item_instance
-        self.entry = item_template.entry
         self.guid = item_instance.guid if item_instance else 0
         self.display_id = item_template.display_id
-        self.inventory_type = inventory_type
         self.current_slot = current_slot
-        self.stack_count = stack_count
-        self.soulbound = soulbound
-        self.equip_slot = self.get_inv_slot_by_type(self.inventory_type)
+        self.equip_slot = self.get_inv_slot_by_type(self.item_template.inventory_type)
 
         self.object_type.append(ObjectTypes.TYPE_ITEM)
 
     def is_container(self):
-        return self.inventory_type == InventoryTypes.BAG
+        return self.item_template.inventory_type == InventoryTypes.BAG
 
     def is_equipped(self):
         return self.current_slot < InventorySlots.SLOT_BAG1
 
     def get_inv_slot_by_type(self, inventory_type):
         return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0]
+
+    @staticmethod
+    def generate_item(world_session, entry, count=1):
+        item_template = WorldDatabaseManager.item_template_get_by_entry(world_session.world_db_session, entry)
+        if item_template:
+            item = CharacterInventory(
+                owner=world_session.player_mgr.guid,
+                player=world_session.player_mgr.guid,
+                item_template=item_template.entry,
+                stackcount=count
+            )
+            RealmDatabaseManager.character_inventory_add_item(world_session.realm_db_session, item)
+
+            item_mgr = ItemManager(
+                item_template=item_template,
+                item_instance=item
+            )
+            return item_mgr
+        return None
 
     # override
     def get_type(self):

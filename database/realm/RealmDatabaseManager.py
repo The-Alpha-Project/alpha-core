@@ -88,6 +88,15 @@ class RealmDatabaseManager(object):
             return 0
         return -1
 
+    @staticmethod
+    def character_inventory_add_item(realm_db_session, item):
+        realm_db_session.add(item)
+        realm_db_session.commit()
+
+    @staticmethod
+    def character_get_inventory(realm_db_session, guid):
+        return realm_db_session.query(CharacterInventory).filter_by(owner=guid).all()
+
     # Ticket stuff
 
     @staticmethod

@@ -65,3 +65,9 @@ class DbcDatabaseManager(object):
     @staticmethod
     def skill_get_by_id(dbc_db_session, skill_id):
         return dbc_db_session.query(SkillLine).filter_by(ID=skill_id).first()
+
+    # CharStartOutfit
+
+    @staticmethod
+    def char_start_outfit_get(dbc_db_session, race, class_):
+        return dbc_db_session.query(CharStartOutfit).filter_by(RaceID=race, ClassID=class_).first()
