@@ -69,5 +69,5 @@ class DbcDatabaseManager(object):
     # CharStartOutfit
 
     @staticmethod
-    def char_start_outfit_get(dbc_db_session, race, class_):
-        return dbc_db_session.query(CharStartOutfit).filter_by(RaceID=race, ClassID=class_).first()
+    def char_start_outfit_get(dbc_db_session, race, class_, gender):
+        return dbc_db_session.query(CharStartOutfit).filter_by(RaceID=race, ClassID=class_, GenderID=gender).first()

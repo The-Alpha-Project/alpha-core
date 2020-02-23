@@ -21,7 +21,8 @@ class InventoryManager(object):
 
         # First load bags
         for item_instance in character_inventory:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(world_session, item_instance.item_template)
+            item_template = WorldDatabaseManager.item_template_get_by_entry(world_session.world_db_session,
+                                                                            item_instance.item_template)
             if item_template and item_template.inventory_type == InventoryTypes.BAG:
                 container_mgr = ContainerManager(
                     owner=world_session.player_mgr.guid,
@@ -33,7 +34,7 @@ class InventoryManager(object):
 
         # Then load items
         for item_instance in character_inventory:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(world_session,
+            item_template = WorldDatabaseManager.item_template_get_by_entry(world_session.world_db_session,
                                                                             item_instance.item_template)
             if item_template:
                 item_mgr = ItemManager(

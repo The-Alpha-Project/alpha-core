@@ -1,7 +1,6 @@
 from struct import pack
 from math import pi
 
-from game.world.managers.objects import UnitManager
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes
 from utils.ConfigManager import config
 from game.world.managers.abstractions.Vector import Vector
@@ -96,6 +95,7 @@ class ObjectManager(object):
         return data
 
     def create_update_packet(self, is_self=True):
+        from game.world.managers.objects import UnitManager
         update_mask = self.get_update_mask()
         data = pack(
             '<IBQBQfffffffffIIffffIIIQB',

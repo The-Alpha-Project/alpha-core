@@ -88,24 +88,24 @@ class ItemManager(ObjectManager):
                                                             self.item_template.dmg_type5))
 
             self.spell_stats.append(
-                ItemManager.SpellStat(self.item_template.spell_id1, self.item_template.spell_trigger_1,
-                                      self.item_template.spell_charges_1, self.item_template.spellcooldown_1,
+                ItemManager.SpellStat(self.item_template.spellid_1, self.item_template.spelltrigger_1,
+                                      self.item_template.spellcharges_1, self.item_template.spellcooldown_1,
                                       self.item_template.spellcategory_1, self.item_template.spellcategorycooldown_1))
             self.spell_stats.append(
-                ItemManager.SpellStat(self.item_template.spell_id2, self.item_template.spell_trigger_2,
-                                      self.item_template.spell_charges_2, self.item_template.spellcooldown_2,
+                ItemManager.SpellStat(self.item_template.spellid_2, self.item_template.spelltrigger_2,
+                                      self.item_template.spellcharges_2, self.item_template.spellcooldown_2,
                                       self.item_template.spellcategory_2, self.item_template.spellcategorycooldown_2))
             self.spell_stats.append(
-                ItemManager.SpellStat(self.item_template.spell_id3, self.item_template.spell_trigger_3,
-                                      self.item_template.spell_charges_3, self.item_template.spellcooldown_3,
+                ItemManager.SpellStat(self.item_template.spellid_3, self.item_template.spelltrigger_3,
+                                      self.item_template.spellcharges_3, self.item_template.spellcooldown_3,
                                       self.item_template.spellcategory_3, self.item_template.spellcategorycooldown_3))
             self.spell_stats.append(
-                ItemManager.SpellStat(self.item_template.spell_id4, self.item_template.spell_trigger_4,
-                                      self.item_template.spell_charges_4, self.item_template.spellcooldown_4,
+                ItemManager.SpellStat(self.item_template.spellid_4, self.item_template.spelltrigger_4,
+                                      self.item_template.spellcharges_4, self.item_template.spellcooldown_4,
                                       self.item_template.spellcategory_4, self.item_template.spellcategorycooldown_4))
             self.spell_stats.append(
-                ItemManager.SpellStat(self.item_template.spell_id5, self.item_template.spell_trigger_5,
-                                      self.item_template.spell_charges_5, self.item_template.spellcooldown_5,
+                ItemManager.SpellStat(self.item_template.spellid_5, self.item_template.spelltrigger_5,
+                                      self.item_template.spellcharges_5, self.item_template.spellcooldown_5,
                                       self.item_template.spellcategory_5, self.item_template.spellcategorycooldown_5))
 
         self.object_type.append(ObjectTypes.TYPE_ITEM)
@@ -138,18 +138,20 @@ class ItemManager(ObjectManager):
     def is_equipped(self):
         return self.current_slot < InventorySlots.SLOT_BAG1
 
-    def get_inv_slot_by_type(self, inventory_type):
-        return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0]
+    @staticmethod
+    def get_inv_slot_by_type(inventory_type):
+        return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0].value
 
     @staticmethod
-    def generate_item(world_session, entry, count=1):
+    def generate_item(world_session, owner, creator, entry, count=1):
         item_template = WorldDatabaseManager.item_template_get_by_entry(world_session.world_db_session, entry)
         if item_template:
             item = CharacterInventory(
-                owner=world_session.player_mgr.guid,
-                player=world_session.player_mgr.guid,
+                owner=owner,
+                player=creator,
                 item_template=item_template.entry,
-                stackcount=count
+                stackcount=count,
+                slot=ItemManager.get_inv_slot_by_type(item_template.inventory_type)
             )
             RealmDatabaseManager.character_inventory_add_item(world_session.realm_db_session, item)
 

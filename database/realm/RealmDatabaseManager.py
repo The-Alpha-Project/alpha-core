@@ -95,12 +95,17 @@ class RealmDatabaseManager(object):
 
     @staticmethod
     def character_inventory_add_item(realm_db_session, item):
-        realm_db_session.add(item)
-        RealmDatabaseManager.save(realm_db_session)
+        if item:
+            realm_db_session.add(item)
+            RealmDatabaseManager.save(realm_db_session)
 
     @staticmethod
     def character_get_inventory(realm_db_session, guid):
         return realm_db_session.query(CharacterInventory).filter_by(owner=guid).all()
+
+    @staticmethod
+    def character_get_item_by_slot(realm_db_session, guid, slot):
+        return realm_db_session.query(CharacterInventory).filter_by(owner=guid, slot=slot).first()
 
     # Ticket stuff
 
