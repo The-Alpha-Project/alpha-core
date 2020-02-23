@@ -143,14 +143,14 @@ class ItemManager(ObjectManager):
         return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0].value
 
     @staticmethod
-    def generate_item(world_session, owner, creator, bag, entry, slot=-1, count=1):
+    def generate_item(world_session, owner, bag, entry, creator=0, slot=-1, count=1):
         item_template = WorldDatabaseManager.item_template_get_by_entry(world_session.world_db_session, entry)
         if item_template:
             if slot == -1:
                 slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
             item = CharacterInventory(
                 owner=owner,
-                player=creator,
+                creator=creator,
                 item_template=item_template.entry,
                 stackcount=count,
                 slot=slot,
@@ -241,16 +241,16 @@ class ItemManager(ObjectManager):
             from game.world.managers.objects.item.ContainerManager import MAX_BAG_SLOTS, ContainerManager
 
             # Object fields
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_GUID, self.guid, 'L')
+            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_GUID, self.guid, 'Q')
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value(), 'I')
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_ENTRY, self.item_template.entry, 'I')
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_SCALE_X, 1, 'f')
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_PADDING, 0, 'I')
 
             # Item fields
-            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner, 'L')
-            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_CREATOR, self.item_instance.player, 'L')
-            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_CONTAINED, self.is_contained, 'L')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner, 'Q')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator, 'Q')
+            self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_CONTAINED, self.is_contained, 'Q')
             self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount, 'I')
             self.update_packet_factory.update(self.update_packet_factory.item_values, self.update_packet_factory.updated_item_fields, ItemFields.ITEM_FIELD_FLAGS, self.item_template.flags, 'I')
 
@@ -268,11 +268,11 @@ class ItemManager(ObjectManager):
                                                   self.item_template.container_slots, 'I')
 
                 for x in range(0, MAX_BAG_SLOTS):
-                    guid = self.sorted_slots[x] if x in self.sorted_slots else 0
+                    guid = self.sorted_slots[x].guid if x in self.sorted_slots else 0
                     self.update_packet_factory.update(self.update_packet_factory.container_values,
                                                       self.update_packet_factory.updated_container_fields,
                                                       ContainerFields.CONTAINER_FIELD_SLOT_1 + x * 2,
-                                                      guid, 'L')
+                                                      guid, 'Q')
 
             packet = b''
             if update_type == UpdateTypes.UPDATE_FULL:

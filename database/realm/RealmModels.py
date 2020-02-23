@@ -28,8 +28,8 @@ class CharacterInventory(Base):
     __tablename__ = 'character_inventory'
 
     guid = Column(Integer, primary_key=True, autoincrement=True)
-    owner = Column(Integer, nullable=False, index=True, server_default=text("'0'"))
-    player = Column(ForeignKey(u'characters.guid', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+    owner = Column(ForeignKey(u'characters.guid', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+    creator = Column(Integer, nullable=False, index=True, server_default=text("'0'"))
     bag = Column(Integer, nullable=False, server_default=text("'0'"))
     slot = Column(Integer, nullable=False, server_default=text("'0'"))
     item_template = Column(Integer, nullable=False, server_default=text("'0'"))

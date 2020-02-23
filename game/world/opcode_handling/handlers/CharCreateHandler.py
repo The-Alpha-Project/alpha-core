@@ -61,18 +61,18 @@ class CharCreateHandler(object):
     def generate_starting_items(world_session, guid, race, class_, gender):
         start_items = DbcDatabaseManager.char_start_outfit_get(world_session.dbc_db_session, race, class_, gender)
         items_to_add = [
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_1),
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_2),
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_3),
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_4),
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_5),
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_6),
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_7),
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_8),
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_9),
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_10),
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_11),
-            ItemManager.generate_item(world_session, guid, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_12)
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_1),
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_2),
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_3),
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_4),
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_5),
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_6),
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_7),
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_8),
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_9),
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_10),
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_11),
+            ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_12)
         ]
         for item in items_to_add:
             if item and item.item_instance:
