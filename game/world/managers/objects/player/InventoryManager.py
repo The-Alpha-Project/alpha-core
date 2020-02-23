@@ -1,7 +1,7 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.item.ContainerManager import ContainerManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.item.ContainerManager import ContainerManager
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots
 from utils.constants.UpdateFields import PlayerFields
 
@@ -13,9 +13,10 @@ class InventoryManager(object):
 
     def load_items(self, world_session):
         # Add backpack
-        self.containers[InventorySlots.SLOT_INBACKPACK] = ContainerManager(is_backpack=True)
+        self.containers[InventorySlots.SLOT_INBACKPACK] = ContainerManager(is_backpack=True,
+                                                                           owner=world_session.player_mgr.guid)
 
-        character_inventory = RealmDatabaseManager.character_get_inventory(world_session.realm_db_manager,
+        character_inventory = RealmDatabaseManager.character_get_inventory(world_session.realm_db_session,
                                                                            world_session.player_mgr.guid)
 
         # First load bags
@@ -23,6 +24,7 @@ class InventoryManager(object):
             item_template = WorldDatabaseManager.item_template_get_by_entry(world_session, item_instance.item_template)
             if item_template and item_template.inventory_type == InventoryTypes.BAG:
                 container_mgr = ContainerManager(
+                    owner=world_session.player_mgr.guid,
                     item_template=item_template,
                     item_instance=item_instance
                 )

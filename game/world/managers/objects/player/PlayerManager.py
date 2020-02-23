@@ -6,6 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.GuildManager import GuildManager
+from game.world.managers.objects.player.InventoryManager import InventoryManager
 from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders
@@ -23,7 +24,6 @@ class PlayerManager(UnitManager):
     def __init__(self,
                  player=None,
                  session=None,
-                 inventory=None,
                  num_inv_slots=0x89,  # Paperdoll + Bag slots + Bag space
                  player_bytes=0,  # skin, face, hair style, hair color
                  xp=0,
@@ -60,7 +60,6 @@ class PlayerManager(UnitManager):
         self.sheath_state = sheath_state
         self.combo_points = combo_points
 
-        self.inventory = inventory
         self.group_status = WhoPartyStatuses.WHO_PARTY_STATUS_NOT_IN_PARTY
         self.race_mask = 0
         self.class_mask = 0
@@ -71,6 +70,7 @@ class PlayerManager(UnitManager):
             self.set_player_variables()
 
             self.guid = self.player.guid
+            self.inventory = InventoryManager(self.guid)
             self.level = self.player.level
             self.object_type.append(ObjectTypes.TYPE_PLAYER)
             self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.player.gender, self.power_type))[0]
@@ -147,6 +147,7 @@ class PlayerManager(UnitManager):
         if self.is_gm:
             # TODO NOT WORKING
             self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
+        self.inventory.load_items(self.session)
         GridManager.update_object(self)
         self.update_surrounding()
 

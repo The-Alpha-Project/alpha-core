@@ -48,7 +48,7 @@ class PlayerLoginHandler(object):
 
         PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
 
-        #PlayerLoginHandler._clear_who_list(socket)  # Clear Who list on login, otherwise the last search will appear
+        PlayerLoginHandler._clear_who_list(socket)  # Clear Who list on login, otherwise the last search will appear
 
         world_session.player_mgr.complete_login()
 

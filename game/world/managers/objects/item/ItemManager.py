@@ -4,7 +4,6 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterInventory
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.item.ContainerManager import MAX_BAG_SLOTS, ContainerManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots
@@ -234,6 +233,8 @@ class ItemManager(ObjectManager):
     # override
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
         if self.item_template and self.item_instance:
+            from game.world.managers.objects.item.ContainerManager import MAX_BAG_SLOTS, ContainerManager
+
             # Object fields
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_GUID, self.guid, 'Q')
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value(), 'I')
