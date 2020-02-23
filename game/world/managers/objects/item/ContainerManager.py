@@ -15,7 +15,6 @@ class ContainerManager(ItemManager):
 
         self.owner = owner
         self.is_backpack = is_backpack
-        self.items = []
 
         self.sorted_slots = dict()
 
@@ -27,7 +26,7 @@ class ContainerManager(ItemManager):
         self.object_type.append(ObjectTypes.TYPE_CONTAINER)
 
     def set_item(self, item, slot):
-        if not item or len(self.items) == self.total_slots or slot > self.total_slots or item == self:
+        if not item or len(self.sorted_slots) == self.total_slots or slot > self.total_slots or item == self:
             return False
 
         item.current_slot = slot

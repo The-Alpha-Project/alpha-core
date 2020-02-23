@@ -1,5 +1,6 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.item.ContainerManager import ContainerManager
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots
@@ -41,21 +42,34 @@ class InventoryManager(object):
                     item_template=item_template,
                     item_instance=item_instance
                 )
-                if not item_mgr.is_container() and (19 <= item_mgr.current_slot <= 22 or
-                                                    63 <= item_mgr.current_slot <= 68):
-                    if item_instance.bag in self.containers:
-                        self.containers[item_instance.bag] = item_mgr
+                if item_mgr.is_container() and (19 <= item_mgr.current_slot <= 22 or
+                                                63 <= item_mgr.current_slot <= 68):
+                    continue
+                if item_instance.bag in self.containers:
+                    self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
 
     def get_backpack(self):
         return self.containers[InventorySlots.SLOT_INBACKPACK]
 
     def build_update(self, update_packet_factory):
-        for item in self.get_backpack():
+        for slot, item in self.get_backpack().sorted_slots.items():
             update_packet_factory.update(update_packet_factory.player_values,
                                          update_packet_factory.updated_player_fields,
-                                         PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid, 'Q')
+                                         PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid, 'L')
 
-    def send_inventory_update(self):
-        for container in self.containers:
+    def send_single_item_update(self, world_session, container, is_self):
+        data = container.get_update_packet(is_self=is_self)
+        if is_self:
+            world_session.request.sendall(data)
+        else:
+            GridManager.send_surrounding(data, world_session.player_mgr, include_self=False)
+            GridManager.send_surrounding(container.query_details(), world_session.player_mgr,
+                                         include_self=False)
+
+    def send_inventory_update(self, world_session, is_self=True):
+        for container_slot, container in list(self.containers.items()):
             if not container.is_backpack:
-                pass
+                pass#self.send_single_item_update(world_session, container, is_self)
+
+            for slot, item in list(container.sorted_slots.items()):
+                pass#self.send_single_item_update(world_session, item, is_self)
