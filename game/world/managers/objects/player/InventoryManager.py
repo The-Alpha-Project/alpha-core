@@ -59,15 +59,16 @@ class InventoryManager(object):
                                          update_packet_factory.updated_player_fields,
                                          PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid, 'Q')
 
-    def send_single_item_update(self, world_session, container, is_self):
+    def send_single_item_update(self, world_session, item, is_self):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, container.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
-                                                                   is_self=False)))
+            OpCode.SMSG_UPDATE_OBJECT, item.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
+                                                              is_self=False)))
         if is_self:
             world_session.request.sendall(update_packet)
+            world_session.request.sendall(item.query_details())
         else:
             GridManager.send_surrounding(update_packet, world_session.player_mgr, include_self=False)
-            GridManager.send_surrounding(container.query_details(), world_session.player_mgr,
+            GridManager.send_surrounding(item.query_details(), world_session.player_mgr,
                                          include_self=False)
 
     def send_inventory_update(self, world_session, is_self=True):

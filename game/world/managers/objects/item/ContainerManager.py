@@ -20,8 +20,10 @@ class ContainerManager(ItemManager):
 
         if not self.is_backpack:
             self.total_slots = self.item_template.container_slots
+            self.is_contained = self.guid
         else:
             self.total_slots = InventorySlots.SLOT_BANK_END
+            self.is_contained = self.owner
 
         self.object_type.append(ObjectTypes.TYPE_CONTAINER)
 
@@ -30,7 +32,6 @@ class ContainerManager(ItemManager):
             return False
 
         item.current_slot = slot
-        item.is_contained = self.owner if self.is_backpack else self.guid
         self.sorted_slots[slot] = item
         return True
 

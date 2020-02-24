@@ -55,7 +55,7 @@ class ItemManager(ObjectManager):
         self.item_instance = item_instance
         self.guid = item_instance.guid if item_instance else 0
         self.current_slot = item_instance.slot if item_instance else 0
-        self.is_contained = self.guid
+        self.is_contained = item_instance.owner if item_instance else 0
 
         self.stats = []
         self.damage_stats = []
@@ -197,7 +197,7 @@ class ItemManager(ObjectManager):
             data += pack('<3i', int(damage_stat.minimum), int(damage_stat.maximum), damage_stat.stat_type)
 
         data += pack(
-            '<9I',
+            '<6i3I',
             self.item_template.armor,
             self.item_template.holy_res,
             self.item_template.fire_res,
