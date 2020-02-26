@@ -188,6 +188,16 @@ class CommandManager(object):
 
         return 0, 'Summoned player %s (%s).' % (player_name.capitalize(), 'Online' if is_online else 'Offline')
 
+    @staticmethod
+    def ann(world_session, args):
+        ann = str(args)
+
+        for session in WorldSessionStateHandler.get_world_sessions():
+            if session.player_mgr and session.player_mgr.is_online:
+                ChatManager.send_system_message(session, '[SERVER] %s' % ann)
+
+        return 0, ''
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help
@@ -203,5 +213,6 @@ GM_COMMAND_DEFINITIONS = {
     'rticket': CommandManager.rticket,
     'dticket': CommandManager.dticket,
     'goplayer': CommandManager.goplayer,
-    'summon': CommandManager.summon
+    'summon': CommandManager.summon,
+    'ann': CommandManager.ann
 }
