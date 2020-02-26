@@ -39,7 +39,8 @@ class PlayerLoginHandler(object):
         socket.sendall(world_session.player_mgr.get_initial_spells())
         socket.sendall(world_session.player_mgr.get_action_buttons())
 
-        PlayerLoginHandler._clear_who_list(socket)  # Clear Who list on login, otherwise the last search will appear
+        # Clear Who list on login, otherwise the last search will appear
+        PlayerLoginHandler._clear_who_list(socket)
 
         world_session.player_mgr.inventory.load_items(world_session)
 
@@ -48,9 +49,10 @@ class PlayerLoginHandler(object):
             world_session.player_mgr.get_update_packet(update_type=UpdateTypes.UPDATE_FULL)))
         socket.sendall(update_packet)
 
+        PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
+
         # MotD
         ChatManager.send_system_message(world_session, config.Server.General.motd)
-        PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
 
         world_session.player_mgr.complete_login()
 
