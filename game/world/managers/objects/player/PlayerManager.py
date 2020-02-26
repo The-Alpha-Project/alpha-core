@@ -7,6 +7,7 @@ from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
+from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders
@@ -188,13 +189,15 @@ class PlayerManager(UnitManager):
             OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
                                                               is_self=False)))
         GridManager.send_surrounding(update_packet, self, include_self=False)
-        time.sleep(0.1)
-        for guid, player in list(GridManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER])[0].items()):
+        GridManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=False)
+
+        for guid, player in list(GridManager.get_surrounding_players(self).items()):
             if self.guid != guid:
                 self.session.request.sendall(
                     PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                             player.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
                                                                      is_self=False)))
+                self.session.request.sendall(NameQueryHandler.get_query_details(player.player))
 
     def sync_player(self):
         if self.player and self.player.guid == self.guid:
