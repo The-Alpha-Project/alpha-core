@@ -77,47 +77,47 @@ class GridManager(object):
 
     @staticmethod
     def get_surrounding_objects(worldobject, object_types):
-        surrounding_objects = []
+        surrounding_objects = [{}, {}, {}]
         for grid in GridManager.get_surrounding(worldobject):
             if ObjectTypes.TYPE_PLAYER in object_types:
-                surrounding_objects.append(grid.players)
+                surrounding_objects.insert(0, grid.players)
             if ObjectTypes.TYPE_UNIT in object_types:
-                surrounding_objects.append(grid.creatures)
+                surrounding_objects.insert(1, grid.creatures)
             if ObjectTypes.TYPE_GAMEOBJECT in object_types:
-                surrounding_objects.append(grid.gameobjects)
+                surrounding_objects.insert(2, grid.gameobjects)
 
         return surrounding_objects
 
     @staticmethod
     def get_surrounding_players(worldobject):
-        return GridManager.get_surrounding_objects(worldobject, [ObjectTypes.TYPE_PLAYER])
+        return GridManager.get_surrounding_objects(worldobject, [ObjectTypes.TYPE_PLAYER])[0]
 
     @staticmethod
     def get_surrounding_units(worldobject, include_players=False):
         object_types = [ObjectTypes.TYPE_PLAYER, ObjectTypes.TYPE_UNIT] if include_players else [ObjectTypes.TYPE_UNIT]
-        return GridManager.get_surrounding_objects(worldobject, object_types)
+        return GridManager.get_surrounding_objects(worldobject, object_types)[1]
 
     @staticmethod
     def get_surrounding_gameobjects(worldobject):
-        return GridManager.get_surrounding_objects(worldobject, [ObjectTypes.TYPE_GAMEOBJECT])
+        return GridManager.get_surrounding_objects(worldobject, [ObjectTypes.TYPE_GAMEOBJECT])[2]
 
     @staticmethod
     def get_surrounding_player_by_guid(worldobject, guid):
-        for p_guid, player in list(GridManager.get_surrounding_players(worldobject)[0].items()):
+        for p_guid, player in list(GridManager.get_surrounding_players(worldobject).items()):
             if p_guid == guid:
                 return player
         return None
 
     @staticmethod
     def get_surrounding_unit_by_guid(worldobject, guid, include_players=False):
-        for u_guid, unit in list(GridManager.get_surrounding_units(worldobject, include_players)[0].items()):
+        for u_guid, unit in list(GridManager.get_surrounding_units(worldobject, include_players).items()):
             if u_guid == guid:
                 return unit
         return None
 
     @staticmethod
     def get_surrounding_gameobject_by_guid(worldobject, guid):
-        for g_guid, gameobject in list(GridManager.get_surrounding_gameobjects(worldobject)[0].items()):
+        for g_guid, gameobject in list(GridManager.get_surrounding_gameobjects(worldobject).items()):
             if g_guid == guid:
                 return gameobject
         return None
