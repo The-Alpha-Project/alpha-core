@@ -31,28 +31,38 @@ class PlayerLoginHandler(object):
 
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
                                                PlayerLoginHandler._get_login_timespeed()))
+        time.sleep(0.1)
 
         world_session.player_mgr.load_skills()
+        time.sleep(0.1)
         world_session.player_mgr.load_spells()
+        time.sleep(0.1)
 
         socket.sendall(world_session.player_mgr.get_tutorial_packet())
+        time.sleep(0.1)
         socket.sendall(world_session.player_mgr.get_initial_spells())
+        time.sleep(0.1)
         socket.sendall(world_session.player_mgr.get_action_buttons())
+        time.sleep(0.1)
 
         # MotD
         ChatManager.send_system_message(world_session, config.Server.General.motd)
+        time.sleep(0.1)
 
         # Clear Who list on login, otherwise the last search will appear
         PlayerLoginHandler._clear_who_list(socket)
+        time.sleep(0.1)
 
         world_session.player_mgr.inventory.load_items(world_session)
+        time.sleep(0.1)
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
             world_session.player_mgr.get_update_packet(update_type=UpdateTypes.UPDATE_FULL)))
         socket.sendall(update_packet)
 
+        time.sleep(0.1)
         PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
-        time.sleep(0.5)  # Wait half a second before completing the login
+        time.sleep(1)
         world_session.player_mgr.complete_login()
 
         return 0

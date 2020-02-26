@@ -5,7 +5,6 @@ import socket
 from struct import pack
 from time import sleep
 from apscheduler.schedulers.background import BackgroundScheduler
-from uuid import uuid1
 
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
@@ -105,13 +104,16 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     def receive(self, sck):
         try:
             data = sck.recv(2048)
-            reader = PacketReader(data)
-            if reader.opcode:
-                handler = Definitions.get_handler_from_packet(self, reader.opcode)
-                if handler:
-                    Logger.debug('[%s] Handling %s' % (self.client_address[0], OpCode(reader.opcode)))
-                    if handler(self, sck, reader) != 0:
-                        return -1
+            if len(data) > 0:
+                reader = PacketReader(data)
+                if reader.opcode:
+                    handler = Definitions.get_handler_from_packet(self, reader.opcode)
+                    if handler:
+                        Logger.debug('[%s] Handling %s' % (self.client_address[0], OpCode(reader.opcode)))
+                        if handler(self, sck, reader) != 0:
+                            return -1
+            else:
+                return -1
         except OSError:
             self.disconnect()
             return -1
@@ -130,6 +132,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         WorldServerSessionHandler.schedule_updates()
 
         ThreadedWorldServer.allow_reuse_address = True
+        ThreadedWorldServer.timeout = 10
         with ThreadedWorldServer((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port),
                                  WorldServerSessionHandler) as world_instance:
             world_session_thread = threading.Thread(target=world_instance.serve_forever())
