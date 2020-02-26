@@ -10,7 +10,8 @@ from game.realm.AccountManager import AccountManager
 realm_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (config.Database.Connection.username,
                                                                                  config.Database.Connection.password,
                                                                                  config.Database.Connection.host,
-                                                                                 config.Database.DBNames.realm_db))
+                                                                                 config.Database.DBNames.realm_db),
+                                pool_pre_ping=True)
 SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine))
 
 

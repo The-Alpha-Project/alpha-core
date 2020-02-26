@@ -8,7 +8,8 @@ from utils.ConfigManager import *
 dbc_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (config.Database.Connection.username,
                                                                                config.Database.Connection.password,
                                                                                config.Database.Connection.host,
-                                                                               config.Database.DBNames.dbc_db))
+                                                                               config.Database.DBNames.dbc_db),
+                              pool_pre_ping=True)
 SessionHolder = scoped_session(sessionmaker(bind=dbc_db_engine))
 
 
