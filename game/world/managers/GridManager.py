@@ -112,9 +112,9 @@ class GridManager(object):
     def get_surrounding_unit_by_guid(worldobject, guid, include_players=False):
         surrounding_units = list(GridManager.get_surrounding_units(worldobject, include_players))
         if include_players:
-            for u_guid, unit in surrounding_units[0].items():
-                if u_guid == guid:
-                    return unit
+            for p_guid, player in surrounding_units[0].items():
+                if p_guid == guid:
+                    return player
 
         for u_guid, unit in surrounding_units[1].items():
             if u_guid == guid:
