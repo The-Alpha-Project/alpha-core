@@ -1,4 +1,4 @@
-from time import time
+import time
 from struct import unpack
 from math import pi
 
@@ -188,7 +188,7 @@ class PlayerManager(UnitManager):
             OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
                                                               is_self=False)))
         GridManager.send_surrounding(update_packet, self, include_self=False)
-
+        time.sleep(0.05)
         for guid, player in list(GridManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER])[0].items()):
             if self.guid != guid:
                 self.session.request.sendall(
@@ -404,7 +404,7 @@ class PlayerManager(UnitManager):
 
     # override
     def update(self):
-        now = time()
+        now = time.time()
 
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick

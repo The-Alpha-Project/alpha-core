@@ -1,3 +1,4 @@
+import time
 from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -16,6 +17,7 @@ class CharEnumHandler(object):
         data = pack('<B', count)
         for character in characters:
             data += CharEnumHandler.get_char_packet(world_session, character)
+        time.sleep(0.1)
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHAR_ENUM, data))
 
         return 0
