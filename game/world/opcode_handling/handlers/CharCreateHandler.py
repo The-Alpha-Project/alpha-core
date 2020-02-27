@@ -16,6 +16,7 @@ class CharCreateHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         # In reality, names with more than 1 upper letter were allowed in Alpha, but I don't like that
+        # TODO: Handle names with uncommon letters
         name = PacketReader.read_string(reader.data, 0).capitalize()
         race, class_, gender, skin, face, hairstyle, haircolor, facialhair, unk = unpack(
             '<BBBBBBBBB', reader.data[len(name)+1:]

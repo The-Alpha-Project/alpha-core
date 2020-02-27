@@ -7,7 +7,7 @@ from utils.constants.OpCodes import *
 class PacketWriter(object):
     @staticmethod
     def string_to_bytes(value):
-        return value.encode('ascii') + b'\x00'
+        return value.encode('latin1') + b'\x00'
 
     @staticmethod
     def get_packet(opcode, data=b''):
