@@ -212,6 +212,20 @@ class CommandManager(object):
         world_session.player_mgr.unmount()
         return 0, ''
 
+    @staticmethod
+    def morph(world_session, args):
+        try:
+            display_id = int(args)
+            world_session.player_mgr.morph(display_id)
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a valid display id.'
+
+    @staticmethod
+    def demorph(world_session, args):
+        world_session.player_mgr.demorph()
+        return 0, ''
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help
@@ -230,5 +244,7 @@ GM_COMMAND_DEFINITIONS = {
     'summon': CommandManager.summon,
     'ann': CommandManager.ann,
     'mount': CommandManager.mount,
-    'unmount': CommandManager.unmount
+    'unmount': CommandManager.unmount,
+    'morph': CommandManager.morph,
+    'demorph': CommandManager.demorph
 }

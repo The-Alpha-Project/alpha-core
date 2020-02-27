@@ -38,6 +38,7 @@ class PlayerManager(UnitManager):
                  base_mana=0,
                  sheath_state=0,
                  combo_points=0,
+                 chat_flags=0,
                  is_online=False,
                  **kwargs):
         super().__init__(**kwargs)
@@ -62,6 +63,7 @@ class PlayerManager(UnitManager):
         self.sheath_state = sheath_state
         self.combo_points = combo_points
 
+        self.chat_flags = chat_flags
         self.group_status = WhoPartyStatuses.WHO_PARTY_STATUS_NOT_IN_PARTY
         self.race_mask = 0
         self.class_mask = 0
@@ -88,7 +90,9 @@ class PlayerManager(UnitManager):
             self.location.o = self.player.orientation
 
             self.is_gm = self.player.account.gmlevel > 0
-            self.chat_flags = ChatFlags.CHAT_TAG_GM if self.is_gm else ChatFlags.CHAT_TAG_NONE
+
+            if self.is_gm:
+                self.set_gm()
 
             # test
             self.xp = 0
@@ -105,6 +109,11 @@ class PlayerManager(UnitManager):
             self.power_4 = 100
             self.guild_manager = GuildManager()
 
+    def get_native_display_id(self, is_male, race_data=None):
+        if not race_data:
+            race_data = DbcDatabaseManager.chr_races_get_by_race(self.session.dbc_db_session, self.player.race)
+        return race_data.MaleDisplayId if is_male else race_data.FemaleDisplayId
+
     def set_player_variables(self):
         race = DbcDatabaseManager.chr_races_get_by_race(self.session.dbc_db_session, self.player.race)
 
@@ -112,7 +121,7 @@ class PlayerManager(UnitManager):
 
         is_male = self.player.gender == Genders.GENDER_MALE
 
-        self.display_id = race.MaleDisplayId if is_male else race.FemaleDisplayId
+        self.display_id = self.get_native_display_id(is_male, race)
 
         if self.player.class_ == Classes.CLASS_WARRIOR:
             self.power_type = PowerTypes.TYPE_RAGE
@@ -144,11 +153,13 @@ class PlayerManager(UnitManager):
         self.race_mask = 1 << self.player.race
         self.class_mask = 1 << self.player.class_
 
+    def set_gm(self, on=True):
+        self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
+        self.faction = 35  # Friendly to all
+        self.chat_flags = ChatFlags.CHAT_TAG_GM
+
     def complete_login(self):
         self.is_online = True
-        if self.is_gm:
-            # TODO NOT WORKING
-            self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
         GridManager.update_object(self)
         self.update_surrounding()
 
@@ -261,17 +272,37 @@ class PlayerManager(UnitManager):
         self.location.o = location.o
 
     def mount(self, mount_display_id):
-        if mount_display_id > 0 and \
+        if mount_display_id > 0 and self.mount_display_id == 0 and \
                 DbcDatabaseManager.creature_display_info_get_by_model_id(self.session.dbc_db_session, mount_display_id):
             self.mount_display_id = mount_display_id
-            self.unit_flags |= UnitFlags.UNIT_FLAG_MOUNT
+            self.unit_flags |= UnitFlags.UNIT_FLAG_MOUNTED
             self.flagged_for_update = True
 
     def unmount(self):
         if self.mount_display_id > 0:
             self.mount_display_id = 0
-            self.unit_flags &= ~UnitFlags.UNIT_FLAG_MOUNT
+            self.unit_flags &= ~UnitFlags.UNIT_FLAG_MOUNTED
             self.flagged_for_update = True
+
+    def set_weapon_mode(self, weapon_mode):
+        # TODO: Not working
+        if weapon_mode == 0:
+            self.unit_flags |= UnitFlags.UNIT_FLAG_SHEATHE
+        elif weapon_mode == 1:
+            self.unit_flags &= ~UnitFlags.UNIT_FLAG_SHEATHE
+        elif weapon_mode == 2:
+            self.unit_flags &= ~UnitFlags.UNIT_FLAG_SHEATHE
+
+        self.flagged_for_update = True
+
+    def morph(self, display_id):
+        if display_id > 0 and \
+                DbcDatabaseManager.creature_display_info_get_by_model_id(self.session.dbc_db_session, display_id):
+            self.display_id = display_id
+            self.flagged_for_update = True
+
+    def demorph(self):
+        self.morph(self.get_native_display_id(self.player.gender == 0))
 
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
@@ -329,7 +360,7 @@ class PlayerManager(UnitManager):
 
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
-        self.player_bytes_2 = unpack('>I', pack('>4B', self.player.extra_flags, self.player.bankslots, self.player.facialhair, 0))[0]
+        self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
 
         # Object fields
         self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_GUID, self.player.guid, 'Q')

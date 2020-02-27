@@ -1,5 +1,6 @@
 from struct import pack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode

@@ -24,6 +24,7 @@ from game.world.opcode_handling.handlers.WhoHandler import WhoHandler
 from game.world.opcode_handling.handlers.PlayerMacroHandler import PlayerMacroHandler
 from game.world.opcode_handling.handlers.StandStateChangeHandler import StandStateChangeHandler
 from game.world.opcode_handling.handlers.MountSpecialAnimHandler import MountSpecialAnimHandler
+from game.world.opcode_handling.handlers.SetWeaponModeHandler import SetWeaponModeHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -60,6 +61,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_PLAYER_MACRO: PlayerMacroHandler.handle,
     OpCode.CMSG_STANDSTATECHANGE: StandStateChangeHandler.handle,
     OpCode.CMSG_MOUNTSPECIAL_ANIM: MountSpecialAnimHandler.handle,
+    OpCode.CMSG_SETWEAPONMODE: SetWeaponModeHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,
