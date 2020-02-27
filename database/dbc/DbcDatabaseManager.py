@@ -72,3 +72,9 @@ class DbcDatabaseManager(object):
     @staticmethod
     def char_start_outfit_get(dbc_db_session, race, class_, gender):
         return dbc_db_session.query(CharStartOutfit).filter_by(RaceID=race, ClassID=class_, GenderID=gender).first()
+
+    # CreatureDisplayInfo
+
+    @staticmethod
+    def creature_display_info_get_by_model_id(dbc_db_session, model_id):
+        return dbc_db_session.query(CreatureDisplayInfo).filter_by(ID=model_id).first()

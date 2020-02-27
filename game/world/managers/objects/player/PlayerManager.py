@@ -10,7 +10,7 @@ from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.dbc.DbcDatabaseManager import *
@@ -260,6 +260,19 @@ class PlayerManager(UnitManager):
         self.location.z = location.z
         self.location.o = location.o
 
+    def mount(self, mount_display_id):
+        if mount_display_id > 0 and \
+                DbcDatabaseManager.creature_display_info_get_by_model_id(self.session.dbc_db_session, mount_display_id):
+            self.mount_display_id = mount_display_id
+            self.unit_flags |= UnitFlags.UNIT_FLAG_MOUNT
+            self.flagged_for_update = True
+
+    def unmount(self):
+        if self.mount_display_id > 0:
+            self.mount_display_id = 0
+            self.unit_flags &= ~UnitFlags.UNIT_FLAG_MOUNT
+            self.flagged_for_update = True
+
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
         if speed <= 0:
@@ -350,7 +363,7 @@ class PlayerManager(UnitManager):
         self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASESTAT2, self.base_stat_2, 'I')
         self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASESTAT3, self.base_stat_3, 'I')
         self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASESTAT4, self.base_stat_4, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_FLAGS, self.flags, 'I')
+        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_FLAGS, self.unit_flags, 'I')
         self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_COINAGE, self.coinage, 'I')
         self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time, 'I')
         self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.offhand_attack_time, 'I')
@@ -425,6 +438,8 @@ class PlayerManager(UnitManager):
                 OpCode.SMSG_UPDATE_OBJECT,
                 self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=False)),
                 self, include_self=False)
+
+            GridManager.update_object(self)
 
             self.flagged_for_update = False
 

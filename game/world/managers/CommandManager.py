@@ -198,6 +198,20 @@ class CommandManager(object):
 
         return 0, ''
 
+    @staticmethod
+    def mount(world_session, args):
+        try:
+            mount_display_id = int(args)
+            world_session.player_mgr.mount(mount_display_id)
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a valid mount display id.'
+
+    @staticmethod
+    def unmount(world_session, args):
+        world_session.player_mgr.unmount()
+        return 0, ''
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help
@@ -214,5 +228,7 @@ GM_COMMAND_DEFINITIONS = {
     'dticket': CommandManager.dticket,
     'goplayer': CommandManager.goplayer,
     'summon': CommandManager.summon,
-    'ann': CommandManager.ann
+    'ann': CommandManager.ann,
+    'mount': CommandManager.mount,
+    'unmount': CommandManager.unmount
 }
