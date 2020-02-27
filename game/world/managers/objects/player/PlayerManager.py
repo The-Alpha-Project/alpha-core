@@ -46,6 +46,7 @@ class PlayerManager(UnitManager):
                                                           ObjectTypes.TYPE_UNIT,
                                                           ObjectTypes.TYPE_PLAYER])
         self.session = session
+        self.flagged_for_update = False
 
         self.player = player
         self.is_online = is_online
@@ -414,6 +415,18 @@ class PlayerManager(UnitManager):
             self.player.totaltime += elapsed
             self.player.leveltime += elapsed
         self.last_tick = now
+
+        if self.flagged_for_update:
+            self.session.request.sendall(PacketWriter.get_packet(
+                OpCode.SMSG_UPDATE_OBJECT,
+                self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
+
+            GridManager.send_surrounding(PacketWriter.get_packet(
+                OpCode.SMSG_UPDATE_OBJECT,
+                self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=False)),
+                self, include_self=False)
+
+            self.flagged_for_update = False
 
     # override
     def get_type(self):

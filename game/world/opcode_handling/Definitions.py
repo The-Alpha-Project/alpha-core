@@ -22,6 +22,7 @@ from game.world.opcode_handling.handlers.LookingForGroupHandler import LookingFo
 from game.world.opcode_handling.handlers.ItemQuerySingleHandler import ItemQuerySingleHandler
 from game.world.opcode_handling.handlers.WhoHandler import WhoHandler
 from game.world.opcode_handling.handlers.PlayerMacroHandler import PlayerMacroHandler
+from game.world.opcode_handling.handlers.StandStateChangeHandler import StandStateChangeHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -56,6 +57,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_WHO: WhoHandler.handle,
     OpCode.CMSG_ITEM_QUERY_SINGLE: ItemQuerySingleHandler.handle,
     OpCode.CMSG_PLAYER_MACRO: PlayerMacroHandler.handle,
+    OpCode.CMSG_STANDSTATECHANGE: StandStateChangeHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

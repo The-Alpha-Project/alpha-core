@@ -53,13 +53,13 @@ class TextEmoteHandler(object):
                     if world_session.player_mgr.stand_state != StandState.UNIT_SLEEPING:
                         state = StandState.UNIT_SLEEPING
                     world_session.player_mgr.stand_state = state
-                elif emote_text_id == Emotes.SLEEP:
+                elif emote_text_id == Emotes.KNEEL:
                     if world_session.player_mgr.stand_state != StandState.UNIT_KNEEL:
                         state = StandState.UNIT_KNEEL
                     world_session.player_mgr.stand_state = state
                 else:
                     world_session.player_mgr.play_emote(emote_id)
 
-                # TODO Stand state changes are still not working
+                world_session.player_mgr.flagged_for_update = True
 
         return 0
