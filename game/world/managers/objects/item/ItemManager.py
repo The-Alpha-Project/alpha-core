@@ -145,7 +145,7 @@ class ItemManager(ObjectManager):
 
     @staticmethod
     def generate_item(world_session, owner, bag, entry, creator=0, slot=-1, count=1):
-        item_template = WorldDatabaseManager.item_template_get_by_entry(world_session.world_db_session, entry)
+        item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
         if item_template:
             if slot == -1:
                 slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
@@ -157,7 +157,7 @@ class ItemManager(ObjectManager):
                 slot=slot,
                 bag=bag
             )
-            RealmDatabaseManager.character_inventory_add_item(world_session.realm_db_session, item)
+            RealmDatabaseManager.character_inventory_add_item(item)
 
             item_mgr = ItemManager(
                 item_template=item_template,

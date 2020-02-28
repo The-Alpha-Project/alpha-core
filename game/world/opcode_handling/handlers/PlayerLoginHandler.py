@@ -23,7 +23,7 @@ class PlayerLoginHandler(object):
         guid = unpack('<Q', reader.data[:8])[0]
 
         world_session.player_mgr = PlayerManager(
-            RealmDatabaseManager.character_get_by_guid(world_session.realm_db_session, guid), world_session)
+            RealmDatabaseManager.character_get_by_guid(guid), world_session)
         world_session.player_mgr.session = world_session
         if not world_session.player_mgr.player:
             Logger.anticheat('Character with wrong guid (%u) tried to login.' % guid)
@@ -67,8 +67,7 @@ class PlayerLoginHandler(object):
     def _send_cinematic(world_session, player, socket):
         if player.totaltime == 0:
             # Sadly, ONLY undeads have intro cinematic.
-            cinematic_id = DbcDatabaseManager.chr_races_get_by_race(
-                world_session.dbc_db_session, player.race).CinematicSequenceID
+            cinematic_id = DbcDatabaseManager.chr_races_get_by_race(player.race).CinematicSequenceID
             if cinematic_id != 0:
                 data = pack(
                     '<I', cinematic_id

@@ -10,8 +10,7 @@ class CharEnumHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        characters = RealmDatabaseManager.account_get_characters(world_session.realm_db_session,
-                                                                 world_session.account_mgr.account.id)
+        characters = RealmDatabaseManager.account_get_characters(world_session.account_mgr.account.id)
         count = len(characters)
 
         data = pack('<B', count)
@@ -50,14 +49,12 @@ class CharEnumHandler(object):
         )
 
         for slot in range(0, 19):
-            item = RealmDatabaseManager.character_get_item_by_slot(world_session.realm_db_session,
-                                                                   character.guid, slot)
+            item = RealmDatabaseManager.character_get_item_by_slot(character.guid, slot)
             display_id = 0
             inventory_type = 0
 
             if item:
-                item_template = WorldDatabaseManager.item_template_get_by_entry(world_session.world_db_session,
-                                                                                item.item_template)
+                item_template = WorldDatabaseManager.item_template_get_by_entry(item.item_template)
                 display_id = item_template.display_id
                 inventory_type = item_template.inventory_type
             char_packet += pack('<IB', display_id, inventory_type)

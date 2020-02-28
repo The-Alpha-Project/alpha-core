@@ -11,68 +11,67 @@ world_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % 
                                                                                  config.Database.Connection.host,
                                                                                  config.Database.DBNames.world_db),
                                 pool_pre_ping=True)
-SessionHolder = scoped_session(sessionmaker(bind=world_db_engine))
+SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autocommit=True, autoflush=True))
 
 
 class WorldDatabaseManager(object):
-    @staticmethod
-    def acquire_session():
-        world_db_session = SessionHolder()
-        return world_db_session
-
-    @staticmethod
-    def save(world_db_session):
-        error = False
-        try:
-            world_db_session.commit()
-        except StatementError:
-            error = True
-        finally:
-            if error:
-                world_db_session.rollback()
-            return not error
-
-    @staticmethod
-    def close(world_db_session):
-        world_db_session.close()
-
     # Player stuff
 
     @staticmethod
-    def player_create_info_get(world_db_session, race, class_):
-        return world_db_session.query(Playercreateinfo).filter_by(race=race, _class=class_).first()
+    def player_create_info_get(race, class_):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(Playercreateinfo).filter_by(race=race, _class=class_).first()
+        world_db_session.close()
+        return res
 
     @staticmethod
-    def player_create_spell_get(world_db_session, race, class_):
-        return world_db_session.query(PlayercreateinfoSpell).filter_by(race=race, _class=class_).all()
+    def player_create_spell_get(race, class_):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PlayercreateinfoSpell).filter_by(race=race, _class=class_).all()
+        world_db_session.close()
+        return res
 
     @staticmethod
-    def player_create_skill_get(world_db_session, race, class_):
-        return world_db_session.query(PlayercreateinfoSkill).filter_by(race=race, _class=class_).all()
+    def player_create_skill_get(race, class_):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PlayercreateinfoSkill).filter_by(race=race, _class=class_).all()
+        world_db_session.close()
+        return res
 
     @staticmethod
-    def player_create_item_get(world_db_session, race, class_):
-        return world_db_session.query(PlayercreateinfoItem).filter_by(race=race, _class=class_).all()
+    def player_create_item_get(race, class_):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PlayercreateinfoItem).filter_by(race=race, _class=class_).all()
+        world_db_session.close()
+        return res
 
     # Area trigger stuff
 
     @staticmethod
-    def area_trigger_teleport_get_by_id(world_db_session, trigger_id):
-        return world_db_session.query(AreatriggerTeleport).filter_by(id=trigger_id).first()
+    def area_trigger_teleport_get_by_id(trigger_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(AreatriggerTeleport).filter_by(id=trigger_id).first()
+        world_db_session.close()
+        return res
 
     # Area Template stuff
 
     @staticmethod
-    def area_get_by_id(world_db_session, area_id):
-        return world_db_session.query(AreaTemplate).filter_by(entry=area_id).first()
+    def area_get_by_id(area_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(AreaTemplate).filter_by(entry=area_id).first()
+        world_db_session.close()
+        return res
 
     # Worldport stuff
 
     @staticmethod
-    def worldport_get_by_name(world_db_session, name):
+    def worldport_get_by_name(name):
+        world_db_session = SessionHolder()
         best_matching_location = None
         best_matching_ratio = 0
         locations = world_db_session.query(Worldports).filter(Worldports.name.like('%' + name + '%')).all()
+        world_db_session.close()
         for location in locations:
             ratio = SequenceMatcher(None, location.name, name).ratio()
             if ratio > best_matching_ratio:
@@ -82,5 +81,8 @@ class WorldDatabaseManager(object):
     # Item stuff
 
     @staticmethod
-    def item_template_get_by_entry(world_db_session, entry):
-        return world_db_session.query(ItemTemplate).filter_by(entry=entry).first()
+    def item_template_get_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(ItemTemplate).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res

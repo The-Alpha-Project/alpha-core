@@ -16,7 +16,7 @@ class BugHandler(object):
             # This packet is even sending the password in plain text, so we don't want that, we only care about the text
             body = full_body[:full_body.index('Username:')].strip()
 
-            RealmDatabaseManager.ticket_add(world_session.realm_db_session, Ticket(
+            RealmDatabaseManager.ticket_add(Ticket(
                 is_bug=is_bug,
                 account_name=world_session.account_mgr.account.name,
                 account_id=world_session.account_mgr.account.id,

@@ -12,7 +12,7 @@ class ItemQuerySingleHandler(object):
         if len(reader.data) >= 4:  # Avoid handling empty item query packet
             entry = unpack('<I', reader.data[:4])[0]
             if entry > 0:
-                item_template = WorldDatabaseManager.item_template_get_by_entry(world_session.world_db_session, entry)
+                item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
                 if item_template:
                     item_mgr = ItemManager(
                         item_template=item_template

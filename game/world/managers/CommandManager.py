@@ -80,7 +80,7 @@ class CommandManager(object):
     @staticmethod
     def tel(world_session, args):
         tel_name = args.split()[0]
-        location = WorldDatabaseManager.worldport_get_by_name(world_session.world_db_session, tel_name)
+        location = WorldDatabaseManager.worldport_get_by_name(tel_name)
 
         if location:
             tel_location = Vector(location.x, location.y, location.z)
@@ -102,7 +102,7 @@ class CommandManager(object):
 
     @staticmethod
     def tickets(world_session, args):
-        tickets = RealmDatabaseManager.ticket_get_all(world_session.realm_db_session)
+        tickets = RealmDatabaseManager.ticket_get_all()
         for ticket in tickets:
             ticket_text = '%s[%s]|r %s: %s from %s.' % ('|cFFFF0000' if ticket.is_bug else '|cFF00FFFF',
                                                         ticket.id,
@@ -116,7 +116,7 @@ class CommandManager(object):
     def rticket(world_session, args):
         try:
             ticket_id = int(args)
-            ticket = RealmDatabaseManager.ticket_get_by_id(world_session.realm_db_session, ticket_id)
+            ticket = RealmDatabaseManager.ticket_get_by_id(ticket_id)
             if ticket:
                 return 0, '%s[%s] %s:|r %s' % ('|cFFFF0000' if ticket.is_bug else '|cFF00FFFF', ticket_id,
                                                ticket.character_name, ticket.text_body)
@@ -128,7 +128,7 @@ class CommandManager(object):
     def dticket(world_session, args):
         try:
             ticket_id = int(args)
-            if RealmDatabaseManager.ticket_delete(world_session.realm_db_session, ticket_id) == 0:
+            if RealmDatabaseManager.ticket_delete(ticket_id) == 0:
                 return 0, 'Ticket %u deleted.' % ticket_id
             return -1, 'ticket not found.'
 
@@ -149,7 +149,7 @@ class CommandManager(object):
             map_ = player.map_
         else:
             is_online = False
-            player = RealmDatabaseManager.character_get_by_name(world_session.realm_db_session, player_name)
+            player = RealmDatabaseManager.character_get_by_name(player_name)
 
         if player:
             if not is_online:
@@ -173,7 +173,7 @@ class CommandManager(object):
             player.teleport(world_session.player_mgr.map_, world_session.player_mgr.location)
         else:
             is_online = False
-            player = RealmDatabaseManager.character_get_by_name(world_session.realm_db_session, player_name)
+            player = RealmDatabaseManager.character_get_by_name(player_name)
 
         if player:
             if not is_online:
@@ -182,7 +182,7 @@ class CommandManager(object):
                 player.position_x = world_session.player_mgr.location.x
                 player.position_y = world_session.player_mgr.location.y
                 player.position_z = world_session.player_mgr.location.z
-                RealmDatabaseManager.save(world_session.realm_db_session)
+                RealmDatabaseManager.character_update(player)
         else:
             return -1, 'player not found.'
 

@@ -19,13 +19,11 @@ class InventoryManager(object):
         self.containers[InventorySlots.SLOT_INBACKPACK] = ContainerManager(is_backpack=True,
                                                                            owner=world_session.player_mgr.guid)
 
-        character_inventory = RealmDatabaseManager.character_get_inventory(world_session.realm_db_session,
-                                                                           world_session.player_mgr.guid)
+        character_inventory = RealmDatabaseManager.character_get_inventory(world_session.player_mgr.guid)
 
         # First load bags
         for item_instance in character_inventory:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(world_session.world_db_session,
-                                                                            item_instance.item_template)
+            item_template = WorldDatabaseManager.item_template_get_by_entry(item_instance.item_template)
             if item_template and item_template.inventory_type == InventoryTypes.BAG:
                 container_mgr = ContainerManager(
                     owner=world_session.player_mgr.guid,
@@ -37,8 +35,7 @@ class InventoryManager(object):
 
         # Then load items
         for item_instance in character_inventory:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(world_session.world_db_session,
-                                                                            item_instance.item_template)
+            item_template = WorldDatabaseManager.item_template_get_by_entry(item_instance.item_template)
             if item_template:
                 item_mgr = ItemManager(
                     item_template=item_template,

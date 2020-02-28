@@ -17,7 +17,7 @@ class NameQueryHandler(object):
             if player_mgr:
                 player = player_mgr.player
             else:
-                player = RealmDatabaseManager.character_get_by_guid(world_session.realm_db_session, guid)
+                player = RealmDatabaseManager.character_get_by_guid(guid)
 
             if player:
                 socket.sendall(NameQueryHandler.get_query_details(player))

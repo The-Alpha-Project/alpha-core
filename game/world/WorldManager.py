@@ -29,10 +29,6 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         self.account_mgr = None
         self.player_mgr = None
 
-        self.realm_db_session = None
-        self.world_db_session = None
-        self.dbc_db_session = None
-
         self.keep_alive = False
         self.is_alive = False
 
@@ -43,16 +39,12 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             self.player_mgr = None
             self.account_mgr = None
 
-            self.realm_db_session = RealmDatabaseManager.acquire_session()
-            self.world_db_session = WorldDatabaseManager.acquire_session()
-            self.dbc_db_session = DbcDatabaseManager.acquire_session()
-
             self.keep_alive = True
             self.is_alive = True
 
             realm_saving_scheduler = BackgroundScheduler()
             realm_saving_scheduler._daemon = True
-            realm_saving_scheduler.add_job(self.save_realm, 'interval',
+            realm_saving_scheduler.add_job(self.save_character, 'interval',
                                            seconds=config.Server.Settings.realm_saving_interval_seconds)
             realm_saving_scheduler.start()
 
@@ -70,16 +62,6 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             except AttributeError:
                 pass
 
-            try:
-                if self.realm_db_session:
-                    RealmDatabaseManager.close(self.realm_db_session)
-                if self.world_db_session:
-                    WorldDatabaseManager.close(self.world_db_session)
-                if self.dbc_db_session:
-                    DbcDatabaseManager.close(self.dbc_db_session)
-            except AttributeError:
-                pass
-
             self.keep_alive = False
             self.is_alive = False
             WorldSessionStateHandler.remove(self)
@@ -90,10 +72,10 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             except OSError:
                 pass
 
-    def save_realm(self):
+    def save_character(self):
         try:
-            if self.realm_db_session:
-                RealmDatabaseManager.save(self.realm_db_session)
+            self.player_mgr.sync_player()
+            RealmDatabaseManager.character_update(self.player_mgr.player)
         except AttributeError:
             pass
 

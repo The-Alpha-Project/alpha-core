@@ -62,7 +62,7 @@ class WhoHandler(object):
                     if race_mask != 0xFFFFFFFF and race_mask & session.player_mgr.race_mask != session.player_mgr.race_mask:
                         continue
                     if zone_count > 0:
-                        area = WorldDatabaseManager.area_get_by_id(world_session.world_db_session, session.player_mgr.zone)
+                        area = WorldDatabaseManager.area_get_by_id(session.player_mgr.zone)
                         if area:
                             skip = True
                             for zone in zones:

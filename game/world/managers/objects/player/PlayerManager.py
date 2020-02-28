@@ -89,7 +89,7 @@ class PlayerManager(UnitManager):
             self.location.z = self.player.position_z
             self.location.o = self.player.orientation
 
-            self.is_gm = self.player.account.gmlevel > 0
+            self.is_gm = self.session.account_mgr.account.gmlevel > 0
 
             if self.is_gm:
                 self.set_gm()
@@ -111,11 +111,11 @@ class PlayerManager(UnitManager):
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:
-            race_data = DbcDatabaseManager.chr_races_get_by_race(self.session.dbc_db_session, self.player.race)
+            race_data = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
         return race_data.MaleDisplayId if is_male else race_data.FemaleDisplayId
 
     def set_player_variables(self):
-        race = DbcDatabaseManager.chr_races_get_by_race(self.session.dbc_db_session, self.player.race)
+        race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
 
         self.faction = race.FactionID
 
@@ -164,8 +164,7 @@ class PlayerManager(UnitManager):
         self.update_surrounding()
 
     def logout(self):
-        self.sync_player()
-        self.session.save_realm()
+        self.session.save_character()
         GridManager.remove_object(self)
         self.session.player_mgr = None
         self.session = None
@@ -273,7 +272,7 @@ class PlayerManager(UnitManager):
 
     def mount(self, mount_display_id):
         if mount_display_id > 0 and self.mount_display_id == 0 and \
-                DbcDatabaseManager.creature_display_info_get_by_model_id(self.session.dbc_db_session, mount_display_id):
+                DbcDatabaseManager.creature_display_info_get_by_model_id(mount_display_id):
             self.mount_display_id = mount_display_id
             self.unit_flags |= UnitFlags.UNIT_FLAG_MOUNTED
             self.flagged_for_update = True
@@ -297,7 +296,7 @@ class PlayerManager(UnitManager):
 
     def morph(self, display_id):
         if display_id > 0 and \
-                DbcDatabaseManager.creature_display_info_get_by_model_id(self.session.dbc_db_session, display_id):
+                DbcDatabaseManager.creature_display_info_get_by_model_id(display_id):
             self.display_id = display_id
             self.flagged_for_update = True
 
@@ -341,15 +340,15 @@ class PlayerManager(UnitManager):
         self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 
     def load_skills(self):
-        for skill in WorldDatabaseManager.player_create_skill_get(self.session.world_db_session, self.player.race,
+        for skill in WorldDatabaseManager.player_create_skill_get(self.player.race,
                                                                   self.player.class_):
-            skill_to_add = DbcDatabaseManager.skill_get_by_id(self.session.dbc_db_session, skill.Skill)
+            skill_to_add = DbcDatabaseManager.skill_get_by_id(skill.Skill)
             self.skills.append(skill_to_add)
 
     def load_spells(self):
-        for spell in WorldDatabaseManager.player_create_spell_get(self.session.world_db_session, self.player.race,
+        for spell in WorldDatabaseManager.player_create_spell_get(self.player.race,
                                                                   self.player.class_):
-            spell_to_load = DbcDatabaseManager.spell_get_by_id(self.session.dbc_db_session, spell.Spell)
+            spell_to_load = DbcDatabaseManager.spell_get_by_id(spell.Spell)
             if spell_to_load:
                 self.spells.append(spell_to_load)
 

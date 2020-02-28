@@ -23,7 +23,7 @@ class CharCreateHandler(object):
         )
 
         result = CharCreate.CHAR_CREATE_SUCCESS
-        if RealmDatabaseManager.character_does_name_exist(world_session.realm_db_session, name):
+        if RealmDatabaseManager.character_does_name_exist(name):
             result = CharCreate.CHAR_CREATE_NAME_IN_USE
 
         if result == CharCreate.CHAR_CREATE_SUCCESS:
@@ -45,7 +45,7 @@ class CharCreateHandler(object):
                                   position_z=z,
                                   orientation=o,
                                   level=config.Unit.Player.Defaults.starting_level)
-            RealmDatabaseManager.character_create(world_session.realm_db_session, character)
+            RealmDatabaseManager.character_create(character)
             CharCreateHandler.generate_starting_items(world_session, character.guid, race, class_, gender)
 
         data = pack('<B', result)
@@ -55,12 +55,12 @@ class CharCreateHandler(object):
 
     @staticmethod
     def get_starting_location(world_session, race, class_):
-        info = WorldDatabaseManager.player_create_info_get(world_session.world_db_session, race, class_)
+        info = WorldDatabaseManager.player_create_info_get(race, class_)
         return info.map, info.zone, info.position_x, info.position_y, info.position_z, info.orientation
 
     @staticmethod
     def generate_starting_items(world_session, guid, race, class_, gender):
-        start_items = DbcDatabaseManager.char_start_outfit_get(world_session.dbc_db_session, race, class_, gender)
+        start_items = DbcDatabaseManager.char_start_outfit_get(race, class_, gender)
         items_to_add = [
             ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_1),
             ItemManager.generate_item(world_session, guid, InventorySlots.SLOT_INBACKPACK.value, start_items.ItemID_2),
@@ -77,4 +77,4 @@ class CharCreateHandler(object):
         ]
         for item in items_to_add:
             if item and item.item_instance:
-                RealmDatabaseManager.character_inventory_add_item(world_session.realm_db_session, item.item_instance)
+                RealmDatabaseManager.character_inventory_add_item(item.item_instance)
