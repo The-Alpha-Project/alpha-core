@@ -31,7 +31,8 @@ class InventoryManager(object):
                     item_instance=item_instance
                 )
                 if 19 <= container_mgr.current_slot <= 22 or 63 <= container_mgr.current_slot <= 68:
-                    self.containers[item_instance.slot] = container_mgr
+                    self.containers[item_instance.bag].sorted_slots[container_mgr.current_slot] = container_mgr
+                    self.containers[container_mgr.current_slot] = container_mgr
 
         # Then load items
         for item_instance in character_inventory:

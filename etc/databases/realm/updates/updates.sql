@@ -44,5 +44,16 @@ begin not atomic
         insert into applied_updates values('23022021');
     end if;
 
+    -- 29/02/2020 1
+    if (select count(*) from applied_updates where id='29022021') = 0 then
+        alter table character_inventory modify SpellCharges1 int(11) not null default -1;
+        alter table character_inventory modify SpellCharges2 int(11) not null default -1;
+        alter table character_inventory modify SpellCharges3 int(11) not null default -1;
+        alter table character_inventory modify SpellCharges4 int(11) not null default -1;
+        alter table character_inventory modify SpellCharges5 int(11) not null default -1;
+
+        insert into applied_updates values('29022021');
+    end if;
+
 end $
 delimiter ;

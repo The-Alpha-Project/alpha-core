@@ -34,11 +34,11 @@ class CharacterInventory(Base):
     slot = Column(Integer, nullable=False, server_default=text("'0'"))
     item_template = Column(Integer, nullable=False, server_default=text("'0'"))
     stackcount = Column(Integer, nullable=False, server_default=text("'1'"))
-    SpellCharges1 = Column(Integer, nullable=False, server_default=text("'0'"))
-    SpellCharges2 = Column(Integer, nullable=False, server_default=text("'0'"))
-    SpellCharges3 = Column(Integer, nullable=False, server_default=text("'0'"))
-    SpellCharges4 = Column(Integer, nullable=False, server_default=text("'0'"))
-    SpellCharges5 = Column(Integer, nullable=False, server_default=text("'0'"))
+    SpellCharges1 = Column(Integer, nullable=False, server_default=text("'-1'"))
+    SpellCharges2 = Column(Integer, nullable=False, server_default=text("'-1'"))
+    SpellCharges3 = Column(Integer, nullable=False, server_default=text("'-1'"))
+    SpellCharges4 = Column(Integer, nullable=False, server_default=text("'-1'"))
+    SpellCharges5 = Column(Integer, nullable=False, server_default=text("'-1'"))
 
     character = relationship(u'Character')
 

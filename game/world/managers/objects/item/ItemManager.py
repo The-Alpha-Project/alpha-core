@@ -144,11 +144,24 @@ class ItemManager(ObjectManager):
         return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0].value
 
     @staticmethod
-    def generate_item(world_session, owner, bag, entry, creator=0, slot=-1, count=1):
+    def generate_starting_item(owner, entry, last_bag_slot):
         item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
         if item_template:
-            if slot == -1:
-                slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
+            slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
+            if slot >= InventorySlots.SLOT_INBACKPACK:
+                slot = last_bag_slot
+            bag = InventorySlots.SLOT_INBACKPACK.value
+            count = 1
+            if item_template.inventory_type == 0 and item_template.class_ == 0:
+                count = 4
+            elif item_template.inventory_type == 24:
+                count = 200
+            return ItemManager.generate_item(owner, bag, entry, slot, count=count)
+
+    @staticmethod
+    def generate_item(owner, bag, entry, slot, creator=0, count=1):
+        item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
+        if item_template and item_template.entry > 0:
             item = CharacterInventory(
                 owner=owner,
                 creator=creator,

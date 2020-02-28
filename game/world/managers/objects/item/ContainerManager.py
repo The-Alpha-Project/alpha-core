@@ -10,7 +10,8 @@ class ContainerManager(ItemManager):
     def __init__(self, owner, item_template=None, item_instance=None, is_backpack=False, **kwargs):
         super().__init__(item_template, item_instance, **kwargs)
 
-        self.update_packet_factory = UpdatePacketFactory([ObjectTypes.TYPE_ITEM,
+        self.update_packet_factory = UpdatePacketFactory([ObjectTypes.TYPE_OBJECT,
+                                                          ObjectTypes.TYPE_ITEM,
                                                           ObjectTypes.TYPE_CONTAINER])
 
         self.owner = owner
