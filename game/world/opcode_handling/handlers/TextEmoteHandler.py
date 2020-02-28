@@ -42,6 +42,7 @@ class TextEmoteHandler(object):
 
                 emote_id = emote.EmoteID
                 state = StandState.UNIT_STANDING
+                needs_broadcast = True
 
                 if emote_text_id == Emotes.SIT:
                     if not world_session.player_mgr.is_sitting:
@@ -58,8 +59,10 @@ class TextEmoteHandler(object):
                         state = StandState.UNIT_KNEEL
                     world_session.player_mgr.stand_state = state
                 else:
+                    needs_broadcast = False
                     world_session.player_mgr.play_emote(emote_id)
 
-                world_session.player_mgr.flagged_for_update = True
+                if needs_broadcast:
+                    world_session.player_mgr.flagged_for_update = True
 
         return 0
