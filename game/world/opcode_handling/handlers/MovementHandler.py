@@ -43,7 +43,8 @@ class MovementHandler(object):
                 world_session.player_mgr.sync_player()
 
                 if reader.opcode == OpCode.MSG_MOVE_JUMP and \
-                        world_session.player_mgr.stand_state != StandState.UNIT_DEAD:
+                        world_session.player_mgr.stand_state != StandState.UNIT_DEAD and \
+                        world_session.player_mgr.stand_state != StandState.UNIT_STANDING:
                     world_session.player_mgr.stand_state = StandState.UNIT_STANDING
                     world_session.player_mgr.flagged_for_update = True
 
