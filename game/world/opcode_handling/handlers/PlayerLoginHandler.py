@@ -45,7 +45,7 @@ class PlayerLoginHandler(object):
         # Clear Who list on login, otherwise the last search will appear
         PlayerLoginHandler._clear_who_list(socket)
 
-        world_session.player_mgr.inventory.load_items(world_session)
+        world_session.player_mgr.inventory.load_items()
 
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,

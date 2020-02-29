@@ -5,7 +5,7 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.item.ContainerManager import ContainerManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.UpdatePacketFactory import UpdatePacketFactory, UpdateTypes
-from utils.constants.ItemCodes import InventoryTypes, InventorySlots
+from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -14,19 +14,19 @@ class InventoryManager(object):
         self.containers = dict()
         self.owner = owner
 
-    def load_items(self, world_session):
+    def load_items(self):
         # Add backpack
         self.containers[InventorySlots.SLOT_INBACKPACK] = ContainerManager(is_backpack=True,
-                                                                           owner=world_session.player_mgr.guid)
+                                                                           owner=self.owner.guid)
 
-        character_inventory = RealmDatabaseManager.character_get_inventory(world_session.player_mgr.guid)
+        character_inventory = RealmDatabaseManager.character_get_inventory(self.owner.guid)
 
         # First load bags
         for item_instance in character_inventory:
             item_template = WorldDatabaseManager.item_template_get_by_entry(item_instance.item_template)
             if item_template and item_template.inventory_type == InventoryTypes.BAG:
                 container_mgr = ContainerManager(
-                    owner=world_session.player_mgr.guid,
+                    owner=self.owner.guid,
                     item_template=item_template,
                     item_instance=item_instance
                 )
@@ -50,6 +50,64 @@ class InventoryManager(object):
 
     def get_backpack(self):
         return self.containers[InventorySlots.SLOT_INBACKPACK]
+
+    def add_item(self, entry, count=1):
+        item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
+        if item_template:
+            if not self.can_store_item(item_template, count):
+                self.owner.send_equip_error(InventoryError.EQUIP_ERR_CANT_CARRY_MORE_OF_THIS)
+
+            if count <= item_template.stackable:
+                pass
+            # TODO: Finish
+        return None
+
+    def get_item_count(self, entry):
+        count = 0
+        for container_slot, container in list(self.containers.items()):
+            for slot, item in list(container.sorted_slots.items()):
+                if item.item_template.entry == entry:
+                    count += 1
+        return count
+
+    def can_store_item(self, item_template, count, on_bank=False):
+        amount = count
+
+        # Reached unique limit
+        if 0 < item_template.max_count <= self.get_item_count(item_template.entry):
+            return False
+
+        # Check backpack or bank
+        if not on_bank:
+            for x in range(InventorySlots.SLOT_ITEM_START, InventorySlots.SLOT_ITEM_END):
+                if x not in self.get_backpack():
+                    amount -= item_template.stackable
+        else:
+            for x in range(InventorySlots.SLOT_BANK_ITEM_START, InventorySlots.SLOT_BANK_ITEM_END):
+                if x not in self.get_backpack():
+                    amount -= item_template.stackable
+        if amount <= 0:
+            return True
+
+        for container_slot, container in list(self.containers.items()):
+            if container.is_backpack:
+                continue
+            if (on_bank and container_slot < InventorySlots.SLOT_BANK_BAG_1) or \
+                    (not on_bank and container_slot >= InventorySlots.SLOT_BANK_BAG_1):
+                continue
+
+            # Free slots * Max stack count
+            amount -= (container.total_slots - len(container.sorted_slots)) * item_template.stackable
+            if amount <= 0:
+                return True
+
+        return False
+
+    def get_next_available_slot(self):
+        for container_slot, container in list(self.containers.items()):
+            if not container.is_full():
+                return container.next_available_slot()
+        return -1
 
     def build_update(self, update_packet_factory):
         for slot, item in self.get_backpack().sorted_slots.items():

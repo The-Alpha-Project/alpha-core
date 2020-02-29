@@ -38,7 +38,7 @@ class ContainerManager(ItemManager):
 
     def add_item(self, item):
         if item:
-            slot = self.next_slot()
+            slot = self.next_available_slot()
             return slot >= 0 and self.set_item(item, slot)
 
     def get_item(self, slot):
@@ -46,12 +46,15 @@ class ContainerManager(ItemManager):
             return self.sorted_slots[slot]
         return None
 
-    def next_slot(self):
+    def next_available_slot(self):
         start_slot = InventorySlots.SLOT_INBACKPACK if self.is_backpack else 0
         for slot in range(start_slot, self.total_slots):
             if slot not in self.sorted_slots:
                 return slot
         return -1
+
+    def is_full(self):
+        return len(self.sorted_slots) >= self.total_slots
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or (63 <= slot < 69)

@@ -156,11 +156,10 @@ class ItemManager(ObjectManager):
                 count = 4
             elif item_template.inventory_type == 24:
                 count = 200
-            return ItemManager.generate_item(owner, bag, entry, slot, count=count)
+            return ItemManager.generate_item(item_template, owner, bag, slot, count=count)
 
     @staticmethod
-    def generate_item(owner, bag, entry, slot, creator=0, count=1):
-        item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
+    def generate_item(item_template, owner, bag, slot, creator=0, count=1):
         if item_template and item_template.entry > 0:
             item = CharacterInventory(
                 owner=owner,
