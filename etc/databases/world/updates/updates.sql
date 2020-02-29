@@ -141,6 +141,14 @@ begin not atomic
         update item_template set subclass = 5 where subclass = 6 and name like '%buckler%';
 
         insert into applied_updates values('29022021');
+    end if;
+
+    -- 29/02/2020 2
+    if (select count(*) from applied_updates where id='29022022') = 0 then
+        replace into page_text (entry, text) values (691, 'If you are reading this note, then you survived the ordeal of undeath and have returned to us to join the ranks of the Forsaken.   This new life is viewed by many as more of a curse than a blessing, but make of it what you will.$B$BWhen you are ready for more training in the path of arcane magics, then I will show you what you need to know.  You will find me in the old church in Deathknell.$B$B   -Isabella, Mage Trainer.');
+
+        insert into applied_updates values('29022022');
+    end if;
 end $
 delimiter ;
 
