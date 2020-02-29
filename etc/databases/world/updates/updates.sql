@@ -135,6 +135,12 @@ begin not atomic
 
         insert into applied_updates values('301220191');
     end if;
+
+    -- 29/02/2020 1
+    if (select count(*) from applied_updates where id='29022021') = 0 then
+        update item_template set subclass = 5 where subclass = 6 and name like '%buckler%';
+
+        insert into applied_updates values('29022021');
 end $
 delimiter ;
 
