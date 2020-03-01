@@ -201,7 +201,7 @@ class PlayerManager(UnitManager):
             OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
                                                               is_self=False)))
         GridManager.send_surrounding(update_packet, self, include_self=False)
-        GridManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=False)
+        GridManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
 
         for guid, player in list(GridManager.get_surrounding_players(self).items()):
             if self.guid != guid:
