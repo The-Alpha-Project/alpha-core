@@ -233,8 +233,6 @@ class ItemManager(ObjectManager):
             )
 
         description_bytes = PacketWriter.string_to_bytes(self.item_template.description)
-        if len(description_bytes) < 5:
-            description_bytes += b'\x00' * (5 - len(description_bytes))
         data += pack(
             '<I%us5IiI' % len(description_bytes),
             self.item_template.bonding,
