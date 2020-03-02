@@ -70,6 +70,11 @@ class InventoryManager(object):
                     count += 1
         return count
 
+    def get_item(self, bag, slot):
+        if bag in self.containers:
+            return self.containers[bag].get_item(slot)
+        return None
+
     def can_store_item(self, item_template, count, on_bank=False):
         amount = count
 

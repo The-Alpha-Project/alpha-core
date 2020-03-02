@@ -930,3 +930,11 @@ t_npc_gossip = Table(
     Column('npc_guid', ForeignKey('spawns_creatures.spawn_id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'")),
     Column('textid', ForeignKey('npc_text.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
 )
+
+
+class PageText(Base):
+    __tablename__ = 'page_text'
+
+    entry = Column(MEDIUMINT(8), primary_key=True)
+    text = Column(LONGTEXT, nullable=False, server_default=text("''"))
+    next_page = Column(MEDIUMINT(8), nullable=False)

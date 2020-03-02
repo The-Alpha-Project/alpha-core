@@ -86,3 +86,12 @@ class WorldDatabaseManager(object):
         res = world_db_session.query(ItemTemplate).filter_by(entry=entry).first()
         world_db_session.close()
         return res
+
+    # Page text stuff
+
+    @staticmethod
+    def page_text_get_by_id(page_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PageText).filter_by(entry=page_id).first()
+        world_db_session.close()
+        return res

@@ -25,6 +25,8 @@ from game.world.opcode_handling.handlers.PlayerMacroHandler import PlayerMacroHa
 from game.world.opcode_handling.handlers.StandStateChangeHandler import StandStateChangeHandler
 from game.world.opcode_handling.handlers.MountSpecialAnimHandler import MountSpecialAnimHandler
 from game.world.opcode_handling.handlers.SetWeaponModeHandler import SetWeaponModeHandler
+from game.world.opcode_handling.handlers.PageTextQueryHandler import PageTextQueryHandler
+from game.world.opcode_handling.handlers.ReadItemHandler import ReadItemHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -62,6 +64,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_STANDSTATECHANGE: StandStateChangeHandler.handle,
     OpCode.CMSG_MOUNTSPECIAL_ANIM: MountSpecialAnimHandler.handle,
     OpCode.CMSG_SETWEAPONMODE: SetWeaponModeHandler.handle,
+    OpCode.CMSG_PAGE_TEXT_QUERY: PageTextQueryHandler.handle,
+    OpCode.CMSG_READ_ITEM: ReadItemHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,
