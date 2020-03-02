@@ -157,6 +157,7 @@ class ItemManager(ObjectManager):
             elif item_template.inventory_type == 24:
                 count = 200
             return ItemManager.generate_item(item_template, owner, bag, slot, count=count)
+        return None
 
     @staticmethod
     def generate_item(item_template, owner, bag, slot, creator=0, count=1):
