@@ -79,7 +79,10 @@ class CommandManager(object):
 
     @staticmethod
     def tel(world_session, args):
-        tel_name = args.split()[0]
+        try:
+            tel_name = args.split()[0]
+        except IndexError:
+            return -1, 'please specify a location name.'
         location = WorldDatabaseManager.worldport_get_by_name(tel_name)
 
         if location:
