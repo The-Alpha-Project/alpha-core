@@ -52,9 +52,9 @@ class PlayerLoginHandler(object):
             world_session.player_mgr.get_update_packet(update_type=UpdateTypes.UPDATE_FULL)))
         socket.sendall(update_packet)
 
-        PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
         time.sleep(0.5)
         world_session.player_mgr.complete_login()
+        PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
 
         return 0
 
