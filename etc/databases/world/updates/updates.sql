@@ -149,6 +149,16 @@ begin not atomic
 
         insert into applied_updates values('29022022');
     end if;
+
+    -- 2/03/2020 1
+    if (select count(*) from applied_updates where id='02032021') = 0 then
+        update item_template set display_id = 11160 where entry = 6277;
+        update item_template set display_id = 11161 where entry = 6278;
+        update item_template set display_id = 3093 where entry = 6279;
+        update item_template set display_id = 3093 where entry = 6280;
+
+        insert into applied_updates values('02032021');
+    end if;
 end $
 delimiter ;
 
