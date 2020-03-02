@@ -224,7 +224,7 @@ class ItemManager(ObjectManager):
 
         for spell_stat in self.spell_stats:
             data += pack(
-                '<5i',
+                '<Q4i',
                 spell_stat.spell_id,
                 spell_stat.trigger,
                 spell_stat.charges,
