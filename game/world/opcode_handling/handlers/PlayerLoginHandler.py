@@ -53,7 +53,6 @@ class PlayerLoginHandler(object):
         socket.sendall(update_packet)
 
         PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
-        time.sleep(0.5)
         world_session.player_mgr.complete_login()
 
         return 0
