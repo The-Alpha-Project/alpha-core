@@ -2,6 +2,7 @@ from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import *
+from utils.GameTextFormatter import GameTextFormatter
 
 
 class PageTextQueryHandler(object):
@@ -18,7 +19,8 @@ class PageTextQueryHandler(object):
                 data = pack('<I', page_id)
 
                 if page:
-                    page_text_bytes = PacketWriter.string_to_bytes(page.text)
+                    page_text_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(world_session.player_mgr,
+                                                                                            page.text))
                     page_id = page.next_page
                     data += pack(
                         '%usI' % len(page_text_bytes),
