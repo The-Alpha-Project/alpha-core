@@ -6,12 +6,15 @@ class GameTextFormatter(object):
     @staticmethod
     def format(player_mgr, text):
         # TODO: Handle $G male:female
-        text = GameTextFormatter.replace_all(text, '$B', '\n')
-        text = GameTextFormatter.replace_all(text, '$N', player_mgr.player.name)
-        text = GameTextFormatter.replace_all(text, '$R', GameTextFormatter.race_to_text(player_mgr.player.race))
-        text = GameTextFormatter.replace_all(text, '$C', GameTextFormatter.class_to_text(player_mgr.player.class_))
-
-        return text
+        return text \
+            .replace('$B', '\n') \
+            .replace('$b', '\n') \
+            .replace('$N', player_mgr.player.name) \
+            .replace('$n', player_mgr.player.name) \
+            .replace('$R', GameTextFormatter.race_to_text(player_mgr.player.race)) \
+            .replace('$r', GameTextFormatter.race_to_text(player_mgr.player.race).lower()) \
+            .replace('$C', GameTextFormatter.class_to_text(player_mgr.player.class_)) \
+            .replace('$c', GameTextFormatter.class_to_text(player_mgr.player.class_).lower())
 
     @staticmethod
     def class_to_text(class_):
@@ -54,8 +57,3 @@ class GameTextFormatter(object):
         elif race == 8:
             return 'Troll'
         return ''
-
-    @staticmethod
-    def replace_all(text, old, new):
-        pattern = re.compile(re.escape(old), re.IGNORECASE)
-        return re.sub(pattern, new, text)
