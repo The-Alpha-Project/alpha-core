@@ -56,9 +56,6 @@ class ContainerManager(ItemManager):
     def is_full(self):
         return len(self.sorted_slots) >= self.total_slots
 
-    def is_bag_pos(self, slot):
-        return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or (63 <= slot < 69)
-
     # override
     def get_type(self):
         return ObjectTypes.TYPE_CONTAINER

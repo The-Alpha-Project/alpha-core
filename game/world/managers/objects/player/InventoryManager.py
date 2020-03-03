@@ -30,7 +30,7 @@ class InventoryManager(object):
                     item_template=item_template,
                     item_instance=item_instance
                 )
-                if 19 <= container_mgr.current_slot <= 22 or 63 <= container_mgr.current_slot <= 68:
+                if self.is_bag_pos(container_mgr.current_slot):
                     self.containers[item_instance.bag].sorted_slots[container_mgr.current_slot] = container_mgr
                     self.containers[container_mgr.current_slot] = container_mgr
 
@@ -42,8 +42,7 @@ class InventoryManager(object):
                     item_template=item_template,
                     item_instance=item_instance
                 )
-                if item_mgr.is_container() and (19 <= item_mgr.current_slot <= 22 or
-                                                63 <= item_mgr.current_slot <= 68):
+                if item_mgr.is_container() and self.is_bag_pos(item_mgr.current_slot):
                     continue
                 if item_instance.bag in self.containers:
                     self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
@@ -113,6 +112,10 @@ class InventoryManager(object):
             if not container.is_full():
                 return container.next_available_slot()
         return -1
+
+    def is_bag_pos(self, slot):
+        return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
+               (InventorySlots.SLOT_BANK_BAG_1 <= slot < InventorySlots.SLOT_BANK_END)
 
     def build_update(self, update_packet_factory):
         for slot, item in self.get_backpack().sorted_slots.items():
