@@ -57,6 +57,7 @@ class ItemManager(ObjectManager):
         self.guid = item_instance.guid if item_instance else 0
         self.current_slot = item_instance.slot if item_instance else 0
         self.is_contained = item_instance.owner if item_instance else 0
+        self.is_backpack = False
 
         self.stats = []
         self.damage_stats = []

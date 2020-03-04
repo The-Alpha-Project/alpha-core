@@ -353,19 +353,6 @@ class PlayerManager(UnitManager):
             if spell_to_load:
                 self.spells.append(spell_to_load)
 
-    def send_equip_error(self, error, item_1=None, item_2=None):
-        data = pack('<B', error)
-        if error != InventoryError.EQUIP_ERR_OK:
-            if error == InventoryError.EQUIP_ERR_CANT_EQUIP_LEVEL_I:
-                data += pack('<I', item_1.item_template.required_level if item_1 else 0)
-            data += pack(
-                '<2QB',
-                item_1.guid if item_1 else self.guid,
-                item_2.guid if item_2 else self.guid,
-                0
-            )
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_INVENTORY_CHANGE_FAILURE, data))
-
     # TODO: UPDATE_PARTIAL is not being used anywhere (it's implemented but not sure if it works correctly).
     # override
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):

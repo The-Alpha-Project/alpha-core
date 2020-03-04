@@ -32,10 +32,15 @@ class ContainerManager(ItemManager):
         self.object_type.append(ObjectTypes.TYPE_CONTAINER)
 
     def set_item(self, item, slot, count=1):
-        if not item or len(self.sorted_slots) == self.total_slots or slot > self.total_slots or item == self:
+        if not item or len(self.sorted_slots) == self.total_slots or slot > self.total_slots:
             return None
 
-        item_mgr = ItemManager.generate_item(item, self.owner, self.current_slot, slot, count=count)
+        if isinstance(item, ItemManager):
+            item_mgr = item
+            if item_mgr == self:
+                return None
+        else:
+            item_mgr = ItemManager.generate_item(item, self.owner, self.current_slot, slot, count=count)
         if item_mgr:
             item_mgr.current_slot = slot
             self.sorted_slots[slot] = item_mgr
@@ -53,6 +58,17 @@ class ContainerManager(ItemManager):
         if slot in self.sorted_slots:
             return self.sorted_slots[slot]
         return None
+
+    def remove_item(self, item):
+        if item:
+            return self.remove_item_in_slot(item.current_slot)
+        return False
+
+    def remove_item_in_slot(self, slot):
+        if slot in self.sorted_slots:
+            self.sorted_slots.pop(slot)
+            return True
+        return False
 
     def next_available_slot(self):
         start_slot = InventorySlots.SLOT_INBACKPACK.value if self.is_backpack else 0

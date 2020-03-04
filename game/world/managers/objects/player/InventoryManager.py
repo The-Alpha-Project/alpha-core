@@ -1,3 +1,5 @@
+from struct import pack
+
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
@@ -6,6 +8,7 @@ from game.world.managers.objects.item.ContainerManager import ContainerManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.UpdatePacketFactory import UpdatePacketFactory, UpdateTypes
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError
+from utils.constants.ObjectCodes import BankSlots
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -54,7 +57,7 @@ class InventoryManager(object):
         item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
         if item_template:
             if not self.can_store_item(item_template, count):
-                self.owner.send_equip_error(InventoryError.EQUIP_ERR_CANT_CARRY_MORE_OF_THIS)
+                self.send_equip_error(InventoryError.EQUIP_ERR_CANT_CARRY_MORE_OF_THIS)
 
             if count <= item_template.stackable:
                 for slot, container in self.containers.items():
@@ -67,9 +70,140 @@ class InventoryManager(object):
                             return item_mgr
         return None
 
+    # TODO: Entire method is not properly working, check it and fix it
     def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):
-        # TODO: Finish
-        pass
+        if source_bag not in self.containers or dest_bag not in self.containers:
+            return
+
+        source_container = self.containers[source_bag]
+        dest_container = self.containers[dest_bag]
+        source_item = source_container.get_item(source_slot)
+        dest_item = dest_container.get_item(dest_slot)
+
+        if source_item:
+            if not self.owner.is_alive:
+                self.send_equip_error(InventoryError.EQUIP_ERR_YOU_ARE_DEAD, source_item, dest_item)
+                return
+
+            # Check backpack / paperdoll placement
+            if source_container.is_backpack:
+                if source_item.item_template.required_level > self.owner.level and \
+                        self.is_equipment_pos(dest_bag, dest_slot):
+                    # Not enough level
+                    self.send_equip_error(InventoryError.EQUIP_ERR_CANT_EQUIP_LEVEL_I, source_item, dest_item)
+                    return
+
+            # Destination slot checks
+            if dest_container.is_backpack:
+                if self.is_equipment_pos(dest_bag, dest_slot) and dest_slot != source_item.current_slot \
+                        and source_item.current_slot != InventorySlots.SLOT_INBACKPACK or \
+                        self.is_bag_pos(dest_slot) and source_item.item_tempalte.class_ != InventoryTypes.BAG:
+                    self.send_equip_error(InventoryError.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, source_item, dest_item)
+                    return
+
+            # Original item being swapped to backpack
+            if dest_item and source_container.is_backpack:
+                if self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot):
+                    # Wrong destination slot
+                    if source_slot != dest_item.current_slot and dest_item.current_slot \
+                            != InventorySlots.SLOT_INBACKPACK:
+                        self.send_equip_error(InventoryError.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, source_item, dest_item)
+                        return
+
+                    # Not enough level
+                    if dest_item.item_template.required_level > self.owner.level:
+                        self.send_equip_error(InventoryError.EQUIP_ERR_CANT_EQUIP_LEVEL_I, source_item, dest_item)
+                        return
+
+                    # Wrong destination slot
+                    if dest_item.class_ == InventoryTypes.BAG and self.is_equipment_pos(source_bag, source_slot):
+                        self.send_equip_error(InventoryError.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, source_item, dest_item)
+                        return
+
+            # Prevent non empty bag in bag
+            if source_container.is_backpack and self.is_bag_pos(source_slot) and source_slot == dest_bag:
+                self.send_equip_error(InventoryError.EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG, source_item, dest_item)
+                return
+            elif dest_container.is_backpack and self.is_bag_pos(dest_slot) and dest_slot == source_bag:
+                self.send_equip_error(InventoryError.EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG, dest_item, source_item)
+                return
+
+            # Check for requirements
+            if source_item.item_template.required_level > self.owner.level:
+                self.send_equip_error(InventoryError.EQUIP_ERR_CANT_EQUIP_LEVEL_I, source_item, dest_item)
+                return
+
+            # Stack handling
+            if dest_item and source_item.item_template.entry == dest_item.item_template.entry \
+                    and dest_item.item_template.stackable > dest_item.item_instance.stackcount:
+                diff = dest_item.item_template.stackable - dest_item.item_instance.stackcount
+                if diff >= source_item.item_instance.stackcount:
+                    # Destroy source stack
+                    dest_item.item_instance.stackcount += source_item.item_instance.stackcount
+                    if source_bag in self.containers:
+                        self.containers[source_bag].remove_item_in_slot(source_slot)
+                else:
+                    # Update stack values
+                    source_item.item_instance.stackcount -= diff
+                    dest_item.item_instance.stackcount = dest_item.item_template.stackable
+
+                self.owner.session.request.sendall(PacketWriter.get_packet(
+                    OpCode.SMSG_UPDATE_OBJECT,
+                    self.owner.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
+                return
+
+            # Actual transfer
+
+            # Remove items
+            if source_bag in self.containers:
+                self.containers[source_bag].remove_item_in_slot(source_slot)
+            if dest_bag in self.containers:
+                self.containers[dest_bag].remove_item_in_slot(dest_bag)
+
+            if source_item.is_backpack and self.is_bag_pos(source_slot):
+                if len(source_item.sorted_slots) == 0:
+                    self.remove_bag(source_slot)
+                else:
+                    self.send_equip_error(InventoryError.EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS, source_item, dest_item)
+                    return
+
+            if dest_item and dest_item.is_backpack and self.is_bag_pos(dest_slot):
+                if len(dest_item.sorted_slots) == 0:
+                    self.remove_bag(dest_slot)
+                else:
+                    self.send_equip_error(InventoryError.EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS, source_item, dest_item)
+                    return
+
+            # Bag transfers
+            if source_item and dest_item and dest_item.is_backpack and self.is_bag_pos(dest_slot) \
+                    and source_item.is_container():
+                self.add_bag(dest_slot, source_item)
+
+            if dest_item and source_item and source_item.is_backpack and self.is_bag_pos(source_slot) \
+                    and dest_item.is_container():
+                self.add_bag(source_slot, dest_item)
+
+            # Add items
+            if source_item and source_bag in self.containers:
+                self.containers[source_bag].set_item(source_item, dest_slot, source_item.item_instance.stackcount)
+            if dest_item and dest_bag in self.containers:
+                self.containers[dest_bag].set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
+
+            # Update attack time
+            if source_item == InventorySlots.SLOT_MAINHAND and source_item.is_backpack or \
+                    dest_slot == InventorySlots.SLOT_MAINHAND and dest_item.is_backpack:
+                self.set_base_attack_time()
+
+            self.owner.session.request.sendall(PacketWriter.get_packet(
+                OpCode.SMSG_UPDATE_OBJECT,
+                self.owner.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
+
+    def set_base_attack_time(self):
+        weapon = self.get_backpack().sorted_slots[InventorySlots.SLOT_MAINHAND]
+        if weapon:
+            self.owner.base_attack_time = weapon.item_template.delay
+        else:
+            self.owner.base_attack_time = 1400
 
     def get_item_count(self, entry):
         count = 0
@@ -83,6 +217,20 @@ class InventoryManager(object):
         if bag in self.containers:
             return self.containers[bag].get_item(slot)
         return None
+
+    def add_bag(self, slot, container):
+        if not self.is_bag_pos(slot):
+            return False
+
+        self.containers[slot] = container
+        return True
+
+    def remove_bag(self, slot):
+        if not self.is_bag_pos(slot) or slot not in self.containers:
+            return False
+
+        self.containers.pop(slot)
+        return False
 
     def can_store_item(self, item_template, count, on_bank=False):
         amount = count
@@ -126,6 +274,38 @@ class InventoryManager(object):
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
                (InventorySlots.SLOT_BANK_BAG_1 <= slot < InventorySlots.SLOT_BANK_END)
+
+    def is_bank_slot(self, bag_slot, slot):
+        if bag_slot == InventorySlots.SLOT_INBACKPACK:
+            if slot >= BankSlots.BANK_SLOT_ITEM_START < BankSlots.BANK_SLOT_ITEM_END:
+                return True
+            if slot >= BankSlots.BANK_SLOT_BAG_START < BankSlots.BANK_SLOT_BAG_END:
+                return True
+
+        if BankSlots.BANK_SLOT_BAG_START <= bag_slot < BankSlots.BANK_SLOT_BAG_END:
+            return True
+
+        return False
+
+    def is_equipment_pos(self, bag_slot, slot):
+        return bag_slot == InventorySlots.SLOT_INBACKPACK and slot < InventorySlots.SLOT_BAG1
+
+    def is_inventory_pos(self, bag_slot, slot):
+        return bag_slot == InventorySlots.SLOT_INBACKPACK \
+               and InventorySlots.SLOT_ITEM_START <= slot < InventorySlots.SLOT_ITEM_END
+
+    def send_equip_error(self, error, item_1=None, item_2=None):
+        data = pack('<B', error)
+        if error != InventoryError.EQUIP_ERR_OK:
+            if error == InventoryError.EQUIP_ERR_CANT_EQUIP_LEVEL_I:
+                data += pack('<I', item_1.item_template.required_level if item_1 else 0)
+            data += pack(
+                '<2QB',
+                item_1.guid if item_1 else self.owner.guid,
+                item_2.guid if item_2 else self.owner.guid,
+                0
+            )
+        self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_INVENTORY_CHANGE_FAILURE, data))
 
     def build_update(self, update_packet_factory):
         for slot, item in self.get_backpack().sorted_slots.items():
