@@ -1,3 +1,4 @@
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.ItemCodes import InventorySlots
@@ -16,6 +17,8 @@ class ContainerManager(ItemManager):
 
         self.owner = owner
         self.is_backpack = is_backpack
+        if self.is_backpack:
+            self.current_slot = InventorySlots.SLOT_INBACKPACK.value
 
         self.sorted_slots = dict()
 
@@ -28,18 +31,23 @@ class ContainerManager(ItemManager):
 
         self.object_type.append(ObjectTypes.TYPE_CONTAINER)
 
-    def set_item(self, item, slot):
+    def set_item(self, item, slot, count=1):
         if not item or len(self.sorted_slots) == self.total_slots or slot > self.total_slots or item == self:
-            return False
+            return None
 
-        item.current_slot = slot
-        self.sorted_slots[slot] = item
-        return True
+        item_mgr = ItemManager.generate_item(item, self.owner, self.current_slot, slot, count=count)
+        if item_mgr:
+            item_mgr.current_slot = slot
+            self.sorted_slots[slot] = item_mgr
 
-    def add_item(self, item):
+        return item_mgr
+
+    def add_item(self, item, count=1):
         if item:
             slot = self.next_available_slot()
-            return slot >= 0 and self.set_item(item, slot)
+            if slot >= 0:
+                return self.set_item(item, slot, count)
+        return None
 
     def get_item(self, slot):
         if slot in self.sorted_slots:
@@ -47,7 +55,7 @@ class ContainerManager(ItemManager):
         return None
 
     def next_available_slot(self):
-        start_slot = InventorySlots.SLOT_INBACKPACK if self.is_backpack else 0
+        start_slot = InventorySlots.SLOT_INBACKPACK.value if self.is_backpack else 0
         for slot in range(start_slot, self.total_slots):
             if slot not in self.sorted_slots:
                 return slot

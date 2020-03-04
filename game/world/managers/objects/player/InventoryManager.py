@@ -57,8 +57,14 @@ class InventoryManager(object):
                 self.owner.send_equip_error(InventoryError.EQUIP_ERR_CANT_CARRY_MORE_OF_THIS)
 
             if count <= item_template.stackable:
-                pass
-            # TODO: Finish
+                for slot, container in self.containers.items():
+                    if not container.is_full():
+                        item_mgr = container.add_item(item_template)
+                        if item_mgr:
+                            self.owner.session.request.sendall(PacketWriter.get_packet(
+                                OpCode.SMSG_UPDATE_OBJECT,
+                                self.owner.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
+                            return item_mgr
         return None
 
     def get_item_count(self, entry):
@@ -84,11 +90,11 @@ class InventoryManager(object):
         # Check backpack or bank
         if not on_bank:
             for x in range(InventorySlots.SLOT_ITEM_START, InventorySlots.SLOT_ITEM_END):
-                if x not in self.get_backpack():
+                if x not in self.get_backpack().sorted_slots:
                     amount -= item_template.stackable
         else:
             for x in range(InventorySlots.SLOT_BANK_ITEM_START, InventorySlots.SLOT_BANK_ITEM_END):
-                if x not in self.get_backpack():
+                if x not in self.get_backpack().sorted_slots:
                     amount -= item_template.stackable
         if amount <= 0:
             return True

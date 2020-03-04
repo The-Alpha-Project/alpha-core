@@ -229,6 +229,18 @@ class CommandManager(object):
         world_session.player_mgr.demorph()
         return 0, ''
 
+    @staticmethod
+    def additem(world_session, args):
+        try:
+            entry = int(args)
+            item_mgr = world_session.player_mgr.inventory.add_item(entry)
+            if item_mgr:
+                return 0, ''
+            else:
+                return -1, 'unable to find and / or add that item.'
+        except ValueError:
+            return -1, 'please specify a valid item entry.'
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help
@@ -249,5 +261,6 @@ GM_COMMAND_DEFINITIONS = {
     'mount': CommandManager.mount,
     'unmount': CommandManager.unmount,
     'morph': CommandManager.morph,
-    'demorph': CommandManager.demorph
+    'demorph': CommandManager.demorph,
+    'additem': CommandManager.additem
 }
