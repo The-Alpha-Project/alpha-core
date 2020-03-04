@@ -67,6 +67,10 @@ class InventoryManager(object):
                             return item_mgr
         return None
 
+    def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):
+        # TODO: Finish
+        pass
+
     def get_item_count(self, entry):
         count = 0
         for container_slot, container in list(self.containers.items()):

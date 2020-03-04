@@ -1,17 +1,19 @@
 from struct import pack, unpack
 
 from network.packet.PacketWriter import *
-from utils.constants.ItemCodes import InventoryError
+from utils.constants.ItemCodes import InventoryError, InventorySlots
 
 
 class ReadItemHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
+        # Seems CMSG_READ_ITEM is only called if the item is in the backpack, weird.
         if len(reader.data) >= 2:  # Avoid handling empty read item packet
             bag, slot = unpack('<2B', reader.data[:2])
-            # Seems like bag is always 255 and CMSG_READ_ITEM is only called if the item is in the backpack, weird.
-            item = world_session.player_mgr.inventory.get_backpack().get_item(slot)
+            if bag == 0xFF:
+                bag = InventorySlots.SLOT_INBACKPACK.value
+            item = world_session.player_mgr.inventory.get_item(bag, slot)
             data = b''
 
             # TODO: Better handling of this: check if player can use item, etc.
