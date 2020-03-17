@@ -189,8 +189,8 @@ class InventoryManager(object):
                 self.containers[dest_bag].set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
 
             # Update attack time
-            if source_item and source_slot == InventorySlots.SLOT_MAINHAND and source_item.is_backpack or \
-                    dest_item and dest_slot == InventorySlots.SLOT_MAINHAND and dest_item.is_backpack:
+            if source_slot == InventorySlots.SLOT_MAINHAND or \
+                    dest_slot == InventorySlots.SLOT_MAINHAND:
                 self.set_base_attack_time()
 
             self.owner.session.request.sendall(PacketWriter.get_packet(
@@ -198,11 +198,12 @@ class InventoryManager(object):
                 self.owner.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
 
     def set_base_attack_time(self):
-        weapon = self.get_backpack().sorted_slots[InventorySlots.SLOT_MAINHAND]
-        if weapon:
-            self.owner.base_attack_time = weapon.item_template.delay
-        else:
-            self.owner.base_attack_time = 1400
+        if InventorySlots.SLOT_MAINHAND in self.get_backpack().sorted_slots:
+            weapon = self.get_backpack().sorted_slots[InventorySlots.SLOT_MAINHAND]
+            if weapon:
+                self.owner.base_attack_time = weapon.item_template.delay
+            return
+        self.owner.base_attack_time = 1400
 
     def get_item_count(self, entry):
         count = 0
