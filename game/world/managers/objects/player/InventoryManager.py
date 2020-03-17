@@ -70,7 +70,6 @@ class InventoryManager(object):
                             return item_mgr
         return None
 
-    # TODO: Items are disappearing when moving around the backpack, check that.
     def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):
         if source_bag not in self.containers or dest_bag not in self.containers:
             return
@@ -158,7 +157,7 @@ class InventoryManager(object):
             if source_bag in self.containers:
                 self.containers[source_bag].remove_item_in_slot(source_slot)
             if dest_bag in self.containers:
-                self.containers[dest_bag].remove_item_in_slot(dest_bag)
+                self.containers[dest_bag].remove_item_in_slot(dest_slot)
 
             if source_item.is_backpack and self.is_bag_pos(source_slot):
                 if len(source_item.sorted_slots) == 0:
@@ -190,8 +189,8 @@ class InventoryManager(object):
                 self.containers[dest_bag].set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
 
             # Update attack time
-            if source_item == InventorySlots.SLOT_MAINHAND and source_item.is_backpack or \
-                    dest_slot == InventorySlots.SLOT_MAINHAND and dest_item.is_backpack:
+            if source_item and source_slot == InventorySlots.SLOT_MAINHAND and source_item.is_backpack or \
+                    dest_item and dest_slot == InventorySlots.SLOT_MAINHAND and dest_item.is_backpack:
                 self.set_base_attack_time()
 
             self.owner.session.request.sendall(PacketWriter.get_packet(
