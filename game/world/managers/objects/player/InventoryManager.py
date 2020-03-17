@@ -70,7 +70,7 @@ class InventoryManager(object):
                             return item_mgr
         return None
 
-    # TODO: Entire method is not properly working, check it and fix it
+    # TODO: Items are disappearing when moving around the backpack, check that.
     def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):
         if source_bag not in self.containers or dest_bag not in self.containers:
             return
@@ -95,8 +95,8 @@ class InventoryManager(object):
 
             # Destination slot checks
             if dest_container.is_backpack:
-                if self.is_equipment_pos(dest_bag, dest_slot) and dest_slot != source_item.current_slot \
-                        and source_item.current_slot != InventorySlots.SLOT_INBACKPACK or \
+                if self.is_equipment_pos(dest_bag, dest_slot) and dest_slot != source_item.equip_slot \
+                        and source_item.equip_slot != InventorySlots.SLOT_INBACKPACK or \
                         self.is_bag_pos(dest_slot) and source_item.item_tempalte.class_ != InventoryTypes.BAG:
                     self.send_equip_error(InventoryError.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, source_item, dest_item)
                     return
@@ -105,7 +105,7 @@ class InventoryManager(object):
             if dest_item and source_container.is_backpack:
                 if self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot):
                     # Wrong destination slot
-                    if source_slot != dest_item.current_slot and dest_item.current_slot \
+                    if source_slot != dest_item.equip_slot and dest_item.equip_slot \
                             != InventorySlots.SLOT_INBACKPACK:
                         self.send_equip_error(InventoryError.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, source_item, dest_item)
                         return
