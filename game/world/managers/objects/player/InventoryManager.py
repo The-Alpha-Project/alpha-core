@@ -7,6 +7,7 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.item.ContainerManager import ContainerManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.UpdatePacketFactory import UpdatePacketFactory, UpdateTypes
+from utils.ConfigManager import config
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError
 from utils.constants.ObjectCodes import BankSlots
 from utils.constants.UpdateFields import PlayerFields
@@ -203,7 +204,7 @@ class InventoryManager(object):
             if weapon:
                 self.owner.base_attack_time = weapon.item_template.delay
             return
-        self.owner.base_attack_time = 1400
+        self.owner.base_attack_time = config.Unit.Defaults.base_attack_time
 
     def get_item_count(self, entry):
         count = 0
