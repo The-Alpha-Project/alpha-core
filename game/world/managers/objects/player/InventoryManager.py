@@ -51,6 +51,8 @@ class InventoryManager(object):
                 if item_instance.bag in self.containers:
                     self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
 
+        self.set_base_attack_time()
+
     def get_backpack(self):
         return self.containers[InventorySlots.SLOT_INBACKPACK]
 
