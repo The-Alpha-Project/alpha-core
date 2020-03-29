@@ -82,7 +82,7 @@ class PlayerManager(UnitManager):
             self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
             self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
             self.player_bytes = unpack('<I', pack('<4B', self.player.skin, self.player.face, self.player.hairstyle, self.player.haircolour))[0]
-            self.player_bytes_2 = unpack('>I', pack('>4B', self.player.extra_flags, self.player.bankslots, self.player.facialhair, 0))[0]
+            self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
             self.map_ = self.player.map
             self.zone = self.player.zone
             self.location.x = self.player.position_x
