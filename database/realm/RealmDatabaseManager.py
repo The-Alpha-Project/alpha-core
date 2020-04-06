@@ -35,6 +35,8 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         account = Account(name=username, password=password, ip=ip, gmlevel=0)
         realm_db_session.add(account)
+        realm_db_session.flush()
+        realm_db_session.refresh(account)
         realm_db_session.close()
         return AccountManager(account)
 
