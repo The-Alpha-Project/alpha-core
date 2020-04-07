@@ -99,7 +99,7 @@ class InventoryManager(object):
             if dest_container.is_backpack:
                 if self.is_equipment_pos(dest_bag, dest_slot) and dest_slot != source_item.equip_slot \
                         and source_item.equip_slot != InventorySlots.SLOT_INBACKPACK or \
-                        self.is_bag_pos(dest_slot) and source_item.item_tempalte.class_ != InventoryTypes.BAG:
+                        self.is_bag_pos(dest_slot) and source_item.item_template.inventory_type != InventoryTypes.BAG:
                     self.send_equip_error(InventoryError.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, source_item, dest_item)
                     return
 
