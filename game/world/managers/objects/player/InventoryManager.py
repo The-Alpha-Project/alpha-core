@@ -130,11 +130,6 @@ class InventoryManager(object):
                 self.send_equip_error(InventoryError.EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG, dest_item, source_item)
                 return
 
-            # Check for requirements
-            if source_item.item_template.required_level > self.owner.level:
-                self.send_equip_error(InventoryError.EQUIP_ERR_CANT_EQUIP_LEVEL_I, source_item, dest_item)
-                return
-
             # Stack handling
             if dest_item and source_item.item_template.entry == dest_item.item_template.entry \
                     and dest_item.item_template.stackable > dest_item.item_instance.stackcount:
