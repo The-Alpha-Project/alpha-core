@@ -28,6 +28,7 @@ from game.world.opcode_handling.handlers.SetWeaponModeHandler import SetWeaponMo
 from game.world.opcode_handling.handlers.PageTextQueryHandler import PageTextQueryHandler
 from game.world.opcode_handling.handlers.ReadItemHandler import ReadItemHandler
 from game.world.opcode_handling.handlers.SwapInvItemHandler import SwapInvItemHandler
+from game.world.opcode_handling.handlers.DestroyItemHandler import DestroyItemHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -68,6 +69,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_PAGE_TEXT_QUERY: PageTextQueryHandler.handle,
     OpCode.CMSG_READ_ITEM: ReadItemHandler.handle,
     OpCode.CMSG_SWAP_INV_ITEM: SwapInvItemHandler.handle,
+    OpCode.CMSG_DESTROYITEM: DestroyItemHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

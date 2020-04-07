@@ -122,6 +122,14 @@ class RealmDatabaseManager(object):
             realm_db_session.close()
 
     @staticmethod
+    def character_inventory_delete(item):
+        if item:
+            realm_db_session = SessionHolder()
+            realm_db_session.delete(item)
+            realm_db_session.flush()
+            realm_db_session.close()
+
+    @staticmethod
     def character_get_inventory(guid):
         realm_db_session = SessionHolder()
         inventory = realm_db_session.query(CharacterInventory).filter_by(owner=guid).all()
