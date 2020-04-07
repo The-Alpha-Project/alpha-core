@@ -216,6 +216,16 @@ begin not atomic
 
         insert into applied_updates values('07042021');
     end if;
+
+    -- 07/04/2020 2
+    if (select count(*) from applied_updates where id='07042022') = 0 then
+        update item_template set name = 'Jagged Knife', display_id = 6442 where entry = 2484;
+        update item_template set name = 'Battle Buckler', display_id = 2632 where entry = 3649;
+        update item_template set name = 'Scroll of Spirit Armor' where entry = 3013;
+        update item_template set name = 'Brackwater Buckler' where entry = 3653;
+
+        insert into applied_updates values('07042022');
+    end if;
 end $
 delimiter ;
 
