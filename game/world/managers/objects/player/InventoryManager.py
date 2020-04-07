@@ -197,9 +197,12 @@ class InventoryManager(object):
                     dest_slot == InventorySlots.SLOT_MAINHAND:
                 self.set_base_attack_time()
 
-            self.owner.session.request.sendall(PacketWriter.get_packet(
-                OpCode.SMSG_UPDATE_OBJECT,
-                self.owner.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
+            if self.is_equipment_pos(source_bag, source_slot) or self.is_equipment_pos(dest_bag, dest_slot):
+                self.owner.flagged_for_update = True
+            else:
+                self.owner.session.request.sendall(PacketWriter.get_packet(
+                    OpCode.SMSG_UPDATE_OBJECT,
+                    self.owner.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
 
     def set_base_attack_time(self):
         if InventorySlots.SLOT_MAINHAND in self.get_backpack().sorted_slots:
