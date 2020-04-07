@@ -169,6 +169,53 @@ begin not atomic
 
         insert into applied_updates values('16032021');
     end if;
+
+    -- 07/04/2020 1
+    if (select count(*) from applied_updates where id='07042021') = 0 then
+        update item_template set name = 'Primitive Leather Belt' where entry = 152;
+
+        update item_template set name = 'Brawler\'s Pants', display_id = 9988 where entry = 139;
+        update item_template set name = 'Shortsword of Vengeance', display_id = 8276 where entry = 754;
+        update item_template set name = 'Heavy Weave Shoes', display_id = 3757 where entry = 840;
+        update item_template set name = 'Chainmail Armor', display_id = 1019 where entry = 847;
+        update item_template set name = 'Chainmail Pants', display_id = 697 where entry = 848;
+        update item_template set name = 'Libram: Resurrection', display_id = 1155 where entry = 1146;
+        update item_template set name = 'Frayed Shoes', display_id = 4143 where entry = 1374;
+        update item_template set name = 'Rusty Hatchet', display_id = 8495 where entry = 1416;
+        update item_template set name = 'Patchwork Shoes', display_id = 4143 where entry = 1427;
+        update item_template set name = 'Calico Shoes', display_id = 3757 where entry = 1495;
+        update item_template set name = 'Tanglewood Staff', display_id = 2840 where entry = 1720;
+        update item_template set name = 'Mithril Warhammer', display_id = 8581 where entry = 1721;
+        update item_template set name = 'Dusty Chain Armor', display_id = 1727 where entry = 2016;
+        update item_template set name = 'Rustic Belt', display_id = 9895 where entry = 2172;
+        update item_template set name = 'Spirit Claws of the Bear', display_id = 4485 where entry = 2564;
+        update item_template set name = 'Flimsy Chain Vest', display_id = 2215 where entry = 2656;
+        update item_template set name = 'Copper Chain Pants', display_id = 4333 where entry = 2852;
+        update item_template set name = 'Copper Bracers', display_id = 6966 where entry = 2853;
+        update item_template set name = 'Tomb Rot', display_id = 7414 where entry = 2929;
+        update item_template set name = 'Torment Vine', display_id = 7415 where entry = 2932;
+        update item_template set name = 'Wicked Dagger', display_id = 6349 where entry = 3222;
+        update item_template set name = 'Webbed Pants', display_id = 3432 where entry = 3263;
+        update item_template set name = 'Executor Staff', display_id = 3405 where entry = 3277;
+        update item_template set name = 'Warrior\'s Buckler', display_id = 2632 where entry = 3648;
+        update item_template set name = 'Double-stitched Woolen Shoulders', display_id = 9997 where entry = 4314;
+        update item_template set name = 'Flint and Tinder', display_id = 4720 where entry = 4471;
+        update item_template set name = 'Ruined Pelt', display_id = 7086 where entry = 4865;
+        update item_template set name = 'Coral Band', display_id = 9835 where entry = 5000;
+        update item_template set name = 'Mark of the Kirin Tor', display_id = 9857 where entry = 5004;
+        update item_template set name = 'Inscribed Gold Ring', display_id = 3453 where entry = 5010;
+        update item_template set name = 'Small Spider Eye', display_id = 7986 where entry = 5465;
+        update item_template set name = 'Sacred Burial Trousers', display_id = 11166 where entry = 6282;
+        update item_template set name = 'Formula: Enchant Boots - Minor Stamina', display_id = 11431 where entry = 6376;
+        update item_template set name = 'Viridian Band', display_id = 9833 where entry = 6589;
+        update item_template set name = 'Cerulean Ring', display_id = 9832 where entry = 7426;
+        update item_template set name = 'Cerulean Talisman', display_id = 9853 where entry = 7427;
+        update item_template set name = 'Vermilion Band', display_id = 9832 where entry = 7466;
+        update item_template set name = 'Vermilion Necklace', display_id = 9853 where entry = 7467;
+        update item_template set name = 'Ivory Band', display_id = 9850 where entry = 7497;
+
+        insert into applied_updates values('07042021');
+    end if;
 end $
 delimiter ;
 
