@@ -221,7 +221,7 @@ begin not atomic
     if (select count(*) from applied_updates where id='07042022') = 0 then
         update item_template set name = 'Jagged Knife', display_id = 6442 where entry = 2484;
         update item_template set name = 'Battle Buckler', display_id = 2632 where entry = 3649;
-        update item_template set name = 'Scroll of Spirit Armor' where entry = 3013;
+        update item_template set name = 'Scroll of Spirit Armor', spellid_1 = 308 where entry = 3013;
         update item_template set name = 'Brackwater Buckler' where entry = 3653;
 
         insert into applied_updates values('07042022');
