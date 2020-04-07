@@ -188,8 +188,14 @@ class InventoryManager(object):
             # Add items
             if source_item and source_bag in self.containers:
                 self.containers[source_bag].set_item(source_item, dest_slot, source_item.item_instance.stackcount)
+                source_item.item_instance.bag = source_bag
+                source_item.item_instance.slot = dest_slot
+                RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
             if dest_item and dest_bag in self.containers:
                 self.containers[dest_bag].set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
+                dest_item.item_instance.bag = dest_bag
+                dest_item.item_instance.slot = source_slot
+                RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
 
             # Update attack time
             if source_slot == InventorySlots.SLOT_MAINHAND or \
