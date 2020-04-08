@@ -67,13 +67,14 @@ class CommandManager(object):
             return -1, 'Wrong speed value.'
 			
     @staticmethod
-    def levelup(world_session, args):
+    def level_up(world_session, args):
         try:
             input_level = int(args)
             world_session.player_mgr.change_player_level(input_level)
+			
             return 0, ''
         except ValueError:
-            return -1, 'Please specify a correct number.'
+            return -1, 'Please specify a valid level.'
 
     @staticmethod
     def gps(world_session, args):
@@ -258,7 +259,7 @@ PLAYER_COMMAND_DEFINITIONS = {
 GM_COMMAND_DEFINITIONS = {
     'speed': CommandManager.speed,
     'swimspeed': CommandManager.swim_speed,
-	'levelup': CommandManager.levelup,
+	'level': CommandManager.level_up,
     'gps': CommandManager.gps,
     'tel': CommandManager.tel,
     'port': CommandManager.port,

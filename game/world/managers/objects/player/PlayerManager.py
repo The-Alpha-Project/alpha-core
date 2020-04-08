@@ -343,6 +343,8 @@ class PlayerManager(UnitManager):
     def change_player_level(self, input_level):
         self.level = input_level
         self.flagged_for_update = True
+        data = pack('<f', input_level)
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.CMSG_LEVELUP_CHEAT, data))
 
     def load_skills(self):
         for skill in WorldDatabaseManager.player_create_skill_get(self.player.race,
