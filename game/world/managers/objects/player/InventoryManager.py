@@ -42,12 +42,20 @@ class InventoryManager(object):
         for item_instance in character_inventory:
             item_template = WorldDatabaseManager.item_template_get_by_entry(item_instance.item_template)
             if item_template:
-                item_mgr = ItemManager(
-                    item_template=item_template,
-                    item_instance=item_instance
-                )
-                if item_mgr.is_container() and self.is_bag_pos(item_mgr.current_slot):
-                    continue
+                if item_template.inventory_type == InventoryTypes.BAG:
+                    if self.is_bag_pos(item_instance.slot):
+                        continue
+
+                    item_mgr = ContainerManager(
+                        owner=self.owner,
+                        item_template=item_template,
+                        item_instance=item_instance
+                    )
+                else:
+                    item_mgr = ItemManager(
+                        item_template=item_template,
+                        item_instance=item_instance
+                    )
                 if item_instance.bag in self.containers:
                     self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
 
@@ -123,10 +131,12 @@ class InventoryManager(object):
                         return
 
             # Prevent non empty bag in bag
-            if source_container.is_backpack and self.is_bag_pos(source_slot) and source_slot == dest_bag:
+            if source_container.is_backpack and self.is_bag_pos(source_slot) and source_slot == dest_bag or \
+                    source_item and source_item.is_container() and not source_item.is_empty():
                 self.send_equip_error(InventoryError.EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG, source_item, dest_item)
                 return
-            elif dest_container.is_backpack and self.is_bag_pos(dest_slot) and dest_slot == source_bag:
+            elif dest_container.is_backpack and self.is_bag_pos(dest_slot) and dest_slot == source_bag or \
+                    dest_item and dest_item.is_container() and not dest_item.is_empty():
                 self.send_equip_error(InventoryError.EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG, dest_item, source_item)
                 return
 

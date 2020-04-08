@@ -89,6 +89,9 @@ class ContainerManager(ItemManager):
     def is_full(self):
         return len(self.sorted_slots) >= self.total_slots
 
+    def is_empty(self):
+        return len(self.sorted_slots) == 0
+
     # override
     def get_type(self):
         return ObjectTypes.TYPE_CONTAINER
