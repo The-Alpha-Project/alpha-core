@@ -259,7 +259,7 @@ PLAYER_COMMAND_DEFINITIONS = {
 GM_COMMAND_DEFINITIONS = {
     'speed': CommandManager.speed,
     'swimspeed': CommandManager.swim_speed,
-	'level': CommandManager.level_up,
+    'level': CommandManager.level_up,
     'gps': CommandManager.gps,
     'tel': CommandManager.tel,
     'port': CommandManager.port,
