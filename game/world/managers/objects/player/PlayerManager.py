@@ -339,6 +339,10 @@ class PlayerManager(UnitManager):
         data = pack('<f', turn_speed)
         # TODO NOT WORKING
         self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
+		
+    def change_player_level(self, input_level):
+        self.level = input_level
+        self.flagged_for_update = True
 
     def load_skills(self):
         for skill in WorldDatabaseManager.player_create_skill_get(self.player.race,

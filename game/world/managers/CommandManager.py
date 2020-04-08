@@ -54,7 +54,7 @@ class CommandManager(object):
 
             return 0, ''
         except ValueError:
-            return -1, 'wrong speed value.'
+            return -1, 'Wrong speed value.'
 
     @staticmethod
     def swim_speed(world_session, args):
@@ -64,7 +64,16 @@ class CommandManager(object):
 
             return 0, ''
         except ValueError:
-            return -1, 'wrong speed value.'
+            return -1, 'Wrong speed value.'
+			
+    @staticmethod
+    def levelup(world_session, args):
+        try:
+            input_level = int(args)
+            world_session.player_mgr.change_player_level(input_level)
+            return 0, ''
+        except ValueError:
+            return -1, 'Please specify a valid mount display id.'
 
     @staticmethod
     def gps(world_session, args):
@@ -82,7 +91,7 @@ class CommandManager(object):
         try:
             tel_name = args.split()[0]
         except IndexError:
-            return -1, 'please specify a location name.'
+            return -1, 'Please specify a location name.'
         location = WorldDatabaseManager.worldport_get_by_name(tel_name)
 
         if location:
@@ -101,7 +110,7 @@ class CommandManager(object):
 
             return 0, ''
         except ValueError:
-            return -1, 'please use the "x y z map" format.'
+            return -1, 'Please use the "x y z map" format.'
 
     @staticmethod
     def tickets(world_session, args):
@@ -123,9 +132,9 @@ class CommandManager(object):
             if ticket:
                 return 0, '%s[%s] %s:|r %s' % ('|cFFFF0000' if ticket.is_bug else '|cFF00FFFF', ticket_id,
                                                ticket.character_name, ticket.text_body)
-            return -1, 'ticket not found.'
+            return -1, 'Ticket not found.'
         except ValueError:
-            return -1, 'please specify a valid ticket id.'
+            return -1, 'Please specify a valid ticket id.'
 
     @staticmethod
     def dticket(world_session, args):
@@ -133,10 +142,10 @@ class CommandManager(object):
             ticket_id = int(args)
             if RealmDatabaseManager.ticket_delete(ticket_id) == 0:
                 return 0, 'Ticket %u deleted.' % ticket_id
-            return -1, 'ticket not found.'
+            return -1, 'Ticket not found.'
 
         except ValueError:
-            return -1, 'please specify a valid ticket id.'
+            return -1, 'Please specify a valid ticket id.'
 
     @staticmethod
     def goplayer(world_session, args):
@@ -159,7 +168,7 @@ class CommandManager(object):
                 player_location = Vector(float(player.position_x), float(player.position_y), float(player.position_z))
                 map_ = player.map
         else:
-            return -1, 'player not found.'
+            return -1, 'Player not found.'
 
         world_session.player_mgr.teleport(int(map_), player_location)
 
@@ -187,7 +196,7 @@ class CommandManager(object):
                 player.position_z = world_session.player_mgr.location.z
                 RealmDatabaseManager.character_update(player)
         else:
-            return -1, 'player not found.'
+            return -1, 'Player not found.'
 
         return 0, 'Summoned player %s (%s).' % (player_name.capitalize(), 'Online' if is_online else 'Offline')
 
@@ -208,7 +217,7 @@ class CommandManager(object):
             world_session.player_mgr.mount(mount_display_id)
             return 0, ''
         except ValueError:
-            return -1, 'please specify a valid mount display id.'
+            return -1, 'Please specify a valid mount display id.'
 
     @staticmethod
     def unmount(world_session, args):
@@ -222,7 +231,7 @@ class CommandManager(object):
             world_session.player_mgr.morph(display_id)
             return 0, ''
         except ValueError:
-            return -1, 'please specify a valid display id.'
+            return -1, 'Please specify a valid display id.'
 
     @staticmethod
     def demorph(world_session, args):
@@ -237,9 +246,9 @@ class CommandManager(object):
             if item_mgr:
                 return 0, ''
             else:
-                return -1, 'unable to find and / or add that item.'
+                return -1, 'Unable to find and / or add that item.'
         except ValueError:
-            return -1, 'please specify a valid item entry.'
+            return -1, 'Please specify a valid item entry.'
 
 
 PLAYER_COMMAND_DEFINITIONS = {
@@ -249,6 +258,7 @@ PLAYER_COMMAND_DEFINITIONS = {
 GM_COMMAND_DEFINITIONS = {
     'speed': CommandManager.speed,
     'swimspeed': CommandManager.swim_speed,
+	'levelup': CommandManager.levelup,
     'gps': CommandManager.gps,
     'tel': CommandManager.tel,
     'port': CommandManager.port,
