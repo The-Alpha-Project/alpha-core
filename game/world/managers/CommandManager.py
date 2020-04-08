@@ -73,7 +73,7 @@ class CommandManager(object):
             world_session.player_mgr.change_player_level(input_level)
             return 0, ''
         except ValueError:
-            return -1, 'Please specify a valid mount display id.'
+            return -1, 'Please specify a number.
 
     @staticmethod
     def gps(world_session, args):
