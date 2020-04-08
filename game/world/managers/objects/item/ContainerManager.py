@@ -31,6 +31,14 @@ class ContainerManager(ItemManager):
 
         self.object_type.append(ObjectTypes.TYPE_CONTAINER)
 
+    @classmethod
+    def from_item(cls, item_manager):
+        return cls(
+            owner=item_manager.item_instance.owner,
+            item_template=item_manager.item_template,
+            item_instance=item_manager.item_instance
+        )
+
     def set_item(self, item, slot, count=1):
         if not item or len(self.sorted_slots) == self.total_slots or slot > self.total_slots:
             return None
@@ -41,6 +49,7 @@ class ContainerManager(ItemManager):
                 return None
         else:
             item_mgr = ItemManager.generate_item(item, self.owner, self.current_slot, slot, count=count)
+
         if item_mgr:
             item_mgr.current_slot = slot
             self.sorted_slots[slot] = item_mgr

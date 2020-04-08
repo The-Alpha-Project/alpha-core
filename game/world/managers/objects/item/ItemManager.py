@@ -173,10 +173,19 @@ class ItemManager(ObjectManager):
             )
             RealmDatabaseManager.character_inventory_add_item(item)
 
-            item_mgr = ItemManager(
-                item_template=item_template,
-                item_instance=item
-            )
+            if item_template.inventory_type == InventoryTypes.BAG:
+                from game.world.managers.objects.item.ContainerManager import ContainerManager
+                item_mgr = ContainerManager(
+                    owner=owner,
+                    item_template=item_template,
+                    item_instance=item
+                )
+            else:
+                item_mgr = ItemManager(
+                    item_template=item_template,
+                    item_instance=item
+                )
+
             return item_mgr
         return None
 

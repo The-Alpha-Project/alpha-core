@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from database.realm.RealmModels import *
 from utils.ConfigManager import *
 from game.realm.AccountManager import AccountManager
-
+from utils.constants.ItemCodes import InventorySlots
 
 realm_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (config.Database.Connection.username,
                                                                                  config.Database.Connection.password,
@@ -137,9 +137,9 @@ class RealmDatabaseManager(object):
         return inventory
 
     @staticmethod
-    def character_get_item_by_slot(guid, slot):
+    def character_get_item_by_slot(guid, slot, bag=InventorySlots.SLOT_INBACKPACK.value):
         realm_db_session = SessionHolder()
-        item = realm_db_session.query(CharacterInventory).filter_by(owner=guid, slot=slot).first()
+        item = realm_db_session.query(CharacterInventory).filter_by(owner=guid, bag=bag, slot=slot).first()
         realm_db_session.close()
         return item
 
