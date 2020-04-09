@@ -226,6 +226,61 @@ begin not atomic
 
         insert into applied_updates values('07042022');
     end if;
+
+    -- 09/04/2020 1 https://www.youtube.com/watch?v=WwhGBixG2_k
+    if (select count(*) from applied_updates where id='09042021') = 0 then
+        update quests set reqcreatureorgocount1 = 5, reqcreatureorgocount2 = 3, RewChoiceItemId2 = 0, RewChoiceItemCount2 = 0,
+        RewOrReqMoney = 35, objectives = 'Kill 5 Young Nightsabers and 3 Young Thistle Boars and return to Conservator Ilthalaine.' where entry = 456;
+        update item_template set armor = 7 where entry = 5394;
+
+        update quests set reqcreatureorgocount1 = 4, reqcreatureorgocount2 = 4, RewOrReqMoney = 52,
+        objectives = 'Conservator Ilthalaine needs you to kill 4 Mangy Nightsabers and 4 Thistle Boars.',
+        RequestItemsText = 'Your task is not yet complete, $N. Return to me once 4 mangy nightsabers and 4 thistle boars have been killed.' where entry = 457;
+        update item_template set armor = 4 where entry = 5405;
+
+        update quests set details = replace(details, 'southwest', 'west') where entry = 458;
+        update quests set details = replace(details, 'Look long the hills to where the peaceful furbolgs used to dwell.',
+        'Look yonder to where the peaceful furbolgs used to dwell.'), objectives = replace(objectives, '8', '6'), RewChoiceItemId3 = 0,
+        RewChoiceItemCount3 = 0, RequestItemsText = replace(RequestItemsText, '8', '6') where entry = 459;
+        update item_template set armor = 12 where entry = 5399;
+        update item_template set armor = 2 where entry = 3365;
+        update item_template set armor = 1 where entry = 3363;
+        update item_template set armor = 3 where entry = 1370;
+        update item_template set armor = 1 where entry = 1378;
+        update item_template set armor = 1 where entry = 6124;
+        update item_template set armor = 10 where entry = 5398;
+
+        update item_template set name = 'Initiate Staff', dmg_min1 = 8, dmg_max1 = 13 where entry = 2132;
+        update item_template set name = 'Peasant Sword' where entry = 2131;
+        update item_template set name = 'Simple Dagger' where entry = 2139;
+        update item_template set name = 'Damaged Claymore' where entry = 1194;
+        update item_template set name = 'Old Hand Axe' where entry = 2134;
+        update item_template set name = 'Dull Broad Axe' where entry = 2479;
+        update item_template set name = 'Short Cudgel' where entry = 2130;
+        update item_template set name = 'Large Crooked Club' where entry = 2480;
+
+        update quests set objectives = replace(details, '10', '5'), ReqItemCount1 = 5, RewChoiceItemId1 = 1386,
+        RewChoiceItemId5 = 0, RewChoiceItemId6 = 0, RewChoiceItemCount5 = 0, RewChoiceItemCount6 = 0 where entry = 916;
+        update item_template set armor = 9 where entry = 2652;
+        update item_template set display_id = 5287 where entry = 5166;
+        update item_template set armor = 4 where entry = 1369;
+        update item_template set dmg_min1 = 8, dmg_max1 = 13 where entry = 5393;
+        update item_template set dmg_min1 = 9, dmg_max1 = 15, display_id = 8516 where entry = 1386;
+
+        update quests set RewChoiceItemId3 = 0, RewChoiceItemCount3 = 0 where entry = 917;
+        update item_template set armor = 12 where entry = 4907;
+        update item_template set armor = 19, block = 7, display_id = 1680 where entry = 5395;
+        update item_template set armor = 2 where entry = 1366;
+        update item_template set armor = 12 where entry = 2656;
+
+        update creatures set level_min = 90, level_max = 90 where entry in (2041, 3468, 3469);
+        update creatures set level_min = 70, level_max = 70 where entry in (4262, 3516);
+        update creatures set level_min = 75, level_max = 75 where entry = 4423;
+        update creatures set level_min = 35, level_max = 35, subname = 'Nightsaber Riding Instructor' where entry = 4753;
+        update creatures set subname = 'Tiger Handler' where entry = 4730;
+
+        insert into applied_updates values('09042021');
+    end if;
 end $
 delimiter ;
 
