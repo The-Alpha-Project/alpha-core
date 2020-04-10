@@ -30,6 +30,7 @@ class GameObjectManager(ObjectManager):
             self.location.y = self.gobject_instance.spawn_positionY
             self.location.z = self.gobject_instance.spawn_positionZ
             self.location.o = self.gobject_instance.spawn_orientation
+            self.map_ = self.gobject_instance.spawn_map
 
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
 

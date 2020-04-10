@@ -163,7 +163,6 @@ class PlayerManager(UnitManager):
     def complete_login(self):
         self.is_online = True
         GridManager.update_object(self)
-        self.update_surrounding()
 
     def logout(self):
         self.session.save_character()
@@ -206,17 +205,19 @@ class PlayerManager(UnitManager):
 
         for guid, player in list(GridManager.get_surrounding_players(self).items()):
             if self.guid != guid:
-                self.session.request.sendall(
+                update_packet = UpdatePacketFactory.compress_if_needed(
                     PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                             player.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
                                                                      is_self=False)))
+                self.session.request.sendall(update_packet)
                 self.session.request.sendall(NameQueryHandler.get_query_details(player.player))
 
         for guid, gobject in list(GridManager.get_surrounding_gameobjects(self).items()):
-            self.session.request.sendall(
+            update_packet = UpdatePacketFactory.compress_if_needed(
                 PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                         gobject.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
                                                                   is_self=False)))
+            self.session.request.sendall(update_packet)
             self.session.request.sendall(gobject.query_details())
 
     def sync_player(self):

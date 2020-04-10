@@ -144,8 +144,8 @@ class GridManager(object):
     @staticmethod
     def get_grid_key(vector, map_):
         min_x, min_y, max_x, max_y = GridManager.generate_coord_data(vector)
-        key = '%u:%u:%u:%u%u' % (round(min_x, 5), round(min_y, 5), round(max_x, 5),
-                                 round(max_y, 5), map_)
+        key = '%u:%u:%u:%u:%u' % (round(min_x, 5), round(min_y, 5), round(max_x, 5),
+                                  round(max_y, 5), map_)
 
         return key
 
@@ -169,8 +169,8 @@ class Grid(object):
         self.players = players
 
         if not key:
-            self.key = '%u:%u:%u:%u%u' % (round(self.min_x, 5), round(self.min_y, 5), round(self.max_x, 5),
-                                          round(self.max_y, 5), self.map_)
+            self.key = '%u:%u:%u:%u:%u' % (round(self.min_x, 5), round(self.min_y, 5), round(self.max_x, 5),
+                                           round(self.max_y, 5), self.map_)
 
         if not gameobjects:
             self.gameobjects = dict()
