@@ -341,10 +341,12 @@ class PlayerManager(UnitManager):
         self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 		
     def change_player_level(self, input_level):
+        if input_level <= 0:
+            return -1, '' # To prevent server crashes if the value is negative
         self.level = input_level
         self.flagged_for_update = True
-        data = pack('<f', input_level)
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.CMSG_LEVELUP_CHEAT, data))
+        data = pack('<I', input_level)
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
 
     def load_skills(self):
         for skill in WorldDatabaseManager.player_create_skill_get(self.player.race,
