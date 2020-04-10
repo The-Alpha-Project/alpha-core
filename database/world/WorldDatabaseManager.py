@@ -45,6 +45,13 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    @staticmethod
+    def player_get_class_level_stats(class_, level):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PlayerClasslevelstats).filter_by(level=level, _class=class_).first()
+        world_db_session.close()
+        return res
+
     # Area trigger stuff
 
     @staticmethod

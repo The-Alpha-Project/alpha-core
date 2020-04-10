@@ -89,6 +89,16 @@ class PlayerManager(UnitManager):
             self.location.y = self.player.position_y
             self.location.z = self.player.position_z
             self.location.o = self.player.orientation
+            self.health = self.player.health
+            self.max_health = self.player.health
+            self.max_power_1 = self.player.power1
+            self.power_1 = self.player.power1
+            self.max_power_2 = 1000
+            self.power_2 = self.player.power2
+            self.max_power_3 = self.player.power3
+            self.power_3 = self.player.power3
+            self.max_power_4 = self.player.power4
+            self.power_4 = self.player.power4
 
             self.is_gm = self.session.account_mgr.account.gmlevel > 0
 
@@ -98,16 +108,7 @@ class PlayerManager(UnitManager):
             # test
             self.xp = 0
             self.next_level_xp = 200
-            self.health = 1
-            self.max_health = 1
-            self.max_power_1 = 100
-            self.power_1 = 100
-            self.max_power_2 = 1000
-            self.power_2 = 0
-            self.max_power_3 = 100
-            self.power_4 = 100
-            self.max_power_4 = 100
-            self.power_4 = 100
+
             self.guild_manager = GuildManager()
 
     def get_native_display_id(self, is_male, race_data=None):
