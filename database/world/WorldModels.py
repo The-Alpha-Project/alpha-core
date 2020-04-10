@@ -264,12 +264,12 @@ class Gameobjects(Base):
 
     entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
     type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
-    displayId = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    display_id = Column('displayId', MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     name = Column(String(100), nullable=False, index=True, server_default=text("''"))
-    castBarCaption = Column(String(100), nullable=False, server_default=text("''"))
+    cast_bar_caption = Column('castBarCaption', String(100), nullable=False, server_default=text("''"))
     faction = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    size = Column(Float, nullable=False, server_default=text("'1'"))
+    scale = Column('size', Float, nullable=False, server_default=text("'1'"))
     data1 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     data2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     data3 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
@@ -282,7 +282,7 @@ class Gameobjects(Base):
     data10 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     mingold = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     maxgold = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    ScriptName = Column(String(64), nullable=False, server_default=text("''"))
+    script_name = Column('ScriptName', String(64), nullable=False, server_default=text("''"))
 
 
 class ItemTemplate(Base):

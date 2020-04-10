@@ -5,6 +5,7 @@ from difflib import SequenceMatcher
 
 from database.world.WorldModels import *
 from utils.ConfigManager import *
+from utils.constants.ObjectCodes import HighGuid
 
 world_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (config.Database.Connection.username,
                                                                                  config.Database.Connection.password,
@@ -102,3 +103,17 @@ class WorldDatabaseManager(object):
         res = world_db_session.query(PageText).filter_by(entry=page_id).first()
         world_db_session.close()
         return res
+
+    # Gameobject stuff
+
+    @staticmethod
+    def gameobject_get_all_spawns():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(SpawnsGameobjects).all()
+        return res, world_db_session
+
+    @staticmethod
+    def gameobject_template_get_by_guid(guid):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(SpawnsGameobjects).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_GAMEOBJECT).first()
+        return res, world_db_session

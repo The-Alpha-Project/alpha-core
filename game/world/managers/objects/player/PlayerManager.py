@@ -212,6 +212,13 @@ class PlayerManager(UnitManager):
                                                                      is_self=False)))
                 self.session.request.sendall(NameQueryHandler.get_query_details(player.player))
 
+        for guid, gobject in list(GridManager.get_surrounding_gameobjects(self).items()):
+            self.session.request.sendall(
+                PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                        gobject.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
+                                                                  is_self=False)))
+            self.session.request.sendall(gobject.query_details())
+
     def sync_player(self):
         if self.player and self.player.guid == self.guid:
             self.player.level = self.level

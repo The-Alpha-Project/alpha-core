@@ -8,6 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
+from game.world.managers.objects.GameObjectManager import GameObjectManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
@@ -108,7 +109,25 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         player_update_scheduler.start()
 
     @staticmethod
+    def _load_gameobjects():
+        gobject_spawns, session = WorldDatabaseManager.gameobject_get_all_spawns()
+
+        for gobject in gobject_spawns:
+            gobject_mgr = GameObjectManager(
+                gobject_template=gobject.gameobject,
+                gobject_instance=gobject
+            )
+            gobject_mgr.load()
+
+        session.close()
+        return len(gobject_spawns)
+
+    @staticmethod
     def start():
+        Logger.info('Loading game objects...')
+        gobject_number = WorldServerSessionHandler._load_gameobjects()
+        Logger.success('%u game objects successfully loaded.' % gobject_number)
+
         Logger.success('World server started.')
 
         WorldServerSessionHandler.schedule_updates()
