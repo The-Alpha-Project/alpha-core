@@ -22,9 +22,12 @@ class DestroyItemHandler(object):
                         InventoryError.EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS, item)
                 else:
                     RealmDatabaseManager.character_inventory_delete(item.item_instance)
-                    is_equipment = world_session.player_mgr.inventory.is_equipment_pos(bag, source_slot)
-                    world_session.player_mgr.inventory.containers[bag].remove_item_in_slot(source_slot)
-                    if is_equipment:
+                    if world_session.player_mgr.inventory.is_bag_pos(source_slot):
+                        world_session.player_mgr.inventory.remove_bag(source_slot)
+                    else:
+                        world_session.player_mgr.inventory.containers[bag].remove_item_in_slot(source_slot)
+
+                    if world_session.player_mgr.inventory.is_equipment_pos(bag, source_slot):
                         world_session.player_mgr.flagged_for_update = True
                     else:
                         world_session.request.sendall(PacketWriter.get_packet(
