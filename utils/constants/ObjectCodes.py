@@ -48,7 +48,7 @@ class UpdateTypes(IntEnum):
 
 
 # Some might be unused on Alpha
-class HIGH_GUID(IntEnum):
+class HighGuid(IntEnum):
     HIGHGUID_ITEM = 0x40000000
     HIGHGUID_CONTAINER = 0x40000000
     HIGHGUID_PLAYER = 0x00000000

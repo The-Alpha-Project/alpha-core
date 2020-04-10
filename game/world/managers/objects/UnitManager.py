@@ -5,7 +5,7 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 
 
 class UnitManager(ObjectManager):

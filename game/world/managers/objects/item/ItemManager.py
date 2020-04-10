@@ -7,7 +7,7 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid
 from utils.constants.UpdateFields import ObjectFields, ItemFields, ContainerFields
 
 AVAILABLE_EQUIP_SLOTS = [
@@ -54,7 +54,7 @@ class ItemManager(ObjectManager):
 
         self.item_template = item_template
         self.item_instance = item_instance
-        self.guid = item_instance.guid if item_instance else 0
+        self.guid = (item_instance.guid if item_instance else 0) | HighGuid.HIGHGUID_ITEM
         self.current_slot = item_instance.slot if item_instance else 0
         self.is_contained = item_instance.owner if item_instance else 0
         self.is_backpack = False

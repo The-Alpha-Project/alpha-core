@@ -10,7 +10,7 @@ from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from utils.constants.ItemCodes import InventoryError
-from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses
+from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
@@ -74,7 +74,7 @@ class PlayerManager(UnitManager):
         if self.player:
             self.set_player_variables()
 
-            self.guid = self.player.guid
+            self.guid = self.player.guid | HighGuid.HIGHGUID_PLAYER
             self.inventory = InventoryManager(self)
             self.level = self.player.level
             self.object_type.append(ObjectTypes.TYPE_PLAYER)

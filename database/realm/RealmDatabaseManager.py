@@ -6,6 +6,7 @@ from database.realm.RealmModels import *
 from utils.ConfigManager import *
 from game.realm.AccountManager import AccountManager
 from utils.constants.ItemCodes import InventorySlots
+from utils.constants.ObjectCodes import HighGuid
 
 realm_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (config.Database.Connection.username,
                                                                                  config.Database.Connection.password,
@@ -52,7 +53,7 @@ class RealmDatabaseManager(object):
     @staticmethod
     def character_get_by_guid(guid):
         realm_db_session = SessionHolder()
-        character = realm_db_session.query(Character).filter_by(guid=guid).first()
+        character = realm_db_session.query(Character).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).first()
         realm_db_session.close()
         return character
 
@@ -89,7 +90,8 @@ class RealmDatabaseManager(object):
     @staticmethod
     def character_inventory_get(character_guid):
         realm_db_session = SessionHolder()
-        character_inventory = realm_db_session.query(CharacterInventory).filter_by(owner=character_guid).all()
+        character_inventory = realm_db_session.query(CharacterInventory).filter_by(
+            owner=character_guid & ~HighGuid.HIGHGUID_PLAYER).all()
         realm_db_session.close()
         return character_inventory if character_inventory else []
 
@@ -132,14 +134,15 @@ class RealmDatabaseManager(object):
     @staticmethod
     def character_get_inventory(guid):
         realm_db_session = SessionHolder()
-        inventory = realm_db_session.query(CharacterInventory).filter_by(owner=guid).all()
+        inventory = realm_db_session.query(CharacterInventory).filter_by(owner=guid & ~HighGuid.HIGHGUID_PLAYER).all()
         realm_db_session.close()
         return inventory
 
     @staticmethod
     def character_get_item_by_slot(guid, slot, bag=InventorySlots.SLOT_INBACKPACK.value):
         realm_db_session = SessionHolder()
-        item = realm_db_session.query(CharacterInventory).filter_by(owner=guid, bag=bag, slot=slot).first()
+        item = realm_db_session.query(CharacterInventory).filter_by(owner=guid & ~HighGuid.HIGHGUID_PLAYER, bag=bag,
+                                                                    slot=slot).first()
         realm_db_session.close()
         return item
 
