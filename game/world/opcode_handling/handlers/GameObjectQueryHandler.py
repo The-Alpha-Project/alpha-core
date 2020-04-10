@@ -13,7 +13,7 @@ class GameObjectQueryHandler(object):
         if len(reader.data) >= 12:  # Avoid handling empty item query packet
             entry, guid = unpack('<IQ', reader.data[:12])
             if guid > 0:
-                gobject_spawn, session = WorldDatabaseManager.gameobject_template_get_by_guid(guid)
+                gobject_spawn, session = WorldDatabaseManager.gameobject_spawn_get_by_guid(guid)
                 if gobject_spawn and gobject_spawn.gameobject.entry == entry:
                     gobject_mgr = GameObjectManager(
                         gobject_template=gobject_spawn.gameobject

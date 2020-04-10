@@ -113,7 +113,7 @@ class WorldDatabaseManager(object):
         return res, world_db_session
 
     @staticmethod
-    def gameobject_template_get_by_guid(guid):
+    def gameobject_spawn_get_by_guid(guid):
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_GAMEOBJECT).first()
         return res, world_db_session
