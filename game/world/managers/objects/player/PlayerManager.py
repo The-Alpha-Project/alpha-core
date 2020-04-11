@@ -220,6 +220,14 @@ class PlayerManager(UnitManager):
             self.session.request.sendall(update_packet)
             self.session.request.sendall(gobject.query_details())
 
+        for guid, creature in list(GridManager.get_surrounding_units(self).items()):
+            update_packet = UpdatePacketFactory.compress_if_needed(
+                PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                        creature.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
+                                                                   is_self=False)))
+            self.session.request.sendall(update_packet)
+            self.session.request.sendall(creature.query_details())
+
     def sync_player(self):
         if self.player and self.player.guid == self.guid:
             self.player.level = self.level

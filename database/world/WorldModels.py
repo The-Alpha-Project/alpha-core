@@ -898,8 +898,8 @@ class SpawnsCreatures(Base):
     spawn_deathstate = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     spawn_movetype = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('Creatures', primaryjoin='SpawnsCreatures.spawn_displayid == Creatures.display_id1')
-    creature1 = relationship('Creatures', primaryjoin='SpawnsCreatures.spawn_entry == Creatures.entry')
+    creature_by_display_id = relationship('Creatures', primaryjoin='SpawnsCreatures.spawn_displayid == Creatures.display_id1')
+    creature1 = relationship('Creatures', primaryjoin='SpawnsCreatures.spawn_entry == Creatures.entry', backref='Creatures', lazy='joined')
     npc_text = relationship('NpcText', secondary='npc_gossip')
 
 

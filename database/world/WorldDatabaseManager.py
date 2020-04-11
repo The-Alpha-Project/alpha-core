@@ -117,3 +117,31 @@ class WorldDatabaseManager(object):
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_GAMEOBJECT).first()
         return res, world_db_session
+
+    # Creature stuff
+
+    @staticmethod
+    def creature_get_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(Creatures).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def creature_get_all_spawns():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(SpawnsCreatures).all()
+        return res, world_db_session
+
+    @staticmethod
+    def creature_spawn_get_by_guid(guid):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(SpawnsCreatures).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_UNIT).first()
+        return res, world_db_session
+
+    @staticmethod
+    def creature_get_model_info(display_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureModelInfo).filter_by(modelid=display_id).first()
+        world_db_session.close()
+        return res

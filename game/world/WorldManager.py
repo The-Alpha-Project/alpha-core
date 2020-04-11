@@ -8,6 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
+from game.world.managers.objects.CreatureManager import CreatureManager
 from game.world.managers.objects.GameObjectManager import GameObjectManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
@@ -109,6 +110,23 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         player_update_scheduler.start()
 
     @staticmethod
+    def _load_data():
+        # TODO: Use threads to load the data more efficiently
+        if config.Server.Settings.load_gameobjects:
+            Logger.info('Loading game objects...')
+            gobject_number = WorldServerSessionHandler._load_gameobjects()
+            Logger.success('%u game objects successfully loaded.' % gobject_number)
+        else:
+            Logger.info('Skipped game object loading.')
+
+        if config.Server.Settings.load_creatures:
+            Logger.info('Loading creature spawns...')
+            creature_number = WorldServerSessionHandler._load_creatures()
+            Logger.success('%u creature spawns successfully loaded.' % creature_number)
+        else:
+            Logger.info('Skipped creature loading.')
+
+    @staticmethod
     def _load_gameobjects():
         gobject_spawns, session = WorldDatabaseManager.gameobject_get_all_spawns()
 
@@ -123,11 +141,22 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         return len(gobject_spawns)
 
     @staticmethod
-    def start():
-        Logger.info('Loading game objects...')
-        gobject_number = WorldServerSessionHandler._load_gameobjects()
-        Logger.success('%u game objects successfully loaded.' % gobject_number)
+    def _load_creatures():
+        creature_spawns, session = WorldDatabaseManager.creature_get_all_spawns()
 
+        for creature in creature_spawns:
+            creature_mgr = CreatureManager(
+                creature_template=creature.creature1,
+                creature_instance=creature
+            )
+            creature_mgr.load()
+
+        session.close()
+        return len(creature_spawns)
+
+    @staticmethod
+    def start():
+        WorldServerSessionHandler._load_data()
         Logger.success('World server started.')
 
         WorldServerSessionHandler.schedule_updates()

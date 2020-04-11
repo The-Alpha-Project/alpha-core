@@ -28,6 +28,8 @@ Server:
         auto_create_accounts: True
         blizzlike_names: True  # If True, names won't have any restriction as it was back in the day
         debug: True
+        load_gameobjects: True
+        load_creatures: True
         supported_client: 3368
         realm_saving_interval_seconds: 60
 

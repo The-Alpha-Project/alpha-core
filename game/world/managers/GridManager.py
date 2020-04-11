@@ -95,7 +95,11 @@ class GridManager(object):
     @staticmethod
     def get_surrounding_units(worldobject, include_players=False):
         object_types = [ObjectTypes.TYPE_PLAYER, ObjectTypes.TYPE_UNIT] if include_players else [ObjectTypes.TYPE_UNIT]
-        return GridManager.get_surrounding_objects(worldobject, object_types)
+        res = GridManager.get_surrounding_objects(worldobject, object_types)
+        if include_players:
+            return res[0], res[1]
+        else:
+            return res[1]
 
     @staticmethod
     def get_surrounding_gameobjects(worldobject):
@@ -110,13 +114,14 @@ class GridManager(object):
 
     @staticmethod
     def get_surrounding_unit_by_guid(worldobject, guid, include_players=False):
-        surrounding_units = list(GridManager.get_surrounding_units(worldobject, include_players))
+        surrounding_units = GridManager.get_surrounding_units(worldobject, include_players)
         if include_players:
             for p_guid, player in surrounding_units[0].items():
                 if p_guid == guid:
                     return player
 
-        for u_guid, unit in surrounding_units[1].items():
+        creature_dict = surrounding_units[1] if include_players else surrounding_units
+        for u_guid, unit in creature_dict.items():
             if u_guid == guid:
                 return unit
 

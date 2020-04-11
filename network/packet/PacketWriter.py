@@ -7,6 +7,8 @@ from utils.constants.OpCodes import *
 class PacketWriter(object):
     @staticmethod
     def string_to_bytes(value):
+        if value is None:
+            value = ''
         return value.encode('latin1') + b'\x00'
 
     @staticmethod
