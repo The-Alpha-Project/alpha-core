@@ -64,7 +64,6 @@ class GameObjectManager(ObjectManager):
                         y_lowest = y_i
                 player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
                 player.stand_state = StandState.UNIT_SITTINGCHAIRLOW.value + height
-                player.flagged_for_update = True
 
     # override
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
