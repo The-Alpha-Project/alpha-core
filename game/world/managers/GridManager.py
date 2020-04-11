@@ -80,11 +80,11 @@ class GridManager(object):
         surrounding_objects = [{}, {}, {}]
         for grid in GridManager.get_surrounding(worldobject):
             if ObjectTypes.TYPE_PLAYER in object_types:
-                surrounding_objects.insert(0, grid.players)
+                surrounding_objects[0] = {**surrounding_objects[0], **grid.players}
             if ObjectTypes.TYPE_UNIT in object_types:
-                surrounding_objects.insert(1, grid.creatures)
+                surrounding_objects[1] = {**surrounding_objects[1], **grid.creatures}
             if ObjectTypes.TYPE_GAMEOBJECT in object_types:
-                surrounding_objects.insert(2, grid.gameobjects)
+                surrounding_objects[2] = {**surrounding_objects[2], **grid.gameobjects}
 
         return surrounding_objects
 
