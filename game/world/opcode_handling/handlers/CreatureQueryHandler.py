@@ -18,9 +18,9 @@ class CreatureQueryHandler(object):
                 creature_mgr = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
                 if not creature_mgr:
                     creature_spawn, session = WorldDatabaseManager.creature_spawn_get_by_guid(guid)
-                    if creature_spawn and creature_spawn.creature1.entry == entry:
+                    if creature_spawn and creature_spawn.creature_template.entry == entry:
                         creature_mgr = CreatureManager(
-                            creature_template=creature_spawn.creature1
+                            creature_template=creature_spawn.creature_template
                         )
                     session.close()
                 if creature_mgr:

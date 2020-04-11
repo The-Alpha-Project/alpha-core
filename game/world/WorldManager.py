@@ -146,7 +146,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
         for creature in creature_spawns:
             creature_mgr = CreatureManager(
-                creature_template=creature.creature1,
+                creature_template=creature.creature_template,
                 creature_instance=creature
             )
             creature_mgr.load()
