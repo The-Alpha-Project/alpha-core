@@ -31,6 +31,7 @@ from game.world.opcode_handling.handlers.SwapInvItemHandler import SwapInvItemHa
 from game.world.opcode_handling.handlers.SwapItemHandler import SwapItemHandler
 from game.world.opcode_handling.handlers.DestroyItemHandler import DestroyItemHandler
 from game.world.opcode_handling.handlers.GameObjectQueryHandler import GameObjectQueryHandler
+from game.world.opcode_handling.handlers.GameobjUseHandler import GameobjUseHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -74,6 +75,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_SWAP_ITEM: SwapItemHandler.handle,
     OpCode.CMSG_DESTROYITEM: DestroyItemHandler.handle,
     OpCode.CMSG_GAMEOBJECT_QUERY: GameObjectQueryHandler.handle,
+    OpCode.CMSG_GAMEOBJ_USE: GameobjUseHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

@@ -1,11 +1,14 @@
+from math import pi, cos, sin
 from struct import pack
 
 from game.world.managers.GridManager import GridManager
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes, GameObjectTypes
 from utils.constants.OpCodes import OpCode
+from utils.constants.UnitCodes import StandState
 from utils.constants.UpdateFields import ObjectFields, GameObjectFields
 
 
@@ -31,11 +34,37 @@ class GameObjectManager(ObjectManager):
             self.location.z = self.gobject_instance.spawn_positionZ
             self.location.o = self.gobject_instance.spawn_orientation
             self.map_ = self.gobject_instance.spawn_map
+            self.scale = self.gobject_template.scale
 
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
 
     def load(self):
         GridManager.add_or_get(self, True)
+
+    def use(self, player):
+        if self.gobject_template.type == GameObjectTypes.TYPE_CHAIR:
+            slots = self.gobject_template.data1
+            height = self.gobject_template.data2
+
+            lowest_distance = 90.0
+            x_lowest = self.location.x
+            y_lowest = self.location.y
+
+            if slots > 0:
+                orthogonal_orientation = self.location.o + pi * 0.5
+                for x in range(0, slots):
+                    relative_distance = (self.scale * x) - (self.scale * (slots - 1) / 2.0)
+                    x_i = self.location.x + relative_distance * cos(orthogonal_orientation)
+                    y_i = self.location.y + relative_distance * sin(orthogonal_orientation)
+
+                    player_slot_distance = player.location.distance(Vector(x_i, y_i, player.location.z))
+                    if player_slot_distance <= lowest_distance:
+                        lowest_distance = player_slot_distance
+                        x_lowest = x_i
+                        y_lowest = y_i
+                player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
+                player.stand_state = StandState.UNIT_SITTINGCHAIRLOW.value + height
+                player.flagged_for_update = True
 
     # override
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
@@ -44,7 +73,7 @@ class GameObjectManager(ObjectManager):
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_GUID, self.guid, 'Q')
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value(), 'I')
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_ENTRY, self.gobject_template.entry, 'I')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_SCALE_X, self.gobject_template.scale, 'f')
+            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_SCALE_X, self.scale, 'f')
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_PADDING, 0, 'I')
 
             # Gameobject fields
