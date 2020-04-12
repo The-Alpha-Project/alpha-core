@@ -298,6 +298,7 @@ begin not atomic
         update creatures set display_id1 = 169 where entry in (89, 4676, 6073, 7135, 7136, 8608, 8616, 8680, 11437);
 
         insert into applied_updates values('12042021');
+    end if;
 end $
 delimiter ;
 
