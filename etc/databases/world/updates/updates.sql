@@ -295,7 +295,7 @@ begin not atomic
     -- 12/04/2020 1
     if (select count(*) from applied_updates where id='12042021') = 0 then
         update creatures set display_id1 = 3831 where display_id1 = 10699;
-        update creatures set display_id1 = 1534 where entry in (89, 4676, 6073, 7135, 7136, 8608, 8616, 8680, 11437);
+        update creatures set display_id1 = 169 where entry in (89, 4676, 6073, 7135, 7136, 8608, 8616, 8680, 11437);
 
         insert into applied_updates values('12042021');
 end $
