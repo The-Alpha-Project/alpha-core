@@ -13,6 +13,9 @@ class PacketWriter(object):
 
     @staticmethod
     def get_packet(opcode, data=b''):
+        if data is None:
+            data = b''
+
         # Packet header for SMSG_AUTH_CHALLENGE : Size: 2 bytes + Cmd: 2 bytes
         # Packet header : Size: 2 bytes + Cmd: 4 bytes
         size = (4 if opcode == OpCode.SMSG_AUTH_CHALLENGE else 6) + len(data) - 2
