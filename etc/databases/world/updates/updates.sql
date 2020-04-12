@@ -299,6 +299,20 @@ begin not atomic
 
         insert into applied_updates values('12042021');
     end if;
+
+    -- 12/04/2020 2
+    if (select count(*) from applied_updates where id='12042022') = 0 then
+        update creatures set display_id1 = 3167 where entry in (68, 1642, 1756, 1976, 16396);
+        update creatures set display_id1 = 3258 where entry = 1423;
+        update creatures set display_id2 = 3257 where entry in (68, 16396, 1642, 1423);
+        update creatures set display_id1 = 1298 where entry = 66;
+        update creatures set display_id1 = 2072 where entry = 823;
+        update creatures set display_id1 = 1859 where entry = 197;
+        update creatures set display_id1 = 415 where entry = 644;
+        update creatures set display_id1 = 172 where display_id1 = 9442;
+
+        insert into applied_updates values('12042022');
+    end if;
 end $
 delimiter ;
 
