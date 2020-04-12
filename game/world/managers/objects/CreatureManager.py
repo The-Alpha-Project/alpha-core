@@ -120,10 +120,10 @@ class CreatureManager(UnitManager):
             self.creature_template.type,
             self.creature_template.beast_family,
             self.creature_template.rank,
-            0,
+            0,  # unknown wdbField11
             self.creature_template.pet_spell_list_id,
             self.display_id,
-            0
+            self.creature_template.civilian
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
 
