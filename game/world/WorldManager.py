@@ -131,11 +131,12 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         gobject_spawns, session = WorldDatabaseManager.gameobject_get_all_spawns()
 
         for gobject in gobject_spawns:
-            gobject_mgr = GameObjectManager(
-                gobject_template=gobject.gameobject,
-                gobject_instance=gobject
-            )
-            gobject_mgr.load()
+            if gobject.gameobject:
+                gobject_mgr = GameObjectManager(
+                    gobject_template=gobject.gameobject,
+                    gobject_instance=gobject
+                )
+                gobject_mgr.load()
 
         session.close()
         return len(gobject_spawns)
@@ -145,11 +146,12 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         creature_spawns, session = WorldDatabaseManager.creature_get_all_spawns()
 
         for creature in creature_spawns:
-            creature_mgr = CreatureManager(
-                creature_template=creature.creature_template,
-                creature_instance=creature
-            )
-            creature_mgr.load()
+            if creature.creature_template:
+                creature_mgr = CreatureManager(
+                    creature_template=creature.creature_template,
+                    creature_instance=creature
+                )
+                creature_mgr.load()
 
         session.close()
         return len(creature_spawns)
