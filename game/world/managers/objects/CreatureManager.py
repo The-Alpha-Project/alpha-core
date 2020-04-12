@@ -27,7 +27,7 @@ class CreatureManager(UnitManager):
         self.guid = (creature_instance.spawn_id if creature_instance else 0) | HighGuid.HIGHGUID_UNIT
 
         if self.creature_template:
-            self.scale = self.creature_template.scale if self.creature_template.scale != 0 else 1
+            self.scale = self.creature_template.scale if self.creature_template.scale > 0 else 1
             self.max_health = self.creature_template.health_max
             self.level = randrange(self.creature_template.level_min, self.creature_template.level_max + 1)
             self.resistance_0 = self.creature_template.armor
@@ -36,10 +36,11 @@ class CreatureManager(UnitManager):
             self.resistance_3 = self.creature_template.nature_res
             self.resistance_4 = self.creature_template.frost_res
             self.resistance_5 = self.creature_template.shadow_res
-            self.display_id = choice(list(filter((0).__ne__, [self.creature_template.display_id1,
-                                                              self.creature_template.display_id2,
-                                                              self.creature_template.display_id3,
-                                                              self.creature_template.display_id4])))
+            display_id_list = list(filter((0).__ne__, [self.creature_template.display_id1,
+                                                       self.creature_template.display_id2,
+                                                       self.creature_template.display_id3,
+                                                       self.creature_template.display_id4]))
+            self.display_id = choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube
             creature_model_info = WorldDatabaseManager.creature_get_model_info(self.display_id)
             if creature_model_info:
                 self.bounding_radius = creature_model_info.bounding_radius
@@ -49,12 +50,12 @@ class CreatureManager(UnitManager):
             self.base_attack_time = self.creature_template.base_attack_time
 
         if self.creature_instance:
-            self.health = self.creature_instance.spawn_curhealth
-            self.map_ = self.creature_instance.spawn_map
-            self.location.x = self.creature_instance.spawn_positionX
-            self.location.y = self.creature_instance.spawn_positionY
-            self.location.z = self.creature_instance.spawn_positionZ
-            self.location.o = self.creature_instance.spawn_orientation
+            self.health = int(self.creature_instance.health_percent * self.max_health)
+            self.map_ = self.creature_instance.map
+            self.location.x = self.creature_instance.position_x
+            self.location.y = self.creature_instance.position_y
+            self.location.z = self.creature_instance.position_z
+            self.location.o = self.creature_instance.orientation
 
         self.object_type.append(ObjectTypes.TYPE_UNIT)
 

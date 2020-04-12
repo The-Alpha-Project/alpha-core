@@ -130,7 +130,7 @@ class WorldDatabaseManager(object):
     @staticmethod
     def creature_get_all_spawns():
         world_db_session = SessionHolder()
-        res = world_db_session.query(SpawnsCreatures).all()
+        res = world_db_session.query(SpawnsCreatures).filter_by(ignored=0).all()
         return res, world_db_session
 
     @staticmethod
