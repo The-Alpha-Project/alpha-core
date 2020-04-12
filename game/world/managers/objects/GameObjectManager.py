@@ -6,7 +6,8 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes, GameObjectTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes, GameObjectTypes, \
+    GameObjectStates
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import StandState
 from utils.constants.UpdateFields import ObjectFields, GameObjectFields
@@ -42,7 +43,17 @@ class GameObjectManager(ObjectManager):
         GridManager.add_or_get(self, True)
 
     def use(self, player):
-        if self.gobject_template.type == GameObjectTypes.TYPE_CHAIR:
+        if self.gobject_template.type == GameObjectTypes.TYPE_DOOR or \
+                self.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
+            # TODO: Check locks for doors
+            if self.state == GameObjectStates.GO_STATE_READY:
+                self.state = GameObjectStates.GO_STATE_ACTIVE
+                # TODO: Trigger sripts / events on cooldown restart
+                update_packet = UpdatePacketFactory.compress_if_needed(
+                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                            self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=False)))
+                GridManager.send_surrounding(update_packet, self, include_self=False)
+        elif self.gobject_template.type == GameObjectTypes.TYPE_CHAIR:
             slots = self.gobject_template.data1
             height = self.gobject_template.data2
 
