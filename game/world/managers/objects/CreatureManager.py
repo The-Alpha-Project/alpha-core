@@ -42,10 +42,10 @@ class CreatureManager(UnitManager):
                                                        self.creature_template.display_id3,
                                                        self.creature_template.display_id4]))
             self.display_id = choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube
-            creature_model_info = WorldDatabaseManager.creature_get_model_info(self.display_id)
+            """creature_model_info = WorldDatabaseManager.creature_get_model_info(self.display_id)
             if creature_model_info:
                 self.bounding_radius = creature_model_info.bounding_radius
-                self.combat_reach = creature_model_info.combat_reach
+                self.combat_reach = creature_model_info.combat_reach"""
             self.npc_flags = self.creature_template.npc_flags
             self.mod_cast_speed = 1.0
             self.base_attack_time = self.creature_template.base_attack_time
@@ -117,18 +117,13 @@ class CreatureManager(UnitManager):
         name_bytes = PacketWriter.string_to_bytes(self.creature_template.name)
         subname_bytes = PacketWriter.string_to_bytes(self.creature_template.subname)
         data = pack(
-            '<I%ussss%us7Ih' % (len(name_bytes), len(subname_bytes)),
+            '<I%ussss%us3I' % (len(name_bytes), len(subname_bytes)),
             self.creature_template.entry,
             name_bytes, b'\x00', b'\x00', b'\x00',
             subname_bytes,
             self.creature_template.type_flags,
             self.creature_template.type,
-            self.creature_template.beast_family,
-            self.creature_template.rank,
-            0,  # unknown wdbField11
-            self.creature_template.pet_spell_list_id,
-            self.display_id,
-            self.creature_template.civilian
+            self.creature_template.beast_family
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
 

@@ -326,6 +326,35 @@ begin not atomic
 
         insert into applied_updates values('12042023');
     end if;
+
+    -- 13/04/2020 1
+    if (select count(*) from applied_updates where id='13042021') = 0 then
+        update creatures set display_id1 = 2357 where display_id1 = 5035;
+        update creatures set display_id2 = 2358 where display_id2 = 5036;
+        update spawns_creatures set ignored = 1 where spawn_entry1 in (11940, 11941, 11942, 11943, 11944, 11945);
+        update creatures set name = 'Lord Daval Prestor II', display_id1 = 277 where entry = 1749;
+
+        -- Thanks to Titi#7251
+        UPDATE creatures SET display_id1='1031' WHERE  entry=706;
+        UPDATE creatures SET display_id1='1032' WHERE  entry=946;
+        UPDATE creatures SET display_id1='605' WHERE  entry=1120;
+        UPDATE creatures SET display_id1='605' WHERE  entry=1123;
+        UPDATE creatures SET display_id1='743' WHERE  entry=1122;
+        UPDATE creatures SET display_id1='661' WHERE  entry=1397;
+        UPDATE creatures SET display_id1='661' WHERE  entry=1121;
+        UPDATE creatures SET display_id1='636' WHERE  entry=1124;
+        UPDATE creatures SET display_id1='661' WHERE  entry=808;
+        UPDATE creatures SET display_id1='836', display_id2='0', display_id3='0', display_id4='0' WHERE  entry=1211;
+        UPDATE creatures SET display_id1='1807' WHERE  entry=1330;
+        UPDATE creatures SET display_id1='1800' WHERE  entry=1329;
+        UPDATE creatures SET display_id1='1799' WHERE  entry=1332;
+        UPDATE creatures SET display_id1='1811' WHERE  entry=1335;
+        UPDATE creatures SET display_id1='1813' WHERE  entry=1336;
+        UPDATE creatures SET display_id1='1786' WHERE  entry=1337;
+        UPDATE creatures SET display_id2='2785', display_id3='2786', display_id4='2787' WHERE  entry=2098;
+
+        insert into applied_updates values('13042021');
+    end if;
 end $
 delimiter ;
 
