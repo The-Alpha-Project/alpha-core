@@ -33,6 +33,8 @@ from game.world.opcode_handling.handlers.DestroyItemHandler import DestroyItemHa
 from game.world.opcode_handling.handlers.GameObjectQueryHandler import GameObjectQueryHandler
 from game.world.opcode_handling.handlers.GameobjUseHandler import GameobjUseHandler
 from game.world.opcode_handling.handlers.CreatureQueryHandler import CreatureQueryHandler
+from game.world.opcode_handling.handlers.SetSelectionHandler import SetSelectionHandler
+from game.world.opcode_handling.handlers.SetTargetHandler import SetTargetHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -78,6 +80,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GAMEOBJECT_QUERY: GameObjectQueryHandler.handle,
     OpCode.CMSG_GAMEOBJ_USE: GameobjUseHandler.handle,
     OpCode.CMSG_CREATURE_QUERY: CreatureQueryHandler.handle,
+    OpCode.CMSG_SET_SELECTION: SetSelectionHandler.handle,
+    OpCode.CMSG_SET_TARGET: SetTargetHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

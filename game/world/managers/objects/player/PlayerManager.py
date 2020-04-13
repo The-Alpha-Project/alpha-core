@@ -41,6 +41,8 @@ class PlayerManager(UnitManager):
                  combo_points=0,
                  chat_flags=0,
                  is_online=False,
+                 current_target=0,
+                 current_selection=0,
                  **kwargs):
         super().__init__(**kwargs)
 
@@ -63,6 +65,8 @@ class PlayerManager(UnitManager):
         self.base_mana = base_mana
         self.sheath_state = sheath_state
         self.combo_points = combo_points
+        self.current_target = current_target
+        self.current_selection = current_selection
 
         self.chat_flags = chat_flags
         self.group_status = WhoPartyStatuses.WHO_PARTY_STATUS_NOT_IN_PARTY

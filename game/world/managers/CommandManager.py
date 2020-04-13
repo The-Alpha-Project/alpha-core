@@ -7,6 +7,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.ChatManager import ChatManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from utils.constants.ObjectCodes import HighGuid
 
 
 class CommandManager(object):
@@ -241,6 +242,39 @@ class CommandManager(object):
         except ValueError:
             return -1, 'please specify a valid item entry.'
 
+    @staticmethod
+    def creature_info(world_session, args):
+        creature = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr,
+                                                            world_session.player_mgr.current_selection)
+
+        if creature:
+            return 0, '[%s] - Guid: %u, Entry: %u, Display ID: %u, X: %f, Y: %f, Z: %f, O: %f, Map: %u' % (
+                creature.creature_template.name,
+                creature.guid & ~HighGuid.HIGHGUID_UNIT,
+                creature.creature_template.entry,
+                creature.display_id,
+                creature.location.x,
+                creature.location.y,
+                creature.location.z,
+                creature.location.o,
+                creature.map_
+            )
+        return -1, 'error retrieving creature info.'
+
+    @staticmethod
+    def player_info(world_session, args):
+        # Because you can select party members on different maps, we search in the entire session pool
+        player = WorldSessionStateHandler.find_player_by_guid(world_session.player_mgr.current_selection)
+
+        if player:
+            return 0, '[%s] - Guid: %u, Account ID: %u, Account name: %s' % (
+                player.player.name,
+                player.guid & ~HighGuid.HIGHGUID_PLAYER,
+                player.session.account_mgr.account.id,
+                player.session.account_mgr.account.name
+            )
+        return -1, 'error retrieving player info.'
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help
@@ -262,5 +296,7 @@ GM_COMMAND_DEFINITIONS = {
     'unmount': CommandManager.unmount,
     'morph': CommandManager.morph,
     'demorph': CommandManager.demorph,
-    'additem': CommandManager.additem
+    'additem': CommandManager.additem,
+    'cinfo': CommandManager.creature_info,
+    'pinfo': CommandManager.player_info
 }
