@@ -310,6 +310,8 @@ begin not atomic
         update creatures set display_id1 = 1859 where entry = 197;
         update creatures set display_id1 = 415 where entry = 644;
         update creatures set display_id1 = 172 where display_id1 = 9442;
+        update creatures set display_id1 = 520 where display_id1 = 8014;
+        update creatures set display_id1 = 3615 where display_id1 = 4920;
 
         insert into applied_updates values('12042022');
     end if;
