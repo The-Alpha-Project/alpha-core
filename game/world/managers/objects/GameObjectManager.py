@@ -28,6 +28,9 @@ class GameObjectManager(ObjectManager):
 
         self.guid = (gobject_instance.spawn_id if gobject_instance else 0) | HighGuid.HIGHGUID_GAMEOBJECT
 
+        if self.gobject_template:
+            self.display_id = self.gobject_template.display_id
+
         if gobject_instance:
             self.state = self.gobject_instance.spawn_state
             self.location.x = self.gobject_instance.spawn_positionX
@@ -87,7 +90,7 @@ class GameObjectManager(ObjectManager):
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_PADDING, 0, 'I')
 
             # Gameobject fields
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_DISPLAYID, self.gobject_template.display_id, 'I')
+            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_DISPLAYID, self.display_id, 'I')
             self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_FLAGS, self.gobject_template.flags, 'I')
             self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_FACTION, self.gobject_template.faction, 'I')
             self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_STATE, self.state, 'I')
@@ -115,7 +118,7 @@ class GameObjectManager(ObjectManager):
             '<3I%ussss10I' % len(name_bytes),
             self.gobject_template.entry,
             self.gobject_template.type,
-            self.gobject_template.display_id,
+            self.display_id,
             name_bytes, b'\x00', b'\x00', b'\x00',
             self.gobject_template.data1,
             self.gobject_template.data2,

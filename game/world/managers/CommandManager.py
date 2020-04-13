@@ -275,6 +275,34 @@ class CommandManager(object):
             )
         return -1, 'error retrieving player info.'
 
+    @staticmethod
+    def gobject_info(world_session, args):
+        try:
+            if args:
+                max_distance = int(args)
+            else:
+                max_distance = 10
+            found_count = 0
+            for guid, gobject in list(GridManager.get_surrounding_gameobjects(world_session.player_mgr).items()):
+                distance = world_session.player_mgr.location.distance(gobject.location)
+                if distance <= max_distance:
+                    found_count += 1
+                    ChatManager.send_system_message(world_session,'[%s] - Guid: %u, Entry: %u, Display ID: %u, X: %f, Y: %f, Z: %f, O: %f, Map: %u, Distance: %f' % (
+                        gobject.gobject_template.name,
+                        gobject.guid & ~HighGuid.HIGHGUID_GAMEOBJECT,
+                        gobject.gobject_template.entry,
+                        gobject.display_id,
+                        gobject.location.x,
+                        gobject.location.y,
+                        gobject.location.z,
+                        gobject.location.o,
+                        gobject.map_,
+                        distance
+                    ))
+            return 0, '%u game objects found within %u distance units.' % (found_count, max_distance)
+        except ValueError:
+            return -1, 'please specify a valid distance.'
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help
@@ -298,5 +326,6 @@ GM_COMMAND_DEFINITIONS = {
     'demorph': CommandManager.demorph,
     'additem': CommandManager.additem,
     'cinfo': CommandManager.creature_info,
-    'pinfo': CommandManager.player_info
+    'pinfo': CommandManager.player_info,
+    'goinfo': CommandManager.gobject_info
 }
