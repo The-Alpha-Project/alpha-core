@@ -313,6 +313,17 @@ begin not atomic
 
         insert into applied_updates values('12042022');
     end if;
+
+    -- 12/04/2020 3
+    if (select count(*) from applied_updates where id='12042023') = 0 then
+        update creatures set display_id1 = 2718 where entry = 2447;
+        update creatures set display_id1 = 1989 where display_id1 = 6808;
+        update creatures set display_id1 = 415 where display_id1 = 11567;
+        update creatures set display_id1 = 33 where display_id1 = 6705;
+        update creatures set display_id1 = 1050 where display_id1 = 6767;
+
+        insert into applied_updates values('12042023');
+    end if;
 end $
 delimiter ;
 
