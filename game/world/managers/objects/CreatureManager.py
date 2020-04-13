@@ -8,6 +8,7 @@ from network.packet.PacketWriter import PacketWriter
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes
 from utils.constants.OpCodes import OpCode
+from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -48,6 +49,10 @@ class CreatureManager(UnitManager):
             self.npc_flags = self.creature_template.npc_flags
             self.mod_cast_speed = 1.0
             self.base_attack_time = self.creature_template.base_attack_time
+            self.unit_flags = self.creature_template.unit_flags
+
+            if 0 < self.creature_template.rank < 4:
+                self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
 
         if self.creature_instance:
             self.health = int(self.creature_instance.health_percent * self.max_health)
