@@ -42,10 +42,6 @@ class CreatureManager(UnitManager):
                                                        self.creature_template.display_id3,
                                                        self.creature_template.display_id4]))
             self.display_id = choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube
-            """creature_model_info = WorldDatabaseManager.creature_get_model_info(self.display_id)
-            if creature_model_info:
-                self.bounding_radius = creature_model_info.bounding_radius
-                self.combat_reach = creature_model_info.combat_reach"""
             self.npc_flags = self.creature_template.npc_flags
             self.mod_cast_speed = 1.0
             self.base_attack_time = self.creature_template.base_attack_time
@@ -53,6 +49,8 @@ class CreatureManager(UnitManager):
 
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
+
+            self.model_info_loaded = False
 
         if self.creature_instance:
             self.health = int(self.creature_instance.health_percent * self.max_health)
@@ -70,6 +68,13 @@ class CreatureManager(UnitManager):
     # override
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
         if self.creature_template and self.creature_instance:
+            if not self.model_info_loaded:
+                creature_model_info = WorldDatabaseManager.creature_get_model_info(self.display_id)
+                if creature_model_info:
+                    self.bounding_radius = creature_model_info.bounding_radius
+                    self.combat_reach = creature_model_info.combat_reach
+                self.model_info_loaded = True
+
             self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, 0, 0))[0]
             self.damage = int(self.creature_template.dmg_max)  # temp
 
