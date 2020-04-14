@@ -43,4 +43,4 @@ class AuthSessionHandler(object):
         data = pack('<B', auth_code)
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
 
-        return 0 if auth_code == AuthCode.AUTH_OK else -1
+        return 0
