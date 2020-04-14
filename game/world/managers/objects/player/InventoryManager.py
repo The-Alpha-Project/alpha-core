@@ -75,9 +75,7 @@ class InventoryManager(object):
                     if not container.is_full():
                         item_mgr = container.add_item(item_template)
                         if item_mgr:
-                            self.owner.session.request.sendall(PacketWriter.get_packet(
-                                OpCode.SMSG_UPDATE_OBJECT,
-                                self.owner.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
+                            self.owner.send_update_self()
                             return item_mgr
         return None
 
@@ -154,9 +152,7 @@ class InventoryManager(object):
                     source_item.item_instance.stackcount -= diff
                     dest_item.item_instance.stackcount = dest_item.item_template.stackable
 
-                self.owner.session.request.sendall(PacketWriter.get_packet(
-                    OpCode.SMSG_UPDATE_OBJECT,
-                    self.owner.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
+                self.owner.send_update_self()
                 return
 
             # Actual transfer
@@ -208,9 +204,7 @@ class InventoryManager(object):
             if self.is_equipment_pos(source_bag, source_slot) or self.is_equipment_pos(dest_bag, dest_slot):
                 self.owner.flagged_for_update = True
             else:
-                self.owner.session.request.sendall(PacketWriter.get_packet(
-                    OpCode.SMSG_UPDATE_OBJECT,
-                    self.owner.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
+                self.owner.send_update_self()
 
     def set_base_attack_time(self):
         if InventorySlots.SLOT_MAINHAND in self.get_backpack().sorted_slots:

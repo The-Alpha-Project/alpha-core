@@ -46,11 +46,7 @@ class PlayerLoginHandler(object):
         PlayerLoginHandler._clear_who_list(socket)
 
         world_session.player_mgr.inventory.load_items()
-
-        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT,
-            world_session.player_mgr.get_update_packet(update_type=UpdateTypes.UPDATE_FULL)))
-        socket.sendall(update_packet)
+        world_session.player_mgr.send_update_self()
 
         PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
         world_session.player_mgr.complete_login()

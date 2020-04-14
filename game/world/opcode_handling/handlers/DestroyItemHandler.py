@@ -30,9 +30,6 @@ class DestroyItemHandler(object):
                     if world_session.player_mgr.inventory.is_equipment_pos(bag, source_slot):
                         world_session.player_mgr.flagged_for_update = True
                     else:
-                        world_session.request.sendall(PacketWriter.get_packet(
-                            OpCode.SMSG_UPDATE_OBJECT,
-                            world_session.player_mgr.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
-                                                                       is_self=True)))
+                        world_session.player_mgr.send_update_self()
 
         return 0

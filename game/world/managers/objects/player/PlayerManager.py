@@ -202,10 +202,7 @@ class PlayerManager(UnitManager):
                 if player.guid != self.guid:
                     self.session.request.sendall(player.get_destroy_packet())
 
-        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
-                                                              is_self=False)))
-        GridManager.send_surrounding(update_packet, self, include_self=False)
+        self.send_update_surrounding()
         GridManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
 
         for guid, player in list(GridManager.get_surrounding_players(self).items()):
@@ -485,18 +482,23 @@ class PlayerManager(UnitManager):
         self.last_tick = now
 
         if self.flagged_for_update:
-            self.session.request.sendall(PacketWriter.get_packet(
-                OpCode.SMSG_UPDATE_OBJECT,
-                self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=True)))
-
-            GridManager.send_surrounding(PacketWriter.get_packet(
-                OpCode.SMSG_UPDATE_OBJECT,
-                self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=False)),
-                self, include_self=False)
-
+            self.send_update_self()
+            self.send_update_surrounding()
             GridManager.update_object(self)
 
             self.flagged_for_update = False
+
+    def send_update_self(self, is_self=True, update_type=UpdateTypes.UPDATE_FULL):
+        self.session.request.sendall(UpdatePacketFactory.compress_if_needed(
+            PacketWriter.get_packet(
+                OpCode.SMSG_UPDATE_OBJECT,
+                self.get_update_packet(update_type=update_type.UPDATE_FULL, is_self=is_self))))
+
+    def send_update_surrounding(self, is_self=False, include_self=False, update_type=UpdateTypes.UPDATE_FULL):
+        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=update_type,
+                                                              is_self=is_self)))
+        GridManager.send_surrounding(update_packet, self, include_self=include_self)
 
     # override
     def get_type(self):

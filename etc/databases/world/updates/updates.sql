@@ -394,6 +394,7 @@ begin not atomic
         update creatures set display_id1 = 2187 where display_id1 in (6086, 6087);
         UPDATE spawns_creatures SET ignored='1' WHERE  spawn_entry1 IN (6774, 9296);
         UPDATE creatures SET display_id1='198' WHERE  entry=198;
+        update creatures set display_id1 = 1206, display_id4 = 0 where entry = 2914;
 
         insert into applied_updates values('14042023');
     end if;

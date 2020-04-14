@@ -52,10 +52,7 @@ class GameObjectManager(ObjectManager):
             if self.state == GameObjectStates.GO_STATE_READY:
                 self.state = GameObjectStates.GO_STATE_ACTIVE
                 # TODO: Trigger sripts / events on cooldown restart
-                update_packet = UpdatePacketFactory.compress_if_needed(
-                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                            self.get_update_packet(update_type=UpdateTypes.UPDATE_FULL, is_self=False)))
-                GridManager.send_surrounding(update_packet, self, include_self=False)
+                self.send_update_surrounding()
         elif self.gobject_template.type == GameObjectTypes.TYPE_CHAIR:
             slots = self.gobject_template.data1
             height = self.gobject_template.data2
@@ -132,6 +129,12 @@ class GameObjectManager(ObjectManager):
             self.gobject_template.data10,
         )
         return PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_QUERY_RESPONSE, data)
+
+    def send_update_surrounding(self, update_type=UpdateTypes.UPDATE_FULL):
+        update_packet = UpdatePacketFactory.compress_if_needed(
+            PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                    self.get_update_packet(update_type=update_type, is_self=False)))
+        GridManager.send_surrounding(update_packet, self, include_self=False)
 
     # override
     def get_type(self):
