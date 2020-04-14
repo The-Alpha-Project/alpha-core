@@ -352,8 +352,26 @@ begin not atomic
         UPDATE creatures SET display_id1='1813' WHERE  entry=1336;
         UPDATE creatures SET display_id1='1786' WHERE  entry=1337;
         UPDATE creatures SET display_id2='2785', display_id3='2786', display_id4='2787' WHERE  entry=2098;
+        UPDATE creatures SET display_id1='1051' WHERE entry=1179;
+        UPDATE creatures SET display_id1='1054' WHERE  entry=1180;
+        UPDATE spawns_creatures SET ignored='1' WHERE  spawn_entry1=6271;
+        UPDATE alpha_world.spawns_creatures SET ignored='1' WHERE  spawn_entry1 IN (7383,7385,6368,7384,7382,7380,7381, 6367);
 
         insert into applied_updates values('13042021');
+    end if;
+
+    -- 14/04/2020 1
+    if (select count(*) from applied_updates where id='14042021') = 0 then
+        update item_template set name = 'Dwarven Chain Belt', armor = 10 where entry = 2172;
+        delete from item_template where entry = 2171;
+        update item_template set name = 'Dwarven Leather Belt', display_id = 4520 where entry = 2173;
+        update quests set RewItemId1 = 2173 where entry = 170;
+        update quests set RewChoiceItemId2 = 3274 where entry = 376;
+        update quests set RewChoiceItemId1 = 11851, RewChoiceItemId2 = 11852, RewChoiceItemId3 = 0, RewChoiceItemCount3 = 0 where entry = 3901;
+        update quests set RewChoiceItemId3 = 0, RewChoiceItemCount3 = 0 where entry = 567;
+        update item_template set name = 'Cowl of Serenity' where entry = 3732;
+
+        insert into applied_updates values('14042021');
     end if;
 end $
 delimiter ;

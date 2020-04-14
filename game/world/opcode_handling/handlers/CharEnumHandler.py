@@ -55,8 +55,12 @@ class CharEnumHandler(object):
 
             if item:
                 item_template = WorldDatabaseManager.item_template_get_by_entry(item.item_template)
-                display_id = item_template.display_id
-                inventory_type = item_template.inventory_type
+                if item_template:
+                    display_id = item_template.display_id
+                    inventory_type = item_template.inventory_type
+                else:
+                    display_id = 0
+                    inventory_type = 0
             char_packet += pack('<IB', display_id, inventory_type)
 
         char_packet += pack('<IB', 0, 0)  # First bag data
