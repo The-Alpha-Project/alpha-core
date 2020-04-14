@@ -355,7 +355,7 @@ begin not atomic
         UPDATE creatures SET display_id1='1051' WHERE entry=1179;
         UPDATE creatures SET display_id1='1054' WHERE  entry=1180;
         UPDATE spawns_creatures SET ignored='1' WHERE  spawn_entry1=6271;
-        UPDATE alpha_world.spawns_creatures SET ignored='1' WHERE  spawn_entry1 IN (7383,7385,6368,7384,7382,7380,7381, 6367);
+        update spawns_creatures SET ignored='1' WHERE  spawn_entry1 IN (7383,7385,6368,7384,7382,7380,7381,6367);
 
         insert into applied_updates values('13042021');
     end if;
@@ -370,6 +370,10 @@ begin not atomic
         update quests set RewChoiceItemId1 = 11851, RewChoiceItemId2 = 11852, RewChoiceItemId3 = 0, RewChoiceItemCount3 = 0 where entry = 3901;
         update quests set RewChoiceItemId3 = 0, RewChoiceItemCount3 = 0 where entry = 567;
         update item_template set name = 'Cowl of Serenity' where entry = 3732;
+
+        update spawns_creatures set ignored='1' where spawn_entry1 in (6749, 9976, 9977, 9978, 9979, 9980, 9981, 9982,
+        9983, 9984, 9985, 9986, 9987, 9988, 9989, 10045, 10046, 10047, 10048, 10049, 10050, 10051, 10052, 10053, 10054,
+        10055, 10056, 10057, 10058, 10059, 10060, 10061, 10062, 10063, 10085, 11069, 11104, 11105, 11117, 11119);
 
         insert into applied_updates values('14042021');
     end if;
