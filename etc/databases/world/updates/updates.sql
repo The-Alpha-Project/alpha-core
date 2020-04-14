@@ -382,11 +382,20 @@ begin not atomic
     if (select count(*) from applied_updates where id='14042022') = 0 then
         update creatures set display_id1 = 2187 where display_id1 in (6086, 6087);
         update creatures set display_id1 = 2193 where display_id1 = 4473;
-        update spawns_creatures set ignored=1 where spawn_entry1 in (1996, 13159, 11979, 11994, 10616, 4305, 5197);
+        update spawns_creatures set ignored=1 where spawn_entry1 in (5917, 11996, 13159, 11979, 11994, 10616, 4305);
         update spawns_creatures set ignored=1 where spawn_entry1 in (12296);
         update creatures set display_id1 = 3258 where entry = 12423;
 
         insert into applied_updates values('14042022');
+    end if;
+
+    -- 14/04/2020 3
+    if (select count(*) from applied_updates where id='14042023') = 0 then
+        update creatures set display_id1 = 2187 where display_id1 in (6086, 6087);
+        UPDATE spawns_creatures SET ignored='1' WHERE  spawn_entry1 IN (6774, 9296);
+        UPDATE creatures SET display_id1='198' WHERE  entry=198;
+
+        insert into applied_updates values('14042023');
     end if;
 end $
 delimiter ;

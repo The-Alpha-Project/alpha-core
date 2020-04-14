@@ -19,23 +19,30 @@ class AuthSessionHandler(object):
         version, login = unpack(
             '<II', reader.data[:8]
         )
-        username, password = PacketReader.read_string(reader.data, 8).strip().split()
-        password = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
+        username = ''
+        password = ''
         auth_code = AuthCode.AUTH_OK
+
+        try:
+            username, password = PacketReader.read_string(reader.data, 8).strip().split()
+            password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+        except ValueError:
+            auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT
 
         if version != config.Server.Settings.supported_client:
             auth_code = AuthCode.AUTH_VERSION_MISMATCH
 
-        login_res, world_session.account_mgr = RealmDatabaseManager.account_try_login(username, password)
-        if login_res == 0:
-            auth_code = AuthCode.AUTH_INCORRECT_PASSWORD
-        elif login_res == -1:
-            if config.Server.Settings.auto_create_accounts:
-                world_session.account_mgr = RealmDatabaseManager.account_create(username, password,
-                                                                                socket.getpeername()[0])
-            else:
-                auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT
+        if username and password:
+            login_res, world_session.account_mgr = RealmDatabaseManager.account_try_login(username, password)
+            if login_res == 0:
+                auth_code = AuthCode.AUTH_INCORRECT_PASSWORD
+            elif login_res == -1:
+                if config.Server.Settings.auto_create_accounts:
+                    world_session.account_mgr = RealmDatabaseManager.account_create(username, password,
+                                                                                    socket.getpeername()[0])
+                else:
+                    auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT
 
         WorldSessionStateHandler.disonnect_old_session(world_session)
         WorldSessionStateHandler.add(world_session)
@@ -43,4 +50,4 @@ class AuthSessionHandler(object):
         data = pack('<B', auth_code)
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
 
-        return 0
+        return 0 if auth_code == AuthCode.AUTH_OK else -1
