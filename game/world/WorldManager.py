@@ -146,11 +146,12 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         creature_spawns, session = WorldDatabaseManager.creature_get_all_spawns()
 
         for creature in creature_spawns:
-            creature_mgr = CreatureManager(
-                creature_template=creature.creature_template,
-                creature_instance=creature
-            )
-            creature_mgr.load()
+            if creature.creature_template:
+                creature_mgr = CreatureManager(
+                    creature_template=creature.creature_template,
+                    creature_instance=creature
+                )
+                creature_mgr.load()
 
         session.close()
         return len(creature_spawns)
