@@ -51,6 +51,7 @@ class PlayerManager(UnitManager):
                                                           ObjectTypes.TYPE_PLAYER])
         self.session = session
         self.flagged_for_update = False
+        self.is_teleporting = False
 
         self.player = player
         self.is_online = is_online
@@ -251,6 +252,8 @@ class PlayerManager(UnitManager):
             self.player.power4 = self.power_4
 
     def teleport(self, map_, location):
+        self.is_teleporting = True
+
         GridManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
 
         # Same map and not inside instance
