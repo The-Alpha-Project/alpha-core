@@ -154,7 +154,7 @@ class ItemManager(ObjectManager):
             bag = InventorySlots.SLOT_INBACKPACK.value
             count = 1
             if item_template.inventory_type == 0 and item_template.class_ == 0:
-                count = 4
+                count = 2 if item_template.spellid_1 == 430 else 4
             elif item_template.inventory_type == 24:
                 count = 200
             return ItemManager.generate_item(item_template, owner, bag, slot, count=count)
