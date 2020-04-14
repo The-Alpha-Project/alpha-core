@@ -76,7 +76,7 @@ class NpcFlags(IntEnum):
     NPC_FLAG_VENDOR = 0x3
     NPC_FLAG_FLIGHTMASTER = 0x4
     NPC_FLAG_TRAINER = 0x8
-    NPC_FLAG_BINDER = 0x10  # Appears to be similar to inn keeper?
+    NPC_FLAG_BINDER = 0x10  # Binders were used to bind players to a meeting stone. You appeared there on death respawn.
     NPC_FLAG_BANKER = 0x20
     NPC_FLAG_TABARDDESIGNER = 0x40
     NPC_FLAG_PETITIONER = 0x80

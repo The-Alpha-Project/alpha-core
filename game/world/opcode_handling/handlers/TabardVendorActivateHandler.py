@@ -1,0 +1,16 @@
+from struct import unpack, pack
+
+from network.packet.PacketWriter import PacketWriter, OpCode
+
+
+class TabardVendorActivateHandler(object):
+
+    @staticmethod
+    def handle(world_session, socket, reader):
+        if len(reader.data) >= 8:  # Avoid handling empty set target packet
+            guid = unpack('<Q', reader.data[:8])[0]
+            if guid > 0:
+                data = pack('<Q', guid)
+                socket.sendall(PacketWriter.get_packet(OpCode.MSG_TABARDVENDOR_ACTIVATE, data))
+
+        return 0
