@@ -37,5 +37,15 @@ begin not atomic
         insert into applied_updates values('150420201');
     end if;
 
+    -- 16/04/2020 1
+    if (select count(*) from applied_updates where id='160420201') = 0 then
+        REPLACE INTO `item_template` VALUES (23192,4,0,'Tabard of the Scarlet Crusade','',3865,1,0,1,28575,7143,19,-1,-1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,0,0,0,1,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0);
+        update item_template set display_id = 6255 where entry = 11364;
+        update item_template set display_id = 8021 where entry = 7997;
+
+
+        insert into applied_updates values('160420201');
+    end if;
+
 end $
 delimiter ;
