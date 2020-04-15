@@ -124,7 +124,7 @@ class InventoryManager(object):
                         return
 
                     # Wrong destination slot
-                    if dest_item.class_ == InventoryTypes.BAG and self.is_equipment_pos(source_bag, source_slot):
+                    if dest_item.item_template.class_ == InventoryTypes.BAG and self.is_equipment_pos(source_bag, source_slot):
                         self.send_equip_error(InventoryError.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, source_item, dest_item)
                         return
 
