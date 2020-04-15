@@ -55,6 +55,16 @@ class CharCreateHandler(object):
                                   level=config.Unit.Player.Defaults.starting_level)
             RealmDatabaseManager.character_create(character)
             CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
+            default_deathbind = CharacterDeathbind(
+                player_guid=character.guid,
+                creature_binder_guid=0,
+                deathbind_map=map_,
+                deathbind_zone=zone,
+                deathbind_position_x=x,
+                deathbind_position_y=y,
+                deathbind_position_z=z
+            )
+            RealmDatabaseManager.character_add_deathbind(default_deathbind)
 
         data = pack('<B', result)
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHAR_CREATE, data))

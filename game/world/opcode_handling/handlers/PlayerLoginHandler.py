@@ -35,6 +35,9 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.load_skills()
         world_session.player_mgr.load_spells()
 
+        world_session.player_mgr.deathbind = RealmDatabaseManager.character_get_deathbind(world_session.player_mgr.guid)
+
+        socket.sendall(world_session.player_mgr.get_deathbind_packet())
         socket.sendall(world_session.player_mgr.get_tutorial_packet())
         socket.sendall(world_session.player_mgr.get_initial_spells())
         socket.sendall(world_session.player_mgr.get_action_buttons())

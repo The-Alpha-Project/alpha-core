@@ -28,7 +28,7 @@ class CharacterInventory(Base):
     __tablename__ = 'character_inventory'
 
     guid = Column(Integer, primary_key=True, autoincrement=True)
-    owner = Column(ForeignKey(u'characters.guid', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+    owner = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
     creator = Column(Integer, nullable=False, index=True, server_default=text("'0'"))
     bag = Column(Integer, nullable=False, server_default=text("'0'"))
     slot = Column(Integer, nullable=False, server_default=text("'0'"))
@@ -40,25 +40,25 @@ class CharacterInventory(Base):
     SpellCharges4 = Column(Integer, nullable=False, server_default=text("'-1'"))
     SpellCharges5 = Column(Integer, nullable=False, server_default=text("'-1'"))
 
-    character = relationship(u'Character')
+    character = relationship('Character')
 
 
 class CharacterSocial(Base):
     __tablename__ = 'character_social'
 
-    guid = Column(ForeignKey(u'characters.guid', ondelete=u'CASCADE', onupdate=u'CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
-    friend = Column(ForeignKey(u'characters.guid', ondelete=u'CASCADE', onupdate=u'CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    friend = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
     ignore = Column(Integer, nullable=False, server_default=text("'0'"))
 
-    character_friend = relationship(u'Character', primaryjoin='CharacterSocial.friend == Character.guid')
-    character_ignore = relationship(u'Character', primaryjoin='CharacterSocial.guid == Character.guid')
+    character_friend = relationship('Character', primaryjoin='CharacterSocial.friend == Character.guid')
+    character_ignore = relationship('Character', primaryjoin='CharacterSocial.guid == Character.guid')
 
 
 class Character(Base):
     __tablename__ = 'characters'
 
     guid = Column(Integer, primary_key=True, autoincrement=True, server_default=text("'0'"))
-    account_id = Column('account', ForeignKey(u'accounts.id', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+    account_id = Column('account', ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
     name = Column(String(12), nullable=False, index=True, server_default=text("''"))
     race = Column(Integer, nullable=False, server_default=text("'0'"))
     class_ = Column('class', Integer, nullable=False, server_default=text("'0'"))
@@ -94,7 +94,7 @@ class Character(Base):
     power4 = Column(Integer, nullable=False, server_default=text("'0'"))
     power5 = Column(Integer, nullable=False, server_default=text("'0'"))
 
-    account = relationship(u'Account')
+    account = relationship('Account')
 
 
 class Ticket(Base):
@@ -103,9 +103,24 @@ class Ticket(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     is_bug = Column(Integer, nullable=False, server_default=text("'0'"))
     account_name = Column(String(250), nullable=False, server_default=text("''"))
-    account_id = Column(ForeignKey(u'accounts.id', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+    account_id = Column(ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
     character_name = Column(String(12), nullable=False, server_default=text("''"))
     text_body = Column(Text, nullable=False)
     submit_time = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
 
-    account = relationship(u'Account')
+    account = relationship('Account')
+
+
+class CharacterDeathbind(Base):
+    __tablename__ = 'character_deathbind'
+
+    deathbind_id = Column(Integer, autoincrement=True, primary_key=True)
+    player_guid = Column(ForeignKey('characters.guid'), nullable=False, index=True)
+    creature_binder_guid = Column(Integer, nullable=False, server_default=text("'0'"))
+    deathbind_map = Column(Integer, nullable=False, server_default=text("'0'"))
+    deathbind_zone = Column(Integer, nullable=False, server_default=text("'0'"))
+    deathbind_position_x = Column(Float, nullable=False, server_default=text("'0'"))
+    deathbind_position_y = Column(Float, nullable=False, server_default=text("'0'"))
+    deathbind_position_z = Column(Float, nullable=False, server_default=text("'0'"))
+
+    character = relationship('Character')

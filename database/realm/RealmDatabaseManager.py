@@ -13,7 +13,7 @@ realm_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % 
                                                                                  config.Database.Connection.host,
                                                                                  config.Database.DBNames.realm_db),
                                 pool_pre_ping=True)
-SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine, autocommit=True, autoflush=True))
+SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine, autocommit=True, autoflush=False))
 
 
 class RealmDatabaseManager(object):
@@ -145,6 +145,30 @@ class RealmDatabaseManager(object):
                                                                     slot=slot).first()
         realm_db_session.close()
         return item
+
+    @staticmethod
+    def character_add_deathbind(deathbind):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(deathbind)
+        realm_db_session.flush()
+        realm_db_session.refresh(deathbind)
+        realm_db_session.close()
+        return deathbind
+
+    @staticmethod
+    def character_update_deathbind(deathbind):
+        if deathbind:
+            realm_db_session = SessionHolder()
+            realm_db_session.merge(deathbind)
+            realm_db_session.flush()
+            realm_db_session.close()
+
+    @staticmethod
+    def character_get_deathbind(guid):
+        realm_db_session = SessionHolder()
+        character = realm_db_session.query(CharacterDeathbind).filter_by(player_guid=guid & ~HighGuid.HIGHGUID_PLAYER).first()
+        realm_db_session.close()
+        return character
 
     # Ticket stuff
 

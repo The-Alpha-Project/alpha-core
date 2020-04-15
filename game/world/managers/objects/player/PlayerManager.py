@@ -43,6 +43,7 @@ class PlayerManager(UnitManager):
                  is_online=False,
                  current_target=0,
                  current_selection=0,
+                 deathbind=None,
                  **kwargs):
         super().__init__(**kwargs)
 
@@ -75,6 +76,7 @@ class PlayerManager(UnitManager):
         self.class_mask = 0
         self.spells = []
         self.skills = []
+        self.deathbind = deathbind
 
         if self.player:
             self.set_player_variables()
@@ -193,6 +195,19 @@ class PlayerManager(UnitManager):
         for x in range(0, MAX_ACTION_BUTTONS):
             data += pack('<I', 0)  # TODO: Handle action buttons later
         return PacketWriter.get_packet(OpCode.SMSG_ACTION_BUTTONS, data)
+
+    def get_deathbind_packet(self):
+        data = b''
+        if self.deathbind:
+            data = pack(
+                '<3f2I',
+                self.deathbind.deathbind_position_x,
+                self.deathbind.deathbind_position_y,
+                self.deathbind.deathbind_position_z,
+                self.deathbind.deathbind_map,
+                self.deathbind.deathbind_zone,
+            )
+        return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
     def update_surrounding(self, destroy=False):
         if destroy:
