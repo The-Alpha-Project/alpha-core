@@ -115,7 +115,7 @@ class CharacterDeathbind(Base):
     __tablename__ = 'character_deathbind'
 
     deathbind_id = Column(Integer, autoincrement=True, primary_key=True)
-    player_guid = Column(ForeignKey('characters.guid'), nullable=False, index=True)
+    player_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True)
     creature_binder_guid = Column(Integer, nullable=False, server_default=text("'0'"))
     deathbind_map = Column(Integer, nullable=False, server_default=text("'0'"))
     deathbind_zone = Column(Integer, nullable=False, server_default=text("'0'"))

@@ -117,8 +117,8 @@ CREATE TABLE IF NOT EXISTS `character_deathbind` (
   CONSTRAINT `fk_character_deathbind_characters1`
     FOREIGN KEY (`player_guid`)
     REFERENCES `characters` (`guid`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
