@@ -1,5 +1,7 @@
 from struct import pack, unpack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import *
 
 
@@ -7,25 +9,12 @@ class PlayerMacroHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        # TODO: Not implemented, can't find a way to play sounds(called with /v oom, for example)
-        if len(reader.data) >= 4:
-            """
-            From SoundEntries.dbc, data received equals to:
-
-            00: Help Me
-            01: Incoming
-            02: Charge
-            03: Flee
-            04: Attack t...
-            05: Out of mana
-            06: Follow me
-            07: Wait here
-            08: Heal me
-            09: Cheer
-            10: Open fire
-            11: Raspberr...
-            """
-
-            socket.sendall(PacketWriter.get_packet(OpCode.SMSG_PLAYER_MACRO, pack('<I', reader.data)))
+        if len(reader.data) >= 4:  # Avoid handling empty player macro packet
+            category = unpack('<I', reader.data[:4])[0]
+            if 0x0 < category <= 0xD:
+                voice_packet = PacketWriter.get_packet(OpCode.SMSG_PLAYER_MACRO,
+                                                       pack('<QI', world_session.player_mgr.guid,
+                                                            category))
+                GridManager.send_surrounding(voice_packet, world_session.player_mgr, include_self=True)
 
         return 0

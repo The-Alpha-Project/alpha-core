@@ -200,12 +200,11 @@ class PlayerManager(UnitManager):
         data = b''
         if self.deathbind:
             data = pack(
-                '<3f2I',
+                '<3fI',
                 self.deathbind.deathbind_position_x,
                 self.deathbind.deathbind_position_y,
                 self.deathbind.deathbind_position_z,
-                self.deathbind.deathbind_map,
-                self.deathbind.deathbind_zone,
+                self.deathbind.deathbind_map
             )
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
