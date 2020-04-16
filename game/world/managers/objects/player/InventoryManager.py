@@ -68,7 +68,7 @@ class InventoryManager(object):
         item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
         if item_template:
             if not self.can_store_item(item_template, count):
-                self.send_equip_error(InventoryError.EQUIP_ERR_CANT_CARRY_MORE_OF_THIS)
+                self.send_equip_error(InventoryError.BAG_CA)
 
             if count <= item_template.stackable:
                 for slot, container in self.containers.items():
@@ -90,7 +90,7 @@ class InventoryManager(object):
 
         if source_item:
             if not self.owner.is_alive:
-                self.send_equip_error(InventoryError.EQUIP_ERR_YOU_ARE_DEAD, source_item, dest_item)
+                self.send_equip_error(InventoryError.BAG_NOT_WHILE_DEAD, source_item, dest_item)
                 return
 
             # Check backpack / paperdoll placement
@@ -98,7 +98,7 @@ class InventoryManager(object):
                 if source_item.item_template.required_level > self.owner.level and \
                         self.is_equipment_pos(dest_bag, dest_slot):
                     # Not enough level
-                    self.send_equip_error(InventoryError.EQUIP_ERR_CANT_EQUIP_LEVEL_I, source_item, dest_item)
+                    self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
                     return
 
             # Destination slot checks
@@ -106,7 +106,7 @@ class InventoryManager(object):
                 if self.is_equipment_pos(dest_bag, dest_slot) and dest_slot != source_item.equip_slot \
                         and source_item.equip_slot != InventorySlots.SLOT_INBACKPACK or \
                         self.is_bag_pos(dest_slot) and source_item.item_template.inventory_type != InventoryTypes.BAG:
-                    self.send_equip_error(InventoryError.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, source_item, dest_item)
+                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
                     return
 
             # Original item being swapped to backpack
@@ -115,27 +115,27 @@ class InventoryManager(object):
                     # Wrong destination slot
                     if source_slot != dest_item.equip_slot and dest_item.equip_slot \
                             != InventorySlots.SLOT_INBACKPACK:
-                        self.send_equip_error(InventoryError.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, source_item, dest_item)
+                        self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
                         return
 
                     # Not enough level
                     if dest_item.item_template.required_level > self.owner.level:
-                        self.send_equip_error(InventoryError.EQUIP_ERR_CANT_EQUIP_LEVEL_I, source_item, dest_item)
+                        self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
                         return
 
                     # Wrong destination slot
                     if dest_item.item_template.class_ == InventoryTypes.BAG and self.is_equipment_pos(source_bag, source_slot):
-                        self.send_equip_error(InventoryError.EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, source_item, dest_item)
+                        self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
                         return
 
             # Prevent non empty bag in bag
             if (source_container.is_backpack or source_item and source_item.is_container()) and self.is_bag_pos(source_slot) \
                     and source_item and not source_item.is_empty():
-                self.send_equip_error(InventoryError.EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG, source_item, dest_item)
+                self.send_equip_error(InventoryError.BAG_NO_BAGS_IN_BAGS, source_item, dest_item)
                 return
             elif (dest_container.is_backpack or dest_item and dest_item.is_container()) and self.is_bag_pos(dest_slot) \
                     and dest_item and not dest_item.is_empty():
-                self.send_equip_error(InventoryError.EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG, dest_item, source_item)
+                self.send_equip_error(InventoryError.BAG_NO_BAGS_IN_BAGS, dest_item, source_item)
                 return
 
             # Stack handling
@@ -167,14 +167,14 @@ class InventoryManager(object):
                 if source_item.is_empty():
                     self.remove_bag(source_slot)
                 else:
-                    self.send_equip_error(InventoryError.EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS, source_item, dest_item)
+                    self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
                     return
 
             if dest_item and dest_item.is_backpack and self.is_bag_pos(dest_slot):
                 if dest_item.is_empty():
                     self.remove_bag(dest_slot)
                 else:
-                    self.send_equip_error(InventoryError.EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS, source_item, dest_item)
+                    self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
                     return
 
             # Bag transfers
@@ -311,8 +311,8 @@ class InventoryManager(object):
 
     def send_equip_error(self, error, item_1=None, item_2=None):
         data = pack('<B', error)
-        if error != InventoryError.EQUIP_ERR_OK:
-            if error == InventoryError.EQUIP_ERR_CANT_EQUIP_LEVEL_I:
+        if error != InventoryError.BAG_OK:
+            if error == InventoryError.BAG_LEVEL_MISMATCH:
                 data += pack('<I', item_1.item_template.required_level if item_1 else 0)
             data += pack(
                 '<2QB',

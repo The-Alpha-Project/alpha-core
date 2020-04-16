@@ -21,6 +21,6 @@ class ReadItemHandler(object):
                 data += pack('<2Q', item.guid, item.guid)
                 socket.sendall(PacketWriter.get_packet(OpCode.SMSG_READ_ITEM_OK, data))
             else:
-                world_session.player_mgr.inventory.send_equip_error(InventoryError.EQUIP_ERR_ITEM_NOT_FOUND)
+                world_session.player_mgr.inventory.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
 
         return 0

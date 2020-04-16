@@ -313,4 +313,4 @@ class ItemManager(ObjectManager):
 
     # override
     def get_type_id(self):
-        return ObjectTypeIds.TYPEID_ITEM
+        return ObjectTypeIds.ID_ITEM

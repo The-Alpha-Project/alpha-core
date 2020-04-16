@@ -120,7 +120,7 @@ class ObjectManager(object):
             self.swim_speed,
             self.turn_rate,
             1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
-            1 if self.get_type_id() == ObjectTypeIds.TYPEID_PLAYER else 0,  # AttackCycle
+            1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
             0,  # TimerId
             self.combat_target if isinstance(self, UnitManager.UnitManager) else 0,  # Victim GUID
             int(update_mask)
@@ -145,7 +145,7 @@ class ObjectManager(object):
 
     # override
     def get_type_id(self):
-        return ObjectTypeIds.TYPEID_OBJECT
+        return ObjectTypeIds.ID_OBJECT
 
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)

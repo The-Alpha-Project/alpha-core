@@ -142,4 +142,4 @@ class GameObjectManager(ObjectManager):
 
     # override
     def get_type_id(self):
-        return ObjectTypeIds.TYPEID_GAMEOBJECT
+        return ObjectTypeIds.ID_GAMEOBJECT

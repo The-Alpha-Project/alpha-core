@@ -138,4 +138,4 @@ class CreatureManager(UnitManager):
 
     # override
     def get_type_id(self):
-        return ObjectTypeIds.TYPEID_UNIT
+        return ObjectTypeIds.ID_UNIT

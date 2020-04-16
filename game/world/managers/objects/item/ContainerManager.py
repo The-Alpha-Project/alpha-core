@@ -122,4 +122,4 @@ class ContainerManager(ItemManager):
 
     # override
     def get_type_id(self):
-        return ObjectTypeIds.TYPEID_CONTAINER
+        return ObjectTypeIds.ID_CONTAINER

@@ -520,4 +520,4 @@ class PlayerManager(UnitManager):
 
     # override
     def get_type_id(self):
-        return ObjectTypeIds.TYPEID_PLAYER
+        return ObjectTypeIds.ID_PLAYER

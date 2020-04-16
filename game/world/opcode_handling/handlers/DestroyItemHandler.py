@@ -19,7 +19,7 @@ class DestroyItemHandler(object):
             if item:
                 if item.is_container() and not item.is_empty():
                     world_session.player_mgr.inventory.send_equip_error(
-                        InventoryError.EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS, item)
+                        InventoryError.BAG_NOT_EMPTY, item)
                 else:
                     RealmDatabaseManager.character_inventory_delete(item.item_instance)
                     if world_session.player_mgr.inventory.is_bag_pos(source_slot):
