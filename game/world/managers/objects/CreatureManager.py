@@ -43,7 +43,6 @@ class CreatureManager(UnitManager):
                                                        self.creature_template.display_id4]))
             self.display_id = choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube
             self.npc_flags = self.creature_template.npc_flags
-            self.npc_flags = 0x80
             self.mod_cast_speed = 1.0
             self.base_attack_time = self.creature_template.base_attack_time
             self.unit_flags = self.creature_template.unit_flags
