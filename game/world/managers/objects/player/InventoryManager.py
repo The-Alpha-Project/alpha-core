@@ -68,7 +68,7 @@ class InventoryManager(object):
         item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
         if item_template:
             if not self.can_store_item(item_template, count):
-                self.send_equip_error(InventoryError.BAG_CA)
+                self.send_equip_error(InventoryError.BAG_ITEM_MAX_COUNT_EXCEEDED)
 
             if count <= item_template.stackable:
                 for slot, container in self.containers.items():
