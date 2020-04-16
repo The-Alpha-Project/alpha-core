@@ -129,12 +129,12 @@ class InventoryManager(object):
                         return
 
             # Prevent non empty bag in bag
-            if source_container.is_backpack and self.is_bag_pos(source_slot) and source_slot == dest_bag or \
-                    source_item and source_item.is_container() and not source_item.is_empty():
+            if (source_container.is_backpack or source_item and source_item.is_container()) and self.is_bag_pos(source_slot) \
+                    and source_item and not source_item.is_empty():
                 self.send_equip_error(InventoryError.EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG, source_item, dest_item)
                 return
-            elif dest_container.is_backpack and self.is_bag_pos(dest_slot) and dest_slot == source_bag or \
-                    dest_item and dest_item.is_container() and not dest_item.is_empty():
+            elif (dest_container.is_backpack or dest_item and dest_item.is_container()) and self.is_bag_pos(dest_slot) \
+                    and dest_item and not dest_item.is_empty():
                 self.send_equip_error(InventoryError.EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG, dest_item, source_item)
                 return
 
@@ -163,15 +163,15 @@ class InventoryManager(object):
             if dest_bag in self.containers:
                 self.containers[dest_bag].remove_item_in_slot(dest_slot)
 
-            if source_item.is_backpack and self.is_bag_pos(source_slot):
-                if len(source_item.sorted_slots) == 0:
+            if source_item and self.is_bag_pos(source_slot):
+                if source_item.is_empty():
                     self.remove_bag(source_slot)
                 else:
                     self.send_equip_error(InventoryError.EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS, source_item, dest_item)
                     return
 
             if dest_item and dest_item.is_backpack and self.is_bag_pos(dest_slot):
-                if len(dest_item.sorted_slots) == 0:
+                if dest_item.is_empty():
                     self.remove_bag(dest_slot)
                 else:
                     self.send_equip_error(InventoryError.EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS, source_item, dest_item)
@@ -231,7 +231,8 @@ class InventoryManager(object):
         if not self.is_bag_pos(slot):
             return False
 
-        self.get_backpack().sorted_slots[slot] = container
+        if slot in self.get_backpack().sorted_slots and self.get_backpack().sorted_slots[slot] != container:
+            self.get_backpack().sorted_slots[slot] = container
         self.containers[slot] = container
 
         return True
@@ -240,8 +241,9 @@ class InventoryManager(object):
         if not self.is_bag_pos(slot) or slot not in self.containers:
             return False
 
+        if slot in self.get_backpack().sorted_slots:
+            self.get_backpack().sorted_slots.pop(slot)
         self.containers.pop(slot)
-        self.get_backpack().sorted_slots.pop(slot)
 
         return False
 

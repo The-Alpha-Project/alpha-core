@@ -24,9 +24,13 @@ class ContainerManager(ItemManager):
 
         if not self.is_backpack:
             self.total_slots = self.item_template.container_slots
+            self.start_slot = 0
+            self.max_slot = self.total_slots
             self.is_contained = self.guid
         else:
-            self.total_slots = InventorySlots.SLOT_BANK_END
+            self.total_slots = InventorySlots.SLOT_ITEM_END - InventorySlots.SLOT_ITEM_START
+            self.start_slot = InventorySlots.SLOT_ITEM_START
+            self.max_slot = InventorySlots.SLOT_BANK_END
             self.is_contained = self.owner
 
         self.object_type.append(ObjectTypes.TYPE_CONTAINER)
@@ -39,27 +43,35 @@ class ContainerManager(ItemManager):
             item_instance=item_manager.item_instance
         )
 
+    def can_set_item(self, item, slot):
+        if item:
+            if 0 > slot > self.max_slot:
+                return False
+            if not self.is_backpack and len(self.sorted_slots) == self.total_slots:
+                return False
+            return True
+        return False
+
     def set_item(self, item, slot, count=1):
-        if not item or len(self.sorted_slots) == self.total_slots or slot > self.total_slots:
-            return None
+        if self.can_set_item(item, slot):
+            if isinstance(item, ItemManager):
+                item_mgr = item
+                if item_mgr == self:
+                    return None
+            else:
+                item_mgr = ItemManager.generate_item(item, self.owner, self.current_slot, slot, count=count)
 
-        if isinstance(item, ItemManager):
-            item_mgr = item
-            if item_mgr == self:
-                return None
-        else:
-            item_mgr = ItemManager.generate_item(item, self.owner, self.current_slot, slot, count=count)
+            if item_mgr:
+                item_mgr.current_slot = slot
+                self.sorted_slots[slot] = item_mgr
 
-        if item_mgr:
-            item_mgr.current_slot = slot
-            self.sorted_slots[slot] = item_mgr
-
-        return item_mgr
+            return item_mgr
+        return None
 
     def add_item(self, item, count=1):
         if item:
             slot = self.next_available_slot()
-            if slot >= 0:
+            if slot >= self.start_slot:
                 return self.set_item(item, slot, count)
         return None
 
@@ -80,17 +92,29 @@ class ContainerManager(ItemManager):
         return False
 
     def next_available_slot(self):
-        start_slot = InventorySlots.SLOT_INBACKPACK.value if self.is_backpack else 0
-        for slot in range(start_slot, self.total_slots):
+        for slot in range(self.start_slot, self.start_slot + self.total_slots):
             if slot not in self.sorted_slots:
                 return slot
         return -1
 
     def is_full(self):
-        return len(self.sorted_slots) >= self.total_slots
+        if self.is_backpack:
+            item_count = 0
+            for bag_slot in range(InventorySlots.SLOT_ITEM_START, InventorySlots.SLOT_ITEM_END + 1):
+                if bag_slot in self.sorted_slots:
+                    item_count += 1
+            return item_count >= self.total_slots
+        else:
+            return len(self.sorted_slots) >= self.total_slots
 
     def is_empty(self):
-        return len(self.sorted_slots) == 0
+        if self.is_backpack:
+            for bag_slot in range(InventorySlots.SLOT_ITEM_START, InventorySlots.SLOT_ITEM_END + 1):
+                if bag_slot in self.sorted_slots:
+                    return False
+            return True
+        else:
+            return len(self.sorted_slots) == 0
 
     # override
     def get_type(self):
