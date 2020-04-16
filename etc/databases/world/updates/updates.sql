@@ -47,5 +47,12 @@ begin not atomic
         insert into applied_updates values('160420201');
     end if;
 
+    -- 16/04/2020 2
+    if (select count(*) from applied_updates where id='160420202') = 0 then
+        update item_template set display_id = 9199 where entry = 5863;
+
+        insert into applied_updates values('160420202');
+    end if;
+
 end $
 delimiter ;
