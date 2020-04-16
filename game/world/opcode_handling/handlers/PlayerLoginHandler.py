@@ -46,7 +46,7 @@ class PlayerLoginHandler(object):
         ChatManager.send_system_message(world_session, config.Server.General.motd)
 
         # Clear Who list on login, otherwise the last search will appear
-        PlayerLoginHandler._clear_who_list(socket)
+        # PlayerLoginHandler._clear_who_list(socket)
 
         world_session.player_mgr.inventory.load_items()
         world_session.player_mgr.send_update_self()
