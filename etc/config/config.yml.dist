@@ -21,8 +21,8 @@ Server:
             port: 9090
 
         WorldServer:
-          host: 127.0.0.1  # set this to external IP if needed
-          port: 8100
+            host: 127.0.0.1  # set this to external IP if needed
+            port: 8100
 
     Settings:
         auto_create_accounts: True
