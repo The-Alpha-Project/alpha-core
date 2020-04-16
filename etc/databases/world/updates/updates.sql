@@ -50,6 +50,8 @@ begin not atomic
     -- 16/04/2020 2
     if (select count(*) from applied_updates where id='160420202') = 0 then
         update item_template set display_id = 9199 where entry = 5863;
+        update creatures set display_id1 = 760 where display_id1 = 759;
+        update creatures set display_id1 = 768 where entry = 4263;
 
         insert into applied_updates values('160420202');
     end if;
