@@ -79,6 +79,16 @@ class CommandManager(object):
         )
 
     @staticmethod
+    def level_up(world_session, args):
+        try:
+            input_level = int(args)
+            world_session.player_mgr.change_player_level(input_level)
+
+            return 0, ''
+        except ValueError:
+            return -1, 'Please specify a valid level.'
+
+    @staticmethod
     def tel(world_session, args):
         try:
             tel_name = args.split()[0]
@@ -338,5 +348,6 @@ GM_COMMAND_DEFINITIONS = {
     'cinfo': CommandManager.creature_info,
     'pinfo': CommandManager.player_info,
     'goinfo': CommandManager.gobject_info,
+    'level': CommandManager.level_up,
     'money': CommandManager.money
 }
