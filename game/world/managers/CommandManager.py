@@ -303,6 +303,17 @@ class CommandManager(object):
         except ValueError:
             return -1, 'please specify a valid distance.'
 
+    @staticmethod
+    def money(world_session, args):
+        try:
+            money = int(args)
+            world_session.player_mgr.coinage = money
+            world_session.player_mgr.send_update_self()
+
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a money amount.'
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help
@@ -327,5 +338,6 @@ GM_COMMAND_DEFINITIONS = {
     'additem': CommandManager.additem,
     'cinfo': CommandManager.creature_info,
     'pinfo': CommandManager.player_info,
-    'goinfo': CommandManager.gobject_info
+    'goinfo': CommandManager.gobject_info,
+    'money': CommandManager.money
 }
