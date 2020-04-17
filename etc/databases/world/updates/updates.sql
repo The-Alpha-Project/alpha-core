@@ -98,7 +98,7 @@ begin not atomic
         UPDATE creatures SET display_id1='69' WHERE  entry=832;
 
         -- Remove npcs
-        UPDATE spawns_creatures SET ignored='1' WHERE spawn_entry1 IN (8096,8931,7067,7053,7056,7051,7024, 7052);
+        UPDATE spawns_creatures SET ignored='1' WHERE spawn_entry1 IN (8096,8931,7067,7053,7056,7051,7024, 7052, 11072, 6491);
         UPDATE spawns_creatures SET ignored='1' WHERE spawn_entry1 IN (81411,14273,6295,6727,6728,8963,7009,6966,6778,6374,6121, 6306);
 
 
