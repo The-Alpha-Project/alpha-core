@@ -4,6 +4,7 @@ from struct import unpack, pack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.UnitManager import UnitManager
+from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes
@@ -28,6 +29,7 @@ class CreatureManager(UnitManager):
         self.guid = (creature_instance.spawn_id if creature_instance else 0) | HighGuid.HIGHGUID_UNIT
 
         if self.creature_template:
+            self.entry = self.creature_template.entry
             self.scale = self.creature_template.scale if self.creature_template.scale > 0 else 1
             self.max_health = self.creature_template.health_max
             self.level = randrange(self.creature_template.level_min, self.creature_template.level_max + 1)
@@ -66,6 +68,35 @@ class CreatureManager(UnitManager):
     def load(self):
         GridManager.add_or_get(self, True)
 
+    def send_inventory_list(self, world_session):
+        vendor_data, session = WorldDatabaseManager.creature_get_vendor_data(self.entry)
+        item_count = len(vendor_data) if vendor_data else 0
+
+        data = pack(
+            '<QB',
+            self.guid,
+            item_count
+        )
+
+        if item_count == 0:
+            data += pack('<B', 0)
+        else:
+            for vendor_data_entry in vendor_data:
+                data += pack(
+                    '<7I',
+                    1,  # mui
+                    vendor_data_entry.item,
+                    vendor_data_entry.item_template.display_id,
+                    0xFFFFFFFF if vendor_data_entry.maxcount <= 0 else vendor_data_entry.maxcount,
+                    vendor_data_entry.item_template.buy_price,
+                    0,  # durability
+                    0,  # stack count
+                )
+                world_session.request.sendall(ItemManager(item_template=vendor_data_entry.item_template).query_details())
+
+        session.close()
+        world_session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
+
     # override
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
         if self.creature_template and self.creature_instance:
@@ -82,7 +113,7 @@ class CreatureManager(UnitManager):
             # Object fields
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_GUID, self.guid, 'Q')
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value(), 'I')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_ENTRY, self.creature_template.entry, 'I')
+            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_ENTRY, self.entry, 'I')
             self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_SCALE_X, self.scale, 'f')
 
             # Unit fields
@@ -124,7 +155,7 @@ class CreatureManager(UnitManager):
         subname_bytes = PacketWriter.string_to_bytes(self.creature_template.subname)
         data = pack(
             '<I%ussss%us3I' % (len(name_bytes), len(subname_bytes)),
-            self.creature_template.entry,
+            self.entry,
             name_bytes, b'\x00', b'\x00', b'\x00',
             subname_bytes,
             self.creature_template.type_flags,
