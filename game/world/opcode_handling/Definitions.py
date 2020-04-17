@@ -38,6 +38,7 @@ from game.world.opcode_handling.handlers.SetTargetHandler import SetTargetHandle
 from game.world.opcode_handling.handlers.TabardVendorActivateHandler import TabardVendorActivateHandler
 from game.world.opcode_handling.handlers.BinderActivateHandler import BinderActivateHandler
 from game.world.opcode_handling.handlers.PetitionShowlistHandler import PetitionShowlistHandler
+from game.world.opcode_handling.handlers.PetitionBuyHandler import PetitionBuyHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -88,6 +89,7 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_TABARDVENDOR_ACTIVATE: TabardVendorActivateHandler.handle,
     OpCode.CMSG_BINDER_ACTIVATE: BinderActivateHandler.handle,
     OpCode.CMSG_PETITION_SHOWLIST: PetitionShowlistHandler.handle,
+    OpCode.CMSG_PETITION_BUY: PetitionBuyHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

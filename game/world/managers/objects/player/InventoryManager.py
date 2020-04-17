@@ -323,6 +323,15 @@ class InventoryManager(object):
             )
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_INVENTORY_CHANGE_FAILURE, data))
 
+    def send_buy_error(self, error, entry, vendor_guid=0):
+        data = pack(
+            '<QIB',
+            vendor_guid if vendor_guid > 0 else self.owner.guid,
+            entry,
+            error
+        )
+        self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_BUY_FAILED, data))
+
     def build_update(self, update_packet_factory):
         for slot, item in self.get_backpack().sorted_slots.items():
             update_packet_factory.update(update_packet_factory.player_values,

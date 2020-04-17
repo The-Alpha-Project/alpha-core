@@ -5,11 +5,10 @@ from math import pi
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.objects.UnitManager import UnitManager
-from game.world.managers.objects.player.GuildManager import GuildManager
+from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
-from utils.constants.ItemCodes import InventoryError
 from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
@@ -106,6 +105,7 @@ class PlayerManager(UnitManager):
             self.power_3 = self.player.power3
             self.max_power_4 = self.player.power4
             self.power_4 = self.player.power4
+            self.coinage = self.player.money
 
             self.is_gm = self.session.account_mgr.account.gmlevel > 0
 
@@ -261,6 +261,7 @@ class PlayerManager(UnitManager):
             self.player.power2 = self.power_2
             self.player.power3 = self.power_3
             self.player.power4 = self.power_4
+            self.player.money = self.coinage
 
     def teleport(self, map_, location):
         self.is_teleporting = True
