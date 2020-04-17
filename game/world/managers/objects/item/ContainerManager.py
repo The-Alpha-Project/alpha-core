@@ -2,7 +2,7 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.ItemCodes import InventorySlots
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 
 MAX_BAG_SLOTS = 20
 
@@ -15,6 +15,7 @@ class ContainerManager(ItemManager):
                                                           ObjectTypes.TYPE_ITEM,
                                                           ObjectTypes.TYPE_CONTAINER])
 
+        self.guid = (item_instance.guid if item_instance else 0) | HighGuid.HIGHGUID_CONTAINER
         self.owner = owner
         self.is_backpack = is_backpack
         if self.is_backpack:

@@ -63,9 +63,9 @@ class UpdateTypes(IntEnum):
 
 # Some might be unused on Alpha
 class HighGuid(IntEnum):
-    HIGHGUID_ITEM = 0x40000000
-    HIGHGUID_CONTAINER = 0x40000000
     HIGHGUID_PLAYER = 0x00000000
+    HIGHGUID_CONTAINER = 0x00000006  # not 100% sure about this, I was using same as HIGHGUID_ITEM before
+    HIGHGUID_ITEM = 0x40000000
     HIGHGUID_GAMEOBJECT = 0xF1100000
     HIGHGUID_TRANSPORT = 0xF1200000
     HIGHGUID_UNIT = 0xF1300000
