@@ -39,7 +39,7 @@ class ContainerManager(ItemManager):
     @classmethod
     def from_item(cls, item_manager):
         return cls(
-            owner=item_manager.item_instance.owner,
+            owner=item_manager.item_instance.owner.guid,
             item_template=item_manager.item_template,
             item_instance=item_manager.item_instance
         )

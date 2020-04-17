@@ -47,7 +47,7 @@ class InventoryManager(object):
                         continue
 
                     item_mgr = ContainerManager(
-                        owner=self.owner,
+                        owner=self.owner.guid,
                         item_template=item_template,
                         item_instance=item_instance
                     )
