@@ -46,6 +46,7 @@ class CreatureManager(UnitManager):
             self.mod_cast_speed = 1.0
             self.base_attack_time = self.creature_template.base_attack_time
             self.unit_flags = self.creature_template.unit_flags
+            self.faction = self.creature_template.faction
 
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB

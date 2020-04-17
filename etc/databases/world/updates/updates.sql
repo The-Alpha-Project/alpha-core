@@ -105,5 +105,14 @@ begin not atomic
         insert into applied_updates values('160420202');
     end if;
 
+    -- 17/04/2020 1
+    if (select count(*) from applied_updates where id='170420201') = 0 then
+        update creatures set npc_flags = 192 where subname = 'Guild Master';
+        update creatures set npc_flags = 16 where subname = 'Spirit Healer';
+
+
+        insert into applied_updates values('170420201');
+    end if;
+
 end $
 delimiter ;
