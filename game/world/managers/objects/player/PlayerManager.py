@@ -376,13 +376,20 @@ class PlayerManager(UnitManager):
         # TODO NOT WORKING
         self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 
-    def change_player_level(self, input_level):
-        if input_level != self.level:
-            if 0 <= input_level <= config.Unit.Player.Defaults.max_level:
-                self.level = input_level
-                data = pack('<I', input_level)
+    def mod_level(self, level):
+        if level != self.level:
+            if 0 < level <= config.Unit.Player.Defaults.max_level:
+                self.level = level
+                data = pack('<I', level)
+                # TODO: Finish implementing SMSG_LEVELUP_INFO packet
                 self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
                 self.flagged_for_update = True
+
+    def mod_money(self, amount):
+        if self.coinage + amount < 0:
+            amount = -self.coinage
+        self.coinage += amount
+        self.send_update_self()
 
     def load_skills(self):
         for skill in WorldDatabaseManager.player_create_skill_get(self.player.race,
@@ -396,12 +403,6 @@ class PlayerManager(UnitManager):
             spell_to_load = DbcDatabaseManager.spell_get_by_id(spell.Spell)
             if spell_to_load:
                 self.spells.append(spell_to_load)
-
-    def mod_money(self, amount):
-        if self.coinage + amount < 0:
-            amount = -self.coinage
-        self.coinage += amount
-        self.send_update_self()
 
     # TODO: UPDATE_PARTIAL is not being used anywhere (it's implemented but not sure if it works correctly).
     # override

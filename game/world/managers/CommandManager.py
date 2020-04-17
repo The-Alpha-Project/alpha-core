@@ -79,16 +79,6 @@ class CommandManager(object):
         )
 
     @staticmethod
-    def level_up(world_session, args):
-        try:
-            input_level = int(args)
-            world_session.player_mgr.change_player_level(input_level)
-
-            return 0, ''
-        except ValueError:
-            return -1, 'Please specify a valid level.'
-
-    @staticmethod
     def tel(world_session, args):
         try:
             tel_name = args.split()[0]
@@ -314,6 +304,16 @@ class CommandManager(object):
             return -1, 'please specify a valid distance.'
 
     @staticmethod
+    def level(world_session, args):
+        try:
+            input_level = int(args)
+            world_session.player_mgr.mod_level(input_level)
+
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a valid level.'
+
+    @staticmethod
     def money(world_session, args):
         try:
             money = int(args)
@@ -348,6 +348,6 @@ GM_COMMAND_DEFINITIONS = {
     'cinfo': CommandManager.creature_info,
     'pinfo': CommandManager.player_info,
     'goinfo': CommandManager.gobject_info,
-    'level': CommandManager.level_up,
+    'level': CommandManager.level,
     'money': CommandManager.money
 }
