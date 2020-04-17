@@ -53,6 +53,55 @@ begin not atomic
         update creatures set display_id1 = 760 where display_id1 = 759;
         update creatures set display_id1 = 768 where entry = 4263;
 
+        -- Elwynn
+        -- Servants of Azora
+        UPDATE creatures SET display_id1='3539' WHERE  entry=3096;
+        UPDATE creatures SET display_id1='3538', display_id2='3539', display_id3='0', display_id4='0' WHERE  entry=1949;
+        -- Eastvale npcs:
+        UPDATE creatures SET display_id1='3274' WHERE  entry=1198;
+        UPDATE creatures SET display_id1='89' WHERE  entry=1975;
+        UPDATE creatures SET display_id1='3264' WHERE  entry=1650;
+
+        -- Murlocs:
+        UPDATE creatures SET display_id1='478' WHERE  entry=544;
+        -- Blackrock orcs :
+        UPDATE creatures SET display_id1='516' WHERE  entry=485;
+        UPDATE creatures SET display_id1='112' WHERE  entry=440;
+        UPDATE creatures SET display_id1='496' WHERE  entry=437;
+        UPDATE creatures SET display_id1='516' WHERE  entry=4064;
+        UPDATE creatures SET display_id1='496' WHERE  entry=4065;
+        UPDATE creatures SET display_id1='113' WHERE  entry=436;
+        UPDATE creatures SET display_id1='495' WHERE  entry=486;
+        UPDATE creatures SET display_id1='456' WHERE  entry=334;
+        UPDATE creatures SET display_id1='495' WHERE  entry=4464;
+        UPDATE creatures SET display_id1='113' WHERE  entry=4463;
+        UPDATE creatures SET display_id1='496' WHERE  entry=4462;
+        UPDATE creatures SET display_id1='565' WHERE  entry=615;
+        UPDATE creatures SET display_id1='517' WHERE  entry=435;
+        UPDATE creatures SET display_id1='553' WHERE  entry=584;
+
+        -- More npcs
+        UPDATE creatures SET display_id1='3382' WHERE  entry=3097;
+        UPDATE creatures SET display_id1='494' WHERE  entry=947;
+        UPDATE creatures SET display_id1='3447' WHERE  entry=900;
+
+        -- Westfall
+        -- Smugglers :
+        UPDATE creatures SET display_id1='2344', display_id2='2345' WHERE  entry=95;
+        -- Benny Blaanco
+        UPDATE creatures SET display_id1='2354' WHERE  entry=502;
+
+        UPDATE creatures SET display_id1='2149' WHERE  entry=4305;
+
+        UPDATE creatures SET display_id1='383' WHERE  entry=125;
+
+        UPDATE creatures SET display_id1='69' WHERE  entry=832;
+
+        -- Remove npcs
+        UPDATE spawns_creatures SET ignored='1' WHERE spawn_entry1 IN (8096,8931,7067,7053,7056,7051,7024, 7052);
+        UPDATE spawns_creatures SET ignored='1' WHERE spawn_entry1 IN (81411,14273,6295,6727,6728,8963,7009,6966,6778,6374,6121, 6306);
+
+
         insert into applied_updates values('160420202');
     end if;
 
