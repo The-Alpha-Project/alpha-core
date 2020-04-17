@@ -389,6 +389,12 @@ class PlayerManager(UnitManager):
             if spell_to_load:
                 self.spells.append(spell_to_load)
 
+    def mod_money(self, amount):
+        if self.coinage + amount < 0:
+            amount = -self.coinage
+        self.coinage += amount
+        self.send_update_self()
+
     # TODO: UPDATE_PARTIAL is not being used anywhere (it's implemented but not sure if it works correctly).
     # override
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):

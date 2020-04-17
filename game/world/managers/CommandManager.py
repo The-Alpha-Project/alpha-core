@@ -307,8 +307,7 @@ class CommandManager(object):
     def money(world_session, args):
         try:
             money = int(args)
-            world_session.player_mgr.coinage = money
-            world_session.player_mgr.send_update_self()
+            world_session.player_mgr.mod_money(money)
 
             return 0, ''
         except ValueError:
