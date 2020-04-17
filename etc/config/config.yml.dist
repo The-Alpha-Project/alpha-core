@@ -35,7 +35,7 @@ Server:
 
     General:
         # Message of the day
-        motd: Welcome to an alpha-core server
+        motd: Welcome to the Friends and Family Alpha!
 
 World:
     Gameplay:
