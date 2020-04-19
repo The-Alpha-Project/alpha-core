@@ -127,10 +127,10 @@ class Definitions(object):
         try:
             opcode_name = OpCode(opcode)
             if opcode_name in HANDLER_DEFINITIONS:
-                return HANDLER_DEFINITIONS.get(OpCode(opcode))
+                return HANDLER_DEFINITIONS.get(OpCode(opcode)), 1
             else:
                 Logger.warning('[%s] Received %s OpCode but is not handled.' % (world_session.client_address[0],
                                                                                 opcode_name))
         except ValueError:
-            Logger.error('[%s] Received unknown OpCode (%u)' % (world_session.client_address[0], opcode))
-        return None
+            return None, -1
+        return None, 0

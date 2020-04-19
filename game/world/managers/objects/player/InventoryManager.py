@@ -8,9 +8,13 @@ from game.world.managers.objects.item.ContainerManager import ContainerManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.UpdatePacketFactory import UpdatePacketFactory, UpdateTypes
 from utils.ConfigManager import config
+from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError
 from utils.constants.ObjectCodes import BankSlots
 from utils.constants.UpdateFields import PlayerFields
+
+
+MAX_3368_ITEM_DISPLAY_ID = 11802
 
 
 class InventoryManager(object):
@@ -42,6 +46,16 @@ class InventoryManager(object):
         for item_instance in character_inventory:
             item_template = WorldDatabaseManager.item_template_get_by_entry(item_instance.item_template)
             if item_template:
+                if item_template.display_id > MAX_3368_ITEM_DISPLAY_ID and \
+                        self.is_equipment_pos(item_instance.bag, item_instance.slot):
+                    Logger.error('Character %s has an equipped item (%u - %s) with out of bounds display_id (%u), '
+                                 'deleting in order to prevent crashes.' % (self.owner.player.name,
+                                                                            item_template.entry,
+                                                                            item_template.name,
+                                                                            item_template.display_id))
+                    RealmDatabaseManager.character_inventory_delete(item_instance)
+                    continue
+
                 if item_template.inventory_type == InventoryTypes.BAG:
                     if self.is_bag_pos(item_instance.slot):
                         continue

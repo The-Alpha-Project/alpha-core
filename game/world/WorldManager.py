@@ -91,11 +91,13 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             if len(data) > 0:
                 reader = PacketReader(data)
                 if reader.opcode:
-                    handler = Definitions.get_handler_from_packet(self, reader.opcode)
+                    handler, res = Definitions.get_handler_from_packet(self, reader.opcode)
                     if handler:
                         Logger.debug('[%s] Handling %s' % (self.client_address[0], OpCode(reader.opcode)))
                         if handler(self, sck, reader) != 0:
                             return -1
+                    elif res == -1:
+                        Logger.warning('[%s] Received unknown data: %s' % (self.client_address[0], data))
             else:
                 return -1
         except OSError:
