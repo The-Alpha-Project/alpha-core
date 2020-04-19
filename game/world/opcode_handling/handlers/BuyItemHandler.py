@@ -39,7 +39,7 @@ class BuyItemHandler(object):
                     if world_session.player_mgr.inventory.add_item(item_template=item_template, count=count,
                                                                    handle_error=False):
                         world_session.player_mgr.mod_money(total_cost * -1)
-                        vendor_npc.send_inventory_list(world_session)
+                        #vendor_npc.send_inventory_list(world_session)
                     else:
                         world_session.player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_CANT_CARRY_MORE, item,
                                                                           vendor_guid)
