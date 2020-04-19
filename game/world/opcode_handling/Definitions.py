@@ -40,6 +40,7 @@ from game.world.opcode_handling.handlers.BinderActivateHandler import BinderActi
 from game.world.opcode_handling.handlers.PetitionShowlistHandler import PetitionShowlistHandler
 from game.world.opcode_handling.handlers.PetitionBuyHandler import PetitionBuyHandler
 from game.world.opcode_handling.handlers.ListInventoryHandler import ListInventoryHandler
+from game.world.opcode_handling.handlers.BuyItemHandler import BuyItemHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -92,6 +93,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_PETITION_SHOWLIST: PetitionShowlistHandler.handle,
     OpCode.CMSG_PETITION_BUY: PetitionBuyHandler.handle,
     OpCode.CMSG_LIST_INVENTORY: ListInventoryHandler.handle,
+    OpCode.CMSG_BUY_ITEM: BuyItemHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

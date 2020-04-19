@@ -78,11 +78,14 @@ class InventoryManager(object):
     def get_backpack(self):
         return self.containers[InventorySlots.SLOT_INBACKPACK]
 
-    def add_item(self, entry, count=1):
-        item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
+    def add_item(self, entry=0, item_template=None, count=1, handle_error=True):
+        if entry == 0 and not item_template:
+            item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
+
         if item_template:
             if not self.can_store_item(item_template, count):
-                self.send_equip_error(InventoryError.BAG_INV_FULL)
+                if handle_error:
+                    self.send_equip_error(InventoryError.BAG_INV_FULL)
                 return None
 
             if count <= item_template.stackable:

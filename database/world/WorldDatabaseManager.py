@@ -151,3 +151,9 @@ class WorldDatabaseManager(object):
         world_db_session = SessionHolder()
         res = world_db_session.query(NpcVendor).filter_by(entry=entry).all()
         return res, world_db_session
+
+    @staticmethod
+    def creature_get_vendor_data_by_item(entry, item):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(NpcVendor).filter_by(entry=entry, item=item).first()
+        return res, world_db_session
