@@ -123,7 +123,7 @@ begin not atomic
     end if;
 
     -- 19/04/2020 1
-    if (select count(*) from applied_updates where id='1970420201') = 0 then
+    if (select count(*) from applied_updates where id='190420201') = 0 then
         update item_template set display_id = 7002 where entry = 287;
         update creatures set name = 'Gerard Granger', level_min = 60, level_max = 60, health_min = 1605, health_max = 1605, armor = 1200, faction = 11, dmg_min = 42, dmg_max = 53, attack_power = 122, base_attack_time = 2000, ranged_attack_time = 2000, ranged_dmg_min = 45.144, ranged_dmg_max = 62.073, ranged_attack_power = 100, npc_flags = 3 where entry = 1293;
 
