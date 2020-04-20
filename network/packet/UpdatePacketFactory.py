@@ -107,6 +107,41 @@ class UpdatePacketFactory(object):
         self.init_lists()
         return self.update_packet
 
+    def build_partial_packet(self):
+        self.update_packet = b''
+
+        if ObjectTypes.TYPE_OBJECT in self.types_list:
+            for i in range(0, len(self.updated_object_fields)):
+                if self.updated_object_fields[i] == 1:
+                    self.update_packet += self.object_values[i]
+        if ObjectTypes.TYPE_UNIT in self.types_list:
+            for i in range(0, len(self.updated_unit_fields)):
+                if self.updated_unit_fields[i] == 1:
+                    self.update_packet += self.unit_values[i]
+        if ObjectTypes.TYPE_PLAYER in self.types_list:
+            for i in range(0, len(self.updated_player_fields)):
+                if self.updated_player_fields[i] == 1:
+                    self.update_packet += self.player_values[i]
+        if ObjectTypes.TYPE_ITEM in self.types_list:
+            for i in range(0, len(self.updated_item_fields)):
+                if self.updated_item_fields[i] == 1:
+                    self.update_packet += self.item_values[i]
+        if ObjectTypes.TYPE_CONTAINER in self.types_list:
+            for i in range(0, len(self.updated_container_fields)):
+                if self.updated_container_fields[i] == 1:
+                    self.update_packet += self.container_values[i]
+        if ObjectTypes.TYPE_GAMEOBJECT in self.types_list:
+            for i in range(0, len(self.updated_gameobject_fields)):
+                if self.updated_gameobject_fields[i] == 1:
+                    self.update_packet += self.gameobject_values[i]
+        if ObjectTypes.TYPE_DYNAMICOBJECT in self.types_list:
+            for i in range(0, len(self.dynamic_object_values)):
+                if self.dynamic_object_values[i] == 1:
+                    self.update_packet += self.dynamic_object_values[i]
+
+        self.init_lists()
+        return self.update_packet
+
     @staticmethod
     def compress_if_needed(update_packet):
         if len(update_packet) > 100:

@@ -85,7 +85,7 @@ class ObjectManager(object):
         update_mask = self.get_update_mask()
         updated_fields_mask = update_packet_factory.get_updated_fields_mask()
         data = pack(
-            '<IBQI%us' % len(updated_fields_mask),
+            '<IBQB%us' % len(updated_fields_mask),
             1,  # Number of transactions
             0,
             self.guid,

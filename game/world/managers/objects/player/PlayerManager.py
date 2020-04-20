@@ -508,10 +508,11 @@ class PlayerManager(UnitManager):
         packet = b''
         if update_type == UpdateTypes.UPDATE_FULL:
             packet += self.create_update_packet(is_self)
+            update_packet = packet + self.update_packet_factory.build_packet()
         else:
             packet += self.create_partial_update_packet(self.update_packet_factory)
+            update_packet = packet + self.update_packet_factory.build_partial_packet()
 
-        update_packet = packet + self.update_packet_factory.build_packet()
         return update_packet
 
     # override
@@ -526,7 +527,7 @@ class PlayerManager(UnitManager):
 
         if self.flagged_for_update:
             self.send_update_self()
-            self.send_update_surrounding()
+            self.send_update_surrounding(update_type=UpdateTypes.UPDATE_FULL)
             GridManager.update_object(self)
 
             self.flagged_for_update = False

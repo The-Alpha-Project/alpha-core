@@ -22,7 +22,10 @@ class WorldTeleportHandler(object):
 
     @staticmethod
     def handle_ack(world_session, socket, reader):
-        world_session.player_mgr.flagged_for_update = True
+        world_session.player_mgr.send_update_self()
+        world_session.player_mgr.send_update_surrounding()
+        GridManager.update_object(world_session.player_mgr)
+
         world_session.player_mgr.is_teleporting = False
 
         return 0
