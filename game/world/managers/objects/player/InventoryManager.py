@@ -79,7 +79,7 @@ class InventoryManager(object):
         return self.containers[InventorySlots.SLOT_INBACKPACK]
 
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True):
-        if entry == 0 and not item_template:
+        if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
 
         if item_template:

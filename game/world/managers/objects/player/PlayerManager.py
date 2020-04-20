@@ -52,6 +52,7 @@ class PlayerManager(UnitManager):
         self.session = session
         self.flagged_for_update = False
         self.is_teleporting = False
+        self.objects_in_range = dict()
 
         self.player = player
         self.is_online = is_online
@@ -219,30 +220,43 @@ class PlayerManager(UnitManager):
         self.send_update_surrounding()
         GridManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
 
+        for guid, is_near in list(self.objects_in_range.items()):
+            if not is_near:
+                del self.objects_in_range[guid]
+            else:
+                self.objects_in_range[guid] = False
+
         for guid, player in list(GridManager.get_surrounding_players(self).items()):
             if self.guid != guid:
-                update_packet = UpdatePacketFactory.compress_if_needed(
-                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                            player.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
-                                                                     is_self=False)))
-                self.session.request.sendall(update_packet)
-                self.session.request.sendall(NameQueryHandler.get_query_details(player.player))
+                if guid not in self.objects_in_range:
+                    update_packet = UpdatePacketFactory.compress_if_needed(
+                        PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                                player.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
+                                                                         is_self=False)))
+                    self.session.request.sendall(update_packet)
+                    self.session.request.sendall(NameQueryHandler.get_query_details(player.player))
+                self.objects_in_range[guid] = True
 
         for guid, gobject in list(GridManager.get_surrounding_gameobjects(self).items()):
-            update_packet = UpdatePacketFactory.compress_if_needed(
-                PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                        gobject.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
-                                                                  is_self=False)))
-            self.session.request.sendall(update_packet)
-            self.session.request.sendall(gobject.query_details())
+            if guid not in self.objects_in_range:
+                update_packet = UpdatePacketFactory.compress_if_needed(
+                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                            gobject.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
+                                                                      is_self=False)))
+                self.session.request.sendall(update_packet)
+                self.session.request.sendall(gobject.query_details())
+            self.objects_in_range[guid] = True
 
         for guid, creature in list(GridManager.get_surrounding_units(self).items()):
-            update_packet = UpdatePacketFactory.compress_if_needed(
-                PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                        creature.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
-                                                                   is_self=False)))
-            self.session.request.sendall(update_packet)
-            self.session.request.sendall(creature.query_details())
+            if guid not in self.objects_in_range:
+                update_packet = UpdatePacketFactory.compress_if_needed(
+                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                            creature.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
+                                                                       is_self=False)))
+                self.session.request.sendall(update_packet)
+                self.session.request.sendall(creature.query_details())
+
+            self.objects_in_range[guid] = True
 
     def sync_player(self):
         if self.player and self.player.guid == self.guid:
