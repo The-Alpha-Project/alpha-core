@@ -147,5 +147,18 @@ begin not atomic
         insert into applied_updates values('190420201');
     end if;
 
+    -- 20/04/2020 1
+    if (select count(*) from applied_updates where id='2070420201') = 0 then
+        update item_template set subclass = 5, armor = 26, sell_price = 78, buy_price = 393, block = 0 where entry = 1167;
+        update npc_vendor set item = 1167 where item = 17186;
+        update creature_loot_template set item = 1167 where item = 17186;
+        update gameobject_loot_template set item = 1167 where item = 17186;
+        update pickpocketing_loot_template set item = 1167 where item = 17186;
+        update reference_loot_template set item = 1167 where item = 17186;
+        update reference_loot set item = 1167 where item = 17186;
+
+        insert into applied_updates values('200420201');
+    end if;
+
 end $
 delimiter ;
