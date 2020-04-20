@@ -255,7 +255,6 @@ class PlayerManager(UnitManager):
                                                                        is_self=False)))
                 self.session.request.sendall(update_packet)
                 self.session.request.sendall(creature.query_details())
-
             self.objects_in_range[guid] = True
 
     def sync_player(self):
