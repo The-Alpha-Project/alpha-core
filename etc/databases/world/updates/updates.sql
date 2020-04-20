@@ -162,7 +162,7 @@ begin not atomic
 
      -- 20/04/2020 2
     if (select count(*) from applied_updates where id='200420202') = 0 then
-        update item_template set name = 'Small Hand Axe', dmg_min1 = 4, dmg_max1 = 9, delay = 1700, required_level = 4, display_id = 8488 where entry = 2490;
+        update item_template set name = 'Small Hand Axe', dmg_min1 = 4, dmg_max1 = 9, delay = 1700, required_level = 4, display_id = 8484 where entry = 2490;
         update item_template set name = 'Chopping Axe', dmg_min1 = 22, dmg_max1 = 34, delay = 1700, required_level = 13, display_id = 5041 where entry = 853;
 
         insert into applied_updates values('200420202');
