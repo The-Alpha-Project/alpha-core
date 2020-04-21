@@ -165,7 +165,6 @@ class PlayerManager(UnitManager):
 
     def set_gm(self, on=True):
         self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
-        self.faction = 35  # Friendly to all
         self.chat_flags = ChatFlags.CHAT_TAG_GM
 
     def complete_login(self):
