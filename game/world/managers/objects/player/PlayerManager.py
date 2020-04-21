@@ -180,8 +180,8 @@ class PlayerManager(UnitManager):
         self.is_online = False
 
     def get_tutorial_packet(self):
-        # Not handling any tutorial (are them even implemented?)
-        return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('<5I', 0, 0, 0, 0, 0))
+        return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('<18I', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                                                        0, 0, 0, 0, 0))
 
     def get_initial_spells(self):
         data = pack('<BH', 0, len(self.spells))

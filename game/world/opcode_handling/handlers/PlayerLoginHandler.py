@@ -38,15 +38,13 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.deathbind = RealmDatabaseManager.character_get_deathbind(world_session.player_mgr.guid)
 
         socket.sendall(world_session.player_mgr.get_deathbind_packet())
-        socket.sendall(world_session.player_mgr.get_tutorial_packet())
+        #  Tutorials aren't implemented in 0.5.3
+        #  socket.sendall(world_session.player_mgr.get_tutorial_packet())
         socket.sendall(world_session.player_mgr.get_initial_spells())
         socket.sendall(world_session.player_mgr.get_action_buttons())
 
         # MotD
         ChatManager.send_system_message(world_session, config.Server.General.motd)
-
-        # Clear Who list on login, otherwise the last search will appear
-        # PlayerLoginHandler._clear_who_list(socket)
 
         world_session.player_mgr.inventory.load_items()
         world_session.player_mgr.send_update_self()
@@ -55,11 +53,6 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.complete_login()
 
         return 0
-
-    @staticmethod
-    def _clear_who_list(socket):
-        data = pack('<2I', 0, 0)
-        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_WHO, data))
 
     @staticmethod
     def _send_cinematic(world_session, player, socket):
