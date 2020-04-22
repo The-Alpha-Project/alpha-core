@@ -76,3 +76,12 @@ class DbcDatabaseManager(object):
         res = dbc_db_session.query(CreatureDisplayInfo).filter_by(ID=model_id).first()
         dbc_db_session.close()
         return res
+
+    # CinematicSequences
+
+    @staticmethod
+    def cinematic_sequences_get_by_id(cinematic_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(CinematicSequence).filter_by(ID=cinematic_id).first()
+        dbc_db_session.close()
+        return res

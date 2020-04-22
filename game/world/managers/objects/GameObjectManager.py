@@ -1,6 +1,7 @@
 from math import pi, cos, sin
 from struct import pack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
@@ -53,6 +54,11 @@ class GameObjectManager(ObjectManager):
                 self.state = GameObjectStates.GO_STATE_ACTIVE
                 # TODO: Trigger sripts / events on cooldown restart
                 self.send_update_surrounding()
+        elif self.gobject_template.type == GameObjectTypes.TYPE_CAMERA:
+            cinematic_id = self.gobject_template.data2
+            if DbcDatabaseManager.cinematic_sequences_get_by_id(cinematic_id):
+                data = pack('<I', cinematic_id)
+                player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
         elif self.gobject_template.type == GameObjectTypes.TYPE_CHAIR:
             slots = self.gobject_template.data1
             height = self.gobject_template.data2
