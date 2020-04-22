@@ -208,22 +208,9 @@ class PlayerManager(UnitManager):
             )
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
-    def update_surrounding(self, destroy=False):
-        if destroy:
-            grid = GRIDS[self.current_grid]
-
-            for guid, player in list(grid.players.items()):
-                if player.guid != self.guid:
-                    self.session.request.sendall(player.get_destroy_packet())
-
+    def update_surrounding(self):
         self.send_update_surrounding()
         GridManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
-
-        for guid, is_near in list(self.objects_in_range.items()):
-            if not is_near:
-                del self.objects_in_range[guid]
-            else:
-                self.objects_in_range[guid] = False
 
         for guid, player in list(GridManager.get_surrounding_players(self).items()):
             if self.guid != guid:
@@ -234,7 +221,7 @@ class PlayerManager(UnitManager):
                                                                          is_self=False)))
                     self.session.request.sendall(update_packet)
                     self.session.request.sendall(NameQueryHandler.get_query_details(player.player))
-                self.objects_in_range[guid] = True
+                self.objects_in_range[guid] = {'object': player, 'near': True}
 
         for guid, gobject in list(GridManager.get_surrounding_gameobjects(self).items()):
             if guid not in self.objects_in_range:
@@ -244,7 +231,7 @@ class PlayerManager(UnitManager):
                                                                       is_self=False)))
                 self.session.request.sendall(update_packet)
                 self.session.request.sendall(gobject.query_details())
-            self.objects_in_range[guid] = True
+            self.objects_in_range[guid] = {'object': gobject, 'near': True}
 
         for guid, creature in list(GridManager.get_surrounding_units(self).items()):
             if guid not in self.objects_in_range:
@@ -254,7 +241,14 @@ class PlayerManager(UnitManager):
                                                                        is_self=False)))
                 self.session.request.sendall(update_packet)
                 self.session.request.sendall(creature.query_details())
-            self.objects_in_range[guid] = True
+            self.objects_in_range[guid] = {'object': creature, 'near': True}
+
+        for guid, object_info in list(self.objects_in_range.items()):
+            if not object_info['near']:
+                self.session.request.sendall(self.objects_in_range[guid]['object'].get_destroy_packet())
+                del self.objects_in_range[guid]
+            else:
+                self.objects_in_range[guid]['near'] = False
 
     def sync_player(self):
         if self.player and self.player.guid == self.guid:
