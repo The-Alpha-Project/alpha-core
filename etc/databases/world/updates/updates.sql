@@ -177,7 +177,7 @@ begin not atomic
         update reference_loot_template set item = 2442 where item = 17192;
         update reference_loot set item = 2442 where item = 17192;
 
-        update item_template set subclass = 5 where entry in (2442, 3989);
+        update item_template set subclass = 5, armor = 48, required_level = 22, sell_price = 1066, buy_price = 5333 where entry = 2442;
 
         insert into applied_updates values('220420201');
     end if;
