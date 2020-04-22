@@ -168,6 +168,20 @@ begin not atomic
         insert into applied_updates values('200420202');
     end if;
 
+     -- 22/04/2020 1
+    if (select count(*) from applied_updates where id='220420201') = 0 then
+        update npc_vendor set item = 2442 where item = 17192;
+        update creature_loot_template set item = 2442 where item = 17192;
+        update gameobject_loot_template set item = 2442 where item = 17192;
+        update pickpocketing_loot_template set item = 2442 where item = 17192;
+        update reference_loot_template set item = 2442 where item = 17192;
+        update reference_loot set item = 2442 where item = 17192;
+
+        update item_template set subclass = 5 where entry in (2442, 3989);
+
+        insert into applied_updates values('220420201');
+    end if;
+
 
 
 
