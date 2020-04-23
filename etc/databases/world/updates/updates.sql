@@ -168,7 +168,7 @@ begin not atomic
         insert into applied_updates values('200420202');
     end if;
 
-     -- 22/04/2020 1
+    -- 22/04/2020 1
     if (select count(*) from applied_updates where id='220420201') = 0 then
         update npc_vendor set item = 2442 where item = 17192;
         update creature_loot_template set item = 2442 where item = 17192;
@@ -182,8 +182,21 @@ begin not atomic
         insert into applied_updates values('220420201');
     end if;
 
+    -- 23/04/2020 1
+    if (select count(*) from applied_updates where id='230420201') = 0 then
+        update item_template set armor = 47, required_level = 10, item_level = 15, buy_price = 2071, sell_price = 414, stat_type1 = 7, stat_value1 = 1, stat_type2 = 0, stat_value2 = 0, display_id = 3068 where entry = 2977;
+        update item_template set armor = 26, required_level = 12, buy_price = 1047, sell_price = 209, stat_type1 = 4, stat_value1 = 1, stat_type2 = 0, stat_value2 = 0, display_id = 3071 where entry = 2980;
+        update item_template set armor = 44, required_level = 12, buy_price = 2749, sell_price = 549, stat_type1 = 4, stat_value1 = 1, stat_type2 = 0, stat_value2 = 0 where entry = 2978;
+        update item_template set armor = 22, required_level = 11, buy_price = 741, sell_price = 148 where entry = 3213;
+        update item_template set armor = 39, buy_price = 478, sell_price = 108 where entry = 4678;
+        update item_template set armor = 32, quality = 2, required_level = 8, buy_price = 1571, sell_price = 314, stat_type1 = 1, stat_value1 = 5, stat_type2 = -1, stat_value2 = 1 where entry = 2979;
+        update item_template set stat_type1 = -1, stat_value1 = 10 where entry = 2442;
+        update item_template set armor = 243, required_level = 11, stat_type1 = 4, stat_value1 = 1, stat_type2 = 6, stat_value2 = 1 where entry = 3651;
 
+        update item_template set display_id = 3540 where entry = 9783;
 
+        insert into applied_updates values('230420201');
+    end if;
 
 end $
 delimiter ;
