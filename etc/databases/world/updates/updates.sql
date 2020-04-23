@@ -189,7 +189,7 @@ begin not atomic
         update item_template set armor = 44, required_level = 12, buy_price = 2749, sell_price = 549, stat_type1 = 4, stat_value1 = 1, stat_type2 = 0, stat_value2 = 0 where entry = 2978;
         update item_template set armor = 22, required_level = 11, buy_price = 741, sell_price = 148 where entry = 3213;
         update item_template set armor = 39, buy_price = 478, sell_price = 108 where entry = 4678;
-        update item_template set armor = 32, quality = 2, required_level = 8, buy_price = 1571, sell_price = 314, stat_type1 = 1, stat_value1 = 5, stat_type2 = -1, stat_value2 = 1 where entry = 2979;
+        update item_template set armor = 32, quality = 2, bonding = 2, required_level = 8, buy_price = 1571, sell_price = 314, stat_type1 = 1, stat_value1 = 5, stat_type2 = -1, stat_value2 = 1 where entry = 2979;
         update item_template set stat_type1 = -1, stat_value1 = 10 where entry = 2442;
         update item_template set armor = 243, required_level = 11, stat_type1 = 4, stat_value1 = 1, stat_type2 = 6, stat_value2 = 1 where entry = 3651;
 
