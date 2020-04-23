@@ -56,7 +56,7 @@ class CreatureManager(UnitManager):
             self.model_info_loaded = False
 
         if self.creature_instance:
-            self.health = int(self.creature_instance.health_percent * self.max_health)
+            self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
             self.map_ = self.creature_instance.map
             self.location.x = self.creature_instance.position_x
             self.location.y = self.creature_instance.position_y
