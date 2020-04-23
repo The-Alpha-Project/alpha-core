@@ -212,7 +212,11 @@ class PlayerManager(UnitManager):
         self.send_update_surrounding()
         GridManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
 
-        for guid, player in list(GridManager.get_surrounding_players(self).items()):
+        players, creatures, gobjects = GridManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER,
+                                                                                  ObjectTypes.TYPE_UNIT,
+                                                                                  ObjectTypes.TYPE_GAMEOBJECT])
+
+        for guid, player in players.items():
             if self.guid != guid:
                 if guid not in self.objects_in_range:
                     update_packet = UpdatePacketFactory.compress_if_needed(
@@ -223,17 +227,7 @@ class PlayerManager(UnitManager):
                     self.session.request.sendall(NameQueryHandler.get_query_details(player.player))
                 self.objects_in_range[guid] = {'object': player, 'near': True}
 
-        for guid, gobject in list(GridManager.get_surrounding_gameobjects(self).items()):
-            if guid not in self.objects_in_range:
-                update_packet = UpdatePacketFactory.compress_if_needed(
-                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                            gobject.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
-                                                                      is_self=False)))
-                self.session.request.sendall(update_packet)
-                self.session.request.sendall(gobject.query_details())
-            self.objects_in_range[guid] = {'object': gobject, 'near': True}
-
-        for guid, creature in list(GridManager.get_surrounding_units(self).items()):
+        for guid, creature in creatures.items():
             if guid not in self.objects_in_range:
                 update_packet = UpdatePacketFactory.compress_if_needed(
                     PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
@@ -242,6 +236,16 @@ class PlayerManager(UnitManager):
                 self.session.request.sendall(update_packet)
                 self.session.request.sendall(creature.query_details())
             self.objects_in_range[guid] = {'object': creature, 'near': True}
+
+        for guid, gobject in gobjects.items():
+            if guid not in self.objects_in_range:
+                update_packet = UpdatePacketFactory.compress_if_needed(
+                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                            gobject.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
+                                                                      is_self=False)))
+                self.session.request.sendall(update_packet)
+                self.session.request.sendall(gobject.query_details())
+            self.objects_in_range[guid] = {'object': gobject, 'near': True}
 
         for guid, object_info in list(self.objects_in_range.items()):
             if not object_info['near']:
