@@ -184,6 +184,17 @@ begin not atomic
 
     -- 23/04/2020 1
     if (select count(*) from applied_updates where id='230420201') = 0 then
+        alter table item_template modify stat_type1 tinyint(3) not null default 0;
+        alter table item_template modify stat_type2 tinyint(3) not null default 0;
+        alter table item_template modify stat_type3 tinyint(3) not null default 0;
+        alter table item_template modify stat_type4 tinyint(3) not null default 0;
+        alter table item_template modify stat_type5 tinyint(3) not null default 0;
+        alter table item_template modify stat_type6 tinyint(3) not null default 0;
+        alter table item_template modify stat_type7 tinyint(3) not null default 0;
+        alter table item_template modify stat_type8 tinyint(3) not null default 0;
+        alter table item_template modify stat_type9 tinyint(3) not null default 0;
+        alter table item_template modify stat_type10 tinyint(3) not null default 0;
+
         update item_template set armor = 47, required_level = 10, item_level = 15, buy_price = 2071, sell_price = 414, stat_type1 = 7, stat_value1 = 1, stat_type2 = 0, stat_value2 = 0, display_id = 3068 where entry = 2977;
         update item_template set armor = 26, required_level = 12, buy_price = 1047, sell_price = 209, stat_type1 = 4, stat_value1 = 1, stat_type2 = 0, stat_value2 = 0, display_id = 3071 where entry = 2980;
         update item_template set armor = 44, required_level = 12, buy_price = 2749, sell_price = 549, stat_type1 = 4, stat_value1 = 1, stat_type2 = 0, stat_value2 = 0 where entry = 2978;
