@@ -13,8 +13,6 @@ class SellItemHandler(object):
             container_slot, container, slot, item = world_session.player_mgr.inventory.get_item_info_by_guid(item_guid)
 
             if 0 < vendor_guid == world_session.player_mgr.current_selection:
-                if sell_amount <= 0:
-                    sell_amount = 1
 
                 if not item:
                     world_session.player_mgr.inventory.send_sell_error(SellResults.SELL_ERR_CANT_FIND_ITEM,
@@ -28,6 +26,10 @@ class SellItemHandler(object):
                     return 0
 
                 stack_count = item.item_instance.stackcount
+
+                # Client seems to send zero at least when simply right clicking, default to selling whole stack.
+                if sell_amount <= 0:
+                    sell_amount = stack_count
 
                 if sell_amount > stack_count:
                     world_session.player_mgr.inventory.send_sell_error(SellResults.SELL_ERR_CANT_FIND_ITEM,
