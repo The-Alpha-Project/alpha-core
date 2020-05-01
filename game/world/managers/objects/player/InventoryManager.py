@@ -245,6 +245,13 @@ class InventoryManager(object):
             return self.containers[bag].get_item(slot)
         return None
 
+    def get_item_info_by_guid(self, guid):
+        for container_slot, container in list(self.containers.items()):
+            for slot, item in list(container.sorted_slots.items()):
+                if item.guid == guid:
+                    return container_slot, container, slot, item
+        return None
+
     def add_bag(self, slot, container):
         if not self.is_bag_pos(slot):
             return False
@@ -348,6 +355,15 @@ class InventoryManager(object):
             error
         )
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_BUY_FAILED, data))
+
+    def send_sell_error(self, error, item_guid, vendor_guid=0):
+        data = pack(
+            '<QQB',
+            vendor_guid if vendor_guid > 0 else self.owner.guid,
+            item_guid,
+            error
+        )
+        self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SELL_ITEM, data))
 
     def build_update(self, update_packet_factory):
         for slot, item in self.get_backpack().sorted_slots.items():

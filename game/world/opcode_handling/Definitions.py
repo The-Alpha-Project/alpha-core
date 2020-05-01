@@ -42,6 +42,7 @@ from game.world.opcode_handling.handlers.PetitionBuyHandler import PetitionBuyHa
 from game.world.opcode_handling.handlers.ListInventoryHandler import ListInventoryHandler
 from game.world.opcode_handling.handlers.BuyItemHandler import BuyItemHandler
 from game.world.opcode_handling.handlers.AttackSwingHandler import AttackSwingHandler
+from game.world.opcode_handling.handlers.SellItemHandler import SellItemHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -96,6 +97,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_LIST_INVENTORY: ListInventoryHandler.handle,
     OpCode.CMSG_BUY_ITEM: BuyItemHandler.handle,
     OpCode.CMSG_ATTACKSWING: AttackSwingHandler.handle,
+    OpCode.CMSG_SELL_ITEM: SellItemHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,
