@@ -165,12 +165,15 @@ class InventoryManager(object):
                     dest_item.item_instance.stackcount += source_item.item_instance.stackcount
                     if source_bag in self.containers:
                         self.containers[source_bag].remove_item_in_slot(source_slot)
+                        RealmDatabaseManager.character_inventory_delete(source_item.item_instance)
                 else:
                     # Update stack values
                     source_item.item_instance.stackcount -= diff
                     dest_item.item_instance.stackcount = dest_item.item_template.stackable
+                    RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
 
                 self.owner.send_update_self()
+                RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
                 return
 
             # Actual transfer
@@ -243,6 +246,13 @@ class InventoryManager(object):
     def get_item(self, bag, slot):
         if bag in self.containers:
             return self.containers[bag].get_item(slot)
+        return None
+
+    def get_item_info_by_guid(self, guid):
+        for container_slot, container in list(self.containers.items()):
+            for slot, item in list(container.sorted_slots.items()):
+                if item.guid == guid:
+                    return container_slot, container, slot, item
         return None
 
     def add_bag(self, slot, container):
@@ -348,6 +358,15 @@ class InventoryManager(object):
             error
         )
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_BUY_FAILED, data))
+
+    def send_sell_error(self, error, item_guid, vendor_guid=0):
+        data = pack(
+            '<QQB',
+            vendor_guid if vendor_guid > 0 else self.owner.guid,
+            item_guid,
+            error
+        )
+        self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SELL_ITEM, data))
 
     def build_update(self, update_packet_factory):
         for slot, item in self.get_backpack().sorted_slots.items():
