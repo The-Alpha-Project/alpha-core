@@ -165,12 +165,15 @@ class InventoryManager(object):
                     dest_item.item_instance.stackcount += source_item.item_instance.stackcount
                     if source_bag in self.containers:
                         self.containers[source_bag].remove_item_in_slot(source_slot)
+                        RealmDatabaseManager.character_inventory_delete(source_item.item_instance)
                 else:
                     # Update stack values
                     source_item.item_instance.stackcount -= diff
                     dest_item.item_instance.stackcount = dest_item.item_template.stackable
+                    RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
 
                 self.owner.send_update_self()
+                RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
                 return
 
             # Actual transfer
