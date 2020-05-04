@@ -201,7 +201,7 @@ class InventoryManager(object):
                     return
             else:
                 if handle_error:
-                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, None, dest_item)
+                    self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, None, dest_item)
                 return
 
         # Drags to bag slots
@@ -482,11 +482,11 @@ class InventoryManager(object):
         return bag_slot == InventorySlots.SLOT_INBACKPACK \
                and InventorySlots.SLOT_ITEM_START <= slot < InventorySlots.SLOT_ITEM_END
 
-    def send_equip_error(self, error, item_1=None, item_2=None):
+    def send_equip_error(self, error, item_1=None, item_2=None, required_level=0):
         data = pack('<B', error)
         if error != InventoryError.BAG_OK:
             if error == InventoryError.BAG_LEVEL_MISMATCH:
-                data += pack('<I', item_1.item_template.required_level if item_1 else 0)
+                data += pack('<I', item_1.item_template.required_level if item_1 else required_level)
             data += pack(
                 '<2QB',
                 item_1.guid if item_1 else self.owner.guid,
