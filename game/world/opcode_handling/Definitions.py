@@ -97,6 +97,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_PETITION_BUY: PetitionBuyHandler.handle,
     OpCode.CMSG_LIST_INVENTORY: ListInventoryHandler.handle,
     OpCode.CMSG_BUY_ITEM: BuyItemHandler.handle,
+    OpCode.CMSG_BUY_ITEM_IN_SLOT: BuyItemInSlotHandler.handle,
     OpCode.CMSG_ATTACKSWING: AttackSwingHandler.handle,
     OpCode.CMSG_SELL_ITEM: SellItemHandler.handle,
 
