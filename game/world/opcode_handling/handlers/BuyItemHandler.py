@@ -13,7 +13,7 @@ class BuyItemHandler(object):
         if len(reader.data) >= 13:  # Avoid handling empty buy item packet
             vendor_guid, item, count = unpack('<QIB', reader.data[:13])
 
-            if 0 < vendor_guid == world_session.player_mgr.current_selection:
+            if vendor_guid > 0:
                 if count <= 0:
                     count = 1
 

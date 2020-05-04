@@ -12,8 +12,7 @@ class SellItemHandler(object):
             vendor_guid, item_guid, sell_amount = unpack('<QQB', reader.data[:17])
             container_slot, container, slot, item = world_session.player_mgr.inventory.get_item_info_by_guid(item_guid)
 
-            if 0 < vendor_guid == world_session.player_mgr.current_selection:
-
+            if vendor_guid > 0:
                 if not item:
                     world_session.player_mgr.inventory.send_sell_error(SellResults.SELL_ERR_CANT_FIND_ITEM,
                                                                        item_guid, vendor_guid)

@@ -253,7 +253,7 @@ class InventoryManager(object):
             for slot, item in list(container.sorted_slots.items()):
                 if item.guid == guid:
                     return container_slot, container, slot, item
-        return None
+        return -1, None, -1, None
 
     def add_bag(self, slot, container):
         if not self.is_bag_pos(slot):
