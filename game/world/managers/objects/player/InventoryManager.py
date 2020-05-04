@@ -162,7 +162,6 @@ class InventoryManager(object):
 
         # Destination slot checks
         if dest_container.is_backpack:
-            Logger.debug("Is backpack")
             template_equip_slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
             if self.is_equipment_pos(dest_bag_slot, dest_slot) and dest_slot != template_equip_slot or \
                     self.is_bag_pos(dest_slot) and item_template.inventory_type != InventoryTypes.BAG or \
@@ -181,7 +180,6 @@ class InventoryManager(object):
 
         # Stack handling
         if dest_item:
-            Logger.debug("Dest item")
             if self.is_inventory_pos(dest_bag_slot, dest_slot):
                 if item_template.entry == dest_item.item_template.entry:
                     diff = dest_item.item_template.stackable - dest_item.item_instance.stackcount
