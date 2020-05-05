@@ -479,8 +479,15 @@ class InventoryManager(object):
         return bag_slot == InventorySlots.SLOT_INBACKPACK and slot < InventorySlots.SLOT_BAG1
 
     def is_inventory_pos(self, bag_slot, slot):
-        return bag_slot == InventorySlots.SLOT_INBACKPACK \
-               and InventorySlots.SLOT_ITEM_START <= slot < InventorySlots.SLOT_ITEM_END
+        if bag_slot == InventorySlots.SLOT_INBACKPACK \
+                and InventorySlots.SLOT_ITEM_START <= slot < InventorySlots.SLOT_ITEM_END:
+            return True
+
+        if InventorySlots.SLOT_BAG1 <= bag_slot <= InventorySlots.SLOT_BAG4:
+            if bag_slot not in self.containers:
+                return False
+            return slot < self.containers[bag_slot].max_slot
+        return False
 
     def send_equip_error(self, error, item_1=None, item_2=None, required_level=0):
         data = pack('<B', error)
