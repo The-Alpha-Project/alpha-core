@@ -218,5 +218,19 @@ begin not atomic
         insert into applied_updates values('060520201');
     end if;
 
+    -- 06/05/2020 2
+    if (select count(*) from applied_updates where id='060520202') = 0 then
+        delete from spawns_gameobjects where spawn_entry in (21653, 21654, 21655, 21656);
+        insert into spawns_gameobjects (displayid, spawn_entry, spawn_map, spawn_positionX, spawn_positionY, spawn_positionZ, spawn_orientation) values (562, 21654, 0, -4674.700, -1094.04, 441.45, 3.08);
+        insert into spawns_gameobjects (displayid, spawn_entry, spawn_map, spawn_positionX, spawn_positionY, spawn_positionZ, spawn_orientation) values (562, 21653, 0, -4687.700, -1093.125, 499.65, 3.08);
+        insert into spawns_gameobjects (displayid, spawn_entry, spawn_map, spawn_positionX, spawn_positionY, spawn_positionZ, spawn_orientation) values (562, 21656, 0, -4830.25, -1210.75, 499.65, 1.45);
+        insert into spawns_gameobjects (displayid, spawn_entry, spawn_map, spawn_positionX, spawn_positionY, spawn_positionZ, spawn_orientation) values (562, 21655, 0, -4831.85, -1223.55, 441.45, 1.45);
+
+        update gameobjects set name = 'Ironforge Elevator Lower Door' where entry in (21654, 21655);
+        update gameobjects set name = 'Ironforge Elevator Upper Door' where entry in (21653, 21656);
+
+        insert into applied_updates values('060520202');
+    end if;
+
 end $
 delimiter ;
