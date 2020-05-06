@@ -209,5 +209,12 @@ begin not atomic
         insert into applied_updates values('230420201');
     end if;
 
+    -- 06/05/2020 1
+    if (select count(*) from applied_updates where id='060520201') = 0 then
+        insert into spawns_gameobjects (displayid, spawn_entry, spawn_map, spawn_positionX, spawn_positionY, spawn_positionZ, spawn_orientation) values (561, 32056, 0, -4681.400, -1093.750, 422.477, 6.21);
+
+        insert into applied_updates values('060520201');
+    end if;
+
 end $
 delimiter ;
