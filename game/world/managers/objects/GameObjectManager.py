@@ -1,3 +1,4 @@
+import math
 from math import pi, cos, sin
 from struct import pack
 
@@ -99,8 +100,16 @@ class GameObjectManager(ObjectManager):
             self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_STATE, self.state, 'I')
             self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_ROTATION, self.gobject_instance.spawn_rotation0, 'f')
             self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_ROTATION + 1, self.gobject_instance.spawn_rotation1, 'f')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_ROTATION + 2, self.gobject_instance.spawn_rotation2, 'f')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_ROTATION + 3, self.gobject_instance.spawn_rotation3, 'f')
+
+            if self.gobject_instance.spawn_rotation2 == 0 and self.gobject_instance.spawn_rotation3 == 0:
+                f_rot1 = math.sin(self.location.o / 2.0)
+                f_rot2 = math.cos(self.location.o / 2.0)
+            else:
+                f_rot1 = self.gobject_instance.spawn_rotation2
+                f_rot2 = self.gobject_instance.spawn_rotation3
+
+            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_ROTATION + 2, f_rot1, 'f')
+            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_ROTATION + 3, f_rot2, 'f')
             self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_POS_X, self.location.x, 'f')
             self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_POS_Y, self.location.y, 'f')
             self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_POS_Z, self.location.z, 'f')
