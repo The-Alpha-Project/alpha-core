@@ -238,13 +238,12 @@ class InventoryManager(object):
                 self.send_equip_error(InventoryError.BAG_NOT_WHILE_DEAD, source_item, dest_item)
                 return
 
-            # Check backpack / paperdoll placement
-            if source_container.is_backpack:
-                if source_item.item_template.required_level > self.owner.level and \
-                        self.is_equipment_pos(dest_bag, dest_slot):
-                    # Not enough level
-                    self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
-                    return
+            # Check paper doll placement
+            if self.is_equipment_pos(dest_bag, dest_slot) and \
+                    source_item.item_template.required_level > self.owner.level:
+                # Not enough level
+                self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
+                return
 
             # Destination slot checks
             if dest_container.is_backpack:
@@ -255,24 +254,24 @@ class InventoryManager(object):
                     return
 
             # Original item being swapped to backpack
-            if dest_item and source_container.is_backpack:
-                if self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot):
-                    # Wrong destination slot
-                    if source_slot != dest_item.equip_slot and dest_item.equip_slot \
-                            != InventorySlots.SLOT_INBACKPACK:
-                        self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
-                        return
+            if dest_item and self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot):
+                # Equip_slot mismatch
+                if source_slot != dest_item.equip_slot and \
+                        dest_item.equip_slot != InventorySlots.SLOT_INBACKPACK:
+                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
+                    return
 
-                    # Not enough level
-                    if dest_item.item_template.required_level > self.owner.level:
-                        self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
-                        return
+                # Not enough level
+                if dest_item.item_template.required_level > self.owner.level:
+                    self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item,
+                                          dest_item.item_template.required_level)
+                    return
 
-                    # Wrong destination slot
-                    if dest_item.item_template.class_ == InventoryTypes.BAG and self.is_equipment_pos(source_bag,
-                                                                                                      source_slot):
-                        self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
-                        return
+                # Item isn't equippable
+                if dest_item.equip_slot == InventorySlots.SLOT_INBACKPACK and \
+                        self.is_equipment_pos(source_bag, source_slot):
+                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
+                    return
 
             # Prevent non empty bag in bag
             if (source_container.is_backpack or source_item and source_item.is_container()) \
