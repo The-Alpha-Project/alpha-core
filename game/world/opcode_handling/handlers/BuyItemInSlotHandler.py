@@ -12,7 +12,7 @@ class BuyItemInSlotHandler(object):
     def handle(world_session, socket, reader):
         if len(reader.data) >= 22:  # Avoid handling empty buy item packet
             vendor_guid, item, bag_guid, slot, count = unpack('<QIQBB', reader.data[:22])
-            if 0 < vendor_guid == world_session.player_mgr.current_selection:
+            if vendor_guid > 0:
                 if count <= 0:
                     count = 1
 
