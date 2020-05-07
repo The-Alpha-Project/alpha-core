@@ -105,6 +105,7 @@ class ObjectManager(object):
             self.transport.x,
             self.transport.y,
             self.transport.z,
+            self.transport.o,
             self.location.x,
             self.location.y,
             self.location.z,
