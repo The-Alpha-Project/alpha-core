@@ -29,7 +29,6 @@ class ObjectManager(object):
                  location=None,
                  transport_id=0,
                  transport=None,
-                 transport_orientation=0,
                  pitch=0,
                  zone=0,
                  map_=0):
@@ -50,7 +49,6 @@ class ObjectManager(object):
         self.location = Vector()
         self.transport_id = transport_id
         self.transport = Vector()
-        self.transport_orientation = transport_orientation
         self.pitch = pitch
         self.zone = zone
         self.map_ = map_
@@ -107,7 +105,6 @@ class ObjectManager(object):
             self.transport.x,
             self.transport.y,
             self.transport.z,
-            self.transport_orientation,
             self.location.x,
             self.location.y,
             self.location.z,

@@ -29,10 +29,10 @@ class MovementHandler(object):
 
                 world_session.player_mgr.transport_id = transport_guid
 
-                world_session.player_mgr.transport_x = transport_x
-                world_session.player_mgr.transport_y = transport_y
-                world_session.player_mgr.transport_z = transport_z
-                world_session.player_mgr.transport_orientation = transport_o
+                world_session.player_mgr.transport.x = transport_x
+                world_session.player_mgr.transport.y = transport_y
+                world_session.player_mgr.transport.z = transport_z
+                world_session.player_mgr.transport.o = transport_o
 
                 world_session.player_mgr.location.x = x
                 world_session.player_mgr.location.y = y
