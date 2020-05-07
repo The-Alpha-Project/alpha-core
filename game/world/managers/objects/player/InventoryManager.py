@@ -204,20 +204,15 @@ class InventoryManager(object):
                     self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, None, dest_item)
                 return
 
-        # Drags to bag slots
-        if dest_slot == 255:
+        generated_item = dest_container.set_item(item_template, dest_slot, count)
+        # Add to containers if a bag was dragged to bag slots
+        if self.is_bag_pos(dest_slot):
             if item_template.inventory_type == InventoryTypes.BAG:
-                self.add_bag(dest_slot, ItemManager.generate_item(item_template, self.owner.guid, dest_bag_slot,
-                                                                  dest_slot))
-                self.owner.send_update_self()
-                return True
+                self.add_bag(dest_slot, generated_item)
             else:
                 if handle_error:
                     self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, None, dest_item)
                 return
-
-        # Add item
-        dest_container.set_item(item_template, dest_slot, count)
 
         # Update attack time
         if dest_slot == InventorySlots.SLOT_MAINHAND:
