@@ -19,9 +19,9 @@ class MovementHandler(object):
                 transport_guid, transport_x, transport_y, transport_z, transport_o, x, y, z, o, pitch, flags = \
                     unpack(movement_fmt, reader.data[:48])
 
-                # Prevent random teleports when colliding with elevators
-                if reader.opcode == OpCode.MSG_MOVE_COLLIDE_REDIRECT:
-                    if world_session.player_mgr.location.distance(Vector(x, y, z, o)) > 100:
+                # Hacky way to prevent random teleports when colliding with elevators
+                if world_session.player_mgr.transport_id != transport_guid:
+                    if world_session.player_mgr.location.distance(Vector(x, y, z, o)) > 64:
                         world_session.player_mgr.teleport(world_session.player_mgr.map_,
                                                           world_session.player_mgr.location)
 
@@ -29,10 +29,10 @@ class MovementHandler(object):
 
                 world_session.player_mgr.transport_id = transport_guid
 
-                world_session.player_mgr.transport_x = transport_x
-                world_session.player_mgr.transport_y = transport_y
-                world_session.player_mgr.transport_z = transport_z
-                world_session.player_mgr.transport_orientation = transport_o
+                world_session.player_mgr.transport.x = transport_x
+                world_session.player_mgr.transport.y = transport_y
+                world_session.player_mgr.transport.z = transport_z
+                world_session.player_mgr.transport.o = transport_o
 
                 world_session.player_mgr.location.x = x
                 world_session.player_mgr.location.y = y
