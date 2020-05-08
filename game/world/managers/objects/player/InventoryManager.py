@@ -254,7 +254,7 @@ class InventoryManager(object):
                     return
 
             # Original item being swapped to backpack
-            if dest_item and self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot):
+            if dest_item and (self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot)):
                 # Equip_slot mismatch
                 if source_slot != dest_item.equip_slot and \
                         dest_item.equip_slot != InventorySlots.SLOT_INBACKPACK:
