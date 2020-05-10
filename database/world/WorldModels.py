@@ -729,6 +729,7 @@ class Worldports(Base):
     x = Column(Float, nullable=False, server_default=text("'0'"))
     y = Column(Float, nullable=False, server_default=text("'0'"))
     z = Column(Float, nullable=False, server_default=text("'0'"))
+    o = Column(Float, nullable=False, server_default=text("'0'"))
     map = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     name = Column(String(255), nullable=False, server_default=text("''"))
 
