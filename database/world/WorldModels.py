@@ -725,7 +725,7 @@ class Quests(Base):
 class Worldports(Base):
     __tablename__ = 'worldports'
 
-    entry = Column(INTEGER(11), primary_key=True)
+    entry = Column(INTEGER(11), autoincrement=True, primary_key=True)
     x = Column(Float, nullable=False, server_default=text("'0'"))
     y = Column(Float, nullable=False, server_default=text("'0'"))
     z = Column(Float, nullable=False, server_default=text("'0'"))
