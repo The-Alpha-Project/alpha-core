@@ -83,6 +83,7 @@ class WorldDatabaseManager(object):
         for location in locations:
             ratio = SequenceMatcher(None, location.name, name).ratio()
             if ratio > best_matching_ratio:
+                best_matching_ratio = ratio
                 best_matching_location = location
         return best_matching_location
 
