@@ -13,6 +13,10 @@ begin not atomic
         insert into worldports (x, y, z, o, map, name) values (52, 0.6, -17.53, 6.2, 34, 'StormwindJail');
         insert into worldports (x, y, z, o, map, name) values (-1.43, 38.9, -23.6, 1.5, 35, 'StormwindPrison');
 
+        insert into spawns_gameobjects (spawn_entry, spawn_map, spawn_positionX, spawn_positionY,
+        spawn_positionZ, spawn_orientation, spawn_rotation0, spawn_rotation1, spawn_rotation2, spawn_rotation3,
+        spawn_spawntime) values (2169, 0, -9036.7, 842.987, 109.076, 0.410153, 0, 0, 0.203642, 0.979046, 120);
+
         insert into applied_updates values ('110520201');
     end if;
 end $
