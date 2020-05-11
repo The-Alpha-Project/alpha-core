@@ -912,7 +912,6 @@ class SpawnsGameobjects(Base):
     __tablename__ = 'spawns_gameobjects'
 
     spawn_id = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
-    displayid = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     spawn_entry = Column(ForeignKey('gameobjects.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"), comment='Gameobject Identifier')
     spawn_map = Column(SMALLINT(5), nullable=False, server_default=text("'0'"), comment='Map Identifier')
     spawn_positionX = Column(Float, nullable=False, server_default=text("'0'"))

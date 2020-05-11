@@ -19,5 +19,12 @@ begin not atomic
 
         insert into applied_updates values ('110520201');
     end if;
+
+    -- 11/05/2020 2
+    if (select count(*) from applied_updates where id='110520202') = 0 then
+        alter table spawns_gameobjects drop column displayid;
+
+        insert into applied_updates values ('110520202');
+    end if;
 end $
 delimiter ;
