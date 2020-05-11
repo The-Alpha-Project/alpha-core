@@ -74,12 +74,15 @@ class WorldDatabaseManager(object):
     # Worldport stuff
 
     @staticmethod
-    def worldport_get_by_name(name):
+    def worldport_get_by_name(name, return_all=False):
         world_db_session = SessionHolder()
         best_matching_location = None
         best_matching_ratio = 0
         locations = world_db_session.query(Worldports).filter(Worldports.name.like('%' + name + '%')).all()
         world_db_session.close()
+
+        if return_all:
+            return locations
 
         for location in locations:
             ratio = SequenceMatcher(None, location.name.lower(), name.lower()).ratio()

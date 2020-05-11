@@ -96,6 +96,19 @@ class CommandManager(object):
         return -1, '"%s" not found.' % tel_name
 
     @staticmethod
+    def stel(world_session, args):
+        try:
+            tel_name = args.split()[0]
+        except IndexError:
+            return -1, 'please specify a location name to start searching.'
+        locations = WorldDatabaseManager.worldport_get_by_name(tel_name, return_all=True)
+
+        for location in locations:
+            port_text = '|cFF00FFFF[%s]|r %s' % (location.map, location.name)
+            ChatManager.send_system_message(world_session, port_text)
+        return 0, '%u worldports found.' % len(locations)
+
+    @staticmethod
     def port(world_session, args):
         try:
             x, y, z, map_ = args.split()
@@ -337,6 +350,7 @@ GM_COMMAND_DEFINITIONS = {
     'swimspeed': CommandManager.swim_speed,
     'gps': CommandManager.gps,
     'tel': CommandManager.tel,
+    'stel': CommandManager.stel,
     'port': CommandManager.port,
     'tickets': CommandManager.tickets,
     'rticket': CommandManager.rticket,
