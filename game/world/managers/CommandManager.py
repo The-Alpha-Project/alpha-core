@@ -104,7 +104,7 @@ class CommandManager(object):
         locations = WorldDatabaseManager.worldport_get_by_name(tel_name, return_all=True)
 
         for location in locations:
-            port_text = '|cFF00FFFF[%s]|r %s' % (location.map, location.name)
+            port_text = '|cFF00FFFF[Map %s]|r %s' % (location.map, location.name)
             ChatManager.send_system_message(world_session, port_text)
         return 0, '%u worldports found.' % len(locations)
 
