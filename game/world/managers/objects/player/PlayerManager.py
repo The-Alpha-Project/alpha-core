@@ -274,6 +274,9 @@ class PlayerManager(UnitManager):
             self.player.money = self.coinage
 
     def teleport(self, map_, location):
+        if not DbcDatabaseManager.map_get_by_id(map_):
+            return False
+
         self.is_teleporting = True
 
         GridManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
@@ -316,6 +319,8 @@ class PlayerManager(UnitManager):
         self.location.y = location.y
         self.location.z = location.z
         self.location.o = location.o
+
+        return True
 
     def mount(self, mount_display_id):
         if mount_display_id > 0 and self.mount_display_id == 0 and \

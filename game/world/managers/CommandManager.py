@@ -87,10 +87,12 @@ class CommandManager(object):
         location = WorldDatabaseManager.worldport_get_by_name(tel_name)
 
         if location:
-            tel_location = Vector(location.x, location.y, location.z)
-            world_session.player_mgr.teleport(location.map, tel_location)
+            tel_location = Vector(location.x, location.y, location.z, location.o)
+            success = world_session.player_mgr.teleport(location.map, tel_location)
 
-            return 0, 'Teleported to "%s".' % location.name
+            if success:
+                return 0, 'Teleported to "%s".' % location.name
+            return -1, 'map not found (%u).' % location.map
         return -1, '"%s" not found.' % tel_name
 
     @staticmethod
@@ -98,9 +100,11 @@ class CommandManager(object):
         try:
             x, y, z, map_ = args.split()
             tel_location = Vector(float(x), float(y), float(z))
-            world_session.player_mgr.teleport(int(map_), tel_location)
+            success = world_session.player_mgr.teleport(int(map_), tel_location)
 
-            return 0, ''
+            if success:
+                return 0, ''
+            return -1, 'map not found (%u).' % int(map_)
         except ValueError:
             return -1, 'please use the "x y z map" format.'
 

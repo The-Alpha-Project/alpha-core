@@ -85,3 +85,12 @@ class DbcDatabaseManager(object):
         res = dbc_db_session.query(CinematicSequence).filter_by(ID=cinematic_id).first()
         dbc_db_session.close()
         return res
+
+    # Map
+
+    @staticmethod
+    def map_get_by_id(map_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(Map).filter_by(ID=map_id).first()
+        dbc_db_session.close()
+        return res

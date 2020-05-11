@@ -80,8 +80,9 @@ class WorldDatabaseManager(object):
         best_matching_ratio = 0
         locations = world_db_session.query(Worldports).filter(Worldports.name.like('%' + name + '%')).all()
         world_db_session.close()
+
         for location in locations:
-            ratio = SequenceMatcher(None, location.name, name).ratio()
+            ratio = SequenceMatcher(None, location.name.lower(), name.lower()).ratio()
             if ratio > best_matching_ratio:
                 best_matching_ratio = ratio
                 best_matching_location = location
