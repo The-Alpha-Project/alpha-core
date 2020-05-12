@@ -5,7 +5,8 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes
+from utils.constants.UnitCodes import UnitFlags, StandState
 
 
 class UnitManager(ObjectManager):
@@ -138,6 +139,24 @@ class UnitManager(ObjectManager):
             data = pack('<IQ', emote, self.guid)
             GridManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data),
                                                   self, config.World.Chat.ChatRange.emote_range)
+
+    def die(self, killer=None):
+        if not self.is_alive:
+            return
+
+        self.is_alive = False
+        self.health = 0
+
+        self.unit_flags = UnitFlags.UNIT_FLAG_DEAD
+        self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_DEAD
+        self.stand_state = StandState.UNIT_DEAD
+
+    def respawn(self):
+        self.is_alive = True
+
+        self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
+        self.dynamic_flags = UnitDynamicTypes.UNIT_DYNAMIC_NONE
+        self.stand_state = StandState.UNIT_STANDING
 
     # override
     def get_type(self):

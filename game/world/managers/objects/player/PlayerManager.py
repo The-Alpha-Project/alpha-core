@@ -4,6 +4,7 @@ from math import pi
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager, GRIDS
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
@@ -545,6 +546,28 @@ class PlayerManager(UnitManager):
             OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=update_type,
                                                               is_self=is_self)))
         GridManager.send_surrounding(update_packet, self, include_self=include_self)
+
+    def teleport_deathbind(self):
+        self.teleport(self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,
+                                                           self.deathbind.deathbind_position_y,
+                                                           self.deathbind.deathbind_position_z))
+
+    # override
+    def die(self, killer=None):
+        super().die(killer)
+
+        self.flagged_for_update = True
+
+    # override
+    def respawn(self, force_update=True):
+        super().respawn()
+
+        # TODO: Don't do this until stat system is finished
+        # self.health = int(self.max_health / 2)
+        # temp:
+        self.health = 100
+        if force_update:
+            self.flagged_for_update = True
 
     # override
     def get_type(self):

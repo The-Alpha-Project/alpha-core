@@ -359,9 +359,23 @@ class CommandManager(object):
         except ValueError:
             return -1, 'please specify a money amount.'
 
+    @staticmethod
+    def suicide(world_session, args):
+        world_session.player_mgr.die()
+
+        return 0, ''
+
+    @staticmethod
+    def die(world_session, args):
+        player_mgr = CommandManager._target_or_self(world_session)
+        player_mgr.die()
+
+        return 0, ''
+
 
 PLAYER_COMMAND_DEFINITIONS = {
-    'help': CommandManager.help
+    'help': CommandManager.help,
+    'suicide': CommandManager.suicide
 }
 
 GM_COMMAND_DEFINITIONS = {
@@ -386,5 +400,6 @@ GM_COMMAND_DEFINITIONS = {
     'pinfo': CommandManager.player_info,
     'goinfo': CommandManager.gobject_info,
     'level': CommandManager.level,
-    'money': CommandManager.money
+    'money': CommandManager.money,
+    'die': CommandManager.die
 }

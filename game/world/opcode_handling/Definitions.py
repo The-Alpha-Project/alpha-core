@@ -44,6 +44,7 @@ from game.world.opcode_handling.handlers.BuyItemHandler import BuyItemHandler
 from game.world.opcode_handling.handlers.AttackSwingHandler import AttackSwingHandler
 from game.world.opcode_handling.handlers.SellItemHandler import SellItemHandler
 from game.world.opcode_handling.handlers.BuyItemInSlotHandler import BuyItemInSlotHandler
+from game.world.opcode_handling.handlers.RepopRequestHandler import RepopRequestHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -100,6 +101,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_BUY_ITEM_IN_SLOT: BuyItemInSlotHandler.handle,
     OpCode.CMSG_ATTACKSWING: AttackSwingHandler.handle,
     OpCode.CMSG_SELL_ITEM: SellItemHandler.handle,
+    OpCode.CMSG_REPOP_REQUEST: RepopRequestHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,
