@@ -314,10 +314,8 @@ class ItemManager(ObjectManager):
 
     def set_binding(self, bind=True):
         if bind:
-            self.item_flags |= ItemDynFlags.ITEM_DYNFLAG_BINDED
             self.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNK16
         else:
-            self.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_BINDED
             self.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_UNK16
 
     # override
