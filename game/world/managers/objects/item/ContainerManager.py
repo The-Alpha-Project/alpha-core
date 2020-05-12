@@ -1,8 +1,8 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from network.packet.UpdatePacketFactory import UpdatePacketFactory
+from network.packet.UpdatePacketFactory import UpdatePacketFactory, ContainerFields
 from utils.constants.ItemCodes import InventorySlots
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes
 
 MAX_BAG_SLOTS = 20
 
@@ -10,10 +10,6 @@ MAX_BAG_SLOTS = 20
 class ContainerManager(ItemManager):
     def __init__(self, owner, item_template=None, item_instance=None, is_backpack=False, **kwargs):
         super().__init__(item_template, item_instance, **kwargs)
-
-        self.update_packet_factory = UpdatePacketFactory([ObjectTypes.TYPE_OBJECT,
-                                                          ObjectTypes.TYPE_ITEM,
-                                                          ObjectTypes.TYPE_CONTAINER])
 
         self.guid = (item_instance.guid if item_instance else 0) | HighGuid.HIGHGUID_CONTAINER
         self.owner = owner
@@ -35,6 +31,7 @@ class ContainerManager(ItemManager):
             self.is_contained = self.owner
 
         self.object_type.append(ObjectTypes.TYPE_CONTAINER)
+        self.update_packet_factory.add_type(ObjectTypes.TYPE_CONTAINER)
 
     @classmethod
     def from_item(cls, item_manager):
@@ -43,6 +40,25 @@ class ContainerManager(ItemManager):
             item_template=item_manager.item_template,
             item_instance=item_manager.item_instance
         )
+
+    def set_cnt_uint32(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.container_values,
+                                          self.update_packet_factory.updated_container_fields, index, value, 'I')
+
+    def set_cnt_uint64(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.container_values,
+                                          self.update_packet_factory.updated_container_fields, index, value, 'Q')
+
+    def set_cnt_float(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.container_values,
+                                          self.update_packet_factory.updated_container_fields, index, value, 'f')
+
+    def build_container_update_packet(self,):
+        self.set_cnt_uint32(ContainerFields.CONTAINER_FIELD_NUM_SLOTS, self.item_template.container_slots)
+
+        for x in range(0, MAX_BAG_SLOTS):
+            guid = self.sorted_slots[x].guid if x in self.sorted_slots else 0
+            self.set_cnt_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + x * 2, guid)
 
     def can_set_item(self, item, slot):
         if item:

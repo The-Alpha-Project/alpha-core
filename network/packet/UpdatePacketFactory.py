@@ -36,6 +36,9 @@ class UpdatePacketFactory(object):
 
         self.update_packet = b''
 
+    def add_type(self, update_type):
+        self.types_list.append(update_type)
+
     def update(self, values_list, updated_fields_list, pos, value, value_type):
         if value_type.lower() == 'q':
             self.update(values_list, updated_fields_list, pos, int(value & 0xFFFFFFFF), 'I')

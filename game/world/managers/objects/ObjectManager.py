@@ -1,6 +1,7 @@
 from struct import pack
 from math import pi
 
+from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes
 from utils.ConfigManager import config
 from game.world.managers.abstractions.Vector import Vector
@@ -34,7 +35,6 @@ class ObjectManager(object):
                  map_=0):
         self.guid = guid
         self.entry = entry
-        self.object_type = [ObjectTypes.TYPE_OBJECT]
         self.walk_speed = walk_speed
         self.running_speed = running_speed
         self.swim_speed = swim_speed
@@ -52,6 +52,9 @@ class ObjectManager(object):
         self.pitch = pitch
         self.zone = zone
         self.map_ = map_
+
+        self.object_type = [ObjectTypes.TYPE_OBJECT]
+        self.update_packet_factory = UpdatePacketFactory([ObjectTypes.TYPE_OBJECT])
 
         self.current_grid = ''
         self.last_tick = 0
@@ -128,6 +131,18 @@ class ObjectManager(object):
             data += pack('<I', 0xFFFFFFFF)
 
         return data
+
+    def set_obj_uint32(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.object_values,
+                                          self.update_packet_factory.updated_object_fields, index, value, 'I')
+
+    def set_obj_uint64(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.object_values,
+                                          self.update_packet_factory.updated_object_fields, index, value, 'Q')
+
+    def set_obj_float(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.object_values,
+                                          self.update_packet_factory.updated_object_fields, index, value, 'f')
 
     # override
     def update(self):

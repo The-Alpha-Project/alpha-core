@@ -514,11 +514,9 @@ class InventoryManager(object):
         )
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SELL_ITEM, data))
 
-    def build_update(self, update_packet_factory):
+    def build_update(self):
         for slot, item in self.get_backpack().sorted_slots.items():
-            update_packet_factory.update(update_packet_factory.player_values,
-                                         update_packet_factory.updated_player_fields,
-                                         PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid, 'Q')
+            self.owner.set_ply_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid)
 
     def send_single_item_update(self, world_session, item, is_self):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
