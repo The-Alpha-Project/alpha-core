@@ -275,7 +275,7 @@ class ItemManager(ObjectManager):
                                           self.update_packet_factory.updated_item_fields, index, value, 'f')
 
     # override
-    def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
+    def get_full_update_packet(self, is_self=True):
         if self.item_template and self.item_instance:
             from game.world.managers.objects.item.ContainerManager import ContainerManager
 
@@ -303,14 +303,7 @@ class ItemManager(ObjectManager):
             if self.is_container() and isinstance(self, ContainerManager):
                 self.build_container_update_packet()
 
-            packet = b''
-            if update_type == UpdateTypes.UPDATE_FULL:
-                packet += self.create_update_packet(is_self)
-            else:
-                packet += self.create_partial_update_packet(self.update_packet_factory)
-
-            update_packet = packet + self.update_packet_factory.build_packet()
-            return update_packet
+            return self.create_update_packet(self.update_packet_factory, is_self)
 
     def set_binding(self, bind=True):
         if bind:

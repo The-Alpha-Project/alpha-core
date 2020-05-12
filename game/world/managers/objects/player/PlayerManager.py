@@ -221,8 +221,7 @@ class PlayerManager(UnitManager):
                 if guid not in self.objects_in_range:
                     update_packet = UpdatePacketFactory.compress_if_needed(
                         PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                player.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
-                                                                         is_self=False)))
+                                                player.get_full_update_packet(is_self=False)))
                     self.session.request.sendall(update_packet)
                     self.session.request.sendall(NameQueryHandler.get_query_details(player.player))
                 self.objects_in_range[guid] = {'object': player, 'near': True}
@@ -231,8 +230,7 @@ class PlayerManager(UnitManager):
             if guid not in self.objects_in_range:
                 update_packet = UpdatePacketFactory.compress_if_needed(
                     PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                            creature.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
-                                                                       is_self=False)))
+                                            creature.get_full_update_packet(is_self=False)))
                 self.session.request.sendall(update_packet)
                 self.session.request.sendall(creature.query_details())
             self.objects_in_range[guid] = {'object': creature, 'near': True}
@@ -241,8 +239,7 @@ class PlayerManager(UnitManager):
             if guid not in self.objects_in_range:
                 update_packet = UpdatePacketFactory.compress_if_needed(
                     PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                            gobject.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
-                                                                      is_self=False)))
+                                            gobject.get_full_update_packet(is_self=False)))
                 self.session.request.sendall(update_packet)
                 self.session.request.sendall(gobject.query_details())
             self.objects_in_range[guid] = {'object': gobject, 'near': True}
@@ -433,7 +430,7 @@ class PlayerManager(UnitManager):
 
     # TODO: UPDATE_PARTIAL is not being used anywhere (it's implemented but not sure if it works correctly).
     # override
-    def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
+    def get_full_update_packet(self, is_self=True):
         self.inventory.send_inventory_update(self.session, is_self)
 
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
@@ -519,15 +516,7 @@ class PlayerManager(UnitManager):
 
         self.inventory.build_update()
 
-        packet = b''
-        if update_type == UpdateTypes.UPDATE_FULL:
-            packet += self.create_update_packet(is_self)
-            update_packet = packet + self.update_packet_factory.build_packet()
-        else:
-            packet += self.create_partial_update_packet(self.update_packet_factory)
-            update_packet = packet + self.update_packet_factory.build_partial_packet()
-
-        return update_packet
+        return self.create_update_packet(self.update_packet_factory, is_self)
 
     # override
     def update(self):
@@ -541,21 +530,20 @@ class PlayerManager(UnitManager):
 
         if self.flagged_for_update:
             self.send_update_self()
-            self.send_update_surrounding(update_type=UpdateTypes.UPDATE_FULL)
+            self.send_update_surrounding()
             GridManager.update_object(self)
 
             self.flagged_for_update = False
 
-    def send_update_self(self, is_self=True, update_type=UpdateTypes.UPDATE_FULL):
+    def send_update_self(self, is_self=True):
         self.session.request.sendall(UpdatePacketFactory.compress_if_needed(
             PacketWriter.get_packet(
                 OpCode.SMSG_UPDATE_OBJECT,
-                self.get_update_packet(update_type=update_type.UPDATE_FULL, is_self=is_self))))
+                self.get_full_update_packet(is_self=is_self))))
 
-    def send_update_surrounding(self, is_self=False, include_self=False, update_type=UpdateTypes.UPDATE_FULL):
+    def send_update_surrounding(self, is_self=False, include_self=False):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, self.get_update_packet(update_type=update_type,
-                                                              is_self=is_self)))
+            OpCode.SMSG_UPDATE_OBJECT, self.get_full_update_packet(is_self=is_self)))
         GridManager.send_surrounding(update_packet, self, include_self=include_self)
 
     def teleport_deathbind(self):

@@ -22,7 +22,7 @@ class MovementHandler(object):
                 # Hacky way to prevent random teleports when colliding with elevators
                 # Also acts as a rudimentary teleport cheat detection
                 if world_session.player_mgr.location.distance(x=x, y=y, z=z) > 64:
-                    Logger.anticheat("Preventing coordinate desync from player %s (%s)" %
+                    Logger.anticheat("Preventing coordinate desync from player %s (%s)." %
                                      (world_session.player_mgr.player.name, world_session.player_mgr.guid))
                     world_session.player_mgr.teleport(world_session.player_mgr.map_,
                                                       world_session.player_mgr.location)

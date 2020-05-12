@@ -525,8 +525,7 @@ class InventoryManager(object):
 
     def send_single_item_update(self, world_session, item, is_self):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, item.get_update_packet(update_type=UpdateTypes.UPDATE_FULL,
-                                                              is_self=False)))
+            OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(is_self=False)))
         if is_self:
             world_session.request.sendall(update_packet)
             world_session.request.sendall(item.query_details())

@@ -95,9 +95,10 @@ class ObjectManager(object):
         )
         return data
 
-    def create_update_packet(self, is_self=True):
+    def create_update_packet(self, update_packet_factory, is_self=True):
         from game.world.managers.objects import UnitManager
-        update_mask = self.get_update_mask()
+        merged_update_values = update_packet_factory.get_merged_update_values()
+        update_mask = int(self.get_update_mask())
         data = pack(
             '<IBQBQfffffffffIIffffIIIQB',
             1,  # Number of transactions
@@ -124,11 +125,19 @@ class ObjectManager(object):
             1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
             0,  # TimerId
             self.combat_target if isinstance(self, UnitManager.UnitManager) else 0,  # Victim GUID
-            int(update_mask)
+            update_mask
         )
 
-        for x in range(0, int(update_mask)):
+        for x in range(0, update_mask):
             data += pack('<I', 0xFFFFFFFF)
+
+        """for x in range(0, merged_update_fields.length()):
+            if merged_update_fields[x] and x < len(merged_update_values):
+                print('%u - %u' % (x, len(merged_update_values)))
+                data += bytes(merged_update_values[x])"""
+        data += merged_update_values
+
+        self.update_packet_factory.init_lists()
 
         return data
 
@@ -149,7 +158,7 @@ class ObjectManager(object):
         pass
 
     # override
-    def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
+    def get_full_update_packet(self, is_self=True):
         pass
 
     # override
