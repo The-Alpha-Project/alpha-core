@@ -35,6 +35,16 @@ class CommandManager(object):
                 ChatManager.send_system_message(world_session, res)
 
     @staticmethod
+    def _target_or_self(world_session):
+        if world_session.player_mgr.current_selection \
+                and world_session.player_mgr.current_selection != world_session.player_mgr.guid:
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(world_session.player_mgr.current_selection)
+            if player_mgr:
+                return player_mgr
+
+        return world_session.player_mgr
+
+    @staticmethod
     def help(world_session, args):
         help_str = ''
 
@@ -51,7 +61,8 @@ class CommandManager(object):
     def speed(world_session, args):
         try:
             speed = 7.0 * float(args)
-            world_session.player_mgr.change_speed(speed)
+            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr.change_speed(speed)
 
             return 0, ''
         except ValueError:
@@ -61,7 +72,8 @@ class CommandManager(object):
     def swim_speed(world_session, args):
         try:
             speed = 4.7222223 * float(args)
-            world_session.player_mgr.change_swim_speed(speed)
+            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr.change_swim_speed(speed)
 
             return 0, ''
         except ValueError:
@@ -223,35 +235,40 @@ class CommandManager(object):
     def mount(world_session, args):
         try:
             mount_display_id = int(args)
-            world_session.player_mgr.mount(mount_display_id)
+            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr.mount(mount_display_id)
             return 0, ''
         except ValueError:
             return -1, 'please specify a valid mount display id.'
 
     @staticmethod
     def unmount(world_session, args):
-        world_session.player_mgr.unmount()
+        player_mgr = CommandManager._target_or_self(world_session)
+        player_mgr.unmount()
         return 0, ''
 
     @staticmethod
     def morph(world_session, args):
         try:
             display_id = int(args)
-            world_session.player_mgr.morph(display_id)
+            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr.morph(display_id)
             return 0, ''
         except ValueError:
             return -1, 'please specify a valid display id.'
 
     @staticmethod
     def demorph(world_session, args):
-        world_session.player_mgr.demorph()
+        player_mgr = CommandManager._target_or_self(world_session)
+        player_mgr.demorph()
         return 0, ''
 
     @staticmethod
     def additem(world_session, args):
         try:
             entry = int(args)
-            item_mgr = world_session.player_mgr.inventory.add_item(entry)
+            player_mgr = CommandManager._target_or_self(world_session)
+            item_mgr = player_mgr.inventory.add_item(entry)
             if item_mgr:
                 return 0, ''
             else:
@@ -281,14 +298,14 @@ class CommandManager(object):
     @staticmethod
     def player_info(world_session, args):
         # Because you can select party members on different maps, we search in the entire session pool
-        player = WorldSessionStateHandler.find_player_by_guid(world_session.player_mgr.current_selection)
+        player_mgr = CommandManager._target_or_self(world_session)
 
-        if player:
+        if player_mgr:
             return 0, '[%s] - Guid: %u, Account ID: %u, Account name: %s' % (
-                player.player.name,
-                player.guid & ~HighGuid.HIGHGUID_PLAYER,
-                player.session.account_mgr.account.id,
-                player.session.account_mgr.account.name
+                player_mgr.player.name,
+                player_mgr.guid & ~HighGuid.HIGHGUID_PLAYER,
+                player_mgr.session.account_mgr.account.id,
+                player_mgr.session.account_mgr.account.name
             )
         return -1, 'error retrieving player info.'
 
@@ -324,7 +341,8 @@ class CommandManager(object):
     def level(world_session, args):
         try:
             input_level = int(args)
-            world_session.player_mgr.mod_level(input_level)
+            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr.mod_level(input_level)
 
             return 0, ''
         except ValueError:
@@ -334,7 +352,8 @@ class CommandManager(object):
     def money(world_session, args):
         try:
             money = int(args)
-            world_session.player_mgr.mod_money(money)
+            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr.mod_money(money)
 
             return 0, ''
         except ValueError:
