@@ -6,7 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
-from utils.constants.ItemCodes import InventoryTypes, InventorySlots
+from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid
 from utils.constants.UpdateFields import ObjectFields, ItemFields, ContainerFields
 
@@ -63,6 +63,7 @@ class ItemManager(ObjectManager):
         if item_template:
             self.display_id = item_template.display_id
             self.equip_slot = self.get_inv_slot_by_type(self.item_template.inventory_type)
+            self.item_flags = self.item_template.flags
 
             self.stats.append(ItemManager.Stat(self.item_template.stat_type1, self.item_template.stat_value1))
             self.stats.append(ItemManager.Stat(self.item_template.stat_type2, self.item_template.stat_value2))
@@ -197,7 +198,7 @@ class ItemManager(ObjectManager):
             item_name_bytes, b'\x00', b'\x00', b'\x00',
             self.item_template.display_id,
             self.item_template.quality,
-            self.item_template.flags,
+            self.item_flags,
             self.item_template.buy_price,
             self.item_template.sell_price,
             self.item_template.inventory_type,
@@ -276,7 +277,7 @@ class ItemManager(ObjectManager):
     # override
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
         if self.item_template and self.item_instance:
-            from game.world.managers.objects.item.ContainerManager import MAX_BAG_SLOTS, ContainerManager
+            from game.world.managers.objects.item.ContainerManager import ContainerManager
 
             # Object fields
             self.set_obj_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
@@ -290,7 +291,7 @@ class ItemManager(ObjectManager):
             self.set_itm_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)
             self.set_itm_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.is_contained)
             self.set_itm_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
-            self.set_itm_uint32(ItemFields.ITEM_FIELD_FLAGS, self.item_template.flags)
+            self.set_itm_uint32(ItemFields.ITEM_FIELD_FLAGS, self.item_flags)
 
             self.set_itm_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES, self.item_instance.SpellCharges1)
             self.set_itm_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 1, self.item_instance.SpellCharges2)
@@ -310,6 +311,14 @@ class ItemManager(ObjectManager):
 
             update_packet = packet + self.update_packet_factory.build_packet()
             return update_packet
+
+    def set_binding(self, bind=True):
+        if bind:
+            self.item_flags |= ItemDynFlags.ITEM_DYNFLAG_BINDED
+            self.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNK16
+        else:
+            self.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_BINDED
+            self.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_UNK16
 
     # override
     def get_type(self):

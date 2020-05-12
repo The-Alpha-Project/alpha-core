@@ -10,7 +10,7 @@ from network.packet.UpdatePacketFactory import UpdatePacketFactory, UpdateTypes
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError
-from utils.constants.ObjectCodes import BankSlots
+from utils.constants.ObjectCodes import BankSlots, ItemBondingTypes
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -349,6 +349,11 @@ class InventoryManager(object):
             if source_slot == InventorySlots.SLOT_MAINHAND or \
                     dest_slot == InventorySlots.SLOT_MAINHAND:
                 self.set_base_attack_time()
+
+            # TODO: Save current binding state in db (also load it)
+            if source_item and source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED and \
+                    (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(source_slot)):
+                source_item.set_binding(True)
 
             if self.is_equipment_pos(source_bag, source_slot) or self.is_equipment_pos(dest_bag, dest_slot):
                 self.owner.flagged_for_update = True
