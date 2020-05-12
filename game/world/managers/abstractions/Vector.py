@@ -14,13 +14,13 @@ class Vector(object):
     def __sub__(self, other):
         return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
 
-    def distance(self, vector):
-        return math.sqrt(self.distance_sqrd(vector))
+    def distance(self, vector=None, x=0, y=0, z=0):
+        return math.sqrt(self.distance_sqrd(vector.x, vector.y, vector.z) if vector else self.distance_sqrd(x, y, z))
 
-    def distance_sqrd(self, vector):
-        d_x = self.x - vector.x
-        d_y = self.y - vector.y
-        d_z = self.z - vector.z
+    def distance_sqrd(self, x, y, z):
+        d_x = self.x - x
+        d_y = self.y - y
+        d_z = self.z - z
 
         return math.pow(d_x, 2) + math.pow(d_y, 2) + math.pow(d_z, 2)
 
