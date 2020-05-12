@@ -267,7 +267,8 @@ class InventoryError(IntEnum):
     BAG_QUANTITY_ZERO = 53
     BAG_DONT_HAVE_THAT_MANY = 54
 
-#
+
+# Taken from 1.12.1, so some of then aren't used in 0.5.3
 class ItemDynFlags(IntEnum):
     ITEM_DYNFLAG_BINDED = 0x00000001  # set in game at binding
     ITEM_DYNFLAG_UNK1 = 0x00000002
