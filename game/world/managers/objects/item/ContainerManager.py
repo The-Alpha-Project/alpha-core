@@ -1,7 +1,7 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
-from utils.constants.ItemCodes import InventorySlots
+from utils.constants.ItemCodes import InventorySlots, ItemClasses, ItemSubClasses, BagFamilies
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 
 MAX_BAG_SLOTS = 20
@@ -116,6 +116,15 @@ class ContainerManager(ItemManager):
             return True
         else:
             return len(self.sorted_slots) == 0
+
+    def can_contain_item(self, item_template):
+        if self.is_backpack or self.item_template.class_ == ItemClasses.ITEM_CLASS_CONTAINER:
+            return True
+
+        # Must be quiver/ammo pouch
+        if self.item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_QUIVER:
+            return item_template.bag_family == BagFamilies.ARROWS
+        return item_template.bag_family == BagFamilies.BULLETS
 
     # override
     def get_type(self):

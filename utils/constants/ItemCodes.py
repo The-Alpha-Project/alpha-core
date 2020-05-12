@@ -127,6 +127,14 @@ class ItemSubClasses(IntEnum):
     ITEM_SUBCLASS_MOUNT = 5
 
 
+class BagFamilies(IntEnum):
+    NONE = 0
+    ARROWS = 1
+    BULLETS = 2
+    SOUL_SHARDS = 3
+    KEYS = 9
+
+
 class InventoryTypes(IntEnum):
     NONE_EQUIP = 0x00
     HEAD = 0x01
