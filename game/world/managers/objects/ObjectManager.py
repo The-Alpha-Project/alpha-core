@@ -95,14 +95,14 @@ class ObjectManager(object):
         )
         return data
 
-    def create_update_packet(self, update_packet_factory, is_self=True):
+    def create_update_packet(self, update_packet_factory, is_self=True, update_type=UpdateTypes.UPDATE_FULL):
         from game.world.managers.objects import UnitManager
         merged_update_values = update_packet_factory.get_merged_update_values()
         update_mask = int(self.get_update_mask())
         data = pack(
             '<IBQBQfffffffffIIffffIIIQB',
             1,  # Number of transactions
-            2,
+            update_type,
             self.guid,
             self.get_type_id(),
             self.transport_id,
