@@ -440,8 +440,8 @@ class InventoryManager(object):
         # Reached unique limit
         if 0 < item_template.max_count <= self.get_item_count(item_template.entry):
             return False
-        # Check bags
 
+        # Check bags
         if not on_bank:
             for slot, container in self.containers.items():
                 if not container.can_contain_item(item_template):

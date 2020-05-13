@@ -132,6 +132,11 @@ class BagFamilies(IntEnum):
     ARROWS = 1
     BULLETS = 2
     SOUL_SHARDS = 3
+    UNKNOWN1 = 4
+    UNKNOWN2 = 5
+    HERBS = 6
+    ENCHANTING_SUPP = 7
+    ENGINEERING_SUPP = 8
     KEYS = 9
 
 
