@@ -555,6 +555,10 @@ class PlayerManager(UnitManager):
     def die(self, killer=None):
         super().die(killer)
 
+        if killer and isinstance(killer, PlayerManager):
+            death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
+            self.session.request.sendall(death_notify_packet)
+
         self.flagged_for_update = True
 
     # override

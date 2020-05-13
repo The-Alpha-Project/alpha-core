@@ -361,14 +361,14 @@ class CommandManager(object):
 
     @staticmethod
     def suicide(world_session, args):
-        world_session.player_mgr.die()
+        world_session.player_mgr.die(world_session.player_mgr)
 
         return 0, ''
 
     @staticmethod
     def die(world_session, args):
         player_mgr = CommandManager._target_or_self(world_session)
-        player_mgr.die()
+        player_mgr.die(world_session.player_mgr)
 
         return 0, ''
 
