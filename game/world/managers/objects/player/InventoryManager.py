@@ -84,11 +84,13 @@ class InventoryManager(object):
                 return slot
         return InventorySlots.SLOT_INBACKPACK.value  # What is the logic behind backpack guid?
 
-    def add_item(self, entry=0, item_template=None, count=1, handle_error=True):
+    def add_item(self, entry=0, item_template=None, count=1, handle_error=True, from_npc=True, send_message=True):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
 
         items_added = False
+
+        target_bag_slot = -1  # Highest bag slot items were added to
         if item_template:
             if not self.can_store_item(item_template, count):
                 if handle_error:
@@ -97,41 +99,55 @@ class InventoryManager(object):
 
             # First, add to any pre-existing stacks
             amount_left = count
+            # TODO Dicts do not maintain order, first free bag should be preferred
             for slot, container in self.containers.items():
+                if not container.can_contain_item(item_template):
+                    continue
                 for x in range(container.start_slot, container.max_slot):
                     if self.is_bank_slot(slot, x):
                         continue
                     if x not in container.sorted_slots:
                         continue  # Skip any reserved slots
                     item_mgr = container.sorted_slots[x]
-                    if item_mgr.item_template.entry == item_template.entry:
+                    if item_mgr.item_template.entry == item_template.entry \
+                            and item_mgr.item_instance.stackcount < item_mgr.item_template.stackable:
                         stack_missing = item_template.stackable - item_mgr.item_instance.stackcount
+                        items_added = True
+                        if slot > target_bag_slot and slot != InventorySlots.SLOT_INBACKPACK:
+                            target_bag_slot = slot
                         if stack_missing >= amount_left:
                             item_mgr.item_instance.stackcount += amount_left
                             amount_left = 0
-                            items_added = True
                             RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
                             break
                         else:
                             item_mgr.item_instance.stackcount += stack_missing
                             amount_left -= stack_missing
                             RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
-                            items_added = True
 
             # Add the remaining stack(s) to empty slots.
             if amount_left > 0:
                 for slot, container in self.containers.items():
+                    if not container.can_contain_item(item_template):
+                        continue
+                    items_added = True
+                    if slot > target_bag_slot and slot != InventorySlots.SLOT_INBACKPACK:
+                        target_bag_slot = slot
                     if not container.is_full():
                         if amount_left > item_template.stackable:
                             container.add_item(item_template, count=item_template.stackable)
                             amount_left -= item_template.stackable
-                            items_added = True
                         else:
                             container.add_item(item_template, count=amount_left)
-                            items_added = True
                             break
 
         if items_added:
+            # Default to backpack so we can prefer highest slot ID (backpack ID is highest)
+            if target_bag_slot == -1:
+                target_bag_slot = InventorySlots.SLOT_INBACKPACK
+
+            self.send_item_receive_message(self.owner.guid, item_template.entry,
+                                           target_bag_slot, from_npc, send_message)
             self.owner.send_update_self()
         return items_added
 
@@ -147,13 +163,19 @@ class InventoryManager(object):
                 self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
             return
 
+        dest_container = self.containers[dest_bag_slot]
+        dest_item = dest_container.get_item(dest_slot)
+
+        # Bag family check
+        if self.is_inventory_pos(dest_bag_slot, dest_slot) and \
+                not dest_container.can_contain_item(item_template):
+            self.send_equip_error(InventoryError.BAG_ITEM_CLASS_MISMATCH, None, dest_item)
+            return
+
         if not self.can_store_item(item_template, count):
             if handle_error:
                 self.send_equip_error(InventoryError.BAG_INV_FULL)
             return
-
-        dest_container = self.containers[dest_bag_slot]
-        dest_item = dest_container.get_item(dest_slot)
 
         if not self.owner.is_alive:
             if handle_error:
@@ -246,15 +268,23 @@ class InventoryManager(object):
                 return
 
             # Destination slot checks
-            if dest_container.is_backpack:
-                if self.is_equipment_pos(dest_bag, dest_slot) and dest_slot != source_item.equip_slot \
-                        and source_item.equip_slot != InventorySlots.SLOT_INBACKPACK or \
-                        self.is_bag_pos(dest_slot) and source_item.item_template.inventory_type != InventoryTypes.BAG:
+            if dest_container.is_backpack or self.is_bag_pos(dest_slot):
+                if (self.is_equipment_pos(dest_bag, dest_slot) and dest_slot != source_item.equip_slot
+                        and source_item.equip_slot != InventorySlots.SLOT_INBACKPACK) or \
+                        (self.is_bag_pos(dest_slot) and source_item.item_template.inventory_type != InventoryTypes.BAG):
                     self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
                     return
 
+            # Bag family checks
+            if self.is_inventory_pos(dest_bag, dest_slot) and \
+                    not dest_container.can_contain_item(source_item.item_template) or \
+                    dest_item and self.is_inventory_pos(source_bag, source_slot) and \
+                    not source_container.can_contain_item(dest_item.item_template):
+                self.send_equip_error(InventoryError.BAG_ITEM_CLASS_MISMATCH, source_item, dest_item)
+                return
+
             # Original item being swapped to backpack
-            if dest_item and (self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot)):
+            if dest_item and self.is_equipment_pos(source_bag, source_slot):
                 # Equip_slot mismatch
                 if source_slot != dest_item.equip_slot and \
                         dest_item.equip_slot != InventorySlots.SLOT_INBACKPACK:
@@ -273,16 +303,16 @@ class InventoryManager(object):
                     self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
                     return
 
-            # Prevent non empty bag in bag
-            if (source_container.is_backpack or source_item and source_item.is_container()) \
-                    and self.is_bag_pos(source_slot) \
-                    and source_item and not source_item.is_empty():
-                self.send_equip_error(InventoryError.BAG_NO_BAGS_IN_BAGS, source_item, dest_item)
-                return
-            elif (dest_container.is_backpack or dest_item and dest_item.is_container()) and self.is_bag_pos(dest_slot) \
-                    and dest_item and not dest_item.is_empty():
-                self.send_equip_error(InventoryError.BAG_NO_BAGS_IN_BAGS, dest_item, source_item)
-                return
+            if (source_item.is_container() or (dest_item and dest_item.is_container())) and \
+                    not (self.is_bag_pos(source_slot) and self.is_bag_pos(dest_slot)):
+                # Source or dest is a container and both aren't equipped
+                if source_item.is_container() and not source_item.is_empty():  # Moving non-empty bag from bag slots
+                    self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
+                    return
+                if dest_item and source_item.is_container() and dest_item.is_container() \
+                        and not dest_item.is_empty():  # Swapping bags to bag bar from inv
+                    self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
+                    return
 
             # Stack handling
             if dest_item and source_item.item_template.entry == dest_item.item_template.entry \
@@ -304,6 +334,16 @@ class InventoryManager(object):
                 RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
                 return
 
+            if dest_item and dest_item.is_backpack and self.is_bag_pos(dest_slot):  # Swapping item to bag bar
+                if dest_item.is_empty():
+                    self.remove_bag(dest_slot)
+                else:
+                    self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
+                    return
+
+            if self.is_bag_pos(source_slot):
+                self.remove_bag(source_slot)
+
             # Actual transfer
 
             # Remove items
@@ -311,20 +351,6 @@ class InventoryManager(object):
                 self.containers[source_bag].remove_item_in_slot(source_slot)
             if dest_bag in self.containers:
                 self.containers[dest_bag].remove_item_in_slot(dest_slot)
-
-            if source_item and self.is_bag_pos(source_slot):
-                if source_item.is_empty():
-                    self.remove_bag(source_slot)
-                else:
-                    self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
-                    return
-
-            if dest_item and dest_item.is_backpack and self.is_bag_pos(dest_slot):
-                if dest_item.is_empty():
-                    self.remove_bag(dest_slot)
-                else:
-                    self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
-                    return
 
             # Bag transfers
             if source_item and self.is_bag_pos(dest_slot) and source_item.is_container():
@@ -415,8 +441,11 @@ class InventoryManager(object):
         if 0 < item_template.max_count <= self.get_item_count(item_template.entry):
             return False
         # Check bags
+
         if not on_bank:
             for slot, container in self.containers.items():
+                if not container.can_contain_item(item_template):
+                    continue
                 for x in range(container.start_slot, container.max_slot):
                     if self.is_bank_slot(slot, x):
                         continue
@@ -439,7 +468,7 @@ class InventoryManager(object):
             return True
 
         for container_slot, container in list(self.containers.items()):
-            if container.is_backpack:
+            if container.is_backpack or not container.can_contain_item(item_template):
                 continue
             if (on_bank and container_slot < InventorySlots.SLOT_BANK_BAG_1) or \
                     (not on_bank and container_slot >= InventorySlots.SLOT_BANK_BAG_1):
@@ -518,6 +547,15 @@ class InventoryManager(object):
             error
         )
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SELL_ITEM, data))
+
+    def send_item_receive_message(self, guid, item_entry, bag_slot, from_npc=True, show_in_chat=True):
+        if bag_slot == InventorySlots.SLOT_INBACKPACK:
+            bag_slot = 255
+        data = pack(
+            '<Q2IBI',
+            guid, from_npc, show_in_chat, bag_slot, item_entry
+        )
+        self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_ITEM_PUSH_RESULT, data))
 
     def build_update(self):
         for slot, item in self.get_backpack().sorted_slots.items():
