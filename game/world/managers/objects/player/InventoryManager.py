@@ -10,7 +10,7 @@ from network.packet.UpdatePacketFactory import UpdatePacketFactory, UpdateTypes
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError
-from utils.constants.ObjectCodes import BankSlots
+from utils.constants.ObjectCodes import BankSlots, ItemBondingTypes
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -365,6 +365,11 @@ class InventoryManager(object):
                     dest_slot == InventorySlots.SLOT_MAINHAND:
                 self.set_base_attack_time()
 
+            # TODO: Save current binding state in db (also load it)
+            if source_item and source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED and \
+                    (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(source_slot)):
+                source_item.set_binding(True)
+
             if self.is_equipment_pos(source_bag, source_slot) or self.is_equipment_pos(dest_bag, dest_slot):
                 self.owner.flagged_for_update = True
             else:
@@ -532,11 +537,9 @@ class InventoryManager(object):
         )
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SELL_ITEM, data))
 
-    def build_update(self, update_packet_factory):
+    def build_update(self):
         for slot, item in self.get_backpack().sorted_slots.items():
-            update_packet_factory.update(update_packet_factory.player_values,
-                                         update_packet_factory.updated_player_fields,
-                                         PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid, 'Q')
+            self.owner.set_ply_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid)
 
     def send_single_item_update(self, world_session, item, is_self):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(

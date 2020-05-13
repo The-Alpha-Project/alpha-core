@@ -47,9 +47,9 @@ class PlayerManager(UnitManager):
                  **kwargs):
         super().__init__(**kwargs)
 
-        self.update_packet_factory = UpdatePacketFactory([ObjectTypes.TYPE_OBJECT,
-                                                          ObjectTypes.TYPE_UNIT,
-                                                          ObjectTypes.TYPE_PLAYER])
+        self.update_packet_factory.add_type(ObjectTypes.TYPE_PLAYER)
+        self.object_type.append(ObjectTypes.TYPE_PLAYER)
+
         self.session = session
         self.flagged_for_update = False
         self.is_teleporting = False
@@ -85,7 +85,6 @@ class PlayerManager(UnitManager):
             self.guid = self.player.guid | HighGuid.HIGHGUID_PLAYER
             self.inventory = InventoryManager(self)
             self.level = self.player.level
-            self.object_type.append(ObjectTypes.TYPE_PLAYER)
             self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.player.gender, self.power_type))[0]
             self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
             self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
@@ -420,6 +419,18 @@ class PlayerManager(UnitManager):
             if spell_to_load:
                 self.spells.append(spell_to_load)
 
+    def set_ply_uint32(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.player_values,
+                                          self.update_packet_factory.updated_player_fields, index, value, 'I')
+
+    def set_ply_uint64(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.player_values,
+                                          self.update_packet_factory.updated_player_fields, index, value, 'Q')
+
+    def set_ply_float(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.player_values,
+                                          self.update_packet_factory.updated_player_fields, index, value, 'f')
+
     # TODO: UPDATE_PARTIAL is not being used anywhere (it's implemented but not sure if it works correctly).
     # override
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
@@ -430,83 +441,83 @@ class PlayerManager(UnitManager):
         self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
 
         # Object fields
-        self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_GUID, self.player.guid, 'Q')
-        self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value(), 'I')
-        self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_ENTRY, self.entry, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_SCALE_X, self.scale, 'f')
+        self.set_obj_uint64(ObjectFields.OBJECT_FIELD_GUID, self.player.guid)
+        self.set_obj_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
+        self.set_obj_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
+        self.set_obj_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.scale)
 
         # Unit fields
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object, 'Q')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_HEALTH, self.health, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_POWER1, self.power_1, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_POWER2, self.power_2, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_POWER3, self.power_3, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_POWER4, self.power_4, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_MAXPOWER1, self.max_power_1, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_MAXPOWER2, self.max_power_2, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_MAXPOWER3, self.max_power_3, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_MAXPOWER4, self.max_power_4, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_LEVEL, self.level, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_STAT0, self.stat_0, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_STAT1, self.stat_1, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_STAT2, self.stat_2, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_STAT3, self.stat_3, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_STAT4, self.stat_4, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASESTAT0, self.base_stat_0, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASESTAT1, self.base_stat_1, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASESTAT2, self.base_stat_2, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASESTAT3, self.base_stat_3, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASESTAT4, self.base_stat_4, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_FLAGS, self.unit_flags, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_COINAGE, self.coinage, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.offhand_attack_time, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0, 'q')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius, 'f')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach, 'f')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_DISPLAYID, self.display_id, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, self.resistance_buff_mods_positive_0, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, self.resistance_buff_mods_positive_1, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, self.resistance_buff_mods_positive_2, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, self.resistance_buff_mods_positive_3, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, self.resistance_buff_mods_positive_4, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, self.resistance_buff_mods_positive_5, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, self.resistance_buff_mods_negative_0, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, self.resistance_buff_mods_negative_1, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, self.resistance_buff_mods_negative_2, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, self.resistance_buff_mods_negative_3, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, self.resistance_buff_mods_negative_4, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, self.resistance_buff_mods_negative_5, 'i')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed, 'f')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_DAMAGE, self.damage, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.unit_values, self.update_packet_factory.updated_unit_fields, UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2, 'I')
+        self.set_uni_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
+        self.set_uni_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_POWER1, self.power_1)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_POWER2, self.power_2)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_POWER3, self.power_3)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_POWER4, self.power_4)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, self.max_power_1)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_MAXPOWER2, self.max_power_2)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_MAXPOWER3, self.max_power_3)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_MAXPOWER4, self.max_power_4)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_STAT0, self.stat_0)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_STAT1, self.stat_1)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_STAT2, self.stat_2)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_STAT3, self.stat_3)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_STAT4, self.stat_4)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_BASESTAT0, self.base_stat_0)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_BASESTAT1, self.base_stat_1)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_BASESTAT2, self.base_stat_2)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_BASESTAT3, self.base_stat_3)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_BASESTAT4, self.base_stat_4)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.offhand_attack_time)
+        self.set_uni_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
+        self.set_uni_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
+        self.set_uni_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, self.resistance_buff_mods_positive_0)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, self.resistance_buff_mods_positive_1)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, self.resistance_buff_mods_positive_2)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, self.resistance_buff_mods_positive_3)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, self.resistance_buff_mods_positive_4)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, self.resistance_buff_mods_positive_5)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, self.resistance_buff_mods_negative_0)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, self.resistance_buff_mods_negative_1)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, self.resistance_buff_mods_negative_2)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, self.resistance_buff_mods_negative_3)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, self.resistance_buff_mods_negative_4)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, self.resistance_buff_mods_negative_5)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+        self.set_uni_float(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
+        self.set_uni_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
         # Player fields
-        self.update_packet_factory.update(self.update_packet_factory.player_values, self.update_packet_factory.updated_player_fields, PlayerFields.PLAYER_FIELD_NUM_INV_SLOTS, self.num_inv_slots, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.player_values, self.update_packet_factory.updated_player_fields, PlayerFields.PLAYER_BYTES, self.player_bytes, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.player_values, self.update_packet_factory.updated_player_fields, PlayerFields.PLAYER_XP, self.xp, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.player_values, self.update_packet_factory.updated_player_fields, PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.player_values, self.update_packet_factory.updated_player_fields, PlayerFields.PLAYER_BYTES_2, self.player_bytes_2, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.player_values, self.update_packet_factory.updated_player_fields, PlayerFields.PLAYER_CHARACTER_POINTS1, self.talent_points, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.player_values, self.update_packet_factory.updated_player_fields, PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points, 'I')
-        self.update_packet_factory.update(self.update_packet_factory.player_values, self.update_packet_factory.updated_player_fields, PlayerFields.PLAYER_BLOCK_PERCENTAGE, self.block_percentage, 'f')
-        self.update_packet_factory.update(self.update_packet_factory.player_values, self.update_packet_factory.updated_player_fields, PlayerFields.PLAYER_DODGE_PERCENTAGE, self.dodge_percentage, 'f')
-        self.update_packet_factory.update(self.update_packet_factory.player_values, self.update_packet_factory.updated_player_fields, PlayerFields.PLAYER_PARRY_PERCENTAGE, self.parry_percentage, 'f')
-        self.update_packet_factory.update(self.update_packet_factory.player_values, self.update_packet_factory.updated_player_fields, PlayerFields.PLAYER_BASE_MANA, self.base_mana, 'I')
+        self.set_ply_uint32(PlayerFields.PLAYER_FIELD_NUM_INV_SLOTS, self.num_inv_slots)
+        self.set_ply_uint32(PlayerFields.PLAYER_BYTES, self.player_bytes)
+        self.set_ply_uint32(PlayerFields.PLAYER_XP, self.xp)
+        self.set_ply_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
+        self.set_ply_uint32(PlayerFields.PLAYER_BYTES_2, self.player_bytes_2)
+        self.set_ply_uint32(PlayerFields.PLAYER_CHARACTER_POINTS1, self.talent_points)
+        self.set_ply_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
+        self.set_ply_float(PlayerFields.PLAYER_BLOCK_PERCENTAGE, self.block_percentage)
+        self.set_ply_float(PlayerFields.PLAYER_DODGE_PERCENTAGE, self.dodge_percentage)
+        self.set_ply_float(PlayerFields.PLAYER_PARRY_PERCENTAGE, self.parry_percentage)
+        self.set_ply_uint32(PlayerFields.PLAYER_BASE_MANA, self.base_mana)
 
-        self.inventory.build_update(self.update_packet_factory)
+        self.inventory.build_update()
 
         packet = b''
         if update_type == UpdateTypes.UPDATE_FULL:

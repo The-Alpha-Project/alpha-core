@@ -22,9 +22,6 @@ class GameObjectManager(ObjectManager):
                  **kwargs):
         super().__init__(**kwargs)
 
-        self.update_packet_factory = UpdatePacketFactory([ObjectTypes.TYPE_OBJECT,
-                                                          ObjectTypes.TYPE_GAMEOBJECT])
-
         self.gobject_template = gobject_template
         self.gobject_instance = gobject_instance
 
@@ -43,6 +40,7 @@ class GameObjectManager(ObjectManager):
             self.scale = self.gobject_template.scale
 
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
+        self.update_packet_factory.add_type(ObjectTypes.TYPE_GAMEOBJECT)
 
     def load(self):
         GridManager.add_or_get(self, True)
@@ -83,23 +81,35 @@ class GameObjectManager(ObjectManager):
                 player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
                 player.stand_state = StandState.UNIT_SITTINGCHAIRLOW.value + height
 
+    def set_gob_uint32(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.gameobject_values,
+                                          self.update_packet_factory.updated_gameobject_fields, index, value, 'I')
+
+    def set_gob_uint64(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.gameobject_values,
+                                          self.update_packet_factory.updated_gameobject_fields, index, value, 'Q')
+
+    def set_gob_float(self, index, value):
+        self.update_packet_factory.update(self.update_packet_factory.gameobject_values,
+                                          self.update_packet_factory.updated_gameobject_fields, index, value, 'f')
+
     # override
     def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
         if self.gobject_template and self.gobject_instance:
             # Object fields
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_GUID, self.guid, 'Q')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value(), 'I')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_ENTRY, self.gobject_template.entry, 'I')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_SCALE_X, self.scale, 'f')
-            self.update_packet_factory.update(self.update_packet_factory.object_values, self.update_packet_factory.updated_object_fields, ObjectFields.OBJECT_FIELD_PADDING, 0, 'I')
+            self.set_obj_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
+            self.set_obj_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
+            self.set_obj_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.gobject_template.entry)
+            self.set_obj_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.scale)
+            self.set_obj_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
             # Gameobject fields
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_DISPLAYID, self.display_id, 'I')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_FLAGS, self.gobject_template.flags, 'I')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_FACTION, self.gobject_template.faction, 'I')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_STATE, self.state, 'I')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_ROTATION, self.gobject_instance.spawn_rotation0, 'f')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_ROTATION + 1, self.gobject_instance.spawn_rotation1, 'f')
+            self.set_gob_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.display_id)
+            self.set_gob_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.gobject_template.flags)
+            self.set_gob_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.gobject_template.faction)
+            self.set_gob_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
+            self.set_gob_float(GameObjectFields.GAMEOBJECT_ROTATION, self.gobject_instance.spawn_rotation0)
+            self.set_gob_float(GameObjectFields.GAMEOBJECT_ROTATION + 1, self.gobject_instance.spawn_rotation1)
 
             if self.gobject_instance.spawn_rotation2 == 0 and self.gobject_instance.spawn_rotation3 == 0:
                 f_rot1 = math.sin(self.location.o / 2.0)
@@ -108,12 +118,12 @@ class GameObjectManager(ObjectManager):
                 f_rot1 = self.gobject_instance.spawn_rotation2
                 f_rot2 = self.gobject_instance.spawn_rotation3
 
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_ROTATION + 2, f_rot1, 'f')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_ROTATION + 3, f_rot2, 'f')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_POS_X, self.location.x, 'f')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_POS_Y, self.location.y, 'f')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_POS_Z, self.location.z, 'f')
-            self.update_packet_factory.update(self.update_packet_factory.gameobject_values, self.update_packet_factory.updated_gameobject_fields, GameObjectFields.GAMEOBJECT_FACING, self.location.o, 'f')
+            self.set_gob_float(GameObjectFields.GAMEOBJECT_ROTATION + 2, f_rot1)
+            self.set_gob_float(GameObjectFields.GAMEOBJECT_ROTATION + 3, f_rot2)
+            self.set_gob_float(GameObjectFields.GAMEOBJECT_POS_X, self.location.x)
+            self.set_gob_float(GameObjectFields.GAMEOBJECT_POS_Y, self.location.y)
+            self.set_gob_float(GameObjectFields.GAMEOBJECT_POS_Z, self.location.z)
+            self.set_gob_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
 
             packet = b''
             if update_type == UpdateTypes.UPDATE_FULL:
