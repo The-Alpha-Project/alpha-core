@@ -26,5 +26,17 @@ begin not atomic
 
         insert into applied_updates values ('110520202');
     end if;
+
+    -- 13/05/2020 1
+    if (select count(*) from applied_updates where id='130520201') = 0 then
+        update creatures set name = replace(name, '[UNUSED] ', '') where subname = 'Spirit Healer';
+        update creatures set name = replace(name, '[PH] ', '') where subname = 'Spirit Healer';
+        update creatures set faction = 35, level_min = 45, level_max = 45, health_min = 2972, health_max = 2972 where subname = 'Spirit Healer';
+
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values
+        (4318, 2413, 1, -634.062927, -4249.992676, 38.552738, 6.15);
+
+        insert into applied_updates values ('130520201');
+    end if;
 end $
 delimiter ;
