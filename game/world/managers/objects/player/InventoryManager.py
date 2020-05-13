@@ -84,11 +84,13 @@ class InventoryManager(object):
                 return slot
         return InventorySlots.SLOT_INBACKPACK.value  # What is the logic behind backpack guid?
 
-    def add_item(self, entry=0, item_template=None, count=1, handle_error=True):
+    def add_item(self, entry=0, item_template=None, count=1, handle_error=True, from_npc=True, send_message=True):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
 
         items_added = False
+
+        target_bag_slot = -1  # Highest bag slot items were added to
         if item_template:
             if not self.can_store_item(item_template, count):
                 if handle_error:
@@ -97,6 +99,7 @@ class InventoryManager(object):
 
             # First, add to any pre-existing stacks
             amount_left = count
+            # TODO Dicts do not maintain order, first free bag should be preferred
             for slot, container in self.containers.items():
                 if not container.can_contain_item(item_template):
                     continue
@@ -106,36 +109,45 @@ class InventoryManager(object):
                     if x not in container.sorted_slots:
                         continue  # Skip any reserved slots
                     item_mgr = container.sorted_slots[x]
-                    if item_mgr.item_template.entry == item_template.entry:
+                    if item_mgr.item_template.entry == item_template.entry \
+                            and item_mgr.item_instance.stackcount < item_mgr.item_template.stackable:
                         stack_missing = item_template.stackable - item_mgr.item_instance.stackcount
+                        items_added = True
+                        if slot > target_bag_slot and slot != InventorySlots.SLOT_INBACKPACK:
+                            target_bag_slot = slot
                         if stack_missing >= amount_left:
                             item_mgr.item_instance.stackcount += amount_left
                             amount_left = 0
-                            items_added = True
                             RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
                             break
                         else:
                             item_mgr.item_instance.stackcount += stack_missing
                             amount_left -= stack_missing
                             RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
-                            items_added = True
 
             # Add the remaining stack(s) to empty slots.
             if amount_left > 0:
                 for slot, container in self.containers.items():
                     if not container.can_contain_item(item_template):
                         continue
+                    items_added = True
+                    if slot > target_bag_slot and slot != InventorySlots.SLOT_INBACKPACK:
+                        target_bag_slot = slot
                     if not container.is_full():
                         if amount_left > item_template.stackable:
                             container.add_item(item_template, count=item_template.stackable)
                             amount_left -= item_template.stackable
-                            items_added = True
                         else:
                             container.add_item(item_template, count=amount_left)
-                            items_added = True
                             break
 
         if items_added:
+            # Default to backpack so we can prefer highest slot ID (backpack ID is highest)
+            if target_bag_slot == -1:
+                target_bag_slot = InventorySlots.SLOT_INBACKPACK
+
+            self.send_item_receive_message(self.owner.guid, item_template.entry,
+                                           target_bag_slot, from_npc, send_message)
             self.owner.send_update_self()
         return items_added
 
@@ -159,7 +171,6 @@ class InventoryManager(object):
                 not dest_container.can_contain_item(item_template):
             self.send_equip_error(InventoryError.BAG_ITEM_CLASS_MISMATCH, None, dest_item)
             return
-
 
         if not self.can_store_item(item_template, count):
             if handle_error:
@@ -536,6 +547,15 @@ class InventoryManager(object):
             error
         )
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SELL_ITEM, data))
+
+    def send_item_receive_message(self, guid, item_entry, bag_slot, from_npc=True, show_in_chat=True):
+        if bag_slot == InventorySlots.SLOT_INBACKPACK:
+            bag_slot = 255
+        data = pack(
+            '<Q2IBI',
+            guid, from_npc, show_in_chat, bag_slot, item_entry
+        )
+        self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_ITEM_PUSH_RESULT, data))
 
     def build_update(self):
         for slot, item in self.get_backpack().sorted_slots.items():
