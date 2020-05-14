@@ -353,11 +353,13 @@ class InventoryManager(object):
                 self.containers[dest_bag].remove_item_in_slot(dest_slot)
 
             # Bag transfers
-            if source_item and self.is_bag_pos(dest_slot) and source_item.is_container():
+            if self.is_bag_pos(dest_slot) and source_item.is_container():
                 self.add_bag(dest_slot, source_item)
+                RealmDatabaseManager.character_inventory_update_container_contents(source_item)
 
             if dest_item and self.is_bag_pos(source_slot) and dest_item.is_container():
                 self.add_bag(source_slot, dest_item)
+                RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
             # Add items
             if source_item and source_bag in self.containers:
@@ -422,6 +424,9 @@ class InventoryManager(object):
             self.get_backpack().sorted_slots[slot] = container
         self.containers[slot] = container
 
+        # Update items' bag slot field
+        for item in self.containers[slot].sorted_slots.values():
+            item.item_instance.bag = slot
         return True
 
     def remove_bag(self, slot):

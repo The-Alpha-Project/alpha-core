@@ -124,6 +124,14 @@ class RealmDatabaseManager(object):
             realm_db_session.close()
 
     @staticmethod
+    def character_inventory_update_container_contents(container):
+        realm_db_session = SessionHolder()
+        for item in container.sorted_slots.values():
+            realm_db_session.merge(item.item_instance)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
     def character_inventory_delete(item):
         if item:
             realm_db_session = SessionHolder()
