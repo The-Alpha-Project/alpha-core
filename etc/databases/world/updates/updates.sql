@@ -1075,5 +1075,13 @@ begin not atomic
 
         insert into applied_updates values ('170520201');
     end if;
+
+    -- 18/05/2020 1
+    if (select count(*) from applied_updates where id='180520201') = 0 then
+        update page_text set text = replace(text, '$g himself : herself', '$g himself : herself;') where entry = 63;
+        update page_text set text = replace(text, '$g him:her', '$g him:her;') where entry = 1471;
+
+        insert into applied_updates values ('180520201');
+    end if;
 end $
 delimiter ;
