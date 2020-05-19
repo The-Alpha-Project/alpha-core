@@ -84,6 +84,12 @@ class InventoryManager(object):
                 return slot
         return InventorySlots.SLOT_INBACKPACK.value  # What is the logic behind backpack guid?
 
+    def get_sorted_containers(self, backpack_first=True):
+        container_list = sorted(self.containers.items())
+        if backpack_first:
+            container_list.insert(0, container_list.pop())
+        return dict(container_list)
+
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, from_npc=True, send_message=True):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
@@ -99,8 +105,7 @@ class InventoryManager(object):
 
             # First, add to any pre-existing stacks
             amount_left = count
-            # TODO Dicts do not maintain order, first free bag should be preferred
-            for slot, container in self.containers.items():
+            for slot, container in self.get_sorted_containers().items():
                 if not container.can_contain_item(item_template):
                     continue
                 for x in range(container.start_slot, container.max_slot):
@@ -127,7 +132,7 @@ class InventoryManager(object):
 
             # Add the remaining stack(s) to empty slots.
             if amount_left > 0:
-                for slot, container in self.containers.items():
+                for slot, container in self.get_sorted_containers().items():
                     if not container.can_contain_item(item_template):
                         continue
                     items_added = True
@@ -142,7 +147,7 @@ class InventoryManager(object):
                             break
 
         if items_added:
-            # Default to backpack so we can prefer highest slot ID (backpack ID is highest)
+            # Default to backpack so we can prefer highest slot ID for receive message (backpack ID is highest)
             if target_bag_slot == -1:
                 target_bag_slot = InventorySlots.SLOT_INBACKPACK
 
