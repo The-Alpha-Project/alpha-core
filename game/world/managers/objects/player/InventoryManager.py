@@ -73,6 +73,8 @@ class InventoryManager(object):
                 if item_instance.bag in self.containers:
                     self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
 
+        self.containers = self.get_sorted_containers()
+
         self.set_base_attack_time()
 
     def get_backpack(self):
@@ -108,7 +110,7 @@ class InventoryManager(object):
 
             # First, add to any pre-existing stacks
             amount_left = count
-            for slot, container in self.get_sorted_containers().items():
+            for slot, container in list(self.containers.items()):
                 if not container.can_contain_item(item_template):
                     continue
                 for x in range(container.start_slot, container.max_slot):
@@ -135,7 +137,7 @@ class InventoryManager(object):
 
             # Add the remaining stack(s) to empty slots.
             if amount_left > 0:
-                for slot, container in self.get_sorted_containers().items():
+                for slot, container in list(self.containers.items()):
                     if not container.can_contain_item(item_template):
                         continue
                     items_added = True
@@ -435,6 +437,9 @@ class InventoryManager(object):
         # Update items' bag slot field
         for item in self.containers[slot].sorted_slots.values():
             item.item_instance.bag = slot
+
+        self.containers = self.get_sorted_containers()
+
         return True
 
     def remove_bag(self, slot):
@@ -445,7 +450,9 @@ class InventoryManager(object):
             self.get_backpack().sorted_slots.pop(slot)
         self.containers.pop(slot)
 
-        return False
+        self.containers = self.get_sorted_containers()
+
+        return True
 
     def can_store_item(self, item_template, count, on_bank=False):
         amount = count
