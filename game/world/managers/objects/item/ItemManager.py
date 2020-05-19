@@ -168,7 +168,7 @@ class ItemManager(ObjectManager):
                 stackcount=count,
                 slot=slot,
                 bag=bag,
-                item_flags=item_template.item_flags
+                item_flags=item_template.flags
             )
             RealmDatabaseManager.character_inventory_add_item(item)
 
@@ -198,7 +198,7 @@ class ItemManager(ObjectManager):
             item_name_bytes, b'\x00', b'\x00', b'\x00',
             self.item_template.display_id,
             self.item_template.quality,
-            self.item_instance.item_flags,
+            self.item_instance.item_flags if self.item_instance else self.item_template.flags,
             self.item_template.buy_price,
             self.item_template.sell_price,
             self.item_template.inventory_type,
