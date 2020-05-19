@@ -87,9 +87,9 @@ class InventoryManager(object):
     def get_sorted_containers(self, backpack_first=True):
         # This is done to have the expected order or Backpack -> Bag1 -> Bag2 -> Bag3 -> Bag4
         # Example (slots): 23 - 19 - 20 - 21 - 22
-        def override_backpack_slot_order(slot):
-            if not backpack_first or slot != InventorySlots.SLOT_INBACKPACK.value:
-                return slot
+        def override_backpack_slot_order(bag):
+            if not backpack_first or bag[0] != InventorySlots.SLOT_INBACKPACK.value:
+                return bag[0]
             return 0
         return dict(sorted(self.containers.items(), key=override_backpack_slot_order))
 
