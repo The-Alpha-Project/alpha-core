@@ -4,7 +4,7 @@ from network.packet.UpdatePacketFactory import UpdatePacketFactory, ContainerFie
 from utils.constants.ItemCodes import InventorySlots, ItemClasses, ItemSubClasses, BagFamilies
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes
 
-MAX_BAG_SLOTS = 20
+MAX_BAG_SLOTS = 20  # (ContainerFields.CONTAINER_END - ContainerFields.CONTAINER_FIELD_SLOT_1) / 2
 
 
 class ContainerManager(ItemManager):

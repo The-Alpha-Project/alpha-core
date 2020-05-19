@@ -93,7 +93,7 @@ class CreatureManager(UnitManager):
         world_session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
 
     # override
-    def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
+    def get_full_update_packet(self, is_self=True):
         if self.creature_template and self.creature_instance:
             if not self.model_info_loaded:
                 creature_model_info = WorldDatabaseManager.creature_get_model_info(self.display_id)
@@ -136,14 +136,7 @@ class CreatureManager(UnitManager):
             self.set_uni_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
             self.set_uni_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
 
-            packet = b''
-            if update_type == UpdateTypes.UPDATE_FULL:
-                packet += self.create_update_packet(is_self)
-            else:
-                packet += self.create_partial_update_packet(self.update_packet_factory)
-
-            update_packet = packet + self.update_packet_factory.build_packet()
-            return update_packet
+            return self.create_update_packet(self.update_packet_factory, is_self)
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.creature_template.name)

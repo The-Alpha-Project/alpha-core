@@ -94,7 +94,7 @@ class GameObjectManager(ObjectManager):
                                           self.update_packet_factory.updated_gameobject_fields, index, value, 'f')
 
     # override
-    def get_update_packet(self, update_type=UpdateTypes.UPDATE_FULL, is_self=True):
+    def get_full_update_packet(self, is_self=True):
         if self.gobject_template and self.gobject_instance:
             # Object fields
             self.set_obj_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
@@ -125,14 +125,7 @@ class GameObjectManager(ObjectManager):
             self.set_gob_float(GameObjectFields.GAMEOBJECT_POS_Z, self.location.z)
             self.set_gob_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
 
-            packet = b''
-            if update_type == UpdateTypes.UPDATE_FULL:
-                packet += self.create_update_packet(is_self)
-            else:
-                packet += self.create_partial_update_packet(self.update_packet_factory)
-
-            update_packet = packet + self.update_packet_factory.build_packet()
-            return update_packet
+            return self.create_update_packet(self.update_packet_factory, is_self)
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.gobject_template.name)
@@ -155,10 +148,10 @@ class GameObjectManager(ObjectManager):
         )
         return PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_QUERY_RESPONSE, data)
 
-    def send_update_surrounding(self, update_type=UpdateTypes.UPDATE_FULL):
+    def send_update_surrounding(self):
         update_packet = UpdatePacketFactory.compress_if_needed(
             PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                    self.get_update_packet(update_type=update_type, is_self=False)))
+                                    self.get_full_update_packet(is_self=False)))
         GridManager.send_surrounding(update_packet, self, include_self=False)
 
     # override

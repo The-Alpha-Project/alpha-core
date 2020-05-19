@@ -34,8 +34,6 @@ class UpdatePacketFactory(object):
 
         self.init_lists()
 
-        self.update_packet = b''
-
     def add_type(self, update_type):
         self.types_list.append(update_type)
 
@@ -69,81 +67,45 @@ class UpdatePacketFactory(object):
         self.dynamic_object_values = [pack('<I', 0)] * DynamicObjectFields.DYNAMICOBJECT_END
         self.updated_player_fields.setall(0)
 
-    def get_updated_fields_mask(self):
+    def get_merged_update_fields(self):
+        merged_update_fields = bitarray()
+
+        if ObjectTypes.TYPE_OBJECT in self.types_list:
+            merged_update_fields.extend(self.updated_object_fields)
+        if ObjectTypes.TYPE_UNIT in self.types_list:
+            merged_update_fields.extend(self.updated_unit_fields)
+        if ObjectTypes.TYPE_PLAYER in self.types_list:
+            merged_update_fields.extend(self.updated_player_fields)
+        if ObjectTypes.TYPE_ITEM in self.types_list:
+            merged_update_fields.extend(self.updated_item_fields)
+        if ObjectTypes.TYPE_CONTAINER in self.types_list:
+            merged_update_fields.extend(self.updated_container_fields)
+        if ObjectTypes.TYPE_GAMEOBJECT in self.types_list:
+            merged_update_fields.extend(self.updated_gameobject_fields)
+        if ObjectTypes.TYPE_DYNAMICOBJECT in self.types_list:
+            merged_update_fields.extend(self.updated_dynamic_object_fields)
+
+        return merged_update_fields
+
+    def get_merged_update_values(self):
         updated_fields_mask = b''
 
         if ObjectTypes.TYPE_OBJECT in self.types_list:
-            updated_fields_mask += self.updated_object_fields.tobytes()
+            updated_fields_mask += b''.join(self.object_values)
         if ObjectTypes.TYPE_UNIT in self.types_list:
-            updated_fields_mask += self.updated_unit_fields.tobytes()
+            updated_fields_mask += b''.join(self.unit_values)
         if ObjectTypes.TYPE_PLAYER in self.types_list:
-            updated_fields_mask += self.updated_player_fields.tobytes()
+            updated_fields_mask += b''.join(self.player_values)
         if ObjectTypes.TYPE_ITEM in self.types_list:
-            updated_fields_mask += self.updated_item_fields.tobytes()
+            updated_fields_mask += b''.join(self.item_values)
         if ObjectTypes.TYPE_CONTAINER in self.types_list:
-            updated_fields_mask += self.updated_container_fields.tobytes()
+            updated_fields_mask += b''.join(self.container_values)
         if ObjectTypes.TYPE_GAMEOBJECT in self.types_list:
-            updated_fields_mask += self.updated_gameobject_fields.tobytes()
+            updated_fields_mask += b''.join(self.gameobject_values)
         if ObjectTypes.TYPE_DYNAMICOBJECT in self.types_list:
-            updated_fields_mask += self.updated_dynamic_object_fields.tobytes()
+            updated_fields_mask += b''.join(self.dynamic_object_values)
 
         return updated_fields_mask
-
-    def build_packet(self):
-        self.update_packet = b''
-
-        if ObjectTypes.TYPE_OBJECT in self.types_list:
-            self.update_packet += b''.join(self.object_values)
-        if ObjectTypes.TYPE_UNIT in self.types_list:
-            self.update_packet += b''.join(self.unit_values)
-        if ObjectTypes.TYPE_PLAYER in self.types_list:
-            self.update_packet += b''.join(self.player_values)
-        if ObjectTypes.TYPE_ITEM in self.types_list:
-            self.update_packet += b''.join(self.item_values)
-        if ObjectTypes.TYPE_CONTAINER in self.types_list:
-            self.update_packet += b''.join(self.container_values)
-        if ObjectTypes.TYPE_GAMEOBJECT in self.types_list:
-            self.update_packet += b''.join(self.gameobject_values)
-        if ObjectTypes.TYPE_DYNAMICOBJECT in self.types_list:
-            self.update_packet += b''.join(self.dynamic_object_values)
-
-        self.init_lists()
-        return self.update_packet
-
-    def build_partial_packet(self):
-        self.update_packet = b''
-
-        if ObjectTypes.TYPE_OBJECT in self.types_list:
-            for i in range(0, len(self.updated_object_fields)):
-                if self.updated_object_fields[i] == 1:
-                    self.update_packet += self.object_values[i]
-        if ObjectTypes.TYPE_UNIT in self.types_list:
-            for i in range(0, len(self.updated_unit_fields)):
-                if self.updated_unit_fields[i] == 1:
-                    self.update_packet += self.unit_values[i]
-        if ObjectTypes.TYPE_PLAYER in self.types_list:
-            for i in range(0, len(self.updated_player_fields)):
-                if self.updated_player_fields[i] == 1:
-                    self.update_packet += self.player_values[i]
-        if ObjectTypes.TYPE_ITEM in self.types_list:
-            for i in range(0, len(self.updated_item_fields)):
-                if self.updated_item_fields[i] == 1:
-                    self.update_packet += self.item_values[i]
-        if ObjectTypes.TYPE_CONTAINER in self.types_list:
-            for i in range(0, len(self.updated_container_fields)):
-                if self.updated_container_fields[i] == 1:
-                    self.update_packet += self.container_values[i]
-        if ObjectTypes.TYPE_GAMEOBJECT in self.types_list:
-            for i in range(0, len(self.updated_gameobject_fields)):
-                if self.updated_gameobject_fields[i] == 1:
-                    self.update_packet += self.gameobject_values[i]
-        if ObjectTypes.TYPE_DYNAMICOBJECT in self.types_list:
-            for i in range(0, len(self.dynamic_object_values)):
-                if self.dynamic_object_values[i] == 1:
-                    self.update_packet += self.dynamic_object_values[i]
-
-        self.init_lists()
-        return self.update_packet
 
     @staticmethod
     def compress_if_needed(update_packet):

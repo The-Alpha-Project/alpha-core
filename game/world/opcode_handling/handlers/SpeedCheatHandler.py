@@ -21,6 +21,8 @@ class SpeedCheatHandler(object):
                 # world_session.player_mgr.change_turn_speed()
                 # Disconnect as I haven't found a way to change turn speed back to normal
                 return -1
+            else:
+                return -1
 
         return 0
 
