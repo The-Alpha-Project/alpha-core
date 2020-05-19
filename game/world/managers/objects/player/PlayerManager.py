@@ -579,3 +579,22 @@ class PlayerManager(UnitManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_PLAYER
+
+
+    #   TODO: Dynat: Below is some quest stuff. This might be the kind of stuff that would live in the QuestManager rather then here
+    def get_dialog_status(self, world_obj, defstatus):
+        dialog_status = defstatus
+
+        rbounds = WorldDatabaseManager.creature_quest_get_by_entry(world_obj.entry)               #   realtions bounds, the quest giver
+        irbounds = WorldDatabaseManager.creature_involved_quest_get_by_entry(world_obj.entry)     #   involved relations bounds, the quest completer
+        print("getting dialog status")
+        print("rbounds:")
+        print(rbounds)
+        print("irbounds:")
+        print(irbounds)
+
+
+        pass
+
+    def send_questgiver_status(self, dialog_status, guid):
+        print("big boi, you made it to the playr_mgr, you just need a dialog now")

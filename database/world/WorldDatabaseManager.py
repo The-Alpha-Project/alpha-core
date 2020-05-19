@@ -162,3 +162,17 @@ class WorldDatabaseManager(object):
         world_db_session = SessionHolder()
         res = world_db_session.query(NpcVendor).filter_by(entry=entry, item=item).first()
         return res, world_db_session
+
+    @staticmethod
+    def creature_quest_get_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(t_creature_questrelation).filter_by(entry=entry).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def creature_involved_quest_get_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(t_creature_involvedrelation).filter_by(entry=entry).all()
+        world_db_session.close()
+        return res

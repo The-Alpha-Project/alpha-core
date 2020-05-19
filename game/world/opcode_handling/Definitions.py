@@ -22,6 +22,9 @@ from game.world.opcode_handling.handlers.LookingForGroupHandler import LookingFo
 from game.world.opcode_handling.handlers.ItemQuerySingleHandler import ItemQuerySingleHandler
 from game.world.opcode_handling.handlers.WhoHandler import WhoHandler
 from game.world.opcode_handling.handlers.PlayerMacroHandler import PlayerMacroHandler
+
+from game.world.opcode_handling.handlers.QuestHandler import QuestHandler
+
 from game.world.opcode_handling.handlers.StandStateChangeHandler import StandStateChangeHandler
 from game.world.opcode_handling.handlers.MountSpecialAnimHandler import MountSpecialAnimHandler
 from game.world.opcode_handling.handlers.SetWeaponModeHandler import SetWeaponModeHandler
@@ -79,6 +82,10 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_WHO: WhoHandler.handle,
     OpCode.CMSG_ITEM_QUERY_SINGLE: ItemQuerySingleHandler.handle,
     OpCode.CMSG_PLAYER_MACRO: PlayerMacroHandler.handle,
+
+    OpCode.CMSG_QUESTGIVER_STATUS_QUERY: QuestHandler.handle_questgiver_status,
+    OpCode.CMSG_QUESTGIVER_HELLO: QuestHandler.handle_questgiver_hello,
+
     OpCode.CMSG_STANDSTATECHANGE: StandStateChangeHandler.handle,
     OpCode.CMSG_MOUNTSPECIAL_ANIM: MountSpecialAnimHandler.handle,
     OpCode.CMSG_SETWEAPONMODE: SetWeaponModeHandler.handle,
