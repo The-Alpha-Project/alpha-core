@@ -367,7 +367,7 @@ class InventoryManager(object):
                 RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
             # Add items
-            if source_item and source_bag in self.containers:
+            if source_bag in self.containers:
                 self.containers[dest_bag].set_item(source_item, dest_slot, source_item.item_instance.stackcount)
                 source_item.item_instance.bag = dest_bag
                 source_item.item_instance.slot = dest_slot
@@ -384,7 +384,7 @@ class InventoryManager(object):
                 self.set_base_attack_time()
 
             # TODO: Save current binding state in db (also load it)
-            if source_item and source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED and \
+            if source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED and \
                     (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(source_slot)):
                 source_item.set_binding(True)
 
