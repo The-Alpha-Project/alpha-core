@@ -63,7 +63,6 @@ class ItemManager(ObjectManager):
         if item_template:
             self.display_id = item_template.display_id
             self.equip_slot = self.get_inv_slot_by_type(self.item_template.inventory_type)
-            self.item_flags = self.item_template.flags
 
             self.stats.append(ItemManager.Stat(self.item_template.stat_type1, self.item_template.stat_value1))
             self.stats.append(ItemManager.Stat(self.item_template.stat_type2, self.item_template.stat_value2))
@@ -168,7 +167,8 @@ class ItemManager(ObjectManager):
                 item_template=item_template.entry,
                 stackcount=count,
                 slot=slot,
-                bag=bag
+                bag=bag,
+                item_flags=item_template.item_flags
             )
             RealmDatabaseManager.character_inventory_add_item(item)
 
@@ -198,7 +198,7 @@ class ItemManager(ObjectManager):
             item_name_bytes, b'\x00', b'\x00', b'\x00',
             self.item_template.display_id,
             self.item_template.quality,
-            self.item_flags,
+            self.item_instance.item_flags,
             self.item_template.buy_price,
             self.item_template.sell_price,
             self.item_template.inventory_type,
@@ -291,7 +291,7 @@ class ItemManager(ObjectManager):
             self.set_itm_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)
             self.set_itm_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.is_contained)
             self.set_itm_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
-            self.set_itm_uint32(ItemFields.ITEM_FIELD_FLAGS, self.item_flags)
+            self.set_itm_uint32(ItemFields.ITEM_FIELD_FLAGS, self.item_instance.item_flags)
 
             self.set_itm_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES, self.item_instance.SpellCharges1)
             self.set_itm_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 1, self.item_instance.SpellCharges2)
@@ -307,9 +307,9 @@ class ItemManager(ObjectManager):
 
     def set_binding(self, bind=True):
         if bind:
-            self.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNK16
+            self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNK16
         else:
-            self.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_UNK16
+            self.item_instance.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_UNK16
 
     # override
     def get_type(self):
