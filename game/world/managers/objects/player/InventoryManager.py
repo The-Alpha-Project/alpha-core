@@ -85,10 +85,13 @@ class InventoryManager(object):
         return InventorySlots.SLOT_INBACKPACK.value  # What is the logic behind backpack guid?
 
     def get_sorted_containers(self, backpack_first=True):
-        container_list = sorted(self.containers.items())
-        if backpack_first:
-            container_list.insert(0, container_list.pop())
-        return dict(container_list)
+        # This is done to have the expected order or Backpack -> Bag1 -> Bag2 -> Bag3 -> Bag4
+        # Example (slots): 23 - 19 - 20 - 21 - 22
+        def override_backpack_slot_order(slot):
+            if not backpack_first or slot != InventorySlots.SLOT_INBACKPACK.value:
+                return slot
+            return 0
+        return dict(sorted(self.containers.items(), key=override_backpack_slot_order))
 
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, from_npc=True, send_message=True):
         if entry != 0 and not item_template:
@@ -147,7 +150,7 @@ class InventoryManager(object):
                             break
 
         if items_added:
-            # Default to backpack so we can prefer highest slot ID for receive message (backpack ID is highest)
+            # Default to backpack so we can prefer highest slot ID to receive message (backpack ID is highest)
             if target_bag_slot == -1:
                 target_bag_slot = InventorySlots.SLOT_INBACKPACK
 
