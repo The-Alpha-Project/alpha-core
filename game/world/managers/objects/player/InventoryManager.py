@@ -89,9 +89,7 @@ class InventoryManager(object):
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, from_npc=True, send_message=True):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
-
-        items_added = False
-
+        amount_left = count
         target_bag_slot = -1  # Highest bag slot items were added to
         if item_template:
             if not self.can_store_item(item_template, count):
@@ -99,49 +97,26 @@ class InventoryManager(object):
                     self.send_equip_error(InventoryError.BAG_INV_FULL)
                 return False
 
-            # First, add to any pre-existing stacks
-            amount_left = count
-            for slot, container in list(self.containers.items()):
+            # Add to any existing stacks
+            for slot, container in self.containers.items():
                 if not container or not container.can_contain_item(item_template):
                     continue
-                for x in range(container.start_slot, container.max_slot):
-                    if self.is_bank_slot(slot, x):
-                        continue
-                    if x not in container.sorted_slots:
-                        continue  # Skip any reserved slots
-                    item_mgr = container.sorted_slots[x]
-                    if item_mgr.item_template.entry == item_template.entry \
-                            and item_mgr.item_instance.stackcount < item_mgr.item_template.stackable:
-                        stack_missing = item_template.stackable - item_mgr.item_instance.stackcount
-                        items_added = True
-                        if slot > target_bag_slot and slot != InventorySlots.SLOT_INBACKPACK:
-                            target_bag_slot = slot
-                        if stack_missing >= amount_left:
-                            item_mgr.item_instance.stackcount += amount_left
-                            amount_left = 0
-                            RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
-                            break
-                        else:
-                            item_mgr.item_instance.stackcount += stack_missing
-                            amount_left -= stack_missing
-                            RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
+                amount_left = container.add_item_to_existing_stacks(item_template, amount_left)
+                if amount_left <= 0:
+                    break
 
-            # Add the remaining stack(s) to empty slots.
             if amount_left > 0:
-                for slot, container in list(self.containers.items()):
+                for slot, container in self.containers.items():
                     if not container or not container.can_contain_item(item_template):
                         continue
-                    items_added = True
-                    if slot > target_bag_slot and slot != InventorySlots.SLOT_INBACKPACK:
+                    prev_left = amount_left
+                    amount_left = container.add_item(item_template, amount_left, False)
+                    if slot != InventorySlots.SLOT_INBACKPACK and prev_left < amount_left and slot > target_bag_slot:
                         target_bag_slot = slot
-                    if not container.is_full():
-                        if amount_left > item_template.stackable:
-                            container.add_item(item_template, count=item_template.stackable)
-                            amount_left -= item_template.stackable
-                        else:
-                            container.add_item(item_template, count=amount_left)
-                            break
+                    if amount_left <= 0:
+                        break
 
+        items_added = (amount_left != count)
         if items_added:
             # Default to backpack so we can prefer highest slot ID to receive message (backpack ID is highest)
             if target_bag_slot == -1:
@@ -187,11 +162,30 @@ class InventoryManager(object):
         if dest_container.is_backpack:
             template_equip_slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
             if self.is_equipment_pos(dest_bag_slot, dest_slot) and dest_slot != template_equip_slot or \
-                    self.is_bag_pos(dest_slot) and item_template.inventory_type != InventoryTypes.BAG or \
-                    dest_slot == 255:  # slot 255 is the backpack slot
+                    self.is_bag_pos(dest_slot) and item_template.inventory_type != InventoryTypes.BAG:
                 if handle_error:
                     self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, item, dest_item)
                 return
+
+        if dest_slot == 255:  # Dragging an item to bag bar. Acts like adding item but with container priority
+            if not self.can_store_item(item_template, count):
+                if handle_error:
+                    self.send_equip_error(InventoryError.BAG_INV_FULL, item, dest_item)
+                return
+
+            dest_slot = dest_container.next_available_slot()
+            remaining = count
+            if dest_slot == -1:
+                dest_slot, dest_container = self.get_next_available_container_slot()
+
+            if not dest_slot == -1:  # If the target container has a slot open
+                remaining = dest_container.add_item(item_template, count)  # Add items to target container
+            if remaining > 0:
+                self.add_item(item_template=item_template, count=remaining)  # Overflow to inventory
+            else:
+                self.owner.send_update_self()  # Update if container is modified self.add_item isn't called
+            return
+
 
         # Check backpack / paperdoll placement
         if item_template.required_level > self.owner.level and \
@@ -492,13 +486,13 @@ class InventoryManager(object):
 
         return False
 
-    def get_next_available_slot(self):
+    def get_next_available_container_slot(self):
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
             if not container.is_full():
-                return container.next_available_slot()
-        return -1
+                return container, container.next_available_slot()
+        return None, -1
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
