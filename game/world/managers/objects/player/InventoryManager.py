@@ -72,7 +72,7 @@ class InventoryManager(object):
                         item_template=item_template,
                         item_instance=item_instance
                     )
-                if item_instance.bag in self.containers:
+                if item_instance.bag in self.containers and self.containers[item_instance.bag]:
                     self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
 
         self.set_base_attack_time()
@@ -82,7 +82,7 @@ class InventoryManager(object):
 
     def get_container_slot_by_guid(self, container_guid):
         for slot in self.containers.keys():
-            if self.containers[slot].guid == container_guid:
+            if self.containers[slot] and self.containers[slot].guid == container_guid:
                 return slot
         return InventorySlots.SLOT_INBACKPACK.value  # What is the logic behind backpack guid?
 
@@ -153,7 +153,7 @@ class InventoryManager(object):
         return items_added
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item_template=None, count=1, handle_error=True):
-        if dest_bag_slot not in self.containers:
+        if not self.containers[dest_bag_slot]:
             if handle_error:
                 self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
             return
@@ -248,7 +248,7 @@ class InventoryManager(object):
         return True
 
     def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):
-        if source_bag not in self.containers or dest_bag not in self.containers:
+        if not self.containers[source_bag] or not self.containers[dest_bag]:
             return
 
         source_container = self.containers[source_bag]
@@ -322,7 +322,7 @@ class InventoryManager(object):
                 if diff >= source_item.item_instance.stackcount:
                     # Destroy source stack
                     dest_item.item_instance.stackcount += source_item.item_instance.stackcount
-                    if source_bag in self.containers:
+                    if self.containers[source_bag]:
                         self.containers[source_bag].remove_item_in_slot(source_slot)
                         RealmDatabaseManager.character_inventory_delete(source_item.item_instance)
                 else:
@@ -348,9 +348,9 @@ class InventoryManager(object):
             # Actual transfer
 
             # Remove items
-            if source_bag in self.containers:
+            if self.containers[source_bag]:
                 self.containers[source_bag].remove_item_in_slot(source_slot)
-            if dest_bag in self.containers:
+            if self.containers[dest_bag]:
                 self.containers[dest_bag].remove_item_in_slot(dest_slot)
 
             # Bag transfers
@@ -363,12 +363,12 @@ class InventoryManager(object):
                 RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
             # Add items
-            if source_bag in self.containers:
+            if self.containers[source_bag]:
                 self.containers[dest_bag].set_item(source_item, dest_slot, source_item.item_instance.stackcount)
                 source_item.item_instance.bag = dest_bag
                 source_item.item_instance.slot = dest_slot
                 RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
-            if dest_item and dest_bag in self.containers:
+            if dest_item and self.containers[dest_bag]:
                 self.containers[source_bag].set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
                 dest_item.item_instance.bag = source_bag
                 dest_item.item_instance.slot = source_slot
@@ -408,7 +408,7 @@ class InventoryManager(object):
         return count
 
     def get_item(self, bag, slot):
-        if bag in self.containers:
+        if self.containers[bag]:
             return self.containers[bag].get_item(slot)
         return None
 
@@ -436,7 +436,7 @@ class InventoryManager(object):
         return True
 
     def remove_bag(self, slot):
-        if not self.is_bag_pos(slot) or slot not in self.containers:
+        if not self.is_bag_pos(slot) or not self.containers[slot]:
             return False
 
         if slot in self.get_backpack().sorted_slots:
@@ -525,7 +525,7 @@ class InventoryManager(object):
             return True
 
         if InventorySlots.SLOT_BAG1 <= bag_slot <= InventorySlots.SLOT_BAG4:
-            if bag_slot not in self.containers:
+            if not self.containers[bag_slot]:
                 return False
             return slot < self.containers[bag_slot].max_slot
         return False
