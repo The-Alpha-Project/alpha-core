@@ -176,3 +176,12 @@ class WorldDatabaseManager(object):
         res = world_db_session.query(t_creature_involvedrelation).filter_by(entry=entry).all()
         world_db_session.close()
         return res
+
+    # Quest stuff
+
+    @staticmethod
+    def quest_get_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(Quests).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res

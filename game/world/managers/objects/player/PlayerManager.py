@@ -8,9 +8,10 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
+from game.world.managers.objects.player.QuestManager import QuestManager
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid
+from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid, QuestGiverStatuses
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
@@ -84,6 +85,7 @@ class PlayerManager(UnitManager):
 
             self.guid = self.player.guid | HighGuid.HIGHGUID_PLAYER
             self.inventory = InventoryManager(self)
+            self.quests = QuestManager(self)
             self.level = self.player.level
             self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.player.gender, self.power_type))[0]
             self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
@@ -580,21 +582,3 @@ class PlayerManager(UnitManager):
     def get_type_id(self):
         return ObjectTypeIds.ID_PLAYER
 
-
-    #   TODO: Dynat: Below is some quest stuff. This might be the kind of stuff that would live in the QuestManager rather then here
-    def get_dialog_status(self, world_obj, defstatus):
-        dialog_status = defstatus
-
-        rbounds = WorldDatabaseManager.creature_quest_get_by_entry(world_obj.entry)               #   realtions bounds, the quest giver
-        irbounds = WorldDatabaseManager.creature_involved_quest_get_by_entry(world_obj.entry)     #   involved relations bounds, the quest completer
-        print("getting dialog status")
-        print("rbounds:")
-        print(rbounds)
-        print("irbounds:")
-        print(irbounds)
-
-
-        pass
-
-    def send_questgiver_status(self, dialog_status, guid):
-        print("big boi, you made it to the playr_mgr, you just need a dialog now")
