@@ -161,7 +161,7 @@ class InventoryManager(object):
             self.owner.send_update_self()
         return items_added
 
-    def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item_template=None, count=1, handle_error=True):
+    def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1, handle_error=True):
         if dest_bag_slot not in self.containers:
             if handle_error:
                 self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
@@ -179,7 +179,7 @@ class InventoryManager(object):
         # Bag family check
         if self.is_inventory_pos(dest_bag_slot, dest_slot) and \
                 not dest_container.can_contain_item(item_template):
-            self.send_equip_error(InventoryError.BAG_ITEM_CLASS_MISMATCH, None, dest_item)
+            self.send_equip_error(InventoryError.BAG_ITEM_CLASS_MISMATCH, item, dest_item)
             return
 
         if not self.can_store_item(item_template, count):
@@ -189,7 +189,7 @@ class InventoryManager(object):
 
         if not self.owner.is_alive:
             if handle_error:
-                self.send_equip_error(InventoryError.BAG_NOT_WHILE_DEAD, None, dest_item)
+                self.send_equip_error(InventoryError.BAG_NOT_WHILE_DEAD, item, dest_item)
             return
 
         # Destination slot checks
@@ -199,7 +199,7 @@ class InventoryManager(object):
                     self.is_bag_pos(dest_slot) and item_template.inventory_type != InventoryTypes.BAG or \
                     dest_slot == 255:  # slot 255 is the backpack slot
                 if handle_error:
-                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, None, dest_item)
+                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, item, dest_item)
                 return
 
         # Check backpack / paperdoll placement
@@ -207,7 +207,7 @@ class InventoryManager(object):
                 self.is_equipment_pos(dest_bag_slot, dest_slot):
             # Not enough level
             if handle_error:
-                self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, None, dest_item, item_template.required_level)
+                self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, item, dest_item, item_template.required_level)
             return
 
         # Stack handling
@@ -229,11 +229,11 @@ class InventoryManager(object):
                     return True
                 else:
                     if handle_error:
-                        self.send_equip_error(InventoryError.BAG_CANT_STACK, None, dest_item)
+                        self.send_equip_error(InventoryError.BAG_CANT_STACK, item, dest_item)
                     return
             else:
                 if handle_error:
-                    self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, None, dest_item)
+                    self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, item, dest_item)
                 return
 
         generated_item = dest_container.set_item(item_template, dest_slot, count)
@@ -243,7 +243,7 @@ class InventoryManager(object):
                 self.add_bag(dest_slot, generated_item)
             else:
                 if handle_error:
-                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, None, dest_item)
+                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, item, dest_item)
                 return
 
         # Update attack time
@@ -537,6 +537,7 @@ class InventoryManager(object):
             return slot < self.containers[bag_slot].max_slot
         return False
 
+    # Note: Not providing item_1 or item_2 can cause client-side greyed-out items.
     def send_equip_error(self, error, item_1=None, item_2=None, required_level=0):
         data = pack('<B', error)
         if error != InventoryError.BAG_OK:
