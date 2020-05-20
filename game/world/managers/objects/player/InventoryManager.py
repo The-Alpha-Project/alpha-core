@@ -379,7 +379,6 @@ class InventoryManager(object):
                     dest_slot == InventorySlots.SLOT_MAINHAND:
                 self.set_base_attack_time()
 
-            # TODO: Save current binding state in db (also load it)
             if source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED and \
                     (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(source_slot)):
                 source_item.set_binding(True)
