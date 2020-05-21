@@ -1086,5 +1086,14 @@ begin not atomic
 
         insert into applied_updates values ('180520201');
     end if;
+
+    -- 21/05/2020 1
+    if (select count(*) from applied_updates where id='210520201') = 0 then
+        -- https://github.com/cmangos/classic-db/commit/89ad577ef1c8079b1681fdaedd82bd37423bcf10
+        -- Fix size of a few Tauren NPCs so they match other Tauren size
+        UPDATE creatures SET scale=1.35 WHERE entry IN (7725, 7726, 7727, 10758, 10759, 11911, 11912, 11913);
+
+        insert into applied_updates values ('210520201');
+    end if;
 end $
 delimiter ;
