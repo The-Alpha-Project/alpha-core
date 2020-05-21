@@ -39,6 +39,7 @@ class CharacterInventory(Base):
     SpellCharges3 = Column(Integer, nullable=False, server_default=text("'-1'"))
     SpellCharges4 = Column(Integer, nullable=False, server_default=text("'-1'"))
     SpellCharges5 = Column(Integer, nullable=False, server_default=text("'-1'"))
+    item_flags = Column(Integer, nullable=False, server_default=text("'0'"))
 
     character = relationship('Character')
 

@@ -1,11 +1,22 @@
-import re
+from utils.constants.UnitCodes import Genders
 
 
 class GameTextFormatter(object):
 
     @staticmethod
     def format(player_mgr, text):
-        # TODO: Handle $G male:female
+        # TODO: Maybe there's a more efficient way of doing this. :P
+        if '$G' in text or '$g' in text:
+            text = text.replace('$G', '$g')
+            tmp_text = text
+            for i in range(len(text)):
+                if text[i] == '$' and i + 1 < len(text) and text[i + 1] == 'g':
+                    next_terminator = text.find(';', i)
+                    subs = text[i: next_terminator + 1].strip()
+                    tmp_list_data = subs.replace('$g', '').replace(';', '').split(':')
+                    tmp_text = tmp_text.replace(subs, tmp_list_data[player_mgr.player.gender].strip())
+            text = tmp_text
+
         return text \
             .replace('$B', '\n') \
             .replace('$b', '\n') \
