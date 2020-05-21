@@ -16,13 +16,15 @@ class QuestManager(object):
         rbounds = WorldDatabaseManager.creature_quest_get_by_entry(world_obj.entry)               #   realtions bounds, the quest giver
         irbounds = WorldDatabaseManager.creature_involved_quest_get_by_entry(world_obj.entry)     #   involved relations bounds, the quest completer
 
+        #   TODO: If unit is hostile to player, do not display status
+
         # Quest finish, Loop through all the completion quests offered by this quest giver
-        #   TODO: Dynat: This loop
+        #   TODO: This loop
         for irbound in irbounds:
             if len(irbound) == 0: continue
             quest_entry = irbound[1]
             quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
-            # TODO: Dynat: put in a check for quest status when you have quests accepted by player
+            # TODO: put in a check for quest status when you have quests that are already accepted by player
 
         # Quest start, Loop through all the acceptable quests offered by this quest giver
         for rbound in rbounds:
@@ -30,7 +32,6 @@ class QuestManager(object):
             quest_entry = rbound[1]
             quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
 
-            # TODO: Dynat: put in a check for quest status when you have quests accepted by player
             if (quest.Method == 0):
                 new_dialog_status = QuestGiverStatuses.QUEST_GIVER_REWARD
             elif (self.owner.level < quest.MinLevel & self.owner.level >= quest.MinLevel - 4):
@@ -40,7 +41,8 @@ class QuestManager(object):
             elif (self.owner.level > quest.QuestLevel + 7):
                 new_dialog_status = QuestGiverStatuses.QUEST_GIVER_TRIVIAL                  # ez quest
 
-            print("Classes: %s"%(quest.RequiredClasses))
+
+            # print("Classes: %s"%(quest.RequiredClasses))
 
             #   Update the status if it appears to be a "higher" code then any of the previous
             if new_dialog_status > dialog_status:

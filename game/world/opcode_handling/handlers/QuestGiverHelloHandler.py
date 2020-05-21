@@ -16,7 +16,7 @@ class QuestGiverHelloHandler(object):
         # Stop the npc if they are moving
         if len(reader.data) >= 8:
             guid = unpack('<Q', reader.data[:8])[0]
-            questgiver_npc = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
+            # questgiver_npc = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
 
             # Logger.debug( "guid: %s"%(guid) )
             # Logger.debug( "questgiver_npc.entry: %s"%(questgiver_npc.entry) )
