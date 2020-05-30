@@ -47,6 +47,7 @@ from game.world.opcode_handling.handlers.BuyItemInSlotHandler import BuyItemInSl
 from game.world.opcode_handling.handlers.RepopRequestHandler import RepopRequestHandler
 from game.world.opcode_handling.handlers.SplitItemHandler import SplitItemHandler
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
+from game.world.opcode_handling.handlers.AutostoreBagItemHandler import AutostoreBagItemHandler
 
 
 HANDLER_DEFINITIONS = {
@@ -103,6 +104,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_SELL_ITEM: SellItemHandler.handle,
     OpCode.CMSG_REPOP_REQUEST: RepopRequestHandler.handle,
     OpCode.CMSG_SPLIT_ITEM: SplitItemHandler.handle,
+    OpCode.CMSG_AUTOSTORE_BAG_ITEM: AutostoreBagItemHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

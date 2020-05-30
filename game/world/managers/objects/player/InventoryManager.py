@@ -86,7 +86,8 @@ class InventoryManager(object):
                 return slot
         return InventorySlots.SLOT_INBACKPACK.value  # What is the logic behind backpack guid?
 
-    def add_item(self, entry=0, item_template=None, count=1, handle_error=True, from_npc=True, send_message=True):
+    def add_item(self, entry=0, item_template=None, count=1, handle_error=True, from_npc=True,
+                 send_message=True, show_item_get=True):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
         amount_left = count
@@ -111,19 +112,19 @@ class InventoryManager(object):
                         continue
                     prev_left = amount_left
                     amount_left = container.add_item(item_template, amount_left, False)
-                    if slot != InventorySlots.SLOT_INBACKPACK and prev_left < amount_left and slot > target_bag_slot:
+                    if slot != InventorySlots.SLOT_INBACKPACK and prev_left > amount_left and slot > target_bag_slot:
                         target_bag_slot = slot
                     if amount_left <= 0:
                         break
 
         items_added = (amount_left != count)
         if items_added:
-            # Default to backpack so we can prefer highest slot ID to receive message (backpack ID is highest)
-            if target_bag_slot == -1:
-                target_bag_slot = InventorySlots.SLOT_INBACKPACK
-
-            self.send_item_receive_message(self.owner.guid, item_template.entry,
-                                           target_bag_slot, from_npc, send_message)
+            if show_item_get:
+                # Default to backpack so we can prefer highest slot ID to receive message (backpack ID is highest)
+                if target_bag_slot == -1:
+                    target_bag_slot = InventorySlots.SLOT_INBACKPACK
+                self.send_item_receive_message(self.owner.guid, item_template.entry,
+                                               target_bag_slot, from_npc, send_message)
             self.owner.send_update_self()
         return items_added
 
@@ -176,7 +177,7 @@ class InventoryManager(object):
             dest_slot = dest_container.next_available_slot()
             remaining = count
             if dest_slot == -1:
-                dest_slot, dest_container = self.get_next_available_container_slot()
+                dest_slot, dest_container = self.get_next_available_inventory_slot()
 
             if not dest_slot == -1:  # If the target container has a slot open
                 remaining = dest_container.add_item(item_template, count)  # Add items to target container
@@ -250,6 +251,8 @@ class InventoryManager(object):
         source_item = source_container.get_item(source_slot)
         dest_item = dest_container.get_item(dest_slot)
 
+        if source_bag == dest_bag and source_slot == dest_slot:
+            return
         if source_item:
             if not self.owner.is_alive:
                 self.send_equip_error(InventoryError.BAG_NOT_WHILE_DEAD, source_item, dest_item)
@@ -416,6 +419,7 @@ class InventoryManager(object):
         return -1, None, -1, None
 
     def add_bag(self, slot, container):
+        slot = InventorySlots(slot)
         if not self.is_bag_pos(slot):
             return False
 
@@ -425,17 +429,17 @@ class InventoryManager(object):
 
         # Update items' bag slot field
         for item in self.containers[slot].sorted_slots.values():
-            item.item_instance.bag = slot
-
+            item.item_instance.bag = slot.value
         return True
 
     def remove_bag(self, slot):
+        slot = InventorySlots(slot)
         if not self.is_bag_pos(slot) or not self.containers[slot]:
             return False
 
         if slot in self.get_backpack().sorted_slots:
             self.get_backpack().sorted_slots.pop(slot)
-        self.containers.pop(slot)
+        self.containers[slot] = None
 
         return True
 
@@ -486,13 +490,13 @@ class InventoryManager(object):
 
         return False
 
-    def get_next_available_container_slot(self):
+    def get_next_available_inventory_slot(self):
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
             if not container.is_full():
-                return container, container.next_available_slot()
-        return None, -1
+                return container_slot.value, container.next_available_slot()
+        return -1, -1
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
