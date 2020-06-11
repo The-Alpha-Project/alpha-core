@@ -154,7 +154,7 @@ class PlayerManager(UnitManager):
             self.bounding_radius = 0.383
         elif self.player.race == Races.RACE_TAUREN:
             self.bounding_radius = 0.9747 if is_male else 0.8725
-            self.scale = 1.3 if is_male else 1.25
+            self.scale = 1.35 if is_male else 1.25
         elif self.player.race == Races.RACE_GNOME:
             self.bounding_radius = 0.3519
         elif self.player.race == Races.RACE_TROLL:
