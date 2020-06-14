@@ -22,7 +22,6 @@ MAX_ACTION_BUTTONS = 120
 
 
 class PlayerManager(UnitManager):
-
     def __init__(self,
                  player=None,
                  session=None,
