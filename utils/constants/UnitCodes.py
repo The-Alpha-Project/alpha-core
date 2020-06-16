@@ -29,6 +29,13 @@ class Genders(IntEnum):
     GENDER_FEMALE = 1
 
 
+class Teams(IntEnum):
+    TEAM_NONE = 0
+    TEAM_CROSSFACTION = 1
+    TEAM_HORDE = 67
+    TEAM_ALLIANCE = 469
+
+
 class PowerTypes(IntEnum):
     TYPE_MANA = 0
     TYPE_RAGE = 1

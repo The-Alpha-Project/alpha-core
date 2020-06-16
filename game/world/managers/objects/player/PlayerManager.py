@@ -11,7 +11,7 @@ from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.dbc.DbcDatabaseManager import *
@@ -77,6 +77,7 @@ class PlayerManager(UnitManager):
         self.spells = []
         self.skills = []
         self.deathbind = deathbind
+        self.team = PlayerManager.get_team_for_race(self.race_mask)
 
         if self.player:
             self.set_player_variables()
@@ -159,8 +160,8 @@ class PlayerManager(UnitManager):
         elif self.player.race == Races.RACE_TROLL:
             self.bounding_radius = 0.306
 
-        self.race_mask = 1 << self.player.race
-        self.class_mask = 1 << self.player.class_
+        self.race_mask = 1 << (self.player.race - 1)
+        self.class_mask = 1 << (self.player.class_ - 1)
 
     def set_gm(self, on=True):
         self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
@@ -578,3 +579,13 @@ class PlayerManager(UnitManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_PLAYER
+
+    @staticmethod
+    def get_team_for_race(race):
+        race_entry = DbcDatabaseManager.chr_races_get_by_race(race)
+        if race_entry:
+            if race_entry.BaseLanguage == 1:
+                return Teams.TEAM_HORDE
+            elif race_entry.BaseLanguage == 7:
+                return Teams.TEAM_ALLIANCE
+        return Teams.TEAM_NONE
