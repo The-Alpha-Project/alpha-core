@@ -58,7 +58,7 @@ class TradeManager(object):
         player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS, data))
 
     class TradeData(object):
-        TRADE_SLOT_COUNT = 7
+        TRADE_SLOT_COUNT = 6
 
         def __init__(self,
                      player,
