@@ -96,6 +96,14 @@ class RealmDatabaseManager(object):
         return character_inventory if character_inventory else []
 
     @staticmethod
+    def character_inventory_get_item(item_guid):
+        realm_db_session = SessionHolder()
+        item = realm_db_session.query(CharacterInventory).filter_by(
+            guid=item_guid & ~HighGuid.HIGHGUID_ITEM).first()
+        realm_db_session.close()
+        return item
+
+    @staticmethod
     def character_delete(guid):
         realm_db_session = SessionHolder()
         char_to_delete = RealmDatabaseManager.character_get_by_guid(guid)

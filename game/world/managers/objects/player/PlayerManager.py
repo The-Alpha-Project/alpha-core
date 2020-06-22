@@ -78,6 +78,7 @@ class PlayerManager(UnitManager):
         self.skills = []
         self.deathbind = deathbind
         self.team = PlayerManager.get_team_for_race(self.race_mask)
+        self.trade_data = None
 
         if self.player:
             self.set_player_variables()
