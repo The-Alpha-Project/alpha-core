@@ -6,7 +6,7 @@ class CancelTradeHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if not world_session.player_mgr.trade_data:
+        if not world_session or not world_session.player_mgr or not world_session.player_mgr.trade_data:
             return 0
 
         TradeManager.send_trade_status(world_session.player_mgr.trade_data.other_player,
