@@ -26,12 +26,14 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
         name_bytes = PacketWriter.string_to_bytes(config.Server.Connection.RealmServer.realm_name)
         address_bytes = PacketWriter.string_to_bytes(('%s:%s' % (config.Server.Connection.RealmProxy.host,
                                                                  config.Server.Connection.RealmProxy.port)))
+
+        # TODO: Should probably move realms to database at some point, instead of config.yml
         packet = pack(
             '<B%us%usI' % (len(name_bytes), len(address_bytes)),
-            1,
+            1,  # Number of realms
             name_bytes,
             address_bytes,
-            0
+            0  # Number of players online? Can't be characters per account because we don't have account info yet.
         )
 
         Logger.debug('[%s] Sending realmlist...' % sck.getpeername()[0])
