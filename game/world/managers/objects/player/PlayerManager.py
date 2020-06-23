@@ -6,6 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
+from game.world.managers.objects.player.TradeManager import TradeManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
@@ -559,6 +560,8 @@ class PlayerManager(UnitManager):
         if killer and isinstance(killer, PlayerManager):
             death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
             self.session.request.sendall(death_notify_packet)
+
+        TradeManager.cancel_trade(self)
 
         self.flagged_for_update = True
 

@@ -49,6 +49,9 @@ from game.world.opcode_handling.handlers.InitiateTradeHandler import InitiateTra
 from game.world.opcode_handling.handlers.BeginTradeHandler import BeginTradeHandler
 from game.world.opcode_handling.handlers.CancelTradeHandler import CancelTradeHandler
 from game.world.opcode_handling.handlers.UnacceptTradeHandler import UnacceptTradeHandler
+from game.world.opcode_handling.handlers.SetTradeGoldHandler import SetTradeGoldHandler
+from game.world.opcode_handling.handlers.SetTradeItemHandler import SetTradeItemHandler
+from game.world.opcode_handling.handlers.ClearTradeItemHandler import ClearTradeItemHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -110,6 +113,9 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_BEGIN_TRADE: BeginTradeHandler.handle,
     OpCode.CMSG_CANCEL_TRADE: CancelTradeHandler.handle,
     OpCode.CMSG_UNACCEPT_TRADE: UnacceptTradeHandler.handle,
+    OpCode.CMSG_SET_TRADE_GOLD: SetTradeGoldHandler.handle,
+    OpCode.CMSG_SET_TRADE_ITEM: SetTradeItemHandler.handle,
+    OpCode.CMSG_CLEAR_TRADE_ITEM: ClearTradeItemHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

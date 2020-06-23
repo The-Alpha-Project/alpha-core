@@ -20,13 +20,22 @@ class TradeManager(object):
         player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS, data))
 
     @staticmethod
-    def send_update_trade(player, trade_data, is_self):
+    def cancel_trade(player):
+        TradeManager.send_trade_status(player.trade_data.other_player,
+                                       TradeStatuses.TRADE_STATUS_CANCELLED)
+        player.trade_data.other_player.trade_data = None
+
+        TradeManager.send_trade_status(player, TradeStatuses.TRADE_STATUS_CANCELLED)
+        player.trade_data = None
+
+    @staticmethod
+    def send_update_trade(player, trade_data, is_target):
         if not player:
             return
 
         data = pack(
             '<B4I',
-            1 if is_self else 0,
+            1 if is_target else 0,
             TradeManager.TradeData.TRADE_SLOT_COUNT,
             trade_data.money,
             0,  # proposedEnchantmentSlot ?
@@ -35,12 +44,12 @@ class TradeManager(object):
 
         for slot in range(TradeManager.TradeData.TRADE_SLOT_COUNT):
             data += pack('<B', slot)
-            item = trade_data.get_item(slot)
+            item = trade_data.items[slot]
             data += pack(
                 '<4IQ',
                 item.item_template.entry if item else 0,
                 item.item_template.display_id if item else 0,
-                item.stackcount if item else 0,
+                item.item_instance.stackcount if item and item.item_instance else 0,
                 0,  # data << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
                 0  # data << item->GetGuidValue(ITEM_FIELD_CREATOR);
             )
@@ -70,12 +79,13 @@ class TradeManager(object):
             self.is_accepted = is_accepted
             self.money = money
 
-            self.items = [0] * TradeManager.TradeData.TRADE_SLOT_COUNT
+            self.items = [None] * TradeManager.TradeData.TRADE_SLOT_COUNT
 
         def set_item(self, slot, item):
-            if self.items[slot] == item.guid:
+            if self.items[slot] and self.items[slot] == item:
                 return
 
+            self.items[slot] = item
             self.player.session.request.sendall(item.query_details())
             self.other_player.session.request.sendall(item.query_details())
 
@@ -84,23 +94,22 @@ class TradeManager(object):
 
             self.update_trade_status()
 
-        def get_item(self, slot):
-            return RealmDatabaseManager.character_inventory_get_item(self.items[slot])
-
         def clear_item(self, slot):
-            self.items[slot] = 0
+            self.items[slot] = None
 
             self.update_trade_status()
 
         def set_money(self, money):
-            self.money = money if money > 0 else 0
+            self.money = money
 
             self.set_accepted(False)
             self.other_player.trade_data.set_accepted(False)
 
+            self.update_trade_status()
+
         def update_trade_status(self):
-            TradeManager.send_update_trade(self.player, self, True)
-            TradeManager.send_update_trade(self.other_player, self.other_player.trade_data, False)
+            TradeManager.send_update_trade(self.player, self, False)
+            TradeManager.send_update_trade(self.other_player, self, True)
 
         def set_accepted(self, is_accepted):
             self.is_accepted = is_accepted
