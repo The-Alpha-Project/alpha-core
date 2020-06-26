@@ -6,12 +6,13 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager, GRIDS
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
+from game.world.managers.objects.player.TradeManager import TradeManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import ObjectTypes, UpdateTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.dbc.DbcDatabaseManager import *
@@ -22,7 +23,6 @@ MAX_ACTION_BUTTONS = 120
 
 
 class PlayerManager(UnitManager):
-
     def __init__(self,
                  player=None,
                  session=None,
@@ -78,6 +78,8 @@ class PlayerManager(UnitManager):
         self.spells = []
         self.skills = []
         self.deathbind = deathbind
+        self.team = PlayerManager.get_team_for_race(self.race_mask)
+        self.trade_data = None
 
         if self.player:
             self.set_player_variables()
@@ -154,14 +156,14 @@ class PlayerManager(UnitManager):
             self.bounding_radius = 0.383
         elif self.player.race == Races.RACE_TAUREN:
             self.bounding_radius = 0.9747 if is_male else 0.8725
-            self.scale = 1.3 if is_male else 1.25
+            self.scale = 1.35 if is_male else 1.25
         elif self.player.race == Races.RACE_GNOME:
             self.bounding_radius = 0.3519
         elif self.player.race == Races.RACE_TROLL:
             self.bounding_radius = 0.306
 
-        self.race_mask = 1 << self.player.race
-        self.class_mask = 1 << self.player.class_
+        self.race_mask = 1 << (self.player.race - 1)
+        self.class_mask = 1 << (self.player.class_ - 1)
 
     def set_gm(self, on=True):
         self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
@@ -559,6 +561,8 @@ class PlayerManager(UnitManager):
             death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
             self.session.request.sendall(death_notify_packet)
 
+        TradeManager.cancel_trade(self)
+
         self.flagged_for_update = True
 
     # override
@@ -579,3 +583,13 @@ class PlayerManager(UnitManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_PLAYER
+
+    @staticmethod
+    def get_team_for_race(race):
+        race_entry = DbcDatabaseManager.chr_races_get_by_race(race)
+        if race_entry:
+            if race_entry.BaseLanguage == 1:
+                return Teams.TEAM_HORDE
+            elif race_entry.BaseLanguage == 7:
+                return Teams.TEAM_ALLIANCE
+        return Teams.TEAM_NONE

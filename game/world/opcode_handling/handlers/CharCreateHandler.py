@@ -2,6 +2,7 @@ from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.player.PlayerManager import PlayerManager
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from database.realm.RealmDatabaseManager import *
@@ -9,6 +10,7 @@ from database.world.WorldDatabaseManager import *
 from utils.constants.CharCodes import *
 from utils.ConfigManager import config
 from utils.constants.ItemCodes import InventorySlots
+from utils.constants.UnitCodes import Teams
 
 
 class CharCreateHandler(object):
@@ -25,7 +27,19 @@ class CharCreateHandler(object):
         )
 
         result = CharCreate.CHAR_CREATE_SUCCESS
-        if RealmDatabaseManager.character_does_name_exist(name):
+
+        disabled_race_mask = config.Server.General.disabled_race_mask
+        race_mask = 1 << (race - 1)
+        disabled = disabled_race_mask & race_mask == race_mask
+
+        if not disabled:
+            disabled_class_mask = config.Server.General.disabled_class_mask
+            class_mask = 1 << (class_ - 1)
+            disabled = disabled_class_mask & class_mask == class_mask
+
+        if disabled:
+            result = CharCreate.CHAR_CREATE_DISABLED
+        elif RealmDatabaseManager.character_does_name_exist(name):
             result = CharCreate.CHAR_CREATE_NAME_IN_USE
 
         if result == CharCreate.CHAR_CREATE_SUCCESS:

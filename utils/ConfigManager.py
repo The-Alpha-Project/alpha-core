@@ -10,6 +10,7 @@ class ConfigManager(object):
     def __init__(self):
         self.config = None
 
+    # noinspection PyArgumentList
     def load(self):
         current_dir = path.dirname(__file__)
         main_config = '../etc/config/config.yml'

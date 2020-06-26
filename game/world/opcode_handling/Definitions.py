@@ -45,6 +45,14 @@ from game.world.opcode_handling.handlers.AttackSwingHandler import AttackSwingHa
 from game.world.opcode_handling.handlers.SellItemHandler import SellItemHandler
 from game.world.opcode_handling.handlers.BuyItemInSlotHandler import BuyItemInSlotHandler
 from game.world.opcode_handling.handlers.RepopRequestHandler import RepopRequestHandler
+from game.world.opcode_handling.handlers.InitiateTradeHandler import InitiateTradeHandler
+from game.world.opcode_handling.handlers.BeginTradeHandler import BeginTradeHandler
+from game.world.opcode_handling.handlers.CancelTradeHandler import CancelTradeHandler
+from game.world.opcode_handling.handlers.UnacceptTradeHandler import UnacceptTradeHandler
+from game.world.opcode_handling.handlers.SetTradeGoldHandler import SetTradeGoldHandler
+from game.world.opcode_handling.handlers.SetTradeItemHandler import SetTradeItemHandler
+from game.world.opcode_handling.handlers.ClearTradeItemHandler import ClearTradeItemHandler
+
 from game.world.opcode_handling.handlers.SplitItemHandler import SplitItemHandler
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 from game.world.opcode_handling.handlers.AutostoreBagItemHandler import AutostoreBagItemHandler
@@ -107,6 +115,13 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_SPLIT_ITEM: SplitItemHandler.handle,
     OpCode.CMSG_AUTOSTORE_BAG_ITEM: AutostoreBagItemHandler.handle,
     OpCode.CMSG_AUTOEQUIP_ITEM: AutoequipItemHandler.handle,
+    OpCode.CMSG_INITIATE_TRADE: InitiateTradeHandler.handle,
+    OpCode.CMSG_BEGIN_TRADE: BeginTradeHandler.handle,
+    OpCode.CMSG_CANCEL_TRADE: CancelTradeHandler.handle,
+    OpCode.CMSG_UNACCEPT_TRADE: UnacceptTradeHandler.handle,
+    OpCode.CMSG_SET_TRADE_GOLD: SetTradeGoldHandler.handle,
+    OpCode.CMSG_SET_TRADE_ITEM: SetTradeItemHandler.handle,
+    OpCode.CMSG_CLEAR_TRADE_ITEM: ClearTradeItemHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

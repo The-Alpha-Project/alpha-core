@@ -146,15 +146,19 @@ class ItemManager(ObjectManager):
     def generate_starting_item(owner, entry, last_bag_slot):
         item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
         if item_template:
-            slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
-            if slot >= InventorySlots.SLOT_INBACKPACK:
-                slot = last_bag_slot
-            bag = InventorySlots.SLOT_INBACKPACK.value
-            count = 1
-            if item_template.inventory_type == 0 and item_template.class_ == 0:
-                count = 2 if item_template.spellid_1 == 430 else 4
-            elif item_template.inventory_type == 24:
+            if item_template.inventory_type == 24:  # Ammo
                 count = 200
+                bag = 19
+                slot = 0
+            else:
+                slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
+                if slot >= InventorySlots.SLOT_INBACKPACK:
+                    slot = last_bag_slot
+                bag = InventorySlots.SLOT_INBACKPACK.value
+                if item_template.inventory_type == 0 and item_template.class_ == 0:  # Food and Water
+                    count = 2 if item_template.spellid_1 == 430 else 4
+                else:
+                    count = 1
             return ItemManager.generate_item(item_template, owner, bag, slot, count=count)
         return None
 
