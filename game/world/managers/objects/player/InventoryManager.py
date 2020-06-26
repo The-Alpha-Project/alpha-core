@@ -187,7 +187,6 @@ class InventoryManager(object):
                 self.owner.send_update_self()  # Update if container is modified self.add_item isn't called
             return
 
-
         # Check backpack / paperdoll placement
         if item_template.required_level > self.owner.level and \
                 self.is_equipment_pos(dest_bag_slot, dest_slot):
@@ -496,6 +495,12 @@ class InventoryManager(object):
             if not container.is_full():
                 return container_slot.value, container.next_available_slot()
         return -1, -1
+
+    def get_next_available_bag_slot(self):
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                return container_slot
+        return -1
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \

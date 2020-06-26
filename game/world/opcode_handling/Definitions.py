@@ -48,6 +48,7 @@ from game.world.opcode_handling.handlers.RepopRequestHandler import RepopRequest
 from game.world.opcode_handling.handlers.SplitItemHandler import SplitItemHandler
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 from game.world.opcode_handling.handlers.AutostoreBagItemHandler import AutostoreBagItemHandler
+from game.world.opcode_handling.handlers.AutoequipItemHandler import AutoequipItemHandler
 
 
 HANDLER_DEFINITIONS = {
@@ -105,6 +106,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_REPOP_REQUEST: RepopRequestHandler.handle,
     OpCode.CMSG_SPLIT_ITEM: SplitItemHandler.handle,
     OpCode.CMSG_AUTOSTORE_BAG_ITEM: AutostoreBagItemHandler.handle,
+    OpCode.CMSG_AUTOEQUIP_ITEM: AutoequipItemHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,
