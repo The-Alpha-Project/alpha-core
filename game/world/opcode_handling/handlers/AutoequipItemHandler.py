@@ -1,6 +1,5 @@
 from struct import unpack
 
-from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryError, InventoryTypes
 
 

@@ -1,6 +1,7 @@
 from struct import unpack
 from utils.constants.ItemCodes import InventorySlots, InventoryError
 
+
 class AutostoreBagItemHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
