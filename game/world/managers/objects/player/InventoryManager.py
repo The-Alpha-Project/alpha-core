@@ -168,7 +168,7 @@ class InventoryManager(object):
                     self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, item, dest_item)
                 return
 
-        if dest_slot == 255:  # Dragging an item to bag bar. Acts like adding item but with container priority
+        if dest_slot == 0xFF:  # Dragging an item to bag bar. Acts like adding item but with container priority
             if not self.can_store_item(item_template, count):
                 if handle_error:
                     self.send_equip_error(InventoryError.BAG_INV_FULL, item, dest_item)
@@ -566,7 +566,7 @@ class InventoryManager(object):
 
     def send_item_receive_message(self, guid, item_entry, bag_slot, from_npc=True, show_in_chat=True):
         if bag_slot == InventorySlots.SLOT_INBACKPACK:
-            bag_slot = 255
+            bag_slot = 0xFF
         data = pack(
             '<Q2IBI',
             guid, from_npc, show_in_chat, bag_slot, item_entry

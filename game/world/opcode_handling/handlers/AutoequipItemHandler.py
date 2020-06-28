@@ -6,10 +6,10 @@ from utils.constants.ItemCodes import InventorySlots, InventoryError, InventoryT
 class AutoequipItemHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 2:  # Avoid handling empty sell item packet
+        if len(reader.data) >= 2:  # Avoid handling empty autoequip item packet
             source_bag_slot, source_slot = unpack('<2B', reader.data[:3])
 
-            if source_bag_slot == 255:
+            if source_bag_slot == 0xFF:
                 source_bag_slot = InventorySlots.SLOT_INBACKPACK.value
 
             inventory = world_session.player_mgr.inventory

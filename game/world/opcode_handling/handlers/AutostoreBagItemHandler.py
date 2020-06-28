@@ -5,12 +5,12 @@ from utils.constants.ItemCodes import InventorySlots, InventoryError
 class AutostoreBagItemHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 3:  # Avoid handling empty sell item packet
+        if len(reader.data) >= 3:  # Avoid handling empty autostore bag item packet
             source_bag_slot, source_slot, dest_bag_slot = unpack('<3B', reader.data[:3])
 
-            if source_bag_slot == 255:
+            if source_bag_slot == 0xFF:
                 source_bag_slot = InventorySlots.SLOT_INBACKPACK.value
-            if dest_bag_slot == 255:
+            if dest_bag_slot == 0xFF:
                 dest_bag_slot = InventorySlots.SLOT_INBACKPACK.value
 
             inventory = world_session.player_mgr.inventory

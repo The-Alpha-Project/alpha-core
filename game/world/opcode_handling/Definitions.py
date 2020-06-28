@@ -52,11 +52,11 @@ from game.world.opcode_handling.handlers.UnacceptTradeHandler import UnacceptTra
 from game.world.opcode_handling.handlers.SetTradeGoldHandler import SetTradeGoldHandler
 from game.world.opcode_handling.handlers.SetTradeItemHandler import SetTradeItemHandler
 from game.world.opcode_handling.handlers.ClearTradeItemHandler import ClearTradeItemHandler
-
 from game.world.opcode_handling.handlers.SplitItemHandler import SplitItemHandler
-from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 from game.world.opcode_handling.handlers.AutostoreBagItemHandler import AutostoreBagItemHandler
 from game.world.opcode_handling.handlers.AutoequipItemHandler import AutoequipItemHandler
+
+from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
 
 HANDLER_DEFINITIONS = {
