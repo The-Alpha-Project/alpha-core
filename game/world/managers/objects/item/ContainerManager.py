@@ -81,16 +81,66 @@ class ContainerManager(ItemManager):
             if item_mgr:
                 item_mgr.current_slot = slot
                 self.sorted_slots[slot] = item_mgr
-
+                RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
             return item_mgr
         return None
 
-    def add_item(self, item, count=1):
-        if item:
-            slot = self.next_available_slot()
-            if slot >= self.start_slot:
-                return self.set_item(item, slot, count)
-        return None
+    def add_item(self, item_template, count, check_existing=True):
+        amount_left = count
+        if not self.can_contain_item(item_template):
+            return amount_left
+
+        # Check occupied slots for stacking
+        if check_existing:
+            amount_left = self.add_item_to_existing_stacks(item_template, amount_left)
+
+        if amount_left > 0:
+            for x in range(self.start_slot, self.max_slot):
+                if x in self.sorted_slots:
+                    continue  # Skip any reserved slots
+                if not self.is_full():
+                    if amount_left > item_template.stackable:
+                        self.set_item(item_template, self.next_available_slot(), item_template.stackable)
+
+                        amount_left -= item_template.stackable
+                    else:
+                        self.set_item(item_template, self.next_available_slot(), amount_left)
+                        amount_left = 0
+                        break
+        return amount_left
+
+    def add_item_to_existing_stacks(self, item_template, count):
+        amount_left = count
+        if not self.can_contain_item(item_template):
+            return amount_left
+
+        # Check occupied slots for stacking
+        for x in range(self.start_slot, self.start_slot + self.total_slots):
+            if x not in self.sorted_slots:
+                continue  # Skip any empty slots
+            item_mgr = self.sorted_slots[x]
+            if item_mgr.item_template.entry == item_template.entry and \
+                    item_mgr.item_instance.stackcount < item_mgr.item_template.stackable:
+                stack_missing = item_template.stackable - item_mgr.item_instance.stackcount
+                if stack_missing >= amount_left:
+                    item_mgr.item_instance.stackcount += amount_left
+                    amount_left = 0
+                    RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
+                    break
+                else:
+                    item_mgr.item_instance.stackcount += stack_missing
+                    amount_left -= stack_missing
+                    RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
+        return amount_left
+
+    def contains_item(self, item_template):
+        if not self.can_contain_item(item_template):
+            return False
+        for x in range(self.start_slot, self.start_slot + self.total_slots):
+            item_mgr = self.sorted_slots[x]
+            if item_mgr.item_template.entry == item_template.entry:
+                return True
+        return False
 
     def get_item(self, slot):
         if slot in self.sorted_slots:

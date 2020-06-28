@@ -53,7 +53,10 @@ from game.world.opcode_handling.handlers.SetTradeGoldHandler import SetTradeGold
 from game.world.opcode_handling.handlers.SetTradeItemHandler import SetTradeItemHandler
 from game.world.opcode_handling.handlers.ClearTradeItemHandler import ClearTradeItemHandler
 
+from game.world.opcode_handling.handlers.SplitItemHandler import SplitItemHandler
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
+from game.world.opcode_handling.handlers.AutostoreBagItemHandler import AutostoreBagItemHandler
+from game.world.opcode_handling.handlers.AutoequipItemHandler import AutoequipItemHandler
 
 
 HANDLER_DEFINITIONS = {
@@ -109,6 +112,9 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_ATTACKSWING: AttackSwingHandler.handle,
     OpCode.CMSG_SELL_ITEM: SellItemHandler.handle,
     OpCode.CMSG_REPOP_REQUEST: RepopRequestHandler.handle,
+    OpCode.CMSG_SPLIT_ITEM: SplitItemHandler.handle,
+    OpCode.CMSG_AUTOSTORE_BAG_ITEM: AutostoreBagItemHandler.handle,
+    OpCode.CMSG_AUTOEQUIP_ITEM: AutoequipItemHandler.handle,
     OpCode.CMSG_INITIATE_TRADE: InitiateTradeHandler.handle,
     OpCode.CMSG_BEGIN_TRADE: BeginTradeHandler.handle,
     OpCode.CMSG_CANCEL_TRADE: CancelTradeHandler.handle,
