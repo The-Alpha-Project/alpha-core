@@ -9,6 +9,9 @@ from utils.constants.OpCodes import OpCode
 class TradeManager(object):
     @staticmethod
     def send_trade_status(player, status):
+        if not player:
+            return
+
         data = b''
         if status == TradeStatuses.TRADE_STATUS_PROPOSED:
             data += pack('<IQ', status, 0)
@@ -17,13 +20,18 @@ class TradeManager(object):
         else:
             data += pack('<I', status)
 
-        player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS, data))
+        if player.session:
+            player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS, data))
 
     @staticmethod
     def cancel_trade(player):
-        TradeManager.send_trade_status(player.trade_data.other_player,
-                                       TradeStatuses.TRADE_STATUS_CANCELLED)
-        player.trade_data.other_player.trade_data = None
+        if not player:
+            return
+
+        if player.trade_data and player.trade_data.other_player:
+            TradeManager.send_trade_status(player.trade_data.other_player,
+                                           TradeStatuses.TRADE_STATUS_CANCELLED)
+            player.trade_data.other_player.trade_data = None
 
         TradeManager.send_trade_status(player, TradeStatuses.TRADE_STATUS_CANCELLED)
         player.trade_data = None
@@ -54,10 +62,14 @@ class TradeManager(object):
                 0  # data << item->GetGuidValue(ITEM_FIELD_CREATOR);
             )
 
-        player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS_EXTENDED, data))
+        if player.session:
+            player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS_EXTENDED, data))
 
     @staticmethod
     def send_trade_request(player, other_player):
+        if not player:
+            return
+
         data = pack(
             '<IQ',
             TradeStatuses.TRADE_STATUS_PROPOSED,

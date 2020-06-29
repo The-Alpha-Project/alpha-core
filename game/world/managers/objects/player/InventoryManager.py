@@ -128,7 +128,8 @@ class InventoryManager(object):
             self.owner.send_update_self()
         return items_added
 
-    def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1, handle_error=True):
+    def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
+                         handle_error=True):
         if not self.containers[dest_bag_slot]:
             if handle_error:
                 self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)

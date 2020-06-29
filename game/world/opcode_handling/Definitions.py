@@ -55,6 +55,7 @@ from game.world.opcode_handling.handlers.ClearTradeItemHandler import ClearTrade
 from game.world.opcode_handling.handlers.SplitItemHandler import SplitItemHandler
 from game.world.opcode_handling.handlers.AutostoreBagItemHandler import AutostoreBagItemHandler
 from game.world.opcode_handling.handlers.AutoequipItemHandler import AutoequipItemHandler
+from game.world.opcode_handling.handlers.AcceptTradeHandler import AcceptTradeHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -122,6 +123,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_SET_TRADE_GOLD: SetTradeGoldHandler.handle,
     OpCode.CMSG_SET_TRADE_ITEM: SetTradeItemHandler.handle,
     OpCode.CMSG_CLEAR_TRADE_ITEM: ClearTradeItemHandler.handle,
+    OpCode.CMSG_ACCEPT_TRADE: AcceptTradeHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

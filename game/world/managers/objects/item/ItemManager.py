@@ -7,7 +7,7 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid, ItemBondingTypes
 from utils.constants.UpdateFields import ObjectFields, ItemFields, ContainerFields
 
 AVAILABLE_EQUIP_SLOTS = [
@@ -137,6 +137,13 @@ class ItemManager(ObjectManager):
 
     def is_equipped(self):
         return self.current_slot < InventorySlots.SLOT_BAG1
+
+    def is_soulbound(self):
+        # I don't think quest items were soulbound in 0.5.3, so not checking
+        if self.item_template.bonding == ItemBondingTypes.BIND_WHEN_PICKED_UP:
+            return True
+
+        return self.dynamic_flags & ItemDynFlags.ITEM_DYNFLAG_UNK16 == ItemDynFlags.ITEM_DYNFLAG_UNK16
 
     @staticmethod
     def get_inv_slot_by_type(inventory_type):
