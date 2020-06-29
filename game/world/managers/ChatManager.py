@@ -13,6 +13,22 @@ class ChatManager(object):
                                                                       ChatFlags.CHAT_TAG_NONE,
                                                                       message, ChatMsgs.CHAT_MSG_SYSTEM, 0))
 
+    # This message will only be shown on the client console
+    #
+    # int __stdcall NotifyHandler(unsigned int timestamp, CDataStore *msg)
+    # {
+    #   char text[256]; // [sp+0h] [bp-100h]@1
+    #
+    #   CDataStore::GetString(msg, text, 0x100u);
+    #   ConsoleWriteA(aNotificationRe, ERROR_COLOR, text);
+    #   return 1;
+    # }
+    @staticmethod
+    def send_notification(world_session, message):
+        message_bytes = PacketWriter.string_to_bytes(message)
+        data = pack('<%us' % len(message_bytes), message_bytes)
+        world_session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_NOTIFICATION, data))
+
     @staticmethod
     def send_chat_message(world_session, guid, chat_flags, message, chat_type, lang, range_):
         GridManager.send_surrounding_in_range(ChatManager._get_message_packet(guid,
