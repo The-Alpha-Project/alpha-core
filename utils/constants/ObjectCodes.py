@@ -40,25 +40,11 @@ class ObjectTypeIds(IntEnum):
 
 
 class UpdateTypes(IntEnum):
-    UPDATE_PARTIAL = 0
-    #  1 byte  - MASK
-    #  8 bytes - GUID
-    #  Goto Update Block
-    UPDATE_MOVEMENT = 1
-    #  1 byte  - MASK
-    #  8 bytes - GUID
-    #  Goto Position Update
-    UPDATE_FULL = 2
-    #  1 byte  - MASK
-    #  8 bytes - GUID
-    #  1 byte - Object Type (*)
-    #  Goto Position Update
-    #  Goto Update Block
-    UPDATE_OUT_OF_RANGE = 3
-    #  4 bytes - Count
-    #  Loop Count Times:    #  1 byte  - MASK
-    #  8 bytes - GUID
-    UPDATE_IN_RANGE = 4
+    PARTIAL = 0
+    MOVEMENT = 1
+    CREATE_OBJECT = 2
+    FAR_OBJECTS = 3
+    NEAR_OBJECTS = 4
 
 
 # Some might be unused on Alpha

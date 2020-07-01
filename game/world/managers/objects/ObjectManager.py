@@ -12,6 +12,11 @@ from utils.constants.UpdateFields \
 
 
 class ObjectManager(object):
+    TYPES_WITH_OBJECT_TYPE = (UpdateTypes.CREATE_OBJECT,)
+    TYPES_WITH_MOVEMENT = (UpdateTypes.MOVEMENT, UpdateTypes.CREATE_OBJECT)
+    TYPES_WITH_MISC = (UpdateTypes.CREATE_OBJECT,)
+    TYPES_WITH_FIELDS = (UpdateTypes.PARTIAL, UpdateTypes.MOVEMENT, UpdateTypes.CREATE_OBJECT)
+
     def __init__(self,
                  guid=0,
                  entry=0,
@@ -95,47 +100,58 @@ class ObjectManager(object):
         )
         return data
 
-    def create_update_packet(self, update_packet_factory, is_self=True, update_type=UpdateTypes.UPDATE_FULL):
+    def create_update_packet(self, update_packet_factory, is_self=True, update_type=UpdateTypes.CREATE_OBJECT):
         from game.world.managers.objects import UnitManager
         merged_update_values = update_packet_factory.get_merged_update_values()
         update_mask = int(self.get_update_mask())
+
         data = pack(
-            '<IBQBQfffffffffIIffffIIIQB',
+            '<IBQ',
             1,  # Number of transactions
             update_type,
             self.guid,
-            self.get_type_id(),
-            self.transport_id,
-            self.transport.x,
-            self.transport.y,
-            self.transport.z,
-            self.transport.o,
-            self.location.x,
-            self.location.y,
-            self.location.z,
-            self.location.o,
-            self.pitch,
-            self.movement_flags,
-            0,  # Fall Time?
-            self.walk_speed,
-            self.running_speed,
-            self.swim_speed,
-            self.turn_rate,
-            1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
-            1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
-            0,  # TimerId
-            self.combat_target if isinstance(self, UnitManager.UnitManager) else 0,  # Victim GUID
-            update_mask
         )
 
-        for x in range(0, update_mask):
-            data += pack('<I', 0xFFFFFFFF)
+        if update_type in self.TYPES_WITH_OBJECT_TYPE:
+            data += pack('<B', self.get_type_id())
 
-        """for x in range(0, merged_update_fields.length()):
-            if merged_update_fields[x] and x < len(merged_update_values):
-                print('%u - %u' % (x, len(merged_update_values)))
-                data += bytes(merged_update_values[x])"""
-        data += merged_update_values
+        if update_type in self.TYPES_WITH_MOVEMENT:
+            data += pack(
+                '<QfffffffffIIffff',
+                self.transport_id,
+                self.transport.x,
+                self.transport.y,
+                self.transport.z,
+                self.transport.o,
+                self.location.x,
+                self.location.y,
+                self.location.z,
+                self.location.o,
+                self.pitch,
+                self.movement_flags,
+                0,  # Fall Time?
+                self.walk_speed,
+                self.running_speed,
+                self.swim_speed,
+                self.turn_rate
+            )
+
+        if update_type in self.TYPES_WITH_MISC:
+            data += pack(
+                '<3IQ',
+                1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
+                1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
+                0,  # TimerId
+                UnitManager.UnitManager(self).combat_target if isinstance(self, UnitManager.UnitManager) else 0, # Victim GUID
+            )
+
+        if update_type in self.TYPES_WITH_FIELDS:
+            data += pack('<B', update_mask)
+
+            for x in range(0, update_mask):
+                data += pack('<I', 0xFFFFFFFF)
+
+            data += merged_update_values
 
         self.update_packet_factory.init_lists()
 
