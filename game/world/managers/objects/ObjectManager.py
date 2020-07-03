@@ -87,19 +87,6 @@ class ObjectManager(object):
 
         return (mask + 31) / 32
 
-    def create_partial_update_packet(self, update_packet_factory):
-        update_mask = self.get_update_mask()
-        updated_fields_mask = update_packet_factory.get_updated_fields_mask()
-        data = pack(
-            '<IBQB%us' % len(updated_fields_mask),
-            1,  # Number of transactions
-            0,
-            self.guid,
-            int(update_mask),
-            updated_fields_mask
-        )
-        return data
-
     def create_update_packet(self, update_packet_factory, is_self=True, update_type=UpdateTypes.CREATE_OBJECT):
         from game.world.managers.objects import UnitManager
         merged_update_values = update_packet_factory.get_merged_update_values()
