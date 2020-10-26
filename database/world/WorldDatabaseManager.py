@@ -128,7 +128,7 @@ class WorldDatabaseManager(object):
     @staticmethod
     def creature_get_by_entry(entry):
         world_db_session = SessionHolder()
-        res = world_db_session.query(Creatures).filter_by(entry=entry).first()
+        res = world_db_session.query(CreatureTemplate).filter_by(entry=entry).first()
         world_db_session.close()
         return res
 

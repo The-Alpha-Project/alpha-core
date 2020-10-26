@@ -176,8 +176,8 @@ t_creature_spells_scripts = Table(
 )
 
 
-class Creatures(Base):
-    __tablename__ = 'creatures'
+class CreatureTemplate(Base):
+    __tablename__ = 'creature_template'
 
     entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
     display_id1 = Column(MEDIUMINT(8), nullable=False, index=True, server_default=text("'0'"))
@@ -255,12 +255,12 @@ class Creatures(Base):
     flags_extra = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     script_name = Column(CHAR(64), nullable=False, server_default=text("''"))
 
-    quest_involved = relationship('Quests', secondary='creature_involvedrelation')
-    quest_relation = relationship('Quests', secondary='creature_questrelation')
+    quest_involved = relationship('QuestTemplate', secondary='creature_involvedrelation')
+    quest_relation = relationship('QuestTemplate', secondary='creature_questrelation')
 
 
-class Gameobjects(Base):
-    __tablename__ = 'gameobjects'
+class GameobjectTemplate(Base):
+    __tablename__ = 'gameobject_template'
 
     entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
     type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
@@ -590,8 +590,8 @@ class PlayercreateinfoSpell(Base):
     Note = Column(String(255))
 
 
-class Quests(Base):
-    __tablename__ = 'quests'
+class QuestTemplate(Base):
+    __tablename__ = 'quest_template'
 
     entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
     Method = Column(TINYINT(3), nullable=False, server_default=text("'2'"))
@@ -736,15 +736,15 @@ class Worldports(Base):
 
 t_creature_involvedrelation = Table(
     'creature_involvedrelation', metadata,
-    Column('entry', ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
-    Column('quest', ForeignKey('quests.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
+    Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
+    Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
 )
 
 
 class CreatureLootTemplate(Base):
     __tablename__ = 'creature_loot_template'
 
-    entry = Column(ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='entry 0 used for player insignia loot')
+    entry = Column(ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='entry 0 used for player insignia loot')
     item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
     ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
     groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
@@ -752,21 +752,21 @@ class CreatureLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('Creatures')
+    creature = relationship('CreatureTemplate')
     item_template = relationship('ItemTemplate')
 
 
 t_creature_questrelation = Table(
     'creature_questrelation', metadata,
-    Column('entry', ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
-    Column('quest', ForeignKey('quests.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
+    Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
+    Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
 )
 
 
 class GameobjectLootTemplate(Base):
     __tablename__ = 'gameobject_loot_template'
 
-    entry = Column(ForeignKey('gameobjects.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    entry = Column(ForeignKey('gameobject_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
     item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
     ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
     groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
@@ -774,7 +774,7 @@ class GameobjectLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    gameobject = relationship('Gameobjects')
+    gameobject = relationship('GameobjectTemplate')
     item_template = relationship('ItemTemplate')
 
 
@@ -795,7 +795,7 @@ class ItemLootTemplate(Base):
 
 t_npc_trainer = Table(
     'npc_trainer', metadata,
-    Column('entry', ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, server_default=text("'0'")),
+    Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, server_default=text("'0'")),
     Column('spell', MEDIUMINT(8), nullable=False, server_default=text("'0'")),
     Column('spellcost', INTEGER(10), nullable=False, server_default=text("'0'")),
     Column('spellpointcost', INTEGER(10), nullable=False, server_default=text("'0'")),
@@ -809,20 +809,20 @@ t_npc_trainer = Table(
 class NpcVendor(Base):
     __tablename__ = 'npc_vendor'
 
-    entry = Column(ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    entry = Column(ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
     item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     incrtime = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     itemflags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('Creatures')
+    creature = relationship('CreatureTemplate')
     item_template = relationship('ItemTemplate')
 
 
 class PickpocketingLootTemplate(Base):
     __tablename__ = 'pickpocketing_loot_template'
 
-    entry = Column(ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    entry = Column(ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
     item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
     ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
     groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
@@ -830,7 +830,7 @@ class PickpocketingLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('Creatures')
+    creature = relationship('CreatureTemplate')
     item_template = relationship('ItemTemplate')
 
 
@@ -867,7 +867,7 @@ class ReferenceLootTemplate(Base):
 class SkinningLootTemplate(Base):
     __tablename__ = 'skinning_loot_template'
 
-    entry = Column(ForeignKey('creatures.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    entry = Column(ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
     item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
     ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
     groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
@@ -875,7 +875,7 @@ class SkinningLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('Creatures')
+    creature = relationship('CreatureTemplate')
     item_template = relationship('ItemTemplate')
 
 
@@ -883,7 +883,7 @@ class SpawnsCreatures(Base):
     __tablename__ = 'spawns_creatures'
 
     spawn_id = Column(INTEGER(10), primary_key=True, comment=u'Global Unique Identifier')
-    spawn_entry1 = Column(ForeignKey(u'creatures.entry', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"), comment=u'Creature Template Id')
+    spawn_entry1 = Column(ForeignKey(u'creature_template.entry', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"), comment=u'Creature Template Id')
     spawn_entry2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment=u'Creature Template Id')
     spawn_entry3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment=u'Creature Template Id')
     spawn_entry4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment=u'Creature Template Id')
@@ -904,7 +904,7 @@ class SpawnsCreatures(Base):
     visibility_mod = Column(Float, server_default=text("'0'"))
     ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
-    creature_template = relationship(u'Creatures', backref='Creatures', lazy='joined')
+    creature_template = relationship(u'CreatureTemplate', backref='CreatureTemplate', lazy='joined')
     npc_text = relationship(u'NpcText', secondary=u'npc_gossip')
 
 
@@ -912,7 +912,7 @@ class SpawnsGameobjects(Base):
     __tablename__ = 'spawns_gameobjects'
 
     spawn_id = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
-    spawn_entry = Column(ForeignKey('gameobjects.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"), comment='Gameobject Identifier')
+    spawn_entry = Column(ForeignKey('gameobject_template.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"), comment='Gameobject Identifier')
     spawn_map = Column(SMALLINT(5), nullable=False, server_default=text("'0'"), comment='Map Identifier')
     spawn_positionX = Column(Float, nullable=False, server_default=text("'0'"))
     spawn_positionY = Column(Float, nullable=False, server_default=text("'0'"))
@@ -926,7 +926,7 @@ class SpawnsGameobjects(Base):
     spawn_animprogress = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     spawn_state = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
 
-    gameobject = relationship('Gameobjects')
+    gameobject = relationship('GameobjectTemplate')
 
 
 t_npc_gossip = Table(
