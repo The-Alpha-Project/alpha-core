@@ -7,6 +7,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.ChatManager import ChatManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from utils.GameTextFormatter import GameTextFormatter
 from utils.constants.ObjectCodes import HighGuid
 
 
@@ -116,9 +117,22 @@ class CommandManager(object):
         locations = WorldDatabaseManager.worldport_get_by_name(tel_name, return_all=True)
 
         for location in locations:
-            port_text = '|cFF00FFFF[Map %s]|r %s' % (location.map, location.name)
+            port_text = '|cFF00FFFF[Map %s]|r - %s' % (location.map, location.name)
             ChatManager.send_system_message(world_session, port_text)
         return 0, '%u worldports found.' % len(locations)
+
+    @staticmethod
+    def sitem(world_session, args):
+        item_name = args.strip()
+        if not item_name:
+            return -1, 'please specify an item name to start searching.'
+        items = WorldDatabaseManager.item_template_get_by_name(item_name, return_all=True)
+
+        for item in items:
+            item_link = GameTextFormatter.generate_item_link(item.entry, item.name, item.quality)
+            item_text = '%u - %s' % (item.entry, item_link)
+            ChatManager.send_system_message(world_session, item_text)
+        return 0, '%u items found.' % len(items)
 
     @staticmethod
     def port(world_session, args):
@@ -384,6 +398,7 @@ GM_COMMAND_DEFINITIONS = {
     'gps': CommandManager.gps,
     'tel': CommandManager.tel,
     'stel': CommandManager.stel,
+    'sitem': CommandManager.sitem,
     'port': CommandManager.port,
     'tickets': CommandManager.tickets,
     'rticket': CommandManager.rticket,

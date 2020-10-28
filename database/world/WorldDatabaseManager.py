@@ -100,6 +100,24 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    @staticmethod
+    def item_template_get_by_name(name, return_all=False):
+        world_db_session = SessionHolder()
+        best_matching_item = None
+        best_matching_ratio = 0
+        items = world_db_session.query(ItemTemplate).filter(ItemTemplate.name.like('%' + name + '%')).all()
+        world_db_session.close()
+
+        if return_all:
+            return items
+
+        for item in items:
+            ratio = SequenceMatcher(None, item.name.lower(), name.lower()).ratio()
+            if ratio > best_matching_ratio:
+                best_matching_ratio = ratio
+                best_matching_item = item
+        return best_matching_item
+
     # Page text stuff
 
     @staticmethod

@@ -1,4 +1,17 @@
+from enum import Enum
+
 from utils.constants.UnitCodes import Genders
+
+
+ITEM_QUALITY_COLOR = {
+    0: 'cff9d9d9d',
+    1: 'cffffd200',
+    2: 'cff1eff00',
+    3: 'cff0070dd',
+    4: 'cffa335ee',
+    5: 'cffff8000',
+    6: 'cffe6cc80',
+}
 
 
 class GameTextFormatter(object):
@@ -68,3 +81,8 @@ class GameTextFormatter(object):
         elif race == 8:
             return 'Troll'
         return ''
+
+    @staticmethod
+    def generate_item_link(entry, name, quality):
+        color = ITEM_QUALITY_COLOR[quality]
+        return '|%s|Hitem:%u:0:0:0:0:0:0:0:0|h[%s]|h|r' % (color, entry, name)
