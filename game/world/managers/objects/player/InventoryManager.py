@@ -384,6 +384,7 @@ class InventoryManager(object):
             if source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED and \
                     (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(source_slot)):
                 source_item.set_binding(True)
+                RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
 
             if self.is_equipment_pos(source_bag, source_slot) or self.is_equipment_pos(dest_bag, dest_slot):
                 self.owner.flagged_for_update = True
