@@ -520,6 +520,14 @@ class PlayerManager(UnitManager):
 
         return self.create_update_packet(self.update_packet_factory, is_self)
 
+    def set_current_selection(self, guid):
+        self.current_selection = guid
+        self.set_ply_uint64(PlayerFields.PLAYER_SELECTION, guid)
+
+    def set_current_target(self, guid):
+        self.current_target = guid
+        self.set_ply_uint64(UnitFields.UNIT_FIELD_TARGET, guid)
+
     # override
     def update(self):
         now = time.time()
