@@ -301,16 +301,21 @@ class InventoryManager(object):
                     self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
                     return
 
-            if (source_item.is_container() or (dest_item and dest_item.is_container())) and \
-                    not (self.is_bag_pos(source_slot) and self.is_bag_pos(dest_slot)):
-                # Source or dest is a container and both aren't equipped
-                if source_item.is_container() and not source_item.is_empty():  # Moving non-empty bag from bag slots
-                    self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
-                    return
-                if dest_item and source_item.is_container() and dest_item.is_container() \
-                        and not dest_item.is_empty():  # Swapping bags to bag bar from inv
-                    self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
-                    return
+            if source_item.is_container() or (dest_item and dest_item.is_container()):
+                if not (self.is_bag_pos(source_slot) and self.is_bag_pos(dest_slot)):
+                    # If trying to put bag inside itself
+                    if source_item.guid == self.containers[dest_bag].guid:
+                        self.send_equip_error(InventoryError.BAG_NO_BAGS_IN_BAGS, source_item, source_item)
+                        return
+
+                    # Source or dest is a container and both aren't equipped
+                    if source_item.is_container() and not source_item.is_empty():  # Moving non-empty bag from bag slots
+                        self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
+                        return
+                    if dest_item and source_item.is_container() and dest_item.is_container() \
+                            and not dest_item.is_empty():  # Swapping bags to bag bar from inv
+                        self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
+                        return
 
             # Stack handling
             if dest_item and source_item.item_template.entry == dest_item.item_template.entry \
