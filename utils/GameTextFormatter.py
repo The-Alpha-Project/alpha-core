@@ -1,8 +1,3 @@
-from enum import Enum
-
-from utils.constants.UnitCodes import Genders
-
-
 ITEM_QUALITY_COLOR = {
     0: 'cff9d9d9d',
     1: 'cffffd200',
@@ -10,7 +5,30 @@ ITEM_QUALITY_COLOR = {
     3: 'cff0070dd',
     4: 'cffa335ee',
     5: 'cffff8000',
-    6: 'cffe6cc80',
+    6: 'cffe6cc80'
+}
+
+CLASS_TEXT = {
+    1: 'Warrior',
+    2: 'Paladin',
+    3: 'Hunter',
+    4: 'Rogue',
+    5: 'Priest',
+    7: 'Shaman',
+    8: 'Mage',
+    9: 'Warlock',
+    11: 'Druid'
+}
+
+RACE_TEXT = {
+    1: 'Human',
+    2: 'Orc',
+    3: 'Dwarf',
+    4: 'Night Elf',
+    5: 'Undead',
+    6: 'Tauren',
+    7: 'Gnome',
+    8: 'Troll'
 }
 
 
@@ -42,45 +60,11 @@ class GameTextFormatter(object):
 
     @staticmethod
     def class_to_text(class_):
-        if class_ == 1:
-            return 'Warrior'
-        elif class_ == 2:
-            return 'Paladin'
-        elif class_ == 3:
-            return 'Hunter'
-        elif class_ == 4:
-            return 'Rogue'
-        elif class_ == 5:
-            return 'Priest'
-        elif class_ == 7:
-            return 'Shaman'
-        elif class_ == 8:
-            return 'Mage'
-        elif class_ == 9:
-            return 'Warlock'
-        elif class_ == 11:
-            return 'Druid'
-        return ''
+        return CLASS_TEXT[class_]
 
     @staticmethod
     def race_to_text(race):
-        if race == 1:
-            return 'Human'
-        elif race == 2:
-            return 'Orc'
-        elif race == 3:
-            return 'Dwarf'
-        elif race == 4:
-            return 'Night Elf'
-        elif race == 5:
-            return 'Undead'
-        elif race == 6:
-            return 'Tauren'
-        elif race == 7:
-            return 'Gnome'
-        elif race == 8:
-            return 'Troll'
-        return ''
+        return RACE_TEXT[race]
 
     @staticmethod
     def generate_item_link(entry, name, quality):
