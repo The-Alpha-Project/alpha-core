@@ -21,18 +21,16 @@ class AutoequipItemHandler(object):
                 return 0
 
             inv_type = source_item.item_template.inventory_type
-            # Seems to only work for bags.
             if inv_type == InventoryTypes.BAG:
-                target_slot = inventory.get_next_available_bag_slot()
-                target_bag_slot = InventorySlots.SLOT_INBACKPACK
+                target_slot = inventory.get_next_available_bag_slot().value
             else:
-                target_slot = -1
-                target_bag_slot = -1
+                target_slot = source_item.equip_slot
+            target_bag_slot = InventorySlots.SLOT_INBACKPACK.value
 
-            if target_slot == -1 or target_bag_slot == -1:
+            if target_slot == -1:
                 # TODO Irrelevant error code, but only one that seems to not display anything to the client.
                 inventory.send_equip_error(InventoryError.BAG_LOOT_GONE, source_item, None)
                 return 0
-            inventory.swap_item(source_bag_slot, source_slot, target_bag_slot.value, target_slot.value)
+            inventory.swap_item(source_bag_slot, source_slot, target_bag_slot, target_slot)
 
         return 0

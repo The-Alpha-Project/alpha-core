@@ -2,7 +2,7 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.UpdatePacketFactory import UpdatePacketFactory, ContainerFields
 from utils.constants.ItemCodes import InventorySlots, ItemClasses, ItemSubClasses, BagFamilies
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes, ItemBondingTypes
 
 MAX_BAG_SLOTS = 20  # (ContainerFields.CONTAINER_END - ContainerFields.CONTAINER_FIELD_SLOT_1) / 2
 
@@ -82,6 +82,9 @@ class ContainerManager(ItemManager):
                 item_mgr.current_slot = slot
                 self.sorted_slots[slot] = item_mgr
                 RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
+
+            if item_mgr.item_template.bonding == ItemBondingTypes.BIND_WHEN_PICKED_UP:
+                item_mgr.set_binding(True)
             return item_mgr
         return None
 
