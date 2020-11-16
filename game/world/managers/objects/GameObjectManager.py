@@ -59,8 +59,8 @@ class GameObjectManager(ObjectManager):
                 data = pack('<I', cinematic_id)
                 player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
         elif self.gobject_template.type == GameObjectTypes.TYPE_CHAIR:
-            slots = self.gobject_template.data1
-            height = self.gobject_template.data2
+            slots = self.gobject_template.data0
+            height = self.gobject_template.data1
 
             lowest_distance = 90.0
             x_lowest = self.location.x
@@ -135,6 +135,7 @@ class GameObjectManager(ObjectManager):
             self.gobject_template.type,
             self.display_id,
             name_bytes, b'\x00', b'\x00', b'\x00',
+            self.gobject_template.data0,
             self.gobject_template.data1,
             self.gobject_template.data2,
             self.gobject_template.data3,
@@ -143,8 +144,7 @@ class GameObjectManager(ObjectManager):
             self.gobject_template.data6,
             self.gobject_template.data7,
             self.gobject_template.data8,
-            self.gobject_template.data9,
-            self.gobject_template.data10,
+            self.gobject_template.data9
         )
         return PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_QUERY_RESPONSE, data)
 

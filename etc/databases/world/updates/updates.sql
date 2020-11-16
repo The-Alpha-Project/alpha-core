@@ -273,5 +273,12 @@ begin not atomic
         insert into applied_updates values ('161120201');
     end if;
 
+    -- 16/11/2020 2
+    if (select count(*) from applied_updates where id='161120202') = 0 then'
+        delete from gameobject_template where type >= 19;
+
+        insert into applied_updates values ('161120202');
+    end if;
+
 end $
 delimiter ;
