@@ -54,7 +54,7 @@ class GameObjectManager(ObjectManager):
                 # TODO: Trigger sripts / events on cooldown restart
                 self.send_update_surrounding()
         elif self.gobject_template.type == GameObjectTypes.TYPE_CAMERA:
-            cinematic_id = self.gobject_template.data2
+            cinematic_id = self.gobject_template.data1
             if DbcDatabaseManager.cinematic_sequences_get_by_id(cinematic_id):
                 data = pack('<I', cinematic_id)
                 player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
