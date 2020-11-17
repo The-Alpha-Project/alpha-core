@@ -102,7 +102,10 @@ class CreatureManager(UnitManager):
 
                 if self.creature_template.scale == 0:
                     display_scale = DbcDatabaseManager.creature_display_info_get_by_id(self.display_id)
-                    self.scale = display_scale.CreatureModelScale if display_scale else 1
+                    if display_scale and display_scale.CreatureModelScale > 0:
+                        self.scale = display_scale.CreatureModelScale
+                    else:
+                        self.scale = 1
                 else:
                     self.scale = self.creature_template.scale
 
