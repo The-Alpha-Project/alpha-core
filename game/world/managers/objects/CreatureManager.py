@@ -1,6 +1,7 @@
 from random import randrange, choice
 from struct import unpack, pack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.UnitManager import UnitManager
@@ -27,7 +28,11 @@ class CreatureManager(UnitManager):
 
         if self.creature_template:
             self.entry = self.creature_template.entry
-            self.scale = self.creature_template.scale if self.creature_template.scale > 0 else 1
+            display_id_list = list(filter((0).__ne__, [self.creature_template.display_id1,
+                                                       self.creature_template.display_id2,
+                                                       self.creature_template.display_id3,
+                                                       self.creature_template.display_id4]))
+            self.display_id = choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube
             self.max_health = self.creature_template.health_max
             self.level = randrange(self.creature_template.level_min, self.creature_template.level_max + 1)
             self.resistance_0 = self.creature_template.armor
@@ -36,11 +41,6 @@ class CreatureManager(UnitManager):
             self.resistance_3 = self.creature_template.nature_res
             self.resistance_4 = self.creature_template.frost_res
             self.resistance_5 = self.creature_template.shadow_res
-            display_id_list = list(filter((0).__ne__, [self.creature_template.display_id1,
-                                                       self.creature_template.display_id2,
-                                                       self.creature_template.display_id3,
-                                                       self.creature_template.display_id4]))
-            self.display_id = choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube
             self.npc_flags = self.creature_template.npc_flags
             self.mod_cast_speed = 1.0
             self.base_attack_time = self.creature_template.base_attack_time
@@ -92,51 +92,61 @@ class CreatureManager(UnitManager):
         session.close()
         world_session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
 
-    # override
-    def get_full_update_packet(self, is_self=True):
+    def preload_model_info(self):
         if self.creature_template and self.creature_instance:
             if not self.model_info_loaded:
                 creature_model_info = WorldDatabaseManager.creature_get_model_info(self.display_id)
                 if creature_model_info:
                     self.bounding_radius = creature_model_info.bounding_radius
                     self.combat_reach = creature_model_info.combat_reach
+
+                if self.creature_template.scale == 0:
+                    display_scale = DbcDatabaseManager.creature_display_info_get_by_id(self.display_id)
+                    self.scale = display_scale.CreatureModelScale if display_scale else 1
+                else:
+                    self.scale = self.creature_template.scale
+
                 self.model_info_loaded = True
 
-            self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, 0, 0))[0]
-            self.damage = int(self.creature_template.dmg_max)  # temp
+    # override
+    def get_full_update_packet(self, is_self=True):
+        self.preload_model_info()
 
-            # Object fields
-            self.set_obj_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
-            self.set_obj_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
-            self.set_obj_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
-            self.set_obj_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.scale)
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, 0, 0))[0]
+        self.damage = int(self.creature_template.dmg_max)  # temp
 
-            # Unit fields
-            self.set_uni_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
-            self.set_uni_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
-            self.set_uni_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
-            self.set_uni_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)
-            self.set_uni_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
-            self.set_uni_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
-            self.set_uni_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-            self.set_uni_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
-            self.set_uni_float(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
-            self.set_uni_float(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, 0)
-            self.set_uni_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
-            self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
-            self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
-            self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
-            self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
-            self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
-            self.set_uni_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
-            self.set_uni_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
-            self.set_uni_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
-            self.set_uni_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
-            self.set_uni_float(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
-            self.set_uni_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
-            self.set_uni_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
+        # Object fields
+        self.set_obj_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
+        self.set_obj_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
+        self.set_obj_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
+        self.set_obj_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.scale)
 
-            return self.create_update_packet(self.update_packet_factory, is_self)
+        # Unit fields
+        self.set_uni_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
+        self.set_uni_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
+        self.set_uni_float(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
+        self.set_uni_float(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, 0)
+        self.set_uni_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
+        self.set_uni_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
+        self.set_uni_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
+        self.set_uni_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+        self.set_uni_float(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
+        self.set_uni_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+        self.set_uni_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
+
+        return self.create_update_packet(self.update_packet_factory, is_self)
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.creature_template.name)

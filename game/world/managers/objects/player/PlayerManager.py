@@ -323,7 +323,7 @@ class PlayerManager(UnitManager):
 
     def mount(self, mount_display_id):
         if mount_display_id > 0 and self.mount_display_id == 0 and \
-                DbcDatabaseManager.creature_display_info_get_by_model_id(mount_display_id):
+                DbcDatabaseManager.creature_display_info_get_by_id(mount_display_id):
             self.mount_display_id = mount_display_id
             self.unit_flags |= UnitFlags.UNIT_FLAG_MOUNTED
             self.flagged_for_update = True
@@ -347,7 +347,7 @@ class PlayerManager(UnitManager):
 
     def morph(self, display_id):
         if display_id > 0 and \
-                DbcDatabaseManager.creature_display_info_get_by_model_id(display_id):
+                DbcDatabaseManager.creature_display_info_get_by_id(display_id):
             self.display_id = display_id
             self.flagged_for_update = True
 

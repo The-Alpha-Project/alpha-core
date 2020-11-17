@@ -71,9 +71,9 @@ class DbcDatabaseManager(object):
     # CreatureDisplayInfo
 
     @staticmethod
-    def creature_display_info_get_by_model_id(model_id):
+    def creature_display_info_get_by_id(display_id):
         dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(CreatureDisplayInfo).filter_by(ID=model_id).first()
+        res = dbc_db_session.query(CreatureDisplayInfo).filter_by(ID=display_id).first()
         dbc_db_session.close()
         return res
 
