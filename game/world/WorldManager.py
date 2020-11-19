@@ -141,8 +141,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                     gobject_instance=gobject
                 )
                 gobject_mgr.load()
-            Logger.info('Progress: %u/%u (%u%%)' % (count, length, count * 100 / length), end='\r')
             count += 1
+            Logger.info('Progress: %u/%u (%u%%)' % (count, length, count * 100 / length), end='\r')
 
         session.close()
         return len(gobject_spawns)
@@ -160,8 +160,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                     creature_instance=creature
                 )
                 creature_mgr.load()
-            Logger.info('Progress: %u/%u (%u%%)' % (count, length, count * 100 / length), end='\r')
             count += 1
+            Logger.info('Progress: %u/%u (%u%%)' % (count, length, count * 100 / length), end='\r')
 
         session.close()
         return len(creature_spawns)
