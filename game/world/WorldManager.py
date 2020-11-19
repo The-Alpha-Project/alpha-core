@@ -115,16 +115,12 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     def _load_data():
         # TODO: Use threads to load the data more efficiently
         if config.Server.Settings.load_gameobjects:
-            Logger.info('Loading game objects...')
-            gobject_number = WorldServerSessionHandler._load_gameobjects()
-            Logger.success('%u game objects successfully loaded.' % gobject_number)
+            WorldServerSessionHandler._load_gameobjects()
         else:
             Logger.info('Skipped game object loading.')
 
         if config.Server.Settings.load_creatures:
-            Logger.info('Loading creature spawns...')
-            creature_number = WorldServerSessionHandler._load_creatures()
-            Logger.success('%u creature spawns successfully loaded.' % creature_number)
+            WorldServerSessionHandler._load_creatures()
         else:
             Logger.info('Skipped creature loading.')
 
@@ -142,10 +138,11 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                 )
                 gobject_mgr.load()
             count += 1
-            Logger.info('Progress: %u/%u (%u%%)' % (count, length, count * 100 / length), end='\r')
+            Logger.progress('Spawning gameobjects... %u/%u (%u%%)' % (count, length, count * 100 / length),
+                            count, length)
 
         session.close()
-        return len(gobject_spawns)
+        return length
 
     @staticmethod
     def _load_creatures():
@@ -161,10 +158,11 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                 )
                 creature_mgr.load()
             count += 1
-            Logger.info('Progress: %u/%u (%u%%)' % (count, length, count * 100 / length), end='\r')
+            Logger.progress('Spawning creatures... %u/%u (%u%%)' % (count, length, count * 100 / length),
+                            count, length)
 
         session.close()
-        return len(creature_spawns)
+        return length
 
     @staticmethod
     def start():

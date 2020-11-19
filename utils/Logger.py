@@ -50,3 +50,12 @@ class Logger(object):
     def anticheat(msg):
         Logger.LABEL = '[ANTICHEAT]'
         print(Logger.colorize_message(DebugColorLevel.ANTICHEAT, msg))
+
+    # Additional methods
+
+    @staticmethod
+    def progress(msg, current, total):
+        if current != total:
+            Logger.info(msg, end='\r')
+        else:
+            Logger.success(msg)
