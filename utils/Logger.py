@@ -55,6 +55,7 @@ class Logger(object):
 
     @staticmethod
     def progress(msg, current, total):
+        msg = '%s %u/%u (%u%%)' % (msg, current, total, current * 100 / total)
         if current != total:
             Logger.info(msg, end='\r')
         else:

@@ -138,8 +138,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                 )
                 gobject_mgr.load()
             count += 1
-            Logger.progress('Spawning gameobjects... %u/%u (%u%%)' % (count, length, count * 100 / length),
-                            count, length)
+            Logger.progress('Spawning gameobjects...', count, length)
 
         session.close()
         return length
@@ -158,8 +157,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                 )
                 creature_mgr.load()
             count += 1
-            Logger.progress('Spawning creatures... %u/%u (%u%%)' % (count, length, count * 100 / length),
-                            count, length)
+            Logger.progress('Spawning creatures...', count, length)
 
         session.close()
         return length
