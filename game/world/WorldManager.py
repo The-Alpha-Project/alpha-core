@@ -131,6 +131,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def _load_gameobjects():
         gobject_spawns, session = WorldDatabaseManager.gameobject_get_all_spawns()
+        length = len(gobject_spawns)
+        count = 0
 
         for gobject in gobject_spawns:
             if gobject.gameobject:
@@ -139,6 +141,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                     gobject_instance=gobject
                 )
                 gobject_mgr.load()
+            Logger.info('Progress: %u/%u (%u%%)' % (count, length, count * 100 / length), end='\r')
+            count += 1
 
         session.close()
         return len(gobject_spawns)
@@ -146,6 +150,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def _load_creatures():
         creature_spawns, session = WorldDatabaseManager.creature_get_all_spawns()
+        length = len(creature_spawns)
+        count = 0
 
         for creature in creature_spawns:
             if creature.creature_template:
@@ -154,6 +160,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                     creature_instance=creature
                 )
                 creature_mgr.load()
+            Logger.info('Progress: %u/%u (%u%%)' % (count, length, count * 100 / length), end='\r')
+            count += 1
 
         session.close()
         return len(creature_spawns)

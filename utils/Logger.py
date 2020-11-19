@@ -37,9 +37,9 @@ class Logger(object):
         print(Logger.colorize_message(DebugColorLevel.ERROR, msg))
 
     @staticmethod
-    def info(msg):
+    def info(msg, end='\n'):
         Logger.LABEL = '[INFO]'
-        print(Logger.colorize_message(DebugColorLevel.INFO, msg))
+        print(Logger.colorize_message(DebugColorLevel.INFO, msg), end=end)
 
     @staticmethod
     def success(msg):
