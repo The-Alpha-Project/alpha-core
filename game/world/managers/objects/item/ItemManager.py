@@ -240,7 +240,7 @@ class ItemManager(ObjectManager):
             self.item_template.shadow_res,
             self.item_template.delay,
             self.item_template.ammo_type,
-            0  # TODO: Durability, not implemented
+            0  # Durability, not implemented
         )
 
         for spell_stat in self.spell_stats:
