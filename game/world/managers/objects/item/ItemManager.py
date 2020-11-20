@@ -225,7 +225,7 @@ class ItemManager(ObjectManager):
         )
 
         for stat in self.stats:
-            data += pack('<Ii', stat.stat_type, stat.value)
+            data += pack('<2i', stat.stat_type, stat.value)
 
         for damage_stat in self.damage_stats:
             data += pack('<3i', int(damage_stat.minimum), int(damage_stat.maximum), damage_stat.stat_type)
