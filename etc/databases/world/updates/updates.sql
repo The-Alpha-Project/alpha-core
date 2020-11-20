@@ -280,5 +280,14 @@ begin not atomic
         insert into applied_updates values ('161120202');
     end if;
 
+    -- 20/11/2020 1
+    if (select count(*) from applied_updates where id='201120201') = 0 then
+        update quest_template set Details = 'I hope you strapped your belt on tight, young $c, because there is work to do here in Northshire.$B$BAndI don\'t mean farming.$B$BTheStormwind guards are hard pressed to keep the peace here, with so many of us in distant lands and so many threats pressing close.  And so we\'re enlisting the aid of anyone willing to defend their home.  And their alliance.$B$BIfyou\'re here to answer the call, then speak with my superior, Marshal McBride.  He\'s inside the abbey behind me.' where entry = 783;
+        update spawns_creatures set position_x = -8902.59, position_y = -162.606, position_z = 82.0223, orientation = 2.04204 where spawn_id = 79970;
+        update spawns_creatures set position_x = -8933.54, position_y = -136.523, position_z = 83.4466, orientation = 1.97222 where spawn_id = 79942;
+
+        insert into applied_updates values ('201120201');
+    end if;
+
 end $
 delimiter ;
