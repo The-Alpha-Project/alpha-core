@@ -132,7 +132,7 @@ class WorldDatabaseManager(object):
     @staticmethod
     def gameobject_get_all_spawns():
         world_db_session = SessionHolder()
-        res = world_db_session.query(SpawnsGameobjects).all()
+        res = world_db_session.query(SpawnsGameobjects).filter_by(ignored=0).all()
         return res, world_db_session
 
     @staticmethod

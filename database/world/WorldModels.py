@@ -941,6 +941,7 @@ class SpawnsGameobjects(Base):
     spawn_state = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     spawn_flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     spawn_visibility_mod = Column(Float, nullable=True, server_default=text("'0'"))
+    ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
     gameobject = relationship('GameobjectTemplate')
 
