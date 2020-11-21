@@ -25,6 +25,11 @@ begin not atomic
         update gameobject_template set name = 'Ironforge Elevator Lower Door' where entry in (21654, 21655);
         update gameobject_template set name = 'Ironforge Elevator Upper Door' where entry in (21653, 21656);
 
+        update gameobject_template set displayid = 176 where entry = 2146;
+        update gameobject_template set displayid = 173 where entry = 2139;
+        update gameobject_template set displayid = 172 where entry = 2138;
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 66780;
+
         insert into applied_updates values ('211120201');
     end if;
 
