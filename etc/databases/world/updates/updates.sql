@@ -43,5 +43,25 @@ begin not atomic
         insert into applied_updates values ('221120201');
     end if;
 
+    -- 22/11/2020 2
+    if (select count(*) from applied_updates where id='221120202') = 0 then
+        replace into playercreateinfo_spell (race, class, Spell, Note) values
+        (2, 3, 107, 'Block'),
+        (3, 3, 107, 'Block'),
+        (4, 3, 107, 'Block'),
+        (6, 3, 107, 'Block'),
+        (8, 3, 107, 'Block'),
+
+        (1, 4, 107, 'Block'),
+        (2, 4, 107, 'Block'),
+        (3, 4, 107, 'Block'),
+        (4, 4, 107, 'Block'),
+        (5, 4, 107, 'Block'),
+        (7, 4, 107, 'Block'),
+        (8, 4, 107, 'Block');
+
+        insert into applied_updates values ('221120202');
+    end if;
+
 end $
 delimiter ;
