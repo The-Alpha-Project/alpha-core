@@ -37,8 +37,8 @@ begin not atomic
     if (select count(*) from applied_updates where id='221120201') = 0 then
         update creature_template set display_id1 = 1396 where entry = 1354;
 
-        update item_template set display_id = 7947, armor = 10 where entry = 209;
-        update item_template set display_id = 7973, armor = 8 where entry = 210;
+        update item_template set display_id = 7947, armor = 3 where entry = 209;
+        update item_template set display_id = 7973, armor = 2 where entry = 210;
 
         insert into applied_updates values ('221120201');
     end if;
