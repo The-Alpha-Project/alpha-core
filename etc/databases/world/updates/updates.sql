@@ -69,6 +69,8 @@ begin not atomic
         update creature_template set display_id1 = 3027 where entry = 157;
         update creature_template set display_id1 = 377 where entry = 1984;
 
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 175756;
+
         insert into applied_updates values ('231120202');
     end if;
 
