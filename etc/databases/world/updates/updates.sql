@@ -63,5 +63,14 @@ begin not atomic
         insert into applied_updates values ('221120202');
     end if;
 
+    -- 23/11/2020 2
+    if (select count(*) from applied_updates where id='231120202') = 0 then
+        update creature_template set display_id1 = 3035 where entry = 547;
+        update creature_template set display_id1 = 3027 where entry = 157;
+        update creature_template set display_id1 = 377 where entry = 1984;
+
+        insert into applied_updates values ('231120202');
+    end if;
+
 end $
 delimiter ;
