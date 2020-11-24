@@ -71,6 +71,9 @@ begin not atomic
 
         update spawns_gameobjects set ignored = 1 where spawn_entry = 175756;
 
+        update spawns_creatures set ignored = 1 where spawn_entry1 = 8119;
+        update spawns_creatures set position_x = -915.369934, position_y = -3724.15, position_z = 10.244946 where spawn_entry1 = 3496;
+
         insert into applied_updates values ('231120202');
     end if;
 
