@@ -65,8 +65,8 @@ begin not atomic
 
     -- 23/11/2020 2
     if (select count(*) from applied_updates where id='231120202') = 0 then
-        update creature_template set display_id1 = 3035 where entry = 547;
-        update creature_template set display_id1 = 3027 where entry = 157;
+        update creature_template set display_id1 = 499 where entry = 547;
+        update creature_template set display_id1 = 193 where entry = 157;
         update creature_template set display_id1 = 377 where entry = 1984;
 
         update spawns_gameobjects set ignored = 1 where spawn_entry = 175756;
