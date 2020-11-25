@@ -1,8 +1,8 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from network.packet.UpdatePacketFactory import UpdatePacketFactory, ContainerFields
+from network.packet.update.UpdatePacketFactory import ContainerFields
 from utils.constants.ItemCodes import InventorySlots, ItemClasses, ItemSubClasses, BagFamilies
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes, ItemBondingTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, ItemBondingTypes
 
 MAX_BAG_SLOTS = 20  # (ContainerFields.CONTAINER_END - ContainerFields.CONTAINER_FIELD_SLOT_1) / 2
 
@@ -31,7 +31,7 @@ class ContainerManager(ItemManager):
             self.is_contained = self.owner
 
         self.object_type.append(ObjectTypes.TYPE_CONTAINER)
-        self.update_packet_factory.add_type(ObjectTypes.TYPE_CONTAINER)
+        self.update_packet_factory.init_values(ContainerFields.CONTAINER_END)
 
     @classmethod
     def from_item(cls, item_manager):

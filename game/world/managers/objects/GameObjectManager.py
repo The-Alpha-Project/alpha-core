@@ -7,8 +7,8 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter
-from network.packet.UpdatePacketFactory import UpdatePacketFactory
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes, GameObjectTypes, \
+from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import StandState

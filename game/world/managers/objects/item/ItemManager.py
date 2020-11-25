@@ -5,10 +5,9 @@ from database.realm.RealmModels import CharacterInventory
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from network.packet.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid, ItemBondingTypes
-from utils.constants.UpdateFields import ObjectFields, ItemFields, ContainerFields
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, ItemBondingTypes
+from utils.constants.UpdateFields import ObjectFields, ItemFields
 
 AVAILABLE_EQUIP_SLOTS = [
     InventorySlots.SLOT_INBACKPACK,  # None equip
@@ -108,7 +107,7 @@ class ItemManager(ObjectManager):
                                       self.item_template.spellcategory_5, self.item_template.spellcategorycooldown_5))
 
         self.object_type.append(ObjectTypes.TYPE_ITEM)
-        self.update_packet_factory.add_type(ObjectTypes.TYPE_ITEM)
+        self.update_packet_factory.init_values(ItemFields.ITEM_END)
 
     class Stat(object):
         def __init__(self, stat_type, value):

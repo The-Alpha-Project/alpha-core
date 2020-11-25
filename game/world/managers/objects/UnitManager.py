@@ -7,6 +7,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes
 from utils.constants.UnitCodes import UnitFlags, StandState
+from utils.constants.UpdateFields import UnitFields
 
 
 class UnitManager(ObjectManager):
@@ -130,30 +131,10 @@ class UnitManager(ObjectManager):
         self.bytes_2 = bytes_2  # combo points, 0, 0, 0
 
         self.object_type.append(ObjectTypes.TYPE_UNIT)
-        self.update_packet_factory.add_type(ObjectTypes.TYPE_UNIT)
+        self.update_packet_factory.init_values(UnitFields.UNIT_END)
 
         self.is_alive = True
         self.is_sitting = False
-
-    def set_uni_int32(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.unit_values,
-                                          self.update_packet_factory.updated_unit_fields, index, value, 'i')
-
-    def set_uni_int64(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.unit_values,
-                                          self.update_packet_factory.updated_unit_fields, index, value, 'q')
-
-    def set_uni_uint32(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.unit_values,
-                                          self.update_packet_factory.updated_unit_fields, index, value, 'I')
-
-    def set_uni_uint64(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.unit_values,
-                                          self.update_packet_factory.updated_unit_fields, index, value, 'Q')
-
-    def set_uni_float(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.unit_values,
-                                          self.update_packet_factory.updated_unit_fields, index, value, 'f')
 
     def play_emote(self, emote):
         if emote != 0:

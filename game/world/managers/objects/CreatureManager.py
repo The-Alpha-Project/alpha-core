@@ -7,8 +7,7 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
-from network.packet.UpdatePacketFactory import UpdatePacketFactory
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UpdateTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import ObjectFields, UnitFields

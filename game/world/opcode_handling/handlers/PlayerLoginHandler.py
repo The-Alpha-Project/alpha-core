@@ -2,11 +2,9 @@ import time
 
 from struct import unpack
 
-from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketWriter import *
 from database.realm.RealmDatabaseManager import *
 from database.dbc.DbcDatabaseManager import *
-from network.packet.UpdatePacketFactory import UpdatePacketFactory, UpdateTypes
 from utils.Logger import Logger
 from game.world.managers.objects.player.PlayerManager import PlayerManager
 from utils.ConfigManager import config

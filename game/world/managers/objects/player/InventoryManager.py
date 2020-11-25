@@ -6,7 +6,7 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.item.ContainerManager import ContainerManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from network.packet.UpdatePacketFactory import UpdatePacketFactory, UpdateTypes
+from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError

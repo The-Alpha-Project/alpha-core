@@ -1,7 +1,7 @@
 from struct import pack
 from math import pi
 
-from network.packet.UpdatePacketFactory import UpdatePacketFactory
+from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes
 from utils.ConfigManager import config
 from game.world.managers.abstractions.Vector import Vector
@@ -59,7 +59,7 @@ class ObjectManager(object):
         self.map_ = map_
 
         self.object_type = [ObjectTypes.TYPE_OBJECT]
-        self.update_packet_factory = UpdatePacketFactory([ObjectTypes.TYPE_OBJECT])
+        self.update_packet_factory = UpdatePacketFactory()
 
         self.current_grid = ''
         self.last_tick = 0
@@ -70,27 +70,8 @@ class ObjectManager(object):
             type_value |= type_
         return type_value
 
-    def get_update_mask(self):
-        mask = 0
-        if ObjectTypes.TYPE_CONTAINER in self.object_type:
-            mask += ContainerFields.CONTAINER_END
-        if ObjectTypes.TYPE_ITEM in self.object_type:
-            mask += ItemFields.ITEM_END
-        if ObjectTypes.TYPE_PLAYER in self.object_type:
-            mask += PlayerFields.PLAYER_END
-        if ObjectTypes.TYPE_UNIT in self.object_type:
-            mask += UnitFields.UNIT_END
-        if ObjectTypes.TYPE_OBJECT in self.object_type:
-            mask += ObjectFields.OBJECT_END
-        if ObjectTypes.TYPE_GAMEOBJECT in self.object_type:
-            mask += GameObjectFields.GAMEOBJECT_END
-
-        return (mask + 31) / 32
-
     def create_update_packet(self, update_packet_factory, is_self=True, update_type=UpdateTypes.CREATE_OBJECT):
         from game.world.managers.objects import UnitManager
-        merged_update_values = update_packet_factory.get_merged_update_values()
-        update_mask = int(self.get_update_mask())
 
         data = pack(
             '<IBQ',
@@ -133,28 +114,31 @@ class ObjectManager(object):
             )
 
         if update_type in self.TYPES_WITH_FIELDS:
-            data += pack('<B', update_mask)
+            data += pack('<B', self.update_packet_factory.update_mask.block_count)
+            data += self.update_packet_factory.update_mask.to_bytes()
 
-            for x in range(0, update_mask):
-                data += pack('<I', 0xFFFFFFFF)
+            for i in range(0, self.update_packet_factory.update_mask.field_count):
+                if self.update_packet_factory.update_mask.is_set(i):
+                    data += self.update_packet_factory.update_values[i]
 
-            data += merged_update_values
-
-        self.update_packet_factory.init_lists()
+        self.update_packet_factory.reset()
 
         return data
 
-    def set_obj_uint32(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.object_values,
-                                          self.update_packet_factory.updated_object_fields, index, value, 'I')
+    def set_int32(self, index, value):
+        self.update_packet_factory.update(index, value, 'i')
 
-    def set_obj_uint64(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.object_values,
-                                          self.update_packet_factory.updated_object_fields, index, value, 'Q')
+    def set_uint32(self, index, value):
+        self.update_packet_factory.update(index, value, 'I')
 
-    def set_obj_float(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.object_values,
-                                          self.update_packet_factory.updated_object_fields, index, value, 'f')
+    def set_int64(self, index, value):
+        self.update_packet_factory.update(index, value, 'q')
+
+    def set_uint64(self, index, value):
+        self.update_packet_factory.update(index, value, 'Q')
+
+    def set_float(self, index, value):
+        self.update_packet_factory.update(index, value, 'f')
 
     # override
     def update(self):
