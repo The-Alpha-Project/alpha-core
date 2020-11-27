@@ -210,7 +210,6 @@ class PlayerManager(UnitManager):
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
     def update_surrounding(self):
-        pass
         self.send_update_surrounding()
         GridManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
 
@@ -534,7 +533,6 @@ class PlayerManager(UnitManager):
             self.flagged_for_update = False
 
     def send_update_self(self, is_self=True):
-        pass
         self.session.request.sendall(UpdatePacketFactory.compress_if_needed(
             PacketWriter.get_packet(
                 OpCode.SMSG_UPDATE_OBJECT,
