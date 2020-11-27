@@ -582,7 +582,7 @@ class InventoryManager(object):
 
     def build_update(self):
         for slot, item in self.get_backpack().sorted_slots.items():
-            self.owner.set_ply_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid)
+            self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid)
 
     def send_single_item_update(self, world_session, item, is_self):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(

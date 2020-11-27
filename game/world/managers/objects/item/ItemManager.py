@@ -268,46 +268,30 @@ class ItemManager(ObjectManager):
 
         return PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, data)
 
-    def set_itm_int32(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.item_values,
-                                          self.update_packet_factory.updated_item_fields, index, value, 'i')
-
-    def set_itm_uint32(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.item_values,
-                                          self.update_packet_factory.updated_item_fields, index, value, 'I')
-
-    def set_itm_uint64(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.item_values,
-                                          self.update_packet_factory.updated_item_fields, index, value, 'Q')
-
-    def set_itm_float(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.item_values,
-                                          self.update_packet_factory.updated_item_fields, index, value, 'f')
-
     # override
     def get_full_update_packet(self, is_self=True):
         if self.item_template and self.item_instance:
             from game.world.managers.objects.item.ContainerManager import ContainerManager
 
             # Object fields
-            self.set_obj_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
-            self.set_obj_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
-            self.set_obj_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.item_template.entry)
-            self.set_obj_float(ObjectFields.OBJECT_FIELD_SCALE_X, 1)
-            self.set_obj_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
+            self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
+            self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.item_template.entry)
+            self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, 1)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
             # Item fields
-            self.set_itm_uint64(ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner)
-            self.set_itm_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)
-            self.set_itm_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.is_contained)
-            self.set_itm_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
-            self.set_itm_uint32(ItemFields.ITEM_FIELD_FLAGS, self.item_instance.item_flags)
+            self.set_uint64(ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner)
+            self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)
+            self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.is_contained)
+            self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
+            self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self.item_instance.item_flags)
 
-            self.set_itm_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES, self.item_instance.SpellCharges1)
-            self.set_itm_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 1, self.item_instance.SpellCharges2)
-            self.set_itm_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 2, self.item_instance.SpellCharges3)
-            self.set_itm_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 3, self.item_instance.SpellCharges4)
-            self.set_itm_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 4, self.item_instance.SpellCharges5)
+            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES, self.item_instance.SpellCharges1)
+            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 1, self.item_instance.SpellCharges2)
+            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 2, self.item_instance.SpellCharges3)
+            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 3, self.item_instance.SpellCharges4)
+            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 4, self.item_instance.SpellCharges5)
 
             # Container fields
             if self.is_container() and isinstance(self, ContainerManager):

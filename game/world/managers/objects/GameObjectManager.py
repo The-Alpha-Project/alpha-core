@@ -40,7 +40,7 @@ class GameObjectManager(ObjectManager):
             self.scale = self.gobject_template.scale
 
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
-        self.update_packet_factory.add_type(ObjectTypes.TYPE_GAMEOBJECT)
+        self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
 
     def load(self):
         GridManager.add_or_get(self, True)
@@ -81,35 +81,23 @@ class GameObjectManager(ObjectManager):
                 player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
                 player.stand_state = StandState.UNIT_SITTINGCHAIRLOW.value + height
 
-    def set_gob_uint32(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.gameobject_values,
-                                          self.update_packet_factory.updated_gameobject_fields, index, value, 'I')
-
-    def set_gob_uint64(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.gameobject_values,
-                                          self.update_packet_factory.updated_gameobject_fields, index, value, 'Q')
-
-    def set_gob_float(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.gameobject_values,
-                                          self.update_packet_factory.updated_gameobject_fields, index, value, 'f')
-
     # override
     def get_full_update_packet(self, is_self=True):
         if self.gobject_template and self.gobject_instance:
             # Object fields
-            self.set_obj_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
-            self.set_obj_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
-            self.set_obj_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.gobject_template.entry)
-            self.set_obj_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.scale)
-            self.set_obj_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
+            self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
+            self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.gobject_template.entry)
+            self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.scale)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
             # Gameobject fields
-            self.set_gob_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.display_id)
-            self.set_gob_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.gobject_template.flags)
-            self.set_gob_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.gobject_template.faction)
-            self.set_gob_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
-            self.set_gob_float(GameObjectFields.GAMEOBJECT_ROTATION, self.gobject_instance.spawn_rotation0)
-            self.set_gob_float(GameObjectFields.GAMEOBJECT_ROTATION + 1, self.gobject_instance.spawn_rotation1)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.display_id)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.gobject_template.flags)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.gobject_template.faction)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
+            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION, self.gobject_instance.spawn_rotation0)
+            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 1, self.gobject_instance.spawn_rotation1)
 
             if self.gobject_instance.spawn_rotation2 == 0 and self.gobject_instance.spawn_rotation3 == 0:
                 f_rot1 = math.sin(self.location.o / 2.0)
@@ -118,12 +106,12 @@ class GameObjectManager(ObjectManager):
                 f_rot1 = self.gobject_instance.spawn_rotation2
                 f_rot2 = self.gobject_instance.spawn_rotation3
 
-            self.set_gob_float(GameObjectFields.GAMEOBJECT_ROTATION + 2, f_rot1)
-            self.set_gob_float(GameObjectFields.GAMEOBJECT_ROTATION + 3, f_rot2)
-            self.set_gob_float(GameObjectFields.GAMEOBJECT_POS_X, self.location.x)
-            self.set_gob_float(GameObjectFields.GAMEOBJECT_POS_Y, self.location.y)
-            self.set_gob_float(GameObjectFields.GAMEOBJECT_POS_Z, self.location.z)
-            self.set_gob_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
+            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 2, f_rot1)
+            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 3, f_rot2)
+            self.set_float(GameObjectFields.GAMEOBJECT_POS_X, self.location.x)
+            self.set_float(GameObjectFields.GAMEOBJECT_POS_Y, self.location.y)
+            self.set_float(GameObjectFields.GAMEOBJECT_POS_Z, self.location.z)
+            self.set_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
 
             return self.create_update_packet(self.update_packet_factory, is_self)
 

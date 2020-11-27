@@ -41,24 +41,12 @@ class ContainerManager(ItemManager):
             item_instance=item_manager.item_instance
         )
 
-    def set_cnt_uint32(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.container_values,
-                                          self.update_packet_factory.updated_container_fields, index, value, 'I')
-
-    def set_cnt_uint64(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.container_values,
-                                          self.update_packet_factory.updated_container_fields, index, value, 'Q')
-
-    def set_cnt_float(self, index, value):
-        self.update_packet_factory.update(self.update_packet_factory.container_values,
-                                          self.update_packet_factory.updated_container_fields, index, value, 'f')
-
     def build_container_update_packet(self,):
-        self.set_cnt_uint32(ContainerFields.CONTAINER_FIELD_NUM_SLOTS, self.item_template.container_slots)
+        self.set_uint32(ContainerFields.CONTAINER_FIELD_NUM_SLOTS, self.item_template.container_slots)
 
         for x in range(0, MAX_BAG_SLOTS):
             guid = self.sorted_slots[x].guid if x in self.sorted_slots else 0
-            self.set_cnt_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + x * 2, guid)
+            self.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + x * 2, guid)
 
     def can_set_item(self, item, slot):
         if item:

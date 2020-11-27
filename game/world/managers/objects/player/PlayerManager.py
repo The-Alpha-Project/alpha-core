@@ -422,7 +422,7 @@ class PlayerManager(UnitManager):
     # TODO: UPDATE_PARTIAL is not being used anywhere (it's implemented but not sure if it works correctly).
     # override
     def get_full_update_packet(self, is_self=True):
-        #self.inventory.send_inventory_update(self.session, is_self)
+        self.inventory.send_inventory_update(self.session, is_self)
 
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
@@ -505,7 +505,7 @@ class PlayerManager(UnitManager):
         self.set_float(PlayerFields.PLAYER_PARRY_PERCENTAGE, self.parry_percentage)
         self.set_uint32(PlayerFields.PLAYER_BASE_MANA, self.base_mana)
 
-        #self.inventory.build_update()
+        self.inventory.build_update()
 
         return self.create_update_packet(self.update_packet_factory, is_self)
 
