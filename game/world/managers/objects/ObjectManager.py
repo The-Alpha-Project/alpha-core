@@ -12,11 +12,6 @@ from utils.constants.UpdateFields \
 
 
 class ObjectManager(object):
-    TYPES_WITH_OBJECT_TYPE = (UpdateTypes.CREATE_OBJECT,)
-    TYPES_WITH_MOVEMENT = (UpdateTypes.MOVEMENT, UpdateTypes.CREATE_OBJECT)
-    TYPES_WITH_MISC = (UpdateTypes.CREATE_OBJECT,)
-    TYPES_WITH_FIELDS = (UpdateTypes.PARTIAL, UpdateTypes.MOVEMENT, UpdateTypes.CREATE_OBJECT)
-
     def __init__(self,
                  guid=0,
                  entry=0,
@@ -70,58 +65,80 @@ class ObjectManager(object):
             type_value |= type_
         return type_value
 
-    def create_update_packet(self, update_packet_factory, is_self=True, update_type=UpdateTypes.CREATE_OBJECT):
+    def get_object_create_packet(self, is_self=True):
         from game.world.managers.objects import UnitManager
 
-        data = pack(
+        # Base structure
+        data = self._get_base_structure(UpdateTypes.CREATE_OBJECT)
+
+        # Object type
+        data += pack('<B', self.get_type_id())
+
+        # Movement fields
+        data += pack(
+            '<QfffffffffIIffff',
+            self.transport_id,
+            self.transport.x,
+            self.transport.y,
+            self.transport.z,
+            self.transport.o,
+            self.location.x,
+            self.location.y,
+            self.location.z,
+            self.location.o,
+            self.pitch,
+            self.movement_flags,
+            0,  # Fall Time?
+            self.walk_speed,
+            self.running_speed,
+            self.swim_speed,
+            self.turn_rate
+        )
+
+        # Misc fields
+        data += pack(
+            '<3IQ',
+            1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
+            1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
+            0,  # TimerId
+            UnitManager.UnitManager(self).combat_target if isinstance(self, UnitManager.UnitManager) else 0, # Victim GUID
+        )
+
+        # Normal update fields
+        data += self._get_fields_update()
+
+        # Reset updated fields
+        self.update_packet_factory.reset()
+
+        return data
+
+    def get_partial_update_packet(self):
+        # Base structure
+        data = self._get_base_structure(UpdateTypes.PARTIAL)
+
+        # Normal update fields
+        data += self._get_fields_update()
+
+        # Reset updated fields
+        self.update_packet_factory.reset()
+
+        return data
+
+    def _get_base_structure(self, update_type):
+        return pack(
             '<IBQ',
             1,  # Number of transactions
             update_type,
             self.guid,
         )
 
-        if update_type in self.TYPES_WITH_OBJECT_TYPE:
-            data += pack('<B', self.get_type_id())
+    def _get_fields_update(self):
+        data = pack('<B', self.update_packet_factory.update_mask.block_count)
+        data += self.update_packet_factory.update_mask.to_bytes()
 
-        if update_type in self.TYPES_WITH_MOVEMENT:
-            data += pack(
-                '<QfffffffffIIffff',
-                self.transport_id,
-                self.transport.x,
-                self.transport.y,
-                self.transport.z,
-                self.transport.o,
-                self.location.x,
-                self.location.y,
-                self.location.z,
-                self.location.o,
-                self.pitch,
-                self.movement_flags,
-                0,  # Fall Time?
-                self.walk_speed,
-                self.running_speed,
-                self.swim_speed,
-                self.turn_rate
-            )
-
-        if update_type in self.TYPES_WITH_MISC:
-            data += pack(
-                '<3IQ',
-                1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
-                1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
-                0,  # TimerId
-                UnitManager.UnitManager(self).combat_target if isinstance(self, UnitManager.UnitManager) else 0, # Victim GUID
-            )
-
-        if update_type in self.TYPES_WITH_FIELDS:
-            data += pack('<B', self.update_packet_factory.update_mask.block_count)
-            data += self.update_packet_factory.update_mask.to_bytes()
-
-            for i in range(0, self.update_packet_factory.update_mask.field_count):
-                if self.update_packet_factory.update_mask.is_set(i):
-                    data += self.update_packet_factory.update_values[i]
-
-        self.update_packet_factory.reset()
+        for i in range(0, self.update_packet_factory.update_mask.field_count):
+            if self.update_packet_factory.update_mask.is_set(i):
+                data += self.update_packet_factory.update_values[i]
 
         return data
 

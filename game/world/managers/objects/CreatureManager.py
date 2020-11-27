@@ -148,7 +148,7 @@ class CreatureManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
 
-        return self.create_update_packet(self.update_packet_factory, is_self)
+        return self.get_object_create_packet(is_self)
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.creature_template.name)

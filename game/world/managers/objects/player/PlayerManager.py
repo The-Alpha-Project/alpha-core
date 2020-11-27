@@ -419,7 +419,6 @@ class PlayerManager(UnitManager):
             if spell_to_load:
                 self.spells.append(spell_to_load)
 
-    # TODO: UPDATE_PARTIAL is not being used anywhere (it's implemented but not sure if it works correctly).
     # override
     def get_full_update_packet(self, is_self=True):
         self.inventory.send_inventory_update(self.session, is_self)
@@ -507,7 +506,7 @@ class PlayerManager(UnitManager):
 
         self.inventory.build_update()
 
-        return self.create_update_packet(self.update_packet_factory, is_self)
+        return self.get_object_create_packet(is_self)
 
     def set_current_selection(self, guid):
         self.current_selection = guid

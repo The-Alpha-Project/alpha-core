@@ -297,7 +297,7 @@ class ItemManager(ObjectManager):
             if self.is_container() and isinstance(self, ContainerManager):
                 self.build_container_update_packet()
 
-            return self.create_update_packet(self.update_packet_factory, is_self)
+            return self.get_object_create_packet(is_self)
 
     def set_binding(self, bind=True):
         if bind:

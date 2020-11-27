@@ -113,7 +113,7 @@ class GameObjectManager(ObjectManager):
             self.set_float(GameObjectFields.GAMEOBJECT_POS_Z, self.location.z)
             self.set_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
 
-            return self.create_update_packet(self.update_packet_factory, is_self)
+            return self.get_object_create_packet(is_self)
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.gobject_template.name)
