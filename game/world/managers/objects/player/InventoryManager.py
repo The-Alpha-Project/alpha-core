@@ -240,7 +240,10 @@ class InventoryManager(object):
 
         if self.is_equipment_pos(dest_bag_slot, dest_slot):
             self.owner.flagged_for_update = True
-        self.owner.send_update_self()
+        else:
+            self.owner.send_update_self()
+            self.owner.reset_fields()
+
         return True
 
     def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):
@@ -396,7 +399,9 @@ class InventoryManager(object):
 
             if self.is_equipment_pos(source_bag, source_slot) or self.is_equipment_pos(dest_bag, dest_slot):
                 self.owner.flagged_for_update = True
-            self.owner.send_update_self()
+            else:
+                self.owner.send_update_self()
+                self.owner.reset_fields()
 
     def set_base_attack_time(self):
         if InventorySlots.SLOT_MAINHAND in self.get_backpack().sorted_slots:

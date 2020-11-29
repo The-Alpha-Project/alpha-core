@@ -32,7 +32,8 @@ class DestroyItemHandler(object):
 
                     if world_session.player_mgr.inventory.is_equipment_pos(bag, source_slot):
                         world_session.player_mgr.flagged_for_update = True
-                    world_session.player_mgr.send_update_self()
-                    world_session.player_mgr.reset_fields()
+                    else:
+                        world_session.player_mgr.send_update_self()
+                        world_session.player_mgr.reset_fields()
 
         return 0
