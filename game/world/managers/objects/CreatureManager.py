@@ -114,7 +114,7 @@ class CreatureManager(UnitManager):
     def get_full_update_packet(self, is_self=True):
         self.preload_model_info()
 
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, 0, 0))[0]
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, 0, self.sheath_state))[0]
         self.damage = int(self.creature_template.dmg_max)  # temp
 
         # Object fields
@@ -163,6 +163,15 @@ class CreatureManager(UnitManager):
             self.creature_template.beast_family
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
+
+    # override
+    def set_weapon_mode(self, weapon_mode):
+        super().set_weapon_mode(weapon_mode)
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form,
+                                         self.sheath_state))[0]
+
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+        self.flagged_for_update = True
 
     # override
     def set_stand_state(self, stand_state):

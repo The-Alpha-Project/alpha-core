@@ -37,7 +37,6 @@ class PlayerManager(UnitManager):
                  dodge_percentage=0,
                  parry_percentage=0,
                  base_mana=0,
-                 sheath_state=0,
                  combo_points=0,
                  chat_flags=0,
                  is_online=False,
@@ -62,7 +61,6 @@ class PlayerManager(UnitManager):
         self.dodge_percentage = dodge_percentage
         self.parry_percentage = parry_percentage
         self.base_mana = base_mana
-        self.sheath_state = sheath_state
         self.combo_points = combo_points
         self.current_target = current_target
         self.current_selection = current_selection
@@ -333,18 +331,6 @@ class PlayerManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
             self.flagged_for_update = True
 
-    def set_weapon_mode(self, weapon_mode):
-        # TODO: Not working
-        if weapon_mode == 0:
-            self.unit_flags |= UnitFlags.UNIT_FLAG_SHEATHE
-        elif weapon_mode == 1:
-            self.unit_flags &= ~UnitFlags.UNIT_FLAG_SHEATHE
-        elif weapon_mode == 2:
-            self.unit_flags &= ~UnitFlags.UNIT_FLAG_SHEATHE
-
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-        self.flagged_for_update = True
-
     def demorph(self):
         self.set_display_id(self.get_native_display_id(self.player.gender == 0))
 
@@ -512,6 +498,14 @@ class PlayerManager(UnitManager):
     def set_current_target(self, guid):
         self.current_target = guid
         self.set_uint64(UnitFields.UNIT_FIELD_TARGET, guid)
+
+    # override
+    def set_weapon_mode(self, weapon_mode):
+        super().set_weapon_mode(weapon_mode)
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
+
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+        self.flagged_for_update = True
 
     # override
     def set_stand_state(self, stand_state):

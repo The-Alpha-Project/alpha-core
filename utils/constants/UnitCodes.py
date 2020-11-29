@@ -82,10 +82,11 @@ class StandState(IntEnum):
     UNIT_NUMCHAIRSTATES = 0x3
 
 
-class SheathState(IntEnum):
-    SHEATH_STATE_UNARMED = 0
-    SHEATH_STATE_MELEE = 1
-    SHEATH_STATE_RANGED = 2
+class WeaponMode(IntEnum):
+    NORMALMODE = 0x0
+    SHEATHEDMODE = 0x1
+    RANGEDMODE = 0x2
+    NUMMODES = 0x3
 
 
 # This is from 1.12, might be wrong

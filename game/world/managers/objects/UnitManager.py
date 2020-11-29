@@ -1,4 +1,4 @@
-from struct import pack
+from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.GridManager import GridManager
@@ -6,7 +6,7 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes
-from utils.constants.UnitCodes import UnitFlags, StandState
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -63,6 +63,7 @@ class UnitManager(ObjectManager):
                  resistance_4=0,
                  resistance_5=0,
                  stand_state=0,
+                 sheathe_state=WeaponMode.SHEATHEDMODE,
                  bytes_1=0,  # stand state, shapeshift form, sheathstate
                  mod_cast_speed=1,
                  dynamic_flags=0,
@@ -124,6 +125,7 @@ class UnitManager(ObjectManager):
         self.resistance_4 = resistance_4
         self.resistance_5 = resistance_5
         self.stand_state = stand_state
+        self.sheath_state = sheathe_state
         self.bytes_1 = bytes_1  # stand state, shapeshift form, sheathstate
         self.mod_cast_speed = mod_cast_speed
         self.dynamic_flags = dynamic_flags
@@ -148,6 +150,18 @@ class UnitManager(ObjectManager):
             health = 0
         self.health = health
         self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, health)
+
+    def set_weapon_mode(self, weapon_mode):
+        self.sheath_state = weapon_mode
+
+        # TODO: Implement temp enchants updates.
+        if WeaponMode.NORMALMODE:
+            # Update main hand temp enchants
+            # Update off hand temp enchants
+            pass
+        elif WeaponMode.RANGEDMODE:
+            # Update ranged temp enchants
+            pass
 
     def set_stand_state(self, stand_state):
         self.stand_state = stand_state
