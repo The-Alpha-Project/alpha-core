@@ -13,7 +13,9 @@ class AttackSwingHandler(object):
             enemy_guid = unpack('<Q', reader.data[:8])[0]
             enemy = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, enemy_guid, include_players=True)
 
-            data = pack('<2Q', world_session.player_mgr.guid, enemy_guid)
-            socket.sendall(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTART, data))
+            if enemy:
+                world_session.player_mgr.combat_target = enemy_guid
+                data = pack('<2Q', world_session.player_mgr.guid, enemy_guid)
+                socket.sendall(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTART, data))
 
         return 0
