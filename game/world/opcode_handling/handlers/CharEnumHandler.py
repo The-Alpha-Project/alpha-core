@@ -48,7 +48,7 @@ class CharEnumHandler(object):
             0  # TODO: Handle PetFamily
         )
 
-        for slot in range(0, 19):
+        for slot in range(InventorySlots.SLOT_HEAD, InventorySlots.SLOT_BAG2):
             item = RealmDatabaseManager.character_get_item_by_slot(character.guid, slot)
             display_id = 0
             inventory_type = 0
@@ -62,7 +62,5 @@ class CharEnumHandler(object):
                     display_id = 0
                     inventory_type = 0
             char_packet += pack('<IB', display_id, inventory_type)
-
-        char_packet += pack('<IB', 0, 0)  # First bag data
 
         return char_packet
