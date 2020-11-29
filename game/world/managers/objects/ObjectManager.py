@@ -75,7 +75,54 @@ class ObjectManager(object):
         data += pack('<B', self.get_type_id())
 
         # Movement fields
+        data += self._get_movement_fields()
+
+        # Misc fields
         data += pack(
+            '<3IQ',
+            1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
+            1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
+            0,  # TimerId
+            UnitManager.UnitManager(self).combat_target if isinstance(self, UnitManager.UnitManager) else 0, # Victim GUID
+        )
+
+        # Normal update fields
+        data += self._get_fields_update()
+
+        return data
+
+    def get_partial_update_packet(self):
+        # Base structure
+        data = self._get_base_structure(UpdateTypes.PARTIAL)
+
+        # Normal update fields
+        data += self._get_fields_update()
+
+        return data
+
+    def get_movement_update_packet(self):
+        # Base structure
+        data = self._get_base_structure(UpdateTypes.MOVEMENT)
+
+        # Normal update fields
+        data += self._get_movement_fields()
+
+        return data
+
+    def reset_fields(self):
+        # Reset updated fields
+        self.update_packet_factory.reset()
+
+    def _get_base_structure(self, update_type):
+        return pack(
+            '<IBQ',
+            1,  # Number of transactions
+            update_type,
+            self.guid,
+        )
+
+    def _get_movement_fields(self):
+        return pack(
             '<QfffffffffIIffff',
             self.transport_id,
             self.transport.x,
@@ -93,43 +140,6 @@ class ObjectManager(object):
             self.running_speed,
             self.swim_speed,
             self.turn_rate
-        )
-
-        # Misc fields
-        data += pack(
-            '<3IQ',
-            1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
-            1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
-            0,  # TimerId
-            UnitManager.UnitManager(self).combat_target if isinstance(self, UnitManager.UnitManager) else 0, # Victim GUID
-        )
-
-        # Normal update fields
-        data += self._get_fields_update()
-
-        # Reset updated fields
-        self.update_packet_factory.reset()
-
-        return data
-
-    def get_partial_update_packet(self):
-        # Base structure
-        data = self._get_base_structure(UpdateTypes.PARTIAL)
-
-        # Normal update fields
-        data += self._get_fields_update()
-
-        # Reset updated fields
-        self.update_packet_factory.reset()
-
-        return data
-
-    def _get_base_structure(self, update_type):
-        return pack(
-            '<IBQ',
-            1,  # Number of transactions
-            update_type,
-            self.guid,
         )
 
     def _get_fields_update(self):

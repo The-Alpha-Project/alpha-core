@@ -47,17 +47,17 @@ class TextEmoteHandler(object):
                 if emote_text_id == Emotes.SIT:
                     if not world_session.player_mgr.is_sitting:
                         state = StandState.UNIT_SITTING
-                        world_session.player_mgr.stand_state = state
+                        world_session.player_mgr.set_stand_state(state)
                 elif emote_text_id == Emotes.STAND:
-                    world_session.player_mgr.stand_state = state
+                    world_session.player_mgr.set_stand_state(state)
                 elif emote_text_id == Emotes.SLEEP:
                     if world_session.player_mgr.stand_state != StandState.UNIT_SLEEPING:
                         state = StandState.UNIT_SLEEPING
-                    world_session.player_mgr.stand_state = state
+                    world_session.player_mgr.set_stand_state(state)
                 elif emote_text_id == Emotes.KNEEL:
                     if world_session.player_mgr.stand_state != StandState.UNIT_KNEEL:
                         state = StandState.UNIT_KNEEL
-                    world_session.player_mgr.stand_state = state
+                    world_session.player_mgr.set_stand_state(state)
                 else:
                     needs_broadcast = False
                     world_session.player_mgr.play_emote(emote_id)

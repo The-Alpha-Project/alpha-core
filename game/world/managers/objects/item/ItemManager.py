@@ -153,7 +153,7 @@ class ItemManager(ObjectManager):
         item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
         if item_template:
             if item_template.inventory_type == 24:  # Ammo
-                count = 200
+                count = 100
                 bag = 19
                 slot = 0
             else:
@@ -304,6 +304,7 @@ class ItemManager(ObjectManager):
             self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNK16
         else:
             self.item_instance.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_UNK16
+        self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self.item_instance.item_flags)
 
     # override
     def get_type(self):

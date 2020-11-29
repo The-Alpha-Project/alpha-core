@@ -2,6 +2,7 @@ import time
 
 from struct import unpack
 
+from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import *
 from database.realm.RealmDatabaseManager import *
 from database.dbc.DbcDatabaseManager import *
@@ -9,6 +10,7 @@ from utils.Logger import Logger
 from game.world.managers.objects.player.PlayerManager import PlayerManager
 from utils.ConfigManager import config
 from game.world.managers.ChatManager import ChatManager
+from utils.constants.ObjectCodes import UpdateTypes
 
 
 class PlayerLoginHandler(object):
@@ -45,7 +47,8 @@ class PlayerLoginHandler(object):
         ChatManager.send_system_message(world_session, config.Server.General.motd)
 
         world_session.player_mgr.inventory.load_items()
-        world_session.player_mgr.send_update_self()
+        world_session.player_mgr.send_update_self(create=True)
+        world_session.player_mgr.reset_fields()
 
         PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
         world_session.player_mgr.complete_login()

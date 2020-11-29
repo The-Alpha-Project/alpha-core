@@ -11,8 +11,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError
 from utils.constants.ObjectCodes import BankSlots, ItemBondingTypes
-from utils.constants.UpdateFields import PlayerFields
-
+from utils.constants.UpdateFields import PlayerFields, ContainerFields
 
 MAX_3368_ITEM_DISPLAY_ID = 11802
 
@@ -126,6 +125,7 @@ class InventoryManager(object):
                 self.send_item_receive_message(self.owner.guid, item_template.entry,
                                                target_bag_slot, from_npc, send_message)
             self.owner.send_update_self()
+            self.owner.reset_fields()
         return items_added
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
@@ -186,6 +186,7 @@ class InventoryManager(object):
                 self.add_item(item_template=item_template, count=remaining)  # Overflow to inventory
             else:
                 self.owner.send_update_self()  # Update if container is modified self.add_item isn't called
+                self.owner.reset_fields()
             return
 
         # Check backpack / paperdoll placement
@@ -211,6 +212,7 @@ class InventoryManager(object):
                         self.add_item(item_template=item_template, count=count-diff, handle_error=False)
 
                     self.owner.send_update_self()
+                    self.owner.reset_fields()
                     RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
                     return True
                 else:
@@ -238,8 +240,7 @@ class InventoryManager(object):
 
         if self.is_equipment_pos(dest_bag_slot, dest_slot):
             self.owner.flagged_for_update = True
-        else:
-            self.owner.send_update_self()
+        self.owner.send_update_self()
         return True
 
     def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):
@@ -325,6 +326,8 @@ class InventoryManager(object):
                     # Destroy source stack
                     dest_item.item_instance.stackcount += source_item.item_instance.stackcount
                     if self.containers[source_bag]:
+                        self.mark_as_removed(source_item)
+                        self.send_destroy_packet(source_slot, self.containers[source_bag].sorted_slots)
                         self.containers[source_bag].remove_item_in_slot(source_slot)
                         RealmDatabaseManager.character_inventory_delete(source_item.item_instance)
                 else:
@@ -334,25 +337,30 @@ class InventoryManager(object):
                     RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
 
                 self.owner.send_update_self()
+                self.owner.reset_fields()
                 RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
                 return
 
             if dest_item and dest_item.is_backpack and self.is_bag_pos(dest_slot):  # Swapping item to bag bar
                 if dest_item.is_empty():
+                    self.mark_as_removed(dest_item)
                     self.remove_bag(dest_slot)
                 else:
                     self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
                     return
 
             if self.is_bag_pos(source_slot):
+                self.mark_as_removed(source_item)
                 self.remove_bag(source_slot)
 
             # Actual transfer
 
             # Remove items
             if self.containers[source_bag]:
+                self.mark_as_removed(source_item)
                 self.containers[source_bag].remove_item_in_slot(source_slot)
             if self.containers[dest_bag]:
+                self.mark_as_removed(dest_item)
                 self.containers[dest_bag].remove_item_in_slot(dest_slot)
 
             # Bag transfers
@@ -388,8 +396,7 @@ class InventoryManager(object):
 
             if self.is_equipment_pos(source_bag, source_slot) or self.is_equipment_pos(dest_bag, dest_slot):
                 self.owner.flagged_for_update = True
-            else:
-                self.owner.send_update_self()
+            self.owner.send_update_self()
 
     def set_base_attack_time(self):
         if InventorySlots.SLOT_MAINHAND in self.get_backpack().sorted_slots:
@@ -443,10 +450,14 @@ class InventoryManager(object):
             return False
 
         if slot in self.get_backpack().sorted_slots:
+            self.send_destroy_packet(slot, self.get_backpack().sorted_slots)
             self.get_backpack().sorted_slots.pop(slot)
         self.containers[slot] = None
 
         return True
+
+    def send_destroy_packet(self, slot, slot_list):
+        self.owner.session.request.sendall(slot_list[slot].get_destroy_packet())
 
     def can_store_item(self, item_template, count, on_bank=False):
         amount = count
@@ -579,6 +590,13 @@ class InventoryManager(object):
             guid, from_npc, show_in_chat, bag_slot, item_entry
         )
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_ITEM_PUSH_RESULT, data))
+
+    def mark_as_removed(self, item):
+        if item:
+            if item.item_instance.bag == InventorySlots.SLOT_INBACKPACK:
+                self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, 0)
+            #else:
+                #self.owner.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + item.current_slot * 2, 0)
 
     def build_update(self):
         for slot, item in self.get_backpack().sorted_slots.items():

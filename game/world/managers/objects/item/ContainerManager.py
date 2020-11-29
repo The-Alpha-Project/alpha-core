@@ -1,4 +1,5 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.update.UpdatePacketFactory import ContainerFields
 from utils.constants.ItemCodes import InventorySlots, ItemClasses, ItemSubClasses, BagFamilies
@@ -41,7 +42,7 @@ class ContainerManager(ItemManager):
             item_instance=item_manager.item_instance
         )
 
-    def build_container_update_packet(self,):
+    def build_container_update_packet(self):
         self.set_uint32(ContainerFields.CONTAINER_FIELD_NUM_SLOTS, self.item_template.container_slots)
 
         for x in range(0, MAX_BAG_SLOTS):

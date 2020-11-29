@@ -11,7 +11,7 @@ from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid, UpdateTypes
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
@@ -48,7 +48,6 @@ class PlayerManager(UnitManager):
         super().__init__(**kwargs)
 
         self.session = session
-        self.flagged_for_update = False
         self.is_teleporting = False
         self.objects_in_range = dict()
 
@@ -170,7 +169,9 @@ class PlayerManager(UnitManager):
 
     def complete_login(self):
         self.is_online = True
+
         GridManager.update_object(self)
+        self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
 
     def logout(self):
         self.session.save_character()
@@ -209,10 +210,7 @@ class PlayerManager(UnitManager):
             )
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
-    def update_surrounding(self):
-        self.send_update_surrounding()
-        GridManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
-
+    def update_surrounding_on_me(self):
         players, creatures, gobjects = GridManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER,
                                                                                   ObjectTypes.TYPE_UNIT,
                                                                                   ObjectTypes.TYPE_GAMEOBJECT])
@@ -220,13 +218,10 @@ class PlayerManager(UnitManager):
         for guid, player in players.items():
             if self.guid != guid:
                 if guid not in self.objects_in_range:
-                    update_packet = UpdatePacketFactory.compress_if_needed(
-                        PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                player.get_full_update_packet(is_self=False)))
+                    update_packet = player.generate_proper_update_packet(create=True)
                     self.session.request.sendall(update_packet)
                     self.session.request.sendall(NameQueryHandler.get_query_details(player.player))
                 self.objects_in_range[guid] = {'object': player, 'near': True}
-
 
         for guid, creature in creatures.items():
             if guid not in self.objects_in_range:
@@ -296,7 +291,7 @@ class PlayerManager(UnitManager):
                 0,  # ?
                 0  # MovementFlags
             )
-            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_MOVE_WORLDPORT_ACK, data))
+            self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
         # Loading screen
         else:
             data = pack('<I', map_)
@@ -326,12 +321,16 @@ class PlayerManager(UnitManager):
                 DbcDatabaseManager.creature_display_info_get_by_id(mount_display_id):
             self.mount_display_id = mount_display_id
             self.unit_flags |= UnitFlags.UNIT_FLAG_MOUNTED
+            self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
+            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
             self.flagged_for_update = True
 
     def unmount(self):
         if self.mount_display_id > 0:
             self.mount_display_id = 0
             self.unit_flags &= ~UnitFlags.UNIT_FLAG_MOUNTED
+            self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
+            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
             self.flagged_for_update = True
 
     def set_weapon_mode(self, weapon_mode):
@@ -343,16 +342,11 @@ class PlayerManager(UnitManager):
         elif weapon_mode == 2:
             self.unit_flags &= ~UnitFlags.UNIT_FLAG_SHEATHE
 
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
         self.flagged_for_update = True
 
-    def morph(self, display_id):
-        if display_id > 0 and \
-                DbcDatabaseManager.creature_display_info_get_by_id(display_id):
-            self.display_id = display_id
-            self.flagged_for_update = True
-
     def demorph(self):
-        self.morph(self.get_native_display_id(self.player.gender == 0))
+        self.set_display_id(self.get_native_display_id(self.player.gender == 0))
 
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
@@ -397,13 +391,17 @@ class PlayerManager(UnitManager):
                 data = pack('<I', level)
                 # TODO: Finish implementing SMSG_LEVELUP_INFO packet
                 self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
+
+                self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
                 self.flagged_for_update = True
 
-    def mod_money(self, amount):
+    def mod_money(self, amount, reload_items=False):
         if self.coinage + amount < 0:
             amount = -self.coinage
         self.coinage += amount
-        self.send_update_self()
+        self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
+
+        self.send_update_self(self.generate_proper_update_packet(is_self=True), include_items=reload_items)
 
     def load_skills(self):
         for skill in WorldDatabaseManager.player_create_skill_get(self.player.race,
@@ -516,6 +514,12 @@ class PlayerManager(UnitManager):
         self.set_uint64(UnitFields.UNIT_FIELD_TARGET, guid)
 
     # override
+    def set_stand_state(self, stand_state):
+        super().set_stand_state(stand_state)
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+
+    # override
     def update(self):
         now = time.time()
 
@@ -527,21 +531,36 @@ class PlayerManager(UnitManager):
 
         if self.flagged_for_update:
             self.send_update_self()
-            self.send_update_surrounding()
+            self.send_update_surrounding(self.generate_proper_update_packet())
             GridManager.update_object(self)
+            self.reset_fields()
 
             self.flagged_for_update = False
 
-    def send_update_self(self, is_self=True):
-        self.session.request.sendall(UpdatePacketFactory.compress_if_needed(
-            PacketWriter.get_packet(
-                OpCode.SMSG_UPDATE_OBJECT,
-                self.get_full_update_packet(is_self=is_self))))
-
-    def send_update_surrounding(self, is_self=False, include_self=False):
+    def generate_proper_update_packet(self, is_self=False, create=False):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, self.get_full_update_packet(is_self=is_self)))
+            OpCode.SMSG_UPDATE_OBJECT,
+            self.get_full_update_packet(is_self=is_self) if create else self.get_partial_update_packet()))
+        return update_packet
+
+    def send_update_self(self, update_packet=None, create=False, include_items=True):
+        if not create and include_items:
+            self.inventory.send_inventory_update(self.session, is_self=True)
+            self.inventory.build_update()
+
+        if not update_packet:
+            update_packet = self.generate_proper_update_packet(is_self=True, create=create)
+
+        self.session.request.sendall(update_packet)
+
+    def send_update_surrounding(self, update_packet, include_self=False, create=False):
+        if not create:
+            self.inventory.send_inventory_update(self.session, is_self=False)
+            self.inventory.build_update()
+
         GridManager.send_surrounding(update_packet, self, include_self=include_self)
+        if create:
+            GridManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
 
     def teleport_deathbind(self):
         self.teleport(self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,
@@ -565,9 +584,9 @@ class PlayerManager(UnitManager):
         super().respawn()
 
         # TODO: Don't do this until stat system is finished
-        # self.health = int(self.max_health / 2)
+        # self.set_health(int(self.max_health / 2))
         # temp:
-        self.health = 100
+        self.set_health(100)
         if force_update:
             self.flagged_for_update = True
 

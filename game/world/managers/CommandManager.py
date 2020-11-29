@@ -266,7 +266,7 @@ class CommandManager(object):
         try:
             display_id = int(args)
             player_mgr = CommandManager._target_or_self(world_session)
-            player_mgr.morph(display_id)
+            player_mgr.set_display_id(display_id)
             return 0, ''
         except ValueError:
             return -1, 'please specify a valid display id.'

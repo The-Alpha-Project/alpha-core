@@ -165,6 +165,12 @@ class CreatureManager(UnitManager):
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
 
     # override
+    def set_stand_state(self, stand_state):
+        super().set_stand_state(stand_state)
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, 0, 0))[0]
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+
+    # override
     def get_type(self):
         return ObjectTypes.TYPE_UNIT
 

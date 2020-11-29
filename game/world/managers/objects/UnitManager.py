@@ -133,6 +133,7 @@ class UnitManager(ObjectManager):
         self.object_type.append(ObjectTypes.TYPE_UNIT)
         self.update_packet_factory.init_values(UnitFields.UNIT_END)
 
+        self.flagged_for_update = False
         self.is_alive = True
         self.is_sitting = False
 
@@ -142,23 +143,46 @@ class UnitManager(ObjectManager):
             GridManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data),
                                                   self, config.World.Chat.ChatRange.emote_range)
 
+    def set_health(self, health):
+        if health < 0:
+            health = 0
+        self.health = health
+        self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, health)
+
+    def set_stand_state(self, stand_state):
+        self.stand_state = stand_state
+
+    def set_display_id(self, display_id):
+        if display_id > 0 and \
+                DbcDatabaseManager.creature_display_info_get_by_id(display_id):
+            self.display_id = display_id
+            self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
+            self.flagged_for_update = True
+
     def die(self, killer=None):
         if not self.is_alive:
             return
 
         self.is_alive = False
-        self.health = 0
+        self.set_health(0)
+        self.set_stand_state(StandState.UNIT_DEAD)
 
         self.unit_flags = UnitFlags.UNIT_FLAG_DEAD
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
         self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_DEAD
-        self.stand_state = StandState.UNIT_DEAD
+        self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
     def respawn(self):
         self.is_alive = True
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
         self.dynamic_flags = UnitDynamicTypes.UNIT_DYNAMIC_NONE
-        self.stand_state = StandState.UNIT_STANDING
+        self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+
+        self.set_stand_state(StandState.UNIT_STANDING)
 
     # override
     def get_type(self):

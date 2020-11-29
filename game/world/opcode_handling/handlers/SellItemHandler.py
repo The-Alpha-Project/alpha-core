@@ -51,8 +51,10 @@ class SellItemHandler(object):
                     item.item_instance.stackcount -= sell_amount
                     RealmDatabaseManager.character_inventory_update_item(item.item_instance)
                 else:
+                    world_session.player_mgr.inventory.mark_as_removed(item)
+                    world_session.player_mgr.session.request.sendall(item.get_destroy_packet())
                     world_session.player_mgr.inventory.containers[container_slot].remove_item_in_slot(slot)
                     RealmDatabaseManager.character_inventory_delete(item.item_instance)
 
-                world_session.player_mgr.mod_money(price * sell_amount)
+                world_session.player_mgr.mod_money(price * sell_amount, reload_items=True)
         return 0

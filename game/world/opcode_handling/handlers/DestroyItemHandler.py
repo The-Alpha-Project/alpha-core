@@ -22,6 +22,9 @@ class DestroyItemHandler(object):
                         InventoryError.BAG_NOT_EMPTY, item)
                 else:
                     RealmDatabaseManager.character_inventory_delete(item.item_instance)
+                    world_session.player_mgr.inventory.mark_as_removed(item)
+                    world_session.player_mgr.session.request.sendall(item.get_destroy_packet())
+
                     if world_session.player_mgr.inventory.is_bag_pos(source_slot):
                         world_session.player_mgr.inventory.remove_bag(source_slot)
                     else:
@@ -29,7 +32,7 @@ class DestroyItemHandler(object):
 
                     if world_session.player_mgr.inventory.is_equipment_pos(bag, source_slot):
                         world_session.player_mgr.flagged_for_update = True
-                    else:
-                        world_session.player_mgr.send_update_self()
+                    world_session.player_mgr.send_update_self()
+                    world_session.player_mgr.reset_fields()
 
         return 0
