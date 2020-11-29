@@ -58,9 +58,6 @@ class CharEnumHandler(object):
                 if item_template:
                     display_id = item_template.display_id
                     inventory_type = item_template.inventory_type
-                else:
-                    display_id = 0
-                    inventory_type = 0
             char_packet += pack('<IB', display_id, inventory_type)
 
         return char_packet
