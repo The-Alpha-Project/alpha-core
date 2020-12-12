@@ -33,6 +33,8 @@ class CreatureManager(UnitManager):
                                                        self.creature_template.display_id4]))
             self.display_id = choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube
             self.max_health = self.creature_template.health_max
+            self.power_1 = self.creature_template.mana_min
+            self.max_power_1 = self.creature_template.mana_max
             self.level = randrange(self.creature_template.level_min, self.creature_template.level_max + 1)
             self.resistance_0 = self.creature_template.armor
             self.resistance_1 = self.creature_template.holy_res
@@ -128,6 +130,9 @@ class CreatureManager(UnitManager):
         self.set_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
         self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
         self.set_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER1, self.power_1)
+        self.set_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)
+        self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, self.max_power_1)
         self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
