@@ -87,7 +87,7 @@ begin not atomic
         /* Captain Quirk */
         replace into spawns_creatures (spawn_entry1, map, display_id, position_x, position_y, position_z, orientation) values
         (4497, 1, 1740, -3975.79516601563, -4749.50439453125, 10.2699127197266, 1.20427715778351);
-        update creature_template set health_min = 100, health_max = 100, mana_min = 340, mana_max = 340, level_min = 60, level_max = 60, faction = 12, unit_flags = 4608, npc_flags = 2, base_attack_time = 2000, ranged_attack_time = 2000 where entry = 3896;
+        update creature_template set health_min = 100, health_max = 100, mana_min = 340, mana_max = 340, level_min = 60, level_max = 60, faction = 12, unit_flags = 4608, npc_flags = 2, base_attack_time = 2000, ranged_attack_time = 2000 where entry = 4497;
 
         insert into applied_updates values ('121220201');
     end if;
