@@ -77,5 +77,20 @@ begin not atomic
         insert into applied_updates values ('231120202');
     end if;
 
+    -- 12/12/2020 1
+    if (select count(*) from applied_updates where id='121220201') = 0 then
+        /* Captain Placeholder */
+        replace into spawns_creatures (spawn_entry1, map, display_id, position_x, position_y, position_z, orientation) values
+        (3896, 0, 1466, -3764.68530273438, -705.55419921875, 8.03029537200928, 0.13962633907795);
+        update creature_template set health_min = 100, health_max = 100, mana_min = 204, mana_max = 204, level_min = 40, level_max = 40, faction = 12, unit_flags = 4608, npc_flags = 2, base_attack_time = 2000, ranged_attack_time = 2000 where entry = 3896;
+
+        /* Captain Quirk */
+        replace into spawns_creatures (spawn_entry1, map, display_id, position_x, position_y, position_z, orientation) values
+        (4497, 1, 1740, -3975.79516601563, -4749.50439453125, 10.2699127197266, 1.20427715778351);
+        update creature_template set health_min = 100, health_max = 100, mana_min = 340, mana_max = 340, level_min = 60, level_max = 60, faction = 12, unit_flags = 4608, npc_flags = 2, base_attack_time = 2000, ranged_attack_time = 2000 where entry = 3896;
+
+        insert into applied_updates values ('121220201');
+    end if;
+
 end $
 delimiter ;
