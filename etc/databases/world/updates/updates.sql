@@ -94,7 +94,7 @@ begin not atomic
 
     -- 18/01/2021 1
     if (select count(*) from applied_updates where id='180120211') = 0 then
-        update creature_template set name = 'Marrek Stromnur', display_id1 = 3403 where entry = 944;
+        update creature_template set name = 'Marrek Stromnur', display_id1 = 3403, faction = 53 where entry = 944;
         update quest_template set Details = 'Long ago high elves taught us the secrets of magic along with our human allies. They preached to us about rules and how magic can make ya go mad! But don''t believe it. We''re not like the elves; we don''t have the same weaknesses. Just keep yourself on the right path and you''ll find magic is as powerful a tool as it is a weapon.$B$BWhen you''re ready, come find me inside Anvilmar. I''ll be waiting for ya!$B$B- Marrek Stromnur, Mage Trainer', Objectives = 'Speak to Marrek Stromnur inside Anvilmar.' where entry = 3111;
 
         insert into applied_updates values ('180120211');
