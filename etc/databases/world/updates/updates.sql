@@ -100,5 +100,12 @@ begin not atomic
         insert into applied_updates values ('180120211');
     end if;
 
+    -- 21/01/2021 1
+    if (select count(*) from applied_updates where id='210120211') = 0 then
+        update item_template set name = 'Crownroyal', sell_price = 5, buy_price = 20 where entry = 3356;
+
+        insert into applied_updates values ('210120211');
+    end if;
+
 end $
 delimiter ;
