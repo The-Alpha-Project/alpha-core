@@ -103,6 +103,7 @@ begin not atomic
     -- 21/01/2021 1
     if (select count(*) from applied_updates where id='210120211') = 0 then
         update item_template set name = 'Crownroyal', sell_price = 5, buy_price = 20 where entry = 3356;
+        update gameobject_template set name = 'Crownroyal' where entry = 1624;
 
         insert into applied_updates values ('210120211');
     end if;
