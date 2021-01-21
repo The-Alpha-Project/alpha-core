@@ -105,6 +105,9 @@ begin not atomic
         update item_template set name = 'Crownroyal', sell_price = 5, buy_price = 20 where entry = 3356;
         update gameobject_template set name = 'Crownroyal' where entry = 1624;
 
+        update item_template set name = 'Thornroot' where entry = 2450;
+        update gameobject_template set name = 'Thornroot' where entry in (1621, 3729);
+
         insert into applied_updates values ('210120211');
     end if;
 
