@@ -215,8 +215,7 @@ class PlayerManager(UnitManager):
 
         # At this point, all objects aren't near unless proven otherwise
         for guid, object_info in list(self.objects_in_range.items()):
-            if object_info['near']:
-                self.objects_in_range[guid]['near'] = False
+            self.objects_in_range[guid]['near'] = False
 
         for guid, player in players.items():
             if self.guid != guid:
