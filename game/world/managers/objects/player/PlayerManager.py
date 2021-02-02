@@ -267,6 +267,7 @@ class PlayerManager(UnitManager):
             self.player.power4 = self.power_4
             self.player.money = self.coinage
 
+    # TODO: teleport system needs a complete rework
     def teleport(self, map_, location):
         if not DbcDatabaseManager.map_get_by_id(map_):
             return False
