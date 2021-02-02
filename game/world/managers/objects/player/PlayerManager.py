@@ -213,6 +213,11 @@ class PlayerManager(UnitManager):
                                                                                   ObjectTypes.TYPE_UNIT,
                                                                                   ObjectTypes.TYPE_GAMEOBJECT])
 
+        # At this point, all objects aren't near unless proven otherwise
+        for guid, object_info in list(self.objects_in_range.items()):
+            if object_info['near']:
+                self.objects_in_range[guid]['near'] = False
+
         for guid, player in players.items():
             if self.guid != guid:
                 if guid not in self.objects_in_range:
@@ -243,8 +248,6 @@ class PlayerManager(UnitManager):
             if not object_info['near']:
                 self.session.request.sendall(self.objects_in_range[guid]['object'].get_destroy_packet())
                 del self.objects_in_range[guid]
-            else:
-                self.objects_in_range[guid]['near'] = False
 
     def sync_player(self):
         if self.player and self.player.guid == self.guid:
