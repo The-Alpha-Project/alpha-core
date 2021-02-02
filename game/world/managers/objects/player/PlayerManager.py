@@ -273,6 +273,8 @@ class PlayerManager(UnitManager):
 
         self.is_teleporting = True
 
+        for guid, player in list(GridManager.get_surrounding_players(self).items()):
+            player.update_surrounding_on_me()
         GridManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
 
         # Same map and not inside instance
