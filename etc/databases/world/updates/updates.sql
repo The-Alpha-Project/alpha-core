@@ -321,5 +321,15 @@ begin not atomic
         insert into applied_updates values ('280120212');
     end if;
 
+    -- 03/02/2021 1
+    if (select count(*) from applied_updates where id='030220211') = 0 then
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2289, 3325, 0, -8950.014648, -136.859863, 82.587296, 0.396619);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2293, 3319, 0, -9515.988281, 78.705948, 59.543125, 5.976862);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2290, 3334, 0, -9148.325195, 417.980560, 93.780632, 5.200356);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2292, 3256, 0, -10589, 1032.526489, 32.552288, 3.956455);
+
+        insert into applied_updates values ('030220211');
+    end if;
+
 end $
 delimiter ;
