@@ -349,5 +349,12 @@ begin not atomic
         insert into applied_updates values ('030220212');
     end if;
 
+    -- 03/02/2021 3
+    if (select count(*) from applied_updates where id='030220213') = 0 then
+        update spawns_creatures set position_x = -481.16, position_y = -2667.08, position_z = 99 where spawn_entry1 = 3302;
+
+        insert into applied_updates values ('030220213');
+    end if;
+
 end $
 delimiter ;
