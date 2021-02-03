@@ -331,5 +331,23 @@ begin not atomic
         insert into applied_updates values ('030220211');
     end if;
 
+    -- 03/02/2021 2
+    if (select count(*) from applied_updates where id='030220212') = 0 then
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2296, 3571, 0, -5688.386230, -514.830627, 396.283020, 2.909113);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2297, 3573, 0, -5052.896484, -815.989197, 495.421204, 1.216570);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2294, 3350, 0, -9277.475586, -2309.966309, 68.620857, 1.780469);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2295, 3390, 0, -6164.099609, 331.489502, 400.070343, 2.302781);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2813, 3968, 1, 278.291321, -4757.054688, 11.816510, 1.238590);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (3146, 1867, 0, -12362.568359, 153.959366, 4.174735, 2.900458);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (3302, 3889, 1, -480.904633, -2668.405518, 97.328857, 0.701327);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (3303, 3893, 1, -1259.598022, 68.022423, 126.686821, 1.840124);
+
+        update spawns_creatures set position_x = -441.257202, position_y = -2645.139648, position_z = 96.100334, orientation = 3.244415 where spawn_entry1 = 3338;
+
+        update creature_template set display_id1 = 463 where entry = 345;
+
+        insert into applied_updates values ('030220212');
+    end if;
+
 end $
 delimiter ;
