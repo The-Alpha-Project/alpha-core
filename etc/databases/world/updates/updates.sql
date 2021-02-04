@@ -367,7 +367,8 @@ begin not atomic
         update creature_template set name = 'Renee Samson', subname = 'Food & Drink', display_id1 = 4158 where entry = 5688;
         update creature_template set subname = 'Alchemy & Herb Supplier' where entry = 3548;
         update creature_template set subname = 'Apprentice Alchemist' where entry = 2132;
-        update spawns_creatures set spawn_entry1 = 5689, display_id = 235 where spawn_entry1 = 12342;
+        update spawns_creatures set spawn_entry1 = 5689, display_id = 235 where spawn_entry1 = 12342;' ||
+        update creature_template set faction = 35 where entry = 5689;
         update creature_template set display_id1 = 2483 where entry = 1931;
         update creature_template set display_id1 = 1598 where entry = 2211;
 
