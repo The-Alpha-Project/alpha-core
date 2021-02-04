@@ -355,6 +355,21 @@ begin not atomic
 
         insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2815, 3949, 0, -3754.837402, -760.784485, 9.363739, 2.382909);
         insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2291, 3387, 0, -10568.627930, -1147.188721, 26.591518, 5.271600);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2301, 1586, 0, 1875.046143, 1601.351318, 93.047035, 4.418973);
+
+        update creature_template set subname = 'Binder' where subname = 'Spirit Healer';
+        update creature_template set name = 'Lyranne May', subname = 'Binder', flags_extra = 0, npc_flags = 16, faction = 35, display_id1 = 4174 where entry = 2303;
+        delete from npc_vendor where entry = 2303;
+        update spawns_creatures set position_x = 2244.069092, position_y = 282.987366, position_z = 34.764145, orientation = 5.644951 where spawn_entry1 = 2303;
+
+        update spawns_creatures set ignored = 1 where spawn_entry1 in (8307, 8306, 6785);
+
+        update creature_template set name = 'Renee Samson', subname = 'Food & Drink', display_id1 = 4158 where entry = 5688;
+        update creature_template set subname = 'Alchemy & Herb Supplier' where entry = 3548;
+        update creature_template set subname = 'Apprentice Alchemist' where entry = 2132;
+        update spawns_creatures set spawn_entry1 = 5689, display_id = 235 where spawn_entry1 = 12342;
+        update creature_template set display_id1 = 2483 where entry = 1931;
+        update creature_template set display_id1 = 1598 where entry = 2211;
 
         insert into applied_updates values ('030220213');
     end if;
