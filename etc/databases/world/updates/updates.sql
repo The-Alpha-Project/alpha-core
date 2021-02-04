@@ -369,7 +369,7 @@ begin not atomic
         update creature_template set subname = 'Apprentice Alchemist' where entry = 2132;
         update spawns_creatures set spawn_entry1 = 5689, display_id = 235 where spawn_entry1 = 12342;
         update creature_template set faction = 35 where entry = 5689;
-        update creature_template set display_id1 = 2483 where entry = 1931;
+        update creature_template set display_id1 = 2472 where entry = 1931;
         update creature_template set display_id1 = 1598, display_id2 = 0, display_id3 = 0, display_id4 = 0 where entry = 2211;
 
         insert into applied_updates values ('030220213');
