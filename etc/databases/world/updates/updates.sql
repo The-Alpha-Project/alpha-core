@@ -353,6 +353,9 @@ begin not atomic
     if (select count(*) from applied_updates where id='030220213') = 0 then
         update spawns_creatures set position_x = -481.16, position_y = -2667.08, position_z = 99 where spawn_entry1 = 3302;
 
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2815, 3949, 0, -3754.837402, -760.784485, 9.363739, 2.382909);
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2291, 3387, 0, -10568.627930, -1147.188721, 26.591518, 5.271600);
+
         insert into applied_updates values ('030220213');
     end if;
 
