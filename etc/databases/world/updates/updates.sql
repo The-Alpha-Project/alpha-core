@@ -362,7 +362,7 @@ begin not atomic
         delete from npc_vendor where entry = 2303;
         update spawns_creatures set map = 0, position_x = 2244.069092, position_y = 282.987366, position_z = 34.764145, orientation = 5.644951 where spawn_entry1 = 2303;
 
-        update spawns_creatures set ignored = 1 where spawn_entry1 in (8307, 8306, 6785);
+        update spawns_creatures set ignored = 1 where spawn_entry1 in (8307, 8306, 6785, 6289);
 
         update creature_template set name = 'Renee Samson', subname = 'Food & Drink', display_id1 = 4158 where entry = 5688;
         update creature_template set subname = 'Alchemy & Herb Supplier' where entry = 3548;
@@ -373,6 +373,13 @@ begin not atomic
         update creature_template set display_id1 = 1598, display_id2 = 0, display_id3 = 0, display_id4 = 0 where entry = 2211;
 
         insert into applied_updates values ('030220213');
+    end if;
+
+    -- 03/02/2021 4
+    if (select count(*) from applied_updates where id='030220214') = 0 then
+        insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (2300, 1027, 0, 1825.225464, 225.250702, 60.271149, 2.277662);
+
+        insert into applied_updates values ('030220214');
     end if;
 
 end $
