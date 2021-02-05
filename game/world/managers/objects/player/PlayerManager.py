@@ -213,9 +213,9 @@ class PlayerManager(UnitManager):
                                                                                   ObjectTypes.TYPE_UNIT,
                                                                                   ObjectTypes.TYPE_GAMEOBJECT])
 
-        # At this point, all objects aren't near unless proven otherwise
+        # At this point, all objects aren't synced unless proven otherwise
         for guid, object_info in list(self.objects_in_range.items()):
-            self.objects_in_range[guid]['near'] = False
+            self.objects_in_range[guid]['synced'] = False
 
         for guid, player in players.items():
             if self.guid != guid:
@@ -223,7 +223,7 @@ class PlayerManager(UnitManager):
                     update_packet = player.generate_proper_update_packet(create=True)
                     self.session.request.sendall(update_packet)
                     self.session.request.sendall(NameQueryHandler.get_query_details(player.player))
-                self.objects_in_range[guid] = {'object': player, 'near': True}
+                self.objects_in_range[guid] = {'object': player, 'synced': True}
 
         for guid, creature in creatures.items():
             if guid not in self.objects_in_range:
@@ -232,7 +232,7 @@ class PlayerManager(UnitManager):
                                             creature.get_full_update_packet(is_self=False)))
                 self.session.request.sendall(update_packet)
                 self.session.request.sendall(creature.query_details())
-            self.objects_in_range[guid] = {'object': creature, 'near': True}
+            self.objects_in_range[guid] = {'object': creature, 'synced': True}
 
         for guid, gobject in gobjects.items():
             if guid not in self.objects_in_range:
@@ -241,10 +241,10 @@ class PlayerManager(UnitManager):
                                             gobject.get_full_update_packet(is_self=False)))
                 self.session.request.sendall(update_packet)
                 self.session.request.sendall(gobject.query_details())
-            self.objects_in_range[guid] = {'object': gobject, 'near': True}
+            self.objects_in_range[guid] = {'object': gobject, 'synced': True}
 
         for guid, object_info in list(self.objects_in_range.items()):
-            if not object_info['near']:
+            if not object_info['synced']:
                 self.destroy_near_object(guid, skip_check=True)
 
     def destroy_near_object(self, guid, skip_check=False):
