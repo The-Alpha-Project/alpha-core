@@ -399,5 +399,13 @@ begin not atomic
         insert into applied_updates values ('060220211');
     end if;
 
+    -- 04/02/2021 2
+    if (select count(*) from applied_updates where id='060220212') = 0 then
+        update spawns_creatures set ignored = 1 where map not in (0, 1, 2, 13, 17, 25, 29, 30, 33, 34, 35, 36, 37, 42, 43, 44, 47, 48, 109, 70, 90, 129);
+        update spawns_gameobjects set ignored = 1 where spawn_map not in (0, 1, 2, 13, 17, 25, 29, 30, 33, 34, 35, 36, 37, 42, 43, 44, 47, 48, 109, 70, 90, 129);
+
+        insert into applied_updates values ('060220212');
+    end if;
+
 end $
 delimiter ;
