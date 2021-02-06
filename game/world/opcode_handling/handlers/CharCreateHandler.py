@@ -44,7 +44,8 @@ class CharCreateHandler(object):
 
         if result == CharCreate.CHAR_CREATE_SUCCESS:
             map_, zone, x, y, z, o = CharCreateHandler.get_starting_location(race, class_)
-            base_hp, base_mana = CharCreateHandler.get_base_stats(class_, config.Unit.Player.Defaults.starting_level)
+            base_stats = WorldDatabaseManager.player_get_class_level_stats(class_,
+                                                                           config.Unit.Player.Defaults.starting_level)
             character = Character(account_id=world_session.account_mgr.account.id,
                                   name=name,
                                   race=race,
@@ -61,8 +62,8 @@ class CharCreateHandler(object):
                                   position_y=y,
                                   position_z=z,
                                   orientation=o,
-                                  health=base_hp,
-                                  power1=base_mana,
+                                  health=base_stats.basehp,
+                                  power1=base_stats.basemana,
                                   power2=0,
                                   power3=100,
                                   power4=100,
@@ -89,11 +90,6 @@ class CharCreateHandler(object):
     def get_starting_location(race, class_):
         info = WorldDatabaseManager.player_create_info_get(race, class_)
         return info.map, info.zone, info.position_x, info.position_y, info.position_z, info.orientation
-
-    @staticmethod
-    def get_base_stats(class_, level):
-        base_stats = WorldDatabaseManager.player_get_class_level_stats(class_, level)
-        return base_stats.basehp, base_stats.basemana
 
     @staticmethod
     def generate_starting_items(guid, race, class_, gender):

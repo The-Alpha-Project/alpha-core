@@ -11,7 +11,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError
 from utils.constants.ObjectCodes import BankSlots, ItemBondingTypes
-from utils.constants.UpdateFields import PlayerFields, ContainerFields
+from utils.constants.UpdateFields import PlayerFields, ContainerFields, UnitFields
 
 MAX_3368_ITEM_DISPLAY_ID = 11802
 
@@ -239,6 +239,7 @@ class InventoryManager(object):
             self.set_base_attack_time()
 
         if self.is_equipment_pos(dest_bag_slot, dest_slot):
+            self.owner.stat_manager.apply_bonuses()
             self.owner.flagged_for_update = True
         else:
             self.owner.send_update_self()
@@ -398,6 +399,7 @@ class InventoryManager(object):
                 RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
 
             if self.is_equipment_pos(source_bag, source_slot) or self.is_equipment_pos(dest_bag, dest_slot):
+                self.owner.stat_manager.apply_bonuses()
                 self.owner.flagged_for_update = True
             else:
                 self.owner.send_update_self()
@@ -408,8 +410,9 @@ class InventoryManager(object):
             weapon = self.get_backpack().sorted_slots[InventorySlots.SLOT_MAINHAND]
             if weapon:
                 self.owner.base_attack_time = weapon.item_template.delay
-            return
-        self.owner.base_attack_time = config.Unit.Defaults.base_attack_time
+        else:
+            self.owner.base_attack_time = config.Unit.Defaults.base_attack_time
+        self.owner.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.owner.base_attack_time)
 
     def get_item_count(self, entry):
         count = 0

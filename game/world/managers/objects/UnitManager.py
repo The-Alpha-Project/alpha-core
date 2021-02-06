@@ -90,16 +90,16 @@ class UnitManager(ObjectManager):
         self.level = level
         self.faction = faction
         self.bytes_0 = bytes_0  # race, class, gender, power_type
-        self.stat_0 = stat_0
-        self.stat_1 = stat_1
-        self.stat_2 = stat_2
-        self.stat_3 = stat_3
-        self.stat_4 = stat_4
-        self.base_stat_0 = base_stat_0
-        self.base_stat_1 = base_stat_1
-        self.base_stat_2 = base_stat_2
-        self.base_stat_3 = base_stat_3
-        self.base_stat_4 = base_stat_4
+        self.str = stat_0
+        self.agi = stat_1
+        self.sta = stat_2
+        self.int = stat_3
+        self.spi = stat_4
+        self.base_str = base_stat_0
+        self.base_agi = base_stat_1
+        self.base_sta = base_stat_2
+        self.base_int = base_stat_3
+        self.base_spi = base_stat_4
         self.flags = flags
         self.coinage = coinage
         self.combat_reach = combat_reach
@@ -150,6 +150,20 @@ class UnitManager(ObjectManager):
             health = 0
         self.health = health
         self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, health)
+
+    def set_max_health(self, health):
+        self.max_health = health
+        self.set_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, health)
+
+    def set_mana(self, mana):
+        if mana < 0:
+            mana = 0
+        self.power_1 = mana
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER1, mana)
+
+    def set_max_mana(self, mana):
+        self.max_power_1 = mana
+        self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
 
     def set_weapon_mode(self, weapon_mode):
         self.sheath_state = weapon_mode

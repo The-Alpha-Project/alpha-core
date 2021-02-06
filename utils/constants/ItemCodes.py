@@ -214,8 +214,8 @@ class InventorySlots(IntEnum):
 
 
 class InventoryStats(IntEnum):
-    HEALTH = 0
-    POWER = 1  # Mana energy etc
+    MANA = -1
+    HEALTH = 1
     AGILITY = 3
     STRENGTH = 4
     INTELLECT = 5

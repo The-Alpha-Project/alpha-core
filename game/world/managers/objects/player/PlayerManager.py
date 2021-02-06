@@ -6,6 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
+from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TradeManager import TradeManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
@@ -36,6 +37,7 @@ class PlayerManager(UnitManager):
                  block_percentage=0,
                  dodge_percentage=0,
                  parry_percentage=0,
+                 base_hp=0,
                  base_mana=0,
                  combo_points=0,
                  chat_flags=0,
@@ -60,6 +62,7 @@ class PlayerManager(UnitManager):
         self.block_percentage = block_percentage
         self.dodge_percentage = dodge_percentage
         self.parry_percentage = parry_percentage
+        self.base_hp = base_hp
         self.base_mana = base_mana
         self.combo_points = combo_points
         self.current_target = current_target
@@ -116,6 +119,7 @@ class PlayerManager(UnitManager):
             self.next_level_xp = 200
 
             self.guild_manager = GuildManager()
+            self.stat_manager = StatManager(self)
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:
@@ -382,12 +386,24 @@ class PlayerManager(UnitManager):
     def mod_level(self, level):
         if level != self.level:
             if 0 < level <= config.Unit.Player.Defaults.max_level:
-                self.level = level
-                data = pack('<I', level)
-                # TODO: Finish implementing SMSG_LEVELUP_INFO packet
-                self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
+                should_send_info = level > self.level
 
+                self.level = level
                 self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
+
+                self.stat_manager.init_stats()
+                hp_diff, mana_diff = self.stat_manager.apply_bonuses()
+                self.set_health(self.max_health)
+                self.set_mana(self.max_power_1)
+
+                if should_send_info:
+                    data = pack('<3I',
+                                level,
+                                hp_diff,
+                                mana_diff if self.power_type == PowerTypes.TYPE_MANA else 0
+                                )
+                    self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
+
                 self.flagged_for_update = True
 
     def mod_money(self, amount, reload_items=False):
@@ -441,16 +457,16 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT0, self.stat_0)
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT1, self.stat_1)
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT2, self.stat_2)
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT3, self.stat_3)
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT4, self.stat_4)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT0, self.base_stat_0)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT1, self.base_stat_1)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT2, self.base_stat_2)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT3, self.base_stat_3)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT4, self.base_stat_4)
+        self.set_uint32(UnitFields.UNIT_FIELD_STAT0, self.str)
+        self.set_uint32(UnitFields.UNIT_FIELD_STAT1, self.agi)
+        self.set_uint32(UnitFields.UNIT_FIELD_STAT2, self.sta)
+        self.set_uint32(UnitFields.UNIT_FIELD_STAT3, self.int)
+        self.set_uint32(UnitFields.UNIT_FIELD_STAT4, self.spi)
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT0, self.base_str)
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT1, self.base_agi)
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT2, self.base_sta)
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT3, self.base_int)
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT4, self.base_spi)
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
         self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
@@ -507,6 +523,26 @@ class PlayerManager(UnitManager):
     def set_current_target(self, guid):
         self.current_target = guid
         self.set_uint64(UnitFields.UNIT_FIELD_TARGET, guid)
+
+    def set_str(self, str_):
+        self.str = str_
+        self.set_uint32(UnitFields.UNIT_FIELD_STAT0, str_)
+
+    def set_agi(self, agi):
+        self.agi = agi
+        self.set_uint32(UnitFields.UNIT_FIELD_STAT1, agi)
+
+    def set_sta(self, sta):
+        self.sta = sta
+        self.set_uint32(UnitFields.UNIT_FIELD_STAT2, sta)
+
+    def set_int(self, int_):
+        self.int = int_
+        self.set_uint32(UnitFields.UNIT_FIELD_STAT3, int_)
+
+    def set_spi(self, spi):
+        self.spi = spi
+        self.set_uint32(UnitFields.UNIT_FIELD_STAT4, spi)
 
     # override
     def set_weapon_mode(self, weapon_mode):
@@ -586,10 +622,10 @@ class PlayerManager(UnitManager):
     def respawn(self, force_update=True):
         super().respawn()
 
-        # TODO: Don't do this until stat system is finished
-        # self.set_health(int(self.max_health / 2))
-        # temp:
-        self.set_health(100)
+        self.set_health(int(self.max_health / 2))
+        if self.power_type == PowerTypes.TYPE_MANA:
+            self.set_mana(int(self.max_power_1 / 2))
+
         if force_update:
             self.flagged_for_update = True
 

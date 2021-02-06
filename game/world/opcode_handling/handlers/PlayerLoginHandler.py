@@ -47,6 +47,8 @@ class PlayerLoginHandler(object):
         ChatManager.send_system_message(world_session, config.Server.General.motd)
 
         world_session.player_mgr.inventory.load_items()
+        world_session.player_mgr.stat_manager.init_stats()
+        world_session.player_mgr.stat_manager.apply_bonuses()
         world_session.player_mgr.send_update_self(create=True)
         world_session.player_mgr.reset_fields()
 
