@@ -390,5 +390,12 @@ begin not atomic
         insert into applied_updates values ('040220211');
     end if;
 
+    -- 04/02/2021 1
+    if (select count(*) from applied_updates where id='060220211') = 0 then
+        update creature_template set subname = 'Herbalist' where entry = 2390;
+
+        insert into applied_updates values ('060220211');
+    end if;
+
 end $
 delimiter ;
