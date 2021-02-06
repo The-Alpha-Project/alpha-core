@@ -8,11 +8,21 @@ class StatManager(object):
 
         self.itm_hp = 0
         self.itm_mana = 0
+
         self.itm_str = 0
         self.itm_agi = 0
         self.itm_sta = 0
         self.itm_int = 0
         self.itm_spi = 0
+
+        self.itm_armor = 0
+        self.itm_holy = 0
+        self.itm_fire = 0
+        self.itm_nature = 0
+        self.itm_frost = 0
+        self.itm_shadow = 0
+
+        self.itm_block = 0
 
     def init_stats(self):
         base_stats = WorldDatabaseManager.player_get_class_level_stats(self.player_mgr.player.class_,
@@ -41,6 +51,7 @@ class StatManager(object):
 
         hp_diff = self.update_max_health()
         mana_diff = self.update_max_mana()
+        self.update_resistances()
 
         return hp_diff, mana_diff
 
@@ -59,11 +70,21 @@ class StatManager(object):
     def calculate_item_stats(self):
         self.itm_hp = 0
         self.itm_mana = 0
+
         self.itm_str = 0
         self.itm_agi = 0
         self.itm_sta = 0
         self.itm_int = 0
         self.itm_spi = 0
+
+        self.itm_armor = 0
+        self.itm_holy = 0
+        self.itm_fire = 0
+        self.itm_nature = 0
+        self.itm_frost = 0
+        self.itm_shadow = 0
+
+        self.itm_block = 0
 
         for slot, item in list(self.player_mgr.inventory.get_backpack().sorted_slots.items()):
             # Check only equipped items
@@ -84,6 +105,15 @@ class StatManager(object):
                     if stat.stat_type == InventoryStats.STAMINA:
                         self.itm_sta += stat.value
 
+                self.itm_armor += item.item_template.armor
+                self.itm_holy += item.item_template.holy_res
+                self.itm_fire += item.item_template.fire_res
+                self.itm_nature += item.item_template.nature_res
+                self.itm_frost += item.item_template.frost_res
+                self.itm_shadow += item.item_template.shadow_res
+
+                self.itm_block += item.item_template.block
+
     def update_max_health(self):
         total_sta = self.player_mgr.base_sta + self.itm_sta  # + buffs and stuff
         current_hp = self.player_mgr.max_health
@@ -99,3 +129,12 @@ class StatManager(object):
         self.player_mgr.set_max_mana(new_mana)
 
         return new_mana - current_mana
+
+    def update_resistances(self):
+        # TODO Take into account buffs and stuff too
+        self.player_mgr.set_armor(self.itm_armor)
+        self.player_mgr.set_holy_res(self.itm_holy)
+        self.player_mgr.set_fire_res(self.itm_fire)
+        self.player_mgr.set_nature_res(self.itm_nature)
+        self.player_mgr.set_frost_res(self.itm_frost)
+        self.player_mgr.set_shadow_res(self.itm_shadow)

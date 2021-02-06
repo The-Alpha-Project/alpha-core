@@ -165,6 +165,30 @@ class UnitManager(ObjectManager):
         self.max_power_1 = mana
         self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
 
+    def set_armor(self, armor):
+        self.resistance_0 = armor
+        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+
+    def set_holy_res(self, holy_res):
+        self.resistance_1 = holy_res
+        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
+
+    def set_fire_res(self, fire_res):
+        self.resistance_2 = fire_res
+        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
+
+    def set_nature_res(self, nature_res):
+        self.resistance_3 = nature_res
+        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
+
+    def set_frost_res(self, frost_res):
+        self.resistance_4 = frost_res
+        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
+
+    def set_shadow_res(self, shadow_res):
+        self.resistance_5 = shadow_res
+        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
+
     def set_weapon_mode(self, weapon_mode):
         self.sheath_state = weapon_mode
 
