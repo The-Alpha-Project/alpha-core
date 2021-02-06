@@ -393,6 +393,8 @@ begin not atomic
     -- 04/02/2021 1
     if (select count(*) from applied_updates where id='060220211') = 0 then
         update creature_template set subname = 'Herbalist' where entry = 2390;
+        update item_template set display_id = 9421 where entry = 3836;
+        update item_template set display_id = 9416 where entry = 3844;
 
         insert into applied_updates values ('060220211');
     end if;
