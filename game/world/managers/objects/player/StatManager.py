@@ -1,4 +1,4 @@
-from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from utils.constants.ItemCodes import InventorySlots, InventoryStats
 
 
@@ -23,6 +23,9 @@ class StatManager(object):
         self.itm_shadow = 0
 
         self.itm_block = 0
+
+        self.melee_damage = [0] * 2
+        self.melee_attack_time = config.Unit.Defaults.base_attack_time
 
     def init_stats(self):
         base_stats = WorldDatabaseManager.player_get_class_level_stats(self.player_mgr.player.class_,
@@ -52,17 +55,20 @@ class StatManager(object):
         hp_diff = self.update_max_health()
         mana_diff = self.update_max_mana()
         self.update_resistances()
+        self.update_melee_attributes()
 
         return hp_diff, mana_diff
 
     @staticmethod
     def get_health_bonus_from_stamina(stamina):
+        # The first 20 points of Stamina grant only 1 health point per unit.
         base_sta = stamina if stamina < 20 else 20
         more_sta = stamina - base_sta
         return base_sta + (more_sta * 10.0)
 
     @staticmethod
     def get_mana_bonus_from_intellect(intellect):
+        # The first 20 points of Intellect grant only 1 mana point per unit.
         base_int = intellect if intellect < 20 else 20
         more_int = intellect - base_int
         return base_int + (more_int * 15.0)
@@ -85,6 +91,9 @@ class StatManager(object):
         self.itm_shadow = 0
 
         self.itm_block = 0
+
+        self.melee_damage = [0] * 2
+        self.melee_attack_time = config.Unit.Defaults.base_attack_time
 
         for slot, item in list(self.player_mgr.inventory.get_backpack().sorted_slots.items()):
             # Check only equipped items
@@ -114,6 +123,11 @@ class StatManager(object):
 
                 self.itm_block += item.item_template.block
 
+                if item.current_slot == InventorySlots.SLOT_MAINHAND:
+                    self.melee_damage[0] = int(item.item_template.dmg_min1)
+                    self.melee_damage[1] = int(item.item_template.dmg_max1)
+                    self.melee_attack_time = item.item_template.delay
+
     def update_max_health(self):
         total_sta = self.player_mgr.base_sta + self.itm_sta  # + buffs and stuff
         current_hp = self.player_mgr.max_health
@@ -138,3 +152,10 @@ class StatManager(object):
         self.player_mgr.set_nature_res(self.itm_nature)
         self.player_mgr.set_frost_res(self.itm_frost)
         self.player_mgr.set_shadow_res(self.itm_shadow)
+
+    def update_defense_bonuses(self):
+        pass
+
+    def update_melee_attributes(self):
+        self.player_mgr.set_melee_damage(self.melee_damage[0], self.melee_damage[1])
+        self.player_mgr.set_melee_attack_time(self.melee_attack_time)

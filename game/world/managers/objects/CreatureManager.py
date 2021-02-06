@@ -117,7 +117,8 @@ class CreatureManager(UnitManager):
         self.preload_model_info()
 
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, 0, self.sheath_state))[0]
-        self.damage = int(self.creature_template.dmg_max)  # temp
+        self.damage = unpack('<I', pack('<2H', int(self.creature_template.dmg_min),
+                                        int(self.creature_template.dmg_max)))[0]
 
         # Object fields
         self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)

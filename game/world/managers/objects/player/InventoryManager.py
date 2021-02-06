@@ -74,8 +74,6 @@ class InventoryManager(object):
                 if item_instance.bag in self.containers and self.containers[item_instance.bag]:
                     self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
 
-        self.set_base_attack_time()
-
     def get_backpack(self):
         return self.containers[InventorySlots.SLOT_INBACKPACK]
 
@@ -234,10 +232,6 @@ class InventoryManager(object):
                     self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, item, dest_item)
                 return
 
-        # Update attack time
-        if dest_slot == InventorySlots.SLOT_MAINHAND:
-            self.set_base_attack_time()
-
         if self.is_equipment_pos(dest_bag_slot, dest_slot):
             self.owner.stat_manager.apply_bonuses()
             self.owner.flagged_for_update = True
@@ -388,11 +382,6 @@ class InventoryManager(object):
                 dest_item.item_instance.slot = source_slot
                 RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
 
-            # Update attack time
-            if source_slot == InventorySlots.SLOT_MAINHAND or \
-                    dest_slot == InventorySlots.SLOT_MAINHAND:
-                self.set_base_attack_time()
-
             if source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED and \
                     (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(source_slot)):
                 source_item.set_binding(True)
@@ -404,15 +393,6 @@ class InventoryManager(object):
             else:
                 self.owner.send_update_self()
                 self.owner.reset_fields()
-
-    def set_base_attack_time(self):
-        if InventorySlots.SLOT_MAINHAND in self.get_backpack().sorted_slots:
-            weapon = self.get_backpack().sorted_slots[InventorySlots.SLOT_MAINHAND]
-            if weapon:
-                self.owner.base_attack_time = weapon.item_template.delay
-        else:
-            self.owner.base_attack_time = config.Unit.Defaults.base_attack_time
-        self.owner.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.owner.base_attack_time)
 
     def get_item_count(self, entry):
         count = 0

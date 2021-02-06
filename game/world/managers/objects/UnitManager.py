@@ -189,6 +189,15 @@ class UnitManager(ObjectManager):
         self.resistance_5 = shadow_res
         self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
 
+    def set_melee_damage(self, min_dmg, max_dmg):
+        damages = unpack('<I', pack('<2H', min_dmg, max_dmg))[0]
+        self.damage = damages
+        self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, damages)
+
+    def set_melee_attack_time(self, attack_time):
+        self.base_attack_time = attack_time
+        self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, attack_time)
+
     def set_weapon_mode(self, weapon_mode):
         self.sheath_state = weapon_mode
 

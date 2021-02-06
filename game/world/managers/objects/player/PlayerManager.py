@@ -12,6 +12,7 @@ from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
+from utils.constants.ItemCodes import InventorySlots
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid, UpdateTypes
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
