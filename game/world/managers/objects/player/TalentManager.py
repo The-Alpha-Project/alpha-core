@@ -80,9 +80,7 @@ class TalentManager(object):
             talent = TalentManager.Talent(
                 ability.Spell,
                 status,
-                0, 0,
-                10,
-                0, 0, 0, 0, [0, 0, 0]
+                0, 10, 0, 0, 0, 0, 0, [0, 0, 0]
             )
             talents.append(talent)
 
