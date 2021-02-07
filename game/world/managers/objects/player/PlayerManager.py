@@ -7,6 +7,7 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.StatManager import StatManager
+from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
@@ -73,8 +74,8 @@ class PlayerManager(UnitManager):
         self.group_status = WhoPartyStatuses.WHO_PARTY_STATUS_NOT_IN_PARTY
         self.race_mask = 0
         self.class_mask = 0
-        self.spells = []
-        self.skills = []
+        self.spells = {}
+        self.skills = {}
         self.deathbind = deathbind
         self.team = PlayerManager.get_team_for_race(self.race_mask)
         self.trade_data = None
@@ -121,6 +122,7 @@ class PlayerManager(UnitManager):
 
             self.guild_manager = GuildManager()
             self.stat_manager = StatManager(self)
+            self.talent_manager = TalentManager(self)
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:
@@ -189,7 +191,7 @@ class PlayerManager(UnitManager):
 
     def get_initial_spells(self):
         data = pack('<BH', 0, len(self.spells))
-        for spell in self.spells:
+        for spell_id, spell in self.spells.items():
             data += pack('<2H', spell.ID, 0)
         data += pack('<H', 0)
 
@@ -419,14 +421,14 @@ class PlayerManager(UnitManager):
         for skill in WorldDatabaseManager.player_create_skill_get(self.player.race,
                                                                   self.player.class_):
             skill_to_add = DbcDatabaseManager.skill_get_by_id(skill.Skill)
-            self.skills.append(skill_to_add)
+            self.skills[skill.Skill] = skill_to_add
 
     def load_spells(self):
         for spell in WorldDatabaseManager.player_create_spell_get(self.player.race,
                                                                   self.player.class_):
             spell_to_load = DbcDatabaseManager.spell_get_by_id(spell.Spell)
             if spell_to_load:
-                self.spells.append(spell_to_load)
+                self.spells[spell.Spell] = spell_to_load
 
     # override
     def get_full_update_packet(self, is_self=True):

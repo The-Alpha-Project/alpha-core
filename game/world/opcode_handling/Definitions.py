@@ -57,6 +57,7 @@ from game.world.opcode_handling.handlers.AutostoreBagItemHandler import Autostor
 from game.world.opcode_handling.handlers.AutoequipItemHandler import AutoequipItemHandler
 from game.world.opcode_handling.handlers.AcceptTradeHandler import AcceptTradeHandler
 from game.world.opcode_handling.handlers.InspectHandler import InspectHandler
+from game.world.opcode_handling.handlers.TrainerListHandler import TrainerListHandler
 
 from game.world.opcode_handling.handlers.MovementHandler import MovementHandler
 
@@ -126,6 +127,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_CLEAR_TRADE_ITEM: ClearTradeItemHandler.handle,
     OpCode.CMSG_ACCEPT_TRADE: AcceptTradeHandler.handle,
     OpCode.CMSG_INSPECT: InspectHandler.handle,
+    OpCode.CMSG_TRAINER_LIST: TrainerListHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

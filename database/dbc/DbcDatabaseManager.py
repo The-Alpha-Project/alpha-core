@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine
 from sqlalchemy.exc import StatementError
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -50,12 +50,51 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return res
 
+    @staticmethod
+    def get_spells_by_rank(rank, only_ids=False):
+        rank_text = 'Rank %d' % rank
+        dbc_db_session = SessionHolder()
+        if only_ids:
+            res = [r[0] for r in dbc_db_session.query(Spell.ID).filter_by(NameSubtext_enUS=rank_text).all()]
+        else:
+            res = dbc_db_session.query(Spell).filter_by(NameSubtext_enUS=rank_text).all()
+        dbc_db_session.close()
+        return res
+
     # Skill
 
     @staticmethod
     def skill_get_by_id(skill_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SkillLine).filter_by(ID=skill_id).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def skill_get_by_type(skill_type):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SkillLine).filter_by(SkillType=skill_type).all()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def skill_line_ability_get_by_skill_line(skill_line):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SkillLineAbility).filter_by(SkillLine=skill_line).all()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def skill_line_ability_get_by_skill_lines(skill_lines):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SkillLineAbility).filter(SkillLineAbility.SkillLine.in_(skill_lines)).all()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def skill_line_ability_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SkillLineAbility).all()
         dbc_db_session.close()
         return res
 
