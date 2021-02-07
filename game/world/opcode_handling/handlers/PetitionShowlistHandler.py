@@ -15,7 +15,7 @@ class PetitionShowlistHandler(object):
         # NPC needs 0x80 | 0x40 flag
         if len(reader.data) >= 8:  # Avoid handling empty petition showlist packet
             guid = unpack('<Q', reader.data[:8])[0]
-            if guid > 0 and guid == world_session.player_mgr.current_selection:
+            if guid > 0 and guid == world_session.player_mgr.current_target:
                 data = pack(
                     '<QB5I',
                     guid,  # npc guid

@@ -12,7 +12,7 @@ class BinderActivateHandler(object):
     def handle(world_session, socket, reader):
         if len(reader.data) >= 8:  # Avoid handling empty binder activate packet
             binder_guid = unpack('<Q', reader.data[:8])[0]
-            if 0 < binder_guid == world_session.player_mgr.current_selection:
+            if 0 < binder_guid == world_session.player_mgr.current_target:
                 world_session.player_mgr.deathbind.creature_binder_guid = binder_guid & ~HighGuid.HIGHGUID_UNIT
                 world_session.player_mgr.deathbind.deathbind_map = world_session.player_mgr.map_
                 world_session.player_mgr.deathbind.deathbind_zone = world_session.player_mgr.zone
