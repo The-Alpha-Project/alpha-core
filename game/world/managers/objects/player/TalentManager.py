@@ -77,6 +77,19 @@ class TalentManager(object):
                 else:
                     status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
+            # TODO: Investigate Talent Point cost per rank:
+            # We do know that Rank 1 cost 10 TP and Rank 2 cost 15 TP (https://i.imgur.com/eFi3cf4.jpg),
+            # but we don't know about other ranks.
+            #
+            # When you level you gain the following amount of TP on each level (5 more each ten levels):
+            # 2 - 9:   10 TP
+            # 10 - 19: 15 TP
+            # 20 - 29: 20 TP
+            # 30 - 39: 25 TP
+            # 40 - 49: 30 TP
+            # 50 - 59: 35 TP
+            # 60:      40 TP
+
             talent = TalentManager.Talent(
                 ability.Spell,
                 status,

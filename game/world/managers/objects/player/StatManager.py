@@ -1,4 +1,5 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
+from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats
 
 
@@ -33,6 +34,10 @@ class StatManager(object):
         base_attrs = WorldDatabaseManager.player_get_level_stats(self.player_mgr.player.class_,
                                                                  self.player_mgr.level,
                                                                  self.player_mgr.player.race)
+
+        if not base_stats or not base_attrs:
+            Logger.error("Unsupported level (%d) from %s." % (self.player_mgr.level, self.player_mgr.player.name))
+            return
 
         self.player_mgr.base_hp = base_stats.basehp
         self.player_mgr.base_mana = base_stats.basemana
