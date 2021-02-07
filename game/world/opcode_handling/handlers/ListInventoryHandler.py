@@ -11,7 +11,7 @@ class ListInventoryHandler(object):
         if len(reader.data) >= 8:  # Avoid handling empty ping packet
             npc_guid = unpack('<Q', reader.data[:8])[0]
 
-            if 0 < npc_guid == world_session.player_mgr.current_target:
+            if npc_guid > 0:
                 vendor = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, npc_guid)
                 if vendor:
                     vendor.send_inventory_list(world_session)
