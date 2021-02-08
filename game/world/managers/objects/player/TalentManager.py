@@ -53,7 +53,7 @@ class TalentManager(object):
                         0,  # Required Skill Line
                         0,  # Required Skill Rank
                         0,  # Required Skill Step
-                        0,  # Required Ability (1) TODO: Send correct spell here
+                        ability.custom_PrecededBySpell,  # Required Ability (1)
                         0,  # Required Ability (2)
                         0  # Required Ability (3)
                         )

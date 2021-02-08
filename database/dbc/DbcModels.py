@@ -688,6 +688,7 @@ class SkillLineAbility(Base):
     TrivialSkillLineRankHigh = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     TrivialSkillLineRankLow = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     Abandonable = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    custom_PrecededBySpell = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
 
 
 class SoundEntry(Base):
