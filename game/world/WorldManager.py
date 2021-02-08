@@ -5,6 +5,7 @@ import socket
 from struct import pack
 from time import sleep
 from apscheduler.schedulers.background import BackgroundScheduler
+from multiprocessing import Process, Value, active_children
 
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
@@ -18,6 +19,8 @@ from database.dbc.DbcDatabaseManager import *
 from database.world.WorldDatabaseManager import *
 
 from utils.Logger import Logger
+
+TOTAL_DATA_TO_LOAD = 3
 
 
 class ThreadedWorldServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -113,24 +116,32 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def _load_data():
-        # TODO: Use threads to load the data more efficiently
+        load_counter = Value('i', 0)
+
         if config.Server.Settings.load_gameobjects:
-            WorldServerSessionHandler._load_gameobjects()
+            gobject_process = Process(target=WorldServerSessionHandler._load_gameobjects, args=(load_counter,))
+            gobject_process.start()
         else:
             Logger.info('Skipped game object loading.')
+            WorldServerSessionHandler.on_data_loaded(load_counter)
 
         if config.Server.Settings.load_creatures:
-            WorldServerSessionHandler._load_creatures()
+            creature_process = Process(target=WorldServerSessionHandler._load_creatures, args=(load_counter,))
+            creature_process.start()
         else:
             Logger.info('Skipped creature loading.')
+            WorldServerSessionHandler.on_data_loaded(load_counter)
 
-        WorldServerSessionHandler._load_spells()
+        spell_process = Process(target=WorldServerSessionHandler._load_spells, args=(load_counter,))
+        spell_process.start()
+
+        return load_counter
 
     @staticmethod
-    def _load_gameobjects():
+    def _load_gameobjects(load_counter):
         gobject_spawns, session = WorldDatabaseManager.gameobject_get_all_spawns()
         length = len(gobject_spawns)
-        count = 0
+        Logger.info('Spawning %s gameobjects...' % length)
 
         for gobject in gobject_spawns:
             if gobject.gameobject:
@@ -139,17 +150,18 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                     gobject_instance=gobject
                 )
                 gobject_mgr.load()
-            count += 1
-            Logger.progress('Spawning gameobjects...', count, length)
 
         session.close()
+        Logger.success('Gameobjects spawned successfully.')
+        WorldServerSessionHandler.on_data_loaded(load_counter)
+
         return length
 
     @staticmethod
-    def _load_creatures():
+    def _load_creatures(load_counter):
         creature_spawns, session = WorldDatabaseManager.creature_get_all_spawns()
         length = len(creature_spawns)
-        count = 0
+        Logger.info('Spawning %s creatures...' % length)
 
         for creature in creature_spawns:
             if creature.creature_template:
@@ -158,27 +170,46 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                     creature_instance=creature
                 )
                 creature_mgr.load()
-            count += 1
-            Logger.progress('Spawning creatures...', count, length)
 
         session.close()
+        Logger.success('Creatures spawned successfully.')
+        WorldServerSessionHandler.on_data_loaded(load_counter)
+
         return length
 
     @staticmethod
-    def _load_spells():
+    def _load_spells(load_counter):
         spells = DbcDatabaseManager.spell_get_all()
         length = len(spells)
-        count = 0
+        Logger.info('Loading %s spells...' % length)
 
         for spell in spells:
             DbcDatabaseManager.SpellHolder.load_spell(spell)
 
-            count += 1
-            Logger.progress('Loading spells...', count, length)
+        Logger.success('Spells loaded successfully.')
+        WorldServerSessionHandler.on_data_loaded(load_counter)
+
+        return length
+
+    @staticmethod
+    def on_data_loaded(load_counter):
+        with load_counter.get_lock():
+            load_counter.value += 1
 
     @staticmethod
     def start():
-        WorldServerSessionHandler._load_data()
+        load_counter = WorldServerSessionHandler._load_data()
+        # Are we done loading yet?
+        while True:
+            sleep(0.2)
+            if load_counter.value == TOTAL_DATA_TO_LOAD:
+                # Terminate / join all remaining child processes
+                active_children()
+                break
+        WorldServerSessionHandler.start_world_server()
+
+    @staticmethod
+    def start_world_server():
         Logger.success('World server started.')
 
         WorldServerSessionHandler.schedule_updates()
