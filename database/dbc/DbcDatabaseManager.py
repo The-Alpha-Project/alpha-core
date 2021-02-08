@@ -43,21 +43,37 @@ class DbcDatabaseManager(object):
 
     # Spell
 
-    @staticmethod
-    def spell_get_by_id(spell_id):
-        dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(Spell).filter_by(ID=spell_id).first()
-        dbc_db_session.close()
-        return res
+    class SpellHolder:
+        SPELLS = {}
+
+        @staticmethod
+        def load_spell(spell):
+            DbcDatabaseManager.SpellHolder.SPELLS[spell.ID] = spell
+
+        @staticmethod
+        def spell_get_by_id(spell_id):
+            return DbcDatabaseManager.SpellHolder.SPELLS[spell_id] \
+                if spell_id in DbcDatabaseManager.SpellHolder.SPELLS else None
+
+        @staticmethod
+        def spell_get_rank_by_spell(spell):
+            rank_text = spell.NameSubtext_enUS
+            if 'Rank' in rank_text:
+                return int(rank_text.split('Rank')[-1])
+            return 0
+
+        @staticmethod
+        def spell_get_rank_by_id(spell_id):
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if not spell:
+                return 0
+
+            return DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
 
     @staticmethod
-    def get_spells_by_rank(rank, only_ids=False):
-        rank_text = 'Rank %d' % rank
+    def spell_get_all():
         dbc_db_session = SessionHolder()
-        if only_ids:
-            res = [r[0] for r in dbc_db_session.query(Spell.ID).filter_by(NameSubtext_enUS=rank_text).all()]
-        else:
-            res = dbc_db_session.query(Spell).filter_by(NameSubtext_enUS=rank_text).all()
+        res = dbc_db_session.query(Spell).all()
         dbc_db_session.close()
         return res
 

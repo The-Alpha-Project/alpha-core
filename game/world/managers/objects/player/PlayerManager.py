@@ -426,7 +426,7 @@ class PlayerManager(UnitManager):
     def load_spells(self):
         for spell in WorldDatabaseManager.player_create_spell_get(self.player.race,
                                                                   self.player.class_):
-            spell_to_load = DbcDatabaseManager.spell_get_by_id(spell.Spell)
+            spell_to_load = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
             if spell_to_load:
                 self.spells[spell.Spell] = spell_to_load
 
