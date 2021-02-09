@@ -435,6 +435,12 @@ begin not atomic
         alter table quest_template add column ignored tinyint(1) unsigned not null default 0;
         update quest_template set ignored = 1 where entry in (3903, 3904, 3905);
 
+        update spawns_gameobjects set ignored = 1 where spawn_id in (42633, 42634, 42645, 42638, 42640, 32837, 42635,
+                                                                    42628, 42629, 42632, 42630, 42631, 42641, 32838,
+                                                                    42626, 33152, 32842, 42637, 42642, 42625, 32839,
+                                                                    42643, 32845, 33153, 42636, 42639, 42644, 42677,
+                                                                    42678, 42627, 32850, 33147);
+
         insert into applied_updates values ('090220211');
     end if;
 
