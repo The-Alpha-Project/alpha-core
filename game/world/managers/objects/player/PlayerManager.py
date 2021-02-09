@@ -34,8 +34,6 @@ class PlayerManager(UnitManager):
                  xp=0,
                  next_level_xp=0,
                  player_bytes_2=0,  # player flags, facial hair, bank slots, 0
-                 talent_points=0,
-                 skill_points=0,
                  block_percentage=0,
                  dodge_percentage=0,
                  parry_percentage=0,
@@ -59,8 +57,6 @@ class PlayerManager(UnitManager):
         self.num_inv_slots = num_inv_slots
         self.xp = xp
         self.next_level_xp = next_level_xp
-        self.talent_points = talent_points
-        self.skill_points = skill_points
         self.block_percentage = block_percentage
         self.dodge_percentage = dodge_percentage
         self.parry_percentage = parry_percentage
@@ -90,6 +86,8 @@ class PlayerManager(UnitManager):
             self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
             self.player_bytes = unpack('<I', pack('<4B', self.player.skin, self.player.face, self.player.hairstyle, self.player.haircolour))[0]
             self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
+            self.talent_points = self.player.talentpoints
+            self.skill_points = self.player.skillpoints
             self.map_ = self.player.map
             self.zone = self.player.zone
             self.location.x = self.player.position_x
@@ -263,7 +261,7 @@ class PlayerManager(UnitManager):
         if self.player and self.player.guid == self.guid:
             self.player.level = self.level
             self.player.xp = self.xp
-            self.player.talent_points = self.talent_points
+            self.player.talentpoints = self.talent_points
             self.player.skillpoints = self.skill_points
             self.player.position_x = self.location.x
             self.player.position_y = self.location.y
