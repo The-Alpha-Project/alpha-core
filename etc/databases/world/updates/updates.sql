@@ -419,5 +419,18 @@ begin not atomic
         insert into applied_updates values ('070220211');
     end if;
 
+    -- 09/02/2021 1
+    if (select count(*) from applied_updates where id='090220211') = 0 then
+        update spawns_gameobjects set ignored = 1 where spawn_id in (26913, 26914, 26915, 27013, 27014, 27015, 26778,
+                                                                    26779, 26780, 26724, 26741, 26739, 26734, 26735,
+                                                                    26732, 26733, 26725, 26726, 26731, 26742, 26723,
+                                                                    26737, 26736, 26729, 26738, 26730, 26728, 26740,
+                                                                    26727, 26807, 26249, 26255, 26246, 26259, 26806,
+                                                                    26805, 26802, 26803, 26801, 26800, 26804, 26250,
+                                                                    26251, 26252, 26792, 26243, 26256);
+
+        insert into applied_updates values ('090220211');
+    end if;
+
 end $
 delimiter ;
