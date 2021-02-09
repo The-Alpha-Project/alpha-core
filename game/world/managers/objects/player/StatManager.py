@@ -42,11 +42,11 @@ class StatManager(object):
         self.player_mgr.base_hp = base_stats.basehp
         self.player_mgr.base_mana = base_stats.basemana
 
-        self.player_mgr.base_str = base_attrs.str
-        self.player_mgr.base_agi = base_attrs.agi
-        self.player_mgr.base_sta = base_attrs.sta
-        self.player_mgr.base_int = base_attrs.inte
-        self.player_mgr.base_spi = base_attrs.spi
+        self.player_mgr.set_base_str(base_attrs.str)
+        self.player_mgr.set_base_agi(base_attrs.agi)
+        self.player_mgr.set_base_sta(base_attrs.sta)
+        self.player_mgr.set_base_int(base_attrs.inte)
+        self.player_mgr.set_base_spi(base_attrs.spi)
 
     def apply_bonuses(self):
         self.calculate_item_stats()

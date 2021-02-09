@@ -436,8 +436,8 @@ class PlayerManager(UnitManager):
     def get_full_update_packet(self, is_self=True):
         self.inventory.send_inventory_update(self.session, is_self)
 
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
-        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 50, self.shapeshift_form, self.sheath_state))[0]
+        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 50, 50, 50))[0]
         self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
 
         # Object fields
@@ -528,6 +528,26 @@ class PlayerManager(UnitManager):
     def set_current_target(self, guid):
         self.current_target = guid
         self.set_uint64(UnitFields.UNIT_FIELD_TARGET, guid)
+
+    def set_base_str(self, str_):
+        self.base_str = str_
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT0, str_)
+
+    def set_base_agi(self, agi):
+        self.base_agi = agi
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT1, agi)
+
+    def set_base_sta(self, sta):
+        self.base_sta = sta
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT2, sta)
+
+    def set_base_int(self, int_):
+        self.base_int = int_
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT3, int_)
+
+    def set_base_spi(self, spi):
+        self.base_spi = spi
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT4, spi)
 
     def set_str(self, str_):
         self.str = str_
