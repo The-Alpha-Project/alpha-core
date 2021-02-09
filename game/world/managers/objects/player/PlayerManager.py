@@ -407,6 +407,10 @@ class PlayerManager(UnitManager):
                                 )
                     self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
 
+                    # Add Talent and Skill points
+                    self.add_talent_points(10 + (int(level / 10) * 5))
+                    self.add_skill_points(1)
+
                 self.flagged_for_update = True
 
     def mod_money(self, amount, reload_items=False):
@@ -546,6 +550,14 @@ class PlayerManager(UnitManager):
     def set_spi(self, spi):
         self.spi = spi
         self.set_uint32(UnitFields.UNIT_FIELD_STAT4, spi)
+
+    def add_talent_points(self, talent_points):
+        self.talent_points += talent_points
+        self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS1, self.talent_points)
+
+    def add_skill_points(self, skill_points):
+        self.skill_points += skill_points
+        self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
     # override
     def set_weapon_mode(self, weapon_mode):
