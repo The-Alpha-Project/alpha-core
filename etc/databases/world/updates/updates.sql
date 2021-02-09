@@ -429,6 +429,8 @@ begin not atomic
                                                                     26805, 26802, 26803, 26801, 26800, 26804, 26250,
                                                                     26251, 26252, 26792, 26243, 26256);
 
+        update creature_template set display_id1 = 184, display_id2 = 0 where entry = 38;
+
         insert into applied_updates values ('090220211');
     end if;
 
