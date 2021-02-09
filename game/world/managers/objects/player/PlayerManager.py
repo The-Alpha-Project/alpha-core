@@ -436,8 +436,8 @@ class PlayerManager(UnitManager):
     def get_full_update_packet(self, is_self=True):
         self.inventory.send_inventory_update(self.session, is_self)
 
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 50, self.shapeshift_form, self.sheath_state))[0]
-        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 50, 50, 50))[0]
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
+        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
         self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
 
         # Object fields
