@@ -733,6 +733,7 @@ class QuestTemplate(Base):
     OfferRewardEmoteDelay4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     StartScript = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     CompleteScript = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
 
 class Worldports(Base):

@@ -430,6 +430,10 @@ begin not atomic
                                                                     26251, 26252, 26792, 26243, 26256);
 
         update creature_template set display_id1 = 184, display_id2 = 0 where entry = 38;
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 161557;
+
+        alter table quest_template add column ignored tinyint(1) unsigned not null default 0;
+        update quest_template set ignored = 1 where entry in (3903, 3904, 3905);
 
         insert into applied_updates values ('090220211');
     end if;
