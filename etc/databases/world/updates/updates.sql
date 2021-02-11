@@ -68,6 +68,8 @@ begin not atomic
 
         update item_template set name = 'Peacebloom Flower' where entry = 2447;
 
+        update spawns_gameobjects set ignored = 1 where spawn_id in (45002);
+
         insert into applied_updates values ('110220211');
     end if;
 end $
