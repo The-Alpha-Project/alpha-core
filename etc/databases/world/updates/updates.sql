@@ -66,6 +66,8 @@ begin not atomic
                                                                      11011, 11010, 10806, 10781, 10816, 10785, 10728,
                                                                      10759, 10818, 10814, 10727);
 
+        update item_template set name = 'Peacebloom Flower' where entry = 2447;
+
         insert into applied_updates values ('110220211');
     end if;
 end $
