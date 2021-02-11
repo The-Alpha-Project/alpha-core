@@ -59,6 +59,13 @@ begin not atomic
         alter table gameobject_template drop column data22;
         alter table gameobject_template drop column data23;
 
+        update spawns_gameobjects set ignored = 1 where spawn_id in (10772, 10820, 10768, 10771, 10770, 10805, 10803,
+                                                                     10804, 10815, 10817, 10819, 10793, 10800, 10802,
+                                                                     10761, 10762, 10794, 10780, 10779, 10795, 10796,
+                                                                     10799, 10811, 10801, 10797, 10798, 10763, 10729,
+                                                                     11011, 11010, 10806, 10781, 10816, 10785, 10728,
+                                                                     10759, 10818, 10814, 10727);
+
         insert into applied_updates values ('110220211');
     end if;
 end $
