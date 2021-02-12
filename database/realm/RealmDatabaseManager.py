@@ -20,16 +20,24 @@ class RealmDatabaseManager(object):
     # Account stuff
 
     @staticmethod
-    def account_try_login(username, password):
+    def account_try_login(username, password, ip):
         realm_db_session = SessionHolder()
         account = realm_db_session.query(Account).filter_by(name=username).first()
-        realm_db_session.close()
+        status = -1
+        account_mgr = None
         if account:
             if account.password == password:
-                return 1, AccountManager(account)
+                status = 1
+                account.ip = ip
+                account_mgr = AccountManager(account)
+
+                realm_db_session.flush()
+                realm_db_session.refresh(account)
             else:
-                return 0, None
-        return -1, None
+                status = 0
+        realm_db_session.close()
+
+        return status, account_mgr
 
     @staticmethod
     def account_create(username, password, ip):
