@@ -191,7 +191,7 @@ class InventoryManager(object):
         if item_template.required_level > self.owner.level and \
                 self.is_equipment_pos(dest_bag_slot, dest_slot):
             # Not enough level
-            if handle_error:
+            if handle_error and not self.owner.is_gm:
                 self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, item, dest_item, item_template.required_level)
             return
 
@@ -259,7 +259,7 @@ class InventoryManager(object):
 
             # Check paper doll placement
             if self.is_equipment_pos(dest_bag, dest_slot) and \
-                    source_item.item_template.required_level > self.owner.level:
+                    source_item.item_template.required_level > self.owner.level and not self.owner.is_gm:
                 # Not enough level
                 self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
                 return
@@ -289,7 +289,7 @@ class InventoryManager(object):
                     return
 
                 # Not enough level
-                if dest_item.item_template.required_level > self.owner.level:
+                if dest_item.item_template.required_level > self.owner.level and not self.owner.is_gm:
                     self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item,
                                           dest_item.item_template.required_level)
                     return
