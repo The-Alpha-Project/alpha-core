@@ -1,6 +1,7 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats
+from utils.constants.UnitCodes import PowerTypes
 
 
 class StatManager(object):
@@ -142,6 +143,9 @@ class StatManager(object):
         return new_hp - current_hp
 
     def update_max_mana(self):
+        if self.player_mgr.power_type != PowerTypes.TYPE_MANA:
+            return 0
+
         total_int = self.player_mgr.base_int + self.itm_int  # + buffs and stuff
         current_mana = self.player_mgr.max_power_1
         new_mana = int(self.get_mana_bonus_from_intellect(total_int) + self.itm_mana + self.player_mgr.base_mana)

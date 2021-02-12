@@ -10,7 +10,7 @@ from database.world.WorldDatabaseManager import *
 from utils.constants.CharCodes import *
 from utils.ConfigManager import config
 from utils.constants.ItemCodes import InventorySlots
-from utils.constants.UnitCodes import Teams
+from utils.constants.UnitCodes import Teams, Classes
 
 
 class CharCreateHandler(object):
@@ -65,8 +65,8 @@ class CharCreateHandler(object):
                                   health=base_stats.basehp,
                                   power1=base_stats.basemana,
                                   power2=0,
-                                  power3=100,
-                                  power4=100,
+                                  power3=100 if class_ == Classes.CLASS_HUNTER else 0,
+                                  power4=100 if class_ == Classes.CLASS_ROGUE else 0,
                                   level=config.Unit.Player.Defaults.starting_level)
             RealmDatabaseManager.character_create(character)
             CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
