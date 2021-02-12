@@ -73,8 +73,8 @@ begin not atomic
         insert into applied_updates values ('110220211');
     end if;
 
-    -- 11/02/2021 1
-    if (select count(*) from applied_updates where id='110220211') = 0 then
+    -- 12/02/2021 1
+    if (select count(*) from applied_updates where id='120220211') = 0 then
         update player_classlevelstats set basemana = 0 where class = 3;
     end if;
 end $
