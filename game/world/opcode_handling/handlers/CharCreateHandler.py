@@ -28,18 +28,21 @@ class CharCreateHandler(object):
 
         result = CharCreate.CHAR_CREATE_SUCCESS
 
-        disabled_race_mask = config.Server.General.disabled_race_mask
-        race_mask = 1 << (race - 1)
-        disabled = disabled_race_mask & race_mask == race_mask
+        # Disabled race & class checks (only if not a GM)
+        if world_session.account_mgr.account.gmlevel > 0:
+            disabled_race_mask = config.Server.General.disabled_race_mask
+            race_mask = 1 << (race - 1)
+            disabled = disabled_race_mask & race_mask == race_mask
 
-        if not disabled:
-            disabled_class_mask = config.Server.General.disabled_class_mask
-            class_mask = 1 << (class_ - 1)
-            disabled = disabled_class_mask & class_mask == class_mask
+            if not disabled:
+                disabled_class_mask = config.Server.General.disabled_class_mask
+                class_mask = 1 << (class_ - 1)
+                disabled = disabled_class_mask & class_mask == class_mask
 
-        if disabled:
-            result = CharCreate.CHAR_CREATE_DISABLED
-        elif RealmDatabaseManager.character_does_name_exist(name):
+            if disabled:
+                result = CharCreate.CHAR_CREATE_DISABLED
+
+        if RealmDatabaseManager.character_does_name_exist(name):
             result = CharCreate.CHAR_CREATE_NAME_IN_USE
 
         if result == CharCreate.CHAR_CREATE_SUCCESS:

@@ -10,6 +10,7 @@ from utils.Logger import Logger
 from game.world.managers.objects.player.PlayerManager import PlayerManager
 from utils.ConfigManager import config
 from game.world.managers.ChatManager import ChatManager
+from utils.constants.CharCodes import CharLogin
 from utils.constants.ObjectCodes import UpdateTypes
 
 
@@ -28,6 +29,25 @@ class PlayerLoginHandler(object):
         if not world_session.player_mgr.player:
             Logger.anticheat('Character with wrong guid (%u) tried to login.' % guid)
             return -1
+
+        # Disabled race & class checks (only if not a GM)
+        if not world_session.player_mgr.is_gm:
+            disabled_race_mask = config.Server.General.disabled_race_mask
+            disabled = disabled_race_mask & world_session.player_mgr.race_mask == world_session.player_mgr.race_mask
+
+            if not disabled:
+                disabled_class_mask = config.Server.General.disabled_class_mask
+                disabled = disabled_class_mask & world_session.player_mgr.class_mask == world_session.player_mgr.class_mask
+
+            if disabled:
+                # Not 100% sure if CHAR_LOGIN_DISABLED matters here, but I don't know where else to send it
+                data = pack(
+                    '<B', CharLogin.CHAR_LOGIN_DISABLED
+                )
+                socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHARACTER_LOGIN_FAILED, data))
+                return 0
+
+        # Class & race allowed, continue with the login process
 
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
                                                PlayerLoginHandler._get_login_timespeed()))
