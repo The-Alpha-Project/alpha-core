@@ -29,7 +29,7 @@ class CharCreateHandler(object):
         result = CharCreate.CHAR_CREATE_SUCCESS
 
         # Disabled race & class checks (only if not a GM)
-        if world_session.account_mgr.account.gmlevel > 0:
+        if world_session.account_mgr.account.gmlevel == 0:
             disabled_race_mask = config.Server.General.disabled_race_mask
             race_mask = 1 << (race - 1)
             disabled = disabled_race_mask & race_mask == race_mask

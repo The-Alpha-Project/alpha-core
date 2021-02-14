@@ -386,7 +386,8 @@ class PlayerManager(UnitManager):
 
     def mod_level(self, level):
         if level != self.level:
-            if 0 < level <= config.Unit.Player.Defaults.max_level:
+            max_level = 255 if self.is_gm else config.Unit.Player.Defaults.max_level
+            if 0 < level <= max_level:
                 should_send_info = level > self.level
 
                 self.level = level
