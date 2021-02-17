@@ -51,7 +51,7 @@ class CreatureManager(UnitManager):
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
 
-            self.model_info_loaded = False
+            self.fully_loaded = False
 
         if self.creature_instance:
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
@@ -93,9 +93,9 @@ class CreatureManager(UnitManager):
         session.close()
         world_session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
 
-    def preload_model_info(self):
+    def finish_loading(self):
         if self.creature_template and self.creature_instance:
-            if not self.model_info_loaded:
+            if not self.fully_loaded:
                 creature_model_info = WorldDatabaseManager.creature_get_model_info(self.display_id)
                 if creature_model_info:
                     self.bounding_radius = creature_model_info.bounding_radius
@@ -110,11 +110,38 @@ class CreatureManager(UnitManager):
                 else:
                     self.scale = self.creature_template.scale
 
-                self.model_info_loaded = True
+                if self.creature_template.equipment_id > 0:
+                    creature_equip_template = WorldDatabaseManager.creature_get_equipment_by_id(
+                        self.creature_template.equipment_id
+                    )
+                    self.set_virtual_item(0, creature_equip_template.equipentry1)
+                    self.set_virtual_item(1, creature_equip_template.equipentry2)
+                    self.set_virtual_item(2, creature_equip_template.equipentry3)
+
+                self.fully_loaded = True
+
+    def set_virtual_item(self, slot, item_entry):
+        if item_entry == 0:
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, 0)
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, 0)
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, 0)
+            return
+
+        item_template = WorldDatabaseManager.item_template_get_by_entry(item_entry)
+        if item_template:
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, item_template.display_id)
+            virtual_item_info = unpack('<I', pack('<4B',
+                                                  item_template.class_,
+                                                  item_template.subclass,
+                                                  item_template.material,
+                                                  item_template.inventory_type)
+                                       )[0]
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item_info)
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, item_template.sheath)
 
     # override
     def get_full_update_packet(self, is_self=True):
-        self.preload_model_info()
+        self.finish_loading()
 
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, 0, self.sheath_state))[0]
         self.damage = unpack('<I', pack('<2H', int(self.creature_template.dmg_min),

@@ -946,3 +946,12 @@ class PageText(Base):
     entry = Column(MEDIUMINT(8), primary_key=True)
     text = Column(LONGTEXT, nullable=False, server_default=text("''"))
     next_page = Column(MEDIUMINT(8), nullable=False)
+
+
+class CreatureEquipTemplate(Base):
+    __tablename__ = 'creature_equip_template'
+
+    entry = Column(MEDIUMINT(8), primary_key=True)
+    equipentry1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    equipentry2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    equipentry3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))

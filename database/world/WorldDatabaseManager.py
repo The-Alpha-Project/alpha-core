@@ -187,3 +187,10 @@ class WorldDatabaseManager(object):
         world_db_session = SessionHolder()
         res = world_db_session.query(NpcVendor).filter_by(entry=entry, item=item).first()
         return res, world_db_session
+
+    @staticmethod
+    def creature_get_equipment_by_id(equipment_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureEquipTemplate).filter_by(entry=equipment_id).first()
+        world_db_session.close()
+        return res
