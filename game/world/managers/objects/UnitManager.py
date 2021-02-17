@@ -28,6 +28,7 @@ class UnitManager(ObjectManager):
                  level=0,
                  faction=0,
                  bytes_0=0,  # race, class, gender, power_type
+                 creature_type=0,
                  stat_0=0,
                  stat_1=0,
                  stat_2=0,
@@ -90,6 +91,7 @@ class UnitManager(ObjectManager):
         self.level = level
         self.faction = faction
         self.bytes_0 = bytes_0  # race, class, gender, power_type
+        self.creature_type = creature_type
         self.str = stat_0
         self.agi = stat_1
         self.sta = stat_2

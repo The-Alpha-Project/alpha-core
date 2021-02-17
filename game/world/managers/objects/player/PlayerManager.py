@@ -131,6 +131,7 @@ class PlayerManager(UnitManager):
         race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
 
         self.faction = race.FactionID
+        self.creature_type = race.CreatureType
 
         is_male = self.player.gender == Genders.GENDER_MALE
 
