@@ -77,5 +77,11 @@ begin not atomic
     if (select count(*) from applied_updates where id='120220211') = 0 then
         update player_classlevelstats set basemana = 0 where class = 3;
     end if;
+
+    -- 18/02/2021 1
+    if (select count(*) from applied_updates where id='180220211') = 0 then
+        update spawns_creatures set ignored = 1 where spawn_entry1 = 14223;
+        update creature_template set display_id1 = 2296 where display_id1 = 10877;
+    end if;
 end $
 delimiter ;
