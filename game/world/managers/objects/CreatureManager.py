@@ -9,7 +9,7 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UnitCodes import UnitFlags, WeaponMode
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -48,6 +48,7 @@ class CreatureManager(UnitManager):
             self.unit_flags = self.creature_template.unit_flags
             self.faction = self.creature_template.faction
             self.creature_type = self.creature_template.type
+            self.sheath_state = 1#WeaponMode.SHEATHEDMODE  # Default one
 
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
@@ -144,7 +145,10 @@ class CreatureManager(UnitManager):
     def get_full_update_packet(self, is_self=True):
         self.finish_loading()
 
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, 0, self.sheath_state))[0]
+        # stand_state, npc_flags, shapeshift_form, visibility_flag
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form, 0))[0]
+        # sheath_state, misc_flags, pet_flags, unknown
+        self.bytes_2 = unpack('<I', pack('<4B', self.sheath_state, 0, 0, 0))[0]
         self.damage = unpack('<I', pack('<2H', int(self.creature_template.dmg_min),
                                         int(self.creature_template.dmg_max)))[0]
 
@@ -178,6 +182,7 @@ class CreatureManager(UnitManager):
         self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
         self.set_float(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
@@ -201,16 +206,15 @@ class CreatureManager(UnitManager):
     # override
     def set_weapon_mode(self, weapon_mode):
         super().set_weapon_mode(weapon_mode)
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form,
-                                         self.sheath_state))[0]
+        self.bytes_2 = unpack('<I', pack('<4B', self.sheath_state, 0, 0, 0))[0]
 
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
         self.flagged_for_update = True
 
     # override
     def set_stand_state(self, stand_state):
         super().set_stand_state(stand_state)
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, 0, 0))[0]
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form, 0))[0]
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
