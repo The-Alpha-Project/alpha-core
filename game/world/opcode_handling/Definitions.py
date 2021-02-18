@@ -113,6 +113,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_BUY_ITEM: BuyItemHandler.handle,
     OpCode.CMSG_BUY_ITEM_IN_SLOT: BuyItemInSlotHandler.handle,
     OpCode.CMSG_ATTACKSWING: AttackSwingHandler.handle,
+    OpCode.CMSG_ATTACKSTOP: AttackSwingHandler.handle_stop,
     OpCode.CMSG_SELL_ITEM: SellItemHandler.handle,
     OpCode.CMSG_REPOP_REQUEST: RepopRequestHandler.handle,
     OpCode.CMSG_SPLIT_ITEM: SplitItemHandler.handle,
