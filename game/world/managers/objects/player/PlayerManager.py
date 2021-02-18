@@ -409,7 +409,7 @@ class PlayerManager(UnitManager):
                     self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
 
                     # Add Talent and Skill points
-                    self.add_talent_points(10 + (int(level / 10) * 5))
+                    self.add_talent_points(Formulas.PlayerFormulas.talent_points_gain_per_level(self.level))
                     self.add_skill_points(1)
 
                 self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
@@ -577,10 +577,14 @@ class PlayerManager(UnitManager):
 
     def add_talent_points(self, talent_points):
         self.talent_points += talent_points
+        if self.talent_points > 255:
+            self.talent_points = 255
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS1, self.talent_points)
 
     def add_skill_points(self, skill_points):
         self.skill_points += skill_points
+        if self.skill_points > 255:
+            self.skill_points = 255
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
     # override
