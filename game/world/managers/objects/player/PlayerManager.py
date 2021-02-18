@@ -13,6 +13,7 @@ from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
+from utils import Formulas
 from utils.constants.ItemCodes import InventorySlots
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid, UpdateTypes
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
@@ -116,7 +117,7 @@ class PlayerManager(UnitManager):
 
             # test
             self.xp = 0
-            self.next_level_xp = self.xp_to_level()
+            self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
 
             self.guild_manager = GuildManager()
             self.stat_manager = StatManager(self)
@@ -349,26 +350,6 @@ class PlayerManager(UnitManager):
     def demorph(self):
         self.set_display_id(self.get_native_display_id(self.player.gender == 0))
 
-    # Basic amount of XP earned for killing a mob of level equal to the character
-    def base_xp_per_mob(self):
-        return 45 + (5 * self.level)
-
-    # XP = ((8 × Level) + Diff(Level)) × MXP(Level)
-    def xp_to_level(self):
-        if self.level > 31:
-            diff = 5 * (self.level - 30)
-        elif self.level == 31:
-            diff = 6
-        elif self.level == 30:
-            diff = 3
-        elif self.level == 29:
-            diff = 1
-        else:
-            diff = 0
-
-        # Always round to the nearest hundred
-        return int(round(((8 * self.level) + diff) * self.base_xp_per_mob(), -2))
-
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
         if speed <= 0:
@@ -431,7 +412,7 @@ class PlayerManager(UnitManager):
                     self.add_talent_points(10 + (int(level / 10) * 5))
                     self.add_skill_points(1)
 
-                self.next_level_xp = self.xp_to_level()
+                self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
 
                 self.flagged_for_update = True
