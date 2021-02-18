@@ -1,3 +1,4 @@
+import math
 import time
 from struct import unpack
 from math import pi
@@ -116,7 +117,7 @@ class PlayerManager(UnitManager):
 
             # test
             self.xp = 0
-            self.next_level_xp = 200
+            self.next_level_xp = self.xp_to_level()
 
             self.guild_manager = GuildManager()
             self.stat_manager = StatManager(self)
@@ -349,6 +350,26 @@ class PlayerManager(UnitManager):
     def demorph(self):
         self.set_display_id(self.get_native_display_id(self.player.gender == 0))
 
+    # Basic amount of XP earned for killing a mob of level equal to the character
+    def mxp(self):
+        return 45 + (5 * self.level)
+
+    # XP = ((8 × Level) + Diff(Level)) × MXP(Level)
+    def xp_to_level(self):
+        if self.level > 31:
+            diff = 5 * (self.level - 30)
+        elif self.level == 31:
+            diff = 6
+        elif self.level == 30:
+            diff = 3
+        elif self.level == 29:
+            diff = 1
+        else:
+            diff = 0
+
+        # Always round to the nearest hundred
+        return int(round(((8 * self.level) + diff) * self.mxp(), -2))
+
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
         if speed <= 0:
@@ -410,6 +431,9 @@ class PlayerManager(UnitManager):
                     # Add Talent and Skill points
                     self.add_talent_points(10 + (int(level / 10) * 5))
                     self.add_skill_points(1)
+
+                self.next_level_xp = self.xp_to_level()
+                self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
 
                 self.flagged_for_update = True
 
