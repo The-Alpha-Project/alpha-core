@@ -1,4 +1,3 @@
-import math
 import time
 from struct import unpack
 from math import pi
