@@ -350,7 +350,7 @@ class PlayerManager(UnitManager):
         self.set_display_id(self.get_native_display_id(self.player.gender == 0))
 
     # Basic amount of XP earned for killing a mob of level equal to the character
-    def mxp(self):
+    def base_xp_per_mob(self):
         return 45 + (5 * self.level)
 
     # XP = ((8 × Level) + Diff(Level)) × MXP(Level)
@@ -367,7 +367,7 @@ class PlayerManager(UnitManager):
             diff = 0
 
         # Always round to the nearest hundred
-        return int(round(((8 * self.level) + diff) * self.mxp(), -2))
+        return int(round(((8 * self.level) + diff) * self.base_xp_per_mob(), -2))
 
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
