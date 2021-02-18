@@ -66,4 +66,4 @@ class PlayerFormulas(object):
             diff = 0
 
         # Always round to the nearest hundred
-        return int(round(((8 * level) + diff) * PlayerFormulas.base_xp_per_mob(level), -2))
+        return int(round(((8 * level) + diff) * PlayerFormulas.base_xp_per_mob(level) + 1, -2))
