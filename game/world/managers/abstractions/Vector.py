@@ -22,7 +22,7 @@ class Vector(object):
         d_y = self.y - y
         d_z = self.z - z
 
-        return math.pow(d_x, 2) + math.pow(d_y, 2) + math.pow(d_z, 2)
+        return d_x ** 2 + d_y ** 2 + d_z ** 2
 
     def angle(self, vector=None, x=0, y=0):
         if not vector:
