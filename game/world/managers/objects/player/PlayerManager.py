@@ -595,7 +595,8 @@ class PlayerManager(UnitManager):
 
         # Every 2 seconds
         if current_time > self.last_regen + 2:
-            # Health
+            # Rate calculation per class
+
             health_regen = 0
             mana_regen = 0
             if self.player.class_ == Classes.CLASS_DRUID:
@@ -622,6 +623,8 @@ class PlayerManager(UnitManager):
                 mana_regen = (self.spi / 5 + 15) / 2
             elif self.player.class_ == Classes.CLASS_WARRIOR:
                 health_regen = self.spi * 1.26 - 22.6
+
+            # Health
 
             if not self.in_combat or self.player.race == Races.RACE_TROLL:
                 if self.player.race == Races.RACE_TROLL:
