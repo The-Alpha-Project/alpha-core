@@ -1,3 +1,4 @@
+import math
 import time
 from struct import unpack
 from math import pi
@@ -76,6 +77,7 @@ class PlayerManager(UnitManager):
         self.deathbind = deathbind
         self.team = PlayerManager.get_team_for_race(self.race_mask)
         self.trade_data = None
+        self.last_regen = 0
 
         if self.player:
             self.set_player_variables()
@@ -101,9 +103,9 @@ class PlayerManager(UnitManager):
             self.power_1 = self.player.power1
             self.max_power_2 = 1000
             self.power_2 = self.player.power2
-            self.max_power_3 = self.player.power3
+            self.max_power_3 = 100
             self.power_3 = self.player.power3
-            self.max_power_4 = self.player.power4
+            self.max_power_4 = 100
             self.power_4 = self.player.power4
             self.coinage = self.player.money
 
@@ -115,8 +117,7 @@ class PlayerManager(UnitManager):
             self.object_type.append(ObjectTypes.TYPE_PLAYER)
             self.update_packet_factory.init_values(PlayerFields.PLAYER_END)
 
-            # test
-            self.xp = 0
+            self.xp = 0  # test
             self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
 
             self.guild_manager = GuildManager()
@@ -138,6 +139,7 @@ class PlayerManager(UnitManager):
 
         self.display_id = self.get_native_display_id(is_male, race)
 
+        # Power type
         if self.player.class_ == Classes.CLASS_WARRIOR:
             self.power_type = PowerTypes.TYPE_RAGE
         elif self.player.class_ == Classes.CLASS_HUNTER:
@@ -587,6 +589,90 @@ class PlayerManager(UnitManager):
             self.skill_points = 255
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
+    def regenerate(self, current_time):
+        if not self.is_alive or self.health == 0:
+            return
+
+        # Every 2 seconds
+        if current_time > self.last_regen + 2:
+            # Health
+            health_regen = 0
+            mana_regen = 0
+            if self.player.class_ == Classes.CLASS_DRUID:
+                health_regen = self.spi * 0.11 + 1
+                mana_regen = (self.spi / 5 + 15) / 2
+            elif self.player.class_ == Classes.CLASS_HUNTER:
+                health_regen = self.spi * 0.43 - 5.5
+            elif self.player.class_ == Classes.CLASS_PRIEST:
+                health_regen = self.spi * 0.15 + 1.4
+                mana_regen = (self.spi / 4 + 12.5) / 2
+            elif self.player.class_ == Classes.CLASS_MAGE:
+                health_regen = self.spi * 0.11 + 1
+                mana_regen = (self.spi / 4 + 12.5) / 2
+            elif self.player.class_ == Classes.CLASS_PALADIN:
+                health_regen = self.spi * 0.25
+                mana_regen = (self.spi / 5 + 15) / 2
+            elif self.player.class_ == Classes.CLASS_ROGUE:
+                health_regen = self.spi * 0.84 - 13
+            elif self.player.class_ == Classes.CLASS_SHAMAN:
+                health_regen = self.spi * 0.28 - 3.6
+                mana_regen = (self.spi / 5 + 17) / 2
+            elif self.player.class_ == Classes.CLASS_WARLOCK:
+                health_regen = self.spi * 0.12 + 1.5
+                mana_regen = (self.spi / 5 + 15) / 2
+            elif self.player.class_ == Classes.CLASS_WARRIOR:
+                health_regen = self.spi * 1.26 - 22.6
+
+            if not self.in_combat or self.player.race == Races.RACE_TROLL:
+                if self.player.race == Races.RACE_TROLL:
+                    health_regen *= 0.1 if self.in_combat else 1.1
+                if self.is_sitting:
+                    health_regen *= 0.33
+
+                if health_regen < 1:
+                    health_regen = 1
+                if self.health + health_regen >= self.max_health:
+                    self.set_health(self.max_health)
+                elif self.health < self.max_health:
+                    self.set_health(self.health + int(health_regen))
+
+            # Powers
+
+            # Mana
+            if self.power_type == PowerTypes.TYPE_MANA:
+                if self.in_combat:
+                    # 1% per second (5% per 5 seconds)
+                    mana_regen = self.base_mana * 0.02
+
+                if mana_regen < 1:
+                    mana_regen = 1
+                if self.power_1 + mana_regen >= self.max_power_1:
+                    self.set_mana(self.max_power_1)
+                elif self.power_1 < self.max_power_1:
+                    self.set_mana(self.power_1 + int(mana_regen))
+            # Rage
+            elif self.power_type == PowerTypes.TYPE_RAGE:
+                if not self.in_combat:
+                    if self.power_2 < 200:
+                        self.set_rage(0)
+                    else:
+                        self.set_rage(int((self.power_2 / 10) - 2))
+            # Focus
+            elif self.power_type == PowerTypes.TYPE_FOCUS:
+                if self.power_3 + 5 >= self.max_power_3:
+                    self.set_focus(self.max_power_3)
+                elif self.power_3 < self.max_power_3:
+                    self.set_focus(self.power_3 + 5)
+            # Energy
+            elif self.power_type == PowerTypes.TYPE_ENERGY:
+                if self.power_4 + 20 >= self.max_power_4:
+                    self.set_energy(self.max_power_4)
+                elif self.power_4 < self.max_power_4:
+                    self.set_energy(self.power_4 + 20)
+
+            self.flagged_for_update = True
+            self.last_regen = current_time
+
     # override
     def set_weapon_mode(self, weapon_mode):
         super().set_weapon_mode(weapon_mode)
@@ -607,10 +693,16 @@ class PlayerManager(UnitManager):
 
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
+
+            # Update played time
             self.player.totaltime += elapsed
             self.player.leveltime += elapsed
+
+            # Regeneration
+            self.regenerate(now)
         self.last_tick = now
 
+        # TODO: Only send inventory update when specifically requested
         if self.flagged_for_update:
             self.send_update_self()
             self.send_update_surrounding(self.generate_proper_update_packet())

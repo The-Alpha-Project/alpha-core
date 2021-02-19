@@ -18,13 +18,13 @@ class UnitManager(ObjectManager):
                  power_type=0,
                  power_1=0,  # mana
                  power_2=0,  # rage
-                 power_3=0,  # focus
-                 power_4=0,  # energy
+                 power_3=100,  # focus
+                 power_4=100,  # energy
                  max_health=0,
                  max_power_1=0,
-                 max_power_2=0,
-                 max_power_3=0,
-                 max_power_4=0,
+                 max_power_2=1000,
+                 max_power_3=100,
+                 max_power_4=100,
                  level=0,
                  faction=0,
                  bytes_0=0,  # race, class, gender, power_type
@@ -140,6 +140,7 @@ class UnitManager(ObjectManager):
         self.flagged_for_update = False
         self.is_alive = True
         self.is_sitting = False
+        self.in_combat = False
 
     def play_emote(self, emote):
         if emote != 0:
@@ -162,6 +163,25 @@ class UnitManager(ObjectManager):
             mana = 0
         self.power_1 = mana
         self.set_uint32(UnitFields.UNIT_FIELD_POWER1, mana)
+
+    def set_rage(self, rage):
+        if rage < 0:
+            rage = 0
+        rage = rage * 10
+        self.power_2 = rage
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER2, rage)
+
+    def set_focus(self, focus):
+        if focus < 0:
+            focus = 0
+        self.power_3 = focus
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER3, focus)
+
+    def set_energy(self, energy):
+        if energy < 0:
+            mana = 0
+        self.power_4 = energy
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER4, energy)
 
     def set_max_mana(self, mana):
         self.max_power_1 = mana
