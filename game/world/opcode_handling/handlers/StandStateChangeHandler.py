@@ -12,6 +12,6 @@ class StandStateChangeHandler(object):
         if len(reader.data) >= 4:  # Avoid handling empty stand state packet
             state = unpack('<I', reader.data[:4])[0]
             world_session.player_mgr.set_stand_state(StandState(state))
-            world_session.player_mgr.flagged_for_update = True
+            world_session.player_mgr.set_dirty()
 
         return 0

@@ -209,7 +209,7 @@ class CreatureManager(UnitManager):
         self.bytes_2 = unpack('<I', pack('<4B', self.sheath_state, 0, 0, 0))[0]
 
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
-        self.flagged_for_update = True
+        self.set_dirty()
 
     # override
     def set_stand_state(self, stand_state):

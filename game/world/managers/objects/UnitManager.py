@@ -137,7 +137,7 @@ class UnitManager(ObjectManager):
         self.object_type.append(ObjectTypes.TYPE_UNIT)
         self.update_packet_factory.init_values(UnitFields.UNIT_END)
 
-        self.flagged_for_update = False
+        self.dirty = False
         self.is_alive = True
         self.is_sitting = False
         self.in_combat = False
@@ -240,7 +240,7 @@ class UnitManager(ObjectManager):
                 DbcDatabaseManager.creature_display_info_get_by_id(display_id):
             self.display_id = display_id
             self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
-            self.flagged_for_update = True
+            self.set_dirty()
 
     def die(self, killer=None):
         if not self.is_alive:
@@ -266,6 +266,9 @@ class UnitManager(ObjectManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
         self.set_stand_state(StandState.UNIT_STANDING)
+
+    def set_dirty(self, dirty=True):
+        self.dirty = dirty
 
     # override
     def get_type(self):

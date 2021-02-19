@@ -78,6 +78,7 @@ class PlayerManager(UnitManager):
         self.team = PlayerManager.get_team_for_race(self.race_mask)
         self.trade_data = None
         self.last_regen = 0
+        self.dirty_inventory = False
 
         if self.player:
             self.set_player_variables()
@@ -339,7 +340,7 @@ class PlayerManager(UnitManager):
             self.unit_flags |= UnitFlags.UNIT_FLAG_MOUNTED
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
             self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-            self.flagged_for_update = True
+            self.set_dirty()
 
     def unmount(self):
         if self.mount_display_id > 0:
@@ -347,7 +348,7 @@ class PlayerManager(UnitManager):
             self.unit_flags &= ~UnitFlags.UNIT_FLAG_MOUNTED
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
             self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-            self.flagged_for_update = True
+            self.set_dirty()
 
     def demorph(self):
         self.set_display_id(self.get_native_display_id(self.player.gender == 0))
@@ -417,7 +418,7 @@ class PlayerManager(UnitManager):
                 self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
 
-                self.flagged_for_update = True
+                self.set_dirty()
 
     def mod_money(self, amount, reload_items=False):
         if self.coinage + amount < 0:
@@ -689,7 +690,7 @@ class PlayerManager(UnitManager):
                         self.set_energy(self.power_4 + 20)
 
             if should_update_health or should_update_power:
-                self.flagged_for_update = True
+                self.set_dirty()
             self.last_regen = current_time
 
     # override
@@ -698,13 +699,17 @@ class PlayerManager(UnitManager):
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
 
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
-        self.flagged_for_update = True
+        self.set_dirty()
 
     # override
     def set_stand_state(self, stand_state):
         super().set_stand_state(stand_state)
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+
+    def set_dirty(self, is_dirty=True, dirty_inventory=False):
+        self.dirty = is_dirty
+        self.dirty_inventory = dirty_inventory
 
     # override
     def update(self):
@@ -721,14 +726,13 @@ class PlayerManager(UnitManager):
             self.regenerate(now)
         self.last_tick = now
 
-        # TODO: Only send inventory update when specifically requested
-        if self.flagged_for_update:
+        if self.dirty:
             self.send_update_self()
             self.send_update_surrounding(self.generate_proper_update_packet())
             GridManager.update_object(self)
             self.reset_fields()
 
-            self.flagged_for_update = False
+            self.set_dirty(is_dirty=False, dirty_inventory=False)
 
     def generate_proper_update_packet(self, is_self=False, create=False):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
@@ -736,8 +740,8 @@ class PlayerManager(UnitManager):
             self.get_full_update_packet(is_self=is_self) if create else self.get_partial_update_packet()))
         return update_packet
 
-    def send_update_self(self, update_packet=None, create=False, include_items=True):
-        if not create and include_items:
+    def send_update_self(self, update_packet=None, create=False, force_inventory_update=False):
+        if not create and (self.dirty_inventory or force_inventory_update):
             self.inventory.send_inventory_update(self.session, is_self=True)
             self.inventory.build_update()
 
@@ -747,7 +751,7 @@ class PlayerManager(UnitManager):
         self.session.request.sendall(update_packet)
 
     def send_update_surrounding(self, update_packet, include_self=False, create=False):
-        if not create:
+        if not create and self.dirty_inventory:
             self.inventory.send_inventory_update(self.session, is_self=False)
             self.inventory.build_update()
 
@@ -770,7 +774,7 @@ class PlayerManager(UnitManager):
 
         TradeManager.cancel_trade(self)
 
-        self.flagged_for_update = True
+        self.set_dirty()
 
     # override
     def respawn(self, force_update=True):
@@ -781,7 +785,7 @@ class PlayerManager(UnitManager):
             self.set_mana(int(self.max_power_1 / 2))
 
         if force_update:
-            self.flagged_for_update = True
+            self.set_dirty()
 
     # override
     def get_type(self):

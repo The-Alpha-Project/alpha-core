@@ -122,7 +122,7 @@ class InventoryManager(object):
                     target_bag_slot = InventorySlots.SLOT_INBACKPACK
                 self.send_item_receive_message(self.owner.guid, item_template.entry,
                                                target_bag_slot, from_npc, send_message)
-            self.owner.send_update_self()
+            self.owner.send_update_self(force_inventory_update=True)
             self.owner.reset_fields()
         return items_added
 
@@ -183,7 +183,8 @@ class InventoryManager(object):
             if remaining > 0:
                 self.add_item(item_template=item_template, count=remaining)  # Overflow to inventory
             else:
-                self.owner.send_update_self()  # Update if container is modified self.add_item isn't called
+                # Update if container is modified self.add_item isn't called
+                self.owner.send_update_self(force_inventory_update=True)
                 self.owner.reset_fields()
             return
 
@@ -209,7 +210,7 @@ class InventoryManager(object):
                         dest_item.item_instance.stackcount += diff
                         self.add_item(item_template=item_template, count=count-diff, handle_error=False)
 
-                    self.owner.send_update_self()
+                    self.owner.send_update_self(force_inventory_update=True)
                     self.owner.reset_fields()
                     RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
                     return True
@@ -234,9 +235,9 @@ class InventoryManager(object):
 
         if self.is_equipment_pos(dest_bag_slot, dest_slot):
             self.owner.stat_manager.apply_bonuses()
-            self.owner.flagged_for_update = True
+            self.owner.set_dirty(dirty_inventory=True)
         else:
-            self.owner.send_update_self()
+            self.owner.send_update_self(force_inventory_update=True)
             self.owner.reset_fields()
 
         return True
@@ -334,7 +335,7 @@ class InventoryManager(object):
                     dest_item.item_instance.stackcount = dest_item.item_template.stackable
                     RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
 
-                self.owner.send_update_self()
+                self.owner.send_update_self(force_inventory_update=True)
                 self.owner.reset_fields()
                 RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
                 return
@@ -389,9 +390,9 @@ class InventoryManager(object):
 
             if self.is_equipment_pos(source_bag, source_slot) or self.is_equipment_pos(dest_bag, dest_slot):
                 self.owner.stat_manager.apply_bonuses()
-                self.owner.flagged_for_update = True
+                self.owner.set_dirty(dirty_inventory=True)
             else:
-                self.owner.send_update_self()
+                self.owner.send_update_self(force_inventory_update=True)
                 self.owner.reset_fields()
 
     def get_item_count(self, entry):

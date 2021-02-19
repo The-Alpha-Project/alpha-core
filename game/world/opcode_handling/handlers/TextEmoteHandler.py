@@ -63,6 +63,6 @@ class TextEmoteHandler(object):
                     world_session.player_mgr.play_emote(emote_id)
 
                 if needs_broadcast:
-                    world_session.player_mgr.flagged_for_update = True
+                    world_session.player_mgr.set_dirty()
 
         return 0

@@ -57,7 +57,7 @@ class MovementHandler(object):
                         world_session.player_mgr.stand_state != StandState.UNIT_DEAD and \
                         world_session.player_mgr.stand_state != StandState.UNIT_STANDING:
                     world_session.player_mgr.stand_state = StandState.UNIT_STANDING
-                    world_session.player_mgr.flagged_for_update = True
+                    world_session.player_mgr.set_dirty()
 
             except (AttributeError, error):
                 Logger.error('Error while handling %s, skipping. Data: %s' % (OpCode(reader.opcode), reader.data))
