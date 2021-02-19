@@ -802,6 +802,12 @@ class PlayerManager(UnitManager):
         self.set_health(int(self.max_health / 2))
         if self.power_type == PowerTypes.TYPE_MANA:
             self.set_mana(int(self.max_power_1 / 2))
+        if self.power_type == PowerTypes.TYPE_RAGE:
+            self.set_rage(0)
+        if self.power_type == PowerTypes.TYPE_FOCUS:
+            self.set_focus(int(self.max_power_3 / 2))
+        if self.power_type == PowerTypes.TYPE_ENERGY:
+            self.set_energy(int(self.max_power_4 / 2))
 
         self.spirit_release_timer = 0
 
