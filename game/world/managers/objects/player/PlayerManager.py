@@ -78,7 +78,9 @@ class PlayerManager(UnitManager):
         self.team = PlayerManager.get_team_for_race(self.race_mask)
         self.trade_data = None
         self.last_regen = 0
+        self.spirit_release_timer = 0
         self.dirty_inventory = False
+        self.teleport_pending_update = False
 
         if self.player:
             self.set_player_variables()
@@ -120,6 +122,7 @@ class PlayerManager(UnitManager):
 
             self.xp = 0  # test
             self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
+            self.is_alive = self.health > 0
 
             self.guild_manager = GuildManager()
             self.stat_manager = StatManager(self)
@@ -724,9 +727,24 @@ class PlayerManager(UnitManager):
 
             # Regeneration
             self.regenerate(now)
+
+            # Release spirit timer
+            if not self.is_alive:
+                if self.spirit_release_timer < 300:  # 5 min
+                    self.spirit_release_timer += elapsed
+                else:
+                    self.repop()
         self.last_tick = now
 
-        if self.dirty:
+        # Pending update after a teleport
+        if self.teleport_pending_update:
+            self.send_update_self(create=True, force_inventory_update=True)
+            self.send_update_surrounding(self.generate_proper_update_packet(
+                create=True), include_self=False, create=True, force_inventory_update=True)
+            GridManager.update_object(self)
+
+            self.teleport_pending_update = False
+        elif self.dirty:
             self.send_update_self()
             self.send_update_surrounding(self.generate_proper_update_packet())
             GridManager.update_object(self)
@@ -750,8 +768,8 @@ class PlayerManager(UnitManager):
 
         self.session.request.sendall(update_packet)
 
-    def send_update_surrounding(self, update_packet, include_self=False, create=False):
-        if not create and self.dirty_inventory:
+    def send_update_surrounding(self, update_packet, include_self=False, create=False, force_inventory_update=False):
+        if not create and (self.dirty_inventory or force_inventory_update):
             self.inventory.send_inventory_update(self.session, is_self=False)
             self.inventory.build_update()
 
@@ -773,6 +791,7 @@ class PlayerManager(UnitManager):
             self.session.request.sendall(death_notify_packet)
 
         TradeManager.cancel_trade(self)
+        self.spirit_release_timer = 0
 
         self.set_dirty()
 
@@ -784,8 +803,14 @@ class PlayerManager(UnitManager):
         if self.power_type == PowerTypes.TYPE_MANA:
             self.set_mana(int(self.max_power_1 / 2))
 
+        self.spirit_release_timer = 0
+
         if force_update:
             self.set_dirty()
+
+    def repop(self):
+        self.respawn(force_update=False)
+        self.teleport_deathbind()
 
     # override
     def get_type(self):
