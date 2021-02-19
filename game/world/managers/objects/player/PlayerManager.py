@@ -597,6 +597,9 @@ class PlayerManager(UnitManager):
         if current_time > self.last_regen + 2:
             # Rate calculation per class
 
+            should_update_health = self.health < self.max_health
+            should_update_power = True
+
             health_regen = 0
             mana_regen = 0
             if self.player.class_ == Classes.CLASS_DRUID:
@@ -626,7 +629,7 @@ class PlayerManager(UnitManager):
 
             # Health
 
-            if not self.in_combat or self.player.race == Races.RACE_TROLL:
+            if should_update_health and not self.in_combat or self.player.race == Races.RACE_TROLL:
                 if self.player.race == Races.RACE_TROLL:
                     health_regen *= 0.1 if self.in_combat else 1.1
                 if self.is_sitting:
@@ -643,37 +646,50 @@ class PlayerManager(UnitManager):
 
             # Mana
             if self.power_type == PowerTypes.TYPE_MANA:
-                if self.in_combat:
-                    # 1% per second (5% per 5 seconds)
-                    mana_regen = self.base_mana * 0.02
+                if self.power_1 == self.max_power_1:
+                    should_update_power = False
+                else:
+                    if self.in_combat:
+                        # 1% per second (5% per 5 seconds)
+                        mana_regen = self.base_mana * 0.02
 
-                if mana_regen < 1:
-                    mana_regen = 1
-                if self.power_1 + mana_regen >= self.max_power_1:
-                    self.set_mana(self.max_power_1)
-                elif self.power_1 < self.max_power_1:
-                    self.set_mana(self.power_1 + int(mana_regen))
+                    if mana_regen < 1:
+                        mana_regen = 1
+                    if self.power_1 + mana_regen >= self.max_power_1:
+                        self.set_mana(self.max_power_1)
+                    elif self.power_1 < self.max_power_1:
+                        self.set_mana(self.power_1 + int(mana_regen))
             # Rage
             elif self.power_type == PowerTypes.TYPE_RAGE:
-                if not self.in_combat:
-                    if self.power_2 < 200:
-                        self.set_rage(0)
-                    else:
-                        self.set_rage(int((self.power_2 / 10) - 2))
+                if self.power_2 == 0:
+                    should_update_power = False
+                else:
+                    if not self.in_combat:
+                        if self.power_2 < 200:
+                            self.set_rage(0)
+                        else:
+                            self.set_rage(int((self.power_2 / 10) - 2))
             # Focus
             elif self.power_type == PowerTypes.TYPE_FOCUS:
-                if self.power_3 + 5 >= self.max_power_3:
-                    self.set_focus(self.max_power_3)
-                elif self.power_3 < self.max_power_3:
-                    self.set_focus(self.power_3 + 5)
+                if self.power_3 == self.max_power_3:
+                    should_update_power = False
+                else:
+                    if self.power_3 + 5 >= self.max_power_3:
+                        self.set_focus(self.max_power_3)
+                    elif self.power_3 < self.max_power_3:
+                        self.set_focus(self.power_3 + 5)
             # Energy
             elif self.power_type == PowerTypes.TYPE_ENERGY:
-                if self.power_4 + 20 >= self.max_power_4:
-                    self.set_energy(self.max_power_4)
-                elif self.power_4 < self.max_power_4:
-                    self.set_energy(self.power_4 + 20)
+                if self.power_4 == self.max_power_4:
+                    should_update_power = False
+                else:
+                    if self.power_4 + 20 >= self.max_power_4:
+                        self.set_energy(self.max_power_4)
+                    elif self.power_4 < self.max_power_4:
+                        self.set_energy(self.power_4 + 20)
 
-            self.flagged_for_update = True
+            if should_update_health or should_update_power:
+                self.flagged_for_update = True
             self.last_regen = current_time
 
     # override
