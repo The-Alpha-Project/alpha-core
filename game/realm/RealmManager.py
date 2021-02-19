@@ -4,6 +4,7 @@ import socket
 
 from struct import pack
 
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from network.packet.PacketWriter import *
@@ -33,7 +34,9 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
             1,  # Number of realms
             name_bytes,
             address_bytes,
-            0  # Number of players online? Can't be characters per account because we don't have account info yet.
+            # I assume this number is meant to show current online players since there is
+            # no way of knowing the account yet when realmlist is requested in 0.5.3.
+            WorldSessionStateHandler.get_process_shared_session_number()
         )
 
         Logger.debug('[%s] Sending realmlist...' % sck.getpeername()[0])

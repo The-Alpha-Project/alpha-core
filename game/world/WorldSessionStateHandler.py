@@ -1,7 +1,8 @@
 import threading
-from time import time
+from multiprocessing import Value
 
 WORLD_SESSIONS = []
+CURRENT_SESSIONS = Value('i', 0)
 
 
 class WorldSessionStateHandler(object):
@@ -9,11 +10,13 @@ class WorldSessionStateHandler(object):
     @staticmethod
     def add(session):
         if session not in WORLD_SESSIONS:
+            CURRENT_SESSIONS.value += 1
             WORLD_SESSIONS.append(session)
 
     @staticmethod
     def remove(session):
         if session in WORLD_SESSIONS:
+            CURRENT_SESSIONS.value -= 1
             WORLD_SESSIONS.remove(session)
 
     @staticmethod
@@ -26,6 +29,10 @@ class WorldSessionStateHandler(object):
     @staticmethod
     def get_world_sessions():
         return list(WORLD_SESSIONS)
+
+    @staticmethod
+    def get_process_shared_session_number():
+        return CURRENT_SESSIONS.value
 
     @staticmethod
     def get_session_by_account_id(account_id):
