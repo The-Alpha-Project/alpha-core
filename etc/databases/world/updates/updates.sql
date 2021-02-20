@@ -83,5 +83,11 @@ begin not atomic
         update spawns_creatures set ignored = 1 where spawn_entry1 = 14223;
         update creature_template set display_id1 = 2296 where display_id1 = 10877;
     end if;
+
+    -- 20/02/2021 1
+    if (select count(*) from applied_updates where id='180220211') = 0 then
+        update areatrigger_teleport set required_level = 10 where id = 257;
+
+    end if;
 end $
 delimiter ;
