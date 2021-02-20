@@ -85,7 +85,7 @@ begin not atomic
     end if;
 
     -- 20/02/2021 1
-    if (select count(*) from applied_updates where id='180220211') = 0 then
+    if (select count(*) from applied_updates where id='200220211') = 0 then
         update areatrigger_teleport set required_level = 10 where id = 257;
 
     end if;
