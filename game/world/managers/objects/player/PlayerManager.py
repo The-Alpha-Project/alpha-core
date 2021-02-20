@@ -313,8 +313,7 @@ class PlayerManager(UnitManager):
             self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
         # Loading screen
         else:
-            data = pack('<I', map_)
-            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING, data))
+            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
 
             data = pack(
                 '<B4f',
