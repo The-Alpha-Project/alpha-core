@@ -427,7 +427,7 @@ class PlayerManager(UnitManager):
         self.coinage += amount
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
 
-        self.send_update_self(self.generate_proper_update_packet(is_self=True), include_items=reload_items)
+        self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=reload_items)
 
     def load_skills(self):
         for skill in WorldDatabaseManager.player_create_skill_get(self.player.race,
