@@ -80,7 +80,6 @@ class PlayerManager(UnitManager):
         self.last_regen = 0
         self.spirit_release_timer = 0
         self.dirty_inventory = False
-        self.teleport_pending_update = False
 
         if self.player:
             self.set_player_variables()
@@ -716,8 +715,11 @@ class PlayerManager(UnitManager):
 
     # override
     def update(self):
-        now = time.time()
+        # Prevent updates while teleporting
+        if self.is_teleporting:
+            return
 
+        now = time.time()
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
@@ -736,15 +738,7 @@ class PlayerManager(UnitManager):
                     self.repop()
         self.last_tick = now
 
-        # Pending update after a teleport
-        if self.teleport_pending_update:
-            self.send_update_self(create=True, force_inventory_update=True)
-            self.send_update_surrounding(self.generate_proper_update_packet(
-                create=True), include_self=False, create=True, force_inventory_update=True)
-            GridManager.update_object(self)
-
-            self.teleport_pending_update = False
-        elif self.dirty:
+        if self.dirty:
             self.send_update_self()
             self.send_update_surrounding(self.generate_proper_update_packet())
             GridManager.update_object(self)
