@@ -156,15 +156,18 @@ class ContainerManager(ItemManager):
                 return slot
         return -1
 
-    def is_full(self):
+    def get_empty_slots(self):
         if self.is_backpack:
             item_count = 0
             for bag_slot in range(InventorySlots.SLOT_ITEM_START, InventorySlots.SLOT_ITEM_END + 1):
                 if bag_slot in self.sorted_slots:
                     item_count += 1
-            return item_count >= self.total_slots
+            return self.total_slots - item_count
         else:
-            return len(self.sorted_slots) >= self.total_slots
+            return self.total_slots - len(self.sorted_slots)
+
+    def is_full(self):
+        return self.get_empty_slots() == 0
 
     def is_empty(self):
         if self.is_backpack:

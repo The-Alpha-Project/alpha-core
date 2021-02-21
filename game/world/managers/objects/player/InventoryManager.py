@@ -352,6 +352,25 @@ class InventoryManager(object):
                 self.mark_as_removed(source_item)
                 self.remove_bag(source_slot)
 
+            # Weapon and offhand checks
+            if self.is_equipment_pos(dest_bag, dest_slot):
+                # Wielding a 2 handed weapon, can't equip offhand
+                if self.has_two_handed_weapon() and source_item.equip_slot == InventorySlots.SLOT_OFFHAND:
+                    self.send_equip_error(InventoryError.BAG_2HWEAPONBEINGWIELDED, source_item, dest_item)
+                    return
+
+                # If trying to equip a 2 handed weapon, check if we can store the equipped weapons, if any
+                if source_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
+                    if self.has_offhand():
+                        if self.get_empty_slots() > 0:
+                            off_dest_bag_slot, off_dest_slot = self.get_next_available_inventory_slot()
+                            self.swap_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND,
+                                           off_dest_bag_slot, off_dest_slot)
+                        else:
+                            self.send_equip_error(InventoryError.BAG_2HWEAPON_ITEMEXISTSINOFFHAND, source_item,
+                                                  dest_item)
+                            return
+
             # Actual transfer
 
             # Remove items
@@ -447,6 +466,13 @@ class InventoryManager(object):
 
     def send_destroy_packet(self, slot, slot_list):
         self.owner.session.request.sendall(slot_list[slot].get_destroy_packet())
+
+    def get_empty_slots(self):
+        empty_slots = 0
+        for slot, container in self.containers.items():
+            if container:
+                empty_slots += container.get_empty_slots()
+        return empty_slots
 
     def can_store_item(self, item_template, count, on_bank=False):
         amount = count
@@ -545,6 +571,9 @@ class InventoryManager(object):
     def get_offhand(self):
         return self.get_backpack().get_item(InventorySlots.SLOT_OFFHAND)
 
+    def get_ranged(self):
+        return self.get_backpack().get_item(InventorySlots.SLOT_RANGED)
+
     def has_main_weapon(self):
         item = self.get_main_hand()
         return item and item.item_template.inventory_type == InventoryTypes.WEAPONMAINHAND
@@ -559,6 +588,9 @@ class InventoryManager(object):
     def has_two_handed_weapon(self):
         item = self.get_main_hand()
         return item and item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
+
+    def has_ranged_weapon(self):
+        return self.get_ranged() is not None
 
     # Note: Not providing item_1 or item_2 can cause client-side greyed-out items.
     def send_equip_error(self, error, item_1=None, item_2=None, required_level=0):
