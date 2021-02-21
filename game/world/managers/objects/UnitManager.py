@@ -151,7 +151,7 @@ class UnitManager(ObjectManager):
         if not victim or victim == self:
             return False
 
-        # Dead units can't neither attack nor be attacked
+        # Dead units can neither attack nor be attacked
         if not self.is_alive or not victim.is_alive:
             return False
 
