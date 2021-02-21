@@ -78,12 +78,13 @@ class ObjectManager(object):
         data += self._get_movement_fields()
 
         # Misc fields
+        combat_unit = UnitManager.UnitManager(self).combat_target if ObjectTypes.TYPE_UNIT in self.object_type else None
         data += pack(
             '<3IQ',
             1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
             1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
             0,  # TimerId
-            UnitManager.UnitManager(self).combat_target if isinstance(self, UnitManager.UnitManager) else 0, # Victim GUID
+            combat_unit.guid if combat_unit else 0,  # Victim GUID
         )
 
         # Normal update fields

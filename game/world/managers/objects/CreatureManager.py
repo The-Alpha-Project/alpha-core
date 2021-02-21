@@ -54,6 +54,7 @@ class CreatureManager(UnitManager):
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
 
             self.fully_loaded = False
+            self.is_evading = False
 
         if self.creature_instance:
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)

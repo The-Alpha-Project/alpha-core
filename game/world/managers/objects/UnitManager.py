@@ -5,7 +5,7 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes, AttackTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode
 from utils.constants.UpdateFields import UnitFields
 
@@ -70,7 +70,8 @@ class UnitManager(ObjectManager):
                  dynamic_flags=0,
                  damage=0,  # current damage, max damage
                  bytes_2=0,  # combo points, 0, 0, 0
-                 combat_target=0,  # victim guid
+                 current_target = 0, # guid
+                 combat_target=None,  # victim
                  **kwargs):
         super().__init__(**kwargs)
 
@@ -133,6 +134,7 @@ class UnitManager(ObjectManager):
         self.dynamic_flags = dynamic_flags
         self.damage = damage  # current damage, max damage
         self.bytes_2 = bytes_2  # combo points, 0, 0, 0
+        self.current_target = current_target
 
         self.object_type.append(ObjectTypes.TYPE_UNIT)
         self.update_packet_factory.init_values(UnitFields.UNIT_END)
@@ -141,6 +143,85 @@ class UnitManager(ObjectManager):
         self.is_alive = True
         self.is_sitting = False
         self.in_combat = False
+        self.attackers = {}
+        self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
+                              AttackTypes.OFFHAND_ATTACK: 0}
+
+    def attack(self, victim, is_melee=True):
+        if not victim or victim == self:
+            return False
+
+        # Dead units can't neither attack nor be attacked
+        if not self.is_alive or not victim.is_alive:
+            return False
+
+        # Mounted players can't attack
+        if ObjectTypes.TYPE_PLAYER in self.object_type and self.mount_display_id > 0:
+            return False
+
+        # Nobody can attack a GM
+        if ObjectTypes.TYPE_PLAYER in victim.object_type and victim.is_gm:
+            return False
+
+        if victim.is_evading:
+            return False
+
+        # In fight already
+        if self.combat_target:
+            if self.combat_target == victim:
+                if is_melee:
+                    self.send_melee_attack_start(victim)
+                    return True
+                return False
+
+            self.attack_stop(target_switch=True)
+
+        self.set_current_target(victim.guid)
+        self.combat_target = victim
+        victim.attackers[self.guid] = self
+
+        # TODO: Reset attack timer for offhand weapon if needed
+
+        if is_melee:
+            self.send_melee_attack_start(victim)
+
+        return True
+
+    def attack_stop(self, target_switch=False):
+        if self.combat_target and self.guid in self.combat_target.attackers:
+            self.combat_target.attackers.pop(self.guid, None)
+
+        # Clear target
+        self.set_current_target(self.guid)
+        victim = self.combat_target
+        self.combat_target = None
+
+        self.send_melee_attack_stop(victim)
+
+    def send_melee_attack_start(self, victim):
+        data = pack('<2Q', self.guid, victim.guid)
+        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTART, data), self)
+
+    def send_melee_attack_stop(self, victim):
+        data = pack('<2QI', self.guid, victim.guid if victim else 0, 0)  # Last int can be 0x1 too, unknown.
+        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
+
+    def update_melee_attacking_state(self):
+        pass
+        # TODO Implement
+
+    def set_current_target(self, guid):
+        self.current_target = guid
+        self.set_uint64(UnitFields.UNIT_FIELD_TARGET, guid)
+
+    def is_attack_ready(self, attack_type):
+        return self.attack_timers[attack_type] <= 0
+
+    def update_attack_time(self, attack_type, value):
+        self.set_attack_timer(attack_type, self.attack_timers[attack_type] - value)
+
+    def set_attack_timer(self, attack_type, value):
+        self.attack_timers[attack_type] = value
 
     def play_emote(self, emote):
         if emote != 0:

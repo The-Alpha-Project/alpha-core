@@ -539,6 +539,27 @@ class InventoryManager(object):
             return slot < self.containers[bag_slot].max_slot
         return False
 
+    def get_main_hand(self):
+        return self.get_backpack().get_item(InventorySlots.SLOT_MAINHAND)
+
+    def get_offhand(self):
+        return self.get_backpack().get_item(InventorySlots.SLOT_OFFHAND)
+
+    def has_main_weapon(self):
+        item = self.get_main_hand()
+        return item and item.item_template.inventory_type == InventoryTypes.WEAPONMAINHAND
+
+    def has_offhand(self):
+        return self.get_offhand() is not None
+
+    def has_offhand_weapon(self):
+        item = self.get_offhand()
+        return item and item.item_template.inventory_type == InventoryTypes.WEAPONOFFHAND
+
+    def has_two_handed_weapon(self):
+        item = self.get_main_hand()
+        return item and item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
+
     # Note: Not providing item_1 or item_2 can cause client-side greyed-out items.
     def send_equip_error(self, error, item_1=None, item_2=None, required_level=0):
         data = pack('<B', error)

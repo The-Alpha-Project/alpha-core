@@ -16,7 +16,8 @@ from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandle
 from network.packet.PacketWriter import *
 from utils import Formulas
 from utils.constants.ItemCodes import InventorySlots
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid, UpdateTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid, \
+    UpdateTypes, AttackTypes
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
@@ -44,7 +45,6 @@ class PlayerManager(UnitManager):
                  combo_points=0,
                  chat_flags=0,
                  is_online=False,
-                 current_target=0,
                  current_selection=0,
                  deathbind=None,
                  **kwargs):
@@ -65,7 +65,6 @@ class PlayerManager(UnitManager):
         self.base_hp = base_hp
         self.base_mana = base_mana
         self.combo_points = combo_points
-        self.current_target = current_target
         self.current_selection = current_selection
 
         self.chat_flags = chat_flags
@@ -80,6 +79,7 @@ class PlayerManager(UnitManager):
         self.last_regen = 0
         self.spirit_release_timer = 0
         self.dirty_inventory = False
+        self.swing_error = 0
 
         if self.player:
             self.set_player_variables()
@@ -535,10 +535,6 @@ class PlayerManager(UnitManager):
         self.current_selection = guid
         self.set_uint64(PlayerFields.PLAYER_SELECTION, guid)
 
-    def set_current_target(self, guid):
-        self.current_target = guid
-        self.set_uint64(UnitFields.UNIT_FIELD_TARGET, guid)
-
     def set_base_str(self, str_):
         self.base_str = str_
         self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT0, str_)
@@ -694,6 +690,33 @@ class PlayerManager(UnitManager):
                 self.set_dirty()
             self.last_regen = current_time
 
+    def attack_update(self, elapsed):
+        if self.combat_target and not self.combat_target.is_alive:
+            self.leave_combat()
+            return
+
+        self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed)
+        if self.inventory.has_offhand_weapon():
+            self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed)
+
+        self.update_melee_attacking_state()
+
+    def leave_combat(self):
+        if not self.in_combat:
+            return
+
+        self.send_melee_attack_stop(self.combat_target)
+        self.swing_error = 0
+
+        self.set_attack_timer(AttackTypes.BASE_ATTACK, 0)
+        if self.inventory.has_offhand_weapon():
+            self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 0)
+
+        self.combat_target = None
+        self.in_combat = False
+        self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
+        self.set_dirty()
+
     # override
     def set_weapon_mode(self, weapon_mode):
         super().set_weapon_mode(weapon_mode)
@@ -728,6 +751,8 @@ class PlayerManager(UnitManager):
 
             # Regeneration
             self.regenerate(now)
+            # Attack update
+            self.attack_update(elapsed)
 
             # Release spirit timer
             if not self.is_alive:
