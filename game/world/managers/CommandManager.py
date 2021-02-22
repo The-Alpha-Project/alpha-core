@@ -1,5 +1,6 @@
 from struct import pack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
@@ -133,6 +134,19 @@ class CommandManager(object):
             item_text = '%u - %s' % (item.entry, item_link)
             ChatManager.send_system_message(world_session, item_text)
         return 0, '%u items found.' % len(items)
+
+    @staticmethod
+    def sspell(world_session, args):
+        spell_name = args.strip()
+        if not spell_name:
+            return -1, 'please specify a spell name to start searching.'
+        spells = DbcDatabaseManager.spell_get_by_name(spell_name)
+
+        for spell in spells:
+            spell_text = '%u - |cFF00FFFF[%s]|r' % (spell.ID, spell.Name_enUS.replace('\\', ''))
+            spell_text += ' (%s)' % spell.NameSubtext_enUS if spell.NameSubtext_enUS else ''
+            ChatManager.send_system_message(world_session, spell_text)
+        return 0, '%u spells found.' % len(spells)
 
     @staticmethod
     def port(world_session, args):
@@ -399,6 +413,7 @@ GM_COMMAND_DEFINITIONS = {
     'tel': CommandManager.tel,
     'stel': CommandManager.stel,
     'sitem': CommandManager.sitem,
+    'sspell': CommandManager.sspell,
     'port': CommandManager.port,
     'tickets': CommandManager.tickets,
     'rticket': CommandManager.rticket,

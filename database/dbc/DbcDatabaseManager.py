@@ -77,6 +77,13 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return res
 
+    @staticmethod
+    def spell_get_by_name(spell_name):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(Spell).filter(Spell.Name_enUS.like('%' + spell_name + '%')).all()
+        dbc_db_session.close()
+        return res
+
     # Skill
 
     @staticmethod
