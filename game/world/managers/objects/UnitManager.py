@@ -1,3 +1,4 @@
+import math
 from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -5,9 +6,44 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes, AttackTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes, AttackTypes, ProcFlags, \
+    ProcFlagsExLegacy, HitInfo
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode
 from utils.constants.UpdateFields import UnitFields
+
+
+class DamageInfoHolder:
+    def __init__(self,
+                 attacker=None,
+                 target=None,
+                 damage_school_mask=0,
+                 attack_type=AttackTypes.BASE_ATTACK,
+                 total_damage=0,
+                 damage=0,
+                 clean_damage=0,
+                 absorb=0,
+                 resist=0,
+                 blocked_amount=0,
+                 target_state=0,
+                 hit_info=HitInfo.NORMALSWING,
+                 proc_attacker=ProcFlags.NONE,
+                 proc_victim=ProcFlags.NONE,
+                 proc_ex=ProcFlagsExLegacy.NONE):
+        self.attacker = attacker
+        self.target = target
+        self.damage_school_mask = damage_school_mask
+        self.attack_type = attack_type
+        self.total_damage = total_damage
+        self.damage = damage
+        self.clean_damage = clean_damage
+        self.absorb = absorb
+        self.resist = resist
+        self.blocked_amount = blocked_amount
+        self.target_state = target_state
+        self.hit_info = hit_info
+        self.proc_attacker = proc_attacker
+        self.proc_victim = proc_victim
+        self.proc_ex = proc_ex
 
 
 class UnitManager(ObjectManager):
@@ -143,6 +179,8 @@ class UnitManager(ObjectManager):
         self.is_alive = True
         self.is_sitting = False
         self.in_combat = False
+        self.swing_error = 0
+        self.extra_attacks = 0
         self.attackers = {}
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
                               AttackTypes.OFFHAND_ATTACK: 0}
@@ -209,22 +247,139 @@ class UnitManager(ObjectManager):
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def update_melee_attacking_state(self):
+        swing_error = 0
+        combat_angle = math.pi
+
+        if not self.combat_target:
+            self.leave_combat()
+            return False
+
+        if not self.combat_target.is_alive:
+            self.attackers.pop(self.combat_target.guid)
+            return False
+
+        # TODO: Implement two hand timer
+        if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
+            return False
+
+        current_angle = self.location.angle(self.combat_target.location)
+        # Out of reach
+        if self.location.distance(self.combat_target.location) > self.combat_reach:
+            swing_error = 1
+        # Not proper angle
+        elif current_angle > combat_angle or current_angle < -combat_angle:
+            swing_error = 2
+        else:
+            # Main hand attack
+            if self.is_attack_ready(AttackTypes.BASE_ATTACK):
+                # Prevent both and attacks at the same time
+                if self.has_offhand_weapon():
+                    if self.attack_timers[AttackTypes.OFFHAND_ATTACK] < 200:
+                        self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 200)
+
+                self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK, False)
+                self.set_attack_timer(AttackTypes.BASE_ATTACK, self.base_attack_time)
+
+            # Off hand attack
+            if self.has_offhand_weapon() and self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
+                # Prevent both and attacks at the same time
+                if self.attack_timers[AttackTypes.BASE_ATTACK] < 200:
+                    self.set_attack_timer(AttackTypes.BASE_ATTACK, 200)
+
+                self.attacker_state_update(self.combat_target, AttackTypes.OFFHAND_ATTACK, False)
+                self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
+
+        if self.object_type == ObjectTypes.TYPE_PLAYER:
+            if swing_error != 0:
+                self.set_attack_timer(AttackTypes.BASE_ATTACK, self.base_attack_time)
+                if self.has_offhand_weapon():
+                    self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
+                if swing_error == 1:
+                    self.send_attack_swing_not_in_range()
+                elif swing_error == 2:
+                    self.send_attack_swing_facing_wrong_way()
+
+        self.swing_error = swing_error
+        return swing_error == 0
+
+    def attacker_state_update(self, victim, attack_type, extra):
+        if attack_type == AttackTypes.BASE_ATTACK:
+            # TODO: Cast current melee spell
+
+            # No recent extra attack only at any non extra attack
+            if not extra and self.extra_attacks > 0:
+                self.execute_extra_attacks()
+
+            self.send_attack_state_update(self.calculate_melee_damage(self.combat_target, attack_type))
+
+            # Extra attack only at any non extra attack
+            if not extra and self.extra_attacks > 0:
+                self.execute_extra_attacks()
+
+    def execute_extra_attacks(self):
+        while self.extra_attacks > 0:
+            self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK, True)
+            self.extra_attacks -= 1
+
+    def calculate_melee_damage(self, combat_target, attack_type):
+        # TODO: JUST FOR TESTING, IMPLEMENT CALCULATIONS LATER
+        # OFF HAND NOT WORKING FOR SOME REASON
+        return DamageInfoHolder(attacker=self, target=combat_target, attack_type=attack_type, damage=20,
+                                total_damage=20, hit_info=HitInfo.NORMALSWING if attack_type == AttackTypes.BASE_ATTACK else HitInfo.OFFHAND)
+
+    def send_attack_state_update(self, damage_info):
+        data = pack('<I2QIBIf7I',
+                    damage_info.hit_info,
+                    damage_info.attacker.guid,
+                    damage_info.target.guid,
+                    damage_info.total_damage,
+                    # Sub damage count
+                    1,
+                    damage_info.damage_school_mask,
+                    damage_info.total_damage,
+                    damage_info.damage,
+                    damage_info.absorb,
+                    damage_info.target_state,
+                    damage_info.resist,
+                    0, 0,
+                    damage_info.blocked_amount)
+        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATE, data), self,
+                                     include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
+
+        # Damage effects
+        self.deal_damage(damage_info.target, damage_info.total_damage)
+
+    def deal_damage(self, target, damage):
         pass
-        # TODO Implement
 
     def set_current_target(self, guid):
         self.current_target = guid
         self.set_uint64(UnitFields.UNIT_FIELD_TARGET, guid)
 
+    # Implemented by PlayerManager
+    def send_attack_swing_not_in_range(self):
+        pass
+
+    # Implemented by PlayerManager
+    def send_attack_swing_facing_wrong_way(self):
+        pass
+
     # Implemented by PlayerManager and CreatureManager
     def has_offhand_weapon(self):
         return False
+
+    # Implemented by PlayerManager and CreatureManager
+    def leave_combat(self):
+        pass
 
     def is_attack_ready(self, attack_type):
         return self.attack_timers[attack_type] <= 0
 
     def update_attack_time(self, attack_type, value):
-        self.set_attack_timer(attack_type, self.attack_timers[attack_type] - value)
+        new_value = self.attack_timers[attack_type] - value
+        if new_value < 0:
+            new_value = 0
+        self.set_attack_timer(attack_type, new_value)
 
     def set_attack_timer(self, attack_type, value):
         self.attack_timers[attack_type] = value

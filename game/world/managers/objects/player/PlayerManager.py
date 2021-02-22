@@ -15,7 +15,6 @@ from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from utils import Formulas
-from utils.constants.ItemCodes import InventorySlots
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid, \
     UpdateTypes, AttackTypes
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
@@ -79,7 +78,6 @@ class PlayerManager(UnitManager):
         self.last_regen = 0
         self.spirit_release_timer = 0
         self.dirty_inventory = False
-        self.swing_error = 0
 
         if self.player:
             self.set_player_variables()
@@ -154,21 +152,29 @@ class PlayerManager(UnitManager):
 
         if self.player.race == Races.RACE_HUMAN:
             self.bounding_radius = 0.306 if is_male else 0.208
+            self.combat_reach = 1.5
         elif self.player.race == Races.RACE_ORC:
             self.bounding_radius = 0.372 if is_male else 0.236
+            self.combat_reach = 1.5
         elif self.player.race == Races.RACE_DWARF:
             self.bounding_radius = 0.347
+            self.combat_reach = 1.5
         elif self.player.race == Races.RACE_NIGHT_ELF:
             self.bounding_radius = 0.389 if is_male else 0.306
+            self.combat_reach = 1.5
         elif self.player.race == Races.RACE_UNDEAD:
             self.bounding_radius = 0.383
+            self.combat_reach = 1.5
         elif self.player.race == Races.RACE_TAUREN:
             self.bounding_radius = 0.9747 if is_male else 0.8725
+            self.combat_reach = 4.05 if is_male else 3.75
             self.scale = 1.35 if is_male else 1.25
         elif self.player.race == Races.RACE_GNOME:
             self.bounding_radius = 0.3519
+            self.combat_reach = 1.725
         elif self.player.race == Races.RACE_TROLL:
             self.bounding_radius = 0.306
+            self.combat_reach = 1.5
 
         self.race_mask = 1 << (self.player.race - 1)
         self.class_mask = 1 << (self.player.class_ - 1)
@@ -695,12 +701,21 @@ class PlayerManager(UnitManager):
             self.leave_combat()
             return
 
-        self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed)
+        self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
         if self.inventory.has_offhand_weapon():
-            self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed)
+            self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
 
         self.update_melee_attacking_state()
 
+    # Implemented by PlayerManager
+    def send_attack_swing_not_in_range(self):
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_ATTACKSWING_NOTINRANGE))
+
+    # Implemented by PlayerManager
+    def send_attack_swing_facing_wrong_way(self):
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_ATTACKSWING_BADFACING))
+
+    # override
     def leave_combat(self):
         if not self.in_combat:
             return

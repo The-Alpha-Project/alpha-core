@@ -211,6 +211,10 @@ class CreatureManager(UnitManager):
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
 
     # override
+    def leave_combat(self):
+        pass
+
+    # override
     def has_offhand_weapon(self):
         return self.has_offhand_weapon
 
