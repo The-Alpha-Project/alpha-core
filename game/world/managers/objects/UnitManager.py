@@ -151,18 +151,16 @@ class UnitManager(ObjectManager):
         if not victim or victim == self:
             return False
 
-        is_player = ObjectTypes.TYPE_PLAYER in self.object_type
-
         # Dead units can neither attack nor be attacked
         if not self.is_alive or not victim.is_alive:
             return False
 
         # Mounted players can't attack
-        if is_player and self.mount_display_id > 0:
+        if self.get_type() == ObjectTypes.TYPE_PLAYER and self.mount_display_id > 0:
             return False
 
         # Nobody can attack a GM
-        if is_player and victim.is_gm:
+        if victim.get_type() == ObjectTypes.TYPE_PLAYER and victim.is_gm:
             return False
 
         if victim.is_evading:
