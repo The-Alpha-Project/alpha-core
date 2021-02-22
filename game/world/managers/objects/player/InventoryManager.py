@@ -419,6 +419,8 @@ class InventoryManager(object):
                 RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
             if dest_item and self.containers[dest_bag]:
                 self.containers[source_bag].set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
+                # Set default equip slot of the offhand weapon to main hand if it's a one handed weapon when
+                # putting it back to the bags.
                 if dest_slot == InventorySlots.SLOT_OFFHAND and \
                         dest_item.item_template.inventory_type == InventoryTypes.WEAPON:
                     dest_item.equip_slot = InventorySlots.SLOT_MAINHAND.value
