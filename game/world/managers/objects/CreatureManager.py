@@ -144,6 +144,16 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item_info)
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, item_template.sheath)
 
+            # Main hand
+            if slot == 0:
+                # This is a TOTAL guess, I have no idea about real weapon reach values.
+                # The weapon reach unit field was removed in patch 0.10.
+                if item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
+                    self.weapon_reach = 2.0
+                else:
+                    self.weapon_reach = 1.0
+
+            # Offhand
             if slot == 1:
                 self.has_offhand_weapon = (item_template.inventory_type == InventoryTypes.WEAPON or
                                            item_template.inventory_type == InventoryTypes.WEAPONOFFHAND)
@@ -187,6 +197,7 @@ class CreatureManager(UnitManager):
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
         self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
         self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
+        self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)

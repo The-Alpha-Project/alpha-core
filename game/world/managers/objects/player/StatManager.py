@@ -1,6 +1,6 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventorySlots, InventoryStats
+from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes
 from utils.constants.UnitCodes import PowerTypes
 
 
@@ -29,6 +29,7 @@ class StatManager(object):
         self.melee_damage = [0] * 2
         self.melee_attack_time = config.Unit.Defaults.base_attack_time
         self.offhand_attack_time = config.Unit.Defaults.offhand_attack_time
+        self.weapon_reach = 0
 
     def init_stats(self):
         base_stats = WorldDatabaseManager.player_get_class_level_stats(self.player_mgr.player.class_,
@@ -102,6 +103,7 @@ class StatManager(object):
         self.melee_damage = [0] * 2
         self.melee_attack_time = config.Unit.Defaults.base_attack_time
         self.offhand_attack_time = config.Unit.Defaults.offhand_attack_time
+        self.weapon_reach = 0
 
         for slot, item in list(self.player_mgr.inventory.get_backpack().sorted_slots.items()):
             # Check only equipped items
@@ -135,6 +137,13 @@ class StatManager(object):
                     self.melee_damage[0] = int(item.item_template.dmg_min1)
                     self.melee_damage[1] = int(item.item_template.dmg_max1)
                     self.melee_attack_time = item.item_template.delay
+
+                    # This is a TOTAL guess, I have no idea about real weapon reach values.
+                    # The weapon reach unit field was removed in patch 0.10.
+                    if item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
+                        self.weapon_reach = 2.0
+                    else:
+                        self.weapon_reach = 1.0
 
                 if item.current_slot == InventorySlots.SLOT_OFFHAND:
                     self.offhand_attack_time = item.item_template.delay
@@ -174,3 +183,4 @@ class StatManager(object):
         self.player_mgr.set_melee_damage(self.melee_damage[0], self.melee_damage[1])
         self.player_mgr.set_melee_attack_time(self.melee_attack_time)
         self.player_mgr.set_offhand_attack_time(self.offhand_attack_time)
+        self.player_mgr.set_weapon_reach(self.weapon_reach)

@@ -78,6 +78,7 @@ class UnitManager(ObjectManager):
                  flags=0,
                  coinage=0,
                  combat_reach=config.Unit.Defaults.combat_reach,
+                 weapon_reach=0,
                  mount_display_id=0,
                  resistance_buff_mods_positive_0=0,  # Armor
                  resistance_buff_mods_positive_1=0,  # Holy
@@ -142,6 +143,7 @@ class UnitManager(ObjectManager):
         self.flags = flags
         self.coinage = coinage
         self.combat_reach = combat_reach
+        self.weapon_reach = weapon_reach
         self.mount_display_id = mount_display_id
         self.resistance_buff_mods_positive_0 = resistance_buff_mods_positive_0
         self.resistance_buff_mods_positive_1 = resistance_buff_mods_positive_1

@@ -500,6 +500,7 @@ class PlayerManager(UnitManager):
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
         self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
         self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
+        self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, self.resistance_buff_mods_positive_0)
@@ -540,6 +541,10 @@ class PlayerManager(UnitManager):
     def set_current_selection(self, guid):
         self.current_selection = guid
         self.set_uint64(PlayerFields.PLAYER_SELECTION, guid)
+
+    def set_weapon_reach(self, reach):
+        self.weapon_reach = reach
+        self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, reach)
 
     def set_base_str(self, str_):
         self.base_str = str_
