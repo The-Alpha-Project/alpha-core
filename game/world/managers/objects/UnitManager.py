@@ -309,12 +309,13 @@ class UnitManager(ObjectManager):
             # No recent extra attack only at any non extra attack
             if not extra and self.extra_attacks > 0:
                 self.execute_extra_attacks()
+                return
 
-            self.send_attack_state_update(self.calculate_melee_damage(self.combat_target, attack_type))
+        self.send_attack_state_update(self.calculate_melee_damage(self.combat_target, attack_type))
 
-            # Extra attack only at any non extra attack
-            if not extra and self.extra_attacks > 0:
-                self.execute_extra_attacks()
+        # Extra attack only at any non extra attack
+        if not extra and self.extra_attacks > 0:
+            self.execute_extra_attacks()
 
     def execute_extra_attacks(self):
         while self.extra_attacks > 0:
@@ -323,9 +324,9 @@ class UnitManager(ObjectManager):
 
     def calculate_melee_damage(self, combat_target, attack_type):
         # TODO: JUST FOR TESTING, IMPLEMENT CALCULATIONS LATER
-        # OFF HAND NOT WORKING FOR SOME REASON
-        return DamageInfoHolder(attacker=self, target=combat_target, attack_type=attack_type, damage=20,
-                                total_damage=20, hit_info=HitInfo.NORMALSWING if attack_type == AttackTypes.BASE_ATTACK else HitInfo.OFFHAND)
+        dmg = 20 if attack_type == AttackTypes.BASE_ATTACK else 10
+        return DamageInfoHolder(attacker=self, target=combat_target, attack_type=attack_type, damage=dmg,
+                                total_damage=dmg, hit_info=HitInfo.NORMALSWING if attack_type == AttackTypes.BASE_ATTACK else HitInfo.OFFHAND)
 
     def send_attack_state_update(self, damage_info):
         data = pack('<I2QIBIf7I',
