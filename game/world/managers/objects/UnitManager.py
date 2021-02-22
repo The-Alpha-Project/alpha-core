@@ -151,16 +151,18 @@ class UnitManager(ObjectManager):
         if not victim or victim == self:
             return False
 
+        is_player = ObjectTypes.TYPE_PLAYER in self.object_type
+
         # Dead units can neither attack nor be attacked
         if not self.is_alive or not victim.is_alive:
             return False
 
         # Mounted players can't attack
-        if ObjectTypes.TYPE_PLAYER in self.object_type and self.mount_display_id > 0:
+        if is_player and self.mount_display_id > 0:
             return False
 
         # Nobody can attack a GM
-        if ObjectTypes.TYPE_PLAYER in victim.object_type and victim.is_gm:
+        if is_player and victim.is_gm:
             return False
 
         if victim.is_evading:
@@ -180,7 +182,9 @@ class UnitManager(ObjectManager):
         self.combat_target = victim
         victim.attackers[self.guid] = self
 
-        # TODO: Reset attack timer for offhand weapon if needed
+        # Reset offhand weapon attack
+        if self.has_offhand_weapon():
+            self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
         if is_melee:
             self.send_melee_attack_start(victim)
@@ -213,6 +217,10 @@ class UnitManager(ObjectManager):
     def set_current_target(self, guid):
         self.current_target = guid
         self.set_uint64(UnitFields.UNIT_FIELD_TARGET, guid)
+
+    # Implemented by PlayerManager and CreatureManager
+    def has_offhand_weapon(self):
+        return False
 
     def is_attack_ready(self, attack_type):
         return self.attack_timers[attack_type] <= 0
@@ -260,7 +268,7 @@ class UnitManager(ObjectManager):
 
     def set_energy(self, energy):
         if energy < 0:
-            mana = 0
+            energy = 0
         self.power_4 = energy
         self.set_uint32(UnitFields.UNIT_FIELD_POWER4, energy)
 
@@ -300,6 +308,10 @@ class UnitManager(ObjectManager):
     def set_melee_attack_time(self, attack_time):
         self.base_attack_time = attack_time
         self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, attack_time)
+
+    def set_offhand_attack_time(self, attack_time):
+        self.offhand_attack_time = attack_time
+        self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, attack_time)
 
     def set_weapon_mode(self, weapon_mode):
         self.sheath_state = weapon_mode

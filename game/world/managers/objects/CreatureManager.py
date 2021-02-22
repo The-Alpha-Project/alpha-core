@@ -7,6 +7,7 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
+from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags, WeaponMode
@@ -55,6 +56,7 @@ class CreatureManager(UnitManager):
 
             self.fully_loaded = False
             self.is_evading = False
+            self.has_offhand_weapon = False
 
         if self.creature_instance:
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
@@ -142,6 +144,10 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item_info)
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, item_template.sheath)
 
+            if slot == 1:
+                self.has_offhand_weapon = (item_template.inventory_type == InventoryTypes.WEAPON or
+                                           item_template.inventory_type == InventoryTypes.WEAPONOFFHAND)
+
     # override
     def get_full_update_packet(self, is_self=True):
         self.finish_loading()
@@ -203,6 +209,10 @@ class CreatureManager(UnitManager):
             self.creature_template.beast_family
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
+
+    # override
+    def has_offhand_weapon(self):
+        return self.has_offhand_weapon
 
     # override
     def set_weapon_mode(self, weapon_mode):

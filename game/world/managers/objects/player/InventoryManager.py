@@ -160,7 +160,11 @@ class InventoryManager(object):
 
         # Destination slot checks
         if dest_container.is_backpack:
-            template_equip_slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
+            # Set equip slot as offhand if trying to equip a one handed weapon in the offhand slot
+            if dest_slot == InventorySlots.SLOT_OFFHAND and item_template.inventory_type == InventoryTypes.WEAPON:
+                template_equip_slot = InventorySlots.SLOT_OFFHAND.value
+            else:
+                template_equip_slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
             if self.is_equipment_pos(dest_bag_slot, dest_slot) and dest_slot != template_equip_slot or \
                     self.is_bag_pos(dest_slot) and item_template.inventory_type != InventoryTypes.BAG:
                 if handle_error:
@@ -265,6 +269,20 @@ class InventoryManager(object):
                 self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
                 return
 
+            # Always default a one handed weapon to main hand unless dest slot is the offhand itself
+            if source_item.item_template.inventory_type == InventoryTypes.WEAPON:
+                if dest_slot == InventorySlots.SLOT_OFFHAND:
+                    source_item.equip_slot = InventorySlots.SLOT_OFFHAND.value
+                else:
+                    source_item.equip_slot = InventorySlots.SLOT_MAINHAND.value
+
+            # Allow swapping between already equipped one handed weapons
+            if dest_item and dest_item.item_template.inventory_type == InventoryTypes.WEAPON:
+                if source_slot == InventorySlots.SLOT_OFFHAND and dest_slot == InventorySlots.SLOT_MAINHAND:
+                    dest_item.equip_slot = InventorySlots.SLOT_OFFHAND.value
+                elif source_slot == InventorySlots.SLOT_MAINHAND and dest_slot == InventorySlots.SLOT_OFFHAND:
+                    dest_item.equip_slot = InventorySlots.SLOT_MAINHAND.value
+
             # Destination slot checks
             if dest_container.is_backpack or self.is_bag_pos(dest_slot):
                 if (self.is_equipment_pos(dest_bag, dest_slot) and dest_slot != source_item.equip_slot
@@ -356,6 +374,9 @@ class InventoryManager(object):
             if self.is_equipment_pos(dest_bag, dest_slot):
                 # Wielding a 2 handed weapon, can't equip offhand
                 if self.has_two_handed_weapon() and source_item.equip_slot == InventorySlots.SLOT_OFFHAND:
+                    # Make sure to reset slot back to main hand if it's a one handed weapon
+                    if source_item.item_template.inventory_type == InventoryTypes.WEAPON:
+                        source_item.equip_slot = InventorySlots.SLOT_MAINHAND.value
                     self.send_equip_error(InventoryError.BAG_2HWEAPONBEINGWIELDED, source_item, dest_item)
                     return
 
@@ -398,6 +419,9 @@ class InventoryManager(object):
                 RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
             if dest_item and self.containers[dest_bag]:
                 self.containers[source_bag].set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
+                if dest_slot == InventorySlots.SLOT_OFFHAND and \
+                        dest_item.item_template.inventory_type == InventoryTypes.WEAPON:
+                    dest_item.equip_slot = InventorySlots.SLOT_MAINHAND.value
                 dest_item.item_instance.bag = source_bag
                 dest_item.item_instance.slot = source_slot
                 RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
@@ -576,14 +600,16 @@ class InventoryManager(object):
 
     def has_main_weapon(self):
         item = self.get_main_hand()
-        return item and item.item_template.inventory_type == InventoryTypes.WEAPONMAINHAND
+        return item and (item.item_template.inventory_type == InventoryTypes.WEAPONMAINHAND or
+                         item.item_template.inventory_type == InventoryTypes.WEAPON)
 
     def has_offhand(self):
         return self.get_offhand() is not None
 
     def has_offhand_weapon(self):
         item = self.get_offhand()
-        return item and item.item_template.inventory_type == InventoryTypes.WEAPONOFFHAND
+        return item and (item.item_template.inventory_type == InventoryTypes.WEAPONOFFHAND or
+                         item.item_template.inventory_type == InventoryTypes.WEAPON)
 
     def has_two_handed_weapon(self):
         item = self.get_main_hand()

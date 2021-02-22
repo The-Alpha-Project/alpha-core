@@ -28,6 +28,7 @@ class StatManager(object):
 
         self.melee_damage = [0] * 2
         self.melee_attack_time = config.Unit.Defaults.base_attack_time
+        self.offhand_attack_time = config.Unit.Defaults.offhand_attack_time
 
     def init_stats(self):
         base_stats = WorldDatabaseManager.player_get_class_level_stats(self.player_mgr.player.class_,
@@ -100,6 +101,7 @@ class StatManager(object):
 
         self.melee_damage = [0] * 2
         self.melee_attack_time = config.Unit.Defaults.base_attack_time
+        self.offhand_attack_time = config.Unit.Defaults.offhand_attack_time
 
         for slot, item in list(self.player_mgr.inventory.get_backpack().sorted_slots.items()):
             # Check only equipped items
@@ -133,6 +135,9 @@ class StatManager(object):
                     self.melee_damage[0] = int(item.item_template.dmg_min1)
                     self.melee_damage[1] = int(item.item_template.dmg_max1)
                     self.melee_attack_time = item.item_template.delay
+
+                if item.current_slot == InventorySlots.SLOT_OFFHAND:
+                    self.offhand_attack_time = item.item_template.delay
 
     def update_max_health(self):
         total_sta = self.player_mgr.base_sta + self.itm_sta  # + buffs and stuff
@@ -168,3 +173,4 @@ class StatManager(object):
     def update_melee_attributes(self):
         self.player_mgr.set_melee_damage(self.melee_damage[0], self.melee_damage[1])
         self.player_mgr.set_melee_attack_time(self.melee_attack_time)
+        self.player_mgr.set_offhand_attack_time(self.offhand_attack_time)

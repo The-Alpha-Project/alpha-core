@@ -709,13 +709,17 @@ class PlayerManager(UnitManager):
         self.swing_error = 0
 
         self.set_attack_timer(AttackTypes.BASE_ATTACK, 0)
-        if self.inventory.has_offhand_weapon():
+        if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 0)
 
         self.combat_target = None
         self.in_combat = False
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_dirty()
+
+    # override
+    def has_offhand_weapon(self):
+        return self.inventory.has_offhand_weapon()
 
     # override
     def set_weapon_mode(self, weapon_mode):
