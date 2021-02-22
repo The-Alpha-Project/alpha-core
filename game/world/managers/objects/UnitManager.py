@@ -5,6 +5,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
+from utils import Formulas
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo
@@ -266,7 +267,9 @@ class UnitManager(ObjectManager):
 
         current_angle = self.location.angle(self.combat_target.location)
         # Out of reach
-        if self.location.distance(self.combat_target.location) > self.combat_reach:
+        if self.location.distance(self.combat_target.location) > Formulas.UnitFormulas.interactable_distance(
+            self.weapon_reach, self.combat_reach, self.combat_target.weapon_reach, self.combat_target.combat_reach
+        ):
             swing_error = 1
         # Not proper angle
         elif current_angle > combat_angle or current_angle < -combat_angle:
