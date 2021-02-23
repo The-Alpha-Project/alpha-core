@@ -213,6 +213,7 @@ class ProcFlagsExLegacy(IntEnum):
 class AttackTypes(IntEnum):
     BASE_ATTACK = 0
     OFFHAND_ATTACK = 1
+    RANGED_ATTACK = 2
 
 
 class TradeSkillCategories(IntEnum):

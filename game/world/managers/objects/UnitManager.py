@@ -1,4 +1,5 @@
 import math
+import random
 from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -184,9 +185,12 @@ class UnitManager(ObjectManager):
         self.in_combat = False
         self.swing_error = 0
         self.extra_attacks = 0
+        self.disarmed_mainhand = False
+        self.disarmed_offhand = False
         self.attackers = {}
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
-                              AttackTypes.OFFHAND_ATTACK: 0}
+                              AttackTypes.OFFHAND_ATTACK: 0,
+                              AttackTypes.RANGED_ATTACK: 0}
 
     def attack(self, victim, is_melee=True):
         if not victim or victim == self:
@@ -261,7 +265,6 @@ class UnitManager(ObjectManager):
             self.attackers.pop(self.combat_target.guid)
             return False
 
-        # TODO: Implement two hand timer
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
             return False
 
@@ -316,7 +319,7 @@ class UnitManager(ObjectManager):
                 self.execute_extra_attacks()
                 return
 
-        self.send_attack_state_update(self.calculate_melee_damage(self.combat_target, attack_type))
+        self.send_attack_state_update(self.calculate_melee_damage(victim, attack_type))
 
         # Extra attack only at any non extra attack
         if not extra and self.extra_attacks > 0:
@@ -327,11 +330,40 @@ class UnitManager(ObjectManager):
             self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK, True)
             self.extra_attacks -= 1
 
-    def calculate_melee_damage(self, combat_target, attack_type):
-        # TODO: JUST FOR TESTING, IMPLEMENT CALCULATIONS LATER
-        dmg = 20 if attack_type == AttackTypes.BASE_ATTACK else 10
-        return DamageInfoHolder(attacker=self, target=combat_target, attack_type=attack_type, damage=dmg,
-                                total_damage=dmg, hit_info=HitInfo.NORMALSWING if attack_type == AttackTypes.BASE_ATTACK else HitInfo.OFFHAND)
+    def calculate_melee_damage(self, victim, attack_type):
+        damage_info = DamageInfoHolder()
+
+        if not victim:
+            return
+
+        if not self.is_alive or not victim.is_alive:
+            return
+
+        damage_info.attacker = self
+        damage_info.target = victim
+        damage_info.damage += self.calculate_damage(attack_type)
+        # Not taking "subdamages" into account
+        damage_info.total_damage = damage_info.damage
+
+        if attack_type == AttackTypes.BASE_ATTACK:
+            damage_info.proc_attacker = ProcFlags.DONE_MELEE_AUTO_ATTACK | ProcFlags.DONE_MAINHAND_ATTACK
+            damage_info.proc_victim = ProcFlags.TAKEN_MELEE_AUTO_ATTACK
+            damage_info.hit_info = HitInfo.NORMALSWING | HitInfo.AFFECTS_VICTIM
+        elif attack_type == AttackTypes.OFFHAND_ATTACK:
+            damage_info.proc_attacker = ProcFlags.DONE_MELEE_AUTO_ATTACK | ProcFlags.DONE_OFFHAND_ATTACK
+            damage_info.proc_victim = ProcFlags.TAKEN_MELEE_AUTO_ATTACK
+            damage_info.hit_info = HitInfo.OFFHAND | HitInfo.AFFECTS_VICTIM
+        elif attack_type == AttackTypes.RANGED_ATTACK:
+            damage_info.proc_attacker = ProcFlags.DONE_RANGED_AUTO_ATTACK
+            damage_info.proc_victim = ProcFlags.TAKEN_RANGED_AUTO_ATTACK
+            damage_info.hit_info = HitInfo.UNK2  # ?
+
+        # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
+        # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
+        # regardless of how much +hit% gear was equipped.
+        # TODO FINISH IMPLEMENTING
+
+        return damage_info
 
     def send_attack_state_update(self, damage_info):
         data = pack('<I2QIBIf7I',
@@ -339,8 +371,7 @@ class UnitManager(ObjectManager):
                     damage_info.attacker.guid,
                     damage_info.target.guid,
                     damage_info.total_damage,
-                    # Sub damage count
-                    1,
+                    1,  # Sub damage count
                     damage_info.damage_school_mask,
                     damage_info.total_damage,
                     damage_info.damage,
@@ -354,6 +385,20 @@ class UnitManager(ObjectManager):
 
         # Damage effects
         self.deal_damage(damage_info.target, damage_info.total_damage)
+
+    def calculate_damage(self, attack_type):
+        min_damage, max_damage = self.calculate_min_max_damage(attack_type)
+
+        if min_damage > max_damage:
+            tmp_min = min_damage
+            min_damage = max_damage
+            max_damage = tmp_min
+
+        return random.randint(min_damage, max_damage)
+
+    # Implemented by PlayerManager and CreatureManager
+    def calculate_min_max_damage(self, attack_type=0):
+        return 0, 0
 
     def deal_damage(self, target, damage):
         pass
@@ -377,6 +422,13 @@ class UnitManager(ObjectManager):
     # Implemented by PlayerManager and CreatureManager
     def leave_combat(self):
         pass
+
+    def can_use_attack_type(self, attack_type):
+        if attack_type == AttackTypes.BASE_ATTACK:
+            return self.disarmed_mainhand
+        if attack_type == AttackTypes.OFFHAND_ATTACK:
+            return self.disarmed_offhand
+        return True
 
     def is_attack_ready(self, attack_type):
         return self.attack_timers[attack_type] <= 0

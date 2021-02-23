@@ -712,11 +712,66 @@ class PlayerManager(UnitManager):
 
         self.update_melee_attacking_state()
 
-    # Implemented by PlayerManager
+    # override
+    def calculate_min_max_damage(self, attack_type=0):
+        # TODO: Using Vanilla formula, AP was not present in Alpha
+        weapon = None
+        base_min_dmg, base_max_dmg = unpack('<2H', pack('<I', self.damage))
+        weapon_min_dmg = 0
+        weapon_max_dmg = 0
+        weapon_speed = 0
+        attack_power = 0
+        dual_wield_penalty = 1
+
+        if self.player.class_ == Classes.CLASS_WARRIOR or \
+                self.player.class_ == Classes.CLASS_PALADIN:
+            attack_power = (self.str * 2) + (self.level * 3) - 20
+        elif self.player.class_ == Classes.CLASS_DRUID:
+            attack_power = (self.str * 2) - 20
+        elif self.player.class_ == Classes.CLASS_HUNTER:
+            attack_power = self.str + self.agi + (self.level * 2) - 20
+        elif self.player.class_ == Classes.CLASS_MAGE or \
+                self.player.class_ == Classes.CLASS_PRIEST or \
+                self.player.class_ == Classes.CLASS_WARLOCK:
+            attack_power = self.str - 10
+        elif self.player.class_ == Classes.CLASS_ROGUE:
+            attack_power = self.str + ((self.agi * 2) - 20) + (self.level * 2) - 20
+        elif self.player.class_ == Classes.CLASS_SHAMAN:
+            attack_power = self.str - 10 + ((self.agi * 2) - 20) + (self.level * 2)
+
+        if attack_type == AttackTypes.BASE_ATTACK:
+            weapon = self.inventory.get_main_hand()
+            dual_wield_penalty = 1.0
+        elif attack_type == AttackTypes.OFFHAND_ATTACK:
+            weapon = self.inventory.get_offhand()
+            dual_wield_penalty = 0.5
+
+        if weapon:
+            weapon_min_dmg = weapon.item_template.dmg_min1
+            weapon_max_dmg = weapon.item_template.dmg_max1
+            weapon_speed = weapon.item_template.delay
+
+        # Disarmed
+        if not self.can_use_attack_type(attack_type):
+            weapon_min_dmg = base_min_dmg
+            weapon_max_dmg = base_max_dmg
+            if attack_type == AttackTypes.BASE_ATTACK:
+                weapon_speed = self.base_attack_time
+            elif attack_type == AttackTypes.OFFHAND_ATTACK:
+                weapon_speed = self.offhand_attack_time
+
+        weapon_speed_factor = weapon_speed / 1000.0 if self.has_offhand_weapon() else 1
+
+        min_damage = ((weapon_min_dmg + attack_power / 14) * weapon_speed_factor) * dual_wield_penalty
+        max_damage = ((weapon_max_dmg + attack_power / 14) * weapon_speed_factor) * dual_wield_penalty
+
+        return int(min_damage), int(max_damage)
+
+    # override
     def send_attack_swing_not_in_range(self):
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_ATTACKSWING_NOTINRANGE))
 
-    # Implemented by PlayerManager
+    # override
     def send_attack_swing_facing_wrong_way(self):
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_ATTACKSWING_BADFACING))
 
