@@ -211,7 +211,12 @@ class PlayerManager(UnitManager):
     def get_action_buttons(self):
         data = b''
         for x in range(0, MAX_ACTION_BUTTONS):
-            data += pack('<I', 0)  # TODO: Handle action buttons later
+            # TODO: Handle action buttons later
+            ##############
+            if x == 0:
+                data += pack('<I', 6603)
+            #############
+            data += pack('<I', 0)
         return PacketWriter.get_packet(OpCode.SMSG_ACTION_BUTTONS, data)
 
     def get_deathbind_packet(self):
