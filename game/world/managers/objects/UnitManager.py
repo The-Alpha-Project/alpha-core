@@ -319,7 +319,11 @@ class UnitManager(ObjectManager):
                 self.execute_extra_attacks()
                 return
 
-        self.send_attack_state_update(self.calculate_melee_damage(victim, attack_type))
+        damage_info = self.calculate_melee_damage(victim, attack_type)
+        if not damage_info:
+            return
+
+        self.send_attack_state_update(damage_info)
 
         # Extra attack only at any non extra attack
         if not extra and self.extra_attacks > 0:
@@ -334,10 +338,10 @@ class UnitManager(ObjectManager):
         damage_info = DamageInfoHolder()
 
         if not victim:
-            return
+            return None
 
         if not self.is_alive or not victim.is_alive:
-            return
+            return None
 
         damage_info.attacker = self
         damage_info.target = victim
