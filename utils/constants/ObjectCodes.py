@@ -88,23 +88,33 @@ class NpcFlags(IntEnum):
 
 # COMBAT INFORMATION
 class HitInfo(IntEnum):
-    NORMALSWING = 0x00000000
-    UNK1 = 0x00000001  # req correct packet structure
-    AFFECTS_VICTIM = 0x00000002
-    OFFHAND = 0x00000004
-    UNK2 = 0x00000008
-    MISS = 0x00000010
-    FULL_ABSORB = 0x00000020
-    PARTIAL_ABSORB = 0x00000040
-    FULL_RESIST = 0x00000080
-    PARTIAL_RESIST = 0x00000100
-    CRITICALHIT = 0x00000200  # critical hit
-    BLOCK = 0x00002000  # blocked damage
-    GLANCING = 0x00010000
-    CRUSHING = 0x00020000
-    NO_ANIMATION = 0x00040000
-    SWINGNOHITSOUND = 0x00200000  # unused?
-    RAGE_GAIN = 0x00800000
+    DAMAGE = 0x00000000
+    MISS = 0x00000001
+    SUCCESS = 0x00000002
+    UNIT_DEAD = 0x00000004  # unit died because of this attack
+    CRITICAL_HIT = 0x00000008
+    STUN = 0x00000010
+    PARRY = 0x00000020
+    DODGE = 0x00000040
+    BLOCK = 0x00000080
+    COOLDOWN = 0x00000100  # ?
+    OFFHAND = 0x00000200
+    CRUSHING = 0x0000400
+    UNKNOWN1 = 0x0000800
+    DEFERRED_LOGGING = 0x0001000
+    ADVANCED_LOGGING = 0x0002000
+    PREVENT_LOGGING = 0x0004000  # receives no damage and voids attack?
+    OFFHAND_FAILED = 0x0008000  # uncertain
+    ABSORBED = 0x0010000
+    HIDE_MISSED_TEXT = 0x0020000  # ? CGUnit_C::ShowWorldText
+    DEFLECT = 0x0040000  # ? CGUnit_C::ShowWorldText
+
+    """
+    HandleGeneralCombatLogging (ATTACKROUNDINFO) - NOTE: 0x2000 and 0x4000 both supress player logs
+    HandleGeneralCombatLoggingMissed = 0x1 : any misses
+    HandleGeneralCombatOrSpellHitLogging = VS_WOUND, 0x8 for crits : standard successful combat/combat spell log
+    HandleGeneralCombatEvadeLogging = uses VictimState : use for everything else
+    """
 
 
 class VictimStates(IntEnum):

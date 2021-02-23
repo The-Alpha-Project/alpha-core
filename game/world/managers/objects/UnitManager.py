@@ -27,7 +27,7 @@ class DamageInfoHolder:
                  resist=0,
                  blocked_amount=0,
                  target_state=0,
-                 hit_info=HitInfo.NORMALSWING,
+                 hit_info=HitInfo.DAMAGE,
                  proc_attacker=ProcFlags.NONE,
                  proc_victim=ProcFlags.NONE,
                  proc_ex=ProcFlagsExLegacy.NONE):
@@ -352,15 +352,15 @@ class UnitManager(ObjectManager):
         if attack_type == AttackTypes.BASE_ATTACK:
             damage_info.proc_attacker = ProcFlags.DONE_MELEE_AUTO_ATTACK | ProcFlags.DONE_MAINHAND_ATTACK
             damage_info.proc_victim = ProcFlags.TAKEN_MELEE_AUTO_ATTACK
-            damage_info.hit_info = HitInfo.NORMALSWING | HitInfo.AFFECTS_VICTIM
+            damage_info.hit_info = HitInfo.SUCCESS
         elif attack_type == AttackTypes.OFFHAND_ATTACK:
             damage_info.proc_attacker = ProcFlags.DONE_MELEE_AUTO_ATTACK | ProcFlags.DONE_OFFHAND_ATTACK
             damage_info.proc_victim = ProcFlags.TAKEN_MELEE_AUTO_ATTACK
-            damage_info.hit_info = HitInfo.OFFHAND | HitInfo.AFFECTS_VICTIM
+            damage_info.hit_info = HitInfo.SUCCESS | HitInfo.OFFHAND
         elif attack_type == AttackTypes.RANGED_ATTACK:
             damage_info.proc_attacker = ProcFlags.DONE_RANGED_AUTO_ATTACK
             damage_info.proc_victim = ProcFlags.TAKEN_RANGED_AUTO_ATTACK
-            damage_info.hit_info = HitInfo.UNK2  # ?
+            damage_info.hit_info = HitInfo.DAMAGE  # ?
 
         # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
         # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
