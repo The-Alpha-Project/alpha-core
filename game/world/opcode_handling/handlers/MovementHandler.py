@@ -12,12 +12,10 @@ class MovementHandler(object):
 
     @staticmethod
     def handle_movement_status(world_session, socket, reader):
-        movement_fmt = '<QfffffffffI'
-
         if not world_session.player_mgr.is_teleporting and len(reader.data) >= 48:  # Avoid handling malformed movement packets
             try:
                 transport_guid, transport_x, transport_y, transport_z, transport_o, x, y, z, o, pitch, flags = \
-                    unpack(movement_fmt, reader.data[:48])
+                    unpack('<Q9fI', reader.data[:48])
 
                 # Hacky way to prevent random teleports when colliding with elevators
                 # Also acts as a rudimentary teleport cheat detection
