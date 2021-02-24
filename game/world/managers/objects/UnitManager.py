@@ -361,16 +361,16 @@ class UnitManager(ObjectManager):
         damage_info.total_damage = damage_info.damage
 
         if attack_type == AttackTypes.BASE_ATTACK:
-            damage_info.proc_attacker = ProcFlags.DONE_MELEE_AUTO_ATTACK | ProcFlags.DONE_MAINHAND_ATTACK
-            damage_info.proc_victim = ProcFlags.TAKEN_MELEE_AUTO_ATTACK
+            damage_info.proc_attacker = ProcFlags.DEAL_COMBAT_DMG | ProcFlags.SWING
+            damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
             damage_info.hit_info = HitInfo.SUCCESS
         elif attack_type == AttackTypes.OFFHAND_ATTACK:
-            damage_info.proc_attacker = ProcFlags.DONE_MELEE_AUTO_ATTACK | ProcFlags.DONE_OFFHAND_ATTACK
-            damage_info.proc_victim = ProcFlags.TAKEN_MELEE_AUTO_ATTACK
+            damage_info.proc_attacker = ProcFlags.DEAL_COMBAT_DMG | ProcFlags.SWING
+            damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
             damage_info.hit_info = HitInfo.SUCCESS | HitInfo.OFFHAND
         elif attack_type == AttackTypes.RANGED_ATTACK:
-            damage_info.proc_attacker = ProcFlags.DONE_RANGED_AUTO_ATTACK
-            damage_info.proc_victim = ProcFlags.TAKEN_RANGED_AUTO_ATTACK
+            damage_info.proc_attacker = ProcFlags.ProcFlags.DEAL_COMBAT_DMG
+            damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
             damage_info.hit_info = HitInfo.DAMAGE  # ?
 
         # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
