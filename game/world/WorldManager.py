@@ -51,7 +51,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             realm_saving_scheduler.start()
 
             while self.receive(self.request) != -1 and self.keep_alive:
-                sleep(0.001)
+                continue
 
         finally:
             self.disconnect()
