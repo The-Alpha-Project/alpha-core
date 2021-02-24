@@ -764,13 +764,29 @@ class PlayerManager(UnitManager):
 
         return int(min_damage), int(max_damage)
 
-    # override
-    def send_attack_swing_not_in_range(self):
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_ATTACKSWING_NOTINRANGE))
+    def _send_attack_swing_error(self, victim, opcode):
+        data = pack('<2Q', self.guid, victim.guid if victim else 0)
+        self.session.request.sendall(PacketWriter.get_packet(opcode, data))
 
     # override
-    def send_attack_swing_facing_wrong_way(self):
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_ATTACKSWING_BADFACING))
+    def send_attack_swing_not_in_range(self, victim):
+        self._send_attack_swing_error(victim, OpCode.SMSG_ATTACKSWING_NOTINRANGE)
+
+    # override
+    def send_attack_swing_facing_wrong_way(self, victim):
+        self._send_attack_swing_error(victim, OpCode.SMSG_ATTACKSWING_BADFACING)
+
+    # override
+    def send_attack_swing_cant_attack(self, victim):
+        self._send_attack_swing_error(victim, OpCode.SMSG_ATTACKSWING_CANT_ATTACK)
+
+    # override
+    def send_attack_swing_dead_target(self, victim):
+        self._send_attack_swing_error(victim, OpCode.SMSG_ATTACKSWING_DEADTARGET)
+
+    # override
+    def send_attack_swing_not_standing(self, victim):
+        self._send_attack_swing_error(victim, OpCode.SMSG_ATTACKSWING_NOTSTANDING)
 
     # override
     def leave_combat(self):

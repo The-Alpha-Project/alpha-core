@@ -9,7 +9,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes, AttackTypes, ProcFlags, \
-    ProcFlagsExLegacy, HitInfo
+    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode
 from utils.constants.UpdateFields import UnitFields
 
@@ -183,7 +183,7 @@ class UnitManager(ObjectManager):
         self.is_alive = True
         self.is_sitting = False
         self.in_combat = False
-        self.swing_error = 0
+        self.swing_error = AttackSwingError.NONE
         self.extra_attacks = 0
         self.disarmed_mainhand = False
         self.disarmed_offhand = False
@@ -254,15 +254,11 @@ class UnitManager(ObjectManager):
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def update_melee_attacking_state(self):
-        swing_error = 0
+        swing_error = AttackSwingError.MOVING
         combat_angle = math.pi
 
         if not self.combat_target:
             self.leave_combat()
-            return False
-
-        if not self.combat_target.is_alive:
-            self.attackers.pop(self.combat_target.guid)
             return False
 
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
@@ -273,17 +269,27 @@ class UnitManager(ObjectManager):
         if self.location.distance(self.combat_target.location) > Formulas.UnitFormulas.interactable_distance(
             self.weapon_reach, self.combat_reach, self.combat_target.weapon_reach, self.combat_target.combat_reach
         ):
-            swing_error = 1
+            swing_error = AttackSwingError.NOTINRANGE
         # Not proper angle
         elif current_angle > combat_angle or current_angle < -combat_angle:
-            swing_error = 2
+            swing_error = AttackSwingError.BADFACING
+        # Moving
+        elif self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK:
+            swing_error = AttackSwingError.MOVING
+        # Not standing
+        elif self.stand_state != StandState.UNIT_STANDING:
+            swing_error = AttackSwingError.NOTSTANDING
+        # Dead target
+        elif not self.combat_target.is_alive:
+            self.attackers.pop(self.combat_target.guid)
+            swing_error = AttackSwingError.DEADTARGET
         else:
             # Main hand attack
             if self.is_attack_ready(AttackTypes.BASE_ATTACK):
                 # Prevent both and attacks at the same time
                 if self.has_offhand_weapon():
-                    if self.attack_timers[AttackTypes.OFFHAND_ATTACK] < 200:
-                        self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 200)
+                    if self.attack_timers[AttackTypes.OFFHAND_ATTACK] < 500:
+                        self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 500)
 
                 self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK, False)
                 self.set_attack_timer(AttackTypes.BASE_ATTACK, self.base_attack_time)
@@ -291,21 +297,26 @@ class UnitManager(ObjectManager):
             # Off hand attack
             if self.has_offhand_weapon() and self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
                 # Prevent both and attacks at the same time
-                if self.attack_timers[AttackTypes.BASE_ATTACK] < 200:
-                    self.set_attack_timer(AttackTypes.BASE_ATTACK, 200)
+                if self.attack_timers[AttackTypes.BASE_ATTACK] < 500:
+                    self.set_attack_timer(AttackTypes.BASE_ATTACK, 500)
 
                 self.attacker_state_update(self.combat_target, AttackTypes.OFFHAND_ATTACK, False)
                 self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
         if self.object_type == ObjectTypes.TYPE_PLAYER:
-            if swing_error != 0:
+            if swing_error != AttackSwingError.NONE:
                 self.set_attack_timer(AttackTypes.BASE_ATTACK, self.base_attack_time)
                 if self.has_offhand_weapon():
                     self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
-                if swing_error == 1:
-                    self.send_attack_swing_not_in_range()
-                elif swing_error == 2:
-                    self.send_attack_swing_facing_wrong_way()
+
+                if swing_error == AttackSwingError.NOTINRANGE:
+                    self.send_attack_swing_not_in_range(self.combat_target)
+                elif swing_error == AttackSwingError.BADFACING:
+                    self.send_attack_swing_facing_wrong_way(self.combat_target)
+                elif swing_error == AttackSwingError.DEADTARGET:
+                    self.send_attack_swing_dead_target(self.combat_target)
+                elif swing_error == AttackSwingError.NOTSTANDING:
+                    self.send_attack_swing_not_standing(self.combat_target)
 
         self.swing_error = swing_error
         return swing_error == 0
@@ -412,11 +423,23 @@ class UnitManager(ObjectManager):
         self.set_uint64(UnitFields.UNIT_FIELD_TARGET, guid)
 
     # Implemented by PlayerManager
-    def send_attack_swing_not_in_range(self):
+    def send_attack_swing_not_in_range(self, victim):
         pass
 
     # Implemented by PlayerManager
-    def send_attack_swing_facing_wrong_way(self):
+    def send_attack_swing_facing_wrong_way(self, victim):
+        pass
+    
+    # Implemented by PlayerManager
+    def send_attack_swing_cant_attack(self, victim):
+        pass
+    
+    # Implemented by PlayerManager
+    def send_attack_swing_dead_target(self, victim):
+        pass
+    
+    # Implemented by PlayerManager
+    def send_attack_swing_not_standing(self, victim):
         pass
 
     # Implemented by PlayerManager and CreatureManager

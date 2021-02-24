@@ -149,9 +149,9 @@ class CreatureManager(UnitManager):
                 # This is a TOTAL guess, I have no idea about real weapon reach values.
                 # The weapon reach unit field was removed in patch 0.10.
                 if item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
-                    self.weapon_reach = 2.0
-                else:
                     self.weapon_reach = 1.0
+                else:
+                    self.weapon_reach = 0.5
 
             # Offhand
             if slot == 1:

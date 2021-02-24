@@ -117,6 +117,19 @@ class HitInfo(IntEnum):
     """
 
 
+class AttackSwingError(IntEnum):
+    NONE = 0x0000
+    # NOTE: it appears you can't melee attack whilst moving - Blizz was initially very anti-kiting so may be the reason
+    # the client prevents attack animations whilst moving and there's always a delay in Blizzcon 2003 gameplay footage.
+    # This is just a guess though.
+    MOVING = 0x0001
+    NOTINRANGE = 0x0138
+    BADFACING = 0x0139
+    NOTSTANDING = 0x013A
+    DEADTARGET = 0x013B
+    CANTATTACK = 0x013C
+
+
 class VictimStates(IntEnum):
     VS_NONE = 0  # set when attacker misses
     VS_WOUND = 1  # victim got clear/blocked hit
