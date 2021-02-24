@@ -450,6 +450,11 @@ class InventoryManager(object):
                     count += 1
         return count
 
+    def get_container(self, slot):
+        if slot in self.containers:
+            return self.containers[slot]
+        return None
+
     def get_item(self, bag, slot):
         if bag in self.containers and self.containers[bag]:
             return self.containers[bag].get_item(slot)

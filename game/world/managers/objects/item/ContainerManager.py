@@ -159,7 +159,7 @@ class ContainerManager(ItemManager):
     def get_empty_slots(self):
         if self.is_backpack:
             item_count = 0
-            for bag_slot in range(InventorySlots.SLOT_ITEM_START, InventorySlots.SLOT_ITEM_END + 1):
+            for bag_slot in range(InventorySlots.SLOT_ITEM_START, InventorySlots.SLOT_ITEM_END):
                 if bag_slot in self.sorted_slots:
                     item_count += 1
             return self.total_slots - item_count
@@ -171,7 +171,7 @@ class ContainerManager(ItemManager):
 
     def is_empty(self):
         if self.is_backpack:
-            for bag_slot in range(InventorySlots.SLOT_ITEM_START, InventorySlots.SLOT_ITEM_END + 1):
+            for bag_slot in range(InventorySlots.SLOT_ITEM_START, InventorySlots.SLOT_ITEM_END):
                 if bag_slot in self.sorted_slots:
                     return False
             return True

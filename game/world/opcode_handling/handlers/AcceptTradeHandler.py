@@ -64,7 +64,7 @@ class AcceptTradeHandler(object):
 
                     other_player.inventory.mark_as_removed(other_player_item)
                     other_player.session.request.sendall(other_player_item.get_destroy_packet())
-                    other_player.inventory.containers[other_player_item.item_instance.bag].remove_item(
+                    other_player.inventory.get_container(other_player_item.item_instance.bag).remove_item(
                         other_player_item)
 
                 if player_item:
@@ -74,7 +74,7 @@ class AcceptTradeHandler(object):
 
                     player.inventory.mark_as_removed(player_item)
                     player.session.request.sendall(player_item.get_destroy_packet())
-                    player.inventory.containers[player_item.item_instance.bag].remove_item(player_item)
+                    player.inventory.get_container(player_item.item_instance.bag).remove_item(player_item)
 
             player.mod_money(other_player_trade.money)
             player.mod_money(-player_trade.money)

@@ -12,7 +12,7 @@ class DestroyItemHandler(object):
     def handle(world_session, socket, reader):
         if len(reader.data) >= 3:  # Avoid handling empty destroy item packet
             bag, source_slot, count = unpack('<3B', reader.data[:3])
-            if bag == 0xFF:
+            if bag == 0xFF or bag == InventorySlots.SLOT_BANK_END:
                 bag = InventorySlots.SLOT_INBACKPACK.value
 
             item = world_session.player_mgr.inventory.get_item(bag, source_slot)
@@ -28,7 +28,9 @@ class DestroyItemHandler(object):
                     if world_session.player_mgr.inventory.is_bag_pos(source_slot):
                         world_session.player_mgr.inventory.remove_bag(source_slot)
                     else:
-                        world_session.player_mgr.inventory.containers[bag].remove_item_in_slot(source_slot)
+                        container = world_session.player_mgr.inventory.get_container(bag)
+                        if container:
+                            container.remove_item_in_slot(source_slot)
 
                     if world_session.player_mgr.inventory.is_equipment_pos(bag, source_slot):
                         world_session.player_mgr.set_dirty(dirty_inventory=True)
