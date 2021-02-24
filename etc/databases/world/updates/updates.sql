@@ -89,5 +89,14 @@ begin not atomic
         update areatrigger_teleport set required_level = 10 where id = 257;
 
     end if;
+
+    -- 20/02/2021 1
+    if (select count(*) from applied_updates where id='200220211') = 0 then
+        update areatrigger_teleport set name = 'Scarlet Monastery', target_map = 44, target_position_x = 34.0377, target_position_y = -0.8574,
+                                        target_position_z = 9.6747, target_orientation = 6.2816 where id = 45;
+        replace into areatrigger_teleport (id, target_map, target_position_x, target_position_y, target_position_z,
+                                           target_orientation) values (240, 0, 2853.6733, -717.3836, 147.9484, 1.8916);
+
+    end if;
 end $
 delimiter ;
