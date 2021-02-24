@@ -24,6 +24,19 @@ class Races(IntEnum):
     RACE_TROLL = 8
 
 
+class CreatureTypes(IntEnum):
+    BEAST = 1
+    DRAGON = 2
+    DEMON = 3
+    ELEMENTAL = 4
+    GIANT = 5
+    UNDEAD = 6
+    HUMANOID = 7
+    AMBIENT = 8  # Critter
+    MECHANICAL = 9
+    NOT_SPECIFIED = 10
+
+
 class Genders(IntEnum):
     GENDER_MALE = 0
     GENDER_FEMALE = 1

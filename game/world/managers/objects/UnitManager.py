@@ -10,7 +10,7 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes, AttackTypes, ProcFlags, \
-    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags
+    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode
 from utils.constants.UpdateFields import UnitFields
 
@@ -378,6 +378,7 @@ class UnitManager(ObjectManager):
         # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
         # regardless of how much +hit% gear was equipped.
         # TODO FINISH IMPLEMENTING
+        damage_info.target_state = VictimStates.VS_WOUND  # test remove later
 
         return damage_info
 
@@ -427,8 +428,8 @@ class UnitManager(ObjectManager):
             target.enter_combat()
 
         new_health = target.health - damage
-        if new_health < 0:
-            target.die()
+        if new_health <= 0:
+            target.die(self)
         else:
             target.set_health(new_health)
 

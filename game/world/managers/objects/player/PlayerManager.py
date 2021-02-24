@@ -89,6 +89,7 @@ class PlayerManager(UnitManager):
             self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
             self.player_bytes = unpack('<I', pack('<4B', self.player.skin, self.player.face, self.player.hairstyle, self.player.haircolour))[0]
             self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
+            self.xp = player.xp
             self.talent_points = self.player.talentpoints
             self.skill_points = self.player.skillpoints
             self.map_ = self.player.map
@@ -117,7 +118,6 @@ class PlayerManager(UnitManager):
             self.object_type.append(ObjectTypes.TYPE_PLAYER)
             self.update_packet_factory.init_values(PlayerFields.PLAYER_END)
 
-            self.xp = 0  # test
             self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
             self.is_alive = self.health > 0
 
@@ -400,6 +400,42 @@ class PlayerManager(UnitManager):
         data = pack('<f', turn_speed)
         # TODO NOT WORKING
         self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
+
+    def give_xp(self, amounts, victim=None):
+        if self.level >= config.Unit.Player.Defaults.max_level or not self.is_alive:
+            return
+
+        new_xp = self.xp
+        """
+        0.5.3 supports multiple amounts of XP and then combines them all
+        
+        uint64_t victim,
+        uint32_t count
+        
+        loop (for each count):
+            uint64_t guid,
+            int32_t xp
+        """
+        data = pack('<QI',
+                    victim.guid if victim else self.guid,
+                    len(amounts)
+                    )
+
+        for amount in amounts:
+            new_xp += amount
+            data += pack('<QI', self.guid, amount)
+
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
+
+        if new_xp >= self.next_level_xp:  # Level up!
+            self.xp = (new_xp - self.next_level_xp)  # Set the overload xp as current
+            self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
+            self.mod_level(self.level + 1)
+        else:
+            self.xp = new_xp
+            self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
+            self.send_update_self()
+            self.reset_fields()
 
     def mod_level(self, level):
         if level != self.level:
@@ -890,7 +926,7 @@ class PlayerManager(UnitManager):
     def die(self, killer=None):
         super().die(killer)
 
-        if killer and isinstance(killer, PlayerManager):
+        if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
             self.session.request.sendall(death_notify_packet)
 

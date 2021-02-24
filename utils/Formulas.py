@@ -1,3 +1,37 @@
+import math
+
+
+class CreatureFormulas(object):
+
+    @staticmethod
+    def xp_reward(creature_level, player_level, is_elite=False):
+        if player_level == 60:
+            return 0
+
+        gray_level = 0
+        if 5 < player_level < 50:
+            gray_level = int(player_level - math.floor(player_level / 10.0) - 5)
+        elif player_level == 50:
+            gray_level = 40
+        elif 50 < player_level < 60:
+            gray_level = int(player_level - math.floor(player_level / 5.0) - 1)
+
+        if creature_level <= gray_level:
+            return 0
+
+        base_xp = PlayerFormulas.base_xp_per_mob(player_level)
+        multiplier = 2 if (is_elite and creature_level < player_level <= 4) else 1
+        if player_level < creature_level:
+            if creature_level - player_level > 4:
+                player_level = creature_level - 4  # Red mobs cap out at the same experience as orange ones
+            base_xp = int(base_xp * (1 + (0.05 * (creature_level - player_level))))
+        elif player_level > creature_level:
+            base_xp = int(base_xp * (1 - (player_level - creature_level) /
+                                     PlayerFormulas.zero_difference_value(player_level)))
+
+        return base_xp * multiplier
+
+
 class UnitFormulas(object):
 
     # Taken from the 0.5.3 client

@@ -7,10 +7,11 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
+from utils import Formulas
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -220,6 +221,22 @@ class CreatureManager(UnitManager):
             self.creature_template.beast_family
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
+
+    # override
+    def die(self, killer=None):
+        if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
+            self.reward_kill_xp(killer)
+
+        super().die(killer)
+
+    def reward_kill_xp(self, player):
+        # TODO: Handle group XP
+        # Critters don't award XP
+        if self.creature_type == CreatureTypes.AMBIENT:
+            return
+
+        is_elite = 0 < self.creature_template.rank < 4
+        player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite)], self)
 
     def calculate_min_max_damage(self, attack_type=0):
         min_damage, max_damage = unpack('<2H', pack('<I', self.damage))
