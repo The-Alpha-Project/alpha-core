@@ -470,9 +470,8 @@ class UnitManager(ObjectManager):
         if force_update:
             self.set_dirty()
 
-    # Implemented by PlayerManager and CreatureManager
     def leave_combat(self):
-        pass
+        self.attackers.clear()
 
     def can_use_attack_type(self, attack_type):
         if attack_type == AttackTypes.BASE_ATTACK:

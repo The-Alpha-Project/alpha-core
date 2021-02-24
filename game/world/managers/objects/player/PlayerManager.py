@@ -829,6 +829,7 @@ class PlayerManager(UnitManager):
         if not self.in_combat:
             return
 
+        super().leave_combat()
         self.send_melee_attack_stop(self.combat_target)
         self.swing_error = 0
 

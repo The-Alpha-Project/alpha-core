@@ -244,7 +244,7 @@ class CreatureManager(UnitManager):
 
     # override
     def leave_combat(self):
-        pass
+        super().leave_combat()
 
     # override
     def has_offhand_weapon(self):
