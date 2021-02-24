@@ -862,12 +862,6 @@ class PlayerManager(UnitManager):
 
             self.set_dirty(is_dirty=False, dirty_inventory=False)
 
-    def generate_proper_update_packet(self, is_self=False, create=False):
-        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT,
-            self.get_full_update_packet(is_self=is_self) if create else self.get_partial_update_packet()))
-        return update_packet
-
     def send_update_self(self, update_packet=None, create=False, force_inventory_update=False):
         if not create and (self.dirty_inventory or force_inventory_update):
             self.inventory.send_inventory_update(self.session, is_self=True)

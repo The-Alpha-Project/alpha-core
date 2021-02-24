@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes, AttackTypes, ProcFlags, \
@@ -416,7 +417,23 @@ class UnitManager(ObjectManager):
         return 0, 0
 
     def deal_damage(self, target, damage):
-        pass
+        if not target or damage < 1:
+            return
+
+        if not self.in_combat:
+            self.enter_combat(force_update=True)
+
+        if not target.in_combat:
+            target.enter_combat()
+
+        new_health = target.health - damage
+        if new_health < 0:
+            target.die()
+        else:
+            target.set_health(new_health)
+
+        update_packet = target.generate_proper_update_packet(is_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
+        GridManager.send_surrounding(update_packet, target, include_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
 
     def set_current_target(self, guid):
         self.current_target = guid
@@ -445,6 +462,12 @@ class UnitManager(ObjectManager):
     # Implemented by PlayerManager and CreatureManager
     def has_offhand_weapon(self):
         return False
+
+    def enter_combat(self, force_update=False):
+        self.in_combat = True
+        self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
+        if force_update:
+            self.set_dirty()
 
     # Implemented by PlayerManager and CreatureManager
     def leave_combat(self):
@@ -573,9 +596,17 @@ class UnitManager(ObjectManager):
             self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
             self.set_dirty()
 
+    def generate_proper_update_packet(self, is_self=False, create=False):
+        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT,
+            self.get_full_update_packet(is_self=is_self) if create else self.get_partial_update_packet()))
+        return update_packet
+
     def die(self, killer=None):
         if not self.is_alive:
             return
+
+        self.leave_combat()
 
         self.is_alive = False
         self.set_health(0)
