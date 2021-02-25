@@ -209,7 +209,7 @@ class UnitManager(ObjectManager):
         if victim.get_type() == ObjectTypes.TYPE_PLAYER and victim.is_gm:
             return False
 
-        if victim.is_evading:
+        if victim.get_type == ObjectTypes.TYPE_UNIT and victim.is_evading:
             return False
 
         # In fight already
@@ -258,8 +258,9 @@ class UnitManager(ObjectManager):
         swing_error = AttackSwingError.MOVING
         combat_angle = math.pi
 
-        if not self.combat_target:
-            self.leave_combat()
+        if not self.combat_target and len(self.attackers) == 0:
+            if self.in_combat:
+                self.leave_combat()
             return False
 
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
@@ -423,6 +424,9 @@ class UnitManager(ObjectManager):
 
         if not self.in_combat:
             self.enter_combat(force_update=True)
+
+        if not target.in_combat:
+            target.enter_combat(force_update=True)
 
         if not target.in_combat:
             target.enter_combat()
