@@ -19,6 +19,10 @@ class ChatHandler(object):
         guid = 0
         chat_flags = 0
 
+        # Override language to universal for GMs
+        if world_session.player_mgr.is_gm:
+            lang = 0
+
         # Say, Yell, Emote
         if chat_type == ChatMsgs.CHAT_MSG_SAY \
                 or chat_type == ChatMsgs.CHAT_MSG_EMOTE \
@@ -36,7 +40,11 @@ class ChatHandler(object):
                 return 0
             message = PacketReader.read_string(reader.data, 8 + len(target_name)+1)
             if not ChatHandler.check_if_command(world_session, message):
-                ChatManager.send_whisper(world_session.player_mgr, target_player_mgr, message, 0)  # TODO: handle lang
+                # Always whisper in universal language when speaking with a GM
+                if target_player_mgr.is_gm:
+                    lang = 0
+
+                ChatManager.send_whisper(world_session.player_mgr, target_player_mgr, message, lang)
             return 0
 
         if not ChatHandler.check_if_command(world_session, message):

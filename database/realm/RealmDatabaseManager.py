@@ -194,6 +194,30 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
         return character
 
+    @staticmethod
+    def character_get_skills(guid):
+        realm_db_session = SessionHolder()
+        skills = realm_db_session.query(CharacterSkill).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        realm_db_session.close()
+        return skills
+
+    @staticmethod
+    def character_add_skill(skill):
+        if skill:
+            realm_db_session = SessionHolder()
+            realm_db_session.add(skill)
+            realm_db_session.flush()
+            realm_db_session.refresh(skill)
+            realm_db_session.close()
+
+    @staticmethod
+    def character_update_skill(skill):
+        if skill:
+            realm_db_session = SessionHolder()
+            realm_db_session.merge(skill)
+            realm_db_session.flush()
+            realm_db_session.close()
+
     # Ticket stuff
 
     @staticmethod

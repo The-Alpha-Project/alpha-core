@@ -7,6 +7,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
+from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
@@ -71,7 +72,6 @@ class PlayerManager(UnitManager):
         self.race_mask = 0
         self.class_mask = 0
         self.spells = {}
-        self.skills = {}
         self.deathbind = deathbind
         self.team = PlayerManager.get_team_for_race(self.race_mask)
         self.trade_data = None
@@ -124,6 +124,7 @@ class PlayerManager(UnitManager):
             self.guild_manager = GuildManager()
             self.stat_manager = StatManager(self)
             self.talent_manager = TalentManager(self)
+            self.skill_manager = SkillManager(self)
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:
@@ -451,6 +452,8 @@ class PlayerManager(UnitManager):
                 self.set_health(self.max_health)
                 self.set_mana(self.max_power_1)
 
+                self.skill_manager.update_skills_max_value()
+
                 if should_send_info:
                     data = pack('<3I',
                                 level,
@@ -476,12 +479,6 @@ class PlayerManager(UnitManager):
 
         self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=reload_items)
 
-    def load_skills(self):
-        for skill in WorldDatabaseManager.player_create_skill_get(self.player.race,
-                                                                  self.player.class_):
-            skill_to_add = DbcDatabaseManager.skill_get_by_id(skill.Skill)
-            self.skills[skill.Skill] = skill_to_add
-
     def load_spells(self):
         for spell in WorldDatabaseManager.player_create_spell_get(self.player.race,
                                                                   self.player.class_):
@@ -492,6 +489,7 @@ class PlayerManager(UnitManager):
     # override
     def get_full_update_packet(self, is_self=True):
         self.inventory.send_inventory_update(self.session, is_self)
+        self.skill_manager.build_skill_update()
 
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]

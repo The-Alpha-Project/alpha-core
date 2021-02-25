@@ -52,7 +52,6 @@ class PlayerLoginHandler(object):
         socket.sendall(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
                                                PlayerLoginHandler._get_login_timespeed()))
 
-        world_session.player_mgr.load_skills()
         world_session.player_mgr.load_spells()
 
         world_session.player_mgr.deathbind = RealmDatabaseManager.character_get_deathbind(world_session.player_mgr.guid)
@@ -69,6 +68,7 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.inventory.load_items()
         world_session.player_mgr.stat_manager.init_stats()
         world_session.player_mgr.stat_manager.apply_bonuses()
+        world_session.player_mgr.skill_manager.load_skills()
         world_session.player_mgr.send_update_self(create=True)
         world_session.player_mgr.reset_fields()
 

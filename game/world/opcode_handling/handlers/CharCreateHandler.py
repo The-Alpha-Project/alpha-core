@@ -3,6 +3,7 @@ from struct import pack, unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.PlayerManager import PlayerManager
+from game.world.managers.objects.player.SkillManager import SkillManager
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from database.realm.RealmDatabaseManager import *
@@ -72,6 +73,7 @@ class CharCreateHandler(object):
                                   power4=100 if class_ == Classes.CLASS_ROGUE else 0,
                                   level=config.Unit.Player.Defaults.starting_level)
             RealmDatabaseManager.character_create(character)
+            CharCreateHandler.generate_starting_skills(character.guid, character.level, race, class_)
             CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
             default_deathbind = CharacterDeathbind(
                 player_guid=character.guid,
@@ -93,6 +95,17 @@ class CharCreateHandler(object):
     def get_starting_location(race, class_):
         info = WorldDatabaseManager.player_create_info_get(race, class_)
         return info.map, info.zone, info.position_x, info.position_y, info.position_z, info.orientation
+
+    @staticmethod
+    def generate_starting_skills(guid, level, race, class_):
+        for skill in WorldDatabaseManager.player_create_skill_get(race, class_):
+            skill_to_set = CharacterSkill()
+            skill_to_set.guid = guid
+            skill_to_set.skill = skill.Skill
+            skill_to_set.value = SkillManager.get_max_rank(level, skill.Skill)
+            skill_to_set.max = skill.SkillMax
+
+            RealmDatabaseManager.character_add_skill(skill_to_set)
 
     @staticmethod
     def generate_starting_items(guid, race, class_, gender):
