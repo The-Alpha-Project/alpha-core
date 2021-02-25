@@ -28,7 +28,7 @@ class AppliedUpdate(Base):
 class Character(Base):
     __tablename__ = 'characters'
 
-    guid = Column(INTEGER(11), primary_key=True)
+    guid = Column(INTEGER(11), primary_key=True, autoincrement=True)
     account_id = Column('account', ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("0"), comment='Account Identifier')
     name = Column(String(12), nullable=False, index=True, server_default=text("''"))
     race = Column(TINYINT(3), nullable=False, server_default=text("0"))
@@ -71,7 +71,7 @@ class Character(Base):
 class Ticket(Base):
     __tablename__ = 'tickets'
 
-    id = Column(INTEGER(11), primary_key=True)
+    id = Column(INTEGER(11), primary_key=True, autoincrement=True)
     is_bug = Column(INTEGER(1), nullable=False, server_default=text("0"))
     account_name = Column(String(250), nullable=False, server_default=text("''"))
     account_id = Column(ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("0"))
@@ -85,7 +85,7 @@ class Ticket(Base):
 class CharacterDeathbind(Base):
     __tablename__ = 'character_deathbind'
 
-    deathbind_id = Column(INTEGER(11), primary_key=True)
+    deathbind_id = Column(INTEGER(11), primary_key=True, autoincrement=True)
     player_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True)
     creature_binder_guid = Column(INTEGER(11), nullable=False, server_default=text("0"))
     deathbind_map = Column(INTEGER(11), nullable=False, server_default=text("0"))
@@ -100,7 +100,7 @@ class CharacterDeathbind(Base):
 class CharacterInventory(Base):
     __tablename__ = 'character_inventory'
 
-    guid = Column(INTEGER(11), primary_key=True)
+    guid = Column(INTEGER(11), primary_key=True, autoincrement=True)
     owner = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("0"), comment='Global Unique Identifier')
     creator = Column(INTEGER(11), nullable=False, server_default=text("0"))
     bag = Column(INTEGER(11), nullable=False, server_default=text("0"))
