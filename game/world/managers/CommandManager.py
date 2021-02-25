@@ -9,7 +9,8 @@ from game.world.managers.ChatManager import ChatManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from utils.GameTextFormatter import GameTextFormatter
-from utils.constants.ObjectCodes import HighGuid
+from utils.constants.ObjectCodes import HighGuid, ObjectTypes
+from utils.constants.UpdateFields import PlayerFields
 
 
 class CommandManager(object):
@@ -40,9 +41,11 @@ class CommandManager(object):
     def _target_or_self(world_session):
         if world_session.player_mgr.current_selection \
                 and world_session.player_mgr.current_selection != world_session.player_mgr.guid:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(world_session.player_mgr.current_selection)
-            if player_mgr:
-                return player_mgr
+            unit = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr,
+                                                            world_session.player_mgr.current_selection,
+                                                            include_players=True)
+            if unit:
+                return unit
 
         return world_session.player_mgr
 
@@ -370,6 +373,8 @@ class CommandManager(object):
         try:
             input_level = int(args)
             player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr.xp = 0
+            player_mgr.set_uint32(PlayerFields.PLAYER_XP, 0)
             player_mgr.mod_level(input_level)
 
             return 0, ''
@@ -389,14 +394,14 @@ class CommandManager(object):
 
     @staticmethod
     def suicide(world_session, args):
-        world_session.player_mgr.die(world_session.player_mgr)
+        world_session.player_mgr.deal_damage(world_session.player_mgr, world_session.player_mgr.health)
 
         return 0, ''
 
     @staticmethod
     def die(world_session, args):
-        player_mgr = CommandManager._target_or_self(world_session)
-        player_mgr.die(world_session.player_mgr)
+        unit = CommandManager._target_or_self(world_session)
+        world_session.player_mgr.deal_damage(unit, unit.health)
 
         return 0, ''
 
