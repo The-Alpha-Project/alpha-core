@@ -38,12 +38,16 @@ class CommandManager(object):
                 ChatManager.send_system_message(world_session, res)
 
     @staticmethod
-    def _target_or_self(world_session):
+    def _target_or_self(world_session, only_players=False):
         if world_session.player_mgr.current_selection \
                 and world_session.player_mgr.current_selection != world_session.player_mgr.guid:
-            unit = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                            world_session.player_mgr.current_selection,
-                                                            include_players=True)
+            if only_players:
+                unit = GridManager.get_surrounding_player_by_guid(world_session.player_mgr,
+                                                                  world_session.player_mgr.current_selection)
+            else:
+                unit = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr,
+                                                                world_session.player_mgr.current_selection,
+                                                                include_players=True)
             if unit:
                 return unit
 
@@ -66,7 +70,7 @@ class CommandManager(object):
     def speed(world_session, args):
         try:
             speed = 7.0 * float(args)
-            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             player_mgr.change_speed(speed)
 
             return 0, ''
@@ -77,7 +81,7 @@ class CommandManager(object):
     def swim_speed(world_session, args):
         try:
             speed = 4.7222223 * float(args)
-            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             player_mgr.change_swim_speed(speed)
 
             return 0, ''
@@ -266,7 +270,7 @@ class CommandManager(object):
     def mount(world_session, args):
         try:
             mount_display_id = int(args)
-            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             player_mgr.mount(mount_display_id)
             return 0, ''
         except ValueError:
@@ -274,7 +278,7 @@ class CommandManager(object):
 
     @staticmethod
     def unmount(world_session, args):
-        player_mgr = CommandManager._target_or_self(world_session)
+        player_mgr = CommandManager._target_or_self(world_session, only_players=True)
         player_mgr.unmount()
         return 0, ''
 
@@ -282,7 +286,7 @@ class CommandManager(object):
     def morph(world_session, args):
         try:
             display_id = int(args)
-            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             player_mgr.set_display_id(display_id)
             return 0, ''
         except ValueError:
@@ -290,7 +294,7 @@ class CommandManager(object):
 
     @staticmethod
     def demorph(world_session, args):
-        player_mgr = CommandManager._target_or_self(world_session)
+        player_mgr = CommandManager._target_or_self(world_session, only_players=True)
         player_mgr.demorph()
         return 0, ''
 
@@ -298,7 +302,7 @@ class CommandManager(object):
     def additem(world_session, args):
         try:
             entry = int(args)
-            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             item_mgr = player_mgr.inventory.add_item(entry)
             if item_mgr:
                 return 0, ''
@@ -329,7 +333,7 @@ class CommandManager(object):
     @staticmethod
     def player_info(world_session, args):
         # Because you can select party members on different maps, we search in the entire session pool
-        player_mgr = CommandManager._target_or_self(world_session)
+        player_mgr = CommandManager._target_or_self(world_session, only_players=True)
 
         if player_mgr:
             return 0, '[%s] - Guid: %u, Account ID: %u, Account name: %s' % (
@@ -372,7 +376,7 @@ class CommandManager(object):
     def level(world_session, args):
         try:
             input_level = int(args)
-            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             player_mgr.xp = 0
             player_mgr.set_uint32(PlayerFields.PLAYER_XP, 0)
             player_mgr.mod_level(input_level)
@@ -385,7 +389,7 @@ class CommandManager(object):
     def money(world_session, args):
         try:
             money = int(args)
-            player_mgr = CommandManager._target_or_self(world_session)
+            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             player_mgr.mod_money(money)
 
             return 0, ''

@@ -23,8 +23,9 @@ class AutoequipItemHandler(object):
                     target_slot = inventory.get_next_available_bag_slot().value
                 else:
                     # If a main weapon already exists, equip this one in the offhand unless there's already one
-                    if source_item.item_template.inventory_type == InventoryTypes.WEAPON and inventory.has_main_weapon() \
-                            and not inventory.has_offhand():
+                    if world_session.player_mgr.skill_manager.can_dual_wield() \
+                            and source_item.item_template.inventory_type == InventoryTypes.WEAPON \
+                            and inventory.has_main_weapon() and not inventory.has_offhand():
                         target_slot = InventorySlots.SLOT_OFFHAND.value
                         source_item.equip_slot = InventorySlots.SLOT_OFFHAND.value
                     else:

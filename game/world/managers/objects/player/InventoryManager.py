@@ -270,11 +270,20 @@ class InventoryManager(object):
                 return
 
             # Always default a one handed weapon to main hand unless dest slot is the offhand itself
-            if source_item.item_template.inventory_type == InventoryTypes.WEAPON:
-                if dest_slot == InventorySlots.SLOT_OFFHAND:
-                    source_item.equip_slot = InventorySlots.SLOT_OFFHAND.value
-                else:
-                    source_item.equip_slot = InventorySlots.SLOT_MAINHAND.value
+            if self.owner.skill_manager.can_dual_wield():
+                if source_item.item_template.inventory_type == InventoryTypes.WEAPON:
+                    if dest_slot == InventorySlots.SLOT_OFFHAND:
+                        source_item.equip_slot = InventorySlots.SLOT_OFFHAND.value
+                    else:
+                        source_item.equip_slot = InventorySlots.SLOT_MAINHAND.value
+            else:
+                # Don't allow dual wielding unless proper level and skill learnt
+                if dest_slot == InventorySlots.SLOT_OFFHAND and \
+                        (source_item.item_template.inventory_type == InventoryTypes.WEAPON or
+                         source_item.item_template.inventory_type == InventoryTypes.WEAPONOFFHAND):
+                    self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, source_item,
+                                          dest_item)
+                    return
 
             # Allow swapping between already equipped one handed weapons
             if dest_item and dest_item.item_template.inventory_type == InventoryTypes.WEAPON:

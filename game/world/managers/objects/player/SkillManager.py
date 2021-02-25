@@ -54,7 +54,7 @@ class SkillManager(object):
 
     def update_skills_max_value(self):
         for skill_id, skill in self.skills.items():
-            self.set_skill(skill_id, skill.value, self.get_max_rank(skill_id))
+            self.set_skill(skill_id, skill.value, SkillManager.get_max_rank(self.player_mgr.level, skill_id))
 
     @staticmethod
     def get_max_rank(player_level, skill_id):
@@ -74,6 +74,10 @@ class SkillManager(object):
                 return (player_level * 5) + 25
 
         return 0
+
+    def can_dual_wield(self):
+        # 118 is the Dual Wield skill
+        return 118 in self.skills and self.player_mgr.level >= 10
 
     def build_skill_update(self):
         count = 0
