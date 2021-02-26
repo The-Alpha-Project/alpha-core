@@ -567,18 +567,6 @@ class PlayercreateinfoItem(Base):
     amount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
 
 
-class PlayercreateinfoSkill(Base):
-    __tablename__ = 'playercreateinfo_skill'
-
-    id = Column(INTEGER(10), primary_key=True, nullable=False, index=True)
-    race = Column(TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
-    _class = Column('class', TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
-    Skill = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
-    SkillMin = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
-    SkillMax = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
-    Note = Column(String(255))
-
-
 class PlayercreateinfoSpell(Base):
     __tablename__ = 'playercreateinfo_spell'
 

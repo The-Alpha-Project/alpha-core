@@ -28,7 +28,7 @@ class TalentManager(object):
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(ability.Spell)
             spell_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
 
-            if ability.Spell in self.player_mgr.spells:
+            if ability.Spell in self.player_mgr.spell_manager.spells:
                 if ability.SupercededBySpell > 0:
                     next_talent.append(ability.SupercededBySpell)
                 status = TrainerServices.TRAINER_SERVICE_USED

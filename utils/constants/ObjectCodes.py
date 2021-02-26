@@ -293,7 +293,7 @@ class QuestGiverStatuses(IntEnum):
     QUEST_GIVER_NUMITEMS = 0x5
 
 
-class SkillTypes(IntEnum):
+class SkillCategories(IntEnum):
     MAX_SKILL = 1  # These are always max when added i.e. language/riding
     WEAPON_SKILL = 2
     CLASS_SKILL = 3
@@ -509,6 +509,22 @@ class ChatFlags(IntEnum):
     CHAT_TAG_AFK = 1
     CHAT_TAG_DND = 2
     CHAT_TAG_GM = 3
+
+
+class Languages(IntEnum):
+    LANG_UNIVERSAL = 0
+    LANG_ORCISH = 1
+    LANG_DARNASSIAN = 2
+    LANG_TAURAHE = 3
+    LANG_DWARVISH = 6
+    LANG_COMMON = 7
+    LANG_DEMONIC = 8
+    LANG_TITAN = 9
+    LANG_THALASSIAN = 10
+    LANG_DRACONIC = 11
+    LANG_KALIMAG = 12
+    LANG_GNOMISH = 13
+    LANG_TROLL = 14
 
 
 class MoveFlags(IntEnum):

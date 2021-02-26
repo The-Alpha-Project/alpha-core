@@ -98,5 +98,18 @@ begin not atomic
                                            target_orientation) values (240, 0, 2853.6733, -717.3836, 147.9484, 1.8916);
 
     end if;
+
+    -- 26/02/2021 1
+    if (select count(*) from applied_updates where id='260220211') = 0 then
+        drop table playercreateinfo_skill;
+        replace into playercreateinfo_spell (race, class, Spell, Note) values
+                                                                              (5, 1, 668, 'Language Common'),
+                                                                              (5, 4, 668, 'Language Common'),
+                                                                              (5, 5, 668, 'Language Common'),
+                                                                              (5, 8, 668, 'Language Common'),
+                                                                              (5, 9, 668, 'Language Common');
+
+        insert into applied_updates values ('260220211');
+    end if;
 end $
 delimiter ;

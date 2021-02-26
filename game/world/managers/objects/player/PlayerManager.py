@@ -8,6 +8,7 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.SkillManager import SkillManager
+from game.world.managers.objects.player.SpellManager import SpellManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
@@ -71,7 +72,6 @@ class PlayerManager(UnitManager):
         self.group_status = WhoPartyStatuses.WHO_PARTY_STATUS_NOT_IN_PARTY
         self.race_mask = 0
         self.class_mask = 0
-        self.spells = {}
         self.deathbind = deathbind
         self.team = PlayerManager.get_team_for_race(self.race_mask)
         self.trade_data = None
@@ -125,6 +125,7 @@ class PlayerManager(UnitManager):
             self.stat_manager = StatManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
+            self.spell_manager = SpellManager(self)
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:
@@ -200,14 +201,6 @@ class PlayerManager(UnitManager):
     def get_tutorial_packet(self):
         return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('<18I', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                                         0, 0, 0, 0, 0))
-
-    def get_initial_spells(self):
-        data = pack('<BH', 0, len(self.spells))
-        for spell_id, spell in self.spells.items():
-            data += pack('<2H', spell.ID, 0)
-        data += pack('<H', 0)
-
-        return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 
     def get_action_buttons(self):
         data = b''
@@ -478,13 +471,6 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
 
         self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=reload_items)
-
-    def load_spells(self):
-        for spell in WorldDatabaseManager.player_create_spell_get(self.player.race,
-                                                                  self.player.class_):
-            spell_to_load = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
-            if spell_to_load:
-                self.spells[spell.Spell] = spell_to_load
 
     # override
     def get_full_update_packet(self, is_self=True):

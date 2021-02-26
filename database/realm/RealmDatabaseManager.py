@@ -218,6 +218,30 @@ class RealmDatabaseManager(object):
             realm_db_session.flush()
             realm_db_session.close()
 
+    @staticmethod
+    def character_get_spells(guid):
+        realm_db_session = SessionHolder()
+        spells = realm_db_session.query(CharacterSpell).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        realm_db_session.close()
+        return spells
+
+    @staticmethod
+    def character_add_spell(spell):
+        if spell:
+            realm_db_session = SessionHolder()
+            realm_db_session.add(spell)
+            realm_db_session.flush()
+            realm_db_session.refresh(spell)
+            realm_db_session.close()
+
+    @staticmethod
+    def character_update_spell(spell):
+        if spell:
+            realm_db_session = SessionHolder()
+            realm_db_session.merge(spell)
+            realm_db_session.flush()
+            realm_db_session.close()
+
     # Ticket stuff
 
     @staticmethod

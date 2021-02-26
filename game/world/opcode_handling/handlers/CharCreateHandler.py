@@ -1,3 +1,4 @@
+from math import log
 from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -11,7 +12,8 @@ from database.world.WorldDatabaseManager import *
 from utils.constants.CharCodes import *
 from utils.ConfigManager import config
 from utils.constants.ItemCodes import InventorySlots
-from utils.constants.ObjectCodes import SkillTypes
+from utils.constants.ObjectCodes import SkillCategories
+from utils.constants.SpellCodes import SpellEffects
 from utils.constants.UnitCodes import Teams, Classes
 
 
@@ -74,8 +76,7 @@ class CharCreateHandler(object):
                                   power4=100 if class_ == Classes.CLASS_ROGUE else 0,
                                   level=config.Unit.Player.Defaults.starting_level)
             RealmDatabaseManager.character_create(character)
-            CharCreateHandler.generate_starting_skills(character.guid, character.level, race, class_, race_mask,
-                                                       class_mask)
+            CharCreateHandler.generate_starting_spells(character.guid, race, class_, character.level)
             CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
             default_deathbind = CharacterDeathbind(
                 player_guid=character.guid,
@@ -99,56 +100,46 @@ class CharCreateHandler(object):
         return info.map, info.zone, info.position_x, info.position_y, info.position_z, info.orientation
 
     @staticmethod
-    def generate_starting_skills(guid, level, race, class_, race_mask, class_mask):
-        added_skills = []
-
-        def insert_skill(skill_id, skill_value):
-            if skill_id in added_skills:
+    def generate_starting_spells(guid, race, class_, level):
+        def insert_skill(skill_id):
+            skill = DbcDatabaseManager.skill_get_by_id(skill_id)
+            if not skill:
                 return
+
+            start_rank_value = 1
+            if skill.CategoryID == SkillCategories.MAX_SKILL:
+                start_rank_value = skill.MaxRank
 
             skill_to_set = CharacterSkill()
             skill_to_set.guid = guid
             skill_to_set.skill = skill_id
-            skill_to_set.value = skill_value
+            skill_to_set.value = start_rank_value
             skill_to_set.max = SkillManager.get_max_rank(level, skill_id)
 
             RealmDatabaseManager.character_add_skill(skill_to_set)
-            added_skills.append(skill_id)
 
-        for skill in WorldDatabaseManager.player_create_skill_get(race, class_):
-            insert_skill(skill.Skill, skill.SkillMax)
+        added_spells = []
+        for spell in WorldDatabaseManager.player_create_spell_get(race, class_):
+            spell_to_load = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
+            if spell_to_load:
+                if spell_to_load.ID not in added_spells:
+                    spell_to_set = CharacterSpell()
+                    spell_to_set.guid = guid
+                    spell_to_set.spell = spell_to_load.ID
 
-        # TODO This is not the proper way of inserting skills, just drop the table and use only spells.
-        """
-        for sla in DbcDatabaseManager.skill_line_ability_get_all():
-            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(sla.Spell)
-            skill = DbcDatabaseManager.skill_get_by_id(sla.SkillLine)
+                    RealmDatabaseManager.character_add_spell(spell_to_set)
+                    added_spells.append(spell_to_load.ID)
 
-            # We don't want more secondary skills on char creation
-            if skill.SkillType == 4:
-                continue
+                    # Insert according skills if needed
 
-            if spell.BaseLevel > level:
-                continue
-
-            if skill.RaceMask > 0 and not skill.RaceMask & race_mask or \
-                skill.ClassMask > 0 and not skill.ClassMask & class_mask or \
-                    skill.ExcludeRace > 0 and skill.ExcludeRace & race_mask or \
-                    skill.ExcludeClass > 0 and skill.ExcludeClass & class_mask:
-                continue
-
-            if sla.RaceMask > 0 and not sla.RaceMask & race_mask or \
-                sla.ClassMask > 0 and not sla.ClassMask & class_mask or \
-                    sla.ExcludeRace > 0 and sla.ExcludeRace & race_mask or \
-                    sla.ExcludeClass > 0 and sla.ExcludeClass & class_mask:
-                continue
-
-            start_rank_value = 1
-            if skill.CategoryID == SkillTypes.MAX_SKILL:
-                start_rank_value = skill.MaxRank
-
-            insert_skill(skill.ID, start_rank_value)
-        """
+                    # Languages
+                    if spell_to_load.Effect_1 == SpellEffects.SPELL_EFFECT_LANGUAGE:
+                        insert_skill(SkillManager.get_skill_by_language(spell_to_load.EffectMiscValue_1))
+                    # Weapons
+                    elif spell_to_load.Effect_1 == SpellEffects.SPELL_EFFECT_WEAPON:
+                        insert_skill(SkillManager.get_skill_by_item_class(spell_to_load.EquippedItemClass,
+                                                                          # Removing the mask
+                                                                          log(spell_to_load.EquippedItemSubclass) / log(2)))
 
     @staticmethod
     def generate_starting_items(guid, race, class_, gender):
