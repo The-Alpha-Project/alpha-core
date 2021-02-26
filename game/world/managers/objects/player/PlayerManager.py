@@ -614,14 +614,10 @@ class PlayerManager(UnitManager):
 
     def add_talent_points(self, talent_points):
         self.talent_points += talent_points
-        if self.talent_points > 255:
-            self.talent_points = 255
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS1, self.talent_points)
 
     def add_skill_points(self, skill_points):
         self.skill_points += skill_points
-        if self.skill_points > 255:
-            self.skill_points = 255
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
     def regenerate(self, current_time):
