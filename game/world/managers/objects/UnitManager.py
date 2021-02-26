@@ -258,8 +258,8 @@ class UnitManager(ObjectManager):
         swing_error = AttackSwingError.MOVING
         combat_angle = math.pi
 
-        if not self.combat_target and len(self.attackers) == 0:
-            if self.in_combat:
+        if not self.combat_target:
+            if self.in_combat and len(self.attackers) == 0:
                 self.leave_combat()
             return False
 
