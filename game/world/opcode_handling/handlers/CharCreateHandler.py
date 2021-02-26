@@ -4,7 +4,7 @@ from struct import pack, unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.PlayerManager import PlayerManager
-from game.world.managers.objects.player.SkillManager import SkillManager
+from game.world.managers.objects.player.SkillManager import SkillManager, SkillTypes
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from database.realm.RealmDatabaseManager import *
@@ -101,24 +101,34 @@ class CharCreateHandler(object):
 
     @staticmethod
     def generate_starting_spells(guid, race, class_, level):
-        def insert_skill(skill_id):
+        added_skills = []
+        added_spells = []
+
+        def insert_skill(skill_id, override_rank_value=-1, override_max_rank_value=-1):
+            if skill_id in added_skills:
+                return
+
             skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
             if not skill:
                 return
 
-            start_rank_value = 1
-            if skill.CategoryID == SkillCategories.MAX_SKILL:
-                start_rank_value = skill.MaxRank
+            if override_rank_value == -1:
+                start_rank_value = 1
+                if skill.CategoryID == SkillCategories.MAX_SKILL:
+                    start_rank_value = skill.MaxRank
+            else:
+                start_rank_value = override_rank_value
 
             skill_to_set = CharacterSkill()
             skill_to_set.guid = guid
             skill_to_set.skill = skill_id
             skill_to_set.value = start_rank_value
-            skill_to_set.max = SkillManager.get_max_rank(level, skill_id)
+            skill_to_set.max = SkillManager.get_max_rank(level, skill_id) if override_max_rank_value == -1 else \
+                override_max_rank_value
 
             RealmDatabaseManager.character_add_skill(skill_to_set)
+            added_skills.append(skill_id)
 
-        added_spells = []
         for spell in WorldDatabaseManager.player_create_spell_get(race, class_):
             spell_to_load = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
             if spell_to_load:
@@ -130,16 +140,28 @@ class CharCreateHandler(object):
                     RealmDatabaseManager.character_add_spell(spell_to_set)
                     added_spells.append(spell_to_load.ID)
 
-                    # Insert according skills if needed
+                    # Insert related skills
+                    skill_line_ability = DbcDatabaseManager.skill_line_ability_get_by_spell(spell_to_load.ID)
+                    if skill_line_ability:
+                        insert_skill(skill_line_ability.SkillLine)
 
-                    # Languages
-                    if spell_to_load.Effect_1 == SpellEffects.SPELL_EFFECT_LANGUAGE:
-                        insert_skill(SkillManager.get_skill_by_language(spell_to_load.EffectMiscValue_1))
-                    # Weapons
-                    elif spell_to_load.Effect_1 == SpellEffects.SPELL_EFFECT_WEAPON:
-                        insert_skill(SkillManager.get_skill_by_item_class(spell_to_load.EquippedItemClass,
-                                                                          # Removing the mask
-                                                                          log(spell_to_load.EquippedItemSubclass) / log(2)))
+        # TODO: Investigate the below behavior
+        """
+        # This doesn't seem to work well in 0.5.3, it bugs out the Common language. Maybe it was only possible 
+        # in 0.5.5+ as seen here: https://i.imgur.com/kJD11ve.png, or maybe a bad implementation.
+
+        # Insert remaining languages but with value 1
+        for lang_id, lang_desc in SkillManager.get_all_languages():
+            if lang_desc.spell_id not in added_spells:
+                lang_spell = CharacterSpell()
+                lang_spell.guid = guid
+                lang_spell.spell = lang_desc.spell_id
+
+                RealmDatabaseManager.character_add_spell(lang_spell)
+                added_spells.append(lang_desc.spell_id)
+
+                insert_skill(lang_desc.skill_id, override_rank_value=1, override_max_rank_value=1)
+        """
 
     @staticmethod
     def generate_starting_items(guid, race, class_, gender):

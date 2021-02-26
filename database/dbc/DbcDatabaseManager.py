@@ -113,6 +113,13 @@ class DbcDatabaseManager(object):
         return res
 
     @staticmethod
+    def skill_line_ability_get_by_spell(spell_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SkillLineAbility).filter_by(Spell=spell_id).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
     def skill_line_ability_get_by_skill_line(skill_line):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SkillLineAbility).filter_by(SkillLine=skill_line).all()

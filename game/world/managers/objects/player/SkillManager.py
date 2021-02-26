@@ -12,102 +12,148 @@ from utils.constants.UpdateFields import PlayerFields
 
 
 class SkillTypes(IntEnum):
-    SKILL_NONE = 0
-
-    SKILL_FROST = 6
-    SKILL_FIRE = 8
-    SKILL_COMBAT_MANEUVERS = 26
-    SKILL_STREET_FIGHTING = 38
-    SKILL_DECEPTION = 39
-    SKILL_POISONS = 40
-    SKILL_SWORDS = 43
-    SKILL_AXES = 44
-    SKILL_BOWS = 45
-    SKILL_GUNS = 46
-    SKILL_BEAST_MASTERY = 50
-    SKILL_SURVIVAL = 51
-    SKILL_MACES = 54
-    SKILL_2H_SWORDS = 55
-    SKILL_HOLY = 56
-    SKILL_SHADOW = 78
-    SKILL_DEFENSE = 95
-    SKILL_LANG_COMMON = 98
-    SKILL_RACIAL_DWARVEN = 101
-    SKILL_LANG_ORCISH = 109
-    SKILL_LANG_DWARVEN = 111
-    SKILL_LANG_DARNASSIAN = 113
-    SKILL_LANG_TAURAHE = 115
-    SKILL_DUAL_WIELD = 118
-    SKILL_RACIAL_TAUREN = 124
-    SKILL_ORC_RACIAL = 125
-    SKILL_RACIAL_NIGHT_ELF = 126
-    SKILL_FIRST_AID = 129
-    SKILL_FERAL_COMBAT = 134
-    SKILL_STAVES = 136
-    SKILL_LANG_THALASSIAN = 137
-    SKILL_LANG_DRACONIC = 138
-    SKILL_LANG_DEMON_TONGUE = 139
-    SKILL_LANG_TITAN = 140
-    SKILL_LANG_OLD_TONGUE = 141
-    SKILL_SURVIVAL2 = 142
-    SKILL_RIDING_HORSE = 148
-    SKILL_RIDING_WOLF = 149
-    SKILL_RIDING_TIGER = 150
-    SKILL_RIDING_RAM = 152
-    SKILL_SWIMING = 155
-    SKILL_2H_MACES = 160
-    SKILL_UNARMED = 162
-    SKILL_MARKSMANSHIP = 163
-    SKILL_BLACKSMITHING = 164
-    SKILL_LEATHERWORKING = 165
-    SKILL_ALCHEMY = 171
-    SKILL_2H_AXES = 172
-    SKILL_DAGGERS = 173
-    SKILL_THROWN = 176
-    SKILL_HERBALISM = 182
-    SKILL_GENERIC_DND = 183
-    SKILL_RETRIBUTION = 184
-    SKILL_COOKING = 185
-    SKILL_MINING = 186
-    SKILL_PET_IMP = 188
-    SKILL_PET_FELHUNTER = 189
-    SKILL_TAILORING = 197
-    SKILL_ENGINEERING = 202
-    SKILL_PET_SPIDER = 203
-    SKILL_PET_VOIDWALKER = 204
-    SKILL_PET_SUCCUBUS = 205
-    SKILL_PET_INFERNAL = 206
-    SKILL_PET_DOOMGUARD = 207
-    SKILL_PET_WOLF = 208
-    SKILL_PET_CAT = 209
-    SKILL_PET_BEAR = 210
-    SKILL_PET_BOAR = 211
-    SKILL_PET_CROCILISK = 212
-    SKILL_PET_CARRION_BIRD = 213
-    SKILL_PET_CRAB = 214
-    SKILL_PET_GORILLA = 215
-    SKILL_PET_RAPTOR = 217
-    SKILL_PET_TALLSTRIDER = 218
-    SKILL_RACIAL_UNDEAD = 220
-    SKILL_CROSSBOWS = 226
-    SKILL_WANDS = 228
-    SKILL_POLEARMS = 229
-    SKILL_PET_SCORPID = 236
-    SKILL_ARCANE = 237
-    SKILL_PET_TURTLE = 251
-    SKILL_ASSASSINATION = 253
-    SKILL_FURY = 256
-    SKILL_PROTECTION = 257
-    SKILL_BEAST_TRAINING = 261
-    SKILL_PROTECTION2 = 267
-    SKILL_PET_TALENTS = 270
-    SKILL_PLATE_MAIL = 293
-    SKILL_LANG_GNOMISH = 313
-    SKILL_LANG_TROLL = 315
-    SKILL_ENCHANTING = 333
-    SKILL_DEMONOLOGY = 354
-    SKILL_AFFLICTION = 355
-    SKILL_FISHING = 356
+    NONE = 0
+    FROSTMAGIC = 0x6
+    FIREMAGIC = 0x8
+    COMBATMANEUVERS = 0x1A
+    STREETFIGHTING = 0x26
+    DECEPTION = 0x27
+    POISONS = 0x28
+    SWORDS = 0x2B
+    AXES = 0x2C
+    BOWS = 0x2D
+    GUNS = 0x2E
+    BEASTHANDLING = 0x32
+    TRACKING = 0x33
+    MACES = 0x36
+    TWOHANDEDSWORDS = 0x37
+    HOLYMAGIC = 0x38
+    FEIGNDEATH = 0x4A
+    SHADOWMAGIC = 0x4E
+    DEFENSE = 0x5F
+    NATUREMAGIC = 0x60
+    LANGUAGE_COMMON = 0x62
+    LANGUAGE_COMMON_TEMP = 0x63
+    DWARVENRACIAL = 0x65
+    LANGUAGE_ORCISH = 0x6D
+    LANGUAGE_ORCISH_TEMP = 0x6E
+    LANGUAGE_DWARVEN = 0x6F
+    LANGUAGE_DWARVEN_TEMP = 0x70
+    LANGUAGE_DARNASSIAN = 0x71
+    LANGUAGE_DARNASSIAN_TEMP = 0x72
+    LANGUAGE_TAURAHE = 0x73
+    LANGUAGE_TAURAHE_TEMP = 0x74
+    DUALWIELD = 0x76
+    SUMMONING = 0x78
+    TAURENRACIAL = 0x7C
+    ORCRACIAL = 0x7D
+    NIGHTELFRACIAL = 0x7E
+    FIRSTAID = 0x81
+    CONJURATION = 0x82
+    SHAPESHIFTING = 0x86
+    STAVES = 0x88
+    THALASSIAN = 0x89
+    DRACONIC = 0x8A
+    DEMONTONGUE = 0x8B
+    TITAN = 0x8C
+    OLDTONGUE = 0x8D
+    SURVIVAL = 0x8E
+    HORSERIDING = 0x94
+    WOLFRIDING = 0x95
+    TIGERRIDING = 0x96
+    NIGHTMARERIDING = 0x97
+    RAMRIDING = 0x98
+    SWIMMING = 0x9B
+    TWOHANDEDMACES = 0xA0
+    UNARMED = 0xA2
+    COMBATSHOTS = 0xA3
+    BLACKSMITHING = 0xA4
+    LEATHERWORKING = 0xA5
+    ALCHEMY = 0xAB
+    TWOHANDEDAXES = 0xAC
+    DAGGERS = 0xAD
+    THROWN = 0xB0
+    LOCKPICKING_TEMP = 0xB5
+    HERBALISM = 0xB6
+    GENERIC = 0xB7
+    HOLYSTRIKES = 0xB8
+    COOKING = 0xB9
+    MINING = 0xBA
+    PET_IMP = 0xBC
+    PET_FELHUNTER = 0xBD
+    TAILORING = 0xC5
+    SEALS = 0xC6
+    SPIRITCOMBAT = 0xC7
+    ENGINEERING = 0xCA
+    PET_SPIDER = 0xCB
+    PET_VOIDWALKER = 0xCC
+    PET_SUCCUBUS = 0xCD
+    PET_INFERNAL = 0xCE
+    PET_DOOMGUARD = 0xCF
+    PET_WOLF = 0xD0
+    PET_CAT = 0xD1
+    PET_BEAR = 0xD2
+    PET_BOAR = 0xD3
+    PET_CROCILISK = 0xD4
+    PET_CARRIONBIRD = 0xD5
+    PET_CRAB = 0xD6
+    PET_GORILLA = 0xD7
+    PET_HORSE = 0xD8
+    PET_RAPTOR = 0xD9
+    PET_TALLSTRIDER = 0xDA
+    RACIAL_UNDEAD = 0xDC
+    WEAPONTALENTS = 0xDE
+    CROSSBOWS = 0xE2
+    SPEARS = 0xE3
+    WANDS = 0xE4
+    POLEARMS = 0xE5
+    ATTRIBUTEENHANCEMENTS = 0xE6
+    SLAYERTALENTS = 0xE7
+    MAGICTALENTS = 0xE9
+    DEFENSIVETALENTS = 0xEA
+    PET_SCORPION = 0xEC
+    ARCANEMAGIC = 0xED
+    PICKPOCKETS = 0xEE
+    STEALTH = 0xEF
+    DISARMTRAPS = 0xF1
+    LOCKPICKING = 0xF2
+    STANCES = 0xF3
+    SHOUTS = 0xF4
+    ADVANCEDCOMBAT = 0xF5
+    UNDEADMASTERY = 0xF6
+    SNEAKING = 0xF7
+    DISENGAGE = 0x111
+    FORAGE = 0xF9
+    PET_TURTLE = 0xFB
+    RANGEDCOMBAT = 0xFC
+    ASSASSINATION = 0xFD
+    ACROBATICS = 0xFE
+    DUELING = 0xFF
+    SAVAGECOMBAT = 0x100
+    SHIELDS = 0x101
+    TAUNT = 0x102
+    TOTEMS = 0x103
+    MENDPET = 0x104
+    BEASTTRAINING = 0x105
+    EXPERTSHOTS = 0x106
+    FIRESHOTS = 0x107
+    FROSTSHOTS = 0x108
+    PLATEMAIL = 0x125
+    LANGUAGE_GNOMISH = 0x139
+    AURAS = 0x10B
+    BLOCK = 0x10C
+    JUSTICE = 0x10D
+    PET_TALENTS = 0x10E
+    MAGICUNLOCK = 0x10F
+    GROWL = 0x110
+    LANGUAGE_GNOMISH_TEMP = 0x13A
+    LANGUAGE_TROLL = 0x13B
+    LANGUAGE_TROLL_TEMP = 0x13C
+    ENCHANTING = 0x14D
+    SOULCRAFT = 0x161
+    DEMONMASTERY = 0x162
+    CURSES = 0x163
+    FISHING = 0x164
 
 
 class LanguageDesc(NamedTuple):
@@ -118,18 +164,18 @@ class LanguageDesc(NamedTuple):
 
 LANG_DESCRIPTION = {
     Languages.LANG_UNIVERSAL: LanguageDesc(Languages.LANG_UNIVERSAL, 0, 0),
-    Languages.LANG_ORCISH: LanguageDesc(Languages.LANG_ORCISH, 669, SkillTypes.SKILL_LANG_ORCISH.value),
-    Languages.LANG_DARNASSIAN: LanguageDesc(Languages.LANG_DARNASSIAN, 671, SkillTypes.SKILL_LANG_DARNASSIAN.value),
-    Languages.LANG_TAURAHE: LanguageDesc(Languages.LANG_TAURAHE, 670, SkillTypes.SKILL_LANG_TAURAHE.value),
-    Languages.LANG_DWARVISH: LanguageDesc(Languages.LANG_DWARVISH, 672, SkillTypes.SKILL_LANG_DWARVEN.value),
-    Languages.LANG_COMMON: LanguageDesc(Languages.LANG_COMMON, 668, SkillTypes.SKILL_LANG_COMMON.value),
-    Languages.LANG_DEMONIC: LanguageDesc(Languages.LANG_DEMONIC, 815, SkillTypes.SKILL_LANG_DEMON_TONGUE.value),
-    Languages.LANG_TITAN: LanguageDesc(Languages.LANG_TITAN, 816, SkillTypes.SKILL_LANG_TITAN.value),
-    Languages.LANG_THALASSIAN: LanguageDesc(Languages.LANG_THALASSIAN, 813, SkillTypes.SKILL_LANG_THALASSIAN.value),
-    Languages.LANG_DRACONIC: LanguageDesc(Languages.LANG_DRACONIC, 814, SkillTypes.SKILL_LANG_DRACONIC.value),
-    Languages.LANG_KALIMAG: LanguageDesc(Languages.LANG_KALIMAG, 817, SkillTypes.SKILL_LANG_OLD_TONGUE.value),
-    Languages.LANG_GNOMISH: LanguageDesc(Languages.LANG_GNOMISH, 7340, SkillTypes.SKILL_LANG_GNOMISH.value),
-    Languages.LANG_TROLL: LanguageDesc(Languages.LANG_TROLL, 7341, SkillTypes.SKILL_LANG_TROLL.value)
+    Languages.LANG_ORCISH: LanguageDesc(Languages.LANG_ORCISH, 669, SkillTypes.LANGUAGE_ORCISH.value),
+    Languages.LANG_DARNASSIAN: LanguageDesc(Languages.LANG_DARNASSIAN, 671, SkillTypes.LANGUAGE_DARNASSIAN.value),
+    Languages.LANG_TAURAHE: LanguageDesc(Languages.LANG_TAURAHE, 670, SkillTypes.LANGUAGE_TAURAHE.value),
+    Languages.LANG_DWARVISH: LanguageDesc(Languages.LANG_DWARVISH, 672, SkillTypes.LANGUAGE_DWARVEN.value),
+    Languages.LANG_COMMON: LanguageDesc(Languages.LANG_COMMON, 668, SkillTypes.LANGUAGE_COMMON.value),
+    Languages.LANG_DEMONIC: LanguageDesc(Languages.LANG_DEMONIC, 815, SkillTypes.DEMONTONGUE.value),
+    Languages.LANG_TITAN: LanguageDesc(Languages.LANG_TITAN, 816, SkillTypes.TITAN.value),
+    Languages.LANG_THALASSIAN: LanguageDesc(Languages.LANG_THALASSIAN, 813, SkillTypes.THALASSIAN.value),
+    Languages.LANG_DRACONIC: LanguageDesc(Languages.LANG_DRACONIC, 814, SkillTypes.DRACONIC.value),
+    Languages.LANG_KALIMAG: LanguageDesc(Languages.LANG_KALIMAG, 817, SkillTypes.OLDTONGUE.value),
+    Languages.LANG_GNOMISH: LanguageDesc(Languages.LANG_GNOMISH, 7340, SkillTypes.LANGUAGE_GNOMISH.value),
+    Languages.LANG_TROLL: LanguageDesc(Languages.LANG_TROLL, 7341, SkillTypes.LANGUAGE_TROLL.value)
 }
 
 
@@ -140,24 +186,24 @@ class SpellSkillDesc(NamedTuple):
 
 EQUIPMENT_DESCRIPTION = {
     ItemClasses.ITEM_CLASS_WEAPON: {
-        ItemSubClasses.ITEM_SUBCLASS_AXE: SpellSkillDesc(196, SkillTypes.SKILL_AXES.value),
-        ItemSubClasses.ITEM_SUBCLASS_TWOHAND_AXE: SpellSkillDesc(197, SkillTypes.SKILL_2H_AXES.value),
-        ItemSubClasses.ITEM_SUBCLASS_BOW: SpellSkillDesc(264, SkillTypes.SKILL_BOWS.value),
-        ItemSubClasses.ITEM_SUBCLASS_GUN: SpellSkillDesc(266, SkillTypes.SKILL_GUNS.value),
-        ItemSubClasses.ITEM_SUBCLASS_MACE: SpellSkillDesc(198, SkillTypes.SKILL_MACES.value),
-        ItemSubClasses.ITEM_SUBCLASS_TWOHAND_MACE: SpellSkillDesc(199, SkillTypes.SKILL_2H_MACES.value),
-        ItemSubClasses.ITEM_SUBCLASS_POLEARM: SpellSkillDesc(3386, SkillTypes.SKILL_POLEARMS.value),
-        ItemSubClasses.ITEM_SUBCLASS_SWORD: SpellSkillDesc(201, SkillTypes.SKILL_SWORDS.value),
-        ItemSubClasses.ITEM_SUBCLASS_TWOHAND_SWORD: SpellSkillDesc(202, SkillTypes.SKILL_2H_SWORDS.value),
-        ItemSubClasses.ITEM_SUBCLASS_STAFF: SpellSkillDesc(227, SkillTypes.SKILL_STAVES.value),
-        ItemSubClasses.ITEM_SUBCLASS_DAGGER: SpellSkillDesc(1180, SkillTypes.SKILL_DAGGERS.value),
-        ItemSubClasses.ITEM_SUBCLASS_THROWN: SpellSkillDesc(2567, SkillTypes.SKILL_THROWN.value),
-        ItemSubClasses.ITEM_SUBCLASS_CROSSBOW: SpellSkillDesc(5011, SkillTypes.SKILL_CROSSBOWS.value),
-        ItemSubClasses.ITEM_SUBCLASS_WAND: SpellSkillDesc(5009, SkillTypes.SKILL_WANDS.value),
-        ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON: SpellSkillDesc(0, SkillTypes.SKILL_UNARMED.value)
+        ItemSubClasses.ITEM_SUBCLASS_AXE: SpellSkillDesc(196, SkillTypes.AXES.value),
+        ItemSubClasses.ITEM_SUBCLASS_TWOHAND_AXE: SpellSkillDesc(197, SkillTypes.TWOHANDEDAXES.value),
+        ItemSubClasses.ITEM_SUBCLASS_BOW: SpellSkillDesc(264, SkillTypes.BOWS.value),
+        ItemSubClasses.ITEM_SUBCLASS_GUN: SpellSkillDesc(266, SkillTypes.GUNS.value),
+        ItemSubClasses.ITEM_SUBCLASS_MACE: SpellSkillDesc(198, SkillTypes.MACES.value),
+        ItemSubClasses.ITEM_SUBCLASS_TWOHAND_MACE: SpellSkillDesc(199, SkillTypes.TWOHANDEDMACES.value),
+        ItemSubClasses.ITEM_SUBCLASS_POLEARM: SpellSkillDesc(3386, SkillTypes.POLEARMS.value),
+        ItemSubClasses.ITEM_SUBCLASS_SWORD: SpellSkillDesc(201, SkillTypes.SWORDS.value),
+        ItemSubClasses.ITEM_SUBCLASS_TWOHAND_SWORD: SpellSkillDesc(202, SkillTypes.TWOHANDEDSWORDS.value),
+        ItemSubClasses.ITEM_SUBCLASS_STAFF: SpellSkillDesc(227, SkillTypes.STAVES.value),
+        ItemSubClasses.ITEM_SUBCLASS_DAGGER: SpellSkillDesc(1180, SkillTypes.DAGGERS.value),
+        ItemSubClasses.ITEM_SUBCLASS_THROWN: SpellSkillDesc(2567, SkillTypes.THROWN.value),
+        ItemSubClasses.ITEM_SUBCLASS_CROSSBOW: SpellSkillDesc(5011, SkillTypes.CROSSBOWS.value),
+        ItemSubClasses.ITEM_SUBCLASS_WAND: SpellSkillDesc(5009, SkillTypes.WANDS.value),
+        ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON: SpellSkillDesc(0, SkillTypes.UNARMED.value)
     },
     ItemClasses.ITEM_CLASS_ARMOR: {
-        ItemSubClasses.ITEM_SUBCLASS_PLATE: SpellSkillDesc(750, SkillTypes.SKILL_PLATE_MAIL.value)
+        ItemSubClasses.ITEM_SUBCLASS_PLATE: SpellSkillDesc(750, SkillTypes.PLATEMAIL.value)
     }
 }
 
@@ -208,7 +254,13 @@ class SkillManager(object):
 
     def update_skills_max_value(self):
         for skill_id, skill in self.skills.items():
-            self.set_skill(skill_id, skill.value, SkillManager.get_max_rank(self.player_mgr.level, skill_id))
+            # For cases like non-default languages, they should remain at max 1 unless forcefully set
+            if skill.max == 1:
+                new_max = 1
+            else:
+                new_max = SkillManager.get_max_rank(self.player_mgr.level, skill_id)
+
+            self.set_skill(skill_id, skill.value, new_max)
 
     def can_use_equipment(self, item_class, item_subclass):
         skill = SkillManager.get_skill_by_item_class(item_class, item_subclass)
@@ -216,6 +268,10 @@ class SkillManager(object):
             return False
 
         return skill in self.skills
+
+    @staticmethod
+    def get_all_languages():
+        return LANG_DESCRIPTION.items()
 
     @staticmethod
     def get_skill_by_language(language_id):
@@ -252,7 +308,7 @@ class SkillManager(object):
         return 0
 
     def can_dual_wield(self):
-        return SkillTypes.SKILL_DUAL_WIELD in self.skills and self.player_mgr.level >= 10
+        return SkillTypes.DUALWIELD in self.skills and self.player_mgr.level >= 10
 
     def build_skill_update(self):
         count = 0
