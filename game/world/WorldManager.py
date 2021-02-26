@@ -125,6 +125,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             Logger.info('Skipped creature loading.')
 
         WorldServerSessionHandler._load_spells()
+        WorldServerSessionHandler._load_skills()
 
     @staticmethod
     def _load_gameobjects():
@@ -175,6 +176,18 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
             count += 1
             Logger.progress('Loading spells...', count, length)
+
+    @staticmethod
+    def _load_skills():
+        skills = DbcDatabaseManager.skill_get_all()
+        length = len(skills)
+        count = 0
+
+        for skill in skills:
+            DbcDatabaseManager.SkillHolder.load_skill(skill)
+
+            count += 1
+            Logger.progress('Loading skills...', count, length)
 
     @staticmethod
     def start():

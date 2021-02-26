@@ -177,7 +177,7 @@ class SkillManager(object):
         if skill_id in self.skills:
             return
 
-        skill = DbcDatabaseManager.skill_get_by_id(skill_id)
+        skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
         if not skill:
             return
 
@@ -227,7 +227,7 @@ class SkillManager(object):
 
     @staticmethod
     def get_max_rank(player_level, skill_id):
-        skill = DbcDatabaseManager.skill_get_by_id(skill_id)
+        skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
         if not skill:
             return 0
 

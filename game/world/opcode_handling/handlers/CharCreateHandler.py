@@ -102,7 +102,7 @@ class CharCreateHandler(object):
     @staticmethod
     def generate_starting_spells(guid, race, class_, level):
         def insert_skill(skill_id):
-            skill = DbcDatabaseManager.skill_get_by_id(skill_id)
+            skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
             if not skill:
                 return
 

@@ -86,10 +86,22 @@ class DbcDatabaseManager(object):
 
     # Skill
 
+    class SkillHolder:
+        SKILLS = {}
+
+        @staticmethod
+        def load_skill(skill):
+            DbcDatabaseManager.SkillHolder.SKILLS[skill.ID] = skill
+
+        @staticmethod
+        def skill_get_by_id(skill_id):
+            return DbcDatabaseManager.SkillHolder.SKILLS[skill_id] \
+                if skill_id in DbcDatabaseManager.SkillHolder.SKILLS else None
+
     @staticmethod
-    def skill_get_by_id(skill_id):
+    def skill_get_all():
         dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(SkillLine).filter_by(ID=skill_id).first()
+        res = dbc_db_session.query(SkillLine).all()
         dbc_db_session.close()
         return res
 
