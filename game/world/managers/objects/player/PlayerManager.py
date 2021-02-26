@@ -446,6 +446,7 @@ class PlayerManager(UnitManager):
                 self.set_mana(self.max_power_1)
 
                 self.skill_manager.update_skills_max_value()
+                self.skill_manager.build_skill_update()
 
                 if should_send_info:
                     data = pack('<3I',

@@ -17,7 +17,7 @@ class InitiateTradeHandler(object):
             if guid > 0:
                 trade_player = GridManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)
                 trade_status = None
-                if not trade_player or not trade_player.is_alive:
+                if not trade_player:
                     trade_status = TradeStatuses.TRADE_STATUS_PLAYER_NOT_FOUND
                 if not world_session.player_mgr.is_alive:
                     trade_status = TradeStatuses.TRADE_STATUS_DEAD
