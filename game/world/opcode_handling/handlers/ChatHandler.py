@@ -3,7 +3,7 @@ from game.world.managers.GridManager import GridManager
 from network.packet.PacketReader import *
 from struct import pack, unpack, error
 from game.world.managers.ChatManager import ChatManager
-from utils.constants.ObjectCodes import ChatMsgs, ChatFlags
+from utils.constants.ObjectCodes import ChatMsgs, ChatFlags, Languages
 from utils.ConfigManager import config
 from game.world.managers.CommandManager import CommandManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -21,7 +21,7 @@ class ChatHandler(object):
 
         # Override language to universal for GMs
         if world_session.player_mgr.is_gm:
-            lang = 0
+            lang = Languages.LANG_UNIVERSAL
 
         # Say, Yell, Emote
         if chat_type == ChatMsgs.CHAT_MSG_SAY \
@@ -42,7 +42,7 @@ class ChatHandler(object):
             if not ChatHandler.check_if_command(world_session, message):
                 # Always whisper in universal language when speaking with a GM
                 if target_player_mgr.is_gm:
-                    lang = 0
+                    lang = Languages.LANG_UNIVERSAL
 
                 ChatManager.send_whisper(world_session.player_mgr, target_player_mgr, message, lang)
             return 0
