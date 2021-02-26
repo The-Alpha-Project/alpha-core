@@ -379,8 +379,14 @@ class InventoryManager(object):
                 self.mark_as_removed(source_item)
                 self.remove_bag(source_slot)
 
-            # Weapon and offhand checks
+            # Equipment checks
             if self.is_equipment_pos(dest_bag, dest_slot):
+                # Missing required skill
+                if not self.owner.skill_manager.can_use_equipment(source_item.item_template.class_,
+                                                                  source_item.item_template.subclass):
+                    self.send_equip_error(InventoryError.BAG_PROFICIENCY_NEEDED, source_item, dest_item)
+                    return
+
                 # Wielding a 2 handed weapon, can't equip offhand
                 if self.has_two_handed_weapon() and source_item.equip_slot == InventorySlots.SLOT_OFFHAND:
                     # Make sure to reset slot back to main hand if it's a one handed weapon

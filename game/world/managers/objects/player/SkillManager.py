@@ -210,6 +210,13 @@ class SkillManager(object):
         for skill_id, skill in self.skills.items():
             self.set_skill(skill_id, skill.value, SkillManager.get_max_rank(self.player_mgr.level, skill_id))
 
+    def can_use_equipment(self, item_class, item_subclass):
+        skill = SkillManager.get_skill_by_item_class(item_class, item_subclass)
+        if skill == -1:
+            return False
+
+        return skill in self.skills
+
     @staticmethod
     def get_skill_by_language(language_id):
         if language_id in LANG_DESCRIPTION:
