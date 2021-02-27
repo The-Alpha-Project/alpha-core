@@ -27,6 +27,7 @@ Server:
     Settings:
         auto_create_accounts: True
         blizzlike_names: True  # If True, names won't have any restriction as it was back in the day
+        xp_rate: 1.0
         debug: True
         load_gameobjects: True
         load_creatures: True

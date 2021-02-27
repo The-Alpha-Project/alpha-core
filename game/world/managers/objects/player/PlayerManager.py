@@ -416,6 +416,9 @@ class PlayerManager(UnitManager):
                     )
 
         for amount in amounts:
+            # Adjust XP gaining rates using config
+            amount = int(amount * config.Server.Settings.xp_rate)
+
             new_xp += amount
             data += pack('<QI', self.guid, amount)
 
