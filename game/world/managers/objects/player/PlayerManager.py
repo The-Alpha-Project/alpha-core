@@ -369,6 +369,9 @@ class PlayerManager(UnitManager):
         data = pack('<f', speed)
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
 
+        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                                             self.get_movement_update_packet()), self)
+
     def change_swim_speed(self, swim_speed=0):
         if swim_speed <= 0:
             swim_speed = 4.7222223  # Default swim speed
@@ -378,14 +381,20 @@ class PlayerManager(UnitManager):
         data = pack('<f', swim_speed)
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
 
+        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                                             self.get_movement_update_packet()), self)
+
     def change_walk_speed(self, walk_speed=0):
         if walk_speed <= 0:
             walk_speed = 2.5  # Default walk speed
         elif walk_speed >= 56:
             walk_speed = 56  # Max speed without glitches
-        self.swim_speed = walk_speed
+        self.walk_speed = walk_speed
         data = pack('<f', walk_speed)
         self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
+
+        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                                             self.get_movement_update_packet()), self)
 
     def change_turn_speed(self, turn_speed=0):
         if turn_speed <= 0:
@@ -394,6 +403,9 @@ class PlayerManager(UnitManager):
         data = pack('<f', turn_speed)
         # TODO NOT WORKING
         self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
+
+        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                                             self.get_movement_update_packet()), self)
 
     def give_xp(self, amounts, victim=None):
         if self.level >= config.Unit.Player.Defaults.max_level or not self.is_alive:
