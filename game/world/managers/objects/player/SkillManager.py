@@ -200,10 +200,17 @@ EQUIPMENT_DESCRIPTION = {
         ItemSubClasses.ITEM_SUBCLASS_THROWN: SpellSkillDesc(2567, SkillTypes.THROWN.value),
         ItemSubClasses.ITEM_SUBCLASS_CROSSBOW: SpellSkillDesc(5011, SkillTypes.CROSSBOWS.value),
         ItemSubClasses.ITEM_SUBCLASS_WAND: SpellSkillDesc(5009, SkillTypes.WANDS.value),
-        ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON: SpellSkillDesc(0, SkillTypes.UNARMED.value)
+        ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON: SpellSkillDesc(0, SkillTypes.UNARMED.value),
+        ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE: SpellSkillDesc(0, 0)
     },
     ItemClasses.ITEM_CLASS_ARMOR: {
-        ItemSubClasses.ITEM_SUBCLASS_PLATE: SpellSkillDesc(750, SkillTypes.PLATEMAIL.value)
+        ItemSubClasses.ITEM_SUBCLASS_PLATE: SpellSkillDesc(750, SkillTypes.PLATEMAIL.value),
+        ItemSubClasses.ITEM_SUBCLASS_CLOTH: SpellSkillDesc(0, 0),
+        ItemSubClasses.ITEM_SUBCLASS_LEATHER: SpellSkillDesc(0, 0),
+        ItemSubClasses.ITEM_SUBCLASS_MAIL: SpellSkillDesc(0, 0),
+        ItemSubClasses.ITEM_SUBCLASS_MISC: SpellSkillDesc(0, 0),
+        ItemSubClasses.ITEM_SUBCLASS_BUCKLER: SpellSkillDesc(107, SkillTypes.BLOCK),
+        ItemSubClasses.ITEM_SUBCLASS_SHIELD: SpellSkillDesc(107, SkillTypes.BLOCK)
     }
 }
 
@@ -266,6 +273,10 @@ class SkillManager(object):
         skill = SkillManager.get_skill_by_item_class(item_class, item_subclass)
         if skill == -1:
             return False
+
+        # No skill requirement
+        if skill == 0:
+            return True
 
         return skill in self.skills
 

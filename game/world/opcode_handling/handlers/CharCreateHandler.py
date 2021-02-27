@@ -145,6 +145,10 @@ class CharCreateHandler(object):
                     if skill_line_ability:
                         insert_skill(skill_line_ability.SkillLine)
 
+                    # Add the block skill if character has the Block spell (107)
+                    if spell_to_load.ID == 107:
+                        insert_skill(SkillTypes.BLOCK.value)
+
         # TODO: Investigate the below behavior
         """
         # This doesn't seem to work well in 0.5.3, it bugs out the Common language. Maybe it was only possible 
