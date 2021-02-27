@@ -13,9 +13,7 @@ class MovementHandler(object):
     @staticmethod
     def handle_movement_status(world_session, socket, reader):
         # Avoid handling malformed movement packets, or handling them while no player or player teleporting
-        if not world_session.player_mgr:
-            return -1
-        if not world_session.player_mgr.is_teleporting and len(reader.data) >= 48:
+        if world_session.player_mgr and not world_session.player_mgr.is_teleporting and len(reader.data) >= 48:
             try:
                 transport_guid, transport_x, transport_y, transport_z, transport_o, x, y, z, o, pitch, flags = \
                     unpack('<Q9fI', reader.data[:48])
