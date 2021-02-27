@@ -12,6 +12,7 @@ from utils.ConfigManager import config
 from game.world.managers.ChatManager import ChatManager
 from utils.constants.CharCodes import CharLogin
 from utils.constants.ObjectCodes import UpdateTypes
+from utils.constants.UnitCodes import PowerTypes
 
 
 class PlayerLoginHandler(object):
@@ -69,24 +70,40 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.stat_manager.init_stats()
         world_session.player_mgr.stat_manager.apply_bonuses()
         world_session.player_mgr.skill_manager.load_skills()
-        world_session.player_mgr.send_update_self(create=True)
-        world_session.player_mgr.reset_fields()
 
-        PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
+        # First login
+        if world_session.player_mgr.player.totaltime == 0:
+            # Replenish health, and mana if needed.
+            world_session.player_mgr.set_health(world_session.player_mgr.max_health)
+            if world_session.player_mgr.power_type == PowerTypes.TYPE_MANA:
+                world_session.player_mgr.set_mana(world_session.player_mgr.max_power_1)
+
+            # Load self before sending cinematic
+            PlayerLoginHandler._load_self(world_session.player_mgr)
+
+            # Send cinematic
+            PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
+        else:
+            PlayerLoginHandler._load_self(world_session.player_mgr)
+
         world_session.player_mgr.complete_login()
 
         return 0
 
     @staticmethod
+    def _load_self(player):
+        player.send_update_self(create=True)
+        player.reset_fields()
+
+    @staticmethod
     def _send_cinematic(world_session, player, socket):
-        if player.totaltime == 0:
-            # Sadly, ONLY undeads have intro cinematic.
-            cinematic_id = DbcDatabaseManager.chr_races_get_by_race(player.race).CinematicSequenceID
-            if cinematic_id != 0:
-                data = pack(
-                    '<I', cinematic_id
-                )
-                socket.sendall(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
+        # Sadly, ONLY undeads have intro cinematic.
+        cinematic_id = DbcDatabaseManager.chr_races_get_by_race(player.race).CinematicSequenceID
+        if cinematic_id != 0:
+            data = pack(
+                '<I', cinematic_id
+            )
+            socket.sendall(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
 
     @staticmethod
     def _get_login_timespeed():

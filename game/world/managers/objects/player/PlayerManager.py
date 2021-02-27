@@ -189,7 +189,7 @@ class PlayerManager(UnitManager):
         self.is_online = True
 
         GridManager.update_object(self)
-        self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
+        self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=True, create=True)
 
     def logout(self):
         self.session.save_character()
@@ -848,6 +848,10 @@ class PlayerManager(UnitManager):
     def update(self):
         # Prevent updates while teleporting
         if self.is_teleporting:
+            return
+
+        # Prevent updates if not online
+        if not self.is_online:
             return
 
         now = time.time()
