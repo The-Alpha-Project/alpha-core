@@ -224,10 +224,10 @@ class CreatureManager(UnitManager):
 
     # override
     def die(self, killer=None):
+        super().die(killer)
+
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
-
-        super().die(killer)
 
     def reward_kill_xp(self, player):
         # TODO: Handle group XP
