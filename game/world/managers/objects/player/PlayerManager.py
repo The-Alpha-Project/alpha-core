@@ -821,7 +821,6 @@ class PlayerManager(UnitManager):
         self.combat_target = None
         self.in_combat = False
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
-        self.set_dirty()
 
     # override
     def has_offhand_weapon(self):
