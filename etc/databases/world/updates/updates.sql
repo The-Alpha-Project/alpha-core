@@ -119,8 +119,8 @@ begin not atomic
         update spawns_creatures set ignored = 1 where spawn_entry1 = 10378;
 
         -- Morbent Fel, Stalvan Mistmantle and Zzarc' Vul level fixes
-        update creature_template set level = 35 where entry in (1200, 315);
-        update creature_template set level = 33 where entry = 300;
+        update creature_template set level_min = 35, level_max = 35 where entry in (1200, 315);
+        update creature_template set level_min = 33, level_max = 33 where entry = 300;
 
         insert into applied_updates values ('280220211');
     end if;
