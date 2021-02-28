@@ -616,7 +616,7 @@ class UnitManager(ObjectManager):
         self.set_health(0)
         self.set_stand_state(StandState.UNIT_DEAD)
 
-        self.unit_flags = UnitFlags.UNIT_FLAG_DEAD
+        self.unit_flags = UnitFlags.UNIT_MASK_DEAD
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
         self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_DEAD

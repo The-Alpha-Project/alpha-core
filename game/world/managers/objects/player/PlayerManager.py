@@ -343,7 +343,7 @@ class PlayerManager(UnitManager):
         if mount_display_id > 0 and self.mount_display_id == 0 and \
                 DbcDatabaseManager.creature_display_info_get_by_id(mount_display_id):
             self.mount_display_id = mount_display_id
-            self.unit_flags |= UnitFlags.UNIT_FLAG_MOUNTED
+            self.unit_flags |= UnitFlags.UNIT_MASK_MOUNTED
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
             self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
             self.set_dirty()
@@ -351,7 +351,7 @@ class PlayerManager(UnitManager):
     def unmount(self):
         if self.mount_display_id > 0:
             self.mount_display_id = 0
-            self.unit_flags &= ~UnitFlags.UNIT_FLAG_MOUNTED
+            self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
             self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
             self.set_dirty()
