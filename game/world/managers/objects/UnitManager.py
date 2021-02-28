@@ -491,7 +491,8 @@ class UnitManager(ObjectManager):
         new_value = self.attack_timers[attack_type] - value
         if new_value < 0:
             new_value = 0
-        self.set_attack_timer(attack_type, new_value)
+        if not self.is_attack_ready(attack_type):
+            self.set_attack_timer(attack_type, new_value)
 
     def set_attack_timer(self, attack_type, value):
         self.attack_timers[attack_type] = value
