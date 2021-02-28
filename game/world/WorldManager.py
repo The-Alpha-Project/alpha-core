@@ -126,6 +126,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
         WorldServerSessionHandler._load_spells()
         WorldServerSessionHandler._load_skills()
+        WorldServerSessionHandler._load_skill_line_abilities()
 
     @staticmethod
     def _load_gameobjects():
@@ -188,6 +189,18 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
             count += 1
             Logger.progress('Loading skills...', count, length)
+
+    @staticmethod
+    def _load_skill_line_abilities():
+        skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_all()
+        length = len(skill_line_abilities)
+        count = 0
+
+        for skill_line_ability in skill_line_abilities:
+            DbcDatabaseManager.SkillLineAbilityHolder.load_skill_line_ability(skill_line_ability)
+
+            count += 1
+            Logger.progress('Loading skill line abilities...', count, length)
 
     @staticmethod
     def start():

@@ -112,19 +112,17 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return res
 
-    @staticmethod
-    def skill_line_ability_get_by_spell(spell_id):
-        dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(SkillLineAbility).filter_by(Spell=spell_id).first()
-        dbc_db_session.close()
-        return res
+    class SkillLineAbilityHolder:
+        SKILL_LINE_ABILITIES = {}
 
-    @staticmethod
-    def skill_line_ability_get_by_skill_line(skill_line):
-        dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(SkillLineAbility).filter_by(SkillLine=skill_line).all()
-        dbc_db_session.close()
-        return res
+        @staticmethod
+        def load_skill_line_ability(skill_line_ability):
+            DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES[skill_line_ability.Spell] = skill_line_ability
+
+        @staticmethod
+        def skill_line_ability_get_by_spell(spell_id):
+            return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES[spell_id] \
+                if spell_id in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES else None
 
     @staticmethod
     def skill_line_ability_get_by_skill_lines(skill_lines):

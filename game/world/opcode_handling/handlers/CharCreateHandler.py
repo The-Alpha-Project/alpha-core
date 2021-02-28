@@ -141,7 +141,7 @@ class CharCreateHandler(object):
                     added_spells.append(spell_to_load.ID)
 
                     # Insert related skills
-                    skill_line_ability = DbcDatabaseManager.skill_line_ability_get_by_spell(spell_to_load.ID)
+                    skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell_to_load.ID)
                     if skill_line_ability:
                         insert_skill(skill_line_ability.SkillLine)
 
