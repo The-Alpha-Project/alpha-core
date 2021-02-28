@@ -317,12 +317,12 @@ class ItemDynFlags(IntEnum):
     ITEM_DYNFLAG_UNK6 = 0x00000040  # ? Old note: usable
     ITEM_DYNFLAG_UNK7 = 0x00000080
     ITEM_DYNFLAG_UNK8 = 0x00000100
-    ITEM_DYNFLAG_READABLE = 0x00000200
+    ITEM_DYNFLAG_READABLE = 0x00000200  # can be open for read it or item proto pagetText make show "Right click to read"
     ITEM_DYNFLAG_UNK10 = 0x00000400
     ITEM_DYNFLAG_UNK11 = 0x00000800
     ITEM_DYNFLAG_UNK12 = 0x00001000
-    ITEM_DYNFLAG_UNK13 = 0x00002000
+    ITEM_DYNFLAG_UNK13 = 0x00002000  # guild charter, needed before 1.6 https://github.com/vmangos/core/commit/baa891c4bdad7b2381b2be0854ccba285e4c3545
     ITEM_DYNFLAG_UNK14 = 0x00004000
     ITEM_DYNFLAG_UNK15 = 0x00008000
-    ITEM_DYNFLAG_UNK16 = 0x00010000  # Used for actual item binding
+    ITEM_DYNFLAG_UNK16 = 0x00010000  # Soulbound pre 1.7
     ITEM_DYNFLAG_UNK17 = 0x00020000
