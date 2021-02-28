@@ -154,7 +154,9 @@ class StatManager(object):
         new_hp = int(self.get_health_bonus_from_stamina(total_sta) + self.itm_hp + self.player_mgr.base_hp)
         self.player_mgr.set_max_health(new_hp)
 
-        return new_hp - current_hp
+        hp_diff = new_hp - current_hp
+
+        return hp_diff if hp_diff > 0 else 0
 
     def update_max_mana(self):
         if self.player_mgr.power_type != PowerTypes.TYPE_MANA:
@@ -165,7 +167,9 @@ class StatManager(object):
         new_mana = int(self.get_mana_bonus_from_intellect(total_int) + self.itm_mana + self.player_mgr.base_mana)
         self.player_mgr.set_max_mana(new_mana)
 
-        return new_mana - current_mana
+        mana_diff = new_mana - current_mana
+
+        return mana_diff if mana_diff > 0 else 0
 
     def update_resistances(self):
         # TODO Take into account buffs and stuff too
