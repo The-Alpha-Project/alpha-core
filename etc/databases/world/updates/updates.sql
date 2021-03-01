@@ -128,7 +128,7 @@ begin not atomic
     -- 01/03/2021 1
     if (select count(*) from applied_updates where id='010320211') = 0 then
         update spawns_creatures set ignored = 1 where spawn_entry1 in (12480, 12481);
-        update creature_template set display_id = 17 where entry = 352;
+        update creature_template set display_id1 = 17 where entry = 352;
 
         insert into applied_updates values ('010320211');
     end if;
