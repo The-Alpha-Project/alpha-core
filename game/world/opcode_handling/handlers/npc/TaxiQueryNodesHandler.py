@@ -8,7 +8,7 @@ class TaxiQueryNodesHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling taxi query nodes packet
+        if len(reader.data) >= 8:  # Avoid handling empty taxi query nodes packet
             guid = unpack('<Q', reader.data[:8])[0]
             if guid <= 0:
                 return 0
@@ -19,9 +19,9 @@ class TaxiQueryNodesHandler(object):
 
             data = pack(
                 '<IQI',
-                1,  # Show Map
+                1,  # Show map
                 guid,  # NPC taxi guid
-                node,  # Node Location
+                node,  # Node location
             )
             socket.sendall(PacketWriter.get_packet(OpCode.SMSG_SHOWTAXINODES, data))
 
