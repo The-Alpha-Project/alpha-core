@@ -12,7 +12,7 @@ from utils.Logger import Logger
 
 
 if __name__ == '__main__':
-    # initialize colorama to make ansi codes work in Windows
+    # Initialize colorama
     colorama.init()
 
     if platform != 'win32':

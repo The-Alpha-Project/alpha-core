@@ -1,3 +1,5 @@
+from sys import platform
+
 from colorama import Fore, Style
 from enum import Enum
 
@@ -13,43 +15,40 @@ class DebugColorLevel(Enum):
     ANTICHEAT = Fore.LIGHTBLUE_EX + Style.BRIGHT
 
 
-class Logger(object):
-    LABEL = ''
+class Logger:
+    IS_WINDOWS = platform == 'win32'
 
     @staticmethod
-    def colorize_message(color, msg):
-        return '%s%s%s %s' % (color.value, Logger.LABEL, Style.RESET_ALL, msg)
+    def colorize_message(label, color, msg):
+        # No colors for Windows :)
+        if Logger.IS_WINDOWS:
+            return '%s %s' % (label, msg)
+        return '%s%s%s %s' % (color.value, label, Style.RESET_ALL, msg)
 
     @staticmethod
     def debug(msg):
         if config.Server.Settings.debug:
-            Logger.LABEL = '[DEBUG]'
-            print(Logger.colorize_message(DebugColorLevel.DEBUG, msg))
+            print(Logger.colorize_message('[DEBUG]', DebugColorLevel.DEBUG, msg))
 
     @staticmethod
     def warning(msg):
-        Logger.LABEL = '[WARNING]'
-        print(Logger.colorize_message(DebugColorLevel.WARNING, msg))
+        print(Logger.colorize_message('[WARNING]', DebugColorLevel.WARNING, msg))
 
     @staticmethod
     def error(msg):
-        Logger.LABEL = '[ERROR]'
-        print(Logger.colorize_message(DebugColorLevel.ERROR, msg))
+        print(Logger.colorize_message('[ERROR]', DebugColorLevel.ERROR, msg))
 
     @staticmethod
     def info(msg, end='\n'):
-        Logger.LABEL = '[INFO]'
-        print(Logger.colorize_message(DebugColorLevel.INFO, msg), end=end)
+        print(Logger.colorize_message('[INFO]', DebugColorLevel.INFO, msg), end=end)
 
     @staticmethod
     def success(msg):
-        Logger.LABEL = '[SUCCESS]'
-        print(Logger.colorize_message(DebugColorLevel.SUCCESS, msg))
+        print(Logger.colorize_message('[SUCCESS]', DebugColorLevel.SUCCESS, msg))
 
     @staticmethod
     def anticheat(msg):
-        Logger.LABEL = '[ANTICHEAT]'
-        print(Logger.colorize_message(DebugColorLevel.ANTICHEAT, msg))
+        print(Logger.colorize_message('[ANTICHEAT]', DebugColorLevel.ANTICHEAT, msg))
 
     # Additional methods
 
