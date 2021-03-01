@@ -143,7 +143,14 @@ class CharCreateHandler(object):
                     # Insert related skills
                     skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell_to_load.ID)
                     if skill_line_ability:
-                        insert_skill(skill_line_ability.SkillLine)
+                        skill_id = skill_line_ability.SkillLine
+
+                        # The value in SkillLineAbility for languages equals to "language TEMP",
+                        # the proper skill is 1 number below.
+                        if spell_to_load.Effect_1 == SpellEffects.SPELL_EFFECT_LANGUAGE:
+                            skill_id -= 1
+
+                        insert_skill(skill_id)
 
                     # Add the block skill if character has the Block spell (107)
                     if spell_to_load.ID == 107:
