@@ -127,6 +127,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         WorldServerSessionHandler._load_spells()
         WorldServerSessionHandler._load_skills()
         WorldServerSessionHandler._load_skill_line_abilities()
+        WorldServerSessionHandler._load_taxi_nodes()
 
     @staticmethod
     def _load_gameobjects():
@@ -201,6 +202,18 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
             count += 1
             Logger.progress('Loading skill line abilities...', count, length)
+
+    @staticmethod
+    def _load_taxi_nodes():
+        taxi_nodes = DbcDatabaseManager. taxi_nodes_get_all()
+        length = len(taxi_nodes)
+        count = 0
+
+        for taxi_node in taxi_nodes:
+            DbcDatabaseManager.TaxiNodesHolder.load_taxi_node(taxi_node)
+
+            count += 1
+            Logger.progress('Loading taxi nodes...', count, length)
 
     @staticmethod
     def start():

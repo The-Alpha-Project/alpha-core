@@ -173,3 +173,31 @@ class DbcDatabaseManager(object):
         res = dbc_db_session.query(Map).filter_by(ID=map_id).first()
         dbc_db_session.close()
         return res
+
+    # Taxi
+
+    class TaxiNodesHolder:
+        EASTERN_KINGDOMS_TAXI_NODES = {}
+        KALIMDOR_TAXI_NODES = {}
+
+        @staticmethod
+        def load_taxi_node(taxi_node):
+            if taxi_node.ContinentID == 0:
+                DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES[taxi_node.ID] = taxi_node
+            elif taxi_node.ContinentID == 1:
+                DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES[taxi_node.ID] = taxi_node
+
+        @staticmethod
+        def taxi_nodes_get_by_map(map_):
+            if map_ == 0:
+                return DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items()
+            elif map_ == 1:
+                return DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES.items()
+            return {}
+
+    @staticmethod
+    def taxi_nodes_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(TaxiNode).all()
+        dbc_db_session.close()
+        return res

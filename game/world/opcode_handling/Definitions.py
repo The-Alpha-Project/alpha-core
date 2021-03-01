@@ -1,3 +1,4 @@
+from game.world.opcode_handling.handlers.npc.TaxiQueryNodesHandler import TaxiQueryNodesHandler
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
 
@@ -129,6 +130,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_ACCEPT_TRADE: AcceptTradeHandler.handle,
     OpCode.CMSG_INSPECT: InspectHandler.handle,
     OpCode.CMSG_TRAINER_LIST: TrainerListHandler.handle,
+    OpCode.CMSG_TAXIQUERYAVAILABLENODES: TaxiQueryNodesHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,
