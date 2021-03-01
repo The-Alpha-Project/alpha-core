@@ -118,11 +118,11 @@ class PlayerLoginHandler(object):
     def _get_secs_to_time_bit_fields():
         local = time.localtime()
 
-        year = local.tm_year - 2000
+        year = local.tm_year - 2000  # "Blizz Time" starts at year 2000
         month = local.tm_mon - 1
         day = local.tm_mday - 1
         day_of_week = local.tm_wday
         hour = local.tm_hour
         minute = local.tm_min
 
-        return ((((minute | (hour << 6)) | (day_of_week << 11)) | (day << 14)) | (month << 20)) | (year << 24)
+        return minute | (hour << 6) | (day_of_week << 11) | (day << 14) | (month << 20) | (year << 24)
