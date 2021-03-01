@@ -1,4 +1,3 @@
-from game.world.opcode_handling.handlers.npc.TaxiQueryNodesHandler import TaxiQueryNodesHandler
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
 
@@ -59,6 +58,8 @@ from game.world.opcode_handling.handlers.inventory.AutoequipItemHandler import A
 from game.world.opcode_handling.handlers.trade.AcceptTradeHandler import AcceptTradeHandler
 from game.world.opcode_handling.handlers.player.InspectHandler import InspectHandler
 from game.world.opcode_handling.handlers.npc.TrainerListHandler import TrainerListHandler
+from game.world.opcode_handling.handlers.npc.ActivateTaxiHandler import ActivateTaxiHandler
+from game.world.opcode_handling.handlers.npc.TaxiQueryNodesHandler import TaxiQueryNodesHandler
 
 from game.world.opcode_handling.handlers.player.MovementHandler import MovementHandler
 
@@ -131,6 +132,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_INSPECT: InspectHandler.handle,
     OpCode.CMSG_TRAINER_LIST: TrainerListHandler.handle,
     OpCode.CMSG_TAXIQUERYAVAILABLENODES: TaxiQueryNodesHandler.handle,
+    OpCode.CMSG_ACTIVATETAXI: ActivateTaxiHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,
