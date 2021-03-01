@@ -145,7 +145,7 @@ class CharCreateHandler(object):
                     if skill_line_ability:
                         skill_id = skill_line_ability.SkillLine
 
-                        # The value in SkillLineAbility for languages equals to "language TEMP",
+                        # The value in SkillLineAbility for languages is equal to "language TEMP",
                         # the proper skill is 1 number below.
                         if spell_to_load.Effect_1 == SpellEffects.SPELL_EFFECT_LANGUAGE:
                             skill_id -= 1
