@@ -28,3 +28,16 @@ class Vector(object):
         if not vector:
             vector = Vector(x=x, y=y)
         return math.atan2(vector.x - self.x, vector.y - self.y)
+
+    # https://math.stackexchange.com/a/2045181
+    def get_point_in_between(self, offset, vector=None, x=0, y=0, z=0):
+        if not vector:
+            vector = Vector(x=x, y=y, z=z)
+
+        general_distance = self.distance(vector)
+        factor = offset / general_distance
+        x3 = self.x + factor * (vector.x - self.x)
+        y3 = self.y + factor * (vector.y - self.y)
+        z3 = self.z + factor * (vector.z - self.z)
+
+        return Vector(x3, y3, z3)
