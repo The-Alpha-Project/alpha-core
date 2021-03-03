@@ -36,6 +36,5 @@ class DestroyItemHandler(object):
                         world_session.player_mgr.set_dirty(dirty_inventory=True)
                     else:
                         world_session.player_mgr.send_update_self()
-                        world_session.player_mgr.reset_fields()
 
         return 0

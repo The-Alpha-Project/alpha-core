@@ -93,7 +93,6 @@ class PlayerLoginHandler(object):
     @staticmethod
     def _load_self(player):
         player.send_update_self(create=True)
-        player.reset_fields()
 
     @staticmethod
     def _send_cinematic(world_session, player, socket):

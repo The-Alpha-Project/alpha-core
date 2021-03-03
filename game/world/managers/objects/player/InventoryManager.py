@@ -123,7 +123,6 @@ class InventoryManager(object):
                 self.send_item_receive_message(self.owner.guid, item_template.entry,
                                                target_bag_slot, from_npc, send_message)
             self.owner.send_update_self(force_inventory_update=True)
-            self.owner.reset_fields()
         return items_added
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
@@ -189,7 +188,6 @@ class InventoryManager(object):
             else:
                 # Update if container is modified self.add_item isn't called
                 self.owner.send_update_self(force_inventory_update=True)
-                self.owner.reset_fields()
             return
 
         # Check backpack / paperdoll placement
@@ -215,7 +213,6 @@ class InventoryManager(object):
                         self.add_item(item_template=item_template, count=count-diff, handle_error=False)
 
                     self.owner.send_update_self(force_inventory_update=True)
-                    self.owner.reset_fields()
                     RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
                     return True
                 else:
@@ -242,7 +239,6 @@ class InventoryManager(object):
             self.owner.set_dirty(dirty_inventory=True)
         else:
             self.owner.send_update_self(force_inventory_update=True)
-            self.owner.reset_fields()
 
         return True
 
@@ -363,7 +359,6 @@ class InventoryManager(object):
                     RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
 
                 self.owner.send_update_self(force_inventory_update=True)
-                self.owner.reset_fields()
                 RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
                 return
 
@@ -453,7 +448,6 @@ class InventoryManager(object):
                 self.owner.set_dirty(dirty_inventory=True)
             else:
                 self.owner.send_update_self(force_inventory_update=True)
-                self.owner.reset_fields()
 
     def get_item_count(self, entry):
         count = 0

@@ -445,7 +445,6 @@ class PlayerManager(UnitManager):
             self.xp = new_xp
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
             self.send_update_self()
-            self.reset_fields()
 
     def mod_level(self, level):
         if level != self.level:
@@ -892,14 +891,14 @@ class PlayerManager(UnitManager):
         self.last_tick = now
 
         if self.dirty:
-            self.send_update_self()
+            self.send_update_self(reset_fields=False)
             self.send_update_surrounding(self.generate_proper_update_packet())
             GridManager.update_object(self)
             self.reset_fields()
 
             self.set_dirty(is_dirty=False, dirty_inventory=False)
 
-    def send_update_self(self, update_packet=None, create=False, force_inventory_update=False):
+    def send_update_self(self, update_packet=None, create=False, force_inventory_update=False, reset_fields=True):
         if not create and (self.dirty_inventory or force_inventory_update):
             self.inventory.send_inventory_update(self.session, is_self=True)
             self.inventory.build_update()
@@ -908,6 +907,9 @@ class PlayerManager(UnitManager):
             update_packet = self.generate_proper_update_packet(is_self=True, create=create)
 
         self.session.request.sendall(update_packet)
+
+        if reset_fields:
+            self.reset_fields()
 
     def send_update_surrounding(self, update_packet, include_self=False, create=False, force_inventory_update=False):
         if not create and (self.dirty_inventory or force_inventory_update):
