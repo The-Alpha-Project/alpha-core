@@ -747,8 +747,7 @@ class PlayerManager(UnitManager):
         if self.has_offhand_weapon():
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
 
-        if self.combat_target:
-            self.update_melee_attacking_state()
+        self.update_melee_attacking_state()
 
     # override
     def calculate_min_max_damage(self, attack_type=0):
@@ -822,7 +821,7 @@ class PlayerManager(UnitManager):
         self._send_attack_swing_error(victim, OpCode.SMSG_ATTACKSWING_NOTSTANDING)
 
     # override
-    def leave_combat(self):
+    def leave_combat(self, force_update=True):
         if not self.in_combat:
             return
 
@@ -834,6 +833,9 @@ class PlayerManager(UnitManager):
         self.in_combat = False
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+        if force_update:
+            self.set_dirty()
 
     # override
     def has_offhand_weapon(self):
