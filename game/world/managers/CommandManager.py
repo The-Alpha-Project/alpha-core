@@ -8,6 +8,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.ChatManager import ChatManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from utils.ConfigManager import config
 from utils.GameTextFormatter import GameTextFormatter
 from utils.constants.ObjectCodes import HighGuid, ObjectTypes
 from utils.constants.UpdateFields import PlayerFields
@@ -69,7 +70,7 @@ class CommandManager(object):
     @staticmethod
     def speed(world_session, args):
         try:
-            speed = 7.0 * float(args)
+            speed = config.Unit.Defaults.run_speed * float(args)
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             player_mgr.change_speed(speed)
 
@@ -80,7 +81,7 @@ class CommandManager(object):
     @staticmethod
     def swim_speed(world_session, args):
         try:
-            speed = 4.7222223 * float(args)
+            speed = config.Unit.Defaults.swim_speed * float(args)
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             player_mgr.change_swim_speed(speed)
 

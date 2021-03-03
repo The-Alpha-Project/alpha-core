@@ -4,6 +4,7 @@ from math import pi
 
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.SpellManager import SpellManager
@@ -76,6 +77,7 @@ class PlayerManager(UnitManager):
         self.last_regen = 0
         self.spirit_release_timer = 0
         self.dirty_inventory = False
+        self.pending_taxi_destination = None
 
         if self.player:
             self.set_player_variables()
@@ -124,6 +126,7 @@ class PlayerManager(UnitManager):
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.spell_manager = SpellManager(self)
+            self.movement_manager = MovementManager(self)
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:
@@ -360,7 +363,7 @@ class PlayerManager(UnitManager):
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
         if speed <= 0:
-            speed = 7.0  # Default run speed
+            speed = config.Unit.Defaults.run_speed
         elif speed >= 56:
             speed = 56  # Max speed without glitches
         self.running_speed = speed
@@ -372,7 +375,7 @@ class PlayerManager(UnitManager):
 
     def change_swim_speed(self, swim_speed=0):
         if swim_speed <= 0:
-            swim_speed = 4.7222223  # Default swim speed
+            swim_speed = config.Unit.Defaults.swim_speed
         elif swim_speed >= 56:
             swim_speed = 56  # Max possible swim speed
         self.swim_speed = swim_speed
@@ -384,7 +387,7 @@ class PlayerManager(UnitManager):
 
     def change_walk_speed(self, walk_speed=0):
         if walk_speed <= 0:
-            walk_speed = 2.5  # Default walk speed
+            walk_speed = config.Unit.Defaults.walk_speed
         elif walk_speed >= 56:
             walk_speed = 56  # Max speed without glitches
         self.walk_speed = walk_speed
@@ -396,7 +399,7 @@ class PlayerManager(UnitManager):
 
     def change_turn_speed(self, turn_speed=0):
         if turn_speed <= 0:
-            turn_speed = pi  # Default turn rate speed
+            turn_speed = config.Unit.Player.Defaults.turn_speed
         self.turn_rate = turn_speed
         data = pack('<f', turn_speed)
         # TODO NOT WORKING
@@ -831,6 +834,7 @@ class PlayerManager(UnitManager):
         self.combat_target = None
         self.in_combat = False
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
     # override
     def has_offhand_weapon(self):
@@ -876,6 +880,8 @@ class PlayerManager(UnitManager):
             self.regenerate(now)
             # Attack update
             self.attack_update(elapsed)
+            # Waypoints (mostly flying paths) update
+            self.movement_manager.update_pending_waypoints(elapsed)
 
             # Release spirit timer
             if not self.is_alive:

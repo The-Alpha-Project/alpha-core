@@ -53,14 +53,17 @@ World:
 
 Unit:
     Defaults:
-        base_min_damage: 1.0
-        base_max_damage: 2.0
         base_attack_time: 2000
         offhand_attack_time: 1000
         bounding_radius: 0.388999998569489
         combat_reach: 1.5
+        walk_speed: 2.5
+        run_speed: 7.0
+        swim_speed: 4.722222
 
     Player:
         Defaults:
             starting_level: 1
             max_level: 25
+            turn_speed: 3.141594
+            flight_speed: 32.0

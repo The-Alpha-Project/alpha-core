@@ -195,9 +195,46 @@ class DbcDatabaseManager(object):
                 return DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES.items()
             return {}
 
+        @staticmethod
+        def taxi_nodes_get_by_map_and_id(map_, node_id):
+            if map_ == 0:
+                return DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES[node_id]
+            elif map_ == 1:
+                return DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES[node_id]
+            return {}
+
+    class TaxiPathNodesHolder:
+        TAXI_PATH_NODES = {}
+
+        @staticmethod
+        def load_taxi_path_node(taxi_path_node):
+            if taxi_path_node.PathID not in DbcDatabaseManager.TaxiPathNodesHolder.TAXI_PATH_NODES:
+                DbcDatabaseManager.TaxiPathNodesHolder.TAXI_PATH_NODES[taxi_path_node.PathID] = []
+            DbcDatabaseManager.TaxiPathNodesHolder.TAXI_PATH_NODES[taxi_path_node.PathID].append(taxi_path_node)
+
+        @staticmethod
+        def taxi_nodes_get_by_path_id(taxi_path_id):
+            if taxi_path_id in DbcDatabaseManager.TaxiPathNodesHolder.TAXI_PATH_NODES:
+                return DbcDatabaseManager.TaxiPathNodesHolder.TAXI_PATH_NODES[taxi_path_id]
+            return []
+
     @staticmethod
     def taxi_nodes_get_all():
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(TaxiNode).all()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def taxi_path_get(from_node, to_node):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(TaxiPath).filter_by(FromTaxiNode=from_node, ToTaxiNode=to_node).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def taxi_path_nodes_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(TaxiPathNode).order_by(TaxiPathNode.NodeIndex.asc()).all()
         dbc_db_session.close()
         return res

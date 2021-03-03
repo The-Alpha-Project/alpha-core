@@ -3,6 +3,7 @@ import random
 from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from game.world import WorldManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -11,7 +12,7 @@ from utils import Formulas
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -192,6 +193,7 @@ class UnitManager(ObjectManager):
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
+
 
     def attack(self, victim, is_melee=True):
         if not victim or victim == self:
@@ -471,6 +473,7 @@ class UnitManager(ObjectManager):
     def enter_combat(self, force_update=False):
         self.in_combat = True
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
         if force_update:
             self.set_dirty()
 
@@ -636,6 +639,8 @@ class UnitManager(ObjectManager):
 
     def set_dirty(self, dirty=True):
         self.dirty = dirty
+
+
 
     # override
     def get_type(self):

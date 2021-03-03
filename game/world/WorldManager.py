@@ -3,7 +3,7 @@ import threading
 import socket
 
 from struct import pack
-from time import sleep
+from time import sleep, time
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
@@ -18,6 +18,13 @@ from database.dbc.DbcDatabaseManager import *
 from database.world.WorldDatabaseManager import *
 
 from utils.Logger import Logger
+
+
+STARTUP_TIME = time()
+
+
+def get_seconds_since_startup():
+    return time() - STARTUP_TIME
 
 
 class ThreadedWorldServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -128,6 +135,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         WorldServerSessionHandler._load_skills()
         WorldServerSessionHandler._load_skill_line_abilities()
         WorldServerSessionHandler._load_taxi_nodes()
+        WorldServerSessionHandler._load_taxi_path_nodes()
 
     @staticmethod
     def _load_gameobjects():
@@ -214,6 +222,18 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
             count += 1
             Logger.progress('Loading taxi nodes...', count, length)
+
+    @staticmethod
+    def _load_taxi_path_nodes():
+        taxi_path_nodes = DbcDatabaseManager.taxi_path_nodes_get_all()
+        length = len(taxi_path_nodes)
+        count = 0
+
+        for taxi_path_node in taxi_path_nodes:
+            DbcDatabaseManager.TaxiPathNodesHolder.load_taxi_path_node(taxi_path_node)
+
+            count += 1
+            Logger.progress('Loading taxi path nodes...', count, length)
 
     @staticmethod
     def start():
