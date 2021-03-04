@@ -38,7 +38,7 @@ class MovementManager(object):
         if waypoint_length > 0:
             current_waypoint = self.pending_waypoints[0]
 
-        if waypoint_length > 0 and self.waypoint_timer > current_waypoint.expected_timestamp:
+        if current_waypoint and self.waypoint_timer > current_waypoint.expected_timestamp:
             self.unit.location = current_waypoint.location
             GridManager.update_object(self.unit)
 
