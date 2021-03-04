@@ -76,8 +76,11 @@ class TextChecker:
 
     @staticmethod
     def valid_text(text_, is_name=False):
+        text_length = len(text_)
+        stripped_text_length = len(text_.strip())
+
         # Null and emptiness checks
-        if not text_ or text_.strip() == '':
+        if not text_ or stripped_text_length == 0:
             return False
 
         # Is text ascii?
@@ -86,10 +89,13 @@ class TextChecker:
         except UnicodeDecodeError:
             return False
 
-        text_length = len(text_)
-
         # Name specific checks
         if is_name:
+            # Spaces are not allowed in names
+            if text_length != stripped_text_length:
+                return False
+
+            # Make sure the name is between the allowed number of characters
             if text_length < 3 or text_length > 12:
                 return False
 
