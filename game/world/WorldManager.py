@@ -21,6 +21,7 @@ from utils.Logger import Logger
 
 
 STARTUP_TIME = time()
+WORLD_ON = True
 
 
 def get_seconds_since_startup():
@@ -37,19 +38,18 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
 
         self.account_mgr = None
         self.player_mgr = None
-
         self.keep_alive = False
-        self.is_alive = False
 
     def handle(self):
         try:
-            self.auth_challenge(self.request)
+            if not WORLD_ON:
+                return
 
             self.player_mgr = None
             self.account_mgr = None
-
             self.keep_alive = True
-            self.is_alive = True
+
+            self.auth_challenge(self.request)
 
             realm_saving_scheduler = BackgroundScheduler()
             realm_saving_scheduler._daemon = True
@@ -64,22 +64,20 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             self.disconnect()
 
     def disconnect(self):
-        if self.is_alive:
-            try:
-                if self.player_mgr:
-                    self.player_mgr.logout()
-            except AttributeError:
-                pass
+        try:
+            if self.player_mgr:
+                self.player_mgr.logout()
+        except AttributeError:
+            pass
 
-            self.keep_alive = False
-            self.is_alive = False
-            WorldSessionStateHandler.remove(self)
+        self.keep_alive = False
+        WorldSessionStateHandler.remove(self)
 
-            try:
-                self.request.shutdown(socket.SHUT_RDWR)
-                self.request.close()
-            except OSError:
-                pass
+        try:
+            self.request.shutdown(socket.SHUT_RDWR)
+            self.request.close()
+        except OSError:
+            pass
 
     def save_character(self):
         try:

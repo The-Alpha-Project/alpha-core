@@ -1,6 +1,7 @@
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from game.world import WorldManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
@@ -410,6 +411,26 @@ class CommandManager(object):
 
         return 0, ''
 
+    @staticmethod
+    def kick(world_session, args):
+        player = CommandManager._target_or_self(world_session, only_players=True)
+        if player:
+            player.session.keep_alive = False
+
+        return 0, ''
+
+    @staticmethod
+    def worldoff(world_session, args):
+        # Prevent more sockets to be opened
+        WorldManager.WORLD_ON = False
+
+        # Kick all players
+        for session in WorldSessionStateHandler.get_world_sessions():
+            if session.player_mgr and session.player_mgr.is_online:
+                session.keep_alive = False
+
+        return 0, ''
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help,
@@ -441,5 +462,7 @@ GM_COMMAND_DEFINITIONS = {
     'goinfo': CommandManager.gobject_info,
     'level': CommandManager.level,
     'money': CommandManager.money,
-    'die': CommandManager.die
+    'die': CommandManager.die,
+    'kick': CommandManager.kick,
+    'worldoff': CommandManager.worldoff
 }
