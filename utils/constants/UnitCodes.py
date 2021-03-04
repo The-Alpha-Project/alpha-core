@@ -139,11 +139,18 @@ class ObjectSpawnFlags(IntEnum):
     SPAWN_FLAG_NOT_VISIBLE = 0x40  # creature only
 
 
-# This is from 1.12, might be wrong
 # Used in SMSG_MONSTER_MOVE
 class SplineFlags(IntEnum):
     SPLINEFLAG_NONE = 0x00000000
-    SPLINEFLAG_WALKMODE = 0x00000100
-    SPLINEFLAG_FLYING = 0x00000200
-
-    SPLINEFLAG_SPLINE = 0x00002000  # spline n*(float xyz)
+    SPLINEFLAG_DONE = 0x000000001
+    SPLINEFLAG_FALLING = 0x000000002  # Affects elevation computation
+    SPLINEFLAG_RUNMODE = 0x00000100
+    SPLINEFLAG_FLYING = 0x00000200  # Smooth movement(Catmullrom interpolation mode), flying animation
+    SPLINEFLAG_NOSPLINE = 0x00000400
+    SPLINEFLAG_SPLINE = 0x00002000  # Spline n * (float xyz)
+    SPLINEFLAG_SPOT = 0x00010000
+    SPLINEFLAG_TARGET = 0x00020000
+    SPLINEFLAG_FACING = 0x00040000
+    SPLINEFLAG_CYCLIC = 0x00100000  # Movement by cycled spline
+    SPLINEFLAG_ENTER_CYCLE = 0x00200000  # Appears with cyclic flag in monster move packet, erases first spline vertex after first cycle done
+    SPLINEFLAG_FROZEN = 0x00400000  # Will never arrive
