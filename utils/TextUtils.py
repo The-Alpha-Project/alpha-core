@@ -86,9 +86,11 @@ class TextChecker:
         except UnicodeDecodeError:
             return False
 
+        text_length = len(text_)
+
         # Name specific checks
         if is_name:
-            if len(text_) < 3:
+            if text_length < 3 or text_length > 12:
                 return False
 
             # Names are allowed to have ONE grave, removing it so it can pass the is_alpha check
