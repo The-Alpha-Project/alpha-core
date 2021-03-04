@@ -32,7 +32,7 @@ RACE_TEXT = {
 }
 
 
-class GameTextFormatter(object):
+class GameTextFormatter:
 
     @staticmethod
     def format(player_mgr, text):
@@ -70,3 +70,33 @@ class GameTextFormatter(object):
     def generate_item_link(entry, name, quality):
         color = ITEM_QUALITY_COLOR[quality]
         return '|%s|Hitem:%u|h[%s]|h|r' % (color, entry, name)
+
+
+class TextChecker:
+
+    @staticmethod
+    def valid_text(text_, is_name=False):
+        # Null and emptiness checks
+        if not text_ or text_.strip() == '':
+            return False
+
+        # Is text ascii?
+        try:
+            text_.encode('ascii')
+        except UnicodeDecodeError:
+            return False
+
+        # Name specific checks
+        if is_name:
+            if len(text_) < 3:
+                return False
+
+            # Names are allowed to have ONE grave, removing it so it can pass the is_alpha check
+            grave_count = text_.count('`')
+            if grave_count == 1:
+                text_ = text_.replace('`', '')
+            elif grave_count > 1:
+                return False
+
+        # If all characters in the string are alphabets (can be both lowercase and uppercase)
+        return text_.isalpha()

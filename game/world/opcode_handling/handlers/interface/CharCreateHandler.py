@@ -9,6 +9,8 @@ from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import *
+from utils import TextUtils
+from utils.TextUtils import GameTextFormatter
 from utils.constants.CharCodes import *
 from utils.ConfigManager import config
 from utils.constants.ItemCodes import InventorySlots
@@ -21,13 +23,12 @@ class CharCreateHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        # TODO: Handle names with uncommon letters
         name = PacketReader.read_string(reader.data, 0)
         if not config.Server.Settings.blizzlike_names:
             name = name.capitalize()
 
-        race, class_, gender, skin, face, hairstyle, haircolor, facialhair, unk = unpack(
-            '<BBBBBBBBB', reader.data[len(name)+1:]
+        race, class_, gender, skin, face, hairstyle, haircolor, facialhair, outfit_id = unpack(
+            '<9B', reader.data[len(name)+1:]
         )
         race_mask = 1 << (race - 1)
         class_mask = 1 << (class_ - 1)
@@ -48,6 +49,9 @@ class CharCreateHandler(object):
 
         if RealmDatabaseManager.character_does_name_exist(name):
             result = CharCreate.CHAR_CREATE_NAME_IN_USE
+
+        if not TextUtils.TextChecker.valid_text(name, is_name=True):
+            result = CharCreate.CHAR_CREATE_ERROR
 
         if result == CharCreate.CHAR_CREATE_SUCCESS:
             map_, zone, x, y, z, o = CharCreateHandler.get_starting_location(race, class_)

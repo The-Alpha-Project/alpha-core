@@ -9,7 +9,7 @@ from game.world.managers.ChatManager import ChatManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from utils.ConfigManager import config
-from utils.GameTextFormatter import GameTextFormatter
+from utils.TextUtils import GameTextFormatter
 from utils.constants.ObjectCodes import HighGuid, ObjectTypes
 from utils.constants.UpdateFields import PlayerFields
 

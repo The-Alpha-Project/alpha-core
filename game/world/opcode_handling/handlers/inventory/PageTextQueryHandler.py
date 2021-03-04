@@ -2,7 +2,7 @@ from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import *
-from utils.GameTextFormatter import GameTextFormatter
+from utils.TextUtils import GameTextFormatter
 
 
 class PageTextQueryHandler(object):
