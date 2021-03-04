@@ -21,6 +21,9 @@ class WorldSessionStateHandler(object):
 
     @staticmethod
     def disonnect_old_session(new_session):
+        if not new_session or not new_session.account_mgr:
+            return
+
         for session in WORLD_SESSIONS:
             if session.account_mgr and session.account_mgr.account.id == new_session.account_mgr.account.id:
                 session.disconnect()
