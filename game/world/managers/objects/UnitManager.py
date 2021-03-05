@@ -194,7 +194,6 @@ class UnitManager(ObjectManager):
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
 
-
     def attack(self, victim, is_melee=True):
         if not victim or victim == self:
             return False

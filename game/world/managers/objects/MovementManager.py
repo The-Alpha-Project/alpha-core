@@ -1,5 +1,5 @@
 import math
-from struct import pack
+from struct import pack, unpack
 from typing import NamedTuple
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -48,11 +48,12 @@ class MovementManager(object):
 
         if waypoint_length == 0 and self.waypoint_timer > self.total_waypoint_time:
             if self.is_player and self.unit.pending_taxi_destination:
+                self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination)
                 self.unit.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
                 self.unit.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit.unit_flags)
                 self.unit.unmount()
-                self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination)
                 self.unit.pending_taxi_destination = None
+            self.unit.movement_spline = None
             self.should_update_waypoints = False
             self.total_waypoint_time = 0
             self.waypoint_timer = 0
@@ -61,15 +62,16 @@ class MovementManager(object):
         self.should_update_waypoints = False
         self.pending_waypoints.clear()
 
-        data = pack('<Q3fIBI',
-                    self.unit.guid,
-                    self.unit.location.x,
-                    self.unit.location.y,
-                    self.unit.location.z,
-                    int(WorldManager.get_seconds_since_startup() * 1000),
-                    0,
-                    spline_flag
-                    )
+        start_time = int(WorldManager.get_seconds_since_startup() * 1000)
+
+        data = pack(
+            '<Q12sIBI',
+            self.unit.guid,
+            self.unit.location.to_bytes(include_orientation=False),
+            start_time,
+            0,
+            spline_flag
+        )
 
         waypoints_data = b''
         waypoints_length = len(waypoints)
@@ -78,10 +80,7 @@ class MovementManager(object):
         total_time = 0
         current_id = 0
         for waypoint in waypoints:
-            waypoints_data += pack('<3f',
-                                   waypoint.x,
-                                   waypoint.y,
-                                   waypoint.z)
+            waypoints_data += waypoint.to_bytes(include_orientation=False)
             current_distance = last_waypoint.distance(waypoint)
             current_time = current_distance / speed
             total_distance += current_distance
@@ -91,11 +90,12 @@ class MovementManager(object):
             last_waypoint = waypoint
             current_id += 1
 
-        data += pack('<2I%us' % len(waypoints_data),
-                     int(total_time * 1000),
-                     waypoints_length,
-                     waypoints_data
-                     )
+        data += pack(
+            '<2I%us' % len(waypoints_data),
+            int(total_time * 1000),
+            waypoints_length,
+            waypoints_data
+        )
 
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data), self.unit,
                                      include_self=self.is_player)
@@ -107,4 +107,83 @@ class MovementManager(object):
             self.total_waypoint_time = total_time + (0.15 * waypoints_length)
         else:
             self.total_waypoint_time = total_time
+
+        # Generate the spline
+        spline = MovementSpline()
+        spline.flags = spline_flag
+        spline.spot = self.unit.location
+        spline.guid = self.unit.guid
+        spline.facing = self.unit.location.o
+        spline.start = int(start_time)
+        spline.time = int(self.total_waypoint_time)
+        spline.points = waypoints
+        self.unit.movement_spline = spline
+
         self.should_update_waypoints = True
+
+
+class MovementSpline(object):
+    def __init__(self, flags=0, spot=None, guid=0, facing=0, start=0, time=0, points=None):
+        self.flags = flags
+        self.spot = spot
+        self.guid = guid
+        self.facing = facing
+        self.start = start
+        self.time = time
+        self.points = points
+        if not points:
+            self.points = []
+
+    @staticmethod
+    def from_bytes(spline_bytes):
+        if len(spline_bytes < 42):
+            return None
+
+        bytes_read = 0
+
+        spline = MovementSpline()
+        spline.flags = unpack('<I', spline_bytes[:4])[0]
+        bytes_read += 4
+
+        if spline.flags & SplineFlags.SPLINEFLAG_SPOT:
+            spline.spot = Vector.from_bytes(spline_bytes[bytes_read:12])
+            bytes_read += 12
+        if spline.flags & SplineFlags.SPLINEFLAG_TARGET:
+            spline.guid = unpack('<Q', spline_bytes[bytes_read:8])[0]
+            bytes_read += 8
+        if spline.flags & SplineFlags.SPLINEFLAG_FACING:
+            spline.facing = unpack('<f', spline_bytes[bytes_read:4])[0]
+            bytes_read += 4
+
+        spline.start, spline.time = unpack('<2I', spline_bytes[bytes_read:8])
+        bytes_read += 8
+
+        points_length = unpack('<I', spline_bytes[bytes_read:4])[0]
+        bytes_read += 4
+        for i in range(points_length):
+            spline.points.append(Vector.from_bytes(spline_bytes[bytes_read:12]))
+            bytes_read += 12
+
+        return spline
+
+    def to_bytes(self):
+        data = pack('<I', self.flags)
+
+        if self.flags & SplineFlags.SPLINEFLAG_SPOT:
+            data += self.spot.to_bytes(include_orientation=False)
+        if self.flags & SplineFlags.SPLINEFLAG_TARGET:
+            data += pack('<Q', self.guid)
+        if self.flags & SplineFlags.SPLINEFLAG_FACING:
+            data += pack('<f', self.facing)
+
+        data += pack(
+            '<2Ii',
+            self.start,
+            self.time,
+            len(self.points)
+        )
+
+        for point in self.points:
+            data += point.to_bytes(include_orientation=False)
+
+        return data

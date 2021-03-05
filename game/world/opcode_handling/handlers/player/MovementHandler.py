@@ -2,7 +2,9 @@ from struct import pack, unpack, error, calcsize
 
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects import MovementManager
 from network.packet.PacketWriter import *
+from utils.constants.ObjectCodes import MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
 from utils.constants.UnitCodes import StandState
@@ -42,6 +44,9 @@ class MovementHandler(object):
 
                 world_session.player_mgr.pitch = pitch
                 world_session.player_mgr.movement_flags = flags
+
+                if flags & MoveFlags.MOVEFLAG_SPLINE_MOVER:
+                    world_session.player_mgr.movement_spline = MovementManager.MovementSpline.from_bytes(reader.data[48:])
 
                 movement_data = pack('<Q%us' % len(reader.data),
                                      world_session.player_mgr.guid,

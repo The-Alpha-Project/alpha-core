@@ -58,6 +58,7 @@ class ObjectManager(object):
 
         self.current_grid = ''
         self.last_tick = 0
+        self.movement_spline = None
 
     def get_object_type_value(self):
         type_value = 0
@@ -123,8 +124,8 @@ class ObjectManager(object):
         )
 
     def _get_movement_fields(self):
-        return pack(
-            '<QfffffffffIIffff',
+        data = pack(
+            '<Q9fI',
             self.transport_id,
             self.transport.x,
             self.transport.y,
@@ -135,13 +136,21 @@ class ObjectManager(object):
             self.location.z,
             self.location.o,
             self.pitch,
-            self.movement_flags,
-            0,  # Fall Time?
+            self.movement_flags
+        )
+
+        # TODO: Spline data *should* go here!
+
+        data += pack(
+            '<I4f',
+            0,  # Fall Time
             self.walk_speed,
             self.running_speed,
             self.swim_speed,
             self.turn_rate
-        )
+         )
+
+        return data
 
     def _get_fields_update(self):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
