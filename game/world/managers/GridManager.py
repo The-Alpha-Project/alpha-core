@@ -221,8 +221,7 @@ class Grid(object):
             if player_mgr.is_online:
                 if source and player_mgr.guid == source.guid:
                     continue
-                player_mgr.session.request.sendall(packet)
-                # threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
+                threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
 
     def send_all_in_range(self, packet, range_, source, include_self=True):
         if range_ <= 0:
@@ -232,5 +231,4 @@ class Grid(object):
                 if player_mgr.is_online and player_mgr.location.distance(source.location) <= range_:
                     if not include_self and player_mgr.guid == source.guid:
                         continue
-                    player_mgr.session.request.sendall(packet)
-                    # threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
+                    threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
