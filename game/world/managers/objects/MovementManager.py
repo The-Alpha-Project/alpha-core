@@ -48,10 +48,10 @@ class MovementManager(object):
 
         if waypoint_length == 0 and self.waypoint_timer > self.total_waypoint_time:
             if self.is_player and self.unit.pending_taxi_destination:
-                self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination)
                 self.unit.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
                 self.unit.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit.unit_flags)
-                self.unit.unmount()
+                self.unit.unmount(force_update=False)
+                self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination)
                 self.unit.pending_taxi_destination = None
             self.unit.movement_spline = None
             self.should_update_waypoints = False

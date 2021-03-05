@@ -349,13 +349,14 @@ class PlayerManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
             self.set_dirty()
 
-    def unmount(self):
+    def unmount(self, force_update=True):
         if self.mount_display_id > 0:
             self.mount_display_id = 0
             self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
             self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-            self.set_dirty()
+            if force_update:
+                self.set_dirty()
 
     def demorph(self):
         self.set_display_id(self.get_native_display_id(self.player.gender == 0))
