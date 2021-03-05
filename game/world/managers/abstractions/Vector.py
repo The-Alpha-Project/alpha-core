@@ -20,7 +20,7 @@ class Vector(object):
         vector = Vector()
         vector.x, vector.y, vector.z = unpack('<3f', vector_bytes[:12])
         if len(vector_bytes) == 16:
-            vector.o = unpack('<f', vector_bytes[12:])
+            vector.o = unpack('<f', vector_bytes[12:])[0]
 
         return vector
 
