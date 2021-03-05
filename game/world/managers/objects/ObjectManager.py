@@ -139,7 +139,9 @@ class ObjectManager(object):
             self.movement_flags
         )
 
-        # TODO: Spline data *should* go here!
+        # TODO: NOT WORKING!
+        # if self.movement_spline:
+        #    data += self.movement_spline.to_bytes()
 
         data += pack(
             '<I4f',

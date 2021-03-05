@@ -32,6 +32,12 @@ class MovementManager(object):
             return
 
         self.waypoint_timer += elapsed
+        # Set elapsed time to the current movement spline data
+        if self.unit.movement_spline:
+            if self.unit.movement_spline.elapsed < self.unit.movement_spline.total_time:
+                self.unit.movement_spline.elapsed += elapsed * 1000
+                if self.unit.movement_spline.elapsed > self.unit.movement_spline.total_time:
+                    self.unit.movement_spline.elapsed = self.unit.movement_spline.total_time
 
         waypoint_length = len(self.pending_waypoints)
         current_waypoint = None
@@ -114,8 +120,8 @@ class MovementManager(object):
         spline.spot = self.unit.location
         spline.guid = self.unit.guid
         spline.facing = self.unit.location.o
-        spline.start = int(start_time)
-        spline.time = int(self.total_waypoint_time)
+        spline.elapsed = 0
+        spline.total_time = int(self.total_waypoint_time * 1000)
         spline.points = waypoints
         self.unit.movement_spline = spline
 
@@ -123,13 +129,13 @@ class MovementManager(object):
 
 
 class MovementSpline(object):
-    def __init__(self, flags=0, spot=None, guid=0, facing=0, start=0, time=0, points=None):
+    def __init__(self, flags=0, spot=None, guid=0, facing=0, elapsed=0, total_time=0, points=None):
         self.flags = flags
         self.spot = spot
         self.guid = guid
         self.facing = facing
-        self.start = start
-        self.time = time
+        self.elapsed = elapsed
+        self.total_time = total_time
         self.points = points
         if not points:
             self.points = []
@@ -155,7 +161,7 @@ class MovementSpline(object):
             spline.facing = unpack('<f', spline_bytes[bytes_read:4])[0]
             bytes_read += 4
 
-        spline.start, spline.time = unpack('<2I', spline_bytes[bytes_read:8])
+        spline.elapsed, spline.total_time = unpack('<2I', spline_bytes[bytes_read:8])
         bytes_read += 8
 
         points_length = unpack('<I', spline_bytes[bytes_read:4])[0]
@@ -178,8 +184,8 @@ class MovementSpline(object):
 
         data += pack(
             '<2Ii',
-            self.start,
-            self.time,
+            int(self.elapsed),
+            self.total_time,
             len(self.points)
         )
 
