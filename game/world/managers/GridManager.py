@@ -158,6 +158,18 @@ class GridManager(object):
     def get_grids():
         return GRIDS
 
+    @staticmethod
+    def update_active_objects():
+        for key, grid in list(GRIDS.items()):
+            if grid.has_players():
+                # Update creatures
+                for guid, creature in list(grid.creatures.items()):
+                    creature.update()
+
+                # Update gameobjects
+                for guid, gameobject in list(grid.gameobjects.items()):
+                    gameobject.update()
+
 
 class Grid(object):
     def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, zones=None, gameobjects=None,
@@ -186,6 +198,9 @@ class Grid(object):
 
         if not zones:
             self.zones = set()
+
+    def has_players(self):
+        return len(self.players) > 0
 
     def contains(self, worldobject=None, vector=None, map_=None):
         if worldobject:

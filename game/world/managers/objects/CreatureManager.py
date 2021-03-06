@@ -223,6 +223,10 @@ class CreatureManager(UnitManager):
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
 
     # override
+    def update(self):
+        print('hey :) %s' % self.creature_template.name)
+
+    # override
     def die(self, killer=None):
         super().die(killer)
 
