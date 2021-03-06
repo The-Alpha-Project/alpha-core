@@ -251,10 +251,7 @@ class CreatureManager(UnitManager):
         super().respawn()
 
         self.set_health(self.max_health)
-        if self.power_type == PowerTypes.TYPE_MANA:
-            self.set_mana(self.max_power_1)
-        if self.power_type == PowerTypes.TYPE_RAGE:
-            self.set_rage(0)
+        self.set_mana(self.max_power_1)
 
         self.respawn_timer = 0
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
