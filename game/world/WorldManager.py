@@ -244,6 +244,9 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         ThreadedWorldServer.timeout = 10
         with ThreadedWorldServer((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port),
                                  WorldServerSessionHandler) as world_instance:
-            world_session_thread = threading.Thread(target=world_instance.serve_forever())
-            world_session_thread.daemon = True
-            world_session_thread.start()
+            try:
+                world_session_thread = threading.Thread(target=world_instance.serve_forever())
+                world_session_thread.daemon = True
+                world_session_thread.start()
+            except KeyboardInterrupt:
+                Logger.info("World server turned off.")

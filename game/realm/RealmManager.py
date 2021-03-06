@@ -50,9 +50,12 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
         with ThreadedLoginServer((config.Server.Connection.RealmServer.host,
                                   config.Server.Connection.RealmServer.port), LoginServerSessionHandler) \
                 as login_instance:
-            login_session_thread = threading.Thread(target=login_instance.serve_forever())
-            login_session_thread.daemon = True
-            login_session_thread.start()
+            try:
+                login_session_thread = threading.Thread(target=login_instance.serve_forever())
+                login_session_thread.daemon = True
+                login_session_thread.start()
+            except KeyboardInterrupt:
+                Logger.info("Login server turned off.")
 
 
 class ThreadedProxyServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -87,6 +90,10 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
         with ThreadedProxyServer((config.Server.Connection.RealmServer.host,
                                   config.Server.Connection.RealmProxy.port), ProxyServerSessionHandler) \
                 as proxy_instance:
-            proxy_session_thread = threading.Thread(target=proxy_instance.serve_forever())
-            proxy_session_thread.daemon = True
-            proxy_session_thread.start()
+            try:
+                proxy_session_thread = threading.Thread(target=proxy_instance.serve_forever())
+                proxy_session_thread.daemon = True
+                proxy_session_thread.start()
+            except KeyboardInterrupt:
+                Logger.info("Proxy server turned off.")
+
