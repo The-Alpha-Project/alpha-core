@@ -12,6 +12,8 @@ GRIDS = dict()
 
 class GridManager(object):
 
+    ACTIVE_GRID_KEYS = []
+
     @staticmethod
     def add_or_get(worldobject, store=False):
         min_x, min_y, max_x, max_y = GridManager.generate_coord_data(worldobject.location)
@@ -160,26 +162,25 @@ class GridManager(object):
 
     @staticmethod
     def update_active_objects():
-        for key, grid in list(GRIDS.items()):
-            if grid.has_players():
-                # Update creatures
-                for guid, creature in list(grid.creatures.items()):
-                    creature.update()
+        for key in GridManager.ACTIVE_GRID_KEYS:
+            grid = GRIDS[key]
+            # Update creatures
+            for guid, creature in list(grid.creatures.items()):
+                creature.update()
 
-                # Update gameobjects
-                for guid, gameobject in list(grid.gameobjects.items()):
-                    gameobject.update()
+            # Update gameobjects
+            for guid, gameobject in list(grid.gameobjects.items()):
+                gameobject.update()
 
 
 class Grid(object):
-    def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, zones=None, gameobjects=None,
+    def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, gameobjects=None,
                  creatures=None, players=None, key=''):
         self.min_x = min_x
         self.min_y = min_y
         self.max_x = max_x
         self.max_y = max_y
         self.map_ = map_
-        self.zones = zones
         self.key = key
         self.gameobjects = gameobjects
         self.creatures = creatures
@@ -195,9 +196,6 @@ class Grid(object):
             self.creatures = dict()
         if not players:
             self.players = dict()
-
-        if not zones:
-            self.zones = set()
 
     def has_players(self):
         return len(self.players) > 0
@@ -215,7 +213,9 @@ class Grid(object):
     def add(self, worldobject):
         if worldobject.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players[worldobject.guid] = worldobject
-            self.zones.add(worldobject.zone)
+            # Add Grid key to the active grid list
+            if self.key not in GridManager.ACTIVE_GRID_KEYS:
+                GridManager.ACTIVE_GRID_KEYS.append(self.key)
         elif worldobject.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures[worldobject.guid] = worldobject
         elif worldobject.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
@@ -226,6 +226,9 @@ class Grid(object):
     def remove(self, worldobject):
         if worldobject.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players.pop(worldobject.guid, None)
+            # If no players left on Grid, remove its key from the active grid list
+            if len(self.players) == 0 and self.key in GridManager.ACTIVE_GRID_KEYS:
+                GridManager.ACTIVE_GRID_KEYS.remove(self.key)
         elif worldobject.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures.pop(worldobject.guid, None)
         elif worldobject.get_type() == ObjectTypes.TYPE_GAMEOBJECT:

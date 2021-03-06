@@ -115,14 +115,15 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         # Player updates
         player_update_scheduler = BackgroundScheduler()
         player_update_scheduler._daemon = True
-        player_update_scheduler.add_job(WorldSessionStateHandler.update_players, 'interval', seconds=0.1)
+        player_update_scheduler.add_job(WorldSessionStateHandler.update_players, 'interval', seconds=0.1,
+                                        max_instances=2)
         player_update_scheduler.start()
 
         # Creature & Gameobject updates
         active_object_update_scheduler = BackgroundScheduler()
         active_object_update_scheduler._daemon = True
         active_object_update_scheduler.add_job(GridManager.update_active_objects, 'interval', seconds=0.2,
-                                               max_instances=20)
+                                               max_instances=8)
         active_object_update_scheduler.start()
 
     @staticmethod
