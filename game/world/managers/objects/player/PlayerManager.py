@@ -243,12 +243,13 @@ class PlayerManager(UnitManager):
                 self.objects_in_range[guid] = {'object': player, 'synced': True}
 
         for guid, creature in creatures.items():
-            if guid not in self.objects_in_range:
-                update_packet = UpdatePacketFactory.compress_if_needed(
-                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                            creature.get_full_update_packet(is_self=False)))
-                self.session.request.sendall(update_packet)
-                self.session.request.sendall(creature.query_details())
+            if creature.is_spawned:
+                if guid not in self.objects_in_range:
+                    update_packet = UpdatePacketFactory.compress_if_needed(
+                        PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                                creature.get_full_update_packet(is_self=False)))
+                    self.session.request.sendall(update_packet)
+                    self.session.request.sendall(creature.query_details())
             self.objects_in_range[guid] = {'object': creature, 'synced': True}
 
         for guid, gobject in gobjects.items():

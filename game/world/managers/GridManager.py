@@ -30,7 +30,7 @@ class GridManager(object):
         return grid
 
     @staticmethod
-    def update_object(worldobject, update_surrounding=True):
+    def update_object(worldobject):
         grid_coords = GridManager.get_grid_key(worldobject.location, worldobject.map_)
 
         if grid_coords != worldobject.current_grid:
@@ -43,7 +43,8 @@ class GridManager(object):
             else:
                 GridManager.add_or_get(worldobject, store=True)
 
-            worldobject.update_surrounding_on_me()
+            if worldobject.get_type() == ObjectTypes.TYPE_PLAYER:
+                worldobject.update_surrounding_on_me()
 
     @staticmethod
     def remove_object(worldobject):

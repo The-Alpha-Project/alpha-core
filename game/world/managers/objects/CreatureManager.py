@@ -17,6 +17,7 @@ from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
 class CreatureManager(UnitManager):
+
     def __init__(self,
                  creature_template,
                  creature_instance=None,
@@ -60,6 +61,7 @@ class CreatureManager(UnitManager):
             self.is_evading = False
             self.has_offhand_weapon = False
             self.respawn_timer = 0
+            self.is_spawned = True
 
         if self.creature_instance:
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
@@ -236,6 +238,10 @@ class CreatureManager(UnitManager):
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
                     self.respawn()
+                # Destroy body when creature is about to respawn
+                elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
+                    self.is_spawned = False
+                    GridManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
             else:
                 pass
                 # TODO NOT WORKING YET
@@ -259,6 +265,7 @@ class CreatureManager(UnitManager):
         self.set_health(self.max_health)
         self.set_mana(self.max_power_1)
 
+        self.is_spawned = True
         self.respawn_timer = 0
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
