@@ -1,4 +1,5 @@
 import math
+from random import random
 from struct import pack, unpack
 
 
@@ -63,3 +64,14 @@ class Vector(object):
         z3 = self.z + factor * (vector.z - self.z)
 
         return Vector(x3, y3, z3)
+
+    # https://stackoverflow.com/a/50746409/4208583
+    def get_random_point_in_radius(self, radius):
+        r = radius * math.sqrt(random())
+        theta = random() * 2 * math.pi
+
+        x2 = self.x + (r * math.cos(theta))
+        y2 = self.y + (r * math.sin(theta))
+        z2 = self.z  # No mmaps yet :)
+
+        return Vector(x2, y2, z2)

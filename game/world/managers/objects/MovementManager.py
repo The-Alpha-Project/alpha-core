@@ -7,6 +7,7 @@ from game.world import WorldManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter, OpCode
+from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes
 from utils.constants.UnitCodes import UnitFlags, SplineFlags
 from utils.constants.UpdateFields import UnitFields
@@ -143,6 +144,10 @@ class MovementManager(object):
 
         self.last_position = self.unit.location
         self.should_update_waypoints = True
+
+    def move_random(self, radius, speed=config.Unit.Defaults.walk_speed):
+        random_point = self.unit.location.get_random_point_in_radius(radius)
+        self.send_move_to([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
 
 class MovementSpline(object):

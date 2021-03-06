@@ -12,7 +12,7 @@ from utils import Formulas
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, PowerTypes
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, PowerTypes, MovementTypes
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -233,10 +233,16 @@ class CreatureManager(UnitManager):
 
             # Respawn checks
             if not self.is_alive:
-                # Update played time
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
                     self.respawn()
+            else:
+                pass
+                # TODO NOT WORKING YET
+                # Random movement
+                #if self.creature_instance.movement_type == MovementTypes.WANDER:
+                #    if len(self.movement_manager.pending_waypoints) == 0:
+                #        self.movement_manager.move_random(self.creature_instance.wander_distance)
         self.last_tick = now
 
         if self.dirty:

@@ -5,6 +5,7 @@ from struct import pack, unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world import WorldManager
 from game.world.managers.GridManager import GridManager
+from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
@@ -193,6 +194,7 @@ class UnitManager(ObjectManager):
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
+        self.movement_manager = MovementManager(self)
 
     def attack(self, victim, is_melee=True):
         if not victim or victim == self:

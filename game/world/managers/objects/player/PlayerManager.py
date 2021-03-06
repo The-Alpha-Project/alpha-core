@@ -126,7 +126,6 @@ class PlayerManager(UnitManager):
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.spell_manager = SpellManager(self)
-            self.movement_manager = MovementManager(self)
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:

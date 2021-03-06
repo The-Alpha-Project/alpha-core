@@ -128,6 +128,12 @@ class WeaponMode(IntEnum):
     NUMMODES = 0x3
 
 
+class MovementTypes(IntEnum):
+    IDLE = 0x0
+    WANDER = 0x1
+    WAYPOINT = 0x2
+
+
 # This is from 1.12, might be wrong
 class ObjectSpawnFlags(IntEnum):
     SPAWN_FLAG_ACTIVE = 0x01
