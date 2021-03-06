@@ -224,7 +224,7 @@ class CreatureManager(UnitManager):
 
     # override
     def update(self):
-        print('hey :) %s' % self.creature_template.name)
+        pass
 
     # override
     def die(self, killer=None):
