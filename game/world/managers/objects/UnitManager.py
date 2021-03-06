@@ -626,7 +626,7 @@ class UnitManager(ObjectManager):
         self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_DEAD
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
-    def respawn(self):
+    def respawn(self, force_update=True):
         self.is_alive = True
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
@@ -637,10 +637,8 @@ class UnitManager(ObjectManager):
 
         self.set_stand_state(StandState.UNIT_STANDING)
 
-    def set_dirty(self, dirty=True):
-        self.dirty = dirty
-
-
+    def set_dirty(self, is_dirty=True):
+        self.dirty = is_dirty
 
     # override
     def get_type(self):

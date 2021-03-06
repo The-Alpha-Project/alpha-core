@@ -1,4 +1,5 @@
-from random import randrange, choice
+import time
+from random import randint, choice
 from struct import unpack, pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -11,7 +12,7 @@ from utils import Formulas
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, PowerTypes
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -37,7 +38,7 @@ class CreatureManager(UnitManager):
             self.max_health = self.creature_template.health_max
             self.power_1 = self.creature_template.mana_min
             self.max_power_1 = self.creature_template.mana_max
-            self.level = randrange(self.creature_template.level_min, self.creature_template.level_max + 1)
+            self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
             self.resistance_0 = self.creature_template.armor
             self.resistance_1 = self.creature_template.holy_res
             self.resistance_2 = self.creature_template.fire_res
@@ -58,6 +59,7 @@ class CreatureManager(UnitManager):
             self.fully_loaded = False
             self.is_evading = False
             self.has_offhand_weapon = False
+            self.respawn_timer = 0
 
         if self.creature_instance:
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
@@ -66,6 +68,7 @@ class CreatureManager(UnitManager):
             self.location.y = self.creature_instance.position_y
             self.location.z = self.creature_instance.position_z
             self.location.o = self.creature_instance.orientation
+            self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
     def load(self):
         GridManager.add_or_get(self, True)
@@ -224,7 +227,40 @@ class CreatureManager(UnitManager):
 
     # override
     def update(self):
-        pass
+        now = time.time()
+        if now > self.last_tick > 0:
+            elapsed = now - self.last_tick
+
+            # Respawn checks
+            if not self.is_alive:
+                # Update played time
+                self.respawn_timer += elapsed
+                if self.respawn_timer >= self.respawn_time:
+                    self.respawn()
+        self.last_tick = now
+
+        if self.dirty:
+            GridManager.send_surrounding(self.generate_proper_update_packet(create=True), self, include_self=False)
+            GridManager.update_object(self)
+            self.reset_fields()
+
+            self.set_dirty(is_dirty=False)
+
+    # override
+    def respawn(self, force_update=True):
+        super().respawn()
+
+        self.set_health(self.max_health)
+        if self.power_type == PowerTypes.TYPE_MANA:
+            self.set_mana(self.max_power_1)
+        if self.power_type == PowerTypes.TYPE_RAGE:
+            self.set_rage(0)
+
+        self.respawn_timer = 0
+        self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
+
+        if force_update:
+            self.set_dirty()
 
     # override
     def die(self, killer=None):
