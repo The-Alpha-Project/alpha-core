@@ -246,7 +246,7 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
         if self.dirty:
-            GridManager.send_surrounding(self.generate_proper_update_packet(create=True), self, include_self=False)
+            GridManager.send_surrounding(self.generate_proper_update_packet(create=False), self, include_self=False)
             GridManager.update_object(self)
             self.reset_fields()
 
@@ -263,7 +263,7 @@ class CreatureManager(UnitManager):
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
         if force_update:
-            self.set_dirty()
+            GridManager.send_surrounding(self.generate_proper_update_packet(create=True), self, include_self=False)
 
     # override
     def die(self, killer=None):
