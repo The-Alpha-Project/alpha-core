@@ -15,6 +15,9 @@ class Vector(object):
     def __sub__(self, other):
         return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
 
+    def __str__(self):
+        return '%f, %f, %f. %f' % (self.x, self.y, self.z, self.o)
+
     @staticmethod
     def from_bytes(vector_bytes):
         vector = Vector()
@@ -50,6 +53,10 @@ class Vector(object):
             vector = Vector(x=x, y=y, z=z)
 
         general_distance = self.distance(vector)
+        # Location already in the given offset
+        if general_distance <= offset:
+            return None
+
         factor = offset / general_distance
         x3 = self.x + factor * (vector.x - self.x)
         y3 = self.y + factor * (vector.y - self.y)

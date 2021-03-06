@@ -22,15 +22,19 @@ class MovementManager(object):
     def __init__(self, unit):
         self.unit = unit
         self.is_player = self.unit.get_type() == ObjectTypes.TYPE_PLAYER
+        self.speed = 0
         self.should_update_waypoints = False
+        self.last_position = None
         self.pending_waypoints = []
         self.total_waypoint_time = 0
+        self.total_waypoint_timer = 0
         self.waypoint_timer = 0
 
     def update_pending_waypoints(self, elapsed):
         if not self.should_update_waypoints:
             return
 
+        self.total_waypoint_timer += elapsed
         self.waypoint_timer += elapsed
         # Set elapsed time to the current movement spline data
         if self.unit.movement_spline:
@@ -40,33 +44,45 @@ class MovementManager(object):
                     self.unit.movement_spline.elapsed = self.unit.movement_spline.total_time
 
         waypoint_length = len(self.pending_waypoints)
-        current_waypoint = None
         if waypoint_length > 0:
             current_waypoint = self.pending_waypoints[0]
+            if self.total_waypoint_timer > current_waypoint.expected_timestamp:
+                new_position = current_waypoint.location
+                self.last_position = new_position
+                self.waypoint_timer = 0
 
-        if current_waypoint and self.waypoint_timer > current_waypoint.expected_timestamp:
-            self.unit.location = current_waypoint.location
-            GridManager.update_object(self.unit)
+                self.pending_waypoints.pop(0)
+            # Guess current position based on speed and time
+            else:
+                guessed_distance = self.speed * self.waypoint_timer
+                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location)
 
-            self.pending_waypoints.pop(0)
+            if new_position:
+                self.unit.location.x = new_position.x
+                self.unit.location.y = new_position.y
+                self.unit.location.z = new_position.z
 
-            return
-
-        if waypoint_length == 0 and self.waypoint_timer > self.total_waypoint_time:
-            if self.is_player and self.unit.pending_taxi_destination:
-                self.unit.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
-                self.unit.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit.unit_flags)
-                self.unit.unmount(force_update=False)
-                self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination)
-                self.unit.pending_taxi_destination = None
-            self.unit.movement_spline = None
-            self.should_update_waypoints = False
-            self.total_waypoint_time = 0
-            self.waypoint_timer = 0
+                GridManager.update_object(self.unit)
+        else:
+            # Path finished
+            if self.total_waypoint_timer > self.total_waypoint_time:
+                if self.is_player and self.unit.pending_taxi_destination:
+                    self.unit.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
+                    self.unit.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit.unit_flags)
+                    self.unit.unmount(force_update=False)
+                    self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination)
+                    self.unit.pending_taxi_destination = None
+                self.unit.movement_spline = None
+                self.should_update_waypoints = False
+                self.last_position = None
+                self.total_waypoint_time = 0
+                self.total_waypoint_timer = 0
+                self.waypoint_timer = 0
 
     def send_move_to(self, waypoints, speed, spline_flag):
         self.should_update_waypoints = False
         self.pending_waypoints.clear()
+        self.speed = speed
 
         start_time = int(WorldManager.get_seconds_since_startup() * 1000)
 
@@ -125,6 +141,7 @@ class MovementManager(object):
         spline.points = waypoints
         self.unit.movement_spline = spline
 
+        self.last_position = self.unit.location
         self.should_update_waypoints = True
 
 
