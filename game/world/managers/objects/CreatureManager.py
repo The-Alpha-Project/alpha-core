@@ -5,6 +5,7 @@ from struct import unpack, pack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
@@ -58,14 +59,17 @@ class CreatureManager(UnitManager):
             self.has_offhand_weapon = False
             self.respawn_timer = 0
             self.is_spawned = True
+            self.last_random_movement = 0
+            self.random_movement_wait_time = randint(1, 16)
 
         if self.creature_instance:
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
             self.map_ = self.creature_instance.map
-            self.location.x = self.creature_instance.position_x
-            self.location.y = self.creature_instance.position_y
-            self.location.z = self.creature_instance.position_z
-            self.location.o = self.creature_instance.orientation
+            self.spawn_position = Vector(self.creature_instance.position_x,
+                                         self.creature_instance.position_y,
+                                         self.creature_instance.position_z,
+                                         self.creature_instance.orientation)
+            self.location = self.spawn_position
             self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
     def load(self):
@@ -241,7 +245,20 @@ class CreatureManager(UnitManager):
             elapsed = now - self.last_tick
 
             # Respawn checks
-            if not self.is_alive:
+            if self.is_alive:
+                # Movement Updates
+                self.movement_manager.update_pending_waypoints(elapsed)
+                # Random Movement
+                if not self.in_combat and self.creature_instance.movement_type == MovementTypes.WANDER:
+                    if len(self.movement_manager.pending_waypoints) == 0:
+                        if now > self.last_random_movement + self.random_movement_wait_time:
+                            self.movement_manager.move_random(self.spawn_position,
+                                                              self.creature_instance.wander_distance)
+                            self.random_movement_wait_time = randint(1, 16)
+                    else:
+                        self.last_random_movement = now
+            # Dead
+            else:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
                     self.respawn()
@@ -249,13 +266,6 @@ class CreatureManager(UnitManager):
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
                     self.is_spawned = False
                     GridManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
-            else:
-                pass
-                # TODO NOT WORKING YET
-                # Random movement
-                #if self.creature_instance.movement_type == MovementTypes.WANDER:
-                #    if len(self.movement_manager.pending_waypoints) == 0:
-                #        self.movement_manager.move_random(self.creature_instance.wander_distance)
         self.last_tick = now
 
         if self.dirty:
@@ -298,10 +308,6 @@ class CreatureManager(UnitManager):
     def calculate_min_max_damage(self, attack_type=0):
         min_damage, max_damage = unpack('<2H', pack('<I', self.damage))
         return int(min_damage), int(max_damage)
-
-    # override
-    def leave_combat(self):
-        super().leave_combat()
 
     # override
     def has_offhand_weapon(self):

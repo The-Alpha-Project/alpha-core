@@ -823,23 +823,6 @@ class PlayerManager(UnitManager):
         self._send_attack_swing_error(victim, OpCode.SMSG_ATTACKSWING_NOTSTANDING)
 
     # override
-    def leave_combat(self, force_update=True):
-        if not self.in_combat:
-            return
-
-        super().leave_combat()
-        self.send_melee_attack_stop(self.combat_target)
-        self.swing_error = 0
-
-        self.combat_target = None
-        self.in_combat = False
-        self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-
-        if force_update:
-            self.set_dirty()
-
-    # override
     def has_offhand_weapon(self):
         return self.inventory.has_offhand_weapon()
 

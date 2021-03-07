@@ -479,8 +479,21 @@ class UnitManager(ObjectManager):
         if force_update:
             self.set_dirty()
 
-    def leave_combat(self):
+    def leave_combat(self, force_update=True):
+        if not self.in_combat:
+            return
+
         self.attackers.clear()
+        self.send_melee_attack_stop(self.combat_target)
+        self.swing_error = 0
+
+        self.combat_target = None
+        self.in_combat = False
+        self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+        if force_update:
+            self.set_dirty()
 
     def can_use_attack_type(self, attack_type):
         if attack_type == AttackTypes.BASE_ATTACK:
@@ -620,6 +633,10 @@ class UnitManager(ObjectManager):
             return
 
         self.leave_combat()
+
+        # Clear all pending waypoint movement
+        self.movement_manager.pending_waypoints.clear()
+        self.movement_manager.should_update_waypoints = False
 
         self.is_alive = False
         self.set_health(0)

@@ -145,8 +145,8 @@ class MovementManager(object):
         self.last_position = self.unit.location
         self.should_update_waypoints = True
 
-    def move_random(self, radius, speed=config.Unit.Defaults.walk_speed):
-        random_point = self.unit.location.get_random_point_in_radius(radius)
+    def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
+        random_point = start_position.get_random_point_in_radius(radius)
         self.send_move_to([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
 
