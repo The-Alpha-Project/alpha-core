@@ -358,6 +358,7 @@ class PlayerManager(UnitManager):
             if force_update:
                 self.set_dirty()
 
+    # override
     def demorph(self):
         self.set_display_id(self.get_native_display_id(self.player.gender == 0))
 

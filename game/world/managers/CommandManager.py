@@ -288,16 +288,16 @@ class CommandManager(object):
     def morph(world_session, args):
         try:
             display_id = int(args)
-            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-            player_mgr.set_display_id(display_id)
+            unit = CommandManager._target_or_self(world_session)
+            unit.set_display_id(display_id)
             return 0, ''
         except ValueError:
             return -1, 'please specify a valid display id.'
 
     @staticmethod
     def demorph(world_session, args):
-        player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-        player_mgr.demorph()
+        unit = CommandManager._target_or_self(world_session)
+        unit.demorph()
         return 0, ''
 
     @staticmethod

@@ -606,6 +606,9 @@ class UnitManager(ObjectManager):
             self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
             self.set_dirty()
 
+    def demorph(self):
+        pass
+
     def generate_proper_update_packet(self, is_self=False, create=False):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,

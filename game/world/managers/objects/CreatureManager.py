@@ -31,11 +31,7 @@ class CreatureManager(UnitManager):
 
         if self.creature_template:
             self.entry = self.creature_template.entry
-            display_id_list = list(filter((0).__ne__, [self.creature_template.display_id1,
-                                                       self.creature_template.display_id2,
-                                                       self.creature_template.display_id3,
-                                                       self.creature_template.display_id4]))
-            self.display_id = choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube
+            self.display_id = self.generate_display_id()
             self.max_health = self.creature_template.health_max
             self.power_1 = self.creature_template.mana_min
             self.max_power_1 = self.creature_template.mana_max
@@ -74,6 +70,13 @@ class CreatureManager(UnitManager):
 
     def load(self):
         GridManager.add_or_get(self, True)
+
+    def generate_display_id(self):
+        display_id_list = list(filter((0).__ne__, [self.creature_template.display_id1,
+                                                   self.creature_template.display_id2,
+                                                   self.creature_template.display_id3,
+                                                   self.creature_template.display_id4]))
+        return choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube
 
     def send_inventory_list(self, world_session):
         vendor_data, session = WorldDatabaseManager.creature_get_vendor_data(self.entry)
@@ -226,6 +229,10 @@ class CreatureManager(UnitManager):
             self.creature_template.beast_family
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
+
+    # override
+    def demorph(self):
+        self.set_display_id(self.generate_display_id())
 
     # override
     def update(self):
