@@ -119,12 +119,19 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                                         max_instances=2)
         player_update_scheduler.start()
 
-        # Creature & Gameobject updates
-        active_object_update_scheduler = BackgroundScheduler()
-        active_object_update_scheduler._daemon = True
-        active_object_update_scheduler.add_job(GridManager.update_active_objects, 'interval', seconds=0.2,
-                                               max_instances=8)
-        active_object_update_scheduler.start()
+        # Creature updates
+        creature_update_scheduler = BackgroundScheduler()
+        creature_update_scheduler._daemon = True
+        creature_update_scheduler.add_job(GridManager.update_creatures, 'interval', seconds=0.1,
+                                          max_instances=12)
+        creature_update_scheduler.start()
+
+        # Gameobject updates
+        gameobject_update_scheduler = BackgroundScheduler()
+        gameobject_update_scheduler._daemon = True
+        gameobject_update_scheduler.add_job(GridManager.update_gameobjects, 'interval', seconds=1.0,
+                                            max_instances=8)
+        gameobject_update_scheduler.start()
 
     @staticmethod
     def start():

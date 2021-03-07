@@ -162,14 +162,16 @@ class GridManager(object):
         return GRIDS
 
     @staticmethod
-    def update_active_objects():
+    def update_creatures():
         for key in GridManager.ACTIVE_GRID_KEYS:
             grid = GRIDS[key]
-            # Update creatures
             for guid, creature in list(grid.creatures.items()):
                 creature.update()
 
-            # Update gameobjects
+    @staticmethod
+    def update_gameobjects():
+        for key in GridManager.ACTIVE_GRID_KEYS:
+            grid = GRIDS[key]
             for guid, gameobject in list(grid.gameobjects.items()):
                 gameobject.update()
 
