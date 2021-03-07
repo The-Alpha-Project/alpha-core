@@ -71,4 +71,4 @@ class WorldSessionStateHandler(object):
     def update_players():
         for session in WORLD_SESSIONS:
             if session.player_mgr and session.player_mgr.is_online:
-                threading.Thread(target=session.player_mgr.update).start()
+                session.player_mgr.update()
