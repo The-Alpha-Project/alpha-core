@@ -60,7 +60,7 @@ class CreatureManager(UnitManager):
             self.respawn_timer = 0
             self.is_spawned = True
             self.last_random_movement = 0
-            self.random_movement_wait_time = randint(1, 16)
+            self.random_movement_wait_time = randint(1, 12)
 
         if self.creature_instance:
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
@@ -254,7 +254,7 @@ class CreatureManager(UnitManager):
                         if now > self.last_random_movement + self.random_movement_wait_time:
                             self.movement_manager.move_random(self.spawn_position,
                                                               self.creature_instance.wander_distance)
-                            self.random_movement_wait_time = randint(1, 16)
+                            self.random_movement_wait_time = randint(1, 12)
                             self.last_random_movement = now
             # Dead
             else:
