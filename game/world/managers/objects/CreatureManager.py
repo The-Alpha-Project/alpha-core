@@ -10,7 +10,7 @@ from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
-from utils.constants.ItemCodes import InventoryTypes
+from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, PowerTypes, MovementTypes, SplineFlags
@@ -162,14 +162,19 @@ class CreatureManager(UnitManager):
                 # This is a TOTAL guess, I have no idea about real weapon reach values.
                 # The weapon reach unit field was removed in patch 0.10.
                 if item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
-                    self.weapon_reach = 1.0
-                else:
+                    self.weapon_reach = 1.5
+                elif item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_DAGGER:
                     self.weapon_reach = 0.5
+                elif item_template.subclass != ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON:
+                    self.weapon_reach = 1.0
 
             # Offhand
             if slot == 1:
                 self.has_offhand_weapon = (item_template.inventory_type == InventoryTypes.WEAPON or
                                            item_template.inventory_type == InventoryTypes.WEAPONOFFHAND)
+        elif slot == 0:
+            self.weapon_reach = 0.0
+
 
     # override
     def get_full_update_packet(self, is_self=True):

@@ -1,6 +1,6 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes
+from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
 from utils.constants.UnitCodes import PowerTypes
 
 
@@ -141,9 +141,11 @@ class StatManager(object):
                     # This is a TOTAL guess, I have no idea about real weapon reach values.
                     # The weapon reach unit field was removed in patch 0.10.
                     if item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
-                        self.weapon_reach = 1.0
-                    else:
+                        self.weapon_reach = 1.5
+                    elif item.item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_DAGGER:
                         self.weapon_reach = 0.5
+                    elif item.item_template.subclass != ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON:
+                        self.weapon_reach = 1.0
 
                 if item.current_slot == InventorySlots.SLOT_OFFHAND:
                     self.offhand_attack_time = item.item_template.delay
