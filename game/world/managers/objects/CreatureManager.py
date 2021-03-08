@@ -294,6 +294,8 @@ class CreatureManager(UnitManager):
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
 
+        self.set_dirty()
+
     def reward_kill_xp(self, player):
         # TODO: Handle group XP
         # Critters don't award XP
