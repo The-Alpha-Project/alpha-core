@@ -255,8 +255,7 @@ class CreatureManager(UnitManager):
                             self.movement_manager.move_random(self.spawn_position,
                                                               self.creature_instance.wander_distance)
                             self.random_movement_wait_time = randint(1, 16)
-                    else:
-                        self.last_random_movement = now
+                            self.last_random_movement = now
             # Dead
             else:
                 self.respawn_timer += elapsed
