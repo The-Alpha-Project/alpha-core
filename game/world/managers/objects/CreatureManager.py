@@ -244,7 +244,6 @@ class CreatureManager(UnitManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            # Respawn checks
             if self.is_alive:
                 # Movement Updates
                 self.movement_manager.update_pending_waypoints(elapsed)
