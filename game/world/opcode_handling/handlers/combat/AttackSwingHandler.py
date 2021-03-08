@@ -13,7 +13,7 @@ class AttackSwingHandler(object):
             enemy_guid = unpack('<Q', reader.data[:8])[0]
             enemy = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, enemy_guid, include_players=True)
 
-            if not enemy or not enemy.is_alive:  # Check if it's enemy too
+            if not enemy or not enemy.is_alive:
                 AttackSwingHandler.handle_stop(world_session, socket, reader)
                 return 0
 

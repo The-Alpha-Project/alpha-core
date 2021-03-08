@@ -645,6 +645,10 @@ class UnitManager(ObjectManager):
         self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_DEAD
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
+        if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
+            if killer.current_selection == self.guid:
+                killer.set_current_selection(0)
+
         # Clear all pending waypoint movement
         self.movement_manager.reset()
 
