@@ -219,7 +219,7 @@ class UnitManager(ObjectManager):
         if self.combat_target:
             if self.combat_target == victim:
                 if is_melee:
-                    self.send_melee_attack_start(victim)
+                    self.send_melee_attack_start(victim.guid)
                     return True
                 return False
 
@@ -234,7 +234,7 @@ class UnitManager(ObjectManager):
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
         if is_melee:
-            self.send_melee_attack_start(victim)
+            self.send_melee_attack_start(victim.guid)
 
         return True
 
@@ -247,14 +247,17 @@ class UnitManager(ObjectManager):
         victim = self.combat_target
         self.combat_target = None
 
-        self.send_melee_attack_stop(victim)
+        self.send_melee_attack_stop(victim.guid if victim else 0)
 
-    def send_melee_attack_start(self, victim):
-        data = pack('<2Q', self.guid, victim.guid)
+    def send_melee_attack_start(self, victim_guid):
+        data = pack('<2Q', self.guid, victim_guid)
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTART, data), self)
 
-    def send_melee_attack_stop(self, victim):
-        data = pack('<2QI', self.guid, victim.guid if victim else 0, 0)  # Last int can be 0x1 too, unknown.
+    def send_melee_attack_stop(self, victim_guid):
+        # Last uint32 is "deceased"; can be either 1 (self is dead), or 0, (self is alive).
+        # Forces the unit to face the corpse and disables clientside
+        # turning (UnitFlags.DisableMovement) CGUnit_C::OnAttackStop
+        data = pack('<2QI', self.guid, victim_guid, 0 if self.is_alive else 1)
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def update_melee_attacking_state(self):
@@ -484,7 +487,7 @@ class UnitManager(ObjectManager):
             return
 
         self.attackers.clear()
-        self.send_melee_attack_stop(self.combat_target)
+        self.send_melee_attack_stop(self.combat_target.guid if self.combat_target else 0)
         self.swing_error = 0
 
         self.combat_target = None
@@ -632,11 +635,6 @@ class UnitManager(ObjectManager):
         if not self.is_alive:
             return
 
-        self.leave_combat()
-
-        # Clear all pending waypoint movement
-        self.movement_manager.reset()
-
         self.is_alive = False
         self.set_health(0)
         self.set_stand_state(StandState.UNIT_DEAD)
@@ -646,6 +644,11 @@ class UnitManager(ObjectManager):
 
         self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_DEAD
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+
+        # Clear all pending waypoint movement
+        self.movement_manager.reset()
+
+        self.leave_combat()
 
     def respawn(self, force_update=True):
         self.is_alive = True

@@ -581,9 +581,12 @@ class PlayerManager(UnitManager):
 
         return self.get_object_create_packet(is_self)
 
-    def set_current_selection(self, guid):
+    def set_current_selection(self, guid, force_update=True):
         self.current_selection = guid
         self.set_uint64(PlayerFields.PLAYER_SELECTION, guid)
+
+        if force_update:
+            self.set_dirty()
 
     def set_weapon_reach(self, reach):
         self.weapon_reach = reach
