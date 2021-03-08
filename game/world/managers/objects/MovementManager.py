@@ -73,16 +73,18 @@ class MovementManager(object):
                     self.unit.unmount(force_update=False)
                     self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination)
                     self.unit.pending_taxi_destination = None
-                self.unit.movement_spline = None
-                self.should_update_waypoints = False
-                self.last_position = None
-                self.total_waypoint_time = 0
-                self.total_waypoint_timer = 0
-                self.waypoint_timer = 0
+                self.reset()
+
+    def reset(self):
+        self.unit.movement_spline = None
+        self.should_update_waypoints = False
+        self.last_position = None
+        self.total_waypoint_time = 0
+        self.total_waypoint_timer = 0
+        self.waypoint_timer = 0
 
     def send_move_to(self, waypoints, speed, spline_flag):
-        self.should_update_waypoints = False
-        self.pending_waypoints.clear()
+        self.reset()
         self.speed = speed
 
         start_time = int(WorldManager.get_seconds_since_startup() * 1000)

@@ -13,7 +13,7 @@ from utils import Formulas
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, PowerTypes, MovementTypes
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, PowerTypes, MovementTypes, SplineFlags
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -289,6 +289,9 @@ class CreatureManager(UnitManager):
 
     # override
     def die(self, killer=None):
+        # Stop creature movement on death
+        self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_NONE)
+
         super().die(killer)
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:

@@ -635,8 +635,7 @@ class UnitManager(ObjectManager):
         self.leave_combat()
 
         # Clear all pending waypoint movement
-        self.movement_manager.pending_waypoints.clear()
-        self.movement_manager.should_update_waypoints = False
+        self.movement_manager.reset()
 
         self.is_alive = False
         self.set_health(0)
