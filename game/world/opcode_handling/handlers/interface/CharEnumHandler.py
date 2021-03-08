@@ -23,7 +23,7 @@ class CharEnumHandler(object):
     @staticmethod
     def get_char_packet(world_session, character):
         name_bytes = PacketWriter.string_to_bytes(character.name)
-        char_fmt = '<Q%usBBBBBBBBBIIfffIIII' % len(name_bytes)
+        char_fmt = '<Q%us9B2I3f4I' % len(name_bytes)
         char_packet = pack(
             char_fmt,
             character.guid,
@@ -45,7 +45,7 @@ class CharEnumHandler(object):
             0,  # TODO: Handle Guild GUID,
             0,  # TODO: Handle PetDisplayInfo
             0,  # TODO: Handle PetLevel
-            0  # TODO: Handle PetFamily
+            0  # TODO: Handle PetFamily,
         )
 
         for slot in range(InventorySlots.SLOT_HEAD, InventorySlots.SLOT_BAG2):
