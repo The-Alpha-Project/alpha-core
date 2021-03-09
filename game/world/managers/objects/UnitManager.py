@@ -624,6 +624,7 @@ class UnitManager(ObjectManager):
             self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
             self.set_dirty()
 
+    # Implemented by PlayerManager and CreatureManager
     def demorph(self):
         pass
 
