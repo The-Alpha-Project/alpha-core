@@ -76,6 +76,7 @@ class MovementManager(object):
                 self.reset()
 
     def reset(self):
+        self.pending_waypoints.clear()
         self.unit.movement_spline = None
         self.should_update_waypoints = False
         self.last_position = None
