@@ -261,7 +261,7 @@ class UnitManager(ObjectManager):
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def update_melee_attacking_state(self):
-        swing_error = AttackSwingError.MOVING
+        swing_error = AttackSwingError.NONE
         combat_angle = math.pi
 
         if not self.combat_target:
