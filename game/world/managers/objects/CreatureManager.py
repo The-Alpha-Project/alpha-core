@@ -294,7 +294,8 @@ class CreatureManager(UnitManager):
     # override
     def die(self, killer=None):
         # Stop creature movement on death
-        self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_NONE)
+        if len(self.movement_manager.pending_waypoints) > 0:
+            self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_NONE)
 
         super().die(killer)
 

@@ -76,13 +76,13 @@ class MovementManager(object):
                 self.reset()
 
     def reset(self):
-        self.pending_waypoints.clear()
         self.unit.movement_spline = None
         self.should_update_waypoints = False
         self.last_position = None
         self.total_waypoint_time = 0
         self.total_waypoint_timer = 0
         self.waypoint_timer = 0
+        self.pending_waypoints.clear()
 
     def send_move_to(self, waypoints, speed, spline_flag):
         self.reset()
