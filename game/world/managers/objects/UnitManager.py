@@ -657,6 +657,7 @@ class UnitManager(ObjectManager):
         self.leave_combat()
 
     def respawn(self, force_update=True):
+        self.in_combat = False
         self.is_alive = True
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD

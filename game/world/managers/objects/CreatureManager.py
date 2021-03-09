@@ -175,7 +175,6 @@ class CreatureManager(UnitManager):
         elif slot == 0:
             self.weapon_reach = 0.0
 
-
     # override
     def get_full_update_packet(self, is_self=True):
         self.finish_loading()
