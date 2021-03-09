@@ -22,7 +22,8 @@ class MovementHandler(object):
 
                 # Hacky way to prevent random teleports when colliding with elevators
                 # Also acts as a rudimentary teleport cheat detection
-                if not world_session.player_mgr.pending_taxi_destination and world_session.player_mgr.location.distance(x=x, y=y, z=z) > 64:
+                if not world_session.player_mgr.pending_taxi_destination and world_session.player_mgr.location.distance(
+                        x=x, y=y, z=z) > 64:
                     Logger.anticheat("Preventing coordinate desync from player %s (%s)." %
                                      (world_session.player_mgr.player.name, world_session.player_mgr.guid))
                     world_session.player_mgr.teleport(world_session.player_mgr.map_,
@@ -46,7 +47,8 @@ class MovementHandler(object):
                 world_session.player_mgr.movement_flags = flags
 
                 if flags & MoveFlags.MOVEFLAG_SPLINE_MOVER:
-                    world_session.player_mgr.movement_spline = MovementManager.MovementSpline.from_bytes(reader.data[48:])
+                    world_session.player_mgr.movement_spline = MovementManager.MovementSpline.from_bytes(
+                        reader.data[48:])
 
                 movement_data = pack('<Q%us' % len(reader.data),
                                      world_session.player_mgr.guid,
@@ -57,6 +59,16 @@ class MovementHandler(object):
                 GridManager.update_object(world_session.player_mgr)
                 world_session.player_mgr.sync_player()
 
+                # Hackfix for client not sending CMSG_ATTACKSWING.
+                # m_combat.m_attackSent getting stuck in true: https://i.imgur.com/LLasM8i.png
+                if reader.opcode == OpCode.MSG_MOVE_STOP or \
+                        reader.opcode == OpCode.MSG_MOVE_STOP_PITCH or \
+                        reader.opcode == OpCode.MSG_MOVE_STOP_STRAFE or \
+                        reader.opcode == OpCode.MSG_MOVE_STOP_TURN:
+                    data = pack('<2QI', world_session.player_mgr.guid, 0, 0)
+                    socket.sendall(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data))
+
+                # Get up if you jump while not standing
                 if reader.opcode == OpCode.MSG_MOVE_JUMP and \
                         world_session.player_mgr.stand_state != StandState.UNIT_DEAD and \
                         world_session.player_mgr.stand_state != StandState.UNIT_STANDING:
