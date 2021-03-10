@@ -149,6 +149,54 @@ begin not atomic
     if (select count(*) from applied_updates where id='100320211') = 0 then
         insert into spawns_creatures (spawn_entry1, display_id, map, position_x, position_y, position_z, orientation) values (4039, 2071, 0, -14283.848633, 289.708008, 32.292000, 1.032005);
 
+        -- Olivia Burnside (Banker)
+        UPDATE spawns_creatures SET position_x='-8943.342773', position_y='631.721619', position_z='99.522652', orientation='0.498328' WHERE spawn_id='79684';
+
+        -- John Burnside (Banker)
+        UPDATE spawns_creatures SET position_x='-8939.375977', position_y='624.542542', position_z='99.522652', orientation='0.545456' WHERE spawn_id='79853';
+
+        -- Newton Burnside (Banker)
+        UPDATE spawns_creatures SET position_x='-8935.260742', position_y='617.181396', position_z='99.522652', orientation='0.514038' WHERE spawn_id='79678';
+
+        -- Auctioneer Finch
+        UPDATE spawns_creatures SET ignored='1' WHERE spawn_id='79705';
+
+        -- Auctioneer Chilton
+        UPDATE spawns_creatures SET ignored='1' WHERE spawn_id='79706';
+
+        -- Stormwind City Guard (inside AH)
+        UPDATE spawns_creatures SET ignored='1' WHERE spawn_id='79792';
+
+        -- Adair Gilroy, Allakhazam, best guess.
+        UPDATE spawns_creatures SET position_x='-8859.222656', position_y='822.572266', position_z='95.490166', orientation='0.518363' WHERE spawn_id='53686';
+
+        -- Wu Shen, guessed location
+        UPDATE spawns_creatures SET position_x='-8718.554688', position_y='345.766052', position_z='100.844406', orientation='2.244447' WHERE spawn_id='79779';
+
+        -- Ilsa Corbin, guessed location
+        UPDATE spawns_creatures SET position_x='-8721.047852', position_y='348.899719', position_z='100.844406', orientation='5.403714' WHERE spawn_id='79778';
+
+        UPDATE creature_template SET display_id1='1504' where entry = '914';
+        -- Ander Germaine
+        UPDATE spawns_creatures SET display_id='1504', position_x='-8740.791992', position_y='379.428101', position_z='101.055885', orientation='2.250718' WHERE spawn_id='79780';
+
+        -- Master Wood
+        UPDATE spawns_creatures SET ignored='1' WHERE spawn_id='79789';
+
+        UPDATE creature_template SET display_id1='1523' where entry = '1326';
+        -- Sloan McCoy
+        UPDATE spawns_creatures SET display_id='1523', position_x='-8765.868164', position_y='402.267731', position_z='101.055855', orientation='5.376207' WHERE spawn_id='79784';
+
+        -- Jasper Fel
+        UPDATE spawns_creatures SET position_x='-8769.973633', position_y='395.048828', position_z='101.055855', orientation='0.661843' WHERE spawn_id='79786';
+
+        -- Master Mathias Shaw
+        UPDATE spawns_creatures SET position_x='-8798.074219', position_y='345.975037', position_z='101.019135', orientation='0.640261' WHERE spawn_id='79785';
+
+        -- Officer Areyn
+        UPDATE spawns_creatures SET ignored='1' WHERE spawn_id='300377';
+
+
         insert into applied_updates values ('100320211');
     end if;
 end $
