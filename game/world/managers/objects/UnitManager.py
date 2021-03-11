@@ -212,9 +212,6 @@ class UnitManager(ObjectManager):
         if victim.get_type() == ObjectTypes.TYPE_PLAYER and victim.is_gm:
             return False
 
-        if victim.get_type == ObjectTypes.TYPE_UNIT and victim.is_evading:
-            return False
-
         # In fight already
         if self.combat_target:
             if self.combat_target == victim:
