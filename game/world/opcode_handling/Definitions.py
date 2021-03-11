@@ -63,6 +63,10 @@ from game.world.opcode_handling.handlers.npc.TaxiQueryNodesHandler import TaxiQu
 
 from game.world.opcode_handling.handlers.player.MovementHandler import MovementHandler
 
+from game.world.opcode_handling.handlers.quest.QuestGiverStatusHandler import QuestGiverStatusHandler
+from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import QuestGiverHelloHandler
+
+
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -157,7 +161,10 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_START_BACKWARD: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_START_FORWARD: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_COLLIDE_REDIRECT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status
+    OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status,
+
+    OpCode.CMSG_QUESTGIVER_STATUS_QUERY: QuestGiverStatusHandler.handle,
+    OpCode.CMSG_QUESTGIVER_HELLO: QuestGiverHelloHandler.handle
 }
 
 
