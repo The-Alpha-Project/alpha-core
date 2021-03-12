@@ -1,0 +1,20 @@
+version: '3.0'
+services:
+  main:
+    image: alpha-core:latest
+    build: .
+    ports:
+      - "9090:9090"
+      - "8100:8100"
+    volumes:
+      - .:/var/wow/
+      - ./docker/config.yml:/var/wow/etc/config/config.yml
+  sql:
+    image: mariadb:10.5.9
+    environment:
+      - MYSQL_ROOT_PASSWORD=pwd
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/:/docker-entrypoint-initdb.d/
+      - ./etc/databases/:/etc/databases/
