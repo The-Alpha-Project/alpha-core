@@ -172,6 +172,7 @@ class PlayerManager(UnitManager):
             self.combat_reach = 4.05 if is_male else 3.75
             self.scale = 1.35 if is_male else 1.25
         elif self.player.race == Races.RACE_GNOME:
+            self.scale = 1.15
             self.bounding_radius = 0.3519
             self.combat_reach = 1.725
         elif self.player.race == Races.RACE_TROLL:
