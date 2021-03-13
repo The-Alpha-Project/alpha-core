@@ -20,5 +20,5 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./docker/:/docker-entrypoint-initdb.d/
+      - ./etc/docker/:/docker-entrypoint-initdb.d/
       - ./etc/databases/:/etc/databases/
