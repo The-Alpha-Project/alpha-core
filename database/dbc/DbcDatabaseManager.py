@@ -1,3 +1,5 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.exc import StatementError
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -5,11 +7,12 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from database.dbc.DbcModels import *
 from utils.ConfigManager import *
 
-dbc_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (config.Database.Connection.username,
-                                                                               config.Database.Connection.password,
-                                                                               config.Database.Connection.host,
-                                                                               config.Database.DBNames.dbc_db),
-                              pool_pre_ping=True)
+dbc_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (
+                    os.getenv('MYSQL_USERNAME', config.Database.Connection.username),
+                    os.getenv('MYSQL_PASSWORD', config.Database.Connection.password),
+                    os.getenv('MYSQL_HOST', config.Database.Connection.host),
+                    config.Database.DBNames.dbc_db
+                ), pool_pre_ping=True)
 SessionHolder = scoped_session(sessionmaker(bind=dbc_db_engine, autocommit=True, autoflush=True))
 
 
@@ -117,7 +120,8 @@ class DbcDatabaseManager(object):
 
         @staticmethod
         def load_skill_line_ability(skill_line_ability):
-            DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES[skill_line_ability.Spell] = skill_line_ability
+            DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES[
+                skill_line_ability.Spell] = skill_line_ability
 
         @staticmethod
         def skill_line_ability_get_by_spell(spell_id):
