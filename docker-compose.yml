@@ -3,13 +3,16 @@ services:
   main:
     image: alpha-core:latest
     build: .
+    environment:
+      - MYSQL_HOST=sql
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=pwd
     ports:
       - "8100:8100"
       - "9090:9090"
       - "9100:9100"
     volumes:
       - .:/var/wow/
-      - ./docker/config.yml:/var/wow/etc/config/config.yml
   sql:
     image: mariadb:10.5.9
     environment:

@@ -1,3 +1,5 @@
+import os
+
 from sqlalchemy import create_engine, func
 from sqlalchemy.exc import StatementError
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -7,11 +9,12 @@ from database.world.WorldModels import *
 from utils.ConfigManager import *
 from utils.constants.ObjectCodes import HighGuid
 
-world_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (config.Database.Connection.username,
-                                                                                 config.Database.Connection.password,
-                                                                                 config.Database.Connection.host,
-                                                                                 config.Database.DBNames.world_db),
-                                pool_pre_ping=True)
+world_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (
+                    os.getenv('MYSQL_USERNAME', config.Database.Connection.username),
+                    os.getenv('MYSQL_PASSWORD', config.Database.Connection.password),
+                    os.getenv('MYSQL_HOST', config.Database.Connection.host),
+                    config.Database.DBNames.world_db
+                ), pool_pre_ping=True)
 SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autocommit=True, autoflush=True))
 
 

@@ -1,3 +1,5 @@
+import os
+
 from sqlalchemy import create_engine, func
 from sqlalchemy.exc import StatementError
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -8,11 +10,12 @@ from game.realm.AccountManager import AccountManager
 from utils.constants.ItemCodes import InventorySlots
 from utils.constants.ObjectCodes import HighGuid
 
-realm_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (config.Database.Connection.username,
-                                                                                 config.Database.Connection.password,
-                                                                                 config.Database.Connection.host,
-                                                                                 config.Database.DBNames.realm_db),
-                                pool_pre_ping=True)
+realm_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (
+                    os.getenv('MYSQL_USERNAME', config.Database.Connection.username),
+                    os.getenv('MYSQL_PASSWORD', config.Database.Connection.password),
+                    os.getenv('MYSQL_HOST', config.Database.Connection.host),
+                    config.Database.DBNames.realm_db
+                ), pool_pre_ping=True)
 SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine, autocommit=True, autoflush=False))
 
 
@@ -190,7 +193,8 @@ class RealmDatabaseManager(object):
     @staticmethod
     def character_get_deathbind(guid):
         realm_db_session = SessionHolder()
-        character = realm_db_session.query(CharacterDeathbind).filter_by(player_guid=guid & ~HighGuid.HIGHGUID_PLAYER).first()
+        character = realm_db_session.query(CharacterDeathbind).filter_by(
+            player_guid=guid & ~HighGuid.HIGHGUID_PLAYER).first()
         realm_db_session.close()
         return character
 
