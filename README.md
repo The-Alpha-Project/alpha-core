@@ -14,6 +14,8 @@ Once you create the three databases, populate them using the corresponding sql f
 Ensure you have the `config.yml` file (see **Installation**).
 
 Run: `docker-compose up -d`
+
 To restart: `docker-compose restart main`
+
 
 (Remember that db initialization takes a bit of time).
