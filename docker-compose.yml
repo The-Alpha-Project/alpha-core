@@ -4,8 +4,9 @@ services:
     image: alpha-core:latest
     build: .
     ports:
-      - "9090:9090"
       - "8100:8100"
+      - "9090:9090"
+      - "9100:9100"
     volumes:
       - .:/var/wow/
       - ./docker/config.yml:/var/wow/etc/config/config.yml
