@@ -244,7 +244,7 @@ class UnitManager(ObjectManager):
         victim = self.combat_target
         self.combat_target = None
 
-        self.send_melee_attack_stop(victim.guid if victim else 0)
+        self.send_melee_attack_stop(victim.guid if victim else self.guid)
 
     def send_melee_attack_start(self, victim_guid):
         data = pack('<2Q', self.guid, victim_guid)
@@ -486,7 +486,7 @@ class UnitManager(ObjectManager):
             return
 
         self.attackers.clear()
-        self.send_melee_attack_stop(self.combat_target.guid if self.combat_target else 0)
+        self.send_melee_attack_stop(self.combat_target.guid if self.combat_target else self.guid)
         self.swing_error = 0
 
         self.combat_target = None
