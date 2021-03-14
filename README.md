@@ -15,7 +15,5 @@ Ensure you have the `config.yml` file (see **Installation**).
 
 Run: `docker-compose up -d`
 
-To restart: `docker-compose restart main`
 
-
-(Remember that db initialization takes a bit of time).
+(Remember that db initialization takes a bit of time, you might need to restart it with `docker-compose restart main` after it finishes).
