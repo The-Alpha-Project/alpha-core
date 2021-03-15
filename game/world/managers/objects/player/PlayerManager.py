@@ -416,7 +416,6 @@ class PlayerManager(UnitManager):
         if self.current_selection > 0:
             enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=True)
             if enemy and enemy.money > 0:
-                print(f'Remove money from target {enemy.guid}')
                 self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
                 data = pack('<IB',
                              enemy.money,
@@ -437,16 +436,13 @@ class PlayerManager(UnitManager):
         if self.current_selection > 0:
             enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=True)
             if enemy and len(enemy.loot) > 0:
-                print(enemy.loot)
                 item = enemy.loot[slot]
                 enemy.loot.pop(slot)
-                print(enemy.loot)
 
                 data = pack('<B',
                             slot
                             )
 
-                print(f'[DEBUG] Adding item {item.item_template.name} to player inventory.')
                 self.inventory.add_item(item.item_template.entry)
                 GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
 

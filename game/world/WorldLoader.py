@@ -21,8 +21,7 @@ class WorldLoader:
         else:
             Logger.info('Skipped creature loading.')
 
-        LootManager.load_creature_loot_templates()
-
+        WorldLoader.load_creature_loot_templates()
         WorldLoader.load_spells()
         WorldLoader.load_skills()
         WorldLoader.load_skill_line_abilities()
@@ -63,6 +62,20 @@ class WorldLoader:
                 creature_mgr.load()
             count += 1
             Logger.progress('Spawning creatures...', count, length)
+
+        session.close()
+        return length
+
+    @staticmethod
+    def load_creature_loot_templates():
+        creature_loot_templates, session = WorldDatabaseManager.creature_get_loot_template()
+        length = len(creature_loot_templates)
+        count = 0
+
+        for c_template in creature_loot_templates:
+            LootManager.CREATURE_LOOT_TEMPLATES.append(c_template)
+            count += 1
+            Logger.progress('Loading creature loot templates...', count, length)
 
         session.close()
         return length
