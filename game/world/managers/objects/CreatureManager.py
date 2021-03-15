@@ -275,7 +275,6 @@ class CreatureManager(UnitManager):
 
         if self.dirty:
             GridManager.send_surrounding(self.generate_proper_update_packet(create=False), self, include_self=False)
-            GridManager.send_surrounding(self.generate_proper_update_packet(create=False), self, include_self=False)
             GridManager.update_object(self)
             self.reset_fields()
 
