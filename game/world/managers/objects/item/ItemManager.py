@@ -149,7 +149,7 @@ class ItemManager(ObjectManager):
         return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0].value
 
     @staticmethod
-    def generate_item_from_creature(creature, entry):
+    def generate_item_from_entry(entry):
         item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
 
         if item_template:

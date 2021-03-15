@@ -30,7 +30,7 @@ class LootManager(object):
 
                     chance -= item_chance
                     if chance <= 0:
-                        item = ItemManager.generate_item_from_creature(creature.guid, loot_temp.item)
+                        item = ItemManager.generate_item_from_entry(loot_temp.item)
 
                         if item:
                             creature.loot.append(item)
