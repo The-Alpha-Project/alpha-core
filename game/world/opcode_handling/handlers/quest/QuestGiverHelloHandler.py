@@ -26,7 +26,7 @@ class QuestGiverHelloHandler(object):
 
             # TODO: Stop the npc if they are moving
             
-            world_session.player_mgr.quests.prepare_quest_giver_gossip_menu(quest_giver, guid)
+            world_session.player_mgr.quest_manager.prepare_quest_giver_gossip_menu(quest_giver, guid)
 
         return 0
 

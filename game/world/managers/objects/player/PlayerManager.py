@@ -110,7 +110,6 @@ class PlayerManager(UnitManager):
             self.max_power_4 = 100
             self.power_4 = self.player.power4
             self.coinage = self.player.money
-            self.quests = QuestManager(self)
 
             self.is_gm = self.session.account_mgr.account.gmlevel > 0
 
@@ -128,6 +127,8 @@ class PlayerManager(UnitManager):
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.spell_manager = SpellManager(self)
+            self.quest_manager = QuestManager(self)
+
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:
