@@ -8,13 +8,14 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.loot.LootManager import LootManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, PowerTypes, MovementTypes, SplineFlags
-from utils.constants.UpdateFields import ObjectFields, UnitFields
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
+from utils.constants.UpdateFields import ObjectFields, UnitFields, UnitDynamicTypes
 
 
 class CreatureManager(UnitManager):
@@ -50,6 +51,8 @@ class CreatureManager(UnitManager):
             self.faction = self.creature_template.faction
             self.creature_type = self.creature_template.type
             self.sheath_state = WeaponMode.SHEATHEDMODE  # Default one
+            self.money = 0
+            self.loot = []
 
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
@@ -272,6 +275,7 @@ class CreatureManager(UnitManager):
 
         if self.dirty:
             GridManager.send_surrounding(self.generate_proper_update_packet(create=False), self, include_self=False)
+            GridManager.send_surrounding(self.generate_proper_update_packet(create=False), self, include_self=False)
             GridManager.update_object(self)
             self.reset_fields()
 
@@ -283,6 +287,9 @@ class CreatureManager(UnitManager):
 
         self.set_health(self.max_health)
         self.set_mana(self.max_power_1)
+
+        self.loot.clear()
+        self.money = 0
 
         self.is_spawned = True
         self.respawn_timer = 0
@@ -301,6 +308,9 @@ class CreatureManager(UnitManager):
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
+            LootManager.generate_creature_loot(self)
+            if self.money > 0 or len(self.loot) > 0:
+                self.set_lootable(True)
 
         self.set_dirty()
 
@@ -316,6 +326,16 @@ class CreatureManager(UnitManager):
     def calculate_min_max_damage(self, attack_type=0):
         min_damage, max_damage = unpack('<2H', pack('<I', self.damage))
         return int(min_damage), int(max_damage)
+
+    def set_lootable(self, flag):
+        if flag:
+            self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
+            self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+        else:
+            self.dynamic_flags = UnitDynamicTypes.UNIT_DYNAMIC_DEAD
+            self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+
+        self.set_dirty()
 
     # override
     def has_offhand_weapon(self):
