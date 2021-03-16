@@ -11,6 +11,7 @@ from game.world.managers.objects.player.SpellManager import SpellManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
+from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
@@ -410,6 +411,76 @@ class PlayerManager(UnitManager):
 
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                              self.get_movement_update_packet()), self)
+
+    def loot_money(self):
+        if self.current_selection > 0:
+            enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=True)
+            if enemy and enemy.money > 0:
+                self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
+                data = pack('<IB',
+                             enemy.money,
+                             1,  # Todo: Loot type (Solo, Group, etc) 1 = Solo
+                             )
+                self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
+
+                self.mod_money(enemy.money)
+                enemy.money = 0
+
+                if len(enemy.loot) == 0:
+                    self.send_loot_release(enemy.guid)
+                    enemy.set_lootable(False)
+                else:
+                    self.send_loot(enemy)
+
+    def loot_item(self, slot):
+        if self.current_selection > 0:
+            enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=True)
+            if enemy and len(enemy.loot) > 0:
+                item = enemy.loot[slot]
+                enemy.loot.pop(slot)
+
+                data = pack('<B',
+                            slot
+                            )
+
+                self.inventory.add_item(item.item_template.entry)
+                GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
+
+                if len(enemy.loot) == 0 and enemy.money == 0:
+                    self.send_loot_release(enemy.guid)
+                    enemy.set_lootable(False)
+                else:
+                    self.send_loot(enemy)
+
+    def send_loot_release(self, guid):
+        data = pack('<QB', guid, 1)
+        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
+
+    def send_loot(self, victim):
+
+        # Send loot item query information
+        for item in victim.loot:
+            self.session.request.sendall(ItemManager(item_template=item.item_template).query_details())
+
+        data = pack('<QBIB',
+                    victim.guid,
+                    1,  # Todo: propeer flags. Loot type (1 Corpse)
+                    victim.money,
+                    len(victim.loot),
+                    )
+
+        slot = 0
+        for l in victim.loot:
+            data += pack('<B3I',
+                         slot,
+                         l.item_template.entry,
+                         1,  # Todo: Item qty
+                         l.item_template.display_id,
+                         )
+            slot += 1
+
+        packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
+        GridManager.send_surrounding(packet, self)
 
     def give_xp(self, amounts, victim=None):
         if self.level >= config.Unit.Player.Defaults.max_level or not self.is_alive:

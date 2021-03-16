@@ -180,6 +180,12 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
+    def creature_get_loot_template():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureLootTemplate).all()
+        return res, world_db_session
+
+    @staticmethod
     def creature_get_vendor_data(entry):
         world_db_session = SessionHolder()
         res = world_db_session.query(NpcVendor).filter_by(entry=entry).all()
