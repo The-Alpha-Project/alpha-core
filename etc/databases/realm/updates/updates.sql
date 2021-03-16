@@ -43,5 +43,14 @@ begin not atomic
 
         insert into applied_updates values ('250220211');
     end if;
+
+    -- 16/03/2021
+    if (select count(*) from applied_updates where id='160320211') = 0 then
+      ALTER TABLE accounts ADD discord_id VARCHAR(256) DEFAULT NULL;
+      ALTER TABLE accounts ADD email VARCHAR(256) DEFAULT NULL;
+
+      insert into applied_updates values ('160320211');
+    end if;
+
 end $
 delimiter ;
