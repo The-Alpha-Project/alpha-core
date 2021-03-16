@@ -38,9 +38,3 @@ class LootManager(object):
                         print(f'Item: entry {item.entry} dID {item.display_id} name {item.item_template.name}')
                         creature.loot.append(item)
                         break
-
-        print('[DEBUG] Loot generated:')
-        print(f"[DEBUG]\tMoney: {creature.money}")
-        print('[DEBUG] Items:')
-        for item in creature.loot:
-            print(f'[DEBUG]\t{item.item_template.name}')
