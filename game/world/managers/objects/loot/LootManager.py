@@ -35,6 +35,5 @@ class LootManager(object):
                         item = ItemManager.generate_item_from_entry(loot_temp.item)
 
                     if item:
-                        print(f'Item: entry {item.entry} dID {item.display_id} name {item.item_template.name}')
                         creature.loot.append(item)
                         break
