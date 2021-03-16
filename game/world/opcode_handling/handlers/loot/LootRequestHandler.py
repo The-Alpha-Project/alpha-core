@@ -8,7 +8,7 @@ class LootRequestHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling null selection
+        if len(reader.data) >= 8:  # Avoid handling empty loot packet
             loot_target_guid = unpack('<Q', reader.data[:8])[0]
 
             player = world_session.player_mgr
@@ -20,7 +20,5 @@ class LootRequestHandler(object):
                 player.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player.unit_flags)
                 player.send_loot(enemy)
                 player.set_dirty()
-                GridManager.send_surrounding(player.generate_proper_update_packet(create=True), player,
-                                             include_self=True)
 
         return 0

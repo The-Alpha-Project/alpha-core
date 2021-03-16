@@ -12,10 +12,10 @@ from game.world.managers.objects.loot.LootManager import LootManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
-from utils.constants.UpdateFields import ObjectFields, UnitFields, UnitDynamicTypes
+from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
 class CreatureManager(UnitManager):

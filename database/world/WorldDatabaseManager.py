@@ -179,11 +179,28 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    class CreatureLootTemplateHolder:
+        CREATURE_LOOT_TEMPLATES = {}
+
+        @staticmethod
+        def load_creature_loot_template(creature_loot_template):
+            if creature_loot_template.entry not in WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES:
+                WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES[creature_loot_template.entry] = []
+
+            WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES[creature_loot_template.entry]\
+                .append(creature_loot_template)
+
+        @staticmethod
+        def creature_loot_template_get_by_creature(creature_entry):
+            return WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES[creature_entry] \
+                if creature_entry in WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES else []
+
     @staticmethod
     def creature_get_loot_template():
         world_db_session = SessionHolder()
         res = world_db_session.query(CreatureLootTemplate).all()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     @staticmethod
     def creature_get_vendor_data(entry):

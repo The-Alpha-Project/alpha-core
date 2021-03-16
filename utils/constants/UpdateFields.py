@@ -97,14 +97,6 @@ class UnitFields(IntEnum):
     UNIT_FIELD_PADDING = ObjectFields.OBJECT_END + 0xB1                         # 0x0B7 - Size: 1 - Type: INT - Flags: NONE
     UNIT_END = ObjectFields.OBJECT_END + 0xB2                                   # 0x0B8
 
-class UnitDynamicTypes(IntEnum):
-    UNIT_DYNAMIC_NONE = 0x0000,
-    UNIT_DYNAMIC_LOOTABLE = 0x0001,
-    UNIT_DYNAMIC_TRACK_UNIT = 0x0002,
-    UNIT_DYNAMIC_TAPPED = 0x0004,
-    UNIT_DYNAMIC_ROOTED = 0x0008,
-    UNIT_DYNAMIC_SPECIALINFO = 0x0010,
-    UNIT_DYNAMIC_DEAD = 0x0020,
 
 class PlayerFields(IntEnum):
     PLAYER_FIELD_INV_SLOT_1 = UnitFields.UNIT_END + 0x0                         # 0x0B2 - Size: 46 - Type: GUID - Flags: PUBLIC

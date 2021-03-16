@@ -414,14 +414,14 @@ class PlayerManager(UnitManager):
 
     def loot_money(self):
         if self.current_selection > 0:
-            enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=True)
+            enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection)
             if enemy and enemy.money > 0:
+                # TODO: Should notify ALL players that are looting that mob
                 self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
-                data = pack('<IB',
-                             enemy.money,
-                             1,  # Todo: Loot type (Solo, Group, etc) 1 = Solo
-                             )
+
+                data = pack('<I', enemy.money)
                 self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
+                # TODO: Send MSG_SPLIT_MONEY if looters > 1? (Q2I, target, total amount and received split)
 
                 self.mod_money(enemy.money)
                 enemy.money = 0
@@ -429,8 +429,6 @@ class PlayerManager(UnitManager):
                 if len(enemy.loot) == 0:
                     self.send_loot_release(enemy.guid)
                     enemy.set_lootable(False)
-                else:
-                    self.send_loot(enemy)
 
     def loot_item(self, slot):
         if self.current_selection > 0:
@@ -439,12 +437,10 @@ class PlayerManager(UnitManager):
                 item = enemy.loot[slot]
                 enemy.loot.pop(slot)
 
-                data = pack('<B',
-                            slot
-                            )
+                data = pack('<B', slot)
+                GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
 
                 self.inventory.add_item(item.item_template.entry)
-                GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
 
                 if len(enemy.loot) == 0 and enemy.money == 0:
                     self.send_loot_release(enemy.guid)
@@ -453,29 +449,28 @@ class PlayerManager(UnitManager):
                     self.send_loot(enemy)
 
     def send_loot_release(self, guid):
-        data = pack('<QB', guid, 1)
+        data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
     def send_loot(self, victim):
-
         # Send loot item query information
         for item in victim.loot:
             self.session.request.sendall(ItemManager(item_template=item.item_template).query_details())
 
         data = pack('<QBIB',
                     victim.guid,
-                    1,  # Todo: propeer flags. Loot type (1 Corpse)
+                    1,  # TODO: proper flags. Loot type (1 = Corpse)
                     victim.money,
                     len(victim.loot),
                     )
 
         slot = 0
-        for l in victim.loot:
+        for loot in victim.loot:
             data += pack('<B3I',
                          slot,
-                         l.item_template.entry,
-                         1,  # Todo: Item qty
-                         l.item_template.display_id,
+                         loot.item_template.entry,
+                         1,  # TODO: Item quantity
+                         loot.item_template.display_id,
                          )
             slot += 1
 

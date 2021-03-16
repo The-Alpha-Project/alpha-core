@@ -68,16 +68,15 @@ class WorldLoader:
 
     @staticmethod
     def load_creature_loot_templates():
-        creature_loot_templates, session = WorldDatabaseManager.creature_get_loot_template()
+        creature_loot_templates = WorldDatabaseManager.creature_get_loot_template()
         length = len(creature_loot_templates)
         count = 0
 
-        for c_template in creature_loot_templates:
-            LootManager.CREATURE_LOOT_TEMPLATES.append(c_template)
+        for loot_template in creature_loot_templates:
+            WorldDatabaseManager.CreatureLootTemplateHolder.load_creature_loot_template(loot_template)
             count += 1
             Logger.progress('Loading creature loot templates...', count, length)
 
-        session.close()
         return length
 
     @staticmethod
@@ -92,6 +91,8 @@ class WorldLoader:
             count += 1
             Logger.progress('Loading spells...', count, length)
 
+        return length
+
     @staticmethod
     def load_skills():
         skills = DbcDatabaseManager.skill_get_all()
@@ -103,6 +104,8 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading skills...', count, length)
+
+        return length
 
     @staticmethod
     def load_skill_line_abilities():
@@ -116,6 +119,8 @@ class WorldLoader:
             count += 1
             Logger.progress('Loading skill line abilities...', count, length)
 
+        return length
+
     @staticmethod
     def load_taxi_nodes():
         taxi_nodes = DbcDatabaseManager. taxi_nodes_get_all()
@@ -128,6 +133,8 @@ class WorldLoader:
             count += 1
             Logger.progress('Loading taxi nodes...', count, length)
 
+        return length
+
     @staticmethod
     def load_taxi_path_nodes():
         taxi_path_nodes = DbcDatabaseManager.taxi_path_nodes_get_all()
@@ -139,3 +146,5 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading taxi path nodes...', count, length)
+
+        return length

@@ -66,7 +66,7 @@ from game.world.opcode_handling.handlers.player.MovementHandler import MovementH
 from game.world.opcode_handling.handlers.loot.LootRequestHandler import LootRequestHandler
 from game.world.opcode_handling.handlers.loot.LootReleaseHandler import LootReleaseHandler
 from game.world.opcode_handling.handlers.loot.LootMoneyHandler import LootMoneyHandler
-from game.world.opcode_handling.handlers.loot.LootItemHandler import LootItemHandler
+from game.world.opcode_handling.handlers.loot.AutostoreLootItemHandler import AutostoreLootItemHandler
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -166,7 +166,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_LOOT: LootRequestHandler.handle,
     OpCode.CMSG_LOOT_RELEASE: LootReleaseHandler.handle,
     OpCode.CMSG_LOOT_MONEY: LootMoneyHandler.handle,
-    OpCode.CMSG_AUTOSTORE_LOOT_ITEM: LootItemHandler.handle
+    OpCode.CMSG_AUTOSTORE_LOOT_ITEM: AutostoreLootItemHandler.handle
 }
 
 
