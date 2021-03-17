@@ -8,7 +8,7 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.loot.LootManager import LootManager
+from game.world.managers.objects.creature.CreatureLootManager import CreatureLootManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
@@ -51,8 +51,6 @@ class CreatureManager(UnitManager):
             self.faction = self.creature_template.faction
             self.creature_type = self.creature_template.type
             self.sheath_state = WeaponMode.SHEATHEDMODE  # Default one
-            self.money = 0
-            self.loot = []
 
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
@@ -64,6 +62,8 @@ class CreatureManager(UnitManager):
             self.is_spawned = True
             self.last_random_movement = 0
             self.random_movement_wait_time = randint(1, 12)
+
+            self.loot_manager = CreatureLootManager(self)
 
         if self.creature_instance:
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
@@ -287,8 +287,7 @@ class CreatureManager(UnitManager):
         self.set_health(self.max_health)
         self.set_mana(self.max_power_1)
 
-        self.loot.clear()
-        self.money = 0
+        self.loot_manager.clear()
 
         self.is_spawned = True
         self.respawn_timer = 0
@@ -307,9 +306,10 @@ class CreatureManager(UnitManager):
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
-            LootManager.generate_creature_loot(self)
-            if self.money > 0 or len(self.loot) > 0:
-                self.set_lootable(True)
+
+        self.loot_manager.generate_creature_loot()
+        if self.loot_manager.has_loot():
+            self.set_lootable(True)
 
         self.set_dirty()
 
@@ -326,8 +326,8 @@ class CreatureManager(UnitManager):
         min_damage, max_damage = unpack('<2H', pack('<I', self.damage))
         return int(min_damage), int(max_damage)
 
-    def set_lootable(self, flag):
-        if flag:
+    def set_lootable(self, should_set):
+        if should_set:
             self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
             self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         else:

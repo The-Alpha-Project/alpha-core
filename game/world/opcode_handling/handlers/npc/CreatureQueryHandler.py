@@ -1,11 +1,8 @@
-from struct import pack, unpack
+from struct import unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
-from game.world.managers.objects.CreatureManager import CreatureManager
-from game.world.managers.objects.GameObjectManager import GameObjectManager
-from game.world.managers.objects.item.ItemManager import ItemManager
-from network.packet.PacketWriter import *
+from game.world.managers.objects.creature.CreatureManager import CreatureManager
 
 
 class CreatureQueryHandler(object):

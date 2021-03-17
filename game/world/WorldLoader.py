@@ -1,8 +1,7 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.CreatureManager import CreatureManager
+from game.world.managers.objects.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.GameObjectManager import GameObjectManager
-from game.world.managers.objects.loot.LootManager import LootManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
 
@@ -17,11 +16,11 @@ class WorldLoader:
             Logger.info('Skipped game object loading.')
 
         if config.Server.Settings.load_creatures:
+            WorldLoader.load_creature_loot_templates()
             WorldLoader.load_creatures()
         else:
             Logger.info('Skipped creature loading.')
 
-        WorldLoader.load_creature_loot_templates()
         WorldLoader.load_spells()
         WorldLoader.load_skills()
         WorldLoader.load_skill_line_abilities()
