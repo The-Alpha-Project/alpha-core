@@ -307,7 +307,7 @@ class CreatureManager(UnitManager):
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
 
-        self.loot_manager.generate_creature_loot()
+        self.loot_manager.generate_loot()
         if self.loot_manager.has_loot():
             self.set_lootable(True)
 
