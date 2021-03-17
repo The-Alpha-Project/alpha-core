@@ -12,6 +12,7 @@ class CreatureLootManager(object):
             .creature_loot_template_get_by_creature(self.creature_mgr.entry)
 
     def generate_creature_loot(self):
+        # TODO: Implement loot group handling
         money = randint(self.creature_mgr.creature_template.gold_min, self.creature_mgr.creature_template.gold_max)
         self.current_money = money
 
