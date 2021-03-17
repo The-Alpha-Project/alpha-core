@@ -437,6 +437,7 @@ class PlayerManager(UnitManager):
                 item = enemy.loot_manager.get_loot_in_slot(slot)
                 if not item:
                     self.send_loot_release(enemy.guid)
+                    return
 
                 enemy.loot_manager.do_loot(slot)
 
