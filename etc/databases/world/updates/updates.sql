@@ -199,5 +199,12 @@ begin not atomic
 
         insert into applied_updates values ('100320211');
     end if;
+
+    -- 18/03/2021 1
+    if (select count(*) from applied_updates where id='180320211') = 0 then
+        update spawns_creatures set ignored=1 where spawn_entry1 in (7068, 7069, 7070, 7071, 7072, 7073, 7074, 7075);
+
+        insert into applied_updates values ('180320211');
+    end if;
 end $
 delimiter ;
