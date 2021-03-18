@@ -671,7 +671,7 @@ class InventoryManager(object):
             bag_slot = 0xFF
         data = pack(
             '<Q2IBI',
-            guid, 0 if looted else 1, show_in_chat, bag_slot, item_entry
+            guid, not looted, show_in_chat, bag_slot, item_entry
         )
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_ITEM_PUSH_RESULT, data))
 
