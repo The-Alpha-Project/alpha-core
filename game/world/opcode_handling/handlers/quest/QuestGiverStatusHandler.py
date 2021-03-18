@@ -23,7 +23,7 @@ class QuestGiverStatusHandler(object):
                 if ObjectTypes.TYPE_UNIT in quest_giver_npc.object_type:
                     quest_giver_status = world_session.player_mgr.quest_manager.get_dialog_status(quest_giver_npc)
                 elif ObjectTypes.TYPE_GAMEOBJECT in quest_giver_npc.object_type:
-                    #   TODO: Proper handling for game object. However, it may be possible that the alpha client does not send status queries for game objects
+                    #   TODO: Proper handling for game object
                     quest_giver_status = QuestGiverStatuses.QUEST_GIVER_NONE
                 else:
                     Logger.error("Error in OpCode CMSG_QUESTGIVER_STATUS_QUERY, quest giver was an unexpected type of: %s" %(quest_giver_npc.object_type))

@@ -18,12 +18,7 @@ class QuestGiverHelloHandler(object):
             if not quest_giver:
                 Logger.error("Error with OpCode CMSG_QUESTGIVER_HELLO, could not find quest giver with guid of: %s"%(guid))
                 return 0
-            
-            # TODO: Hostile character?
-            # print("Testing is_friendly_to: %s"%(world_session.player_mgr.is_friendly_to(quest_giver)))            
-
-            # TODO: Cancel feign death, if it even exists at this point
-
+            if world_session.player_mgr.is_enemy_to(quest_giver): return 0
             # TODO: Stop the npc if they are moving
             
             world_session.player_mgr.quest_manager.prepare_quest_giver_gossip_menu(quest_giver, guid)
