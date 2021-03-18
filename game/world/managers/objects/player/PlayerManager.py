@@ -19,7 +19,7 @@ from network.packet.PacketWriter import *
 from utils import Formulas
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid, \
     AttackTypes
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, StandState
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.dbc.DbcDatabaseManager import *
@@ -453,8 +453,13 @@ class PlayerManager(UnitManager):
                     self.send_loot(enemy)
 
     def send_loot_release(self, guid):
+        self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
         data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
+
+        self.set_dirty()
 
     def send_loot(self, victim):
         data = pack('<QBIB',
