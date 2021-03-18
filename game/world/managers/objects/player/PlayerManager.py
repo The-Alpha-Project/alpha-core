@@ -444,7 +444,7 @@ class PlayerManager(UnitManager):
                 data = pack('<B', slot)
                 GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
 
-                self.inventory.add_item(loot.item.item_template.entry, count=loot.quantity)
+                self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True)
 
                 if not enemy.loot_manager.has_loot():
                     self.send_loot_release(enemy.guid)

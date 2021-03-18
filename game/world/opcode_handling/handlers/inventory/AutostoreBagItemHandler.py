@@ -35,7 +35,7 @@ class AutostoreBagItemHandler(object):
                 # Case when there are no available slots but the item can fit in other stacks
                 source_container.remove_item_in_slot(source_slot)
                 inventory.add_item(item_template=source_item.item_template, count=amount,
-                                   from_npc=False, show_item_get=False)
+                                   looted=False, show_item_get=False)
                 return 0
             if dest_bag_slot == source_bag_slot and dest_slot >= source_slot:
                 # TODO Irrelevant error code, but only one that seems to not display anything to the client.

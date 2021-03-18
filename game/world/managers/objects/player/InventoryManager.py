@@ -83,7 +83,7 @@ class InventoryManager(object):
                 return slot
         return InventorySlots.SLOT_INBACKPACK.value  # What is the logic behind backpack guid?
 
-    def add_item(self, entry=0, item_template=None, count=1, handle_error=True, from_npc=True,
+    def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False,
                  send_message=True, show_item_get=True):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
@@ -121,7 +121,7 @@ class InventoryManager(object):
                 if target_bag_slot == -1:
                     target_bag_slot = InventorySlots.SLOT_INBACKPACK
                 self.send_item_receive_message(self.owner.guid, item_template.entry,
-                                               target_bag_slot, from_npc, send_message)
+                                               target_bag_slot, looted, send_message)
             self.owner.send_update_self(force_inventory_update=True)
         return items_added
 
@@ -666,12 +666,12 @@ class InventoryManager(object):
         )
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SELL_ITEM, data))
 
-    def send_item_receive_message(self, guid, item_entry, bag_slot, from_npc=True, show_in_chat=True):
+    def send_item_receive_message(self, guid, item_entry, bag_slot, looted=False, show_in_chat=True):
         if bag_slot == InventorySlots.SLOT_INBACKPACK:
             bag_slot = 0xFF
         data = pack(
             '<Q2IBI',
-            guid, from_npc, show_in_chat, bag_slot, item_entry
+            guid, 0 if looted else 1, show_in_chat, bag_slot, item_entry
         )
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_ITEM_PUSH_RESULT, data))
 
