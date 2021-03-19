@@ -15,73 +15,73 @@ class GridManager(object):
     ACTIVE_GRID_KEYS = []
 
     @staticmethod
-    def add_or_get(worldobject, store=False):
-        min_x, min_y, max_x, max_y = GridManager.generate_coord_data(worldobject.location)
-        grid_coords = GridManager.get_grid_key(worldobject.location, worldobject.map_)
+    def add_or_get(world_obj, store=False):
+        min_x, min_y, max_x, max_y = GridManager.generate_coord_data(world_obj.location)
+        grid_coords = GridManager.get_grid_key(world_obj.location, world_obj.map_)
         if grid_coords in GRIDS:
             grid = GRIDS[grid_coords]
         else:
-            grid = Grid(min_x, min_y, max_x, max_y, worldobject.map_)
+            grid = Grid(min_x, min_y, max_x, max_y, world_obj.map_)
             GRIDS[grid.key] = grid
 
         if store:
-            grid.add(worldobject)
+            grid.add(world_obj)
 
         return grid
 
     @staticmethod
-    def update_object(worldobject):
-        grid_coords = GridManager.get_grid_key(worldobject.location, worldobject.map_)
+    def update_object(world_obj):
+        grid_coords = GridManager.get_grid_key(world_obj.location, world_obj.map_)
 
-        if grid_coords != worldobject.current_grid:
-            if worldobject.current_grid in GRIDS:
-                grid = GRIDS[worldobject.current_grid]
-                grid.remove(worldobject)
+        if grid_coords != world_obj.current_grid:
+            if world_obj.current_grid in GRIDS:
+                grid = GRIDS[world_obj.current_grid]
+                grid.remove(world_obj)
 
             if grid_coords in GRIDS:
-                GRIDS[grid_coords].add(worldobject)
+                GRIDS[grid_coords].add(world_obj)
             else:
-                GridManager.add_or_get(worldobject, store=True)
+                GridManager.add_or_get(world_obj, store=True)
 
-            if worldobject.get_type() == ObjectTypes.TYPE_PLAYER:
-                worldobject.update_surrounding_on_me()
-
-    @staticmethod
-    def remove_object(worldobject):
-        if worldobject.current_grid in GRIDS:
-            grid = GRIDS[worldobject.current_grid]
-            grid.remove(worldobject)
-            grid.send_all_in_range(worldobject.get_destroy_packet(), source=worldobject, range_=GRID_SIZE)
+            if world_obj.get_type() == ObjectTypes.TYPE_PLAYER:
+                world_obj.update_surrounding_on_me()
 
     @staticmethod
-    def get_surrounding(worldobject, x_s=-1, x_m=1, y_s=-1, y_m=1):
-        vector = worldobject.location
+    def remove_object(world_obj):
+        if world_obj.current_grid in GRIDS:
+            grid = GRIDS[world_obj.current_grid]
+            grid.remove(world_obj)
+            grid.send_all_in_range(world_obj.get_destroy_packet(), source=world_obj, range_=GRID_SIZE)
+
+    @staticmethod
+    def get_surrounding(world_obj, x_s=-1, x_m=1, y_s=-1, y_m=1):
+        vector = world_obj.location
         near_grids = set()
 
         for x in range(x_s, x_m + 1):
             for y in range(y_s, y_m + 1):
                 grid_coords = GridManager.get_grid_key(
                     Vector(vector.x + (x * GRID_SIZE), vector.y + (y * GRID_SIZE), 0),
-                    worldobject.map_)
+                    world_obj.map_)
                 if grid_coords in GRIDS:
                     near_grids.add(GRIDS[grid_coords])
 
         return near_grids
 
     @staticmethod
-    def send_surrounding(packet, worldobject, include_self=True):
-        for grid in GridManager.get_surrounding(worldobject):
-            grid.send_all(packet, source=None if include_self else worldobject)
+    def send_surrounding(packet, world_obj, include_self=True):
+        for grid in GridManager.get_surrounding(world_obj):
+            grid.send_all(packet, source=None if include_self else world_obj)
 
     @staticmethod
-    def send_surrounding_in_range(packet, worldobject, range_, include_self=True):
-        for grid in GridManager.get_surrounding(worldobject):
-            grid.send_all_in_range(packet, range_, worldobject, include_self)
+    def send_surrounding_in_range(packet, world_obj, range_, include_self=True):
+        for grid in GridManager.get_surrounding(world_obj):
+            grid.send_all_in_range(packet, range_, world_obj, include_self)
 
     @staticmethod
-    def get_surrounding_objects(worldobject, object_types):
+    def get_surrounding_objects(world_obj, object_types):
         surrounding_objects = [{}, {}, {}]
-        for grid in GridManager.get_surrounding(worldobject):
+        for grid in GridManager.get_surrounding(world_obj):
             if ObjectTypes.TYPE_PLAYER in object_types:
                 surrounding_objects[0] = {**surrounding_objects[0], **grid.players}
             if ObjectTypes.TYPE_UNIT in object_types:
@@ -92,32 +92,32 @@ class GridManager(object):
         return surrounding_objects
 
     @staticmethod
-    def get_surrounding_players(worldobject):
-        return GridManager.get_surrounding_objects(worldobject, [ObjectTypes.TYPE_PLAYER])[0]
+    def get_surrounding_players(world_obj):
+        return GridManager.get_surrounding_objects(world_obj, [ObjectTypes.TYPE_PLAYER])[0]
 
     @staticmethod
-    def get_surrounding_units(worldobject, include_players=False):
+    def get_surrounding_units(world_obj, include_players=False):
         object_types = [ObjectTypes.TYPE_PLAYER, ObjectTypes.TYPE_UNIT] if include_players else [ObjectTypes.TYPE_UNIT]
-        res = GridManager.get_surrounding_objects(worldobject, object_types)
+        res = GridManager.get_surrounding_objects(world_obj, object_types)
         if include_players:
             return res[0], res[1]
         else:
             return res[1]
 
     @staticmethod
-    def get_surrounding_gameobjects(worldobject):
-        return GridManager.get_surrounding_objects(worldobject, [ObjectTypes.TYPE_GAMEOBJECT])[2]
+    def get_surrounding_gameobjects(world_obj):
+        return GridManager.get_surrounding_objects(world_obj, [ObjectTypes.TYPE_GAMEOBJECT])[2]
 
     @staticmethod
-    def get_surrounding_player_by_guid(worldobject, guid):
-        for p_guid, player in list(GridManager.get_surrounding_players(worldobject).items()):
+    def get_surrounding_player_by_guid(world_obj, guid):
+        for p_guid, player in list(GridManager.get_surrounding_players(world_obj).items()):
             if p_guid == guid:
                 return player
         return None
 
     @staticmethod
-    def get_surrounding_unit_by_guid(worldobject, guid, include_players=False):
-        surrounding_units = GridManager.get_surrounding_units(worldobject, include_players)
+    def get_surrounding_unit_by_guid(world_obj, guid, include_players=False):
+        surrounding_units = GridManager.get_surrounding_units(world_obj, include_players)
         if include_players:
             for p_guid, player in surrounding_units[0].items():
                 if p_guid == guid:
@@ -131,8 +131,8 @@ class GridManager(object):
         return None
 
     @staticmethod
-    def get_surrounding_gameobject_by_guid(worldobject, guid):
-        for g_guid, gameobject in list(GridManager.get_surrounding_gameobjects(worldobject).items()):
+    def get_surrounding_gameobject_by_guid(world_obj, guid):
+        for g_guid, gameobject in list(GridManager.get_surrounding_gameobjects(world_obj).items()):
             if g_guid == guid:
                 return gameobject
         return None
@@ -203,39 +203,39 @@ class Grid(object):
     def has_players(self):
         return len(self.players) > 0
 
-    def contains(self, worldobject=None, vector=None, map_=None):
-        if worldobject:
-            vector = worldobject.location
-            map_ = worldobject.map_
+    def contains(self, world_obj=None, vector=None, map_=None):
+        if world_obj:
+            vector = world_obj.location
+            map_ = world_obj.map_
 
         if vector and map_:
             return self.min_x <= round(vector.x, 5) <= self.max_x and self.min_y <= round(vector.y, 5) <= self.max_y \
                    and map_ == self.map_
         return False
 
-    def add(self, worldobject):
-        if worldobject.get_type() == ObjectTypes.TYPE_PLAYER:
-            self.players[worldobject.guid] = worldobject
+    def add(self, world_obj):
+        if world_obj.get_type() == ObjectTypes.TYPE_PLAYER:
+            self.players[world_obj.guid] = world_obj
             # Add Grid key to the active grid list
             if self.key not in GridManager.ACTIVE_GRID_KEYS:
                 GridManager.ACTIVE_GRID_KEYS.append(self.key)
-        elif worldobject.get_type() == ObjectTypes.TYPE_UNIT:
-            self.creatures[worldobject.guid] = worldobject
-        elif worldobject.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
-            self.gameobjects[worldobject.guid] = worldobject
+        elif world_obj.get_type() == ObjectTypes.TYPE_UNIT:
+            self.creatures[world_obj.guid] = world_obj
+        elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
+            self.gameobjects[world_obj.guid] = world_obj
 
-        worldobject.current_grid = self.key
+        world_obj.current_grid = self.key
 
-    def remove(self, worldobject):
-        if worldobject.get_type() == ObjectTypes.TYPE_PLAYER:
-            self.players.pop(worldobject.guid, None)
+    def remove(self, world_obj):
+        if world_obj.get_type() == ObjectTypes.TYPE_PLAYER:
+            self.players.pop(world_obj.guid, None)
             # If no players left on Grid, remove its key from the active grid list
             if len(self.players) == 0 and self.key in GridManager.ACTIVE_GRID_KEYS:
                 GridManager.ACTIVE_GRID_KEYS.remove(self.key)
-        elif worldobject.get_type() == ObjectTypes.TYPE_UNIT:
-            self.creatures.pop(worldobject.guid, None)
-        elif worldobject.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
-            self.gameobjects.pop(worldobject.guid, None)
+        elif world_obj.get_type() == ObjectTypes.TYPE_UNIT:
+            self.creatures.pop(world_obj.guid, None)
+        elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
+            self.gameobjects.pop(world_obj.guid, None)
 
     def send_all(self, packet, source=None):
         for guid, player_mgr in list(self.players.items()):

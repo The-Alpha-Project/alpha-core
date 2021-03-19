@@ -29,6 +29,6 @@ class QuestGiverStatusHandler(object):
                 else:
                     Logger.error("Error in CMSG_QUESTGIVER_STATUS_QUERY, quest giver was an unexpected type of: %u" % quest_giver.object_type)
 
-                world_session.player_mgr.quest_manager.send_quest_status(quest_giver_guid, quest_giver_status)
+                world_session.player_mgr.quest_manager.send_quest_giver_status(quest_giver_guid, quest_giver_status)
 
         return 0

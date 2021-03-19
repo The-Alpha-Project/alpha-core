@@ -11,7 +11,7 @@ class CreatureLootManager(LootManager):
     # override
     def generate_loot(self):
         # TODO: Implement loot group handling
-        money = randint(self.worldobject.creature_template.gold_min, self.worldobject.creature_template.gold_max)
+        money = randint(self.world_obj.creature_template.gold_min, self.world_obj.creature_template.gold_max)
         self.current_money = money
 
         for loot_item in self.loot_template:
@@ -29,4 +29,4 @@ class CreatureLootManager(LootManager):
     # override
     def populate_loot_template(self):
         return WorldDatabaseManager.CreatureLootTemplateHolder\
-            .creature_loot_template_get_by_creature(self.worldobject.entry)
+            .creature_loot_template_get_by_creature(self.world_obj.entry)

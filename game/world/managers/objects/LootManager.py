@@ -9,8 +9,8 @@ class LootHolder(NamedTuple):
 
 
 class LootManager(object):
-    def __init__(self, worldobject):
-        self.worldobject = worldobject
+    def __init__(self, world_obj):
+        self.world_obj = world_obj
         self.current_money = 0
         self.current_loot = []
         self.loot_template = self.populate_loot_template()
