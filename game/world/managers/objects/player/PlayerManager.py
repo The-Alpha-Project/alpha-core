@@ -15,6 +15,7 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
+from game.world.managers.objects.player.QuestManager import QuestManager
 from network.packet.PacketWriter import *
 from utils import Formulas
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid, \
@@ -127,6 +128,7 @@ class PlayerManager(UnitManager):
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.spell_manager = SpellManager(self)
+            self.quest_manager = QuestManager(self)
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:

@@ -242,3 +242,11 @@ class DbcDatabaseManager(object):
         res = dbc_db_session.query(TaxiPathNode).order_by(TaxiPathNode.NodeIndex.asc()).all()
         dbc_db_session.close()
         return res
+
+    # Faction
+    @staticmethod
+    def faction_template_get_by_id(faction_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(FactionTemplate).filter_by(ID=faction_id).first()
+        dbc_db_session.close()
+        return res
