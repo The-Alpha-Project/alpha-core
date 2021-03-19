@@ -30,12 +30,11 @@ class QuestManager(object):
             new_dialog_status = QuestGiverStatuses.QUEST_GIVER_NONE
             quest_entry = relation[1]
             quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
-
             if not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False): continue
             
             if (quest.Method == 0):
                 new_dialog_status = QuestGiverStatuses.QUEST_GIVER_REWARD
-            elif self.owner.level < quest.MinLevel and self.owner.level >= quest.MinLevel - 4:
+            elif self.owner.level < quest.MinLevel:# and self.owner.level >= quest.MinLevel - 4:
                 new_dialog_status = QuestGiverStatuses.QUEST_GIVER_FUTURE
             elif self.owner.level >= quest.MinLevel and self.owner.level < quest.QuestLevel + 7:
                 new_dialog_status = QuestGiverStatuses.QUEST_GIVER_QUEST
@@ -45,7 +44,6 @@ class QuestManager(object):
             #   Update the status if it appears to be a "higher" code then any of the previous
             if new_dialog_status > dialog_status:
                 dialog_status = new_dialog_status
-
         return dialog_status
 
     def prepare_quest_giver_gossip_menu(self, quest_giver, guid):
@@ -110,6 +108,9 @@ class QuestManager(object):
 
     def check_quest_level(self, quest, will_send_response):
         if self.owner.level < quest.MinLevel:
+            # Future Quest, silver exclamation mark
+            if self.owner.level >= quest.MinLevel - 4:
+                return True
             if will_send_response:
                 self.send_cant_take_quest_response(QuestFailedReasons.INVALIDREASON_QUEST_FAILED_LOW_LEVEL)
             return False

@@ -20,7 +20,8 @@ class QuestGiverHelloHandler(object):
                 return 0
             if world_session.player_mgr.is_enemy_to(quest_giver): return 0
             # TODO: Stop the npc if they are moving
-            
+            # TODO: Remove feign death from player (if it even exists in 0.5.3)
+            # TODO: If the gossip menu is already open, do nothing
             world_session.player_mgr.quest_manager.prepare_quest_giver_gossip_menu(quest_giver, guid)
 
         return 0
