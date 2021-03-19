@@ -130,7 +130,6 @@ class PlayerManager(UnitManager):
             self.spell_manager = SpellManager(self)
             self.quest_manager = QuestManager(self)
 
-
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:
             race_data = DbcDatabaseManager.chr_races_get_by_race(self.player.race)

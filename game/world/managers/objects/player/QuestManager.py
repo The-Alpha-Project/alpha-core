@@ -41,14 +41,13 @@ class QuestManager(object):
             elif self.owner.level > quest.QuestLevel + 7:
                 new_dialog_status = QuestGiverStatuses.QUEST_GIVER_TRIVIAL
 
-            #   Update the status if it appears to be a "higher" code then any of the previous
             if new_dialog_status > dialog_status:
                 dialog_status = new_dialog_status
+
         return dialog_status
 
     def prepare_quest_giver_gossip_menu(self, quest_giver, guid):
         quest_menu = QuestMenu()
-
         #   Type unit, but not type player
         if ObjectTypes.TYPE_UNIT in quest_giver.object_type and not ObjectTypes.TYPE_PLAYER in quest_giver.object_type:
             relations_list = WorldDatabaseManager.creature_quest_get_by_entry(quest_giver.entry)
@@ -74,9 +73,8 @@ class QuestManager(object):
             # TODO: handle a single quest situation, open the quest directly
             quest = list(quest_menu.items.values())[0]
             self.send_quest_giver_quest_list("Greetings, $N", guid, quest_menu.items)
-
         else:
-            # TODO: Send the quest list, Send the proper greeting message
+            # TODO: Send the proper greeting message
             self.send_quest_giver_quest_list("Greetings, $N", guid, quest_menu.items)
         # TODO: Update surroundings
 

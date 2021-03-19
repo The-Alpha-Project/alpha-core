@@ -70,8 +70,6 @@ from game.world.opcode_handling.handlers.loot.AutostoreLootItemHandler import Au
 from game.world.opcode_handling.handlers.quest.QuestGiverStatusHandler import QuestGiverStatusHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import QuestGiverHelloHandler
 
-
-
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
     OpCode.CMSG_PING: PingHandler.handle,
@@ -166,12 +164,10 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_START_FORWARD: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_COLLIDE_REDIRECT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status,
-
     OpCode.CMSG_LOOT: LootRequestHandler.handle,
     OpCode.CMSG_LOOT_RELEASE: LootReleaseHandler.handle,
     OpCode.CMSG_LOOT_MONEY: LootMoneyHandler.handle,
     OpCode.CMSG_AUTOSTORE_LOOT_ITEM: AutostoreLootItemHandler.handle,
-
     OpCode.CMSG_QUESTGIVER_STATUS_QUERY: QuestGiverStatusHandler.handle,
     OpCode.CMSG_QUESTGIVER_HELLO: QuestGiverHelloHandler.handle
 }

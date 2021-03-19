@@ -235,7 +235,6 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-
     # Quest stuff
 
     @staticmethod
