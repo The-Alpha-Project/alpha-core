@@ -23,7 +23,8 @@ class InitiateTradeHandler(object):
                     trade_status = TradeStatuses.TRADE_STATUS_DEAD
                 if world_session.player_mgr.trade_data:
                     trade_status = TradeStatuses.TRADE_STATUS_ALREADY_TRADING
-                # TODO: Check if is enemy to in order to send TradeStatuses.TRADE_STATUS_WRONG_FACTION
+                if world_session.player_mgr.team != trade_player.team:
+                    trade_status = TradeStatuses.TRADE_STATUS_WRONG_FACTION
 
                 if trade_status:
                     TradeManager.send_trade_status(world_session.player_mgr, trade_status)
