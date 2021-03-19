@@ -244,6 +244,7 @@ class DbcDatabaseManager(object):
         return res
 
     # Faction
+
     @staticmethod
     def faction_template_get_by_id(faction_id):
         dbc_db_session = SessionHolder()

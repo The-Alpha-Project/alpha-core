@@ -1,10 +1,13 @@
 from struct import pack
+from typing import NamedTuple
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import QuestTemplate
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import QuestGiverStatuses, QuestStatuses, QuestFailedReasons, ObjectTypes
 
 MAX_QUEST_LOG = 20
+
 
 class QuestManager(object):
     def __init__(self, owner):
@@ -13,12 +16,13 @@ class QuestManager(object):
 
     def get_dialog_status(self, world_obj):
         dialog_status = QuestGiverStatuses.QUEST_GIVER_NONE
-        #   relations bounds, the quest giver. involved relations bounds, the quest completer
+        # Relations bounds, the quest giver. involved relations bounds, the quest completer
         relations_list = WorldDatabaseManager.creature_quest_get_by_entry(world_obj.entry)
         involved_relations_list = WorldDatabaseManager.creature_involved_quest_get_by_entry(world_obj.entry)
-        if self.owner.is_enemy_to(world_obj): return dialog_status
+        if self.owner.is_enemy_to(world_obj):
+            return dialog_status
 
-        #   TODO: Quest finish
+        # TODO: Quest finish
         for involved_relation in involved_relations_list:
             if len(involved_relation) == 0: continue
             quest_entry = involved_relation[1]
@@ -32,11 +36,11 @@ class QuestManager(object):
             quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
             if not self.check_quest_requirements(quest): continue
             
-            if (quest.Method == 0):
+            if quest.Method == 0:
                 new_dialog_status = QuestGiverStatuses.QUEST_GIVER_REWARD
-            elif self.owner.level < quest.MinLevel and self.owner.level >= quest.MinLevel - 4:
+            elif quest.MinLevel > self.owner.level >= quest.MinLevel - 4:
                 new_dialog_status = QuestGiverStatuses.QUEST_GIVER_FUTURE
-            elif self.owner.level >= quest.MinLevel and self.owner.level < quest.QuestLevel + 7:
+            elif quest.MinLevel <= self.owner.level < quest.QuestLevel + 7:
                 new_dialog_status = QuestGiverStatuses.QUEST_GIVER_QUEST
             elif self.owner.level > quest.QuestLevel + 7:
                 new_dialog_status = QuestGiverStatuses.QUEST_GIVER_TRIVIAL
@@ -48,34 +52,40 @@ class QuestManager(object):
 
     def prepare_quest_giver_gossip_menu(self, quest_giver, guid):
         quest_menu = QuestMenu()
-        #   Type unit, but not type player
-        if ObjectTypes.TYPE_UNIT in quest_giver.object_type and not ObjectTypes.TYPE_PLAYER in quest_giver.object_type:
+        # Type is unit, but not player
+        if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
             relations_list = WorldDatabaseManager.creature_quest_get_by_entry(quest_giver.entry)
             involved_relations_list = WorldDatabaseManager.creature_involved_quest_get_by_entry(quest_giver.entry)
-        elif ObjectTypes.TYPE_GAMEOBJECT in quest_giver.object_type:
-            #   TODO: Gameobjects
-            pass
+        elif quest_giver.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
+            # TODO: Gameobjects
+            relations_list = []
+            involved_relations_list = []
+        else:
+            return
 
-        #   TODO: Finish quests
+        # TODO: Finish quests
         for involved_relation in involved_relations_list:
-            if len(involved_relation) == 0: continue
+            if len(involved_relation) == 0:
+                continue
             continue
 
-        #   Starting quests
+        # Starting quests
         for relation in relations_list:
-            if len(relation) == 0: continue
+            if len(relation) == 0:
+                continue
             quest_entry = relation[1]
             quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
-            if not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False): continue
+            if not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
+                continue
             quest_menu.add_menu_item(quest, QuestStatuses.QUEST_STATUS_AVAILABLE)
 
         if len(quest_menu.items) == 1:
             # TODO: handle a single quest situation, open the quest directly
             quest = list(quest_menu.items.values())[0]
-            self.send_quest_giver_quest_list("Greetings, $N", guid, quest_menu.items)
+            self.send_quest_giver_quest_list("Greetings, $N.", guid, quest_menu.items)
         else:
             # TODO: Send the proper greeting message
-            self.send_quest_giver_quest_list("Greetings, $N", guid, quest_menu.items)
+            self.send_quest_giver_quest_list("Greetings, $N.", guid, quest_menu.items)
         # TODO: Update surroundings
 
     def check_quest_requirements(self, quest):
@@ -84,23 +94,28 @@ class QuestManager(object):
         is_not_required_race = quest.RequiredRaces & self.owner.player.race != self.owner.player.race
         if race_is_required and is_not_required_race:
             return False
-        #   Does the character have the required source item
+
+        # Does the character have the required source item
         source_item_required = quest.SrcItemId > 0
         does_not_have_source_item = self.owner.inventory.get_item_count(quest.SrcItemId) == 0
         if source_item_required and does_not_have_source_item:
             return False
-        #   Is the character the required class
+
+        # Is the character the required class
         class_is_required = quest.RequiredClasses > 0
         is_not_required_class = quest.RequiredClasses & self.owner.player.class_ != self.owner.player.class_
         if class_is_required and is_not_required_class:
             return False
-        #  Has the character already started the next quest in the chain
+
+        # Has the character already started the next quest in the chain
         if quest.NextQuestInChain > 0 and quest.NextQuestInChain in self.quests:
             return False
-        #  Does the character have the previous quest
-        if quest.PrevQuestId > 0 and not quest.PrevQuestId in self.quests:
+
+        # Does the character have the previous quest
+        if quest.PrevQuestId > 0 and quest.PrevQuestId not in self.quests:
             return False
-        #   TODO: Does the character have the required skill
+
+        # TODO: Does the character have the required skill
         
         return True
 
@@ -113,9 +128,8 @@ class QuestManager(object):
             return True
 
     def send_cant_take_quest_response(self, reason_code):
-        data = [ '<I', reason_code ]
+        data = pack('<I', reason_code)
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_INVALID, data))
-
 
     def send_quest_status(self, quest_giver_guid, quest_status):
         data = pack(
@@ -126,43 +140,39 @@ class QuestManager(object):
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_STATUS, data))
 
     def send_quest_giver_quest_list(self, message, quest_giver_guid, quests):
-        message = bytes(message, 'utf-8')
-        packet_format = '<Q%ss2iB' %(len(message) + 1)
-        packet_values = [
+        message_bytes = PacketWriter.string_to_bytes(message)
+        data = pack(
+            '<Q%us2iB' % len(message_bytes),
             quest_giver_guid,
-            message,
-            0,                          #   TODO: Gossip menu count
-            0,                          #   TODO: Gossip menu items
+            message_bytes,
+            0,  # TODO: Gossip menu count
+            0,  # TODO: Gossip menu items
             len(quests)
-        ]
+        )
 
         for entry in quests:
-            packet_values.append(entry)
-            status = quests[entry]["status"]
-            packet_values.append(status)
-            packet_values.append(quests[entry]["quest"].QuestLevel)
-            quest_title = bytes(quests[entry]["quest"].Title, 'utf-8')
-            packet_values.append(quest_title)
-            title_format = "%ss" %(len(quest_title) + 1)
-            quest_format = '3I' + title_format
-            packet_format += quest_format
+            quest_title = PacketWriter.string_to_bytes(quests[entry].quest.Title)
+            data += pack(
+                '<3I%us' % len(quest_title),
+                entry,
+                quests[entry].status,
+                quests[entry].quest.QuestLevel,
+                quest_title
+            )
 
-        data = pack(packet_format, *packet_values)
         self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_LIST, data))
 
 
-
 class QuestMenu:
+    class QuestMenuItem(NamedTuple):
+        quest: QuestTemplate
+        status: QuestStatuses
+
     def __init__(self):
         self.items = {}
 
-    # @staticmethod
     def add_menu_item(self, quest, status):
-        self.items[quest.entry] = {
-            "status": status,
-            "quest": quest
-        }
+        self.items[quest.entry] = QuestMenu.QuestMenuItem(quest, status)
 
-    @staticmethod
     def clear_menu(self):
         self.items = {}
