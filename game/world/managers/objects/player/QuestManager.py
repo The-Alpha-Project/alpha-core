@@ -175,4 +175,4 @@ class QuestMenu:
         self.items[quest.entry] = QuestMenu.QuestMenuItem(quest, status)
 
     def clear_menu(self):
-        self.items = {}
+        self.items.clear()
