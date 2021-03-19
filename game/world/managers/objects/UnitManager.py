@@ -676,3 +676,35 @@ class UnitManager(ObjectManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
+
+    def is_friendly_to(self, target):
+        own_faction = DbcDatabaseManager.faction_template_get_by_id(self.faction)
+        target_faction = DbcDatabaseManager.faction_template_get_by_id(target.faction)
+        # Some units currently have a bugged faction, terminate the method if this is encountered
+        if not target_faction: return
+        own_enemies = [ own_faction.Enemies_1, own_faction.Enemies_2, own_faction.Enemies_3, own_faction.Enemies_4 ]
+        own_friends = [ own_faction.Friend_1, own_faction.Friend_2, own_faction.Friend_3, own_faction.Friend_4 ]
+        if target_faction.Faction > 0:
+            for enemy in own_enemies:
+                if enemy == target_faction.Faction:
+                    return False
+            for friend in own_friends:
+                if friend == target_faction.Faction:
+                    return True
+        return own_faction.FriendGroup & target_faction.FactionGroup == target_faction.FactionGroup
+
+    def is_enemy_to(self, target):
+        own_faction = DbcDatabaseManager.faction_template_get_by_id(self.faction)
+        target_faction = DbcDatabaseManager.faction_template_get_by_id(target.faction)
+        # Some units currently have a bugged faction, terminate the method if this is encountered
+        if not target_faction: return
+        own_enemies = [ own_faction.Enemies_1, own_faction.Enemies_2, own_faction.Enemies_3, own_faction.Enemies_4 ]
+        own_friends = [ own_faction.Friend_1, own_faction.Friend_2, own_faction.Friend_3, own_faction.Friend_4 ]
+        if target_faction.Faction > 0:
+            for enemy in own_enemies:
+                if enemy == target_faction.Faction:
+                    return True
+            for friend in own_friends:
+                if friend == target_faction.Faction:
+                    return False
+        return own_faction.EnemyGroup & target_faction.FactionGroup == target_faction.FactionGroup
