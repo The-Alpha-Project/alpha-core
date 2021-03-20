@@ -16,7 +16,7 @@ class QuestManager(object):
 
     def get_dialog_status(self, world_obj):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
-        # Relations bounds, the quest giver. involved relations bounds, the quest completer
+        # Relations bounds, the quest giver; Involved relations bounds, the quest completer
         relations_list = WorldDatabaseManager.creature_quest_get_by_entry(world_obj.entry)
         involved_relations_list = WorldDatabaseManager.creature_involved_quest_get_by_entry(world_obj.entry)
         if self.player_mgr.is_enemy_to(world_obj):
