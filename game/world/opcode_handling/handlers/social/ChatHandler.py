@@ -19,6 +19,10 @@ class ChatHandler(object):
         guid = 0
         chat_flags = 0
 
+        # Return if no player
+        if not world_session.player_mgr:
+            return 0
+
         # Override language to universal for GMs
         if world_session.player_mgr.is_gm:
             lang = Languages.LANG_UNIVERSAL
