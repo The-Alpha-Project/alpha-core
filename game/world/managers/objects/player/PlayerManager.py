@@ -453,8 +453,6 @@ class PlayerManager(UnitManager):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
-        enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=True)
-
         data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
