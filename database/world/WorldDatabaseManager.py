@@ -240,6 +240,6 @@ class WorldDatabaseManager(object):
     @staticmethod
     def quest_get_by_entry(entry):
         world_db_session = SessionHolder()
-        res = world_db_session.query(QuestTemplate).filter_by(entry=entry).first()
+        res = world_db_session.query(QuestTemplate).filter_by(entry=entry, ignored=0).first()
         world_db_session.close()
         return res

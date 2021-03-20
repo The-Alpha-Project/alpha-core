@@ -28,6 +28,8 @@ class QuestManager(object):
                 continue
             quest_entry = involved_relation[1]
             quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
+            if not quest:
+                continue
             # TODO: put in a check for quest status when you have quests that are already accepted by player
 
         # Quest start
@@ -35,7 +37,7 @@ class QuestManager(object):
             new_dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
             quest_entry = relation[1]
             quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
-            if not self.check_quest_requirements(quest):
+            if not quest or not self.check_quest_requirements(quest):
                 continue
             
             if quest.Method == 0:
@@ -77,7 +79,7 @@ class QuestManager(object):
                 continue
             quest_entry = relation[1]
             quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
-            if not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
+            if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
             quest_menu.add_menu_item(quest, QuestStatus.QUEST_OFFER)
 
