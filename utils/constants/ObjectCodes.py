@@ -202,7 +202,7 @@ class TradeSkillCategories(IntEnum):
     NUM_TRADESKILL_CATEGORIES = 0x4
 
 
-class TradeStatuses(IntEnum):
+class TradeStatus(IntEnum):
     TRADE_STATUS_PLAYER_BUSY = 0x0
     TRADE_STATUS_PROPOSED = 0x1
     TRADE_STATUS_INITIATED = 0x2
@@ -264,14 +264,12 @@ class LootTypes(IntEnum):
     LOOT_TYPE_FISHING = 3
 
 
-class QuestStatuses(IntEnum):
-    QUEST_STATUS_NONE = 0
-    QUEST_STATUS_COMPLETE = 1
-    QUEST_STATUS_UNAVAILABLE = 2
-    QUEST_STATUS_INCOMPLETE = 3
-    QUEST_STATUS_AVAILABLE = 4
-    QUEST_STATUS_FAILED = 5
-    MAX_QUEST_STATUS = 6
+class QuestStatus(IntEnum):
+    QUEST_GREETING = 0
+    QUEST_OFFER = 1
+    QUEST_ACCEPTED = 2
+    QUEST_REWARD = 3
+    QUEST_STATE_NUM_TYPES = 4
 
 
 class QuestFailedReasons(IntEnum):
@@ -284,13 +282,13 @@ class QuestFailedReasons(IntEnum):
     INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY = 23  # You don't have enough money for that quest.
 
 
-class QuestGiverStatuses(IntEnum):
-    QUEST_GIVER_NONE = 0x0
-    QUEST_GIVER_TRIVIAL = 0x1
-    QUEST_GIVER_FUTURE = 0x2
-    QUEST_GIVER_REWARD = 0x3
-    QUEST_GIVER_QUEST = 0x4
-    QUEST_GIVER_NUMITEMS = 0x5
+class QuestGiverStatus(IntEnum):
+    QUEST_GIVER_NONE = 0
+    QUEST_GIVER_TRIVIAL = 1
+    QUEST_GIVER_FUTURE = 2
+    QUEST_GIVER_REWARD = 3
+    QUEST_GIVER_QUEST = 4
+    QUEST_GIVER_NUMITEMS = 5
 
 
 class SkillCategories(IntEnum):
@@ -674,7 +672,7 @@ class FriendResults(IntEnum):
     FRIEND_IGNORE_REMOVED = 0x10
 
 
-class FriendStatuses(IntEnum):
+class FriendStatus(IntEnum):
     FRIEND_STATUS_OFFLINE = 0
     FRIEND_STATUS_ONLINE = 1
     FRIEND_STATUS_AFK = 2
@@ -682,7 +680,7 @@ class FriendStatuses(IntEnum):
     FRIEND_STATUS_DND = 4
 
 
-class WhoPartyStatuses(IntEnum):
+class WhoPartyStatus(IntEnum):
     WHO_PARTY_STATUS_NOT_IN_PARTY = 0x0
     WHO_PARTY_STATUS_IN_PARTY = 0x1
     WHO_PARTY_STATUS_LFG = 0x2

@@ -2,7 +2,7 @@ from struct import pack, unpack
 
 from game.world.managers.objects.player.TradeManager import TradeManager
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import TradeStatuses
+from utils.constants.ObjectCodes import TradeStatus
 
 
 class AcceptTradeHandler(object):
@@ -81,13 +81,13 @@ class AcceptTradeHandler(object):
             other_player.mod_money(player_trade.money)
             other_player.mod_money(-other_player_trade.money)
 
-            TradeManager.send_trade_status(player, TradeStatuses.TRADE_STATUS_COMPLETE)
-            TradeManager.send_trade_status(other_player, TradeStatuses.TRADE_STATUS_COMPLETE)
+            TradeManager.send_trade_status(player, TradeStatus.TRADE_STATUS_COMPLETE)
+            TradeManager.send_trade_status(other_player, TradeStatus.TRADE_STATUS_COMPLETE)
 
             player.trade_data = None
             other_player.trade_data = None
         else:
             other_player_trade.set_accepted(True)
-            TradeManager.send_trade_status(other_player, TradeStatuses.TRADE_STATUS_ACCEPTED)
+            TradeManager.send_trade_status(other_player, TradeStatus.TRADE_STATUS_ACCEPTED)
 
         return 0

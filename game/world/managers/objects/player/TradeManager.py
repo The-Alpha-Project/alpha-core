@@ -2,7 +2,7 @@ from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.ObjectCodes import TradeStatuses
+from utils.constants.ObjectCodes import TradeStatus
 from utils.constants.OpCodes import OpCode
 
 
@@ -13,9 +13,9 @@ class TradeManager(object):
             return
 
         data = b''
-        if status == TradeStatuses.TRADE_STATUS_PROPOSED:
+        if status == TradeStatus.TRADE_STATUS_PROPOSED:
             data += pack('<IQ', status, 0)
-        elif status == TradeStatuses.TRADE_STATUS_FAILED:
+        elif status == TradeStatus.TRADE_STATUS_FAILED:
             data += pack('<2IBI', status, 0, 0, 0)
         else:
             data += pack('<I', status)
@@ -30,10 +30,10 @@ class TradeManager(object):
 
         if player.trade_data and player.trade_data.other_player:
             TradeManager.send_trade_status(player.trade_data.other_player,
-                                           TradeStatuses.TRADE_STATUS_CANCELLED)
+                                           TradeStatus.TRADE_STATUS_CANCELLED)
             player.trade_data.other_player.trade_data = None
 
-            TradeManager.send_trade_status(player, TradeStatuses.TRADE_STATUS_CANCELLED)
+            TradeManager.send_trade_status(player, TradeStatus.TRADE_STATUS_CANCELLED)
             player.trade_data = None
 
     @staticmethod
@@ -72,7 +72,7 @@ class TradeManager(object):
 
         data = pack(
             '<IQ',
-            TradeStatuses.TRADE_STATUS_PROPOSED,
+            TradeStatus.TRADE_STATUS_PROPOSED,
             other_player.guid
         )
 
@@ -127,5 +127,5 @@ class TradeManager(object):
             self.is_accepted = is_accepted
 
             if not is_accepted:
-                TradeManager.send_trade_status(self.player, TradeStatuses.TRADE_STATUS_STATE_CHANGED)
-                TradeManager.send_trade_status(self.other_player, TradeStatuses.TRADE_STATUS_STATE_CHANGED)
+                TradeManager.send_trade_status(self.player, TradeStatus.TRADE_STATUS_STATE_CHANGED)
+                TradeManager.send_trade_status(self.other_player, TradeStatus.TRADE_STATUS_STATE_CHANGED)

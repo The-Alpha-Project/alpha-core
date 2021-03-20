@@ -5,7 +5,7 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.TradeManager import TradeManager
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import GameObjectTypes, TradeStatuses
+from utils.constants.ObjectCodes import GameObjectTypes, TradeStatus
 
 
 class InitiateTradeHandler(object):
@@ -18,13 +18,13 @@ class InitiateTradeHandler(object):
                 trade_player = GridManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)
                 trade_status = None
                 if not trade_player or not trade_player.is_alive:
-                    trade_status = TradeStatuses.TRADE_STATUS_PLAYER_NOT_FOUND
+                    trade_status = TradeStatus.TRADE_STATUS_PLAYER_NOT_FOUND
                 if not world_session.player_mgr.is_alive:
-                    trade_status = TradeStatuses.TRADE_STATUS_DEAD
+                    trade_status = TradeStatus.TRADE_STATUS_DEAD
                 if world_session.player_mgr.trade_data:
-                    trade_status = TradeStatuses.TRADE_STATUS_ALREADY_TRADING
+                    trade_status = TradeStatus.TRADE_STATUS_ALREADY_TRADING
                 if world_session.player_mgr.team != trade_player.team:
-                    trade_status = TradeStatuses.TRADE_STATUS_WRONG_FACTION
+                    trade_status = TradeStatus.TRADE_STATUS_WRONG_FACTION
 
                 if trade_status:
                     TradeManager.send_trade_status(world_session.player_mgr, trade_status)

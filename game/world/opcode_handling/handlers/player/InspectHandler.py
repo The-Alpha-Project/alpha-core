@@ -5,7 +5,7 @@ from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.TradeManager import TradeManager
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import GameObjectTypes, TradeStatuses
+from utils.constants.ObjectCodes import GameObjectTypes, TradeStatus
 
 
 class InspectHandler(object):

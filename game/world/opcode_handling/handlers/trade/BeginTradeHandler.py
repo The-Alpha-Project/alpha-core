@@ -1,5 +1,5 @@
 from game.world.managers.objects.player.TradeManager import TradeManager
-from utils.constants.ObjectCodes import TradeStatuses
+from utils.constants.ObjectCodes import TradeStatus
 
 
 class BeginTradeHandler(object):
@@ -9,8 +9,8 @@ class BeginTradeHandler(object):
         if not world_session.player_mgr.trade_data:
             return 0
 
-        TradeManager.send_trade_status(world_session.player_mgr, TradeStatuses.TRADE_STATUS_INITIATED)
+        TradeManager.send_trade_status(world_session.player_mgr, TradeStatus.TRADE_STATUS_INITIATED)
         TradeManager.send_trade_status(world_session.player_mgr.trade_data.other_player,
-                                       TradeStatuses.TRADE_STATUS_INITIATED)
+                                       TradeStatus.TRADE_STATUS_INITIATED)
 
         return 0

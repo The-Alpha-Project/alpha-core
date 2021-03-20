@@ -1,7 +1,7 @@
 from struct import unpack
 
 from game.world.managers.objects.player.TradeManager import TradeManager
-from utils.constants.ObjectCodes import TradeStatuses
+from utils.constants.ObjectCodes import TradeStatus
 
 
 class SetTradeGoldHandler(object):

@@ -18,7 +18,7 @@ from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQuer
 from game.world.managers.objects.player.QuestManager import QuestManager
 from network.packet.PacketWriter import *
 from utils import Formulas
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatuses, HighGuid, \
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, StandState
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
@@ -70,7 +70,7 @@ class PlayerManager(UnitManager):
         self.current_selection = current_selection
 
         self.chat_flags = chat_flags
-        self.group_status = WhoPartyStatuses.WHO_PARTY_STATUS_NOT_IN_PARTY
+        self.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
         self.race_mask = 0
         self.class_mask = 0
         self.deathbind = deathbind

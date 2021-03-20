@@ -4,7 +4,7 @@ from typing import NamedTuple
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import QuestTemplate
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ObjectCodes import QuestGiverStatuses, QuestStatuses, QuestFailedReasons, ObjectTypes
+from utils.constants.ObjectCodes import QuestGiverStatus, QuestStatus, QuestFailedReasons, ObjectTypes
 
 MAX_QUEST_LOG = 20
 
@@ -15,7 +15,7 @@ class QuestManager(object):
         self.quests = {}
 
     def get_dialog_status(self, world_obj):
-        dialog_status = QuestGiverStatuses.QUEST_GIVER_NONE
+        dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
         # Relations bounds, the quest giver. involved relations bounds, the quest completer
         relations_list = WorldDatabaseManager.creature_quest_get_by_entry(world_obj.entry)
         involved_relations_list = WorldDatabaseManager.creature_involved_quest_get_by_entry(world_obj.entry)
@@ -32,20 +32,20 @@ class QuestManager(object):
 
         # Quest start
         for relation in relations_list:
-            new_dialog_status = QuestGiverStatuses.QUEST_GIVER_NONE
+            new_dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
             quest_entry = relation[1]
             quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
             if not self.check_quest_requirements(quest):
                 continue
             
             if quest.Method == 0:
-                new_dialog_status = QuestGiverStatuses.QUEST_GIVER_REWARD
+                new_dialog_status = QuestGiverStatus.QUEST_GIVER_REWARD
             elif quest.MinLevel > self.player_mgr.level >= quest.MinLevel - 4:
-                new_dialog_status = QuestGiverStatuses.QUEST_GIVER_FUTURE
+                new_dialog_status = QuestGiverStatus.QUEST_GIVER_FUTURE
             elif quest.MinLevel <= self.player_mgr.level < quest.QuestLevel + 7:
-                new_dialog_status = QuestGiverStatuses.QUEST_GIVER_QUEST
+                new_dialog_status = QuestGiverStatus.QUEST_GIVER_QUEST
             elif self.player_mgr.level > quest.QuestLevel + 7:
-                new_dialog_status = QuestGiverStatuses.QUEST_GIVER_TRIVIAL
+                new_dialog_status = QuestGiverStatus.QUEST_GIVER_TRIVIAL
 
             if new_dialog_status > dialog_status:
                 dialog_status = new_dialog_status
@@ -79,7 +79,7 @@ class QuestManager(object):
             quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
             if not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
-            quest_menu.add_menu_item(quest, QuestStatuses.QUEST_STATUS_AVAILABLE)
+            quest_menu.add_menu_item(quest, QuestStatus.QUEST_OFFER)
 
         if len(quest_menu.items) == 1:
             # TODO: handle a single quest situation, open the quest directly
@@ -168,7 +168,7 @@ class QuestManager(object):
 class QuestMenu:
     class QuestMenuItem(NamedTuple):
         quest: QuestTemplate
-        status: QuestStatuses
+        status: QuestStatus
 
     def __init__(self):
         self.items = {}
