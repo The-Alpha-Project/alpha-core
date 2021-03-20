@@ -288,6 +288,7 @@ class CreatureManager(UnitManager):
         self.set_mana(self.max_power_1)
 
         self.loot_manager.clear()
+        self.set_lootable(False)
 
         self.is_spawned = True
         self.respawn_timer = 0
@@ -331,7 +332,7 @@ class CreatureManager(UnitManager):
             self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
             self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         else:
-            self.dynamic_flags = UnitDynamicTypes.UNIT_DYNAMIC_DEAD
+            self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
             self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
         self.set_dirty()

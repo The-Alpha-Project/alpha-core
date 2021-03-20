@@ -24,13 +24,13 @@ class LootManager(object):
         return None
 
     def get_loot_in_slot(self, slot):
-        if slot < len(self.current_loot):
+        if slot < len(self.current_loot) and self.current_loot[slot]:
             return self.current_loot[slot]
         return None
 
     def do_loot(self, slot):
         if slot < len(self.current_loot):
-            self.current_loot.pop(slot)
+            self.current_loot[slot] = None
 
     def clear_money(self):
         self.current_money = 0
@@ -39,7 +39,7 @@ class LootManager(object):
         return self.current_money > 0
 
     def has_items(self):
-        return len(self.current_loot) > 0
+        return len([loot for loot in self.current_loot if loot]) > 0
 
     def has_loot(self):
         return self.has_money() or self.has_items()

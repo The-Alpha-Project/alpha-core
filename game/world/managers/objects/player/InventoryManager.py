@@ -514,11 +514,13 @@ class InventoryManager(object):
                 empty_slots += container.get_empty_slots()
         return empty_slots
 
-    def can_store_item(self, item_template, count, on_bank=False):
+    def can_store_item(self, item_template, count, on_bank=False, notify_error=False):
         amount = count
 
         # Reached unique limit
         if 0 < item_template.max_count <= self.get_item_count(item_template.entry):
+            if notify_error:
+                self.send_equip_error(InventoryError.BAG_INV_FULL)
             return False
 
         # Check bags
@@ -558,6 +560,9 @@ class InventoryManager(object):
             amount -= (container.total_slots - len(container.sorted_slots)) * item_template.stackable
             if amount <= 0:
                 return True
+
+        if notify_error:
+            self.send_equip_error(InventoryError.BAG_INV_FULL)
 
         return False
 
