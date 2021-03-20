@@ -206,5 +206,72 @@ begin not atomic
 
         insert into applied_updates values ('180320211');
     end if;
+
+    -- 21/03/2021 1
+    if (select count(*) from applied_updates where id='210320211') = 0 then
+        UPDATE `spawns_creatures` SET `position_x` = -5402.25, `position_y` = -2894.97, `position_z` = 341.516, `orientation` = 2.26904 WHERE `spawn_entry1` = 1340;
+        -- greishan ironstove
+        UPDATE `spawns_creatures` SET `position_x` = -5359.740, `position_y` = -2939.840, `position_z` = 325.634, `orientation` = 2.758952 WHERE `spawn_entry1` = 3291;
+        -- mountaineer morran
+        UPDATE `spawns_creatures` SET `position_x` = -4809.32, `position_y` = -2674.37, `position_z` = 333.999, `orientation` = 0.969436, `movement_type`= 2 WHERE `spawn_entry1`= 1332;
+        -- mountaineer brokk
+        UPDATE `spawns_creatures` SET `position_x` = -4682.86, `position_y` = -2707.87, `position_z` = 318.768, `orientation` = 0.174533 WHERE `spawn_entry1` = 1276;
+        -- mountaineer janha
+        UPDATE `spawns_creatures` SET `movement_type`= 2 WHERE `spawn_entry1`= 2513;
+        -- mountaineer stenn
+        UPDATE `spawns_creatures` SET `position_x` = -5400.07, `position_y` = -2890.89, `position_z` = 342.003, `orientation` = 1.5708 WHERE `spawn_id` = 8376;
+        -- mountaineer tyraw
+        UPDATE `spawns_creatures` SET `movement_type`= 2 WHERE `spawn_entry1`= 1330;
+        -- mountaineer naarh
+        UPDATE `spawns_creatures` SET `movement_type`= 2 WHERE `spawn_entry1`= 1329;
+        -- allow ozmok to roam and set correct position
+        UPDATE `spawns_creatures` SET `position_x` = -5348.54, `position_y` = -2959.45, `position_z` = 323.634, `wander_distance` = 3, `movement_type` = 1 WHERE `spawn_id` = 8745;
+        -- allow langarr to roam
+        UPDATE `spawns_creatures` SET `wander_distance` = 3, `movement_type` = 1 WHERE `spawn_id` = 8736;
+        -- allow wuar to roam
+        UPDATE `spawns_creatures` SET `wander_distance` = 3, `movement_type` = 1 WHERE `spawn_id` = 8240;
+        -- remove incorrect mountaineer
+        DELETE FROM `spawns_creatures` WHERE `spawn_id` = 9406;
+        -- set correct position and wander for dalk
+        UPDATE `spawns_creatures` SET `position_x` = -5241.86, `position_y` = -2995.92, `position_z` = 332.332, `orientation` = 0.219142, `wander_distance` = 3, `movement_type` = 1 WHERE `spawn_entry1` = 1338;
+        -- allow xandar goodbeard to roam
+        UPDATE `spawns_creatures` SET `wander_distance` = 1, `movement_type` = 1 WHERE `spawn_id` = 8275;
+        -- allow cliff hadin to roam
+        UPDATE `spawns_creatures` SET `wander_distance` = 1, `movement_type` = 1 WHERE `spawn_id` = 8278;
+        -- allow irene sureshot to roam
+        UPDATE `spawns_creatures` SET `wander_distance` = 1, `movement_type` = 1 WHERE `spawn_id` = 8273;
+        -- allow daryl the youngling to roam
+        UPDATE `spawns_creatures` SET `wander_distance` = 1, `movement_type` = 1 WHERE `spawn_id` = 8253;
+        -- set correct position for mountaineer haggil
+        UPDATE `spawns_creatures` SET `position_x` = -4685.36, `position_y` = -3457.5, `position_z` = 310.206 WHERE `spawn_entry1` = 2528;
+        -- allow mountaineer haggis to roam
+        UPDATE `spawns_creatures` SET `position_x` = -4684.62, `position_y` = -3168.74, `position_z` = 310.144, `wander_distance` = 5, `movement_type` = 1 WHERE `spawn_id` = 8241;
+        -- set mountaineer modax to roam not pathfind
+        UPDATE `spawns_creatures` SET `wander_distance` = 3, `movement_type` = 1 WHERE `spawn_id` = 8236;
+        -- bingles blastenheimer
+        UPDATE `spawns_creatures` SET `movement_type`= 2 WHERE `spawn_entry1`= 6577;
+
+        -- allow greenwarden to roam
+        UPDATE `spawns_creatures` SET `wander_distance` = 2, `movement_type` = 1 WHERE `spawn_id` = 9803;
+        -- allow comar villard to roam
+        UPDATE `spawns_creatures` SET `wander_distance` = 2, `movement_type` = 1 WHERE `spawn_id` = 9955;
+        -- allow various npc's to roam
+        UPDATE `spawns_creatures` SET `wander_distance` = 2, `movement_type` = 1 WHERE `spawn_id` IN (9459, 9691, 9453, 9519, 9511, 9456, 9454, 9512, 9568, 9524, 9697, 9528, 9561, 9504, 9562, 9555);
+        -- allow various npc's to roam
+        UPDATE `spawns_creatures` SET `wander_distance` = 0.5, `movement_type` = 1 WHERE `spawn_id` IN (9569, 9463, 9470, 9583);
+        -- menethil sentry 9554
+        UPDATE `spawns_creatures` SET `position_x` = -3754.79, `position_y` = -811.331, `position_z` = 34.6043, `movement_type` = 2 WHERE `spawn_id` = 9554;
+        -- menethil sentry 9452
+        UPDATE `spawns_creatures` SET `position_x` = -3700.99, `position_y` = -793.653, `position_z` = 25.403, `movement_type` = 2 WHERE `spawn_id` = 9452;
+        -- hargin mundar
+        UPDATE `spawns_creatures` SET `movement_type` = 2 WHERE `spawn_entry1` = 1476;
+        -- first mate fitzsimmons position
+        UPDATE `creature_template` SET `ai_name` = "EventAI" WHERE entry = 1239;
+        UPDATE `spawns_creatures` SET `position_x` = -3791.56, `position_y` = -840.544, `position_z` = 10.0821 WHERE `spawn_entry1` = 1239;
+        -- telurinon moonshadow
+        UPDATE `spawns_creatures` SET `movement_type` = 2 WHERE `spawn_id` = 9521;
+
+        insert into applied_updates values ('210320211');
+    end if;
 end $
 delimiter ;
