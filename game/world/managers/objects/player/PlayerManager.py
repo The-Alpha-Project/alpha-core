@@ -437,29 +437,23 @@ class PlayerManager(UnitManager):
             enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=True)
             if enemy and enemy.loot_manager.has_loot():
                 loot = enemy.loot_manager.get_loot_in_slot(slot)
-                if loot:
-                    if not loot.item:
-                        self.send_loot_release(enemy.guid)
-                        return
+                if not loot or not loot.item:
+                    self.send_loot_release(enemy.guid)
+                    return
 
-                    # Check inventory available slots.
-                    if not self.inventory.can_store_item(loot.item.item_template, loot.quantity, notify_error=True):
-                        return
-
+                if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
                     enemy.loot_manager.do_loot(slot)
-
                     data = pack('<B', slot)
                     GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
 
-                    self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True)
+            if enemy and not enemy.loot_manager.has_loot():
+                enemy.set_lootable(False)
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
         enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=True)
-        if enemy and not enemy.loot_manager.has_loot():
-            enemy.set_lootable(False)
 
         data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
