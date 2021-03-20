@@ -437,22 +437,17 @@ class PlayerManager(UnitManager):
             enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=True)
             if enemy and enemy.loot_manager.has_loot():
                 loot = enemy.loot_manager.get_loot_in_slot(slot)
-                if not loot.item:
+                if not loot or not loot.item:
                     self.send_loot_release(enemy.guid)
                     return
 
-                enemy.loot_manager.do_loot(slot)
+                if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
+                    enemy.loot_manager.do_loot(slot)
+                    data = pack('<B', slot)
+                    GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
 
-                data = pack('<B', slot)
-                GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
-
-                self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True)
-
-                if not enemy.loot_manager.has_loot():
-                    self.send_loot_release(enemy.guid)
-                    enemy.set_lootable(False)
-                else:
-                    self.send_loot(enemy)
+            if enemy and not enemy.loot_manager.has_loot():
+                enemy.set_lootable(False)
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
@@ -472,16 +467,18 @@ class PlayerManager(UnitManager):
                     )
 
         slot = 0
+        # Slot should match real current_loot indexes.
         for loot in victim.loot_manager.current_loot:
-            # Send item query information
-            self.session.request.sendall(loot.item.query_details())
+            if loot:
+                # Send item query information
+                self.session.request.sendall(loot.item.query_details())
 
-            data += pack('<B3I',
-                         slot,
-                         loot.item.item_template.entry,
-                         loot.quantity,
-                         loot.item.item_template.display_id,
-                         )
+                data += pack('<B3I',
+                             slot,
+                             loot.item.item_template.entry,
+                             loot.quantity,
+                             loot.item.item_template.display_id,
+                             )
             slot += 1
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
