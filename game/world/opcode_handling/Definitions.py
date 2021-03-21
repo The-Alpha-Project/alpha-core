@@ -60,15 +60,20 @@ from game.world.opcode_handling.handlers.player.InspectHandler import InspectHan
 from game.world.opcode_handling.handlers.npc.TrainerListHandler import TrainerListHandler
 from game.world.opcode_handling.handlers.npc.ActivateTaxiHandler import ActivateTaxiHandler
 from game.world.opcode_handling.handlers.npc.TaxiQueryNodesHandler import TaxiQueryNodesHandler
-
 from game.world.opcode_handling.handlers.player.MovementHandler import MovementHandler
-
 from game.world.opcode_handling.handlers.loot.LootRequestHandler import LootRequestHandler
 from game.world.opcode_handling.handlers.loot.LootReleaseHandler import LootReleaseHandler
 from game.world.opcode_handling.handlers.loot.LootMoneyHandler import LootMoneyHandler
 from game.world.opcode_handling.handlers.loot.AutostoreLootItemHandler import AutostoreLootItemHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverStatusHandler import QuestGiverStatusHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import QuestGiverHelloHandler
+from game.world.opcode_handling.handlers.group.GroupInviteHandler import GroupInviteHandler
+from game.world.opcode_handling.handlers.group.GroupInviteAcceptHandler import GroupInviteAcceptHandler
+from game.world.opcode_handling.handlers.group.GroupInviteDeclineHandler import GroupInviteDeclineHandler
+from game.world.opcode_handling.handlers.group.GroupUnInviteHandler import GroupUnInviteHandler
+from game.world.opcode_handling.handlers.group.GroupDisbandHandler import GroupDisbandHandler
+from game.world.opcode_handling.handlers.group.GroupSetLeaderHandler import GroupSetLeaderHandler
+from game.world.opcode_handling.handlers.group.MinimapPingHandler import MinimapPingHandler
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -169,7 +174,14 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_LOOT_MONEY: LootMoneyHandler.handle,
     OpCode.CMSG_AUTOSTORE_LOOT_ITEM: AutostoreLootItemHandler.handle,
     OpCode.CMSG_QUESTGIVER_STATUS_QUERY: QuestGiverStatusHandler.handle,
-    OpCode.CMSG_QUESTGIVER_HELLO: QuestGiverHelloHandler.handle
+    OpCode.CMSG_QUESTGIVER_HELLO: QuestGiverHelloHandler.handle,
+    OpCode.CMSG_GROUP_INVITE: GroupInviteHandler.handle,
+    OpCode.CMSG_GROUP_ACCEPT: GroupInviteAcceptHandler.handle,
+    OpCode.CMSG_GROUP_DISBAND: GroupDisbandHandler.handle,
+    OpCode.CMSG_GROUP_DECLINE: GroupInviteDeclineHandler.handle,
+    OpCode.CMSG_GROUP_UNINVITE: GroupUnInviteHandler.handle,
+    OpCode.CMSG_GROUP_SET_LEADER: GroupSetLeaderHandler.handle,
+    OpCode.MSG_MINIMAP_PING: MinimapPingHandler.handle,
 }
 
 

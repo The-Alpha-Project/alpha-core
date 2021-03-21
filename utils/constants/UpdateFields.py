@@ -129,6 +129,14 @@ class PlayerFields(IntEnum):
     PLAYER_END = UnitFields.UNIT_END + 0x1C2                                    # 0x274
 
 
+class PlayerFlags(IntEnum):
+    PLAYER_FLAGS_NONE = 0x0,
+    PLAYER_FLAGS_GROUP_LEADER = 0x1,
+    PLAYER_FLAGS_AFK = 0x4,
+    PLAYER_FLAGS_DND = 0x8,
+    PLAYER_FLAGS_GM = 0x10
+
+
 class GameObjectFields(IntEnum):
     GAMEOBJECT_DISPLAYID = ObjectFields.OBJECT_END + 0x0                        # 0x006 - Size: 1 - Type: INT - Flags: PUBLIC
     GAMEOBJECT_FLAGS = ObjectFields.OBJECT_END + 0x1                            # 0x007 - Size: 1 - Type: INT - Flags: PUBLIC
