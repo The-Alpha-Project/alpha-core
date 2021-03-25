@@ -293,7 +293,7 @@ class PlayerManager(UnitManager):
         return False
 
     def sync_player(self):
-        if self.player and self.player.guid == self.guid:
+        if self.player:
             self.player.level = self.level
             self.player.xp = self.xp
             self.player.talentpoints = self.talent_points
