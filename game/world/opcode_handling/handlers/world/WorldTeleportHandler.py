@@ -30,4 +30,8 @@ class WorldTeleportHandler(object):
 
         world_session.player_mgr.is_teleporting = False
 
+        # Update group info after a teleport
+        if world_session.player_mgr.group_manager:
+            world_session.player_mgr.group_manager.send_update()
+
         return 0

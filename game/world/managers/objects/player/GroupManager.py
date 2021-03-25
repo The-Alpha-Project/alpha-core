@@ -2,7 +2,7 @@ from struct import pack
 from utils import Formulas
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.GroupCodes import PartyOperations, PartyResults
-from utils.constants.ObjectCodes import WhoPartyStatus
+from utils.constants.ObjectCodes import WhoPartyStatus, LootMethods
 from game.world.managers.GridManager import GridManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 
@@ -63,7 +63,7 @@ class GroupManager(object):
             len(self.members),
             leader_name_bytes,
             self.party_leader.guid,
-            1  # Todo field meaning
+            1  # If party leader is online or not
         )
 
         # Fill all group members.
@@ -72,16 +72,18 @@ class GroupManager(object):
                 continue
 
             member_name_bytes = PacketWriter.string_to_bytes(member.player.name)
-            data += pack('<%usQB' % len(member_name_bytes),
-                         member_name_bytes,
-                         member.guid,
-                         0  # Todo field meaning
-                         )
+            data += pack(
+                '<%usQB' % len(member_name_bytes),
+                member_name_bytes,
+                member.guid,
+                1  # If member is online or not
+             )
 
-        data += pack('<BQ',
-                     0,  # Todo LootMethod (0 = FFA)
-                     self.party_leader.guid
-                     )
+        data += pack(
+            '<BQ',
+            LootMethods.LOOT_METHOD_FREEFORALL,  # TODO proper LootMethod handling
+            self.party_leader.guid  # Loot Master
+        )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
         self.send_packet_to_members(packet)
