@@ -1,7 +1,7 @@
 from network.packet.PacketReader import *
 from game.world.managers.objects.player.GroupManager import GroupManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from utils.constants.GroupCodes import PartyOperation as Po, PartyResult as Pr
+from utils.constants.GroupCodes import PartyOperations, PartyResults
 
 
 class GroupInviteHandler(object):
@@ -14,6 +14,7 @@ class GroupInviteHandler(object):
         if target_player_mgr:
             GroupManager.invite_player(world_session.player_mgr, target_player_mgr)
         else:
-            GroupManager.send_group_operation_result(world_session.player_mgr, Po.PARTY_OP_INVITE, target_name,
-                                                     Pr.ERR_BAD_PLAYER_NAME_S)
+            GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_INVITE,
+                                                     target_name, PartyResults.ERR_BAD_PLAYER_NAME_S)
+
         return 0

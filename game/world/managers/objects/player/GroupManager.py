@@ -1,6 +1,6 @@
 from struct import pack
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.GroupCodes import PartyOperation as Po, PartyResult as Pr
+from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.ObjectCodes import WhoPartyStatus
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 
@@ -90,7 +90,7 @@ class GroupManager(object):
         disband = player_mgr == self.party_leader or len(self.members) == 2 or force_disband
         for member in self.members.values():
             if disband or member == player_mgr:
-                GroupManager.send_group_operation_result(member, Po.PARTY_OP_LEAVE, member.player.name, Pr.OK_PARTY_RESULT)
+                GroupManager.send_group_operation_result(member, PartyOperations.PARTY_OP_LEAVE, member.player.name, PartyResults.ERR_PARTY_RESULT_OK)
                 member.group_manager = None
                 member.set_group_leader(False)
                 member.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
@@ -104,20 +104,20 @@ class GroupManager(object):
 
     def un_invite_player(self, player_mgr, target_player_mgr):
         if not target_player_mgr.group_manager or target_player_mgr.guid not in self.members:
-            GroupManager.send_group_operation_result(player_mgr, Po.PARTY_OP_LEAVE, '', Pr.ERR_TARGET_NOT_IN_YOUR_GROUP_S)
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '', PartyResults.ERR_TARGET_NOT_IN_YOUR_GROUP_S)
             return
         elif self.party_leader != player_mgr or self != target_player_mgr.group_manager:
-            GroupManager.send_group_operation_result(player_mgr, Po.PARTY_OP_LEAVE, '', Pr.ERR_NOT_LEADER)
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '', PartyResults.ERR_NOT_LEADER)
             return
 
         self.kick_member(target_player_mgr)
 
     def set_party_leader(self, player_mgr, target_player_mgr):
         if not target_player_mgr.group_manager or target_player_mgr.guid not in self.members:
-            GroupManager.send_group_operation_result(player_mgr, Po.PARTY_OP_LEAVE, '', Pr.ERR_TARGET_NOT_IN_YOUR_GROUP_S)
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '', PartyResults.ERR_TARGET_NOT_IN_YOUR_GROUP_S)
             return
         elif self.party_leader != player_mgr or self != target_player_mgr.group_manager:
-            GroupManager.send_group_operation_result(player_mgr, Po.PARTY_OP_LEAVE, '', Pr.ERR_NOT_LEADER)
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '', PartyResults.ERR_NOT_LEADER)
             return
 
         self.party_leader.set_group_leader(False)
@@ -206,20 +206,20 @@ class GroupManager(object):
     def invite_player(player_mgr, target_player_mgr):
 
         if player_mgr.is_enemy_to(target_player_mgr):
-            GroupManager.send_group_operation_result(player_mgr, Po.PARTY_OP_INVITE, target_player_mgr.player.name, Pr.ERR_PLAYER_WRONG_FACTION)
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PLAYER_WRONG_FACTION)
             return
 
         if target_player_mgr.group_manager:
-            GroupManager.send_group_operation_result(player_mgr, Po.PARTY_OP_INVITE, target_player_mgr.player.name, Pr.ERR_ALREADY_IN_GROUP_S)
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_ALREADY_IN_GROUP_S)
             return
 
         if player_mgr.group_manager:
             if player_mgr.group_manager.party_leader != player_mgr:
-                GroupManager.send_group_operation_result(player_mgr, Po.PARTY_OP_INVITE, target_player_mgr.player.name, Pr.ERR_NOT_LEADER)
+                GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_NOT_LEADER)
                 return
 
             if len(player_mgr.group_manager.members) == MAX_GROUP_SIZE:
-                GroupManager.send_group_operation_result(player_mgr, Po.PARTY_OP_INVITE, target_player_mgr.player.name, Pr.ERR_GROUP_FULL)
+                GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_GROUP_FULL)
                 return
 
             if not player_mgr.group_manager.try_add_member(target_player_mgr, True):
@@ -238,7 +238,7 @@ class GroupManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_INVITE, data)
         target_player_mgr.session.request.sendall(packet)
 
-        GroupManager.send_group_operation_result(player_mgr, Po.PARTY_OP_INVITE, target_player_mgr.player.name, Pr.OK_PARTY_RESULT)
+        GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PARTY_RESULT_OK)
 
     @staticmethod
     def send_group_operation_result(player, group_operation, name, result):

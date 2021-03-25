@@ -599,25 +599,6 @@ class ItemBondingTypes(IntEnum):
     BIND_QUEST_ITEM = 4
 
 
-class PartyOperations(IntEnum):
-    PARTY_OP_INVITE = 0
-    PARTY_OP_LEAVE = 2
-
-
-class PartyResults(IntEnum):
-    ERR_PARTY_RESULT_OK = 0
-    ERR_BAD_PLAYER_NAME_S = 1
-    ERR_TARGET_NOT_IN_GROUP_S = 2
-    ERR_TARGET_NOT_IN_INSTANCE_S = 3
-    ERR_GROUP_FULL = 4
-    ERR_ALREADY_IN_GROUP_S = 5
-    ERR_NOT_IN_GROUP = 6
-    ERR_NOT_LEADER = 7
-    ERR_PLAYER_WRONG_FACTION = 8
-    ERR_IGNORING_YOU_S = 9
-    ERR_INVITE_RESTRICTED = 13
-
-
 class LootMethods(IntEnum):
     LOOT_METHOD_FREEFORALL = 0x0
     LOOT_METHOD_ROUNDROBIN = 0x1

@@ -327,8 +327,8 @@ class CreatureManager(UnitManager):
         min_damage, max_damage = unpack('<2H', pack('<I', self.damage))
         return int(min_damage), int(max_damage)
 
-    def set_lootable(self, should_set):
-        if should_set:
+    def set_lootable(self, flag=True):
+        if flag:
             self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
             self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         else:

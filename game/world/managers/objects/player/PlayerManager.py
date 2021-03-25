@@ -568,7 +568,7 @@ class PlayerManager(UnitManager):
 
                 self.set_dirty()
 
-    def set_group_leader(self, flag):
+    def set_group_leader(self, flag=True):
         if flag:
             self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
             self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
