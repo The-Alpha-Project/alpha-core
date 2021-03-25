@@ -285,6 +285,8 @@ class PlayerManager(UnitManager):
         if skip_check or guid in self.objects_in_range:
             self.session.request.sendall(self.objects_in_range[guid]['object'].get_destroy_packet())
             del self.objects_in_range[guid]
+            return True
+        return False
 
     def sync_player(self):
         if self.player and self.player.guid == self.guid:
@@ -313,8 +315,12 @@ class PlayerManager(UnitManager):
         self.is_teleporting = True
 
         for guid, player in list(GridManager.get_surrounding_players(self).items()):
-            player.destroy_near_object(self.guid)
-        # GridManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
+            if self.guid == guid:
+                continue
+
+            # Always make sure self is destroyed for others
+            if not player.destroy_near_object(self.guid):
+                player.session.request.sendall(self.get_destroy_packet())
 
         # Same map and not inside instance
         if self.map_ == map_ and self.map_ <= 1:

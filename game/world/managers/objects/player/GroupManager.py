@@ -96,7 +96,7 @@ class GroupManager(object):
         if disband:
             self.members.clear()
         elif player_mgr.guid in self.members:
-            self.members.pop(player_mgr.guid, None)
+            self.members.pop(player_mgr.guid)
 
         self.send_update()
 
