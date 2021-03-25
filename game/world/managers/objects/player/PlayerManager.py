@@ -208,6 +208,10 @@ class PlayerManager(UnitManager):
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
 
     def logout(self):
+        # TODO: Temp hackfix until groups are saved in db
+        if self.group_manager:
+            self.group_manager.leave_party(self, force_disband=self.group_manager.party_leader == self)
+
         self.session.save_character()
         GridManager.remove_object(self)
         self.session.player_mgr = None
