@@ -82,7 +82,7 @@ class GroupManager(object):
         data += pack(
             '<BQ',
             LootMethods.LOOT_METHOD_FREEFORALL,  # TODO proper LootMethod handling
-            self.party_leader.guid  # Loot Master
+            0  # Master Looter guid
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
