@@ -39,11 +39,9 @@ class GroupManager(object):
 
             if len(self.members) > 1:
                 self.send_update()
-                self.send_party_members_stats(player_mgr)
+                self.send_party_member_stats(player_mgr)
 
             return True
-
-        return False
 
     def set_leader(self, player_mgr):
         self.party_leader.set_group_leader(False)
@@ -161,7 +159,7 @@ class GroupManager(object):
 
     def send_party_members_stats(self):
         for member in self.members.values():
-            self.send_party_members_stats(member)
+            self.send_party_member_stats(member)
 
     def send_invite_decline(self, player_name):
         name_bytes = PacketWriter.string_to_bytes(player_name)
@@ -173,7 +171,7 @@ class GroupManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
         self.party_leader.session.request.sendall(packet)
 
-    def send_party_members_stats(self, player_mgr):
+    def send_party_member_stats(self, player_mgr):
         data = pack('<Q2IB6I',
                     player_mgr.guid,
                     player_mgr.health,
