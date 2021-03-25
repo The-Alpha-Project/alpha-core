@@ -8,7 +8,7 @@ class GroupUnInviteGuidHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty loot release packet
+        if len(reader.data) >= 8:  # Avoid handling empty group uninvite guid packet
             guid = unpack('<Q', reader.data[:8])[0]
             target_player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
 
