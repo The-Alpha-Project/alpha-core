@@ -50,6 +50,11 @@ class ChatHandler(object):
 
                 ChatManager.send_whisper(world_session.player_mgr, target_player_mgr, message, lang)
             return 0
+        # Party
+        elif chat_type == ChatMsgs.CHAT_MSG_PARTY:
+            message = PacketReader.read_string(reader.data, 8)
+            ChatManager.send_party(world_session.player_mgr, message, lang)
+            return 0
 
         if not ChatHandler.check_if_command(world_session, message):
             ChatManager.send_chat_message(world_session, guid, chat_flags, message, chat_type, lang,

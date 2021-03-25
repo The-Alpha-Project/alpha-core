@@ -1,5 +1,4 @@
 from struct import pack
-
 from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import ChatMsgs, ChatFlags
@@ -35,6 +34,13 @@ class ChatManager(object):
                                                                               chat_flags,
                                                                               message, chat_type, lang),
                                               world_session.player_mgr, range_)
+
+    @staticmethod
+    def send_party(sender, message, lang):
+        if sender.group_manager:
+            sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
+                                                            ChatMsgs.CHAT_MSG_PARTY, lang)
+            sender.group_manager.send_packet_to_members(sender_packet)
 
     @staticmethod
     def send_whisper(sender, receiver, message, lang):

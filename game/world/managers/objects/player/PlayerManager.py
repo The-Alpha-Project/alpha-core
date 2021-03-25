@@ -11,6 +11,7 @@ from game.world.managers.objects.player.SpellManager import SpellManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
+from game.world.managers.objects.player.GroupManager import GroupManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
@@ -129,11 +130,22 @@ class PlayerManager(UnitManager):
             self.skill_manager = SkillManager(self)
             self.spell_manager = SpellManager(self)
             self.quest_manager = QuestManager(self)
+            self.group_manager = None
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:
             race_data = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
         return race_data.MaleDisplayId if is_male else race_data.FemaleDisplayId
+
+    def get_power_type_value(self):
+        if self.power_type == PowerTypes.TYPE_MANA:
+            return self.power_1
+        elif self.power_type == PowerTypes.TYPE_RAGE:
+            return self.power_2
+        elif self.power_type == PowerTypes.TYPE_FOCUS:
+            return self.power_3
+        else:
+            return self.power_4
 
     def set_player_variables(self):
         race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
@@ -555,6 +567,16 @@ class PlayerManager(UnitManager):
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
 
                 self.set_dirty()
+
+    def set_group_leader(self, flag):
+        if flag:
+            self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
+            self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
+        else:
+            self.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
+            self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
+
+        self.send_update_self(self.generate_proper_update_packet(is_self=True))
 
     def mod_money(self, amount, reload_items=False):
         if self.coinage + amount < 0:
