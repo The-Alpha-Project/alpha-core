@@ -49,6 +49,7 @@ begin not atomic
         alter table characters modify column `talentpoints` int(11) unsigned NOT NULL DEFAULT 0;
         alter table characters modify column `skillpoints` int(11) unsigned NOT NULL DEFAULT 0;
         alter table characters modify column `money` int(11) unsigned NOT NULL DEFAULT 0;
+        alter table characters modify column `xp` int(11) unsigned NOT NULL DEFAULT 0;
 
         insert into applied_updates values ('250320211');
     end if;
