@@ -198,13 +198,12 @@ class GroupManager(object):
             member.session.request.sendall(packet)
 
     def send_minimap_ping(self, player_mgr, x, y):
-        data = pack('<Qff', player_mgr.guid, x, y)
+        data = pack('<Q2f', player_mgr.guid, x, y)
         packet = PacketWriter.get_packet(OpCode.MSG_MINIMAP_PING, data)
         self.send_packet_to_members(packet)
 
     @staticmethod
     def invite_player(player_mgr, target_player_mgr):
-
         if player_mgr.is_enemy_to(target_player_mgr):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PLAYER_WRONG_FACTION)
             return
