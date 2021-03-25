@@ -25,7 +25,6 @@ class GroupManager(object):
         if invite:
             self.invites[player_mgr.guid] = player_mgr
             player_mgr.group_manager = self
-            print(self.invites)
             return True
         else:
             self.members[player_mgr.guid] = player_mgr
@@ -144,7 +143,6 @@ class GroupManager(object):
 
             packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_UNINVITE)
             player_mgr.session.request.sendall(packet)
-            print(self.members)
             self.send_update()
 
     def remove_invitation(self, player_mgr):
