@@ -315,13 +315,16 @@ class CreatureManager(UnitManager):
         self.set_dirty()
 
     def reward_kill_xp(self, player):
-        # TODO: Handle group XP
         # Critters don't award XP
         if self.creature_type == CreatureTypes.AMBIENT:
             return
 
         is_elite = 0 < self.creature_template.rank < 4
-        player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite)], self)
+
+        if player.group_manager:
+            player.group_manager.reward_group_xp(player, self, is_elite)
+        else:
+            player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite)], self)
 
     def calculate_min_max_damage(self, attack_type=0):
         min_damage, max_damage = unpack('<2H', pack('<I', self.damage))

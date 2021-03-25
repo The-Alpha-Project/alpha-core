@@ -92,8 +92,11 @@ class GridManager(object):
         return surrounding_objects
 
     @staticmethod
-    def get_surrounding_players(world_obj):
-        return GridManager.get_surrounding_objects(world_obj, [ObjectTypes.TYPE_PLAYER])[0]
+    def get_surrounding_players(world_obj, include_self=False):
+        world_objs = GridManager.get_surrounding_objects(world_obj, [ObjectTypes.TYPE_PLAYER])[0]
+        if include_self:
+            world_objs[world_obj.guid] = world_obj
+        return world_objs
 
     @staticmethod
     def get_surrounding_units(world_obj, include_players=False):

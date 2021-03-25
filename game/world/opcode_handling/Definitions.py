@@ -71,6 +71,7 @@ from game.world.opcode_handling.handlers.group.GroupInviteHandler import GroupIn
 from game.world.opcode_handling.handlers.group.GroupInviteAcceptHandler import GroupInviteAcceptHandler
 from game.world.opcode_handling.handlers.group.GroupInviteDeclineHandler import GroupInviteDeclineHandler
 from game.world.opcode_handling.handlers.group.GroupUnInviteHandler import GroupUnInviteHandler
+from game.world.opcode_handling.handlers.group.GroupUnInviteGuidHandler import GroupUnInviteGuidHandler
 from game.world.opcode_handling.handlers.group.GroupDisbandHandler import GroupDisbandHandler
 from game.world.opcode_handling.handlers.group.GroupSetLeaderHandler import GroupSetLeaderHandler
 from game.world.opcode_handling.handlers.group.MinimapPingHandler import MinimapPingHandler
@@ -180,6 +181,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GROUP_DISBAND: GroupDisbandHandler.handle,
     OpCode.CMSG_GROUP_DECLINE: GroupInviteDeclineHandler.handle,
     OpCode.CMSG_GROUP_UNINVITE: GroupUnInviteHandler.handle,
+    OpCode.CMSG_GROUP_UNINVITE_GUID: GroupUnInviteGuidHandler.handle,
     OpCode.CMSG_GROUP_SET_LEADER: GroupSetLeaderHandler.handle,
     OpCode.MSG_MINIMAP_PING: MinimapPingHandler.handle
 }
