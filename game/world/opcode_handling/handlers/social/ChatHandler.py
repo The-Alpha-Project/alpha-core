@@ -34,6 +34,11 @@ class ChatHandler(object):
             message = PacketReader.read_string(reader.data, 8)
             guid = world_session.player_mgr.guid
             chat_flags = world_session.player_mgr.chat_flags
+
+            # Only send message if it's not a command
+            if not ChatHandler.check_if_command(world_session, message):
+                ChatManager.send_chat_message(world_session, guid, chat_flags, message, chat_type, lang,
+                                              ChatHandler.get_range_by_type(chat_type))
         # Whisper
         elif chat_type == ChatMsgs.CHAT_MSG_WHISPER:
             target_name = PacketReader.read_string(reader.data, 8).strip()
@@ -55,10 +60,10 @@ class ChatHandler(object):
             message = PacketReader.read_string(reader.data, 8)
             ChatManager.send_party(world_session.player_mgr, message, lang)
             return 0
-
-        if not ChatHandler.check_if_command(world_session, message):
-            ChatManager.send_chat_message(world_session, guid, chat_flags, message, chat_type, lang,
-                                          ChatHandler.get_range_by_type(chat_type))
+        # Guild
+        elif chat_type == ChatMsgs.CHAT_MSG_GUILD:
+            # TODO: Implement
+            return 0
 
         return 0
 
