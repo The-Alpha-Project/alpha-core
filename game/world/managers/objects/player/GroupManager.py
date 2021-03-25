@@ -1,7 +1,9 @@
 from struct import pack
+from utils import Formulas
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.ObjectCodes import WhoPartyStatus
+from game.world.managers.GridManager import GridManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 
 MAX_GROUP_SIZE = 5
@@ -150,6 +152,15 @@ class GroupManager(object):
     def remove_member_invite(self, guid):
         if guid in self.invites:
             self.invites.pop(guid, None)
+
+    def reward_group_xp(self, player, creature, is_elite):
+        surrounding = [m for m in self.members.values() if m in GridManager.get_surrounding_players(player, include_self=True).values()]
+        surrounding.sort(key=lambda players: players.level, reverse=True)  # Highest level on top
+        sum_levels = sum(player.level for player in surrounding)
+        base_xp = Formulas.CreatureFormulas.xp_reward(creature.level, surrounding[0].level, is_elite)
+
+        for member in surrounding:
+            member.give_xp([base_xp * member.level / sum_levels], creature)
 
     def send_party_members_stats(self):
         for member in self.members.values():
