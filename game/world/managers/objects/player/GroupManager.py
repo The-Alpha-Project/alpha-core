@@ -39,7 +39,7 @@ class GroupManager(object):
 
             if len(self.members) > 1:
                 self.send_update()
-                self.send_party_member_stats(player_mgr)
+                self.send_party_members_stats()
 
             return True
 
@@ -83,8 +83,9 @@ class GroupManager(object):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
         self.send_packet_to_members(packet)
+        self.send_party_members_stats()
 
-    def leave_party(self, player_mgr, force_disband=False):
+    def leave_party(self, player_mgr, force_disband=False, is_kicked=False):
         disband = player_mgr == self.party_leader or len(self.members) == 2 or force_disband
         for member in self.members.values():
             if disband or member == player_mgr:
@@ -92,6 +93,10 @@ class GroupManager(object):
                 member.group_manager = None
                 member.set_group_leader(False)
                 member.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
+
+                if is_kicked and member == player_mgr: # 'You have been removed from the group.'
+                    packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_UNINVITE)
+                    player_mgr.session.request.sendall(packet)
 
         if disband:
             self.members.clear()
@@ -108,7 +113,7 @@ class GroupManager(object):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '', PartyResults.ERR_NOT_LEADER)
             return
 
-        self.kick_member(target_player_mgr)
+        self.leave_party(target_player_mgr, is_kicked=True)
 
     def set_party_leader(self, player_mgr, target_player_mgr):
         if not target_player_mgr.group_manager or target_player_mgr.guid not in self.members:
@@ -132,17 +137,6 @@ class GroupManager(object):
         self.send_packet_to_members(packet)
         self.send_update()
 
-    def kick_member(self, player_mgr):
-        if player_mgr.guid in self.members:
-            self.members.pop(player_mgr.guid, None)
-            player_mgr.group_manager = None
-            player_mgr.set_group_leader(False)
-            player_mgr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
-
-            packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_UNINVITE)
-            player_mgr.session.request.sendall(packet)
-            self.send_update()
-
     def remove_invitation(self, player_mgr):
         if player_mgr.guid in self.invites:
             self.invites.pop(player_mgr.guid, None)
@@ -161,16 +155,6 @@ class GroupManager(object):
         for member in self.members.values():
             self.send_party_member_stats(member)
 
-    def send_invite_decline(self, player_name):
-        name_bytes = PacketWriter.string_to_bytes(player_name)
-        data = pack(
-            '<%us' % len(name_bytes),
-            name_bytes,
-        )
-
-        packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
-        self.party_leader.session.request.sendall(packet)
-
     def send_party_member_stats(self, player_mgr):
         data = pack('<Q2IB6I',
                     player_mgr.guid,
@@ -187,6 +171,16 @@ class GroupManager(object):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_PARTY_MEMBER_STATS, data)
         self.send_packet_to_members(packet)
+
+    def send_invite_decline(self, player_name):
+        name_bytes = PacketWriter.string_to_bytes(player_name)
+        data = pack(
+            '<%us' % len(name_bytes),
+            name_bytes,
+        )
+
+        packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
+        self.party_leader.session.request.sendall(packet)
 
     def send_packet_to_members(self, packet, ignore=None):
         for member in self.members.values():
