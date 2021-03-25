@@ -591,7 +591,13 @@ class PlayerManager(UnitManager):
     def mod_money(self, amount, reload_items=False):
         if self.coinage + amount < 0:
             amount = -self.coinage
-        self.coinage += amount
+
+        # Gold hard cap: 214748 gold, 36 silver and 47 copper
+        if self.coinage + amount > 2147483647:
+            self.coinage = 2147483647
+        else:
+            self.coinage += amount
+
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
 
         self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=reload_items)

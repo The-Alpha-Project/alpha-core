@@ -43,5 +43,14 @@ begin not atomic
 
         insert into applied_updates values ('250220211');
     end if;
+
+    -- 25/03/2021 1
+    if (select count(*) from applied_updates where id='250320211') = 0 then
+        alter table characters modify column `talentpoints` int(11) unsigned NOT NULL DEFAULT 0;
+        alter table characters modify column `skillpoints` int(11) unsigned NOT NULL DEFAULT 0;
+        alter table characters modify column `money` int(11) unsigned NOT NULL DEFAULT 0;
+
+        insert into applied_updates values ('250320211');
+    end if;
 end $
 delimiter ;
