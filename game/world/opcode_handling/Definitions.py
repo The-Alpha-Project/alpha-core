@@ -181,7 +181,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GROUP_DECLINE: GroupInviteDeclineHandler.handle,
     OpCode.CMSG_GROUP_UNINVITE: GroupUnInviteHandler.handle,
     OpCode.CMSG_GROUP_SET_LEADER: GroupSetLeaderHandler.handle,
-    OpCode.MSG_MINIMAP_PING: MinimapPingHandler.handle,
+    OpCode.MSG_MINIMAP_PING: MinimapPingHandler.handle
 }
 
 
