@@ -552,6 +552,7 @@ class PlayerManager(UnitManager):
 
                 self.level = level
                 self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
+                self.player.leveltime = 0
 
                 self.stat_manager.init_stats()
                 hp_diff, mana_diff = self.stat_manager.apply_bonuses()
