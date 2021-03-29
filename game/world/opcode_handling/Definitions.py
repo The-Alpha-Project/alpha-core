@@ -69,6 +69,7 @@ from game.world.opcode_handling.handlers.loot.LootMoneyHandler import LootMoneyH
 from game.world.opcode_handling.handlers.loot.AutostoreLootItemHandler import AutostoreLootItemHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverStatusHandler import QuestGiverStatusHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import QuestGiverHelloHandler
+from game.world.opcode_handling.handlers.quest.QuestGiverQueryQuestHandler import QuestGiverQueryQuestHandler
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -169,7 +170,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_LOOT_MONEY: LootMoneyHandler.handle,
     OpCode.CMSG_AUTOSTORE_LOOT_ITEM: AutostoreLootItemHandler.handle,
     OpCode.CMSG_QUESTGIVER_STATUS_QUERY: QuestGiverStatusHandler.handle,
-    OpCode.CMSG_QUESTGIVER_HELLO: QuestGiverHelloHandler.handle
+    OpCode.CMSG_QUESTGIVER_HELLO: QuestGiverHelloHandler.handle,
+    OpCode.CMSG_QUESTGIVER_QUERY_QUEST: QuestGiverQueryQuestHandler.handle
 }
 
 
