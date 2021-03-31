@@ -28,6 +28,7 @@ class CreatureManager(UnitManager):
 
         self.creature_template = creature_template
         self.creature_instance = creature_instance
+        self.killed_by = None
 
         self.guid = (creature_instance.spawn_id if creature_instance else 0) | HighGuid.HIGHGUID_UNIT
 
@@ -289,6 +290,7 @@ class CreatureManager(UnitManager):
 
         self.loot_manager.clear()
         self.set_lootable(False)
+        self.killed_by = None
 
         self.is_spawned = True
         self.respawn_timer = 0
@@ -307,6 +309,7 @@ class CreatureManager(UnitManager):
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
+            self.killed_by = killer
 
         self.loot_manager.generate_loot()
         if self.loot_manager.has_loot():

@@ -156,23 +156,25 @@ class GroupManager(object):
             self.invites.pop(guid, None)
 
     def reward_group_money(self, player, creature):
-        surrounding = [m for m in self.members.values() if m in GridManager.get_surrounding_players(player).values()]
-        # TODO: Is there an specific formula for how money should be split across members?
-        # TODO: Append div remainder to the player who killed the creature for now. (Coinage = int32)
-        share = int(creature.loot_manager.current_money / len(surrounding))
-        remainder = int(creature.loot_manager.current_money % len(surrounding))
+        if creature.killed_by and creature.killed_by in self.members.values():
+            surrounding = [m for m in self.members.values() if m in GridManager.get_surrounding_players(player).values()]
+            # TODO: Is there an specific formula for how money should be split across members?
+            # TODO: Append div remainder to the player who killed the creature for now. (Coinage = int32)
+            share = int(creature.loot_manager.current_money / len(surrounding))
+            remainder = int(creature.loot_manager.current_money % len(surrounding))
 
-        for member in surrounding:
-            ply_share = share if member != player else share + remainder
-            # TODO: MSG_SPLIT_MONEY seems not to have any effect on the client.
-            # data = pack('<Q2I', creature.guid, creature.loot_manager.current_money, ply_share)
-            # split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
-            # member.session.request.sendall(split_packet)
-            data = pack('<I', ply_share)
-            member.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
-            member.mod_money(ply_share)
+            for member in surrounding:
+                ply_share = share if member != creature.killed_by else share + remainder
+                # TODO: MSG_SPLIT_MONEY seems not to have any effect on the client.
+                # data = pack('<Q2I', creature.guid, creature.loot_manager.current_money, ply_share)
+                # split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
+                # member.session.request.sendall(split_packet)
+                data = pack('<I', ply_share)
+                member.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
+                member.mod_money(ply_share)
 
-        self.send_packet_to_members(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
+            creature.loot_manager.clear_money()
+            self.send_packet_to_members(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
 
     def reward_group_xp(self, player, creature, is_elite):
         surrounding = [m for m in self.members.values() if m in GridManager.get_surrounding_players(player).values()]

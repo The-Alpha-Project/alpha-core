@@ -447,8 +447,8 @@ class PlayerManager(UnitManager):
                     data = pack('<I', enemy.loot_manager.current_money)
                     self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
                     self.mod_money(enemy.loot_manager.current_money)
+                    enemy.loot_manager.clear_money()
 
-                enemy.loot_manager.clear_money()
                 if not enemy.loot_manager.has_items():
                     self.send_loot_release(enemy.guid)
                     enemy.set_lootable(False)
