@@ -499,7 +499,7 @@ class PlayerManager(UnitManager):
                              slot,
                              loot.item.item_template.entry,
                              loot.quantity,
-                             loot.item.item_template.display_id,
+                             loot.item.item_template.display_id
                              )
             slot += 1
 

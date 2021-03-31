@@ -69,9 +69,9 @@ class GridManager(object):
         return near_grids
 
     @staticmethod
-    def send_surrounding(packet, world_obj, include_self=True):
+    def send_surrounding(packet, world_obj, include_self=True, ignore=None):
         for grid in GridManager.get_surrounding(world_obj):
-            grid.send_all(packet, source=None if include_self else world_obj)
+            grid.send_all(packet, source=None if include_self else world_obj, ignore=ignore)
 
     @staticmethod
     def send_surrounding_in_range(packet, world_obj, range_, include_self=True):
@@ -237,16 +237,19 @@ class Grid(object):
         elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects.pop(world_obj.guid, None)
 
-    def send_all(self, packet, source=None):
+    def send_all(self, packet, source=None, ignore=None):
         for guid, player_mgr in list(self.players.items()):
             if player_mgr.is_online:
                 if source and player_mgr.guid == source.guid:
                     continue
+                if ignore and player_mgr.guid in ignore:
+                    continue
+
                 threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
 
-    def send_all_in_range(self, packet, range_, source, include_self=True):
+    def send_all_in_range(self, packet, range_, source, include_self=True, ignore=None):
         if range_ <= 0:
-            self.send_all(packet, source)
+            self.send_all(packet, source, ignore)
         else:
             for guid, player_mgr in list(self.players.items()):
                 if player_mgr.is_online and player_mgr.location.distance(source.location) <= range_:
