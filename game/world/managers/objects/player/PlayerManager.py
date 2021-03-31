@@ -440,16 +440,15 @@ class PlayerManager(UnitManager):
         if self.current_selection > 0:
             enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection)
             if enemy and enemy.loot_manager.has_money():
-                # TODO: Should notify ALL players that are looting that mob
-                self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
+                if self.group_manager:
+                    self.group_manager.reward_group_money(self, enemy)
+                else:
+                    self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
+                    data = pack('<I', enemy.loot_manager.current_money)
+                    self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
+                    self.mod_money(enemy.loot_manager.current_money)
 
-                data = pack('<I', enemy.loot_manager.current_money)
-                self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
-                # TODO: Send MSG_SPLIT_MONEY if looters > 1? (Q2I, target, total amount and received split)
-
-                self.mod_money(enemy.loot_manager.current_money)
                 enemy.loot_manager.clear_money()
-
                 if not enemy.loot_manager.has_items():
                     self.send_loot_release(enemy.guid)
                     enemy.set_lootable(False)
