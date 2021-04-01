@@ -13,12 +13,13 @@ class LootRequestHandler(object):
 
             player = world_session.player_mgr
             enemy = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, loot_target_guid,
-                                                             include_players=True)
+                                                             include_players=False)
 
             if player and enemy:
-                player.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
-                player.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player.unit_flags)
-                player.send_loot(enemy)
-                player.set_dirty()
+                # Only set flag if player was able to loot, else the player would be kneeling forever.
+                if player.send_loot(enemy):
+                    player.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
+                    player.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player.unit_flags)
+                    player.set_dirty()
 
         return 0

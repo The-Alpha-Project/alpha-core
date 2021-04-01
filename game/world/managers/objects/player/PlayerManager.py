@@ -25,7 +25,7 @@ from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitF
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.dbc.DbcDatabaseManager import *
-from utils.constants.ObjectCodes import ChatFlags
+from utils.constants.ObjectCodes import ChatFlags, LootTypes
 
 
 MAX_ACTION_BUTTONS = 120
@@ -455,7 +455,7 @@ class PlayerManager(UnitManager):
 
     def loot_item(self, slot):
         if self.current_selection > 0:
-            enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=True)
+            enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=False)
             if enemy and enemy.loot_manager.has_loot():
                 loot = enemy.loot_manager.get_loot_in_slot(slot)
                 if not loot or not loot.item:
@@ -477,33 +477,42 @@ class PlayerManager(UnitManager):
         data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
+        # If this release comes from the loot owner, set tag to None to allow FFA loot.
+        enemy = GridManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
+        if enemy and enemy.killed_by and enemy.killed_by == self:
+            enemy.killed_by = None
+
         self.set_dirty()
 
     def send_loot(self, victim):
+        loot_type = victim.loot_manager.get_loot_type(self, victim)
         data = pack('<QBIB',
                     victim.guid,
-                    1,  # TODO: proper flags. Loot type (1 = Corpse)
+                    loot_type,
                     victim.loot_manager.current_money,
                     len(victim.loot_manager.current_loot),
                     )
 
-        slot = 0
-        # Slot should match real current_loot indexes.
-        for loot in victim.loot_manager.current_loot:
-            if loot:
-                # Send item query information
-                self.session.request.sendall(loot.item.query_details())
+        # Do not send loot if player has no permission.
+        if loot_type != LootTypes.LOOT_TYPE_NOTALLOWED:
+            slot = 0
+            # Slot should match real current_loot indexes.
+            for loot in victim.loot_manager.current_loot:
+                if loot:
+                    # Send item query information
+                    self.session.request.sendall(loot.item.query_details())
 
-                data += pack('<B3I',
-                             slot,
-                             loot.item.item_template.entry,
-                             loot.quantity,
-                             loot.item.item_template.display_id,
-                             )
-            slot += 1
+                    data += pack('<B3I',
+                                 slot,
+                                 loot.item.item_template.entry,
+                                 loot.quantity,
+                                 loot.item.item_template.display_id,
+                                 )
+                slot += 1
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
-        GridManager.send_surrounding(packet, self)
+        self.session.request.sendall(packet)
+        return loot_type != LootTypes.LOOT_TYPE_NOTALLOWED
 
     def give_xp(self, amounts, victim=None):
         if self.level >= config.Unit.Player.Defaults.max_level or not self.is_alive:
