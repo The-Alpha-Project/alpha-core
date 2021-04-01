@@ -45,16 +45,7 @@ class LootManager(object):
         return self.has_money() or self.has_items()
 
     def get_loot_type(self, player, victim):
-        loot_type = LootTypes.LOOT_TYPE_NOTALLOWED
-
-        # killed_by is None or looter is the actual killer, allow.
-        if not victim.killed_by or victim.killed_by == player:
-            loot_type = LootTypes.LOOT_TYPE_CORPSE
-        # Looter is part of the killer_by player party, allow.
-        elif victim.killed_by.group_manager and victim.killed_by.group_manager.is_party_member(player):
-            loot_type = LootTypes.LOOT_TYPE_CORPSE
-        # Deny
-        return loot_type
+        return LootTypes.LOOT_TYPE_NOTALLOWED
 
     def clear(self):
         self.clear_money()

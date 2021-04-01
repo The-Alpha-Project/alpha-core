@@ -477,7 +477,7 @@ class PlayerManager(UnitManager):
         data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
-        # If this release comes from the loot owner, set tag to None to allow FFA loot.
+        # If this release comes from the loot owner, set killed_by to None to allow FFA loot.
         enemy = GridManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
         if enemy and enemy.killed_by and enemy.killed_by == self:
             enemy.killed_by = None
@@ -512,6 +512,7 @@ class PlayerManager(UnitManager):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
         self.session.request.sendall(packet)
+
         return loot_type != LootTypes.LOOT_TYPE_NOTALLOWED
 
     def give_xp(self, amounts, victim=None):
