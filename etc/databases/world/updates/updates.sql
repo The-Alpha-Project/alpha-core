@@ -48,5 +48,13 @@ begin not atomic
 
         insert into applied_updates values ('310320211');
     end if;
+
+    -- 02/04/2021 1
+    if (select count(*) from applied_updates where id='020420211') = 0 then
+        update creature_template set name = 'Thulbek', subname = 'Gun Merchant', npc_flags = 4, gossip_menu_id = 0, vendor_id = 5814 where entry = 5814;
+        update spawns_creatures set ignored = 1 where spawn_entry1 = 5814;
+
+        insert into applied_updates values ('020420211');
+    end if;
 end $
 delimiter ;
