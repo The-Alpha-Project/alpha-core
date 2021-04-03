@@ -170,9 +170,6 @@ class InventoryManager(object):
                     if diff >= count:
                         dest_item.item_instance.stackcount += count
                     else:
-                        # Update stack values
-                        # Case where an item is dragged to stack but there's no space.
-                        # Test on later version shows that the items will go to another stack if there's space
                         dest_item.item_instance.stackcount += diff
                         self.add_item(item_template=item_template, count=count-diff, handle_error=False)
 
@@ -230,14 +227,8 @@ class InventoryManager(object):
                 and dest_item.item_template.stackable > dest_item.item_instance.stackcount:
             diff = dest_item.item_template.stackable - dest_item.item_instance.stackcount
             if diff >= source_item.item_instance.stackcount:
-                # Add items to destination
-                dest_item.item_instance.stackcount += source_item.item_instance.stackcount
-                # Remove the source item
-                self.remove_item(source_bag, source_slot, True)
-                #self.mark_as_removed(source_item)
-                #self.send_destroy_packet(source_slot, self.containers[source_bag].sorted_slots)
-                #self.containers[source_bag].remove_item_in_slot(source_slot)
-                #RealmDatabaseManager.character_inventory_delete(source_item.item_instance)
+                dest_item.item_instance.stackcount += source_item.item_instance.stackcount  # Add items to dest stack
+                self.remove_item(source_bag, source_slot, True)  # Remove the source item
             else:
                 # Update stack values
                 source_item.item_instance.stackcount -= diff
@@ -248,30 +239,11 @@ class InventoryManager(object):
             RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
             return
 
-        # if dest_item and dest_item.is_backpack and self.is_bag_pos(dest_slot):  # Swapping item to bag bar
-        #    if dest_item.is_empty():
-        #        self.remove_item(dest_bag, dest_slot)
-        #        #self.mark_as_removed(dest_item)
-        #        #self.remove_bag(dest_slot)
-        #    else:
-        #        self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
-        #        return
-
-        #if self.is_bag_pos(source_slot):
-        #    self.mark_as_removed(source_item)
-        #    self.remove_bag(source_slot)
-
-        # Actual transfer
-
         # Remove source and dest item
         self.remove_item(source_bag, source_slot, False)
-        #self.mark_as_removed(source_item)
-        #self.containers[source_bag].remove_item_in_slot(source_slot)
 
         if dest_item:
             self.remove_item(dest_bag, dest_slot, False)
-            #self.mark_as_removed(dest_item)
-            #self.containers[dest_bag].remove_item_in_slot(dest_slot)
 
         # Register bags if source/dest are bag slots
         if dest_container.is_backpack and self.is_bag_pos(dest_slot):
@@ -282,8 +254,6 @@ class InventoryManager(object):
             self.add_bag(source_slot, dest_item)
             RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
-
-        # Add source and dest items to new slots
         self.containers[dest_bag].set_item(source_item, dest_slot)
         source_item.item_instance.bag = dest_bag    # TODO These fields serve little purpose?
         source_item.item_instance.slot = dest_slot
