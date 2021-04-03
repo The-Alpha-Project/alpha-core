@@ -542,9 +542,6 @@ class InventoryManager(object):
             self.add_item(item_template=current_oh.item_template, count=current_oh.item_instance.stackcount,
                           send_message=False, show_item_get=False)  #
             self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
-            dest_oh_bag, dest_oh_slot = self.get_next_available_inventory_slot()
-            # self.swap_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND.value, dest_oh_bag, dest_oh_slot)
-
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
