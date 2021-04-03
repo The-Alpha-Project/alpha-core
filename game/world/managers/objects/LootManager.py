@@ -1,5 +1,5 @@
 from typing import NamedTuple
-
+from utils.constants.ObjectCodes import LootTypes
 from game.world.managers.objects.item.ItemManager import ItemManager
 
 
@@ -43,6 +43,9 @@ class LootManager(object):
 
     def has_loot(self):
         return self.has_money() or self.has_items()
+
+    def get_loot_type(self, player, victim):
+        return LootTypes.LOOT_TYPE_NOTALLOWED
 
     def clear(self):
         self.clear_money()
