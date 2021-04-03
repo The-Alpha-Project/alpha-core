@@ -14,11 +14,11 @@ services:
     volumes:
       - .:/var/wow/
   sql:
-    image: mariadb:10.5.9
+    image: alpha-mariadb:latest
+    build: etc/docker/sql
     environment:
       - MYSQL_ROOT_PASSWORD=pwd
     ports:
       - "3306:3306"
     volumes:
-      - ./etc/docker/:/docker-entrypoint-initdb.d/
       - ./etc/databases/:/etc/databases/
