@@ -8,6 +8,7 @@ from database.realm.RealmModels import CharacterSkill
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.ObjectCodes import SkillCategories, Languages
+from utils.constants.UnitCodes import Classes
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -270,6 +271,12 @@ class SkillManager(object):
             self.set_skill(skill_id, skill.value, new_max)
 
     def can_use_equipment(self, item_class, item_subclass):
+        # Special case, don't let Hunters and Rogues use shields even if they have the Block skill (just bucklers).
+        if item_subclass == ItemSubClasses.ITEM_SUBCLASS_SHIELD:
+            if self.player_mgr.player.class_ == Classes.CLASS_HUNTER or \
+                    self.player_mgr.player.class_ == Classes.CLASS_ROGUE:
+                return False
+
         skill = SkillManager.get_skill_by_item_class(item_class, item_subclass)
         if skill == -1:
             return False
