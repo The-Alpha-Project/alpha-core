@@ -149,6 +149,23 @@ class ItemManager(ObjectManager):
         return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0].value
 
     @staticmethod
+    def item_can_go_in_paperdoll_slot(item_template, slot):
+        inventory_type = item_template.inventory_type
+        if inventory_type == InventoryTypes.NONE_EQUIP:
+            return False
+
+        if inventory_type == InventoryTypes.FINGER:
+            return slot == InventorySlots.SLOT_FINGERL or slot == InventorySlots.SLOT_FINGERR
+
+        if inventory_type == InventoryTypes.TRINKET:
+            return slot == InventorySlots.SLOT_TRINKETL or slot == InventorySlots.SLOT_TRINKETR
+
+        if inventory_type == InventoryTypes.WEAPON:
+            return slot == InventorySlots.SLOT_MAINHAND or slot == InventorySlots.SLOT_OFFHAND
+
+        return slot == ItemManager.get_inv_slot_by_type(inventory_type)
+
+    @staticmethod
     def generate_item_from_entry(entry):
         item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
 
