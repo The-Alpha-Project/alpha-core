@@ -476,7 +476,6 @@ class InventoryManager(object):
                 self.send_equip_error(InventoryError.BAG_PROFICIENCY_NEEDED, source_item, dest_item)
                 return False
 
-
         # Destination slot (item type) check for paper doll and bag slots
         if dest_container.is_backpack:
             if (self.is_equipment_pos(dest_bag, dest_slot) and not ItemManager.item_can_go_in_paperdoll_slot(source_template, dest_slot)) or \
