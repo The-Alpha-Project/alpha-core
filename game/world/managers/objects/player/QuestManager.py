@@ -2,6 +2,7 @@ from struct import pack
 from typing import NamedTuple
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.GridManager import GridManager
 from database.world.WorldModels import QuestTemplate
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import QuestGiverStatus, QuestStatus, QuestFailedReasons, ObjectTypes
@@ -212,6 +213,18 @@ class QuestManager(object):
                                                                 quest.ReqCreatureOrGOCount4]))
         return req_creature_or_go_count_list
 
+    def update_surrounding_quest_status(self):
+        # TODO: Make sure the player is in the world (map !== nullptr)
+        for object_in_range in self.player_mgr.objects_in_range:
+            # TODO: Check that guid is a unit (but not a player)
+            unit = GridManager.get_surrounding_unit_by_guid(self.player_mgr, object_in_range)
+            if unit:
+                print("unit: %s" % unit)
+                if WorldDatabaseManager.creature_involved_quest_get_by_entry(unit.entry) or WorldDatabaseManager.creature_quest_get_by_entry(unit.entry):
+                    quest_status = self.get_dialog_status(unit)
+                    self.send_quest_giver_status(object_in_range, quest_status)
+
+
 
     def send_cant_take_quest_response(self, reason_code):
         data = pack('<I', reason_code)
@@ -223,7 +236,7 @@ class QuestManager(object):
             quest_giver_guid if quest_giver_guid > 0 else self.player_mgr.guid,
             quest_status
         )
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_STATUS, data))
+        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_STATUS, data))        
 
     def send_quest_giver_quest_list(self, message, quest_giver_guid, quests):
         message_bytes = PacketWriter.string_to_bytes(message)
