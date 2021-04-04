@@ -79,9 +79,10 @@ class InventoryManager(object):
 
     def get_container_slot_by_guid(self, container_guid):
         for slot in self.containers.keys():
-            if self.containers[slot] and self.containers[slot].guid == container_guid:
+            container = self.get_container(slot)
+            if container and container.guid == container_guid:
                 return slot
-        return InventorySlots.SLOT_INBACKPACK.value  # What is the logic behind backpack guid?
+        return InventorySlots.SLOT_INBACKPACK.value
 
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False,
                  send_message=True, show_item_get=True):
@@ -134,7 +135,11 @@ class InventoryManager(object):
                 self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
             return
 
-        dest_container = self.containers[dest_bag_slot]
+        dest_container = self.get_container(dest_bag_slot)
+        if not dest_container:
+            self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
+            return False
+
         dest_item = dest_container.get_item(dest_slot)
 
         if not self.can_store_item(item_template, count):
@@ -152,7 +157,6 @@ class InventoryManager(object):
             remaining = count
 
             if not dest_slot == -1:  # If the target container has a slot open
-                dest_container = self.containers[dest_bag_slot]
                 remaining = dest_container.add_item(item_template, count)  # Add items to target container
 
             if remaining > 0:
@@ -200,11 +204,11 @@ class InventoryManager(object):
         return True
 
     def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):
-        if not self.containers[source_bag] or not self.containers[dest_bag]:
+        source_container = self.get_container(source_bag)
+        dest_container = self.get_container(dest_bag)
+        if not source_container or not dest_container:
             return
 
-        source_container = self.containers[source_bag]
-        dest_container = self.containers[dest_bag]
         source_item = source_container.get_item(source_slot)
         dest_item = dest_container.get_item(dest_slot)
 
@@ -254,16 +258,16 @@ class InventoryManager(object):
             self.add_bag(source_slot, dest_item)
             RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
-        self.containers[dest_bag].set_item(source_item, dest_slot)
+        dest_container.set_item(source_item, dest_slot)
         source_item.item_instance.bag = dest_bag    # TODO These fields serve little purpose?
         source_item.item_instance.slot = dest_slot
 
         if dest_item:
-            self.containers[source_bag].set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
+            source_container.set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
             dest_item.item_instance.bag = source_bag
             dest_item.item_instance.slot = source_slot
 
-        # Equipment-specific behaviour: binding, offhand unequip etc.
+        # Equipment-specific behaviour: binding, offhand unequip, equipment update packet etc.
         if dest_container.is_backpack and \
                 (self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot)) or \
                 (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
@@ -287,19 +291,24 @@ class InventoryManager(object):
         return count
 
     def get_container(self, slot):
+        if slot >= InventorySlots.SLOT_BANK_END:  # The client sometimes refers to backpack with values over or equal to SLOT_BANK_END
+            slot = InventorySlots.SLOT_INBACKPACK
         if slot in self.containers:
             return self.containers[slot]
         return None
 
     def get_item(self, bag, slot):
-        if bag in self.containers and self.containers[bag]:
-            return self.containers[bag].get_item(slot)
+        container = self.get_container(bag)
+        if container:
+            return container.get_item(slot)
         return None
 
     def remove_item(self, target_bag, target_slot, clear_slot=True):  # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
-        target_container = self.containers[target_bag]
-        target_item = self.containers[target_bag].get_item(target_slot)
-        if not target_container and not target_item:
+        target_container = self.get_container(target_bag)
+        if not target_container:
+            return
+        target_item = target_container.get_item(target_slot)
+        if not target_item:
             return
 
         if clear_slot:
@@ -312,7 +321,7 @@ class InventoryManager(object):
             RealmDatabaseManager.character_inventory_delete(target_item.item_instance)
 
         if target_container.is_backpack and \
-                self.is_bag_pos(target_slot) and self.containers[target_slot]:  # Equipped bags
+                self.is_bag_pos(target_slot) and self.get_container(target_slot):  # Equipped bags
             self.remove_bag(target_slot)
 
     def get_item_info_by_guid(self, guid):
@@ -340,7 +349,7 @@ class InventoryManager(object):
 
     def remove_bag(self, slot):
         slot = InventorySlots(slot)
-        if not self.is_bag_pos(slot) or not self.containers[slot]:
+        if not self.is_bag_pos(slot) or not self.get_container(slot):
             return False
 
         if slot in self.get_backpack().sorted_slots:
@@ -443,11 +452,11 @@ class InventoryManager(object):
         return -1
 
     def item_can_be_moved_to_slot(self, source_template, dest_slot, dest_bag, source_item=None, source_container=None):
-        if not self.containers[dest_bag]:
+        dest_container = self.get_container(dest_bag)
+        if not dest_container:
             self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
             return False
 
-        dest_container = self.containers[dest_bag]
         dest_item = dest_container.get_item(dest_slot)
 
         if not source_template:
@@ -533,15 +542,16 @@ class InventoryManager(object):
         current_oh = self.get_offhand()
         source_is_2h = source_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
         dest_is_2h = dest_item and dest_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
-        if current_oh and (source_is_2h or dest_is_2h):  # Case where OH is equipped and 2h is equipped
-            if not self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount):
-                return
+        if (current_oh and (source_is_2h or dest_is_2h)) and \
+                self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount):  # Case where OH is equipped and 2h is equipped, and it's possible to unequip OH.
 
             # Remove the offhand item from OH and add it to inventory
             # This is necessary in case of a stacking offhand (3675) - otherwise swap_item to free slot would be valid
             self.add_item(item_template=current_oh.item_template, count=current_oh.item_instance.stackcount,
                           send_message=False, show_item_get=False)  #
             self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
+
+        self.owner.set_dirty(dirty_inventory=True)  # Mark as dirty to update equipment for other players
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
@@ -563,14 +573,15 @@ class InventoryManager(object):
         return bag_slot == InventorySlots.SLOT_INBACKPACK and slot < InventorySlots.SLOT_BAG1
 
     def is_inventory_pos(self, bag_slot, slot):
-        if bag_slot == InventorySlots.SLOT_INBACKPACK \
-                and InventorySlots.SLOT_ITEM_START <= slot < InventorySlots.SLOT_ITEM_END:
+        container = self.get_container(bag_slot)
+        if not container:
+            return False
+        if container.is_backpack and \
+                InventorySlots.SLOT_ITEM_START <= slot < InventorySlots.SLOT_ITEM_END:
             return True
 
         if InventorySlots.SLOT_BAG1 <= bag_slot <= InventorySlots.SLOT_BAG4:
-            if not self.containers[bag_slot]:
-                return False
-            return slot < self.containers[bag_slot].max_slot
+            return slot < container.max_slot
         return False
 
     def get_main_hand(self):
