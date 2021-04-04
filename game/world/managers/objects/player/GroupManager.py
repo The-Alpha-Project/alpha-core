@@ -40,6 +40,7 @@ class GroupManager(object):
                 player_mgr.set_group_leader(False)
 
             if len(self.members) > 1:
+                self.party_leader.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
                 self.send_update()
                 self.send_party_members_stats()
 

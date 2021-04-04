@@ -20,7 +20,7 @@ class PetitionBuyHandler(object):
             npc_guid = unpack('<Q', reader.data[:8])[0]
             guild_name = PacketReader.read_string(reader.data, 20)
 
-            if world_session.player_mgr.guild_manager.guid == 0:
+            if not world_session.player_mgr.guild_manager:
                 if npc_guid > 0:
                     if len(guild_name) > 2 and guild_name.replace(' ', '').isalpha():
                         if world_session.player_mgr.coinage >= CHARTER_COST:

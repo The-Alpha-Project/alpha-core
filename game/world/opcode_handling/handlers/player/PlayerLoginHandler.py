@@ -65,6 +65,7 @@ class PlayerLoginHandler(object):
 
         # MotD
         ChatManager.send_system_message(world_session, config.Server.General.motd)
+        ChatManager.send_system_message(world_session, 'To create a guild, send /w yourself "guildcreate name"')
 
         world_session.player_mgr.inventory.load_items()
         world_session.player_mgr.stat_manager.init_stats()

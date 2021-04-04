@@ -12,6 +12,10 @@ class Classes(IntEnum):
     CLASS_WARLOCK = 9
     CLASS_DRUID = 11
 
+    @staticmethod
+    def short_name(class_):
+        return Classes(class_).name.split('_')[1].capitalize()
+
 
 class Races(IntEnum):
     RACE_HUMAN = 1
@@ -22,6 +26,10 @@ class Races(IntEnum):
     RACE_TAUREN = 6
     RACE_GNOME = 7
     RACE_TROLL = 8
+
+    @staticmethod
+    def short_name(race):
+        return Races(race).name.split('_')[1].capitalize()
 
 
 class CreatureTypes(IntEnum):

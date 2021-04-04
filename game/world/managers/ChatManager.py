@@ -43,6 +43,13 @@ class ChatManager(object):
             sender.group_manager.send_packet_to_members(sender_packet)
 
     @staticmethod
+    def send_guild(sender, message, lang):
+        if sender.guild_manager:
+            sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
+                                                            ChatMsgs.CHAT_MSG_GUILD, lang)
+            sender.guild_manager.send_message_to_guild(sender_packet)
+
+    @staticmethod
     def send_whisper(sender, receiver, message, lang):
         sender_packet = ChatManager._get_message_packet(receiver.guid, receiver.chat_flags, message,
                                                         ChatMsgs.CHAT_MSG_WHISPER_INFORM, lang)

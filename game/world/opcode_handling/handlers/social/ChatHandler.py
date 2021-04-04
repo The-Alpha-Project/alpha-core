@@ -6,6 +6,7 @@ from game.world.managers.ChatManager import ChatManager
 from utils.constants.ObjectCodes import ChatMsgs, ChatFlags, Languages
 from utils.ConfigManager import config
 from game.world.managers.CommandManager import CommandManager
+from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from utils.Logger import Logger
 
@@ -48,6 +49,8 @@ class ChatHandler(object):
                                                 % target_name.capitalize())
                 return 0
             message = PacketReader.read_string(reader.data, 8 + len(target_name)+1)
+            if ChatHandler.check_if_external_guild_create(world_session, message):
+                return 0
             if not ChatHandler.check_if_command(world_session, message):
                 # Always whisper in universal language when speaking with a GM
                 if target_player_mgr.is_gm:
@@ -62,10 +65,29 @@ class ChatHandler(object):
             return 0
         # Guild
         elif chat_type == ChatMsgs.CHAT_MSG_GUILD:
-            # TODO: Implement
+            message = PacketReader.read_string(reader.data, 8)
+            ChatManager.send_guild(world_session.player_mgr, message, lang)
             return 0
 
         return 0
+
+    @staticmethod
+    def check_if_external_guild_create(world_session, message):
+        if not message:
+            return False
+
+        parse = message.split(' ')
+
+        if len(parse) < 2 or len(parse) > 2:
+            return False
+        if parse[0] != 'guildcreate':
+            return False
+        if len(parse[1]) < 4: # TODO, guild name length limits?
+            ChatManager.send_system_message(world_session, 'Guild name must be at least 4 characters long.')
+            return False
+
+        GuildManager.create_guild(world_session.player_mgr, parse[1])
+        return True
 
     @staticmethod
     def check_if_command(world_session, message):
