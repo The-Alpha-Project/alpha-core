@@ -297,7 +297,7 @@ class SkillManager(object):
             if item_subclass in class_:
                 return class_[item_subclass].skill_id
             return -1
-        return -1
+        return 0
 
     @staticmethod
     def get_max_rank(player_level, skill_id):
