@@ -198,8 +198,8 @@ class InventoryManager(object):
                 (self.is_equipment_pos(dest_bag_slot, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
             self.handle_equipment_change(generated_item)
             RealmDatabaseManager.character_inventory_update_item(generated_item.item_instance)
-
-        self.owner.send_update_self(force_inventory_update=True)
+        else:
+            self.owner.send_update_self(force_inventory_update=True)
 
         return True
 
@@ -272,13 +272,13 @@ class InventoryManager(object):
                 (self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot)) or \
                 (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
             self.handle_equipment_change(source_item, dest_item)
+        else:
+            self.owner.send_update_self(force_inventory_update=True)
 
         # Finally, update items and client
         RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
         if dest_item:
             RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
-
-        self.owner.send_update_self(force_inventory_update=True)
 
     def get_item_count(self, entry):
         count = 0
