@@ -8,17 +8,13 @@ class AutostoreBagItemHandler(object):
         if len(reader.data) >= 3:  # Avoid handling empty autostore bag item packet
             source_bag_slot, source_slot, dest_bag_slot = unpack('<3B', reader.data[:3])
 
-            if source_bag_slot == 0xFF or source_bag_slot == InventorySlots.SLOT_BANK_END:
-                source_bag_slot = InventorySlots.SLOT_INBACKPACK.value
-            if dest_bag_slot == 0xFF or dest_bag_slot == InventorySlots.SLOT_BANK_END:
-                dest_bag_slot = InventorySlots.SLOT_INBACKPACK.value
-
             inventory = world_session.player_mgr.inventory
-            dest_container = inventory.get_container(dest_bag_slot)
             source_container = inventory.get_container(source_bag_slot)
+            dest_container = inventory.get_container(dest_bag_slot)
             if not dest_container or not source_container:
                 return 0
-            source_item = inventory.get_item(source_bag_slot, source_slot)
+
+            source_item = dest_container.get_item(source_slot)
             if not source_item:
                 return 0
 
