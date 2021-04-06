@@ -87,6 +87,20 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return res
 
+    @staticmethod
+    def spell_cast_time_get_by_id(range_index):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellCastTimes).filter_by(ID=range_index).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def spell_range_get_by_id(range_index):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellRange).filter_by(ID=range_index).first()
+        dbc_db_session.close()
+        return res
+
     # Skill
 
     class SkillHolder:
@@ -112,6 +126,13 @@ class DbcDatabaseManager(object):
     def skill_get_by_type(skill_type):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SkillLine).filter_by(SkillType=skill_type).all()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def skill_get_by_name(skill_type):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SkillLine).filter(SkillLine.DisplayName_enUS.like('%' + skill_type + '%')).all()
         dbc_db_session.close()
         return res
 
