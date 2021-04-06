@@ -107,10 +107,6 @@ class TextChecker:
                 return False
 
         if is_guild:
-            # Spaces are not allowed in names
-            if text_length != stripped_text_length:
-                return False
-
             # Make sure the name is between the allowed number of characters
             if text_length < 2 or text_length > 24:
                 return False
