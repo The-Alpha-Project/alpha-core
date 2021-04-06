@@ -45,10 +45,9 @@ class ChatManager(object):
     @staticmethod
     def send_guild(sender, message, lang, chat_type):
         if sender.guild_manager:
-            msg_type = ChatMsgs.CHAT_MSG_GUILD if chat_type == ChatMsgs.CHAT_MSG_GUILD else ChatMsgs.CHAT_MSG_OFFICER
-            sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message, msg_type, lang)
+            sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message, chat_type, lang)
 
-            if msg_type == ChatMsgs.CHAT_MSG_GUILD:
+            if chat_type == ChatMsgs.CHAT_MSG_GUILD:
                 sender.guild_manager.send_message_to_guild(sender_packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
             else:
                 if sender.guild_manager.get_guild_rank(sender) > GuildRank.GUILDRANK_OFFICER:
