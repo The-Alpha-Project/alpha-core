@@ -461,17 +461,15 @@ class PlayerManager(UnitManager):
             enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=False)
             if enemy and enemy.loot_manager.has_loot():
                 loot = enemy.loot_manager.get_loot_in_slot(slot)
-                if not loot or not loot.item:
-                    self.send_loot_release(enemy.guid)
-                    return
-
-                if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
-                    enemy.loot_manager.do_loot(slot)
-                    data = pack('<B', slot)
-                    GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
+                if loot and loot.item:
+                    if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
+                        enemy.loot_manager.do_loot(slot)
+                        data = pack('<B', slot)
+                        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
 
             if enemy and not enemy.loot_manager.has_loot():
                 enemy.set_lootable(False)
+                self.send_loot_release(enemy.guid)
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
@@ -484,6 +482,9 @@ class PlayerManager(UnitManager):
         enemy = GridManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
         if enemy and enemy.killed_by and enemy.killed_by == self:
             enemy.killed_by = None
+
+        if enemy and not enemy.loot_manager.has_loot():
+            enemy.set_lootable(False)
 
         self.set_dirty()
 
