@@ -1,9 +1,8 @@
 from struct import pack
-from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import GuildRank, GuildCommandResults, GuildTypeCommand, GuildEvents, GuildChatMessageTypes
 from game.world.managers.objects.player.guild.GuildPendingInvite import GuildPendingInvite
-
+from utils.TextUtils import TextChecker
 
 class GuildManager(object):
     GUILD_COUNT = 0 # TODO, generate/recycle guild IDs when we have db persistance
@@ -141,9 +140,11 @@ class GuildManager(object):
         self.members.clear()
         self.ranks.clear()
 
-    # TODO: Handle different msg types/permissions
-    def send_message_to_guild(self, packet, message_type=None):
+    def send_message_to_guild(self, packet, msg_type=None):
         for member in self.members.values():
+            if msg_type and msg_type == GuildChatMessageTypes.G_MSGTYPE_OFFICERCHAT \
+                    and self.get_guild_rank(member) > GuildRank.GUILDRANK_OFFICER:
+                continue
             member.session.request.sendall(packet)
 
     def invite_member(self, player_mgr, invited_player):
@@ -165,7 +166,6 @@ class GuildManager(object):
         else:
             self.ranks[player_mgr.guid] = GuildRank((current_rank - 1))
 
-
         data = pack('<2B', GuildEvents.GUILD_EVENT_PROMOTION, 2)
 
         target_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
@@ -174,7 +174,8 @@ class GuildManager(object):
             target_name_bytes,
         )
 
-        rank_name_bytes = PacketWriter.string_to_bytes(GuildRank.short_name(self.ranks[player_mgr.guid]))
+        rank_name = GuildRank(self.ranks[player_mgr.guid]).name.split('_')[1].capitalize()
+        rank_name_bytes = PacketWriter.string_to_bytes(rank_name)
         data += pack(
             '<%us' % len(rank_name_bytes),
             rank_name_bytes,
@@ -183,6 +184,7 @@ class GuildManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
         player_mgr.set_dirty()
+        return True
 
     def demote_rank(self, player_mgr):
         if player_mgr == self.guild_master:
@@ -201,7 +203,8 @@ class GuildManager(object):
             target_name_bytes,
         )
 
-        rank_name_bytes = PacketWriter.string_to_bytes(GuildRank.short_name(self.ranks[player_mgr.guid]))
+        rank_name = GuildRank(self.ranks[player_mgr.guid]).name.split('_')[1].capitalize()
+        rank_name_bytes = PacketWriter.string_to_bytes(rank_name)
         data += pack(
             '<%us' % len(rank_name_bytes),
             rank_name_bytes,
@@ -210,14 +213,26 @@ class GuildManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
         player_mgr.set_dirty()
+        return True
 
     @staticmethod
     def create_guild(player_mgr, guild_name):
-        if not player_mgr.guild_manager:
-            player_mgr.guild_manager = GuildManager(guild_name)
-            player_mgr.guild_manager.add_new_member(player_mgr, is_guild_master=True)
-        else:
-            GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, '', GuildCommandResults.GUILD_ALREADY_IN_GUILD)
+        if not TextChecker.valid_text(guild_name, is_guild=True):
+            GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, '',
+                                                   GuildCommandResults.GUILD_NAME_INVALID)
+            return
+        for guild in GuildManager.GUILDS.values():
+            if guild.guild_name == guild_name:
+                GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, guild_name,
+                                                       GuildCommandResults.GUILD_NAME_EXISTS)
+                return
+        if player_mgr.guild_manager:
+            GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, '',
+                                                   GuildCommandResults.GUILD_ALREADY_IN_GUILD)
+            return
+
+        player_mgr.guild_manager = GuildManager(guild_name)
+        player_mgr.guild_manager.add_new_member(player_mgr, is_guild_master=True)
 
     @staticmethod
     def send_guild_command_result(player_mgr, command_type, message, command):

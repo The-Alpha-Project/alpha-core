@@ -75,7 +75,7 @@ class GameTextFormatter:
 class TextChecker:
 
     @staticmethod
-    def valid_text(text_, is_name=False):
+    def valid_text(text_, is_name=False, is_guild=False):
         text_length = len(text_)
         stripped_text_length = len(text_.strip())
 
@@ -104,6 +104,15 @@ class TextChecker:
             if grave_count == 1:
                 text_ = text_.replace('`', '')
             elif grave_count > 1:
+                return False
+
+        if is_guild:
+            # Spaces are not allowed in names
+            if text_length != stripped_text_length:
+                return False
+
+            # Make sure the name is between the allowed number of characters
+            if text_length < 2 or text_length > 24:
                 return False
 
         # If all characters in the string are alphabets (can be both lowercase and uppercase)

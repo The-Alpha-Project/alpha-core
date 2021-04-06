@@ -684,10 +684,6 @@ class GuildRank(IntEnum):
     GUILDRANK_INITIATE = 4,
     GUILDRANK_LOWEST = 9,
 
-    @staticmethod
-    def short_name(rank):
-        return GuildRank(rank).name.split('_')[1].capitalize()
-
 class FriendResults(IntEnum):
     FRIEND_DB_ERROR = 0x0
     FRIEND_LIST_FULL = 0x1

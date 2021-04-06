@@ -3,7 +3,7 @@ from utils.constants.UnitCodes import Classes, Races
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from utils.constants.ObjectCodes import GuildCommandResults, GuildTypeCommand
-
+from utils.TextUtils import GameTextFormatter
 
 class GuildRoosterHandler(object):
 
@@ -28,11 +28,11 @@ class GuildRoosterHandler(object):
 
             for member in player.guild_manager.members.values():
                 area = WorldDatabaseManager.area_get_by_id(member.zone).name
-                race = Races.short_name(member.player.race)
-                class_ = Classes.short_name(member.player.class_)
-                # Todo: IsOnline, better str format?
-                plyr_info = f'{member.player.name} | Level {member.level} {race} {class_}, Zone: {area if area else member.zone}'
-                info_bytes = PacketWriter.string_to_bytes(plyr_info)
+                race = GameTextFormatter.race_to_text(member.player.race)
+                class_ = GameTextFormatter.class_to_text(member.player.class_)
+                plyr_info = f'{"Online" if member.is_online else "Offline"} {member.player.name} | Level {member.level}' \
+                            f' {race} {class_}, Zone: {area if area else member.zone}'
+                info_bytes = PacketWriter.string_to_bytes(plyr_info) # (String, Max Length: 128)
                 data += pack(
                     '<%usI' % len(info_bytes),
                     info_bytes,
