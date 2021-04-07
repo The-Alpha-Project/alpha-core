@@ -4,19 +4,16 @@ from math import pi
 
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.SpellManager import SpellManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
-from game.world.managers.objects.player.GroupManager import GroupManager
-from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from game.world.managers.objects.player.QuestManager import QuestManager
+from game.world.managers.objects.player.FriendsManager import FriendsManager
 from network.packet.PacketWriter import *
 from utils import Formulas
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
@@ -124,12 +121,13 @@ class PlayerManager(UnitManager):
             self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
             self.is_alive = self.health > 0
 
-            self.guild_manager = GuildManager()
             self.stat_manager = StatManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.spell_manager = SpellManager(self)
             self.quest_manager = QuestManager(self)
+            self.friends_manager = FriendsManager(self)
+            self.guild_manager = None
             self.group_manager = None
 
     def get_native_display_id(self, is_male, race_data=None):
@@ -212,6 +210,15 @@ class PlayerManager(UnitManager):
         if self.group_manager:
             self.group_manager.leave_party(self, force_disband=self.group_manager.party_leader == self)
 
+
+        # TODO: Temp hackfix until guilds are saved in db
+        if self.guild_manager:
+            if self.guild_manager.guild_master == self:
+                self.guild_manager.disband()
+            else:
+                self.guild_manager.leave(self)
+
+        self.friends_manager.send_offline_notification()
         self.session.save_character()
         GridManager.remove_object(self)
         self.session.player_mgr = None
@@ -458,17 +465,15 @@ class PlayerManager(UnitManager):
             enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=False)
             if enemy and enemy.loot_manager.has_loot():
                 loot = enemy.loot_manager.get_loot_in_slot(slot)
-                if not loot or not loot.item:
-                    self.send_loot_release(enemy.guid)
-                    return
-
-                if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
-                    enemy.loot_manager.do_loot(slot)
-                    data = pack('<B', slot)
-                    GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
+                if loot and loot.item:
+                    if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
+                        enemy.loot_manager.do_loot(slot)
+                        data = pack('<B', slot)
+                        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
 
             if enemy and not enemy.loot_manager.has_loot():
                 enemy.set_lootable(False)
+                self.send_loot_release(enemy.guid)
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
@@ -481,6 +486,9 @@ class PlayerManager(UnitManager):
         enemy = GridManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
         if enemy and enemy.killed_by and enemy.killed_by == self:
             enemy.killed_by = None
+
+        if enemy and not enemy.loot_manager.has_loot():
+            enemy.set_lootable(False)
 
         self.set_dirty()
 
@@ -698,6 +706,14 @@ class PlayerManager(UnitManager):
         self.set_float(PlayerFields.PLAYER_DODGE_PERCENTAGE, self.dodge_percentage)
         self.set_float(PlayerFields.PLAYER_PARRY_PERCENTAGE, self.parry_percentage)
         self.set_uint32(PlayerFields.PLAYER_BASE_MANA, self.base_mana)
+
+        # Guild
+        if self.guild_manager:
+            self.set_uint32(PlayerFields.PLAYER_GUILDID, self.guild_manager.guild_id)
+            self.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.guild_manager.get_guild_rank(self))
+            self.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, self.guild_manager.created_at)
+        else:
+            self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 
         self.inventory.build_update()
 

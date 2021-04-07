@@ -244,6 +244,8 @@ class Grid(object):
                     continue
                 if ignore and player_mgr.guid in ignore:
                     continue
+                if source and player_mgr.friends_manager.has_ignore(source):
+                    continue
 
                 threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
 
@@ -255,4 +257,7 @@ class Grid(object):
                 if player_mgr.is_online and player_mgr.location.distance(source.location) <= range_:
                     if not include_self and player_mgr.guid == source.guid:
                         continue
+                    if player_mgr.friends_manager.has_ignore(source):
+                        continue
+
                     threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()

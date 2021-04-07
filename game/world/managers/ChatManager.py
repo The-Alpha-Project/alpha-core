@@ -1,7 +1,10 @@
 from struct import pack
 from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ObjectCodes import ChatMsgs, ChatFlags
+from utils.constants.ObjectCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, GuildTypeCommand
+from game.world.managers.objects.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.player.GroupManager import GroupManager
+from utils.constants.GroupCodes import PartyOperations, PartyResults
 
 
 class ChatManager(object):
@@ -40,16 +43,41 @@ class ChatManager(object):
         if sender.group_manager:
             sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
                                                             ChatMsgs.CHAT_MSG_PARTY, lang)
-            sender.group_manager.send_packet_to_members(sender_packet)
+            sender.group_manager.send_packet_to_members(sender_packet, source=sender)
+        else:
+            GroupManager.send_group_operation_result(sender, PartyOperations.PARTY_OP_LEAVE, '',
+                                                     PartyResults.ERR_NOT_IN_GROUP)
+
+    @staticmethod
+    def send_guild(sender, message, lang, chat_type):
+        if sender.guild_manager:
+            sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message, chat_type, lang)
+
+            if chat_type == ChatMsgs.CHAT_MSG_GUILD:
+                sender.guild_manager.send_message_to_guild(sender_packet, GuildChatMessageTypes.G_MSGTYPE_ALL, source=sender)
+            else:
+                if sender.guild_manager.get_guild_rank(sender) > GuildRank.GUILDRANK_OFFICER:
+                    GuildManager.send_guild_command_result(sender, GuildTypeCommand.GUILD_CREATE_S, '',
+                                                           GuildCommandResults.GUILD_PERMISSIONS)
+                else:
+                    sender.guild_manager.send_message_to_guild(sender_packet, GuildChatMessageTypes.G_MSGTYPE_OFFICERCHAT, source=sender)
+        else:
+            GuildManager.send_guild_command_result(sender, GuildTypeCommand.GUILD_CREATE_S, '',
+                                                   GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
 
     @staticmethod
     def send_whisper(sender, receiver, message, lang):
-        sender_packet = ChatManager._get_message_packet(receiver.guid, receiver.chat_flags, message,
-                                                        ChatMsgs.CHAT_MSG_WHISPER_INFORM, lang)
-        sender.session.request.sendall(sender_packet)
-        receiver_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
-                                                          ChatMsgs.CHAT_MSG_WHISPER, lang)
-        receiver.session.request.sendall(receiver_packet)
+        if receiver.friends_manager.has_ignore(sender):
+            sender_packet = ChatManager._get_message_packet(receiver.guid, receiver.chat_flags, message,
+                                                            ChatMsgs.CHAT_MSG_IGNORED, lang)
+            sender.session.request.sendall(sender_packet)
+        else:
+            sender_packet = ChatManager._get_message_packet(receiver.guid, receiver.chat_flags, message,
+                                                            ChatMsgs.CHAT_MSG_WHISPER_INFORM, lang)
+            sender.session.request.sendall(sender_packet)
+            receiver_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
+                                                              ChatMsgs.CHAT_MSG_WHISPER, lang)
+            receiver.session.request.sendall(receiver_packet)
 
     @staticmethod
     def _get_message_packet(guid, chat_flags, message, chat_type, lang):

@@ -1,5 +1,5 @@
 from struct import pack
-
+from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world import WorldManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
@@ -405,6 +405,12 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
+    def guildcreate(world_session, args):
+        GuildManager.create_guild(world_session.player_mgr, args)
+
+        return 0, ''
+
+    @staticmethod
     def die(world_session, args):
         unit = CommandManager._target_or_self(world_session)
         world_session.player_mgr.deal_damage(unit, unit.health)
@@ -439,7 +445,8 @@ class CommandManager(object):
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help,
-    'suicide': CommandManager.suicide
+    'suicide': CommandManager.suicide,
+    'guildcreate': CommandManager.guildcreate,
 }
 
 GM_COMMAND_DEFINITIONS = {

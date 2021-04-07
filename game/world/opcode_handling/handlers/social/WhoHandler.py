@@ -1,5 +1,4 @@
 from struct import pack, unpack
-
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
@@ -55,7 +54,7 @@ class WhoHandler(object):
                         continue
                     if player_name and not player_name.lower() in session.player_mgr.player.name.lower:
                         continue
-                    if guild_name and guild_name.lower() not in session.player_mgr.guild_manager.guild_name.lower():
+                    if session.player_mgr.guild_manager and guild_name and guild_name.lower() not in session.player_mgr.guild_manager.guild_name.lower():
                         continue
                     if class_mask != 0xFFFFFFFF and class_mask & session.player_mgr.class_mask != session.player_mgr.class_mask:
                         continue
@@ -81,7 +80,9 @@ class WhoHandler(object):
                             continue
 
                     player_name_bytes = PacketWriter.string_to_bytes(session.player_mgr.player.name)
-                    guild_name_bytes = PacketWriter.string_to_bytes(session.player_mgr.guild_manager.guild_name)
+
+                    player_guild_name = session.player_mgr.guild_manager.guild_name if session.player_mgr.guild_manager else ""
+                    guild_name_bytes = PacketWriter.string_to_bytes(player_guild_name)
                     player_data += pack(
                         '<%us%us5I' % (len(player_name_bytes), len(guild_name_bytes)),
                         player_name_bytes,

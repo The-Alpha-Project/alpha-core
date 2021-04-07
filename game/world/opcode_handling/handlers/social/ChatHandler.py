@@ -57,12 +57,15 @@ class ChatHandler(object):
             return 0
         # Party
         elif chat_type == ChatMsgs.CHAT_MSG_PARTY:
-            message = PacketReader.read_string(reader.data, 8)
-            ChatManager.send_party(world_session.player_mgr, message, lang)
+            if not ChatHandler.check_if_command(world_session, message):
+                message = PacketReader.read_string(reader.data, 8)
+                ChatManager.send_party(world_session.player_mgr, message, lang)
             return 0
         # Guild
-        elif chat_type == ChatMsgs.CHAT_MSG_GUILD:
-            # TODO: Implement
+        elif chat_type == ChatMsgs.CHAT_MSG_GUILD or chat_type == ChatMsgs.CHAT_MSG_OFFICER:
+            if not ChatHandler.check_if_command(world_session, message):
+                message = PacketReader.read_string(reader.data, 8)
+                ChatManager.send_guild(world_session.player_mgr, message, lang, chat_type)
             return 0
 
         return 0
