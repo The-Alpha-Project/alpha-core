@@ -158,6 +158,48 @@ class CommandManager(object):
         return 0, '%u spells found.' % len(spells)
 
     @staticmethod
+    def lspell(world_session, args):
+        try:
+            spell_id = int(args)
+            if not spell_id:
+                return -1, 'please specify a spell ID.'
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if not spell:
+                return -1, 'The spell was not found.'
+
+            world_session.player_mgr.spell_manager.learn_spell(spell_id)
+            return 0, 'Spell learned.'
+        except ValueError:
+            return -1, 'Invalid ID.'
+
+    @staticmethod
+    def sskill(world_session, args):
+        skill_name = args.strip()
+        if not skill_name:
+            return -1, 'please specify a skill name to start searching.'
+        skills = DbcDatabaseManager.skill_get_by_name(skill_name)
+
+        for skill in skills:
+            skill_text = '%u - |cFF00FFFF[%s]|r' % (skill.ID, skill.DisplayName_enUS.replace('\\', ''))
+            ChatManager.send_system_message(world_session, skill_text)
+        return 0, '%u skills found.' % len(skills)
+
+    @staticmethod
+    def lskill(world_session, args):
+        try:
+            skill_id = int(args)
+            if not skill_id:
+                return -1, 'please specify a skill ID.'
+            skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
+            if not skill:
+                return -1, 'The skill was not found.'
+
+            world_session.player_mgr.skill_manager.add_skill(skill_id)
+            return 0, 'Skill learned.'
+        except ValueError:
+            return -1, 'Invalid ID.'
+
+    @staticmethod
     def port(world_session, args):
         try:
             x, y, z, map_ = args.split()
@@ -445,6 +487,9 @@ GM_COMMAND_DEFINITIONS = {
     'stel': CommandManager.stel,
     'sitem': CommandManager.sitem,
     'sspell': CommandManager.sspell,
+    'lspell': CommandManager.lspell,
+    'sskill': CommandManager.sskill,
+    'lskill': CommandManager.lskill,
     'port': CommandManager.port,
     'tickets': CommandManager.tickets,
     'rticket': CommandManager.rticket,

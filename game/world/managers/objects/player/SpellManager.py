@@ -3,7 +3,7 @@ from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell, SpellCastTimes
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
@@ -26,7 +26,7 @@ class CastingSpell(object):
         self.target_results = target_results
         self.spell_target_mask = target_mask
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
-        self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.RangeIndex)
+        self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
 
     def is_instant_cast(self):
@@ -35,7 +35,7 @@ class CastingSpell(object):
     def get_base_cast_time(self):
         skill = self.spell_caster.skill_manager.get_skill_for_spell_id(self.spell_entry.ID)
         if not skill:
-            return -1
+            return self.cast_time_entry.Minimum
 
         return int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill.value))
 
@@ -50,6 +50,21 @@ class SpellManager(object):
     def load_spells(self):
         for spell in RealmDatabaseManager.character_get_spells(self.player_mgr.guid):
             self.spells[spell.spell] = spell
+
+    def learn_spell(self, spell_id):
+        spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+        if not spell:
+            return
+
+        db_spell = CharacterSpell()
+        db_spell.guid = self.player_mgr.guid
+        db_spell.spell = spell_id
+        RealmDatabaseManager.character_add_spell(db_spell)
+        self.spells[spell_id] = db_spell
+
+        data = pack('<H', spell_id)
+        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
+        # Teach skills required as well like in CharCreateHandler?
 
     def get_initial_spells(self):
         data = pack('<BH', 0, len(self.spells))
