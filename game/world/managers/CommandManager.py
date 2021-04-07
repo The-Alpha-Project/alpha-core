@@ -463,6 +463,11 @@ class CommandManager(object):
 
     @staticmethod
     def worldoff(world_session, args):
+        confirmation = str(args)
+
+        if confirmation.strip() != 'confirm':
+            return -1, 'this command is DANGEROUS, it will shutdown the server. Write \'.worldoff confirm\' to do it.'
+
         # Prevent more sockets to be opened
         WorldManager.WORLD_ON = False
 
