@@ -12,8 +12,8 @@ class CastSpellHandler(object):
         Logger.debug("Cast spell (" + str(spell_id) + "). Target type: " + str(SpellTargetMask(target_mask)))
 
         # TODO Handle SpellTarget separately and implement all target types
-        if target_mask & SpellTargetMask.SELF != SpellTargetMask.SELF and \
-                target_mask & SpellTargetMask.UNIT != SpellTargetMask.UNIT:
+        if (target_mask & SpellTargetMask.UNIT) != SpellTargetMask.UNIT and \
+                target_mask != SpellTargetMask.SELF:
             world_session.player_mgr.spell_manager.send_cast_result(spell_id, SpellCheckCastResult.SPELL_FAILED_FIZZLE)
             return 0  # not implemented, fizzle
 
