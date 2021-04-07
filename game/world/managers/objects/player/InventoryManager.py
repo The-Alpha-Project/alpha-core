@@ -79,9 +79,10 @@ class InventoryManager(object):
 
     def get_container_slot_by_guid(self, container_guid):
         for slot in self.containers.keys():
-            if self.containers[slot] and self.containers[slot].guid == container_guid:
+            container = self.get_container(slot)
+            if container and container.guid == container_guid:
                 return slot
-        return InventorySlots.SLOT_INBACKPACK.value  # What is the logic behind backpack guid?
+        return InventorySlots.SLOT_INBACKPACK.value
 
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False,
                  send_message=True, show_item_get=True):
@@ -127,10 +128,6 @@ class InventoryManager(object):
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
                          handle_error=True):
-        if not self.containers[dest_bag_slot]:
-            if handle_error:
-                self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
-            return
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
         if not item_template:
@@ -138,65 +135,36 @@ class InventoryManager(object):
                 self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
             return
 
-        dest_container = self.containers[dest_bag_slot]
-        dest_item = dest_container.get_item(dest_slot)
+        dest_container = self.get_container(dest_bag_slot)
+        if not dest_container:
+            self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
+            return False
 
-        # Bag family check
-        if self.is_inventory_pos(dest_bag_slot, dest_slot) and \
-                not dest_container.can_contain_item(item_template):
-            self.send_equip_error(InventoryError.BAG_ITEM_CLASS_MISMATCH, item, dest_item)
-            return
+        dest_item = dest_container.get_item(dest_slot)
 
         if not self.can_store_item(item_template, count):
             if handle_error:
                 self.send_equip_error(InventoryError.BAG_INV_FULL)
             return
 
-        if not self.owner.is_alive:
-            if handle_error:
-                self.send_equip_error(InventoryError.BAG_NOT_WHILE_DEAD, item, dest_item)
+        is_valid_target_slot = self.item_can_be_moved_to_slot(item_template, dest_slot, dest_bag_slot, item)
+
+        if not is_valid_target_slot:
             return
 
-        # Destination slot checks
-        if dest_container.is_backpack:
-            # Set equip slot as offhand if trying to equip a one handed weapon in the offhand slot
-            if dest_slot == InventorySlots.SLOT_OFFHAND and item_template.inventory_type == InventoryTypes.WEAPON:
-                template_equip_slot = InventorySlots.SLOT_OFFHAND.value
-            else:
-                template_equip_slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
-            if self.is_equipment_pos(dest_bag_slot, dest_slot) and dest_slot != template_equip_slot or \
-                    self.is_bag_pos(dest_slot) and item_template.inventory_type != InventoryTypes.BAG:
-                if handle_error:
-                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, item, dest_item)
-                return
-
         if dest_slot == 0xFF:  # Dragging an item to bag bar. Acts like adding item but with container priority
-            if not self.can_store_item(item_template, count):
-                if handle_error:
-                    self.send_equip_error(InventoryError.BAG_INV_FULL, item, dest_item)
-                return
-
             dest_slot = dest_container.next_available_slot()
             remaining = count
-            if dest_slot == -1:
-                dest_slot, dest_container = self.get_next_available_inventory_slot()
 
             if not dest_slot == -1:  # If the target container has a slot open
                 remaining = dest_container.add_item(item_template, count)  # Add items to target container
+
             if remaining > 0:
                 self.add_item(item_template=item_template, count=remaining)  # Overflow to inventory
             else:
                 # Update if container is modified self.add_item isn't called
                 self.owner.send_update_self(force_inventory_update=True)
-            return
-
-        # Check backpack / paperdoll placement
-        if item_template.required_level > self.owner.level and \
-                self.is_equipment_pos(dest_bag_slot, dest_slot):
-            # Not enough level
-            if handle_error:
-                self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, item, dest_item, item_template.required_level)
-            return
+            return True
 
         # Stack handling
         if dest_item:
@@ -206,9 +174,6 @@ class InventoryManager(object):
                     if diff >= count:
                         dest_item.item_instance.stackcount += count
                     else:
-                        # Update stack values
-                        # Case where an item is dragged to stack but there's no space.
-                        # Test on later version shows that the items will go to another stack if there's space
                         dest_item.item_instance.stackcount += diff
                         self.add_item(item_template=item_template, count=count-diff, handle_error=False)
 
@@ -226,228 +191,94 @@ class InventoryManager(object):
 
         generated_item = dest_container.set_item(item_template, dest_slot, count)
         # Add to containers if a bag was dragged to bag slots
-        if self.is_bag_pos(dest_slot):
-            if item_template.inventory_type == InventoryTypes.BAG:
-                self.add_bag(dest_slot, generated_item)
-            else:
-                if handle_error:
-                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, item, dest_item)
-                return
+        if dest_container.is_backpack and self.is_bag_pos(dest_slot):
+            self.add_bag(dest_slot, generated_item)
 
-        if self.is_equipment_pos(dest_bag_slot, dest_slot):
-            self.owner.stat_manager.apply_bonuses()
-            self.owner.set_dirty(dirty_inventory=True)
+        if dest_container.is_backpack and \
+                (self.is_equipment_pos(dest_bag_slot, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
+            self.handle_equipment_change(generated_item)
+            RealmDatabaseManager.character_inventory_update_item(generated_item.item_instance)
         else:
             self.owner.send_update_self(force_inventory_update=True)
 
         return True
 
     def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):
-        if not self.containers[source_bag] or not self.containers[dest_bag]:
+        source_container = self.get_container(source_bag)
+        dest_container = self.get_container(dest_bag)
+        if not source_container or not dest_container:
             return
 
-        source_container = self.containers[source_bag]
-        dest_container = self.containers[dest_bag]
         source_item = source_container.get_item(source_slot)
         dest_item = dest_container.get_item(dest_slot)
 
         if source_bag == dest_bag and source_slot == dest_slot:
             return
-        if source_item:
-            if not self.owner.is_alive:
-                self.send_equip_error(InventoryError.BAG_NOT_WHILE_DEAD, source_item, dest_item)
-                return
+        if not source_item:
+            return
 
-            # Check paper doll placement
-            if self.is_equipment_pos(dest_bag, dest_slot) and \
-                    source_item.item_template.required_level > self.owner.level:
-                # Not enough level
-                self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
-                return
+        source_to_dest = self.item_can_be_moved_to_slot(source_item.item_template, dest_slot, dest_bag, source_item, source_container)
 
-            # Always default a one handed weapon to main hand unless dest slot is the offhand itself
-            if self.owner.skill_manager.can_dual_wield():
-                if source_item.item_template.inventory_type == InventoryTypes.WEAPON:
-                    if dest_slot == InventorySlots.SLOT_OFFHAND:
-                        source_item.equip_slot = InventorySlots.SLOT_OFFHAND.value
-                    else:
-                        source_item.equip_slot = InventorySlots.SLOT_MAINHAND.value
+        dest_to_source = True  # If dest_item doesn't exist, default to True
+        if dest_item:
+            dest_to_source = self.item_can_be_moved_to_slot(dest_item.item_template, source_slot, source_bag, dest_item, dest_container)
+
+        if not source_to_dest or (dest_item and not dest_to_source):
+            return
+
+        # Stack handling
+        if dest_item and source_item.item_template.entry == dest_item.item_template.entry \
+                and dest_item.item_template.stackable > dest_item.item_instance.stackcount:
+            diff = dest_item.item_template.stackable - dest_item.item_instance.stackcount
+            if diff >= source_item.item_instance.stackcount:
+                dest_item.item_instance.stackcount += source_item.item_instance.stackcount  # Add items to dest stack
+                self.remove_item(source_bag, source_slot, True)  # Remove the source item
             else:
-                # Don't allow dual wielding unless proper level and skill learnt
-                if dest_slot == InventorySlots.SLOT_OFFHAND and \
-                        (source_item.item_template.inventory_type == InventoryTypes.WEAPON or
-                         source_item.item_template.inventory_type == InventoryTypes.WEAPONOFFHAND):
-                    self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, source_item,
-                                          dest_item)
-                    return
-
-            # Allow swapping between already equipped one handed weapons
-            if dest_item and dest_item.item_template.inventory_type == InventoryTypes.WEAPON:
-                if source_slot == InventorySlots.SLOT_OFFHAND and dest_slot == InventorySlots.SLOT_MAINHAND:
-                    dest_item.equip_slot = InventorySlots.SLOT_OFFHAND.value
-                elif source_slot == InventorySlots.SLOT_MAINHAND and dest_slot == InventorySlots.SLOT_OFFHAND:
-                    dest_item.equip_slot = InventorySlots.SLOT_MAINHAND.value
-
-            # Destination slot checks
-            if dest_container.is_backpack or self.is_bag_pos(dest_slot):
-                if (self.is_equipment_pos(dest_bag, dest_slot) and dest_slot != source_item.equip_slot
-                        and source_item.equip_slot != InventorySlots.SLOT_INBACKPACK) or \
-                        (self.is_bag_pos(dest_slot) and source_item.item_template.inventory_type != InventoryTypes.BAG):
-                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
-                    return
-
-            # Bag family checks
-            if self.is_inventory_pos(dest_bag, dest_slot) and \
-                    not dest_container.can_contain_item(source_item.item_template) or \
-                    dest_item and self.is_inventory_pos(source_bag, source_slot) and \
-                    not source_container.can_contain_item(dest_item.item_template):
-                self.send_equip_error(InventoryError.BAG_ITEM_CLASS_MISMATCH, source_item, dest_item)
-                return
-
-            # Original item being swapped to backpack
-            if dest_item and self.is_equipment_pos(source_bag, source_slot):
-                # Equip_slot mismatch
-                if source_slot != dest_item.equip_slot and \
-                        dest_item.equip_slot != InventorySlots.SLOT_INBACKPACK:
-                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
-                    return
-
-                # Not enough level
-                if dest_item.item_template.required_level > self.owner.level:
-                    self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item,
-                                          dest_item.item_template.required_level)
-                    return
-
-                # Item isn't equippable
-                if dest_item.equip_slot == InventorySlots.SLOT_INBACKPACK and \
-                        self.is_equipment_pos(source_bag, source_slot):
-                    self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
-                    return
-
-            if source_item.is_container() or (dest_item and dest_item.is_container()):
-                if not (self.is_bag_pos(source_slot) and self.is_bag_pos(dest_slot)):
-                    # If trying to put bag inside itself
-                    if source_item.guid == self.containers[dest_bag].guid:
-                        self.send_equip_error(InventoryError.BAG_NO_BAGS_IN_BAGS, source_item, source_item)
-                        return
-
-                    # Source or dest is a container and both aren't equipped
-                    if source_item.is_container() and not source_item.is_empty():  # Moving non-empty bag from bag slots
-                        self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
-                        return
-                    if dest_item and source_item.is_container() and dest_item.is_container() \
-                            and not dest_item.is_empty():  # Swapping bags to bag bar from inv
-                        self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
-                        return
-
-            # Stack handling
-            if dest_item and source_item.item_template.entry == dest_item.item_template.entry \
-                    and dest_item.item_template.stackable > dest_item.item_instance.stackcount:
-                diff = dest_item.item_template.stackable - dest_item.item_instance.stackcount
-                if diff >= source_item.item_instance.stackcount:
-                    # Destroy source stack
-                    dest_item.item_instance.stackcount += source_item.item_instance.stackcount
-                    if self.containers[source_bag]:
-                        self.mark_as_removed(source_item)
-                        self.send_destroy_packet(source_slot, self.containers[source_bag].sorted_slots)
-                        self.containers[source_bag].remove_item_in_slot(source_slot)
-                        RealmDatabaseManager.character_inventory_delete(source_item.item_instance)
-                else:
-                    # Update stack values
-                    source_item.item_instance.stackcount -= diff
-                    dest_item.item_instance.stackcount = dest_item.item_template.stackable
-                    RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
-
-                self.owner.send_update_self(force_inventory_update=True)
-                RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
-                return
-
-            if dest_item and dest_item.is_backpack and self.is_bag_pos(dest_slot):  # Swapping item to bag bar
-                if dest_item.is_empty():
-                    self.mark_as_removed(dest_item)
-                    self.remove_bag(dest_slot)
-                else:
-                    self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
-                    return
-
-            if self.is_bag_pos(source_slot):
-                self.mark_as_removed(source_item)
-                self.remove_bag(source_slot)
-
-            # Equipment checks
-            if self.is_equipment_pos(dest_bag, dest_slot):
-                # Missing required skill
-                if not self.owner.skill_manager.can_use_equipment(source_item.item_template.class_,
-                                                                  source_item.item_template.subclass):
-                    self.send_equip_error(InventoryError.BAG_PROFICIENCY_NEEDED, source_item, dest_item)
-                    return
-
-                # Wielding a 2 handed weapon, can't equip offhand
-                if self.has_two_handed_weapon() and source_item.equip_slot == InventorySlots.SLOT_OFFHAND:
-                    # Make sure to reset slot back to main hand if it's a one handed weapon
-                    if source_item.item_template.inventory_type == InventoryTypes.WEAPON:
-                        source_item.equip_slot = InventorySlots.SLOT_MAINHAND.value
-                    self.send_equip_error(InventoryError.BAG_2HWEAPONBEINGWIELDED, source_item, dest_item)
-                    return
-
-                # If trying to equip a 2 handed weapon, check if we can store the equipped weapons, if any
-                if source_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
-                    if self.has_offhand():
-                        if self.get_empty_slots() > 0:
-                            off_dest_bag_slot, off_dest_slot = self.get_next_available_inventory_slot()
-                            self.swap_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND,
-                                           off_dest_bag_slot, off_dest_slot)
-                        else:
-                            self.send_equip_error(InventoryError.BAG_2HWEAPON_ITEMEXISTSINOFFHAND, source_item,
-                                                  dest_item)
-                            return
-
-            # Actual transfer
-
-            # Remove items
-            if self.containers[source_bag]:
-                self.mark_as_removed(source_item)
-                self.containers[source_bag].remove_item_in_slot(source_slot)
-            if self.containers[dest_bag]:
-                self.mark_as_removed(dest_item)
-                self.containers[dest_bag].remove_item_in_slot(dest_slot)
-
-            # Bag transfers
-            if self.is_bag_pos(dest_slot) and source_item.is_container():
-                self.add_bag(dest_slot, source_item)
-                RealmDatabaseManager.character_inventory_update_container_contents(source_item)
-
-            if dest_item and self.is_bag_pos(source_slot) and dest_item.is_container():
-                self.add_bag(source_slot, dest_item)
-                RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
-
-            # Add items
-            if self.containers[source_bag]:
-                self.containers[dest_bag].set_item(source_item, dest_slot, source_item.item_instance.stackcount)
-                source_item.item_instance.bag = dest_bag
-                source_item.item_instance.slot = dest_slot
-                RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
-            if dest_item and self.containers[dest_bag]:
-                self.containers[source_bag].set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
-                # Set default equip slot of the offhand weapon to main hand if it's a one handed weapon when
-                # putting it back to the bags.
-                if dest_slot == InventorySlots.SLOT_OFFHAND and \
-                        dest_item.item_template.inventory_type == InventoryTypes.WEAPON:
-                    dest_item.equip_slot = InventorySlots.SLOT_MAINHAND.value
-                dest_item.item_instance.bag = source_bag
-                dest_item.item_instance.slot = source_slot
-                RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
-
-            if source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED and \
-                    (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(source_slot)):
-                source_item.set_binding(True)
+                # Update stack values
+                source_item.item_instance.stackcount -= diff
+                dest_item.item_instance.stackcount = dest_item.item_template.stackable
                 RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
 
-            if self.is_equipment_pos(source_bag, source_slot) or self.is_equipment_pos(dest_bag, dest_slot):
-                self.owner.stat_manager.apply_bonuses()
-                self.owner.set_dirty(dirty_inventory=True)
-            else:
-                self.owner.send_update_self(force_inventory_update=True)
+            self.owner.send_update_self(force_inventory_update=True)
+            RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
+            return
+
+        # Remove source and dest item
+        self.remove_item(source_bag, source_slot, False)
+
+        if dest_item:
+            self.remove_item(dest_bag, dest_slot, False)
+
+        # Register bags if source/dest are bag slots
+        if dest_container.is_backpack and self.is_bag_pos(dest_slot):
+            self.add_bag(dest_slot, source_item)
+            RealmDatabaseManager.character_inventory_update_container_contents(source_item)
+
+        if dest_container.is_backpack and dest_item and self.is_bag_pos(source_slot):
+            self.add_bag(source_slot, dest_item)
+            RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
+
+        dest_container.set_item(source_item, dest_slot)
+        source_item.item_instance.bag = dest_bag    # TODO These fields serve little purpose?
+        source_item.item_instance.slot = dest_slot
+
+        if dest_item:
+            source_container.set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
+            dest_item.item_instance.bag = source_bag
+            dest_item.item_instance.slot = source_slot
+
+        # Equipment-specific behaviour: binding, offhand unequip, equipment update packet etc.
+        if dest_container.is_backpack and \
+                (self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot)) or \
+                (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
+            self.handle_equipment_change(source_item, dest_item)
+        else:
+            self.owner.send_update_self(force_inventory_update=True)
+
+        # Finally, update items and client
+        RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
+        if dest_item:
+            RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
 
     def get_item_count(self, entry):
         count = 0
@@ -460,14 +291,38 @@ class InventoryManager(object):
         return count
 
     def get_container(self, slot):
+        if slot >= InventorySlots.SLOT_BANK_END:  # The client sometimes refers to backpack with values over or equal to SLOT_BANK_END
+            slot = InventorySlots.SLOT_INBACKPACK
         if slot in self.containers:
             return self.containers[slot]
         return None
 
     def get_item(self, bag, slot):
-        if bag in self.containers and self.containers[bag]:
-            return self.containers[bag].get_item(slot)
+        container = self.get_container(bag)
+        if container:
+            return container.get_item(slot)
         return None
+
+    def remove_item(self, target_bag, target_slot, clear_slot=True):  # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
+        target_container = self.get_container(target_bag)
+        if not target_container:
+            return
+        target_item = target_container.get_item(target_slot)
+        if not target_item:
+            return
+
+        if clear_slot:
+            self.send_destroy_packet(target_slot, target_container.sorted_slots)
+
+        self.mark_as_removed(target_item)
+        target_container.remove_item_in_slot(target_slot)
+
+        if clear_slot:
+            RealmDatabaseManager.character_inventory_delete(target_item.item_instance)
+
+        if target_container.is_backpack and \
+                self.is_bag_pos(target_slot) and self.get_container(target_slot):  # Equipped bags
+            self.remove_bag(target_slot)
 
     def get_item_info_by_guid(self, guid):
         for container_slot, container in list(self.containers.items()):
@@ -494,7 +349,7 @@ class InventoryManager(object):
 
     def remove_bag(self, slot):
         slot = InventorySlots(slot)
-        if not self.is_bag_pos(slot) or not self.containers[slot]:
+        if not self.is_bag_pos(slot) or not self.get_container(slot):
             return False
 
         if slot in self.get_backpack().sorted_slots:
@@ -569,11 +424,133 @@ class InventoryManager(object):
                 return container_slot.value, container.next_available_slot()
         return -1, -1
 
-    def get_next_available_bag_slot(self):
-        for container_slot, container in list(self.containers.items()):
-            if not container:
-                return container_slot
+    def get_next_available_slot_for_inv_type(self, inventory_type):
+        if inventory_type == InventoryTypes.BAG:
+            for container_slot, container in list(self.containers.items()):
+                if not container:
+                    return container_slot.value
+
+        # Inventory types that can target multiple slots (bags handled separately)
+
+        if inventory_type == InventoryTypes.FINGER:
+            target_slots = (InventorySlots.SLOT_FINGERL.value,
+                            InventorySlots.SLOT_FINGERR.value)
+        elif inventory_type == InventoryTypes.TRINKET:
+            target_slots = (InventorySlots.SLOT_TRINKETL.value,
+                            InventorySlots.SLOT_TRINKETR.value)
+        elif inventory_type == InventoryTypes.WEAPON and \
+                self.owner.skill_manager.can_dual_wield() and not self.has_two_handed_weapon():
+            target_slots = (InventorySlots.SLOT_MAINHAND.value,
+                            InventorySlots.SLOT_OFFHAND.value)  # Offhand option is only valid when player can dual wield and doesn't have a 2H weapon (autoequip 1H weapon should replace 2H)
+        else:
+            target_slots = (ItemManager.get_inv_slot_by_type(inventory_type),)
+
+        for slot in target_slots:
+            if not self.get_backpack().get_item(slot):
+                return slot
+
         return -1
+
+    def item_can_be_moved_to_slot(self, source_template, dest_slot, dest_bag, source_item=None, source_container=None):
+        dest_container = self.get_container(dest_bag)
+        if not dest_container:
+            self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
+            return False
+
+        dest_item = dest_container.get_item(dest_slot)
+
+        if not source_template:
+            return False
+
+        if not self.owner.is_alive:
+            self.send_equip_error(InventoryError.BAG_NOT_WHILE_DEAD, source_item, dest_item)
+            return False
+
+        # Check equipment skill and level requirement
+        if self.is_equipment_pos(dest_bag, dest_slot):
+            if source_template.required_level > self.owner.level:
+                self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
+                return False
+            if not self.owner.skill_manager.can_use_equipment(source_template.class_,
+                                                              source_template.subclass):
+                self.send_equip_error(InventoryError.BAG_PROFICIENCY_NEEDED, source_item, dest_item)
+                return False
+
+        # Destination slot (item type) check for paper doll and bag slots
+        if dest_container.is_backpack:
+            if (self.is_equipment_pos(dest_bag, dest_slot) and not ItemManager.item_can_go_in_paperdoll_slot(source_template, dest_slot)) or \
+                    (self.is_bag_pos(dest_slot) and source_template.inventory_type != InventoryTypes.BAG):  # dest is paperdoll/bag slots but item isn't equipment/bag
+                self.send_equip_error(InventoryError.BAG_SLOT_MISMATCH, source_item, dest_item)
+                return False
+
+        # Bag item family checks
+        if self.is_inventory_pos(dest_bag, dest_slot) and not dest_container.can_contain_item(source_template):
+            self.send_equip_error(InventoryError.BAG_ITEM_CLASS_MISMATCH, source_item, dest_item)
+            return False
+
+        # Moving a container, excluding case where source and destination are bag slots
+        # These cases are only relevant if the source item and source container exist
+        if source_item and source_item.is_container() and source_container and not \
+                (source_container.is_backpack and dest_container.is_backpack and self.is_bag_pos(
+                    source_item.current_slot) and self.is_bag_pos(dest_slot)):
+            if source_item.guid == dest_container.guid:  # Moving bag inside itself
+                self.send_equip_error(InventoryError.BAG_NO_BAGS_IN_BAGS, source_item, dest_item)
+                return False
+
+            if source_container.is_backpack and self.is_bag_pos(
+                    source_item.current_slot) and not source_item.is_empty():  # Moving non-empty bag from bag slots
+                self.send_equip_error(InventoryError.BAG_NOT_EMPTY, source_item, dest_item)
+                return False
+
+        source_is_weapon = source_template.inventory_type == InventoryTypes.WEAPON or \
+            source_template.inventory_type == InventoryTypes.WEAPONOFFHAND
+
+        # Dual wield check
+        if source_is_weapon and dest_slot == InventorySlots.SLOT_OFFHAND and not \
+                self.owner.skill_manager.can_dual_wield():  # Equipping weapon in OH without DW skill
+            if dest_slot == InventorySlots.SLOT_OFFHAND and not \
+                    self.owner.skill_manager.can_dual_wield():
+                self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, source_item, dest_item)
+                return False
+
+        if dest_container.is_backpack and dest_slot == InventorySlots.SLOT_MAINHAND:
+            current_oh = self.get_offhand()
+            source_is_2h = source_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
+            if current_oh and source_is_2h and not \
+                    self.can_store_item(current_oh.item_template,
+                                        current_oh.item_instance.stackcount):  # Equipping 2H with OH equipped but inv is full
+                self.send_equip_error(InventoryError.BAG_CANT_SWAP, source_item, dest_item)
+                return False
+
+        # Offhand equip
+        if dest_container.is_backpack and dest_slot == InventorySlots.SLOT_OFFHAND and self.has_two_handed_weapon():
+            self.send_equip_error(InventoryError.BAG_2HWEAPONBEINGWIELDED, source_item, dest_item)
+            return False
+
+        return True
+
+    def handle_equipment_change(self, source_item, dest_item=None):
+        # Binding
+        if source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED:
+            source_item.set_binding(True)
+
+        # Bonus application
+        self.owner.stat_manager.apply_bonuses()
+
+        # Offhand removal on 2H equip
+        current_oh = self.get_offhand()
+        source_is_2h = source_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
+        dest_is_2h = dest_item and dest_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
+        if (current_oh and (source_is_2h or dest_is_2h)) and \
+                self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount):  # Case where OH is equipped and 2h is equipped, and it's possible to unequip OH.
+
+            # Remove the offhand item from OH and add it to inventory
+            # This is necessary in case of a stacking offhand (3675) - otherwise swap_item to free slot would be valid
+            self.add_item(item_template=current_oh.item_template, count=current_oh.item_instance.stackcount,
+                          send_message=False, show_item_get=False)  #
+            self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
+
+        self.owner.set_dirty(dirty_inventory=True)  # Mark as dirty to update equipment for other players
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
@@ -595,14 +572,15 @@ class InventoryManager(object):
         return bag_slot == InventorySlots.SLOT_INBACKPACK and slot < InventorySlots.SLOT_BAG1
 
     def is_inventory_pos(self, bag_slot, slot):
-        if bag_slot == InventorySlots.SLOT_INBACKPACK \
-                and InventorySlots.SLOT_ITEM_START <= slot < InventorySlots.SLOT_ITEM_END:
+        container = self.get_container(bag_slot)
+        if not container:
+            return False
+        if container.is_backpack and \
+                InventorySlots.SLOT_ITEM_START <= slot < InventorySlots.SLOT_ITEM_END:
             return True
 
         if InventorySlots.SLOT_BAG1 <= bag_slot <= InventorySlots.SLOT_BAG4:
-            if not self.containers[bag_slot]:
-                return False
-            return slot < self.containers[bag_slot].max_slot
+            return slot < container.max_slot
         return False
 
     def get_main_hand(self):

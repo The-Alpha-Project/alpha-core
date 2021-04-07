@@ -8,6 +8,7 @@ from database.realm.RealmModels import CharacterSkill
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.ObjectCodes import SkillCategories, Languages
+from utils.constants.UnitCodes import Classes
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -163,7 +164,7 @@ class LanguageDesc(NamedTuple):
 
 
 LANG_DESCRIPTION = {
-    Languages.LANG_UNIVERSAL: LanguageDesc(Languages.LANG_UNIVERSAL, 0, 0),
+    Languages.LANG_UNIVERSAL: LanguageDesc(Languages.LANG_UNIVERSAL, 0, SkillTypes.NONE),
     Languages.LANG_ORCISH: LanguageDesc(Languages.LANG_ORCISH, 669, SkillTypes.LANGUAGE_ORCISH.value),
     Languages.LANG_DARNASSIAN: LanguageDesc(Languages.LANG_DARNASSIAN, 671, SkillTypes.LANGUAGE_DARNASSIAN.value),
     Languages.LANG_TAURAHE: LanguageDesc(Languages.LANG_TAURAHE, 670, SkillTypes.LANGUAGE_TAURAHE.value),
@@ -201,14 +202,14 @@ EQUIPMENT_DESCRIPTION = {
         ItemSubClasses.ITEM_SUBCLASS_CROSSBOW: SpellSkillDesc(5011, SkillTypes.CROSSBOWS.value),
         ItemSubClasses.ITEM_SUBCLASS_WAND: SpellSkillDesc(5009, SkillTypes.WANDS.value),
         ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON: SpellSkillDesc(0, SkillTypes.UNARMED.value),
-        ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE: SpellSkillDesc(0, 0)
+        ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE: SpellSkillDesc(0, SkillTypes.NONE)
     },
     ItemClasses.ITEM_CLASS_ARMOR: {
         ItemSubClasses.ITEM_SUBCLASS_PLATE: SpellSkillDesc(750, SkillTypes.PLATEMAIL.value),
-        ItemSubClasses.ITEM_SUBCLASS_CLOTH: SpellSkillDesc(0, 0),
-        ItemSubClasses.ITEM_SUBCLASS_LEATHER: SpellSkillDesc(0, 0),
-        ItemSubClasses.ITEM_SUBCLASS_MAIL: SpellSkillDesc(0, 0),
-        ItemSubClasses.ITEM_SUBCLASS_MISC: SpellSkillDesc(0, 0),
+        ItemSubClasses.ITEM_SUBCLASS_CLOTH: SpellSkillDesc(0, -1),
+        ItemSubClasses.ITEM_SUBCLASS_LEATHER: SpellSkillDesc(0, -1),
+        ItemSubClasses.ITEM_SUBCLASS_MAIL: SpellSkillDesc(0, -1),
+        ItemSubClasses.ITEM_SUBCLASS_MISC: SpellSkillDesc(0, SkillTypes.NONE),
         ItemSubClasses.ITEM_SUBCLASS_BUCKLER: SpellSkillDesc(107, SkillTypes.BLOCK),
         ItemSubClasses.ITEM_SUBCLASS_SHIELD: SpellSkillDesc(107, SkillTypes.BLOCK)
     }
@@ -269,13 +270,43 @@ class SkillManager(object):
 
             self.set_skill(skill_id, skill.value, new_max)
 
+    def _class_can_use_armor_type(self, armor_type):
+        player_class = self.player_mgr.player.class_
+        if armor_type == ItemSubClasses.ITEM_SUBCLASS_CLOTH:
+            return True
+
+        if armor_type == ItemSubClasses.ITEM_SUBCLASS_LEATHER:
+            return player_class != Classes.CLASS_MAGE and player_class != Classes.CLASS_PRIEST and player_class != Classes.CLASS_WARLOCK
+
+        if armor_type == ItemSubClasses.ITEM_SUBCLASS_MAIL:
+            if self.player_mgr.level >= 40 and (player_class == Classes.CLASS_HUNTER or player_class == Classes.CLASS_SHAMAN):
+                return True
+
+            if player_class == Classes.CLASS_WARRIOR or player_class == Classes.CLASS_PALADIN:
+                return True
+
+            return False
+
+        if armor_type == ItemSubClasses.ITEM_SUBCLASS_PLATE:
+            return SkillTypes.PLATEMAIL in self.skills
+
+        return False
+
     def can_use_equipment(self, item_class, item_subclass):
+        # No Cloth, Leather or Mail spells / skills exist in 0.5.3, but according to Ziggurat armor restrictions existed.
+        if item_subclass == ItemSubClasses.ITEM_SUBCLASS_CLOTH or ItemSubClasses.ITEM_SUBCLASS_LEATHER or ItemSubClasses.ITEM_SUBCLASS_MAIL:
+            return self._class_can_use_armor_type(item_subclass)
+        # Special case, don't let Hunters and Rogues use shields even if they have the Block skill (just bucklers).
+        elif item_subclass == ItemSubClasses.ITEM_SUBCLASS_SHIELD:
+            if self.player_mgr.player.class_ == Classes.CLASS_HUNTER or self.player_mgr.player.class_ == Classes.CLASS_ROGUE:
+                return False
+
         skill = SkillManager.get_skill_by_item_class(item_class, item_subclass)
         if skill == -1:
             return False
 
         # No skill requirement
-        if skill == 0:
+        if skill == SkillTypes.NONE:
             return True
 
         return skill in self.skills
@@ -297,7 +328,7 @@ class SkillManager(object):
             if item_subclass in class_:
                 return class_[item_subclass].skill_id
             return -1
-        return -1
+        return 0
 
     @staticmethod
     def get_max_rank(player_level, skill_id):
