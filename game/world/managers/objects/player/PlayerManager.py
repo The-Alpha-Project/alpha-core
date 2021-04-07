@@ -210,7 +210,6 @@ class PlayerManager(UnitManager):
         if self.group_manager:
             self.group_manager.leave_party(self, force_disband=self.group_manager.party_leader == self)
 
-
         # TODO: Temp hackfix until guilds are saved in db
         if self.guild_manager:
             if self.guild_manager.guild_master == self:
