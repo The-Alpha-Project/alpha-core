@@ -217,7 +217,7 @@ class PlayerManager(UnitManager):
             else:
                 self.guild_manager.leave(self)
 
-        self.friends_manager.send_offline_notification()
+        # self.friends_manager.send_offline_notification()
         self.session.save_character()
         GridManager.remove_object(self)
         self.session.player_mgr = None

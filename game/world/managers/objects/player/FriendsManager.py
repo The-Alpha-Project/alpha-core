@@ -89,6 +89,7 @@ class FriendsManager(object):
                 packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
                 player_mgr.session.request.sendall(packet)
 
+    # TODO: This should be sent to friends that have you in their friend list, not to your friendlist...
     def send_offline_notification(self):
         for friend in self.friends:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(friend)
