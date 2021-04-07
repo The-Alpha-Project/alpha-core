@@ -17,8 +17,8 @@ class CastSpellHandler(object):
             world_session.player_mgr.spell_manager.send_cast_result(spell_id, SpellCheckCastResult.SPELL_FAILED_FIZZLE)
             return 0  # not implemented, fizzle
 
-        target_guid = unpack('<Q', reader.data[-8:]) if len(reader.data) > 6 else world_session.player_mgr.guid
-        world_session.player_mgr.spell_manager.handle_cast_attempt(spell_id, target_mask, target_guid)
+        target_guid = unpack('<Q', reader.data[-8:])[0] if len(reader.data) > 6 else world_session.player_mgr.guid
+        world_session.player_mgr.spell_manager.handle_cast_attempt(spell_id, world_session.player_mgr, target_guid, target_mask)
 
         #world_session.player_mgr.spell_manager.send_cast_result(spell_id, SpellCheckCastResult.SPELL_FAILED_FIZZLE)
         return 0
