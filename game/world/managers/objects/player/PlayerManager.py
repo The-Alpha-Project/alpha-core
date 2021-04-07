@@ -13,6 +13,7 @@ from game.world.managers.objects.player.TradeManager import TradeManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from game.world.managers.objects.player.QuestManager import QuestManager
+from game.world.managers.objects.player.FriendsManager import FriendsManager
 from network.packet.PacketWriter import *
 from utils import Formulas
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
@@ -125,6 +126,7 @@ class PlayerManager(UnitManager):
             self.skill_manager = SkillManager(self)
             self.spell_manager = SpellManager(self)
             self.quest_manager = QuestManager(self)
+            self.friends_manager = FriendsManager(self)
             self.guild_manager = None
             self.group_manager = None
 
@@ -208,6 +210,7 @@ class PlayerManager(UnitManager):
         if self.group_manager:
             self.group_manager.leave_party(self, force_disband=self.group_manager.party_leader == self)
 
+
         # TODO: Temp hackfix until guilds are saved in db
         if self.guild_manager:
             if self.guild_manager.guild_master == self:
@@ -215,6 +218,7 @@ class PlayerManager(UnitManager):
             else:
                 self.guild_manager.leave(self)
 
+        self.friends_manager.send_offline_notification()
         self.session.save_character()
         GridManager.remove_object(self)
         self.session.player_mgr = None

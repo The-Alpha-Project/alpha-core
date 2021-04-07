@@ -218,9 +218,11 @@ class GroupManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
         self.party_leader.session.request.sendall(packet)
 
-    def send_packet_to_members(self, packet, ignore=None):
+    def send_packet_to_members(self, packet, ignore=None, source=None):
         for member in self.members.values():
             if member == ignore:
+                continue
+            if source and member.friends_manager.has_ignore(source):
                 continue
 
             member.session.request.sendall(packet)

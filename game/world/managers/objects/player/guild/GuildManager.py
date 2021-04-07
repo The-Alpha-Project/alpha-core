@@ -140,11 +140,15 @@ class GuildManager(object):
         self.members.clear()
         self.ranks.clear()
 
-    def send_message_to_guild(self, packet, msg_type=None):
+    def send_message_to_guild(self, packet, msg_type=None, source=None):
         for member in self.members.values():
             if msg_type and msg_type == GuildChatMessageTypes.G_MSGTYPE_OFFICERCHAT \
                     and self.get_guild_rank(member) > GuildRank.GUILDRANK_OFFICER:
                 continue
+
+            if source and member.friends_manager.has_ignore(source):
+                continue
+
             member.session.request.sendall(packet)
 
     def invite_member(self, player_mgr, invited_player):

@@ -89,6 +89,13 @@ from game.world.opcode_handling.handlers.guild.GuildDemoteHandler import GuildDe
 from game.world.opcode_handling.handlers.guild.GuildLeaveHandler import GuildLeaveHandler
 from game.world.opcode_handling.handlers.guild.GuildLeaderHandler import GuildLeaderHandler
 from game.world.opcode_handling.handlers.guild.GuildDisbandHandler import GuildDisbandHandler
+from game.world.opcode_handling.handlers.friends.FriendsListHandler import FriendsListHandler
+from game.world.opcode_handling.handlers.friends.FriendAddHandler import FriendAddHandler
+from game.world.opcode_handling.handlers.friends.FriendIgnoreHandler import FriendIgnoreHandler
+from game.world.opcode_handling.handlers.friends.FriendDeleteHandler import FriendDeleteHandler
+from game.world.opcode_handling.handlers.friends.FriendDeleteIgnoreHandler import FriendDeleteIgnoreHandler
+
+
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -212,6 +219,11 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GUILD_LEAVE: GuildLeaveHandler.handle,
     OpCode.CMSG_GUILD_LEADER: GuildLeaderHandler.handle,
     OpCode.CMSG_GUILD_DISBAND: GuildDisbandHandler.handle,
+    OpCode.CMSG_FRIEND_LIST: FriendsListHandler.handle,
+    OpCode.CMSG_ADD_FRIEND: FriendAddHandler.handle,
+    OpCode.CMSG_ADD_IGNORE: FriendIgnoreHandler.handle,
+    OpCode.CMSG_DEL_FRIEND: FriendDeleteHandler.handle,
+    OpCode.CMSG_DEL_IGNORE: FriendDeleteIgnoreHandler.handle,
 }
 
 
