@@ -709,9 +709,7 @@ class PlayerManager(UnitManager):
 
         # Guild
         if self.guild_manager:
-            self.set_uint32(PlayerFields.PLAYER_GUILDID, self.guild_manager.guild_id)
-            self.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.guild_manager.get_guild_rank(self))
-            self.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, self.guild_manager.created_at)
+            self.guild_manager.build_update(self)
         else:
             self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 

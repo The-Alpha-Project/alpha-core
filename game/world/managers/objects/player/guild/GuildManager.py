@@ -3,20 +3,22 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import GuildRank, GuildCommandResults, GuildTypeCommand, GuildEvents, GuildChatMessageTypes
 from game.world.managers.objects.player.guild.GuildPendingInvite import GuildPendingInvite
 from utils.TextUtils import TextChecker
+from utils.constants.UpdateFields import PlayerFields
+
 
 class GuildManager(object):
-    GUILD_COUNT = 0 # TODO, generate/recycle guild IDs when we have db persistance
+    GUILD_COUNT = 0  # TODO, generate/recycle guild IDs when we have db persistence
     GUILDS = {}
     PENDING_INVITES = {}
 
     def __init__(self, guild_name):
         GuildManager.GUILD_COUNT += 1
-        self.guild_id = GuildManager.GUILD_COUNT #int32
+        self.guild_id = GuildManager.GUILD_COUNT  # int32
         self.guild_name = guild_name
         self.members = {}
         self.ranks = {}
         self.guild_master = None
-        self.created_at = 0 #Date
+        self.created_at = 0  # Date
         self.motd = ''
         GuildManager.GUILDS[self.guild_id] = self
 
@@ -43,6 +45,7 @@ class GuildManager(object):
             packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
             self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
+        player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.get_guild_rank(player_mgr))
         player_mgr.set_dirty()
 
     def set_motd(self, motd):
@@ -78,6 +81,8 @@ class GuildManager(object):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
+
+        self.build_update(player_mgr)
         player_mgr.set_dirty()
 
     def remove_member(self, player_mgr):
@@ -100,6 +105,8 @@ class GuildManager(object):
         # Pop it at the end, so he gets the above message.
         self.members.pop(player_mgr.guid)
         self.ranks.pop(player_mgr)
+        self.build_update(player_mgr, unset=True)
+
         player_mgr.guild_manager = None
         player_mgr.set_dirty()
 
@@ -117,6 +124,8 @@ class GuildManager(object):
 
         self.members.pop(player_mgr.guid)
         self.ranks.pop(player_mgr.guid)
+        self.build_update(player_mgr, unset=True)
+
         player_mgr.guild_manager = None
         player_mgr.set_dirty()
 
@@ -132,9 +141,10 @@ class GuildManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
-        for m in self.members.values():
-            m.guild_manager = None
-            m.set_dirty()
+        for member in self.members.values():
+            self.build_update(member, unset=True)
+            member.guild_manager = None
+            member.set_dirty()
 
         GuildManager.GUILDS.pop(self.guild_id)
         self.members.clear()
@@ -187,7 +197,10 @@ class GuildManager(object):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
+
+        player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.get_guild_rank(player_mgr))
         player_mgr.set_dirty()
+
         return True
 
     def demote_rank(self, player_mgr):
@@ -195,7 +208,7 @@ class GuildManager(object):
             return False
 
         current_rank = int(self.ranks[player_mgr.guid])
-        if current_rank == int(GuildRank.GUILDRANK_INITIATE): #Use initiate as lowest for now
+        if current_rank == int(GuildRank.GUILDRANK_INITIATE):  # Use initiate as lowest for now
             return False
         else:
             self.ranks[player_mgr.guid] = GuildRank((current_rank + 1))
@@ -216,8 +229,21 @@ class GuildManager(object):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
+
+        player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.get_guild_rank(player_mgr))
         player_mgr.set_dirty()
+
         return True
+
+    def build_update(self, player_mgr, unset=False):
+        if unset:
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, 0)
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, 0)
+        else:
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDID, self.guild_id)
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.get_guild_rank(player_mgr))
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, self.created_at)
 
     @staticmethod
     def create_guild(player_mgr, guild_name):
@@ -245,7 +271,7 @@ class GuildManager(object):
             '<I%usI' % len(message_bytes),
             command_type,
             message_bytes,
-            command,
+            command
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_COMMAND_RESULT, data)

@@ -36,14 +36,14 @@ class ChatManager(object):
         GridManager.send_surrounding_in_range(ChatManager._get_message_packet(guid,
                                                                               chat_flags,
                                                                               message, chat_type, lang),
-                                              world_session.player_mgr, range_)
+                                              world_session.player_mgr, range_, use_ignore=True)
 
     @staticmethod
     def send_party(sender, message, lang):
         if sender.group_manager:
             sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
                                                             ChatMsgs.CHAT_MSG_PARTY, lang)
-            sender.group_manager.send_packet_to_members(sender_packet, source=sender)
+            sender.group_manager.send_packet_to_members(sender_packet, source=sender, use_ignore=True)
         else:
             GroupManager.send_group_operation_result(sender, PartyOperations.PARTY_OP_LEAVE, '',
                                                      PartyResults.ERR_NOT_IN_GROUP)

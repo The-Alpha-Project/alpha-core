@@ -8,7 +8,7 @@ class FriendDeleteHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:
+        if len(reader.data) >= 8:  # Avoid handling empty friend delete packet
             guid = unpack('<Q', reader.data[:8])[0]
             target_player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
             friend_result = None

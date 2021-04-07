@@ -69,14 +69,14 @@ class GridManager(object):
         return near_grids
 
     @staticmethod
-    def send_surrounding(packet, world_obj, include_self=True, ignore=None):
+    def send_surrounding(packet, world_obj, include_self=True, exclude=None, use_ignore=False):
         for grid in GridManager.get_surrounding(world_obj):
-            grid.send_all(packet, source=None if include_self else world_obj, ignore=ignore)
+            grid.send_all(packet, source=None if include_self else world_obj, exclude=exclude, use_ignore=use_ignore)
 
     @staticmethod
-    def send_surrounding_in_range(packet, world_obj, range_, include_self=True):
+    def send_surrounding_in_range(packet, world_obj, range_, include_self=True, exclude=None, use_ignore=False):
         for grid in GridManager.get_surrounding(world_obj):
-            grid.send_all_in_range(packet, range_, world_obj, include_self)
+            grid.send_all_in_range(packet, range_, world_obj, include_self, exclude, use_ignore)
 
     @staticmethod
     def get_surrounding_objects(world_obj, object_types):
@@ -237,27 +237,27 @@ class Grid(object):
         elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects.pop(world_obj.guid, None)
 
-    def send_all(self, packet, source=None, ignore=None):
+    def send_all(self, packet, source=None, exclude=None, use_ignore=False):
         for guid, player_mgr in list(self.players.items()):
             if player_mgr.is_online:
                 if source and player_mgr.guid == source.guid:
                     continue
-                if ignore and player_mgr.guid in ignore:
+                if exclude and player_mgr.guid in exclude:
                     continue
-                if source and player_mgr.friends_manager.has_ignore(source):
+                if use_ignore and source and player_mgr.friends_manager.has_ignore(source):
                     continue
 
                 threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
 
-    def send_all_in_range(self, packet, range_, source, include_self=True, ignore=None):
+    def send_all_in_range(self, packet, range_, source, include_self=True, exclude=None, use_ignore=False):
         if range_ <= 0:
-            self.send_all(packet, source, ignore)
+            self.send_all(packet, source, exclude)
         else:
             for guid, player_mgr in list(self.players.items()):
                 if player_mgr.is_online and player_mgr.location.distance(source.location) <= range_:
                     if not include_self and player_mgr.guid == source.guid:
                         continue
-                    if player_mgr.friends_manager.has_ignore(source):
+                    if use_ignore and player_mgr.friends_manager.has_ignore(source):
                         continue
 
                     threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()

@@ -7,13 +7,13 @@ from utils.constants.ObjectCodes import FriendResults
 class FriendsManager(object):
 
     def __init__(self, owner):
-        self.friends = {} #Should be DB R/W
-        self.ignores = {} #Should be DB R/W
+        self.friends = {}  # Should be DB R/W
+        self.ignores = {}  # Should be DB R/W
         self.owner = owner
 
     def add_friend(self, player_mgr):
-        if not player_mgr.guid in self.friends:
-            self.friends[player_mgr.guid] = player_mgr.guid # Err, need a hashset or something.
+        if player_mgr.guid not in self.friends:
+            self.friends[player_mgr.guid] = player_mgr.guid  # Err, need a hashset or something.
 
             status = FriendResults.FRIEND_ADDED_ONLINE if player_mgr.is_online else FriendResults.FRIEND_ADDED_OFFLINE
             data = pack('<BQ', status, player_mgr.guid)
@@ -44,9 +44,9 @@ class FriendsManager(object):
     def has_ignore(self, player_mgr):
         return player_mgr.guid in self.ignores
 
-    # TODO: Ignore also affects duel,mail,lfg and channels.
+    # TODO: Ignore also affects duel, mail, lfg and channels.
     def add_ignore(self, player_mgr):
-        if not player_mgr.guid in self.ignores:
+        if player_mgr.guid not in self.ignores:
             self.ignores[player_mgr.guid] = player_mgr.guid
             data = pack('<BQ', FriendResults.FRIEND_IGNORE_ADDED, player_mgr.guid)
             packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
@@ -57,7 +57,6 @@ class FriendsManager(object):
         data = pack('<B', len(self.friends))
 
         for friend in self.friends:
-            print(friend)
             player_mgr = WorldSessionStateHandler.find_player_by_guid(friend)
             if player_mgr:
                 data += pack('<QB3I', player_mgr.guid, 1, player_mgr.zone, player_mgr.level, player_mgr.player.class_)
@@ -104,7 +103,3 @@ class FriendsManager(object):
             player_mgr = WorldSessionStateHandler.find_player_by_guid(friend)
             if player_mgr and player_mgr.friends_manager:
                 player_mgr.friends_manager.send_friends()
-
-
-
-

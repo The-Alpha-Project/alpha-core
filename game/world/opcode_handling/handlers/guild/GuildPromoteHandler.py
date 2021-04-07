@@ -27,5 +27,4 @@ class GuildPromoteHandler(object):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_INTERNAL)
 
-
         return 0
