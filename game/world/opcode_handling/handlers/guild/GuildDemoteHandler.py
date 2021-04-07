@@ -15,8 +15,10 @@ class GuildDemoteHandler(object):
         if not player_mgr.guild_manager:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
+        # TODO: Check if player is officer or greater, not only GM
         elif player_mgr != player_mgr.guild_manager.guild_master:
-            GuildManager.send_guild_command_result(player_mgr, 3, '', GuildCommandResults.GUILD_PERMISSIONS)
+            GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
+                                                   GuildCommandResults.GUILD_PERMISSIONS)
         elif not target_player_mgr:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
                                                    GuildCommandResults.GUILD_PLAYER_NOT_FOUND)

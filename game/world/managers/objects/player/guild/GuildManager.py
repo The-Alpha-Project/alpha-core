@@ -104,7 +104,7 @@ class GuildManager(object):
 
         # Pop it at the end, so he gets the above message.
         self.members.pop(player_mgr.guid)
-        self.ranks.pop(player_mgr)
+        self.ranks.pop(player_mgr.guid)
         self.build_update(player_mgr, unset=True)
 
         player_mgr.guild_manager = None

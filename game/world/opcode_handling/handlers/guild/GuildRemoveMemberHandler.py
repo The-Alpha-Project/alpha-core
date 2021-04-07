@@ -17,12 +17,14 @@ class GuildRemoveMemberHandler(object):
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
         if not target_player_mgr:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
-                                                       GuildCommandResults.GUILD_PLAYER_NOT_FOUND)
+                                                   GuildCommandResults.GUILD_PLAYER_NOT_FOUND)
         elif not target_player_mgr.guild_manager or not player_mgr.guild_manager.is_member(target_player_mgr):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
-                                                       GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
+                                                   GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
+        # TODO: Check if player is officer or greater, not only GM
         elif player_mgr != player_mgr.guild_manager.guild_master:
-            GuildManager.send_guild_command_result(player_mgr, 3, '', GuildCommandResults.GUILD_PERMISSIONS)
+            GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
+                                                   GuildCommandResults.GUILD_PERMISSIONS)
         else:
             player_mgr.guild_manager.remove_member(target_player_mgr)
 

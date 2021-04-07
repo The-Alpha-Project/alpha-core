@@ -17,12 +17,13 @@ class GuildLeaderHandler(object):
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
         if not target_player_mgr:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
-                                                       GuildCommandResults.GUILD_PLAYER_NOT_FOUND)
+                                                   GuildCommandResults.GUILD_PLAYER_NOT_FOUND)
         elif player_mgr != player_mgr.guild_manager.guild_master:
-            GuildManager.send_guild_command_result(player_mgr, 3, '', GuildCommandResults.GUILD_PERMISSIONS)
+            GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_FOUNDER_S, '',
+                                                   GuildCommandResults.GUILD_PERMISSIONS)
         elif not target_player_mgr.guild_manager or not player_mgr.guild_manager.is_member(target_player_mgr):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
-                                                       GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
+                                                   GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
         else:
             player_mgr.guild_manager.set_guild_master(target_player_mgr)
 
