@@ -80,27 +80,33 @@ class FriendsManager(object):
         self.send_ignores()
 
     # This should be called OnLogin player event, once we can fill from DB
+    # TODO: Use db to find which players have us in their friendslist.
     def send_online_notification(self):
-        for friend in self.friends:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(friend)
-            if player_mgr:
-                data = pack('<BQB3I', FriendResults.FRIEND_ONLINE, self.owner.guid, 1, self.owner.zone, self.owner.level,
-                            self.owner.player.class_)
-                packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
-                player_mgr.session.request.sendall(packet)
+        sessions = WorldSessionStateHandler.get_world_sessions()
+        for session in sessions:
+            if session and session.player_mgr:
+                if session.player_mgr.friends_manager.has_friend(self.owner):
+                    data = pack('<BQB3I', FriendResults.FRIEND_ONLINE, self.owner.guid, 1, self.owner.zone,
+                                self.owner.level,
+                                self.owner.player.class_)
+                    packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
+                    session.player_mgr.session.request.sendall(packet)
 
-    # TODO: This should be sent to friends that have you in their friend list, not to your friendlist...
+    # TODO: Use db to find which players have us in their friendslist.
     def send_offline_notification(self):
-        for friend in self.friends:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(friend)
-            if player_mgr:
-                data = pack('<BQB', FriendResults.FRIEND_OFFLINE, self.owner.guid, 0)
-                packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
-                player_mgr.session.request.sendall(packet)
+        sessions = WorldSessionStateHandler.get_world_sessions()
+        for session in sessions:
+            if session and session.player_mgr:
+                if session.player_mgr.friends_manager.has_friend(self.owner):
+                    data = pack('<BQB', FriendResults.FRIEND_OFFLINE, self.owner.guid, 0)
+                    packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
+                    session.player_mgr.session.request.sendall(packet)
 
     # OnLevelUp, ZoneChange, Etc, update self on our friends lists.
+    # TODO: Use db to find which players have us in their friendslist.
     def send_update_to_friends(self):
-        for friend in self.friends:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(friend)
-            if player_mgr and player_mgr.friends_manager:
-                player_mgr.friends_manager.send_friends()
+        sessions = WorldSessionStateHandler.get_world_sessions()
+        for session in sessions:
+            if session and session.player_mgr:
+                if session.player_mgr.friends_manager.has_friend(self.owner):
+                    sessions.player_mgr.friends_manager.send_friends()
