@@ -3,6 +3,9 @@ from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, GuildTypeCommand
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.player.GroupManager import GroupManager
+from utils.constants.GroupCodes import PartyOperations, PartyResults
+
 
 class ChatManager(object):
 
@@ -41,6 +44,9 @@ class ChatManager(object):
             sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
                                                             ChatMsgs.CHAT_MSG_PARTY, lang)
             sender.group_manager.send_packet_to_members(sender_packet)
+        else:
+            GroupManager.send_group_operation_result(sender, PartyOperations.PARTY_OP_LEAVE, '',
+                                                     PartyResults.ERR_NOT_IN_GROUP)
 
     @staticmethod
     def send_guild(sender, message, lang, chat_type):
@@ -55,6 +61,9 @@ class ChatManager(object):
                                                            GuildCommandResults.GUILD_PERMISSIONS)
                 else:
                     sender.guild_manager.send_message_to_guild(sender_packet, GuildChatMessageTypes.G_MSGTYPE_OFFICERCHAT)
+        else:
+            GuildManager.send_guild_command_result(sender, GuildTypeCommand.GUILD_CREATE_S, '',
+                                                   GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
 
     @staticmethod
     def send_whisper(sender, receiver, message, lang):
