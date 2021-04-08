@@ -45,7 +45,7 @@ class WhoHandler(object):
             player_count = 0
             player_data = b''
             for session in WorldSessionStateHandler.get_world_sessions():
-                if session.player_mgr and session.player_mgr.is_online:
+                if session.player_mgr and session.player_mgr.online:
                     online_count += 1
                     if player_count == 49:
                         continue

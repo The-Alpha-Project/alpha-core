@@ -44,7 +44,7 @@ class PlayerManager(UnitManager):
                  base_mana=0,
                  combo_points=0,
                  chat_flags=0,
-                 is_online=False,
+                 online=False,
                  current_selection=0,
                  deathbind=None,
                  **kwargs):
@@ -55,7 +55,7 @@ class PlayerManager(UnitManager):
         self.objects_in_range = dict()
 
         self.player = player
-        self.is_online = is_online
+        self.online = online
         self.num_inv_slots = num_inv_slots
         self.xp = xp
         self.next_level_xp = next_level_xp
@@ -109,6 +109,7 @@ class PlayerManager(UnitManager):
             self.max_power_4 = 100
             self.power_4 = self.player.power4
             self.coinage = self.player.money
+            self.online = self.player.online
 
             self.is_gm = self.session.account_mgr.account.gmlevel > 0
 
@@ -200,7 +201,8 @@ class PlayerManager(UnitManager):
         self.chat_flags = ChatFlags.CHAT_TAG_GM
 
     def complete_login(self):
-        self.is_online = True
+        self.online = True
+        self.session.save_character()
 
         GridManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
@@ -218,11 +220,11 @@ class PlayerManager(UnitManager):
                 self.guild_manager.leave(self)
 
         self.friends_manager.send_offline_notification()
+        self.online = False
         self.session.save_character()
         GridManager.remove_object(self)
         self.session.player_mgr = None
         self.session = None
-        self.is_online = False
 
     def get_tutorial_packet(self):
         return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('<18I', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -316,6 +318,7 @@ class PlayerManager(UnitManager):
             self.player.power3 = self.power_3
             self.player.power4 = self.power_4
             self.player.money = self.coinage
+            self.player.online = self.online
 
     # TODO: teleport system needs a complete rework
     def teleport(self, map_, location):
@@ -529,10 +532,10 @@ class PlayerManager(UnitManager):
         new_xp = self.xp
         """
         0.5.3 supports multiple amounts of XP and then combines them all
-        
+
         uint64_t victim,
         uint32_t count
-        
+
         loop (for each count):
             uint64_t guid,
             int32_t xp
@@ -989,7 +992,7 @@ class PlayerManager(UnitManager):
             return
 
         # Prevent updates if not online
-        if not self.is_online:
+        if not self.online:
             return
 
         now = time.time()
