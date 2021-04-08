@@ -50,6 +50,10 @@ class Logger:
     def anticheat(msg):
         print(Logger.colorize_message('[ANTICHEAT]', DebugColorLevel.ANTICHEAT, msg))
 
+    @staticmethod
+    def sql(msg, end='\n'):
+        print(Logger.colorize_message('', DebugColorLevel.INFO, msg), end=end)
+
     # Additional methods
 
     @staticmethod
