@@ -208,7 +208,7 @@ class CommandManager(object):
     @staticmethod
     def goplayer(world_session, args):
         player_name = args
-        is_online = True
+        online = True
 
         player = WorldSessionStateHandler.find_player_by_name(player_name)
         player_location = None
@@ -218,11 +218,11 @@ class CommandManager(object):
             player_location = player.location
             map_ = player.map_
         else:
-            is_online = False
+            online = False
             player = RealmDatabaseManager.character_get_by_name(player_name)
 
         if player:
-            if not is_online:
+            if not online:
                 player_location = Vector(float(player.position_x), float(player.position_y), float(player.position_z))
                 map_ = player.map
         else:
@@ -230,23 +230,23 @@ class CommandManager(object):
 
         world_session.player_mgr.teleport(int(map_), player_location)
 
-        return 0, 'Teleported to player %s (%s).' % (player_name.capitalize(), 'Online' if is_online else 'Offline')
+        return 0, 'Teleported to player %s (%s).' % (player_name.capitalize(), 'Online' if online else 'Offline')
 
     @staticmethod
     def summon(world_session, args):
         player_name = args
-        is_online = True
+        online = True
 
         player = WorldSessionStateHandler.find_player_by_name(player_name)
 
         if player:
             player.teleport(world_session.player_mgr.map_, world_session.player_mgr.location)
         else:
-            is_online = False
+            online = False
             player = RealmDatabaseManager.character_get_by_name(player_name)
 
         if player:
-            if not is_online:
+            if not online:
                 player.map = world_session.player_mgr.map_
                 player.zone = world_session.player_mgr.zone
                 player.position_x = world_session.player_mgr.location.x
@@ -256,14 +256,14 @@ class CommandManager(object):
         else:
             return -1, 'player not found.'
 
-        return 0, 'Summoned player %s (%s).' % (player_name.capitalize(), 'Online' if is_online else 'Offline')
+        return 0, 'Summoned player %s (%s).' % (player_name.capitalize(), 'Online' if online else 'Offline')
 
     @staticmethod
     def ann(world_session, args):
         ann = str(args)
 
         for session in WorldSessionStateHandler.get_world_sessions():
-            if session.player_mgr and session.player_mgr.is_online:
+            if session.player_mgr and session.player_mgr.online:
                 ChatManager.send_system_message(session, '[SERVER] %s' % ann)
 
         return 0, ''
@@ -437,7 +437,7 @@ class CommandManager(object):
 
         # Kick all players
         for session in WorldSessionStateHandler.get_world_sessions():
-            if session.player_mgr and session.player_mgr.is_online:
+            if session.player_mgr and session.player_mgr.online:
                 session.keep_alive = False
 
         return 0, ''
