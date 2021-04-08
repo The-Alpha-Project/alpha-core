@@ -202,7 +202,6 @@ class PlayerManager(UnitManager):
 
     def complete_login(self):
         self.online = True
-        self.session.save_character()
 
         GridManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)

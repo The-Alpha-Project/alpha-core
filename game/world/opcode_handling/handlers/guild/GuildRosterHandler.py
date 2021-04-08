@@ -5,7 +5,8 @@ from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from utils.constants.ObjectCodes import GuildCommandResults, GuildTypeCommand
 from utils.TextUtils import GameTextFormatter
 
-class GuildRoosterHandler(object):
+
+class GuildRosterHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
@@ -40,4 +41,5 @@ class GuildRoosterHandler(object):
                 )
 
             player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_GUILD_ROSTER, data))
+
         return 0

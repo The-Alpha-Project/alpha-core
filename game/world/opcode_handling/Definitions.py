@@ -78,7 +78,7 @@ from game.world.opcode_handling.handlers.group.MinimapPingHandler import Minimap
 from game.world.opcode_handling.handlers.guild.GuildCreateHandler import GuildCreateHandler
 from game.world.opcode_handling.handlers.guild.GuildQueryHandler import GuildQueryHandler
 from game.world.opcode_handling.handlers.guild.GuildInfoHandler import GuildInfoHandler
-from game.world.opcode_handling.handlers.guild.GuildRoosterHandler import GuildRoosterHandler
+from game.world.opcode_handling.handlers.guild.GuildRosterHandler import GuildRosterHandler
 from game.world.opcode_handling.handlers.guild.GuildInviteHandler import GuildInviteHandler
 from game.world.opcode_handling.handlers.guild.GuildInviteDeclineHandler import GuildInviteDeclineHandler
 from game.world.opcode_handling.handlers.guild.GuildInviteAcceptHandler import GuildInviteAcceptHandler
@@ -208,7 +208,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GUILD_CREATE: GuildCreateHandler.handle,
     OpCode.CMSG_GUILD_QUERY: GuildQueryHandler.handle,
     OpCode.CMSG_GUILD_INFO: GuildInfoHandler.handle,
-    OpCode.CMSG_GUILD_ROSTER: GuildRoosterHandler.handle,
+    OpCode.CMSG_GUILD_ROSTER: GuildRosterHandler.handle,
     OpCode.CMSG_GUILD_INVITE: GuildInviteHandler.handle,
     OpCode.CMSG_GUILD_ACCEPT: GuildInviteAcceptHandler.handle,
     OpCode.CMSG_GUILD_DECLINE: GuildInviteDeclineHandler.handle,
