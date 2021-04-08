@@ -31,9 +31,10 @@ class GuildRosterHandler(object):
                 area = WorldDatabaseManager.area_get_by_id(member.zone).name
                 race = GameTextFormatter.race_to_text(member.player.race)
                 class_ = GameTextFormatter.class_to_text(member.player.class_)
-                player_info = f'{"Online" if member.online else "Offline"} {member.player.name} | Level {member.level}' \
-                              f' {race} {class_}, Zone: {area if area else member.zone}'
-                info_bytes = PacketWriter.string_to_bytes(player_info)  # (String, Max Length: 128)
+                player_info = '%s %s | Level %u %u %u, Zone: %s' % ('Online' if member.online else 'Offline',
+                                                                    member.player.name, member.level, race, class_,
+                                                                    area if area else member.zone)
+                info_bytes = PacketWriter.string_to_bytes(player_info[:127])  # Max Length: 128)
                 data += pack(
                     '<%usI' % len(info_bytes),
                     info_bytes,

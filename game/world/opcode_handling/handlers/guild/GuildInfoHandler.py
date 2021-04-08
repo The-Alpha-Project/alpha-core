@@ -13,15 +13,16 @@ class GuildInfoHandler(object):
             GuildManager.send_guild_command_result(player, GuildTypeCommand.GUILD_CREATE_S, '',
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
         else:
-            # GuildName + MOTD
-            name_bytes = PacketWriter.string_to_bytes(player.guild_manager.guild_name + f"\nMessage of the day: {player.guild_manager.motd}")
+            # Guild name
+            name_bytes = PacketWriter.string_to_bytes(player.guild_manager.guild_name)
+            # TODO Should MOTD be sent here too?
             data = pack(
                 '<%us' % len(name_bytes),
                 name_bytes,
             )
 
-            # TODO: Handle proper date, what is Accounts?
-            # Day, Month, Years, Players, Accounts
+            # TODO: Handle proper data and nº of accounts
+            # Day, Month, Years, Players, Nº Accounts
             data += pack('<5I', 0, 0, 0, len(player.guild_manager.members), 0)
             player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_GUILD_INFO, data))
 
