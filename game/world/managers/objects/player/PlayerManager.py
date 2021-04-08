@@ -45,6 +45,7 @@ class PlayerManager(UnitManager):
                  combo_points=0,
                  chat_flags=0,
                  is_online=False,
+                 online=0,
                  current_selection=0,
                  deathbind=None,
                  **kwargs):
@@ -56,6 +57,7 @@ class PlayerManager(UnitManager):
 
         self.player = player
         self.is_online = is_online
+        self.online = online
         self.num_inv_slots = num_inv_slots
         self.xp = xp
         self.next_level_xp = next_level_xp
@@ -109,6 +111,7 @@ class PlayerManager(UnitManager):
             self.max_power_4 = 100
             self.power_4 = self.player.power4
             self.coinage = self.player.money
+            self.online=1
 
             self.is_gm = self.session.account_mgr.account.gmlevel > 0
 
@@ -201,6 +204,8 @@ class PlayerManager(UnitManager):
 
     def complete_login(self):
         self.is_online = True
+        self.online = 1
+        self.session.save_character()
 
         GridManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
@@ -218,6 +223,7 @@ class PlayerManager(UnitManager):
                 self.guild_manager.leave(self)
 
         self.friends_manager.send_offline_notification()
+        self.online = 0
         self.session.save_character()
         GridManager.remove_object(self)
         self.session.player_mgr = None
@@ -316,6 +322,7 @@ class PlayerManager(UnitManager):
             self.player.power3 = self.power_3
             self.player.power4 = self.power_4
             self.player.money = self.coinage
+            self.player.online = self.online
 
     # TODO: teleport system needs a complete rework
     def teleport(self, map_, location):
@@ -529,10 +536,10 @@ class PlayerManager(UnitManager):
         new_xp = self.xp
         """
         0.5.3 supports multiple amounts of XP and then combines them all
-        
+
         uint64_t victim,
         uint32_t count
-        
+
         loop (for each count):
             uint64_t guid,
             int32_t xp
