@@ -14,6 +14,6 @@ class GuildInviteAcceptHandler(object):
             inviter.guild_manager.add_new_member(player_mgr)
         else:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
-                                                       GuildCommandResults.GUILD_INTERNAL)
+                                                   GuildCommandResults.GUILD_INTERNAL)
 
         return 0
