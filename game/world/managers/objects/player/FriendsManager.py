@@ -15,7 +15,7 @@ class FriendsManager(object):
         if player_mgr.guid not in self.friends:
             self.friends[player_mgr.guid] = player_mgr.guid  # Err, need a hashset or something.
 
-            status = FriendResults.FRIEND_ADDED_ONLINE if player_mgr.is_online else FriendResults.FRIEND_ADDED_OFFLINE
+            status = FriendResults.FRIEND_ADDED_ONLINE if player_mgr.online else FriendResults.FRIEND_ADDED_OFFLINE
             data = pack('<BQ', status, player_mgr.guid)
 
             if status == FriendResults.FRIEND_ADDED_ONLINE:

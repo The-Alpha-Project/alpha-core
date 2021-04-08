@@ -239,7 +239,7 @@ class Grid(object):
 
     def send_all(self, packet, source=None, exclude=None, use_ignore=False):
         for guid, player_mgr in list(self.players.items()):
-            if player_mgr.is_online:
+            if player_mgr.online:
                 if source and player_mgr.guid == source.guid:
                     continue
                 if exclude and player_mgr.guid in exclude:
@@ -254,7 +254,7 @@ class Grid(object):
             self.send_all(packet, source, exclude)
         else:
             for guid, player_mgr in list(self.players.items()):
-                if player_mgr.is_online and player_mgr.location.distance(source.location) <= range_:
+                if player_mgr.online and player_mgr.location.distance(source.location) <= range_:
                     if not include_self and player_mgr.guid == source.guid:
                         continue
                     if use_ignore and player_mgr.friends_manager.has_ignore(source):
