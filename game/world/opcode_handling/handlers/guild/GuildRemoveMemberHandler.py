@@ -1,7 +1,7 @@
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from network.packet.PacketReader import *
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from utils.constants.ObjectCodes import GuildCommandResults, GuildTypeCommand
+from utils.constants.ObjectCodes import GuildCommandResults, GuildTypeCommand, GuildRank
 
 
 class GuildRemoveMemberHandler(object):
@@ -21,8 +21,7 @@ class GuildRemoveMemberHandler(object):
         elif not target_player_mgr.guild_manager or not player_mgr.guild_manager.is_member(target_player_mgr):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
-        # TODO: Check if player is officer or greater, not only GM
-        elif player_mgr != player_mgr.guild_manager.guild_master:
+        elif player_mgr.guild_manager.get_guild_rank(player_mgr) > GuildRank.GUILDRANK_OFFICER:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PERMISSIONS)
         else:

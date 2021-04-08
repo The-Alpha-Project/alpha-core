@@ -1,6 +1,6 @@
 from network.packet.PacketReader import *
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
-from utils.constants.ObjectCodes import GuildCommandResults, GuildTypeCommand
+from utils.constants.ObjectCodes import GuildCommandResults, GuildTypeCommand, GuildRank
 
 
 class GuildMOTDHandler(object):
@@ -15,7 +15,7 @@ class GuildMOTDHandler(object):
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
         elif not motd:
             player_mgr.guild_manager.send_motd()
-        elif player_mgr != player_mgr.guild_manager.guild_master:  # TODO Maybe officer could also set MOTD
+        elif player_mgr.guild_manager.get_guild_rank(player_mgr) > GuildRank.GUILDRANK_OFFICER:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PERMISSIONS)
         else:
