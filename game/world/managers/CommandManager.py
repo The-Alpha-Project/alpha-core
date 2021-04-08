@@ -13,7 +13,6 @@ from utils.ConfigManager import config
 from utils.TextUtils import GameTextFormatter
 from utils.constants.ObjectCodes import HighGuid, ObjectTypes
 from utils.constants.UpdateFields import PlayerFields
-from utils.Logger import Logger
 
 
 class CommandManager(object):
@@ -93,13 +92,6 @@ class CommandManager(object):
 
     @staticmethod
     def gps(world_session, args):
-        Logger.info('.port %f %f %f %u' % (
-            world_session.player_mgr.location.x,
-            world_session.player_mgr.location.y,
-            world_session.player_mgr.location.z,
-            world_session.player_mgr.map_,
-        ))
-
         return 0, 'Map: %u, Zone: %u, X: %f, Y: %f, Z: %f, O: %f' % (
             world_session.player_mgr.map_,
             world_session.player_mgr.zone,
@@ -450,43 +442,6 @@ class CommandManager(object):
 
         return 0, ''
 
-    @staticmethod
-    def summon_npc(world_session, args):
-        creature = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                    world_session.player_mgr.current_selection)
-        if creature:
-            creature.respawn_time = 1
-
-            creature.map_ = world_session.player_mgr.map_
-            creature.zone = world_session.player_mgr.zone
-            creature.location.x = world_session.player_mgr.location.x
-            creature.location.y = world_session.player_mgr.location.y
-            creature.location.z = world_session.player_mgr.location.z
-            creature.location.o = world_session.player_mgr.location.o
-
-            creature.set_dirty()
-            creature.respawn()
-
-            return 0, ''
-
-        return -1, 'error retrieving creature info.'
-
-    @staticmethod
-    def generate_sql(world_session, args):
-        creature = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                            world_session.player_mgr.current_selection)
-
-        if creature:
-            try:
-                Logger.sql("UPDATE creature_template as ct, spawns_creatures as sc SET ct.display_id1='%u' WHERE sc.spawn_entry1=ct.entry AND sc.spawn_id='%u';" % (creature.display_id, creature.guid & ~HighGuid.HIGHGUID_UNIT))
-                Logger.sql("UPDATE spawns_creatures SET position_x='%f', position_y='%f', position_z='%f', orientation='%f' WHERE spawn_id='%u';" % (creature.location.x, creature.location.y, creature.location.z, creature.location.o, creature.guid & ~HighGuid.HIGHGUID_UNIT))
-            except TypeError:
-                return -1, 'not enough arguments for format string'
-            except ValueError:
-                return -1, 'wrong input value'
-
-        return 0, ''
-
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help,
@@ -521,7 +476,5 @@ GM_COMMAND_DEFINITIONS = {
     'money': CommandManager.money,
     'die': CommandManager.die,
     'kick': CommandManager.kick,
-    'worldoff': CommandManager.worldoff,
-    'snpc': CommandManager.summon_npc,
-    'sql': CommandManager.generate_sql
+    'worldoff': CommandManager.worldoff
 }
