@@ -22,7 +22,7 @@ class GuildQueryHandler(object):
             )
 
             # TODO: EmblemStyle, EmblemColor, BorderStyle, BorderColor, BGColor
-            data += pack('<5I', 0, 0, 0, 0, 0)
+            data += pack('<5i', -1, -1, -1, -1, -1)
             player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_GUILD_QUERY_RESPONSE, data))
 
         return 0

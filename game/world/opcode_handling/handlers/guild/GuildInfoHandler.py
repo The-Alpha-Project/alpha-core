@@ -15,10 +15,9 @@ class GuildInfoHandler(object):
         else:
             # Guild name
             name_bytes = PacketWriter.string_to_bytes(player.guild_manager.guild_name)
-            # TODO Should MOTD be sent here too?
             data = pack(
                 '<%us' % len(name_bytes),
-                name_bytes,
+                name_bytes
             )
 
             # TODO: Handle proper data and nº of accounts

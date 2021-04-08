@@ -16,28 +16,22 @@ class GuildRosterHandler(object):
             GuildManager.send_guild_command_result(player, GuildTypeCommand.GUILD_CREATE_S, '',
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
         else:
-            guild_info = PacketWriter.string_to_bytes(player.guild_manager.guild_name)
+            guild_name = PacketWriter.string_to_bytes(player.guild_manager.guild_name)
             data = pack(
-                '<%us' % len(guild_info),
-                guild_info
+                '<%us' % len(guild_name),
+                guild_name
             )
 
             # Members count
             data += pack('<I', len(player.guild_manager.members))
-            # Todo: Accounts?
+            # TODO: Nº of accounts
             data += pack('<I', 0)
 
             for member in player.guild_manager.members.values():
-                area = WorldDatabaseManager.area_get_by_id(member.zone).name
-                race = GameTextFormatter.race_to_text(member.player.race)
-                class_ = GameTextFormatter.class_to_text(member.player.class_)
-                player_info = '%s %s | Level %u %u %u, Zone: %s' % ('Online' if member.online else 'Offline',
-                                                                    member.player.name, member.level, race, class_,
-                                                                    area if area else member.zone)
-                info_bytes = PacketWriter.string_to_bytes(player_info[:127])  # Max Length: 128)
+                player_name = PacketWriter.string_to_bytes(member.player.name)
                 data += pack(
-                    '<%usI' % len(info_bytes),
-                    info_bytes,
+                    '<%usI' % len(player_name),
+                    player_name,
                     member.guild_manager.get_guild_rank(member)
                 )
 

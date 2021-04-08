@@ -50,7 +50,9 @@ class GuildManager(object):
 
     def set_motd(self, motd):
         self.motd = motd
+        self.send_motd()
 
+    def send_motd(self):
         data = pack('<2B', GuildEvents.GUILD_EVENT_MOTD, 1)
         motd_bytes = PacketWriter.string_to_bytes(self.motd)
         data += pack(

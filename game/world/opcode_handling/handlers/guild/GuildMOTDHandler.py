@@ -10,6 +10,10 @@ class GuildMOTDHandler(object):
         motd = PacketReader.read_string(reader.data, 0).strip()
         player_mgr = world_session.player_mgr
 
+        if not motd:
+            player_mgr.guild_manager.send_motd()
+            return 0
+
         if not player_mgr.guild_manager:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
@@ -17,7 +21,7 @@ class GuildMOTDHandler(object):
         elif player_mgr != player_mgr.guild_manager.guild_master:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PERMISSIONS)
-        elif motd:
+        else:
             player_mgr.guild_manager.set_motd(motd)
 
         return 0
