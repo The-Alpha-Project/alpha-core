@@ -17,7 +17,7 @@ from game.world.managers.objects.player.FriendsManager import FriendsManager
 from network.packet.PacketWriter import *
 from utils import Formulas
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
-    AttackTypes
+    AttackTypes, MoveFlags
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, StandState
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
@@ -859,8 +859,8 @@ class PlayerManager(UnitManager):
                             self.set_rage(int((self.power_2 / 10) - 2))
             # Focus
             elif self.power_type == PowerTypes.TYPE_FOCUS:
-                # Apparently focus didn't regenerate unless you were standing.
-                if self.power_3 == self.max_power_3 or self.stand_state != StandState.UNIT_STANDING:
+                # Apparently focus didn't regenerate while moving.
+                if self.power_3 == self.max_power_3 or self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK:
                     should_update_power = False
                 else:
                     if self.power_3 + 5 >= self.max_power_3:
