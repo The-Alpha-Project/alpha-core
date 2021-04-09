@@ -15,9 +15,7 @@ class ChannelManager(object):
     # Default channels
     CHANNELS = {
         'General':Channel('General', [], '', True, None),
-        'Trade':Channel('Trade', [], '', True, None),
-        'Local Defense':Channel('LocalDefense', [], '', True, None),
-        'Looking for group':Channel('LookingForGroup', [], '', True, None)}
+        'Trade':Channel('Trade', [], '', True, None)}
 
     @staticmethod
     def join_channel(player_mgr, channel, password=None):
