@@ -860,6 +860,7 @@ class PlayerManager(UnitManager):
             # Focus
             elif self.power_type == PowerTypes.TYPE_FOCUS:
                 # Apparently focus didn't regenerate while moving.
+                # Note: Needs source, not 100% confirmed.
                 if self.power_3 == self.max_power_3 or self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK:
                     should_update_power = False
                 else:
