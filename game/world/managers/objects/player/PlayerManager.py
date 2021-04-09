@@ -5,6 +5,7 @@ from math import pi
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
+from game.world.managers.objects.ChannelManager import ChannelManager
 from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.SpellManager import SpellManager
 from game.world.managers.objects.player.StatManager import StatManager
@@ -205,6 +206,7 @@ class PlayerManager(UnitManager):
 
         GridManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
+        ChannelManager.join_default_channels(self)  # Once in-world
 
     def logout(self):
         # TODO: Temp hackfix until groups are saved in db
@@ -218,6 +220,7 @@ class PlayerManager(UnitManager):
             else:
                 self.guild_manager.leave(self)
 
+        ChannelManager.leave_all_channels(self)
         self.friends_manager.send_offline_notification()
         self.online = False
         self.session.save_character()
@@ -483,10 +486,16 @@ class PlayerManager(UnitManager):
         data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
-        # If this release comes from the loot owner, set killed_by to None to allow FFA loot.
+        # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
         enemy = GridManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
-        if enemy and enemy.killed_by and enemy.killed_by == self:
+        if enemy and enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
             enemy.killed_by = None
+        # If in party, check if this player has rights to release the loot for FFA
+        elif enemy and enemy.killed_by and enemy.killed_by.group_manager:
+            if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
+                if not enemy.loot_manager.has_loot(): #Flush looters for this enemy
+                    enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
+                enemy.killed_by = None
 
         if enemy and not enemy.loot_manager.has_loot():
             enemy.set_lootable(False)

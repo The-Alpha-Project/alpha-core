@@ -290,6 +290,9 @@ class CreatureManager(UnitManager):
 
         self.loot_manager.clear()
         self.set_lootable(False)
+
+        if self.killed_by and self.killed_by.group_manager:
+            self.killed_by.group_manager.clear_looters_for_victim(self)
         self.killed_by = None
 
         self.is_spawned = True
@@ -306,12 +309,14 @@ class CreatureManager(UnitManager):
             self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_NONE)
 
         super().die(killer)
+        self.loot_manager.generate_loot()
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
             self.killed_by = killer
+            if self.killed_by.group_manager and self.loot_manager.has_loot():
+                self.killed_by.group_manager.set_allowed_looters(self)
 
-        self.loot_manager.generate_loot()
         if self.loot_manager.has_loot():
             self.set_lootable(True)
 

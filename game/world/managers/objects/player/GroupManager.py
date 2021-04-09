@@ -1,4 +1,5 @@
 from struct import pack
+from itertools import cycle
 from utils import Formulas
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.GroupCodes import PartyOperations, PartyResults
@@ -9,19 +10,23 @@ from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQuer
 MAX_GROUP_SIZE = 5
 
 
+# TODO: 0.5.3 has no SMSG_LOOT_MASTER_LIST nor CMSG_LOOT_MASTER_GIVE, how exactly they handled ML?
 class GroupManager(object):
 
     def __init__(self, player_mgr):
         self.party_leader = player_mgr
         self.members = {player_mgr.guid: player_mgr}
         self.invites = {}
-        self.loot_method = None
+        self.loot_method = LootMethods.LOOT_METHOD_FREEFORALL
+        self.master_looter = None
         self.party_leader.set_group_leader(True)
-        self.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
+        self.party_leader.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
+        self.allowed_looters = {}
+        self._last_looter = None # For RR, cycle will start at leader.
 
     def try_add_member(self, player_mgr, invite):
         # Check if new player is not in a group already and if we have space.
-        if len(self.members) == MAX_GROUP_SIZE:
+        if self.is_full():
             return False
 
         if invite:
@@ -40,11 +45,13 @@ class GroupManager(object):
                 player_mgr.set_group_leader(False)
 
             if len(self.members) > 1:
-                self.party_leader.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
                 self.send_update()
                 self.send_party_members_stats()
 
             return True
+
+    def is_full(self):
+        return len(self.members) == MAX_GROUP_SIZE
 
     def set_leader(self, player_mgr):
         self.party_leader.set_group_leader(False)
@@ -53,6 +60,11 @@ class GroupManager(object):
         data = pack('<%us' % len(leader_name_bytes), leader_name_bytes)
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_SET_LEADER, data)
         self.send_packet_to_members(packet)
+        self.send_update()
+
+    def set_loot_method(self, loot_method, master_looter=None):
+        self.loot_method = LootMethods(loot_method)
+        self.master_looter = master_looter if master_looter else None
         self.send_update()
 
     def send_update(self):
@@ -82,8 +94,8 @@ class GroupManager(object):
 
         data += pack(
             '<BQ',
-            LootMethods.LOOT_METHOD_FREEFORALL,  # TODO proper LootMethod handling
-            0  # Master Looter guid
+            self.loot_method,
+            0 if not self.master_looter else self.master_looter.guid # Master Looter guid
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
@@ -106,6 +118,7 @@ class GroupManager(object):
         if disband:
             self.members.clear()
         elif player_mgr.guid in self.members:
+            self._set_previous_looter(player_mgr)
             self.members.pop(player_mgr.guid)
 
         self.send_update()
@@ -155,6 +168,53 @@ class GroupManager(object):
     def remove_member_invite(self, guid):
         if guid in self.invites:
             self.invites.pop(guid, None)
+
+    # Called once upon victim dead.
+    def set_allowed_looters(self, victim):
+        if victim.guid in self.allowed_looters:
+            return
+        self.allowed_looters[victim.guid] = self._fill_allowed_looters()
+
+    # Get allowed looters for specific creature.
+    def get_allowed_looters(self, victim):
+        if victim.guid in self.allowed_looters:
+            return self.allowed_looters[victim.guid]
+        return []
+
+    def clear_looters_for_victim(self, victim):
+        if victim.guid in self.allowed_looters:
+            self.allowed_looters.pop(victim.guid)
+
+    def _fill_allowed_looters(self):
+        if self.loot_method == LootMethods.LOOT_METHOD_MASTERLOOTER:
+            return [self.master_looter]
+        elif self.loot_method == LootMethods.LOOT_METHOD_FREEFORALL:
+            return self.members.values()
+        elif self.loot_method == LootMethods.LOOT_METHOD_ROUNDROBIN:
+            if not self._last_looter:
+                self._last_looter = self.party_leader
+                return  [self._last_looter]
+            return [self._get_next_looter(self._last_looter)]
+
+    def _set_previous_looter(self, player_mgr):
+        _list = list(self.members.values())
+        _index = list.index(_list, player_mgr)
+
+        if _index - 1 >= 0:
+            self._last_looter = _list[_index - 1]
+        else:
+            self._last_looter = _list[-1]
+
+    def _get_next_looter(self, player_mgr):
+        _list = list(self.members.values())
+        _index = list.index(_list, player_mgr)
+
+        if _index + 1 < len(_list):
+            self._last_looter = _list[_index + 1]
+            return _list[_index + 1]
+        else:
+            self._last_looter = _list[0]
+            return _list[0]
 
     def is_party_member(self, player):
         return player in self.members.values()
@@ -234,9 +294,12 @@ class GroupManager(object):
 
     @staticmethod
     def invite_player(player_mgr, target_player_mgr):
-        # TODO Not send invite if target is ignoring player
         if player_mgr.is_enemy_to(target_player_mgr):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PLAYER_WRONG_FACTION)
+            return
+
+        if target_player_mgr.friends_manager.has_ignore(player_mgr):
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_IGNORING_YOU_S)
             return
 
         if target_player_mgr.group_manager:

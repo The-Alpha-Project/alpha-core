@@ -74,6 +74,7 @@ from game.world.opcode_handling.handlers.group.GroupUnInviteHandler import Group
 from game.world.opcode_handling.handlers.group.GroupUnInviteGuidHandler import GroupUnInviteGuidHandler
 from game.world.opcode_handling.handlers.group.GroupDisbandHandler import GroupDisbandHandler
 from game.world.opcode_handling.handlers.group.GroupSetLeaderHandler import GroupSetLeaderHandler
+from game.world.opcode_handling.handlers.group.GroupLootMethodHandler import GroupLootMethodHandler
 from game.world.opcode_handling.handlers.group.MinimapPingHandler import MinimapPingHandler
 from game.world.opcode_handling.handlers.guild.GuildCreateHandler import GuildCreateHandler
 from game.world.opcode_handling.handlers.guild.GuildQueryHandler import GuildQueryHandler
@@ -94,8 +95,8 @@ from game.world.opcode_handling.handlers.friends.FriendAddHandler import FriendA
 from game.world.opcode_handling.handlers.friends.FriendIgnoreHandler import FriendIgnoreHandler
 from game.world.opcode_handling.handlers.friends.FriendDeleteHandler import FriendDeleteHandler
 from game.world.opcode_handling.handlers.friends.FriendDeleteIgnoreHandler import FriendDeleteIgnoreHandler
-
-
+from game.world.opcode_handling.handlers.channel.ChannelJoinHandler import ChannelJoinHandler
+from game.world.opcode_handling.handlers.channel.ChannelLeaveHandler import ChannelLeaveHandler
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -204,6 +205,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GROUP_UNINVITE: GroupUnInviteHandler.handle,
     OpCode.CMSG_GROUP_UNINVITE_GUID: GroupUnInviteGuidHandler.handle,
     OpCode.CMSG_GROUP_SET_LEADER: GroupSetLeaderHandler.handle,
+    OpCode.CMSG_LOOT_METHOD: GroupLootMethodHandler.handle,
     OpCode.MSG_MINIMAP_PING: MinimapPingHandler.handle,
     OpCode.CMSG_GUILD_CREATE: GuildCreateHandler.handle,
     OpCode.CMSG_GUILD_QUERY: GuildQueryHandler.handle,
@@ -224,6 +226,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_ADD_IGNORE: FriendIgnoreHandler.handle,
     OpCode.CMSG_DEL_FRIEND: FriendDeleteHandler.handle,
     OpCode.CMSG_DEL_IGNORE: FriendDeleteIgnoreHandler.handle,
+    OpCode.CMSG_JOIN_CHANNEL: ChannelJoinHandler.handle,
+    OpCode.CMSG_LEAVE_CHANNEL: ChannelLeaveHandler.handle,
 }
 
 

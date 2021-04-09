@@ -4,6 +4,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, GuildTypeCommand
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.GroupManager import GroupManager
+from game.world.managers.objects.ChannelManager import ChannelManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 
 
@@ -37,6 +38,12 @@ class ChatManager(object):
                                                                               chat_flags,
                                                                               message, chat_type, lang),
                                               world_session.player_mgr, range_, use_ignore=True)
+
+    @staticmethod
+    def send_channel_message(sender, channel, message, lang):
+        packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message, ChatMsgs.CHAT_MSG_CHANNEL,
+                                                 lang, channel=channel)
+        ChannelManager.broadcast_to_channel(sender, channel, packet)
 
     @staticmethod
     def send_party(sender, message, lang):
@@ -80,14 +87,15 @@ class ChatManager(object):
             receiver.session.request.sendall(receiver_packet)
 
     @staticmethod
-    def _get_message_packet(guid, chat_flags, message, chat_type, lang):
+    def _get_message_packet(guid, chat_flags, message, chat_type, lang, channel=None):
         message_bytes = PacketWriter.string_to_bytes(message)
-        data = pack(
-            '<BIQ%usB' % len(message_bytes),
-            chat_type,
-            lang,
-            guid,
-            message_bytes,
-            chat_flags
-        )
+
+        data = pack('<BI', chat_type, lang)
+        if not channel:
+            data += pack('<Q', guid)
+        else:
+            channel_bytes = PacketWriter.string_to_bytes(channel)
+            data += pack('<%usQ' % len(channel_bytes), channel_bytes, guid)
+        data += pack('<%usB' % len(message_bytes), message_bytes, chat_flags)
+
         return PacketWriter.get_packet(OpCode.SMSG_MESSAGECHAT, data)
