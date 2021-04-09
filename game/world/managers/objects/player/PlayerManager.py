@@ -859,7 +859,8 @@ class PlayerManager(UnitManager):
                             self.set_rage(int((self.power_2 / 10) - 2))
             # Focus
             elif self.power_type == PowerTypes.TYPE_FOCUS:
-                if self.power_3 == self.max_power_3:
+                # Apparently focus didn't regenerate unless you were standing.
+                if self.power_3 == self.max_power_3 or self.stand_state != StandState.UNIT_STANDING:
                     should_update_power = False
                 else:
                     if self.power_3 + 5 >= self.max_power_3:
