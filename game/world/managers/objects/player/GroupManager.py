@@ -1,5 +1,4 @@
 from struct import pack
-from itertools import cycle
 from utils import Formulas
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.GroupCodes import PartyOperations, PartyResults
