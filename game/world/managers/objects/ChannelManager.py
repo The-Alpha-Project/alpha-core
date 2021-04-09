@@ -10,7 +10,8 @@ class Channel(NamedTuple):
     is_default: bool
     owner: object
 
-# TODO, Localized channels e.g. [General - Zone], CHANNEL commands /chathelp
+# TODO, CHANNEL commands /chathelp
+# Channels were not localized until 0.5.5
 class ChannelManager(object):
     # Default channels
     CHANNELS = {
