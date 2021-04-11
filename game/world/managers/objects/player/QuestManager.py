@@ -131,19 +131,15 @@ class QuestManager(object):
             return False
         else:
             return True
-
-    # @staticmethod
-    # def get_total_count_for_multi_column_data(quest, column_name, column_count):
-    #     total_count = 0
-    #     for column_number in range(column_count):
-    #         column = '%s%s' %(column_name, column_number + 1)
-    #         print("column: %s" %(column))
-    #         print("quest: %s" %(quest))
-    #         print("quest.RewChoiceItemId[1]: %s" %(quest.RewChoiceItemId[1]))
-    #         # print("quest[column].iteritems(): %s" %(quest[column].iteritems()))
-    #         # if quest[column] > 0:
-    #         #     total_count += 1
-    #     return total_count
+    
+    @staticmethod
+    def check_quest_giver_npc_is_related(quest_giver_entry, quest_entry):
+        is_related = False
+        relations_list = WorldDatabaseManager.creature_quest_get_by_entry(quest_giver_entry)
+        for relation in relations_list:
+            if relation.entry == quest_giver_entry and relation.quest == quest_entry:
+                is_related = True
+        return is_related
 
     @staticmethod
     def generate_rew_choice_item_list(quest):
@@ -214,12 +210,9 @@ class QuestManager(object):
         return req_creature_or_go_count_list
 
     def update_surrounding_quest_status(self):
-        # TODO: Make sure the player is in the world (map !== nullptr)
         for object_in_range in self.player_mgr.objects_in_range:
-            # TODO: Check that guid is a unit (but not a player)
             unit = GridManager.get_surrounding_unit_by_guid(self.player_mgr, object_in_range)
-            if unit:
-                print("unit: %s" % unit)
+            if unit and unit.get_type() == ObjectTypes.TYPE_UNIT and unit.get_type() != ObjectTypes.TYPE_PLAYER:
                 if WorldDatabaseManager.creature_involved_quest_get_by_entry(unit.entry) or WorldDatabaseManager.creature_quest_get_by_entry(unit.entry):
                     quest_status = self.get_dialog_status(unit)
                     self.send_quest_giver_status(object_in_range, quest_status)
@@ -285,21 +278,21 @@ class QuestManager(object):
                 '<3L',
                 item,
                 rew_choice_count_list[index],
-                # TODO: Implement item icons by fetching from the db
                 item_template.display_id
             )
 
-        # TODO: Reward items
+        # Reward items
         rew_item_list = self.generate_rew_item_list(quest)
         rew_count_list = self.generate_rew_count_list(quest)
         data += pack('<L', len(rew_item_list))
         for index, item in enumerate(rew_item_list):
+            # TODO: Query item check
+            item_template = WorldDatabaseManager.item_template_get_by_entry(item)
             data += pack(
                 '<3L',
                 item,
                 rew_count_list[index],
-                # TODO: Item icon
-                0
+                item_template.display_id if item_template.display_id else 0
             )
 
         # Reward money
@@ -310,15 +303,16 @@ class QuestManager(object):
         req_count_list = self.generate_req_count_list(quest)
         data += pack('<L', len(req_item_list))
         for index, item in enumerate(req_item_list):
+            # TODO: Query item check
+            # item_template = WorldDatabaseManager.item_template_get_by_entry(item)
             data += pack(
-                '<3L',
+                '<2L',
                 item,
                 req_count_list[index],
-                # TODO: Query item check
-                0
+                # item_template
             )
 
-        # TODO: Required kill/item count
+        # Required kill/item count
         req_creature_or_go_list = self.generate_req_creature_or_go_list(quest)
         req_creature_or_go_count_list = self.generate_req_creature_or_go_count_list(quest)
         data += pack('<L', len(req_creature_or_go_list))
