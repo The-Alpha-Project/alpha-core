@@ -633,6 +633,36 @@ class BankSlotErrors(IntEnum):
     BANKSLOT_ERROR_OK = 3
 
 
+class ChannelNotifications(IntEnum):
+    PlayerJoined = 0x00,
+    PlayerLeft = 0x01,
+    YouJoined = 0x02,
+    YouLeft = 0x03,
+    WrongPassword = 0x04,
+    NotMember = 0x05,
+    NotModerator = 0x06,
+    PasswordChanged = 0x07,
+    OwnerChanged = 0x08,
+    PlayerNotFound = 0x09,
+    NotOwner = 0x0A,
+    ChannelOwner = 0x0B,
+    MemberFlagChange = 0x0C,
+    Moderator = 0x0C,
+    AnnouncementsOn = 0x0D,
+    AnnouncementsOff = 0x0E,
+    ModerationOn = 0x0F,
+    ModerationOff = 0x10,
+    SelfMuted = 0x11,
+    Kicked = 0x12,
+    PlayerBanned = 0x13,
+    Banned = 0x14,
+    Unbanned = 0x15,
+    PlayerNotBanned = 0x16,
+    PlayerAlreadyMember = 0x17,
+    Invite = 0x18,
+    InviteWrongFaction = 0x19,
+    WrongFaction = 0x1A
+
 class GuildTypeCommand(IntEnum):
     GUILD_CREATE_S = 0x00
     GUILD_INVITE_S = 0x01

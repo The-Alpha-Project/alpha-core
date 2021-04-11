@@ -97,6 +97,16 @@ from game.world.opcode_handling.handlers.friends.FriendDeleteHandler import Frie
 from game.world.opcode_handling.handlers.friends.FriendDeleteIgnoreHandler import FriendDeleteIgnoreHandler
 from game.world.opcode_handling.handlers.channel.ChannelJoinHandler import ChannelJoinHandler
 from game.world.opcode_handling.handlers.channel.ChannelLeaveHandler import ChannelLeaveHandler
+from game.world.opcode_handling.handlers.channel.ChannelInviteHandler import ChannelInviteHandler
+from game.world.opcode_handling.handlers.channel.ChannelBanHandler import ChannelBanHandler
+from game.world.opcode_handling.handlers.channel.ChannelKickHandler import ChannelKickHandler
+from game.world.opcode_handling.handlers.channel.ChannelAnnounceHandler import ChannelAnnounceHandler
+from game.world.opcode_handling.handlers.channel.ChannelListHandler import ChannelListHandler
+from game.world.opcode_handling.handlers.channel.ChannelModeratorHandler import ChannelModeratorHandler
+from game.world.opcode_handling.handlers.channel.ChannelMuteHandler import ChannelMuteHandler
+from game.world.opcode_handling.handlers.channel.ChannelOwnerHandler import ChannelOwnerHandler
+from game.world.opcode_handling.handlers.channel.ChannelPasswordHandler import ChannelPasswordHandler
+
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -228,6 +238,20 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_DEL_IGNORE: FriendDeleteIgnoreHandler.handle,
     OpCode.CMSG_JOIN_CHANNEL: ChannelJoinHandler.handle,
     OpCode.CMSG_LEAVE_CHANNEL: ChannelLeaveHandler.handle,
+    OpCode.CMSG_CHANNEL_INVITE: ChannelInviteHandler.handle,
+    OpCode.CMSG_CHANNEL_KICK: ChannelKickHandler.handle,
+    OpCode.CMSG_CHANNEL_BAN: ChannelBanHandler.handle_ban,
+    OpCode.CMSG_CHANNEL_UNBAN: ChannelBanHandler.handle_unban,
+    OpCode.CMSG_CHANNEL_MODERATOR: ChannelModeratorHandler.handle_mod,
+    OpCode.CMSG_CHANNEL_UNMODERATOR: ChannelModeratorHandler.handle_unmod,
+    OpCode.CMSG_CHANNEL_MODERATE: ChannelModeratorHandler.handle_moderate,
+    OpCode.CMSG_CHANNEL_MUTE: ChannelMuteHandler.handle_mute,
+    OpCode.CMSG_CHANNEL_UNMUTE: ChannelMuteHandler.handle_unmute,
+    OpCode.CMSG_CHANNEL_ANNOUNCEMENTS: ChannelAnnounceHandler.handle,
+    OpCode.CMSG_CHANNEL_OWNER: ChannelOwnerHandler.handle,
+    OpCode.CMSG_CHANNEL_SET_OWNER: ChannelOwnerHandler.handle_set_owner,
+    OpCode.CMSG_CHANNEL_PASSWORD: ChannelPasswordHandler.handle,
+    OpCode.CMSG_CHANNEL_LIST: ChannelListHandler.handle,
 }
 
 

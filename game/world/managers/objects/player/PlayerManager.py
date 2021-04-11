@@ -73,7 +73,7 @@ class PlayerManager(UnitManager):
         self.race_mask = 0
         self.class_mask = 0
         self.deathbind = deathbind
-        self.team = PlayerManager.get_team_for_race(self.race_mask)
+        self.team = Teams.TEAM_NONE #Set @ set_player_variables().
         self.trade_data = None
         self.last_regen = 0
         self.spirit_release_timer = 0
@@ -194,8 +194,9 @@ class PlayerManager(UnitManager):
             self.bounding_radius = 0.306
             self.combat_reach = 1.5
 
-        self.race_mask = 1 << (self.player.race - 1)
-        self.class_mask = 1 << (self.player.class_ - 1)
+        self.race_mask = 1 << self.player.race - 1
+        self.class_mask = 1 << self.player.class_ - 1
+        self.team = PlayerManager.get_team_for_race(self.player.race)
 
     def set_gm(self, on=True):
         self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
@@ -1109,10 +1110,16 @@ class PlayerManager(UnitManager):
 
     @staticmethod
     def get_team_for_race(race):
+        print(f'{Races(race).name}')
         race_entry = DbcDatabaseManager.chr_races_get_by_race(race)
         if race_entry:
+            print(f'ID {race_entry.ID}')
+            print(f'BaseLanguage {race_entry.BaseLanguage}')
+
             if race_entry.BaseLanguage == 1:
                 return Teams.TEAM_HORDE
             elif race_entry.BaseLanguage == 7:
                 return Teams.TEAM_ALLIANCE
+
+        print(f'{Races(race).name} Not Found')
         return Teams.TEAM_NONE
