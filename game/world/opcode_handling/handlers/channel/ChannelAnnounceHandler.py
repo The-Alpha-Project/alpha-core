@@ -7,5 +7,5 @@ class ChannelAnnounceHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         channel = PacketReader.read_string(reader.data, 0).strip()
-        ChannelManager.announce(channel, world_session.player_mgr)
+        ChannelManager.toggle_announce(channel, world_session.player_mgr)
         return 0

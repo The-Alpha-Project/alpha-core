@@ -1110,16 +1110,11 @@ class PlayerManager(UnitManager):
 
     @staticmethod
     def get_team_for_race(race):
-        print(f'{Races(race).name}')
         race_entry = DbcDatabaseManager.chr_races_get_by_race(race)
         if race_entry:
-            print(f'ID {race_entry.ID}')
-            print(f'BaseLanguage {race_entry.BaseLanguage}')
-
             if race_entry.BaseLanguage == 1:
                 return Teams.TEAM_HORDE
             elif race_entry.BaseLanguage == 7:
                 return Teams.TEAM_ALLIANCE
 
-        print(f'{Races(race).name} Not Found')
         return Teams.TEAM_NONE

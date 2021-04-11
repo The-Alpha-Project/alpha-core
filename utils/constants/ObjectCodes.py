@@ -632,6 +632,11 @@ class BankSlotErrors(IntEnum):
     BANKSLOT_ERROR_NOTBANKER = 2
     BANKSLOT_ERROR_OK = 3
 
+class ChannelMemberFlags(IntEnum):
+    None_ = 0x0,
+    Owner = 0x1,
+    Moderator = 0x2,
+    Voice = 0x4,
 
 class ChannelNotifications(IntEnum):
     PlayerJoined = 0x00,
