@@ -6,7 +6,7 @@ class ChannelPasswordHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        channel = PacketReader.read_string(reader.data, 0).strip()
+        channel = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel) + 1
         skip_pass = len(reader.data) == offset + 1
         password = '' if skip_pass else PacketReader.read_string(reader.data,offset, 0).strip()

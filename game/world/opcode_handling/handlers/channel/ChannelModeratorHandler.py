@@ -8,7 +8,7 @@ class ChannelModeratorHandler(object):
 
     @staticmethod
     def handle_add_mod(world_session, socket, reader):
-        channel = PacketReader.read_string(reader.data, 0).strip()
+        channel = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel) + 1
         has_player = len(reader.data) == offset + 1
         player_name = '' if has_player else PacketReader.read_string(reader.data, offset, 0).strip()[:-1]
@@ -23,7 +23,7 @@ class ChannelModeratorHandler(object):
 
     @staticmethod
     def handle_remove_mod(world_session, socket, reader):
-        channel = PacketReader.read_string(reader.data, 0).strip()
+        channel = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel) + 1
         has_player = len(reader.data) == offset + 1
         player_name = '' if has_player else PacketReader.read_string(reader.data, offset, 0).strip()[:-1]
@@ -38,7 +38,7 @@ class ChannelModeratorHandler(object):
 
     @staticmethod
     def handle_moderate(world_session, socket, reader):
-        channel = PacketReader.read_string(reader.data, 0).strip()
+        channel = PacketReader.read_string(reader.data, 0).strip().capitalize()
         ChannelManager.toggle_moderation(channel, world_session.player_mgr)
 
         return 0

@@ -452,7 +452,7 @@ class ChannelManager(object):
     def join_channel(player_mgr, channel, password=''):
         if channel not in ChannelManager.CHANNELS[player_mgr.team]:
             ChannelManager.CHANNELS[player_mgr.team][channel] = Channel(
-                    name=channel,
+                    name=channel.capitalize(),
                     members=[],
                     password=password if password else '',
                     is_default=True,
@@ -515,7 +515,7 @@ class ChannelManager(object):
     def leave_all_channels(player_mgr):
         for channel in ChannelManager.CHANNELS[player_mgr.team].values():
             if player_mgr in channel.members:
-                ChannelManager.leave_channel(player_mgr, channel.name)
+                ChannelManager.leave_channel(player_mgr, channel.name.capitalize())
 
     @staticmethod
     def send_to_player(player_mgr, packet):

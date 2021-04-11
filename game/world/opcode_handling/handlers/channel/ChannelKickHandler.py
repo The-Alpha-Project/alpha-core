@@ -9,7 +9,7 @@ class ChannelKickHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        channel = PacketReader.read_string(reader.data, 0).strip()
+        channel = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel) + 1
         has_player = len(reader.data) == offset + 1
         player_name = '' if has_player else PacketReader.read_string(reader.data, offset, 0).strip()[:-1]
