@@ -97,7 +97,6 @@ class QuestManager(object):
         else:
             # TODO: Send the proper greeting message
             self.send_quest_giver_quest_list("Greetings, $N.", guid, quest_menu.items)
-
         self.update_surrounding_quest_status()
 
     def check_quest_requirements(self, quest):
@@ -234,7 +233,7 @@ class QuestManager(object):
             quest_giver_guid if quest_giver_guid > 0 else self.player_mgr.guid,
             quest_status
         )
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_STATUS, data))        
+        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_STATUS, data))
 
     def send_quest_giver_quest_list(self, message, quest_giver_guid, quests):
         message_bytes = PacketWriter.string_to_bytes(message)
@@ -274,8 +273,8 @@ class QuestManager(object):
             1 if activate_accept else 0
         )
         # Reward choices
-        rew_choice_item_list =  self.generate_rew_choice_item_list(quest)
-        rew_choice_count_list =  self.generate_rew_choice_count_list(quest)
+        rew_choice_item_list = self.generate_rew_choice_item_list(quest)
+        rew_choice_count_list = self.generate_rew_choice_count_list(quest)
         data += pack('<L', len(rew_choice_item_list))
         for index, item in enumerate(rew_choice_item_list):
             item_template = WorldDatabaseManager.item_template_get_by_entry(item)

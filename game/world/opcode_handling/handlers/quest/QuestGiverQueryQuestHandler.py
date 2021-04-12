@@ -2,8 +2,6 @@ from struct import unpack, pack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
-# from game.world.managers.objects.player.InventoryManager import InventoryManager
-
 from utils.Logger import Logger
 from utils.constants import ObjectCodes
 
@@ -14,7 +12,7 @@ class QuestGiverQueryQuestHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty quest giver hello packet
+        if len(reader.data) >= 8:  # Avoid handling empty packet
             guid, quest_entry = unpack('<QL', reader.data[:12])
             # quest giver is an npc or an item
             quest_giver = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid) or world_session.player_mgr.inventory.get_item_info_by_guid(guid)[3].item_template
