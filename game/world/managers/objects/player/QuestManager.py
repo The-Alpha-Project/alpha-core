@@ -85,13 +85,20 @@ class QuestManager(object):
             quest_menu.add_menu_item(quest, QuestStatus.QUEST_OFFER)
 
         if len(quest_menu.items) == 1:
-            # TODO: handle a single quest situation, open the quest directly
-            quest = list(quest_menu.items.values())[0]
-            self.send_quest_giver_quest_list("Greetings, $N.", guid, quest_menu.items)
+            quest_menu_item = list(quest_menu.items.values())[0]
+            if quest_menu_item.status == QuestStatus.QUEST_REWARD:
+                # TODO: Handle completed quest
+                return 0
+            elif quest_menu_item.status == QuestStatus.QUEST_ACCEPTED:
+                # TODO: Handle in progress quests
+                return 0
+            else:
+                self.send_quest_giver_quest_details(quest_menu_item.quest, guid, True)
         else:
             # TODO: Send the proper greeting message
             self.send_quest_giver_quest_list("Greetings, $N.", guid, quest_menu.items)
-        # TODO: Update surroundings
+
+        self.update_surrounding_quest_status()
 
     def check_quest_requirements(self, quest):
         # Is the player character the required race
@@ -217,8 +224,6 @@ class QuestManager(object):
                     quest_status = self.get_dialog_status(unit)
                     self.send_quest_giver_status(object_in_range, quest_status)
 
-
-
     def send_cant_take_quest_response(self, reason_code):
         data = pack('<I', reason_code)
         self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_INVALID, data))
@@ -304,12 +309,10 @@ class QuestManager(object):
         data += pack('<L', len(req_item_list))
         for index, item in enumerate(req_item_list):
             # TODO: Query item check
-            # item_template = WorldDatabaseManager.item_template_get_by_entry(item)
             data += pack(
                 '<2L',
                 item,
                 req_count_list[index],
-                # item_template
             )
 
         # Required kill/item count
