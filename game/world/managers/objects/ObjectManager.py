@@ -188,6 +188,10 @@ class ObjectManager(object):
         pass
 
     # override
+    def on_grid_change(self):
+        pass
+
+    # override
     def get_type(self):
         return ObjectTypes.TYPE_OBJECT
 

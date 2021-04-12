@@ -1091,6 +1091,10 @@ class PlayerManager(UnitManager):
         self.teleport_deathbind()
 
     # override
+    def on_grid_change(self):
+        self.update_surrounding_on_me()
+
+    # override
     def get_type(self):
         return ObjectTypes.TYPE_PLAYER
 

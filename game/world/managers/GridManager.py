@@ -43,8 +43,7 @@ class GridManager(object):
             else:
                 GridManager.add_or_get(world_obj, store=True)
 
-            if world_obj.get_type() == ObjectTypes.TYPE_PLAYER:
-                world_obj.update_surrounding_on_me()
+            world_obj.on_grid_change()
 
     @staticmethod
     def remove_object(world_obj):
