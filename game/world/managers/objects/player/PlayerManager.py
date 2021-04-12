@@ -205,6 +205,7 @@ class PlayerManager(UnitManager):
 
         GridManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
+        self.quest_manager.update_surrounding_quest_status()
 
     def logout(self):
         # TODO: Temp hackfix until groups are saved in db
@@ -594,6 +595,7 @@ class PlayerManager(UnitManager):
 
                 self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
+                self.quest_manager.update_surrounding_quest_status()
 
                 self.set_dirty()
 

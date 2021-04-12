@@ -67,6 +67,7 @@ from game.world.opcode_handling.handlers.loot.LootMoneyHandler import LootMoneyH
 from game.world.opcode_handling.handlers.loot.AutostoreLootItemHandler import AutostoreLootItemHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverStatusHandler import QuestGiverStatusHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import QuestGiverHelloHandler
+from game.world.opcode_handling.handlers.quest.QuestGiverQueryQuestHandler import QuestGiverQueryQuestHandler
 from game.world.opcode_handling.handlers.group.GroupInviteHandler import GroupInviteHandler
 from game.world.opcode_handling.handlers.group.GroupInviteAcceptHandler import GroupInviteAcceptHandler
 from game.world.opcode_handling.handlers.group.GroupInviteDeclineHandler import GroupInviteDeclineHandler
@@ -94,7 +95,6 @@ from game.world.opcode_handling.handlers.friends.FriendAddHandler import FriendA
 from game.world.opcode_handling.handlers.friends.FriendIgnoreHandler import FriendIgnoreHandler
 from game.world.opcode_handling.handlers.friends.FriendDeleteHandler import FriendDeleteHandler
 from game.world.opcode_handling.handlers.friends.FriendDeleteIgnoreHandler import FriendDeleteIgnoreHandler
-
 
 
 HANDLER_DEFINITIONS = {
@@ -197,6 +197,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTOSTORE_LOOT_ITEM: AutostoreLootItemHandler.handle,
     OpCode.CMSG_QUESTGIVER_STATUS_QUERY: QuestGiverStatusHandler.handle,
     OpCode.CMSG_QUESTGIVER_HELLO: QuestGiverHelloHandler.handle,
+    OpCode.CMSG_QUESTGIVER_QUERY_QUEST: QuestGiverQueryQuestHandler.handle,
     OpCode.CMSG_GROUP_INVITE: GroupInviteHandler.handle,
     OpCode.CMSG_GROUP_ACCEPT: GroupInviteAcceptHandler.handle,
     OpCode.CMSG_GROUP_DISBAND: GroupDisbandHandler.handle,
