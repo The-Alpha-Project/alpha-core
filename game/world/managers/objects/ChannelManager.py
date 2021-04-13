@@ -455,7 +455,7 @@ class ChannelManager(object):
             ChannelManager.send_to_player(player_mgr, packet)
 
     @staticmethod
-    def leave_channel(player_mgr, channel):
+    def leave_channel(player_mgr, channel, logout=False):
         if channel not in ChannelManager.CHANNELS[player_mgr.team] or player_mgr not in ChannelManager.CHANNELS[player_mgr.team][channel].members:
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NotMember)
             ChannelManager.send_to_player(player_mgr, packet)
@@ -467,8 +467,10 @@ class ChannelManager(object):
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PlayerLeft, target1=player_mgr)
             ChannelManager.broadcast_to_channel(player_mgr, channel, packet)
 
-        packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.YouLeft)
-        ChannelManager.send_to_player(player_mgr, packet)
+        if not logout:
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.YouLeft)
+            ChannelManager.send_to_player(player_mgr, packet)
+
         ChannelManager.check_if_remove(channel, player_mgr)
 
     @staticmethod
@@ -487,10 +489,10 @@ class ChannelManager(object):
         ChannelManager.join_channel(player_mgr, 'Trade')
 
     @staticmethod
-    def leave_all_channels(player_mgr):
+    def leave_all_channels(player_mgr, logout=False):
         for channel in ChannelManager.CHANNELS[player_mgr.team].values():
             if player_mgr in channel.members:
-                ChannelManager.leave_channel(player_mgr, channel.name.capitalize())
+                ChannelManager.leave_channel(player_mgr, channel.name.capitalize(), logout=logout)
 
     @staticmethod
     def send_to_player(player_mgr, packet):

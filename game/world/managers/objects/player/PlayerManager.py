@@ -221,7 +221,7 @@ class PlayerManager(UnitManager):
             else:
                 self.guild_manager.leave(self)
 
-        ChannelManager.leave_all_channels(self)
+        ChannelManager.leave_all_channels(self, logout=True)
         self.friends_manager.send_offline_notification()
         self.online = False
         self.session.save_character()
