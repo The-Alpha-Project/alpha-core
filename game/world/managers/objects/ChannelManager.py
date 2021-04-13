@@ -293,48 +293,23 @@ class ChannelManager(object):
 
     @staticmethod
     def list_channel(channel, sender):
-        # TODO, figure out SMSG_MESSAGECHAT, crashes client, tried several ways and never worked fine.
-        # Expected by client:
-        # ChannelName(String, Max Chars: 128)
-        # ChannelFlags(Byte)
-        # ChannelUserCount(Int)
-        # For player in channel:
-        #   PlayerGuid (Int64)
-        #   Mod/Voice Flag (Byte)
         if channel in ChannelManager.CHANNELS[sender.team]:
-            #Temp hack fix, send the list as a channel message to the requester.
-            members = ChannelManager.CHANNELS[sender.team][channel].members
-            moderators = ChannelManager.CHANNELS[sender.team][channel].moderators
-            message = 'Channel members:'
-            for member in members:
-                message += f'\n{"@" if member in moderators else ""}{member.player.name}'
+            len_members = len(ChannelManager.CHANNELS[sender.team][channel].members)
+            name_bytes = PacketWriter.string_to_bytes(ChannelManager.CHANNELS[sender.team][channel].name)
+            data = pack('<%usBI' % len(name_bytes), name_bytes, 3, len_members) #TODO '3' Unknown flags.
 
-            message_bytes = PacketWriter.string_to_bytes(message)
-            channel_bytes = PacketWriter.string_to_bytes(channel)
-            data = pack('<BI%usQ%usB' % (len(channel_bytes), len(message_bytes)), 0x0D, 0, channel_bytes, sender.guid, message_bytes, 0)
-            packet = PacketWriter.get_packet(OpCode.SMSG_MESSAGECHAT, data)
+            for member in ChannelManager.CHANNELS[sender.team][channel].members:
+                data += pack('<Q', member.guid)
+                mode = 0
+                if member in ChannelManager.CHANNELS[sender.team][channel].muted:
+                    mode |= ChannelMemberFlags.Voice
+                if member in ChannelManager.CHANNELS[sender.team][channel].moderators \
+                        or member == ChannelManager.CHANNELS[sender.team][channel].owner:
+                    mode |= ChannelMemberFlags.Moderator
+                data += pack('<B', mode)
+
+            packet = PacketWriter.get_packet(OpCode.SMSG_CHANNEL_LIST, data)
             ChannelManager.send_to_player(sender, packet)
-
-            #Not working packet - crashes client.
-            #len_members = len(ChannelManager.CHANNELS[sender.team][channel].members)
-            #name_bytes = PacketWriter.string_to_bytes(ChannelManager.CHANNELS[sender.team][channel].name)
-            #data = pack('%usBI' % len(name_bytes), name_bytes, 0, len_members)
-
-            #for member in ChannelManager.CHANNELS[sender.team][channel].members:
-            #    data += pack('Q', member.guid)
-            #    mode = 0
-            #    if member in ChannelManager.CHANNELS[sender.team][channel].muted:
-            #        mode |= ChannelMemberFlags.Voice
-            #    if member in ChannelManager.CHANNELS[sender.team][channel].moderators or member == ChannelManager.CHANNELS[sender.team][channel].owner:
-            #        mode |= ChannelMemberFlags.Moderator
-            #    data += pack('B', mode)
-
-            #    if member != sender:
-            #        query_details_packet = NameQueryHandler.get_query_details(member.player)
-            #        sender.session.request.sendall(query_details_packet)
-
-            #packet = PacketWriter.get_packet(OpCode.SMSG_CHANNEL_LIST, data)
-            #ChannelManager.send_to_player(sender, packet)
         else:
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NotMember)
             ChannelManager.send_to_player(sender, packet)
