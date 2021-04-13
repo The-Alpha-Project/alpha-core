@@ -216,12 +216,11 @@ class QuestManager(object):
         return req_creature_or_go_count_list
 
     def update_surrounding_quest_status(self):
-        for object_in_range in self.player_mgr.objects_in_range:
-            unit = GridManager.get_surrounding_unit_by_guid(self.player_mgr, object_in_range)
-            if unit and unit.get_type() == ObjectTypes.TYPE_UNIT and unit.get_type() != ObjectTypes.TYPE_PLAYER:
-                if WorldDatabaseManager.creature_involved_quest_get_by_entry(unit.entry) or WorldDatabaseManager.creature_quest_get_by_entry(unit.entry):
-                    quest_status = self.get_dialog_status(unit)
-                    self.send_quest_giver_status(object_in_range, quest_status)
+        units = GridManager.get_surrounding_units(self.player_mgr)
+        for guid in units:
+            if WorldDatabaseManager.creature_involved_quest_get_by_entry(units[guid].entry) or WorldDatabaseManager.creature_quest_get_by_entry(units[guid].entry):
+                quest_status = self.get_dialog_status(units[guid])
+                self.send_quest_giver_status(guid, quest_status)
 
     def send_cant_take_quest_response(self, reason_code):
         data = pack('<I', reason_code)
