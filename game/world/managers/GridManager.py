@@ -118,12 +118,12 @@ class GridManager(object):
     def get_surrounding_unit_by_guid(world_obj, guid, include_players=False):
         surrounding_units = GridManager.get_surrounding_units(world_obj, include_players)
         if include_players:
-            for p_guid, player in surrounding_units[0].items():
+            for p_guid, player in list(surrounding_units[0].items()):
                 if p_guid == guid:
                     return player
 
         creature_dict = surrounding_units[1] if include_players else surrounding_units
-        for u_guid, unit in creature_dict.items():
+        for u_guid, unit in list(creature_dict.items()):
             if u_guid == guid:
                 return unit
 
