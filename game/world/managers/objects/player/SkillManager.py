@@ -294,7 +294,8 @@ class SkillManager(object):
 
     def can_use_equipment(self, item_class, item_subclass):
         # No Cloth, Leather or Mail spells / skills exist in 0.5.3, but according to Ziggurat armor restrictions existed.
-        if item_subclass == ItemSubClasses.ITEM_SUBCLASS_CLOTH or ItemSubClasses.ITEM_SUBCLASS_LEATHER or ItemSubClasses.ITEM_SUBCLASS_MAIL:
+        if item_subclass == ItemSubClasses.ITEM_SUBCLASS_CLOTH or item_subclass == ItemSubClasses.ITEM_SUBCLASS_LEATHER \
+                or item_subclass == ItemSubClasses.ITEM_SUBCLASS_MAIL:
             return self._class_can_use_armor_type(item_subclass)
         # Special case, don't let Hunters and Rogues use shields even if they have the Block skill (just bucklers).
         elif item_subclass == ItemSubClasses.ITEM_SUBCLASS_SHIELD:

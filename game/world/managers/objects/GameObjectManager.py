@@ -143,6 +143,10 @@ class GameObjectManager(ObjectManager):
         GridManager.send_surrounding(update_packet, self, include_self=False)
 
     # override
+    def on_grid_change(self):
+        pass
+
+    # override
     def get_type(self):
         return ObjectTypes.TYPE_GAMEOBJECT
 

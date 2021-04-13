@@ -16,5 +16,8 @@ class GroupSetLeaderHandler(object):
                                                      PartyResults.ERR_BAD_PLAYER_NAME_S)
         elif world_session.player_mgr.group_manager:
             world_session.player_mgr.group_manager.set_party_leader(world_session.player_mgr, target_player_mgr)
+        else:
+            GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_LEAVE, '',
+                                                     PartyResults.ERR_NOT_IN_GROUP)
 
         return 0

@@ -27,4 +27,3 @@ class QuestGiverHelloHandler(object):
             world_session.player_mgr.quest_manager.prepare_quest_giver_gossip_menu(quest_giver, guid)
 
         return 0
-

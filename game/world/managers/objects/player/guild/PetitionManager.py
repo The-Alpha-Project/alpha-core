@@ -1,4 +1,4 @@
-class GuildManager(object):
+class PetitionManager(object):
     def __init__(self,
                  charter_template=None):
         self.charter_template = charter_template

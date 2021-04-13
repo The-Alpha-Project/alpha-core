@@ -76,6 +76,27 @@ from game.world.opcode_handling.handlers.group.GroupDisbandHandler import GroupD
 from game.world.opcode_handling.handlers.group.GroupSetLeaderHandler import GroupSetLeaderHandler
 from game.world.opcode_handling.handlers.group.MinimapPingHandler import MinimapPingHandler
 from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpellHandler
+from game.world.opcode_handling.handlers.guild.GuildCreateHandler import GuildCreateHandler
+from game.world.opcode_handling.handlers.guild.GuildQueryHandler import GuildQueryHandler
+from game.world.opcode_handling.handlers.guild.GuildInfoHandler import GuildInfoHandler
+from game.world.opcode_handling.handlers.guild.GuildRosterHandler import GuildRosterHandler
+from game.world.opcode_handling.handlers.guild.GuildInviteHandler import GuildInviteHandler
+from game.world.opcode_handling.handlers.guild.GuildInviteDeclineHandler import GuildInviteDeclineHandler
+from game.world.opcode_handling.handlers.guild.GuildInviteAcceptHandler import GuildInviteAcceptHandler
+from game.world.opcode_handling.handlers.guild.GuildRemoveMemberHandler import GuildRemoveMemberHandler
+from game.world.opcode_handling.handlers.guild.GuildMOTDHandler import GuildMOTDHandler
+from game.world.opcode_handling.handlers.guild.GuildPromoteHandler import GuildPromoteHandler
+from game.world.opcode_handling.handlers.guild.GuildDemoteHandler import GuildDemoteHandler
+from game.world.opcode_handling.handlers.guild.GuildLeaveHandler import GuildLeaveHandler
+from game.world.opcode_handling.handlers.guild.GuildLeaderHandler import GuildLeaderHandler
+from game.world.opcode_handling.handlers.guild.GuildDisbandHandler import GuildDisbandHandler
+from game.world.opcode_handling.handlers.friends.FriendsListHandler import FriendsListHandler
+from game.world.opcode_handling.handlers.friends.FriendAddHandler import FriendAddHandler
+from game.world.opcode_handling.handlers.friends.FriendIgnoreHandler import FriendIgnoreHandler
+from game.world.opcode_handling.handlers.friends.FriendDeleteHandler import FriendDeleteHandler
+from game.world.opcode_handling.handlers.friends.FriendDeleteIgnoreHandler import FriendDeleteIgnoreHandler
+
+
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -185,7 +206,26 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GROUP_UNINVITE: GroupUnInviteHandler.handle,
     OpCode.CMSG_GROUP_UNINVITE_GUID: GroupUnInviteGuidHandler.handle,
     OpCode.CMSG_GROUP_SET_LEADER: GroupSetLeaderHandler.handle,
-    OpCode.MSG_MINIMAP_PING: MinimapPingHandler.handle
+    OpCode.MSG_MINIMAP_PING: MinimapPingHandler.handle,
+    OpCode.CMSG_GUILD_CREATE: GuildCreateHandler.handle,
+    OpCode.CMSG_GUILD_QUERY: GuildQueryHandler.handle,
+    OpCode.CMSG_GUILD_INFO: GuildInfoHandler.handle,
+    OpCode.CMSG_GUILD_ROSTER: GuildRosterHandler.handle,
+    OpCode.CMSG_GUILD_INVITE: GuildInviteHandler.handle,
+    OpCode.CMSG_GUILD_ACCEPT: GuildInviteAcceptHandler.handle,
+    OpCode.CMSG_GUILD_DECLINE: GuildInviteDeclineHandler.handle,
+    OpCode.CMSG_GUILD_REMOVE: GuildRemoveMemberHandler.handle,
+    OpCode.CMSG_GUILD_MOTD: GuildMOTDHandler.handle,
+    OpCode.CMSG_GUILD_PROMOTE: GuildPromoteHandler.handle,
+    OpCode.CMSG_GUILD_DEMOTE: GuildDemoteHandler.handle,
+    OpCode.CMSG_GUILD_LEAVE: GuildLeaveHandler.handle,
+    OpCode.CMSG_GUILD_LEADER: GuildLeaderHandler.handle,
+    OpCode.CMSG_GUILD_DISBAND: GuildDisbandHandler.handle,
+    OpCode.CMSG_FRIEND_LIST: FriendsListHandler.handle,
+    OpCode.CMSG_ADD_FRIEND: FriendAddHandler.handle,
+    OpCode.CMSG_ADD_IGNORE: FriendIgnoreHandler.handle,
+    OpCode.CMSG_DEL_FRIEND: FriendDeleteHandler.handle,
+    OpCode.CMSG_DEL_IGNORE: FriendDeleteIgnoreHandler.handle,
 }
 
 

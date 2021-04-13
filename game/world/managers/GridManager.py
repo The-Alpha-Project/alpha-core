@@ -43,8 +43,7 @@ class GridManager(object):
             else:
                 GridManager.add_or_get(world_obj, store=True)
 
-            if world_obj.get_type() == ObjectTypes.TYPE_PLAYER:
-                world_obj.update_surrounding_on_me()
+            world_obj.on_grid_change()
 
     @staticmethod
     def remove_object(world_obj):
@@ -69,14 +68,14 @@ class GridManager(object):
         return near_grids
 
     @staticmethod
-    def send_surrounding(packet, world_obj, include_self=True, ignore=None):
+    def send_surrounding(packet, world_obj, include_self=True, exclude=None, use_ignore=False):
         for grid in GridManager.get_surrounding(world_obj):
-            grid.send_all(packet, source=None if include_self else world_obj, ignore=ignore)
+            grid.send_all(packet, source=None if include_self else world_obj, exclude=exclude, use_ignore=use_ignore)
 
     @staticmethod
-    def send_surrounding_in_range(packet, world_obj, range_, include_self=True):
+    def send_surrounding_in_range(packet, world_obj, range_, include_self=True, exclude=None, use_ignore=False):
         for grid in GridManager.get_surrounding(world_obj):
-            grid.send_all_in_range(packet, range_, world_obj, include_self)
+            grid.send_all_in_range(packet, range_, world_obj, include_self, exclude, use_ignore)
 
     @staticmethod
     def get_surrounding_objects(world_obj, object_types):
@@ -119,12 +118,12 @@ class GridManager(object):
     def get_surrounding_unit_by_guid(world_obj, guid, include_players=False):
         surrounding_units = GridManager.get_surrounding_units(world_obj, include_players)
         if include_players:
-            for p_guid, player in surrounding_units[0].items():
+            for p_guid, player in list(surrounding_units[0].items()):
                 if p_guid == guid:
                     return player
 
         creature_dict = surrounding_units[1] if include_players else surrounding_units
-        for u_guid, unit in creature_dict.items():
+        for u_guid, unit in list(creature_dict.items()):
             if u_guid == guid:
                 return unit
 
@@ -237,22 +236,27 @@ class Grid(object):
         elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects.pop(world_obj.guid, None)
 
-    def send_all(self, packet, source=None, ignore=None):
+    def send_all(self, packet, source=None, exclude=None, use_ignore=False):
         for guid, player_mgr in list(self.players.items()):
-            if player_mgr.is_online:
+            if player_mgr.online:
                 if source and player_mgr.guid == source.guid:
                     continue
-                if ignore and player_mgr.guid in ignore:
+                if exclude and player_mgr.guid in exclude:
+                    continue
+                if use_ignore and source and player_mgr.friends_manager.has_ignore(source):
                     continue
 
                 threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
 
-    def send_all_in_range(self, packet, range_, source, include_self=True, ignore=None):
+    def send_all_in_range(self, packet, range_, source, include_self=True, exclude=None, use_ignore=False):
         if range_ <= 0:
-            self.send_all(packet, source, ignore)
+            self.send_all(packet, source, exclude)
         else:
             for guid, player_mgr in list(self.players.items()):
-                if player_mgr.is_online and player_mgr.location.distance(source.location) <= range_:
+                if player_mgr.online and player_mgr.location.distance(source.location) <= range_:
                     if not include_self and player_mgr.guid == source.guid:
                         continue
+                    if use_ignore and player_mgr.friends_manager.has_ignore(source):
+                        continue
+
                     threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()

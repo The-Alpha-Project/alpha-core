@@ -40,6 +40,7 @@ class GroupManager(object):
                 player_mgr.set_group_leader(False)
 
             if len(self.members) > 1:
+                self.party_leader.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
                 self.send_update()
                 self.send_party_members_stats()
 
@@ -217,9 +218,11 @@ class GroupManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
         self.party_leader.session.request.sendall(packet)
 
-    def send_packet_to_members(self, packet, ignore=None):
+    def send_packet_to_members(self, packet, ignore=None, source=None, use_ignore=False):
         for member in self.members.values():
             if member == ignore:
+                continue
+            if use_ignore and source and member.friends_manager.has_ignore(source):
                 continue
 
             member.session.request.sendall(packet)
@@ -231,6 +234,7 @@ class GroupManager(object):
 
     @staticmethod
     def invite_player(player_mgr, target_player_mgr):
+        # TODO Not send invite if target is ignoring player
         if player_mgr.is_enemy_to(target_player_mgr):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PLAYER_WRONG_FACTION)
             return
