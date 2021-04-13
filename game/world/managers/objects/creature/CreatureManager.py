@@ -136,9 +136,10 @@ class CreatureManager(UnitManager):
                     creature_equip_template = WorldDatabaseManager.creature_get_equipment_by_id(
                         self.creature_template.equipment_id
                     )
-                    self.set_virtual_item(0, creature_equip_template.equipentry1)
-                    self.set_virtual_item(1, creature_equip_template.equipentry2)
-                    self.set_virtual_item(2, creature_equip_template.equipentry3)
+                    if creature_equip_template:
+                        self.set_virtual_item(0, creature_equip_template.equipentry1)
+                        self.set_virtual_item(1, creature_equip_template.equipentry2)
+                        self.set_virtual_item(2, creature_equip_template.equipentry3)
 
                 self.fully_loaded = True
 
