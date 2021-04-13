@@ -2,32 +2,38 @@ import time
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import Spell, SpellCastTimes
+from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
+from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
-    SpellMissReason, SpellTargetMask
+    SpellMissReason, SpellTargetMask, SpellState
 
 
 class CastingSpell(object):
     spell_entry: Spell
+    cast_state: SpellState
     spell_caster = None
-    initial_target = int
+    initial_target_unit = None
     target_results: dict
     spell_target_mask: SpellTargetMask
+    range_entry: SpellRange
     cast_time_entry: SpellCastTimes
     cast_end_timestamp: float
+    spell_delay_end_timestamp: float
 
-    def __init__(self, spell, caster_obj, initial_target, target_results, target_mask):
+    def __init__(self, spell, caster_obj, initial_target_unit, target_results, target_mask):
         self.spell_entry = spell
         self.spell_caster = caster_obj
-        self.initial_target = initial_target
+        self.initial_target_unit = initial_target_unit
         self.target_results = target_results
         self.spell_target_mask = target_mask
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
+
+        self.cast_state = SpellState.SPELL_STATE_PREPARING
 
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0
@@ -45,7 +51,7 @@ class SpellManager(object):
         self.player_mgr = player_mgr
         self.spells = {}
         self.cooldowns = {}
-        self.casting_spells = {}
+        self.casting_spells = []
 
     def load_spells(self):
         for spell in RealmDatabaseManager.character_get_spells(self.player_mgr.guid):
@@ -78,16 +84,17 @@ class SpellManager(object):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not self.can_cast_spell(spell):
             return
+        spell_target = GridManager.get_surrounding_unit_by_guid(caster, target_guid) if target_guid else caster
+        self.start_spell_cast(spell, caster, spell_target, target_mask)
 
-        self.start_spell_cast(spell, caster, target_guid, target_mask)
-
-    def start_spell_cast(self, spell, caster_obj, target_guid, target_mask):
-        targets = self.build_targets_for_spell(spell, target_guid, target_mask)
-        casting_spell = CastingSpell(spell, caster_obj, target_guid, targets, target_mask)  # Initializes dbc references
+    def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
+        targets = self.build_targets_for_spell(spell, spell_target, target_mask)
+        casting_spell = CastingSpell(spell, caster_obj, spell_target, targets, target_mask)  # Initializes dbc references
 
         if not casting_spell.is_instant_cast():
             self.send_cast_start(casting_spell)
-            self.casting_spells[spell.ID] = casting_spell
+            casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
+            self.casting_spells.append(casting_spell)
             return
 
         # Spell is instant, perform cast
@@ -96,19 +103,49 @@ class SpellManager(object):
     def perform_spell_cast(self, casting_spell):
         self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_CAST_OK)
         self.send_spell_GO(casting_spell)
-        # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Only channeled spells
+
+        travel_time = self.calculate_time_to_impact(casting_spell)
+        if travel_time != 0:
+            casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED
+            casting_spell.spell_delay_end_timestamp = time.time() + travel_time
+            return
+        casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
+
+    # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Only channeled spells
 
     def update(self, timestamp):
-        for casting_spell in list(self.casting_spells.values()):
-            if casting_spell.cast_end_timestamp <= timestamp:
-                self.perform_spell_cast(casting_spell)
-                self.casting_spells.pop(casting_spell.spell_entry.ID)
+        for casting_spell in list(self.casting_spells):
+            if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
+                if casting_spell.cast_end_timestamp <= timestamp:
+                    self.perform_spell_cast(casting_spell)
+                    if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED:  # Spell finished after perform (no impact delay)
+                        self.casting_spells.remove(casting_spell)
+#                else:  # Spell has not finished casting, just do movement check
 
 
-    def build_targets_for_spell(self, spell, target_guid, target_mask):
-        if target_mask == SpellTargetMask.SELF:
+            elif casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
+                    casting_spell.spell_delay_end_timestamp <= timestamp:  # Spell was cast already and impact delay is done
+                print("Spell impact")  # TODO
+                casting_spell.spell_caster.deal_damage(casting_spell.initial_target_unit, 10)
+                self.casting_spells.remove(casting_spell)
+
+
+
+    def calculate_time_to_impact(self, casting_spell):
+        if casting_spell.spell_entry.Speed == 0:
+            return 0
+
+        travel_distance = casting_spell.range_entry.RangeMax
+        if casting_spell.spell_target_mask & SpellTargetMask.UNIT == SpellTargetMask.UNIT:
+            target_unit_location = casting_spell.initial_target_unit.location
+            travel_distance = casting_spell.spell_caster.location.distance(target_unit_location)
+
+        return travel_distance / casting_spell.spell_entry.Speed
+
+    def build_targets_for_spell(self, spell, target, target_mask):
+        if target_mask == SpellTargetMask.SELF or target is None:
             return {}
-        return {target_guid: SpellMissReason.MISS_REASON_NONE}
+        return {target.guid: SpellMissReason.MISS_REASON_NONE}
 
     def send_cast_start(self, casting_spell):
         data = [self.player_mgr.guid, self.player_mgr.guid,
@@ -116,12 +153,13 @@ class SpellManager(object):
                 casting_spell.spell_target_mask]
 
         signature = "<QQIHiH"  # TODO
-        for target_guid in casting_spell.target_results.keys():
-            data.append(target_guid)
+        if casting_spell.initial_target_unit:
+            data.append(casting_spell.initial_target_unit.guid)
             signature += "Q"
 
         data = pack(signature, *data)
         Logger.debug("sending cast start of spell " + casting_spell.spell_entry.Name_enUS + " with cast time " + str(casting_spell.get_base_cast_time()))
+
         self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data))
 
     def send_spell_GO(self, casting_spell):
@@ -147,11 +185,10 @@ class SpellManager(object):
         sign += 'H'  # SpellTargetMask
         data.append(casting_spell.spell_target_mask)
 
-        #targets
-        if casting_spell.spell_target_mask & SpellTargetMask.UNIT_TARGET_MASK:
+        # write initial target
+        if casting_spell.spell_target_mask & SpellTargetMask.UNIT == SpellTargetMask.UNIT:
             sign += 'Q'
-            data.append(casting_spell.initial_target)
-
+            data.append(casting_spell.initial_target_unit.guid)
 
         #data = pack("QQIHBBH", self.player_mgr.guid, self.player_mgr.guid,
         #            casting_spell.spell_entry.ID, 0,
