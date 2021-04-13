@@ -670,6 +670,10 @@ class UnitManager(ObjectManager):
         self.dirty = is_dirty
 
     # override
+    def on_grid_change(self):
+        pass
+
+    # override
     def get_type(self):
         return ObjectTypes.TYPE_UNIT
 
