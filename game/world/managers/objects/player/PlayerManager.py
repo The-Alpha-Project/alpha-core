@@ -594,6 +594,7 @@ class PlayerManager(UnitManager):
 
                 self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
+                self.quest_manager.update_surrounding_quest_status()
 
                 self.set_dirty()
 
@@ -1093,6 +1094,7 @@ class PlayerManager(UnitManager):
     # override
     def on_grid_change(self):
         self.update_surrounding_on_me()
+        self.quest_manager.update_surrounding_quest_status()
 
     # override
     def get_type(self):

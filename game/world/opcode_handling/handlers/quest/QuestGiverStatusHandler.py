@@ -24,7 +24,7 @@ class QuestGiverStatusHandler(object):
                 if quest_giver.get_type() == ObjectTypes.TYPE_UNIT:
                     quest_giver_status = world_session.player_mgr.quest_manager.get_dialog_status(quest_giver)
                 elif quest_giver.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
-                    # TODO: Proper handling for game object, check if this is needed
+                    # TODO: Proper handling for game object
                     quest_giver_status = QuestGiverStatus.QUEST_GIVER_NONE
                 else:
                     Logger.error("Error in CMSG_QUESTGIVER_STATUS_QUERY, quest giver was an unexpected type of: %u" % quest_giver.object_type)
