@@ -160,59 +160,59 @@ class QuestManager(object):
     @staticmethod
     def generate_rew_choice_count_list(quest):
         rew_choice_count_list = list(filter((0).__ne__, [quest.RewChoiceItemCount1,
-                                                        quest.RewChoiceItemCount2,
-                                                        quest.RewChoiceItemCount3,
-                                                        quest.RewChoiceItemCount4,
-                                                        quest.RewChoiceItemCount5,
-                                                        quest.RewChoiceItemCount6]))
+                                                         quest.RewChoiceItemCount2,
+                                                         quest.RewChoiceItemCount3,
+                                                         quest.RewChoiceItemCount4,
+                                                         quest.RewChoiceItemCount5,
+                                                         quest.RewChoiceItemCount6]))
         return rew_choice_count_list
 
     @staticmethod
     def generate_rew_item_list(quest):
         rew_item_list = list(filter((0).__ne__, [quest.RewItemId1,
-                                                quest.RewItemId2,
-                                                quest.RewItemId3,
-                                                quest.RewItemId4]))
+                                                 quest.RewItemId2,
+                                                 quest.RewItemId3,
+                                                 quest.RewItemId4]))
         return rew_item_list
 
     @staticmethod
     def generate_rew_count_list(quest):
         rew_count_list = list(filter((0).__ne__, [quest.RewItemCount1,
-                                                quest.RewItemCount2,
-                                                quest.RewItemCount3,
-                                                quest.RewItemCount4]))
+                                                  quest.RewItemCount2,
+                                                  quest.RewItemCount3,
+                                                  quest.RewItemCount4]))
         return rew_count_list
 
     @staticmethod
     def generate_req_item_list(quest):
         req_item_list = list(filter((0).__ne__, [quest.ReqItemId1,
-                                                quest.ReqItemId2,
-                                                quest.ReqItemId3,
-                                                quest.ReqItemId4]))
+                                                 quest.ReqItemId2,
+                                                 quest.ReqItemId3,
+                                                 quest.ReqItemId4]))
         return req_item_list
 
     @staticmethod
     def generate_req_count_list(quest):
         req_count_list = list(filter((0).__ne__, [quest.ReqItemCount1,
-                                                quest.ReqItemCount2,
-                                                quest.ReqItemCount3,
-                                                quest.ReqItemCount4]))
+                                                  quest.ReqItemCount2,
+                                                  quest.ReqItemCount3,
+                                                  quest.ReqItemCount4]))
         return req_count_list
 
     @staticmethod
     def generate_req_creature_or_go_list(quest):
         req_creature_or_go_list = list(filter((0).__ne__, [quest.ReqCreatureOrGOId1,
-                                                            quest.ReqCreatureOrGOId2,
-                                                            quest.ReqCreatureOrGOId3,
-                                                            quest.ReqCreatureOrGOId4]))
+                                                           quest.ReqCreatureOrGOId2,
+                                                           quest.ReqCreatureOrGOId3,
+                                                           quest.ReqCreatureOrGOId4]))
         return req_creature_or_go_list
 
     @staticmethod
     def generate_req_creature_or_go_count_list(quest):
         req_creature_or_go_count_list = list(filter((0).__ne__, [quest.ReqCreatureOrGOCount1,
-                                                                quest.ReqCreatureOrGOCount2,
-                                                                quest.ReqCreatureOrGOCount3,
-                                                                quest.ReqCreatureOrGOCount4]))
+                                                                 quest.ReqCreatureOrGOCount2,
+                                                                 quest.ReqCreatureOrGOCount3,
+                                                                 quest.ReqCreatureOrGOCount4]))
         return req_creature_or_go_count_list
 
     def update_surrounding_quest_status(self):
@@ -262,7 +262,7 @@ class QuestManager(object):
         quest_details = PacketWriter.string_to_bytes(quest.Details)
         quest_objectives = PacketWriter.string_to_bytes(quest.Objectives)
         data = pack(
-            '<QL%us%us%usL' %(len(quest_title), len(quest_details), len(quest_objectives)),
+            '<QL%us%us%usL' % (len(quest_title), len(quest_details), len(quest_objectives)),
             quest_giver_guid,
             quest.entry,
             quest_title,
@@ -270,6 +270,7 @@ class QuestManager(object):
             quest_objectives,
             1 if activate_accept else 0
         )
+
         # Reward choices
         rew_choice_item_list = self.generate_rew_choice_item_list(quest)
         rew_choice_count_list = self.generate_rew_choice_count_list(quest)
@@ -312,7 +313,7 @@ class QuestManager(object):
                 req_count_list[index],
             )
 
-        # Required kill/item count
+        # Required kill / item count
         req_creature_or_go_list = self.generate_req_creature_or_go_list(quest)
         req_creature_or_go_count_list = self.generate_req_creature_or_go_count_list(quest)
         data += pack('<L', len(req_creature_or_go_list))
@@ -324,6 +325,7 @@ class QuestManager(object):
             )
 
         self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
+
 
 class QuestMenu:
     class QuestMenuItem(NamedTuple):
