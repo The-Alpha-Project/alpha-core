@@ -73,5 +73,12 @@ begin not atomic
 
         insert into applied_updates values ('020420211');
     end if;
+
+    -- 14/04/2021 1
+    if (select count(*) from applied_updates where id='140420211') = 0 then
+        update quest_template set Details = 'I hope you strapped your belt on tight, young $c, because there is work to do here in Northshire.$B$BAnd I don''t mean farming.$B$BThe Stormwind guards are hard pressed to keep the peace here, with so many of us in distant lands and so many threats pressing close.  And so we''re enlisting the aid of anyone willing to defend their home.  And their alliance.$B$BIf you''re here to answer the call, then speak with my superior, Marshal McBride.  He''s inside the abbey behind me.' where entry = 783;
+
+        insert into applied_updates values ('140420211');
+    end if;
 end $
 delimiter ;
