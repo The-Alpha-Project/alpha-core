@@ -261,11 +261,11 @@ class Definitions(object):
     @staticmethod
     def get_handler_from_packet(world_session, opcode):
         try:
-            opcode_name = OpCode(opcode).name
-            if opcode_name in HANDLER_DEFINITIONS:
+            opcode = OpCode(opcode)
+            if opcode in HANDLER_DEFINITIONS:
                 return HANDLER_DEFINITIONS.get(OpCode(opcode)), 1
             else:
-                Logger.warning(f'[{world_session.client_address[0]}] Received {opcode_name} OpCode but is not handled.')
+                Logger.warning(f'[{world_session.client_address[0]}] Received {opcode.name} OpCode but is not handled.')
         except ValueError:
             return None, -1
         return None, 0
