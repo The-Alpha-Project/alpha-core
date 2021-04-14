@@ -15,8 +15,7 @@ class WorldTeleportHandler(object):
             pack_guid, map_, x, y, z, o = unpack('<IB4f', reader.data)
             world_session.player_mgr.teleport(map_, Vector(x, y, z, o))
         else:
-            Logger.anticheat('Player %s (%s) tried to teleport himself.' % (world_session.player_mgr.player.name,
-                                                                            world_session.player_mgr.guid))
+            Logger.anticheat(f'Player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}) tried to teleport himself.')
 
         return 0
 

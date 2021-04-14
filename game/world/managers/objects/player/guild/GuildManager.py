@@ -32,13 +32,13 @@ class GuildManager(object):
             data = pack('<2B', GuildEvents.GUILD_EVENT_LEADER_CHANGED, 2)
             name_bytes = PacketWriter.string_to_bytes(previous_gm.player.name)
             data += pack(
-                '<%us' % len(name_bytes),
+                f'<{len(name_bytes)}s',
                 name_bytes,
             )
 
             name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
             data += pack(
-                '<%us' % len(name_bytes),
+                f'<{len(name_bytes)}s',
                 name_bytes,
             )
 
@@ -56,7 +56,7 @@ class GuildManager(object):
         data = pack('<2B', GuildEvents.GUILD_EVENT_MOTD, 1)
         motd_bytes = PacketWriter.string_to_bytes(self.motd)
         data += pack(
-            '<%us' % len(motd_bytes),
+            f'<{len(motd_bytes)}s',
             motd_bytes,
         )
 
@@ -77,7 +77,7 @@ class GuildManager(object):
         data = pack('<2B', GuildEvents.GUILD_EVENT_JOINED, 1)
         name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
         data += pack(
-            '<%us' % len(name_bytes),
+            f'<{len(name_bytes)}s',
             name_bytes,
         )
 
@@ -91,13 +91,13 @@ class GuildManager(object):
         data = pack('<2B', GuildEvents.GUILD_EVENT_REMOVED, 2)
         target_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
         data += pack(
-            '<%us' % len(target_name_bytes),
+            f'<{len(target_name_bytes)}s',
             target_name_bytes,
         )
 
         remover_name_bytes = PacketWriter.string_to_bytes(self.guild_master.player.name)
         data += pack(
-            '<%us' % len(remover_name_bytes),
+            f'<{len(remover_name_bytes)}s',
             remover_name_bytes,
         )
 
@@ -117,7 +117,7 @@ class GuildManager(object):
 
         leaver_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
         data += pack(
-            '<%us' % len(leaver_name_bytes),
+            f'<{len(leaver_name_bytes)}s',
             leaver_name_bytes,
         )
 
@@ -136,7 +136,7 @@ class GuildManager(object):
 
         leaver_name_bytes = PacketWriter.string_to_bytes(self.guild_master.player.name)
         data += pack(
-            '<%us' % len(leaver_name_bytes),
+            f'<{len(leaver_name_bytes)}s',
             leaver_name_bytes,
         )
 
@@ -186,14 +186,14 @@ class GuildManager(object):
 
         target_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
         data += pack(
-            '<%us' % len(target_name_bytes),
+            f'<{len(target_name_bytes)}s',
             target_name_bytes,
         )
 
         rank_name = GuildRank(self.ranks[player_mgr.guid]).name.split('_')[1].capitalize()
         rank_name_bytes = PacketWriter.string_to_bytes(rank_name)
         data += pack(
-            '<%us' % len(rank_name_bytes),
+            f'<{len(rank_name_bytes)}s',
             rank_name_bytes,
         )
 
@@ -218,14 +218,14 @@ class GuildManager(object):
         data = pack('<2B', GuildEvents.GUILD_EVENT_DEMOTION, 2)
         target_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
         data += pack(
-            '<%us' % len(target_name_bytes),
+            f'<{len(target_name_bytes)}s',
             target_name_bytes,
         )
 
         rank_name = GuildRank(self.ranks[player_mgr.guid]).name.split('_')[1].capitalize()
         rank_name_bytes = PacketWriter.string_to_bytes(rank_name)
         data += pack(
-            '<%us' % len(rank_name_bytes),
+            f'<{len(rank_name_bytes)}s',
             rank_name_bytes,
         )
 
@@ -270,7 +270,7 @@ class GuildManager(object):
     def send_guild_command_result(player_mgr, command_type, message, command):
         message_bytes = PacketWriter.string_to_bytes(message)
         data = pack(
-            '<I%usI' % len(message_bytes),
+            f'<I{len(message_bytes)}sI',
             command_type,
             message_bytes,
             command

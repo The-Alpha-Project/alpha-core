@@ -69,7 +69,7 @@ class GameTextFormatter:
     @staticmethod
     def generate_item_link(entry, name, quality):
         color = ITEM_QUALITY_COLOR[quality]
-        return '|%s|Hitem:%u|h[%s]|h|r' % (color, entry, name)
+        return f'|{color}|Hitem:{entry}|h[{name}]|h|r'
 
 
 class TextChecker:

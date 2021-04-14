@@ -118,7 +118,7 @@ class GameObjectManager(ObjectManager):
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.gobject_template.name)
         data = pack(
-            '<3I%ussss10I' % len(name_bytes),
+            f'<3I{len(name_bytes)}ssss10I',
             self.gobject_template.entry,
             self.gobject_template.type,
             self.display_id,

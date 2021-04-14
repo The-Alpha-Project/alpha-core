@@ -17,7 +17,7 @@ class QuestGiverStatusHandler(object):
             quest_giver = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, quest_giver_guid)
             quest_giver_status = QuestGiverStatus.QUEST_GIVER_NONE
             if not quest_giver:
-                Logger.error("Error in CMSG_QUESTGIVER_STATUS_QUERY, could not find quest giver with guid of: %u" % quest_giver_guid)
+                Logger.error(f'Error in CMSG_QUESTGIVER_STATUS_QUERY, could not find quest giver with guid of: {quest_giver_guid}')
                 return 0
 
             if world_session.player_mgr:
@@ -27,7 +27,7 @@ class QuestGiverStatusHandler(object):
                     # TODO: Proper handling for game object
                     quest_giver_status = QuestGiverStatus.QUEST_GIVER_NONE
                 else:
-                    Logger.error("Error in CMSG_QUESTGIVER_STATUS_QUERY, quest giver was an unexpected type of: %u" % quest_giver.object_type)
+                    Logger.error(f'Error in CMSG_QUESTGIVER_STATUS_QUERY, quest giver was an unexpected type of: {quest_giver.object_type}')
 
                 world_session.player_mgr.quest_manager.send_quest_giver_status(quest_giver_guid, quest_giver_status)
 

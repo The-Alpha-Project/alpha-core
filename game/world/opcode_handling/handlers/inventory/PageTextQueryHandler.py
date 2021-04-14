@@ -21,7 +21,7 @@ class PageTextQueryHandler(object):
                     page_text_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(world_session.player_mgr,
                                                                                             page.text))
                     data += pack(
-                        '<%usI' % len(page_text_bytes),
+                        f'<{len(page_text_bytes)}sI',
                         page_text_bytes,
                         page.next_page
                     )
@@ -32,7 +32,7 @@ class PageTextQueryHandler(object):
                 else:
                     missing_page_bytes = PacketWriter.string_to_bytes('Item page missing.')
                     data += pack(
-                        '<%usI' % len(missing_page_bytes),
+                        f'<{len(missing_page_bytes)}sI',
                         missing_page_bytes,
                         0
                     )

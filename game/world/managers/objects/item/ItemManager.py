@@ -228,7 +228,7 @@ class ItemManager(ObjectManager):
     def query_details(self):
         item_name_bytes = PacketWriter.string_to_bytes(self.item_template.name)
         data = pack(
-            '<3I%ussss6I2i7I' % len(item_name_bytes),
+            f'<3I{len(item_name_bytes)}ssss6I2i7I',
             self.item_template.entry,
             self.item_template.class_,
             self.item_template.subclass,
@@ -281,7 +281,7 @@ class ItemManager(ObjectManager):
 
         description_bytes = PacketWriter.string_to_bytes(self.item_template.description)
         data += pack(
-            '<I%us5IiI' % len(description_bytes),
+            f'<I{len(description_bytes)}s5IiI',
             self.item_template.bonding,
             description_bytes,
             self.item_template.page_text,

@@ -22,8 +22,8 @@ class Logger:
     def colorize_message(label, color, msg):
         # No colors for Windows :)
         if Logger.IS_WINDOWS:
-            return '%s %s' % (label, msg)
-        return '%s%s%s %s' % (color.value, label, Style.RESET_ALL, msg)
+            return f'{label} {msg}'
+        return f'{color.value}{label}{Style.RESET_ALL} {msg}'
 
     @staticmethod
     def debug(msg):
@@ -54,7 +54,7 @@ class Logger:
 
     @staticmethod
     def progress(msg, current, total):
-        msg = '%s %u/%u (%u%%)' % (msg, current, total, current * 100 / total)
+        msg = f'{msg} {current}/{total} ({int(current * 100 / total)}%)'
         if current != total:
             Logger.info(msg, end='\r')
         else:

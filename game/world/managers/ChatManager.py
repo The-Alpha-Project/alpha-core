@@ -29,7 +29,7 @@ class ChatManager(object):
     @staticmethod
     def send_notification(world_session, message):
         message_bytes = PacketWriter.string_to_bytes(message)
-        data = pack('<%us' % len(message_bytes), message_bytes)
+        data = pack(f'<{len(message_bytes)}s', message_bytes)
         world_session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_NOTIFICATION, data))
 
     @staticmethod
@@ -95,7 +95,7 @@ class ChatManager(object):
             data += pack('<Q', guid)
         else:
             channel_bytes = PacketWriter.string_to_bytes(channel)
-            data += pack('<%usQ' % len(channel_bytes), channel_bytes, guid)
-        data += pack('<%usB' % len(message_bytes), message_bytes, chat_flags)
+            data += pack(f'<{len(channel_bytes)}sQ', channel_bytes, guid)
+        data += pack(f'<{len(message_bytes)}sB', message_bytes, chat_flags)
 
         return PacketWriter.get_packet(OpCode.SMSG_MESSAGECHAT, data)

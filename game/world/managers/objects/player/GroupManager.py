@@ -55,7 +55,7 @@ class GroupManager(object):
         self.party_leader.set_group_leader(False)
         player_mgr.set_group_leader(True)
         leader_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
-        data = pack('<%us' % len(leader_name_bytes), leader_name_bytes)
+        data = pack(f'<{len(leader_name_bytes)}s', leader_name_bytes)
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_SET_LEADER, data)
         self.send_packet_to_members(packet)
         self.send_update()
@@ -70,7 +70,7 @@ class GroupManager(object):
 
         # Header
         data = pack(
-            '<I%usQB' % len(leader_name_bytes),
+            f'<I{len(leader_name_bytes)}sQB',
             len(self.members),
             leader_name_bytes,
             self.party_leader.guid,
@@ -84,7 +84,7 @@ class GroupManager(object):
 
             member_name_bytes = PacketWriter.string_to_bytes(member.player.name)
             data += pack(
-                '<%usQB' % len(member_name_bytes),
+                f'<{len(member_name_bytes)}sQB',
                 member_name_bytes,
                 member.guid,
                 1  # If member is online or not
@@ -145,7 +145,7 @@ class GroupManager(object):
 
         name_bytes = PacketWriter.string_to_bytes(target_player_mgr.player.name)
         data = pack(
-            '<%us' % len(name_bytes),
+            f'<{len(name_bytes)}s',
             name_bytes,
         )
 
@@ -270,7 +270,7 @@ class GroupManager(object):
     def send_invite_decline(self, player_name):
         name_bytes = PacketWriter.string_to_bytes(player_name)
         data = pack(
-            '<%us' % len(name_bytes),
+            f'<{len(name_bytes)}s',
             name_bytes,
         )
 
@@ -323,7 +323,7 @@ class GroupManager(object):
 
         name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
         data = pack(
-            '<%us' % len(name_bytes),
+            f'<{len(name_bytes)}s',
             name_bytes,
         )
 
@@ -336,7 +336,7 @@ class GroupManager(object):
     def send_group_operation_result(player, group_operation, name, result):
         name_bytes = PacketWriter.string_to_bytes(name)
         data = pack(
-            '<I%usI' % len(name_bytes),
+            f'<I{len(name_bytes)}sI',
             group_operation,
             name_bytes,
             result,

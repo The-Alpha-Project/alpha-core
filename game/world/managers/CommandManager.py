@@ -35,7 +35,7 @@ class CommandManager(object):
         if command_func:
             code, res = command_func(world_session, args)
             if code != 0:
-                ChatManager.send_system_message(world_session, 'Wrong arguments for <%s> command: %s' % (command, res))
+                ChatManager.send_system_message(world_session, f'Wrong arguments for <{command}> command: {res}')
             elif res:
                 ChatManager.send_system_message(world_session, res)
 
@@ -60,11 +60,11 @@ class CommandManager(object):
         help_str = ''
 
         if world_session.player_mgr.is_gm:
-            gm_commands = [k for k in GM_COMMAND_DEFINITIONS.keys()]
-            help_str += '[GM Commands]: \n%s\n\n' % ', '.join(gm_commands)
+            gm_commands = ', '.join([k for k in GM_COMMAND_DEFINITIONS.keys()])
+            help_str += f'[GM Commands]: \n{gm_commands}\n\n'
 
-        player_commands = [k for k in PLAYER_COMMAND_DEFINITIONS.keys()]
-        help_str += '[Player Commands]: \n%s' % ', '.join(player_commands)
+        player_commands = ', '.join([k for k in PLAYER_COMMAND_DEFINITIONS.keys()])
+        help_str += f'[Player Commands]: \n{player_commands}'
 
         return 0, help_str
 
@@ -92,14 +92,12 @@ class CommandManager(object):
 
     @staticmethod
     def gps(world_session, args):
-        return 0, 'Map: %u, Zone: %u, X: %f, Y: %f, Z: %f, O: %f' % (
-            world_session.player_mgr.map_,
-            world_session.player_mgr.zone,
-            world_session.player_mgr.location.x,
-            world_session.player_mgr.location.y,
-            world_session.player_mgr.location.z,
-            world_session.player_mgr.location.o
-        )
+        return 0, f'Map: {world_session.player_mgr.map_}, ' \
+                  f'Zone: {world_session.player_mgr.zone}, ' \
+                  f'X: {world_session.player_mgr.location.x}, ' \
+                  f'Y: {world_session.player_mgr.location.y}, ' \
+                  f'Z: {world_session.player_mgr.location.z}, ' \
+                  f'O: {world_session.player_mgr.location.o}'
 
     @staticmethod
     def tel(world_session, args):
@@ -114,9 +112,9 @@ class CommandManager(object):
             success = world_session.player_mgr.teleport(location.map, tel_location)
 
             if success:
-                return 0, 'Teleported to "%s".' % location.name
-            return -1, 'map not found (%u).' % location.map
-        return -1, '"%s" not found.' % tel_name
+                return 0, f'Teleported to "{location.name}".'
+            return -1, f'map not found ({location.map}).'
+        return -1, f'"{tel_name}" not found.'
 
     @staticmethod
     def stel(world_session, args):
@@ -127,9 +125,9 @@ class CommandManager(object):
         locations = WorldDatabaseManager.worldport_get_by_name(tel_name, return_all=True)
 
         for location in locations:
-            port_text = '|cFF00FFFF[Map %s]|r - %s' % (location.map, location.name)
+            port_text = f'|cFF00FFFF[Map {location.map}]|r - {location.name}'
             ChatManager.send_system_message(world_session, port_text)
-        return 0, '%u worldports found.' % len(locations)
+        return 0, f'{len(locations)} worldports found.'
 
     @staticmethod
     def sitem(world_session, args):
@@ -140,9 +138,9 @@ class CommandManager(object):
 
         for item in items:
             item_link = GameTextFormatter.generate_item_link(item.entry, item.name, item.quality)
-            item_text = '%u - %s' % (item.entry, item_link)
+            item_text = f'{item.entry} - {item_link}'
             ChatManager.send_system_message(world_session, item_text)
-        return 0, '%u items found.' % len(items)
+        return 0, f'{len(items)} items found.'
 
     @staticmethod
     def sspell(world_session, args):
@@ -152,10 +150,12 @@ class CommandManager(object):
         spells = DbcDatabaseManager.spell_get_by_name(spell_name)
 
         for spell in spells:
-            spell_text = '%u - |cFF00FFFF[%s]|r' % (spell.ID, spell.Name_enUS.replace('\\', ''))
-            spell_text += ' (%s)' % spell.NameSubtext_enUS if spell.NameSubtext_enUS else ''
+            spell_name = spell.Name_enUS.replace('\\', '')
+            spell_subtext = spell.NameSubtext_enUS if spell.NameSubtext_enUS else ''
+            spell_text = f'{spell.ID} - |cFF00FFFF[{spell_name}]|r'
+            spell_text += f' ({spell_subtext})'
             ChatManager.send_system_message(world_session, spell_text)
-        return 0, '%u spells found.' % len(spells)
+        return 0, f'{len(spells)} spells found.'
 
     @staticmethod
     def port(world_session, args):
@@ -166,7 +166,7 @@ class CommandManager(object):
 
             if success:
                 return 0, ''
-            return -1, 'map not found (%u).' % int(map_)
+            return -1, f'map not found ({int(map_)}).'
         except ValueError:
             return -1, 'please use the "x y z map" format.'
 
@@ -174,13 +174,11 @@ class CommandManager(object):
     def tickets(world_session, args):
         tickets = RealmDatabaseManager.ticket_get_all()
         for ticket in tickets:
-            ticket_text = '%s[%s]|r %s: %s from %s.' % ('|cFFFF0000' if ticket.is_bug else '|cFF00FFFF',
-                                                        ticket.id,
-                                                        ticket.submit_time,
-                                                        'Bug report' if ticket.is_bug else 'Suggestion',
-                                                        ticket.character_name)
+            ticket_color = '|cFFFF0000' if ticket.is_bug else '|cFF00FFFF'
+            ticket_title = 'Bug report' if ticket.is_bug else 'Suggestion'
+            ticket_text = f'{ticket_color}[{ticket.id}]|r {ticket.submit_time}: {ticket_title} from {ticket.character_name}.'
             ChatManager.send_system_message(world_session, ticket_text)
-        return 0, '%u tickets shown.' % len(tickets)
+        return 0, f'{len(tickets)} tickets shown.'
 
     @staticmethod
     def rticket(world_session, args):
@@ -188,8 +186,8 @@ class CommandManager(object):
             ticket_id = int(args)
             ticket = RealmDatabaseManager.ticket_get_by_id(ticket_id)
             if ticket:
-                return 0, '%s[%s] %s:|r %s' % ('|cFFFF0000' if ticket.is_bug else '|cFF00FFFF', ticket_id,
-                                               ticket.character_name, ticket.text_body)
+                ticket_color = '|cFFFF0000' if ticket.is_bug else '|cFF00FFFF'
+                return 0, f'{ticket_color}[{ticket_id}] {ticket.character_name}:|r {ticket.text_body}'
             return -1, 'ticket not found.'
         except ValueError:
             return -1, 'please specify a valid ticket id.'
@@ -199,7 +197,7 @@ class CommandManager(object):
         try:
             ticket_id = int(args)
             if RealmDatabaseManager.ticket_delete(ticket_id) == 0:
-                return 0, 'Ticket %u deleted.' % ticket_id
+                return 0, f'Ticket {ticket_id} deleted.'
             return -1, 'ticket not found.'
 
         except ValueError:
@@ -230,7 +228,8 @@ class CommandManager(object):
 
         world_session.player_mgr.teleport(int(map_), player_location)
 
-        return 0, 'Teleported to player %s (%s).' % (player_name.capitalize(), 'Online' if online else 'Offline')
+        status_text = 'Online' if online else 'Offline'
+        return 0, f'Teleported to player {player_name.capitalize()} ({status_text}).'
 
     @staticmethod
     def summon(world_session, args):
@@ -256,7 +255,8 @@ class CommandManager(object):
         else:
             return -1, 'player not found.'
 
-        return 0, 'Summoned player %s (%s).' % (player_name.capitalize(), 'Online' if online else 'Offline')
+        status_text = 'Online' if online else 'Offline'
+        return 0, f'Summoned player {player_name.capitalize()} ({status_text}).'
 
     @staticmethod
     def ann(world_session, args):
@@ -264,7 +264,7 @@ class CommandManager(object):
 
         for session in WorldSessionStateHandler.get_world_sessions():
             if session.player_mgr and session.player_mgr.online:
-                ChatManager.send_system_message(session, '[SERVER] %s' % ann)
+                ChatManager.send_system_message(session, f'[SERVER] {ann}')
 
         return 0, ''
 
@@ -319,17 +319,14 @@ class CommandManager(object):
                                                             world_session.player_mgr.current_selection)
 
         if creature:
-            return 0, '[%s] - Guid: %u, Entry: %u, Display ID: %u, X: %f, Y: %f, Z: %f, O: %f, Map: %u' % (
-                creature.creature_template.name,
-                creature.guid & ~HighGuid.HIGHGUID_UNIT,
-                creature.creature_template.entry,
-                creature.display_id,
-                creature.location.x,
-                creature.location.y,
-                creature.location.z,
-                creature.location.o,
-                creature.map_
-            )
+            return 0, f'[{creature.creature_template.name}] - Guid: {creature.guid & ~HighGuid.HIGHGUID_UNIT}, ' \
+                      f'Entry: {creature.creature_template.entry}, ' \
+                      f'Display ID: {creature.display_id}, ' \
+                      f'X: {creature.location.x}, ' \
+                      f'Y: {creature.location.y}, ' \
+                      f'Z: {creature.location.z}, ' \
+                      f'O: {creature.location.o}, ' \
+                      f'Map: {creature.map_}'
         return -1, 'error retrieving creature info.'
 
     @staticmethod
@@ -338,12 +335,9 @@ class CommandManager(object):
         player_mgr = CommandManager._target_or_self(world_session, only_players=True)
 
         if player_mgr:
-            return 0, '[%s] - Guid: %u, Account ID: %u, Account name: %s' % (
-                player_mgr.player.name,
-                player_mgr.guid & ~HighGuid.HIGHGUID_PLAYER,
-                player_mgr.session.account_mgr.account.id,
-                player_mgr.session.account_mgr.account.name
-            )
+            return 0, f'[{player_mgr.player.name}] - Guid: {player_mgr.guid & ~HighGuid.HIGHGUID_PLAYER}, ' \
+                      f'Account ID: {player_mgr.session.account_mgr.account.id}, ' \
+                      f'Account name: {player_mgr.session.account_mgr.account.name}'
         return -1, 'error retrieving player info.'
 
     @staticmethod
@@ -358,19 +352,17 @@ class CommandManager(object):
                 distance = world_session.player_mgr.location.distance(gobject.location)
                 if distance <= max_distance:
                     found_count += 1
-                    ChatManager.send_system_message(world_session,'[%s] - Guid: %u, Entry: %u, Display ID: %u, X: %f, Y: %f, Z: %f, O: %f, Map: %u, Distance: %f' % (
-                        gobject.gobject_template.name,
-                        gobject.guid & ~HighGuid.HIGHGUID_GAMEOBJECT,
-                        gobject.gobject_template.entry,
-                        gobject.display_id,
-                        gobject.location.x,
-                        gobject.location.y,
-                        gobject.location.z,
-                        gobject.location.o,
-                        gobject.map_,
-                        distance
-                    ))
-            return 0, '%u game objects found within %u distance units.' % (found_count, max_distance)
+                    ChatManager.send_system_message(world_session, f'[{gobject.gobject_template.name}] - Guid: {gobject.guid & ~HighGuid.HIGHGUID_GAMEOBJECT}, '
+                                                                   f'Entry: {gobject.gobject_template.entry}, '
+                                                                   f'Display ID: {gobject.display_id}, '
+                                                                   f'X: {gobject.location.x}, '
+                                                                   f'Y: {gobject.location.y}, '
+                                                                   f'Z: {gobject.location.z}, '
+                                                                   f'O: {gobject.location.o}, '
+                                                                   f'Map: {gobject.map_}, '
+                                                                   f'Distance: {distance}'
+                                                    )
+            return 0, f'{found_count} game objects found within {max_distance} distance units.'
         except ValueError:
             return -1, 'please specify a valid distance.'
 

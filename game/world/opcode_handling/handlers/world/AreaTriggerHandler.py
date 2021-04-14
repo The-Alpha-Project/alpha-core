@@ -21,7 +21,7 @@ class AreaTriggerHandler(object):
                                                                                   location.target_orientation))
                 else:
                     # SMSG_AREA_TRIGGER_MESSAGE in 1.x, but this OpCode seems to be missing in 0.5.3
-                    ChatManager.send_system_message(world_session, 'You must be at least level %u to enter.' %
-                                                    location.required_level)
+                    ChatManager.send_system_message(world_session,
+                                                    f'You must be at least level {location.required_level} to enter.')
 
         return 0

@@ -7,12 +7,13 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from database.dbc.DbcModels import *
 from utils.ConfigManager import *
 
-dbc_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (
-                    os.getenv('MYSQL_USERNAME', config.Database.Connection.username),
-                    os.getenv('MYSQL_PASSWORD', config.Database.Connection.password),
-                    os.getenv('MYSQL_HOST', config.Database.Connection.host),
-                    config.Database.DBNames.dbc_db
-                ), pool_pre_ping=True)
+DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
+DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
+DB_HOST = os.getenv('MYSQL_HOST', config.Database.Connection.host)
+DB_DBC_NAME = config.Database.DBNames.dbc_db
+
+dbc_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_DBC_NAME}?charset=utf8mb4',
+                              pool_pre_ping=True)
 SessionHolder = scoped_session(sessionmaker(bind=dbc_db_engine, autocommit=True, autoflush=True))
 
 

@@ -300,7 +300,7 @@ class ChannelManager(object):
         if channel in ChannelManager.CHANNELS[sender.team]:
             len_members = len(ChannelManager.CHANNELS[sender.team][channel].members)
             name_bytes = PacketWriter.string_to_bytes(ChannelManager.CHANNELS[sender.team][channel].name)
-            data = pack('<%usBI' % len(name_bytes), name_bytes, 0x3, len_members)  # TODO '0x3' Unknown flags.
+            data = pack(f'<{len(name_bytes)}sBI', name_bytes, 0x3, len_members)  # TODO '0x3' Unknown flags.
 
             for member in ChannelManager.CHANNELS[sender.team][channel].members:
                 data += pack('<Q', member.guid)
@@ -523,7 +523,7 @@ class ChannelManager(object):
     @staticmethod
     def build_notify_packet(channel, notification_type, target1=None, target2=None, player_name=None, flags=None):
         channel_name_bytes = PacketWriter.string_to_bytes(channel)
-        data = pack('<B%us' % len(channel_name_bytes), notification_type, channel_name_bytes)
+        data = pack(f'<B{len(channel_name_bytes)}s', notification_type, channel_name_bytes)
 
         if target1:
             data += pack('<Q', target1.guid)
@@ -531,7 +531,7 @@ class ChannelManager(object):
             data += pack('<Q', target2.guid)
         if player_name:
             sender_name_bytes = PacketWriter.string_to_bytes(player_name)
-            data += pack('<%us' % len(sender_name_bytes), sender_name_bytes)
+            data += pack(f'<{len(sender_name_bytes)}s', sender_name_bytes)
         if flags:
             data += pack('<2B', flags[0], flags[1])
 

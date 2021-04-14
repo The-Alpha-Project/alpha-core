@@ -18,19 +18,19 @@ class GuildRosterHandler(object):
         else:
             guild_name = PacketWriter.string_to_bytes(player.guild_manager.guild_name)
             data = pack(
-                '<%us' % len(guild_name),
+                f'<{len(guild_name)}s',
                 guild_name
             )
 
             # Members count
             data += pack('<I', len(player.guild_manager.members))
-            # TODO: Nº of accounts
+            # TODO: Number of accounts
             data += pack('<I', 0)
 
             for member in player.guild_manager.members.values():
                 player_name = PacketWriter.string_to_bytes(member.player.name)
                 data += pack(
-                    '<%usI' % len(player_name),
+                    f'<{len(player_name)}sI',
                     player_name,
                     member.guild_manager.get_guild_rank(member)
                 )

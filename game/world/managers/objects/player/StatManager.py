@@ -39,7 +39,7 @@ class StatManager(object):
                                                                  self.player_mgr.player.race)
 
         if not base_stats or not base_attrs:
-            Logger.error("Unsupported level (%d) from %s." % (self.player_mgr.level, self.player_mgr.player.name))
+            Logger.error(f'Unsupported level ({self.player_mgr.level}) from {self.player_mgr.player.name}.')
             return
 
         self.player_mgr.base_hp = base_stats.basehp

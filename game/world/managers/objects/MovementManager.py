@@ -117,7 +117,7 @@ class MovementManager(object):
             current_id += 1
 
         data += pack(
-            '<2I%us' % len(waypoints_data),
+            f'<2I{len(waypoints_data)}s',
             int(total_time * 1000),
             waypoints_length,
             waypoints_data

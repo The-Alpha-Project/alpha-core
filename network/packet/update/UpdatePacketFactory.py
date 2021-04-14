@@ -28,7 +28,7 @@ class UpdatePacketFactory(object):
             self.update(index, int(value & 0xFFFFFFFF), 'I')
             self.update(index + 1, int(value >> 32), 'I')
         else:
-            self.update_values[index] = pack('<%s' % value_type, value)
+            self.update_values[index] = pack(f'<{value_type}', value)
             self.update_mask.set_bit(index)
 
     @staticmethod

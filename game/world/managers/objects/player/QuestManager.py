@@ -237,7 +237,7 @@ class QuestManager(object):
     def send_quest_giver_quest_list(self, message, quest_giver_guid, quests):
         message_bytes = PacketWriter.string_to_bytes(message)
         data = pack(
-            '<Q%us2iB' % len(message_bytes),
+            f'<Q{len(message_bytes)}s2iB',
             quest_giver_guid,
             message_bytes,
             0,  # TODO: Gossip menu count
@@ -248,7 +248,7 @@ class QuestManager(object):
         for entry in quests:
             quest_title = PacketWriter.string_to_bytes(quests[entry].quest.Title)
             data += pack(
-                '<3I%us' % len(quest_title),
+                f'<3I{len(quest_title)}s',
                 entry,
                 quests[entry].status,
                 quests[entry].quest.QuestLevel,
@@ -282,7 +282,7 @@ class QuestManager(object):
         quest_details = PacketWriter.string_to_bytes(quest.Details)
         quest_objectives = PacketWriter.string_to_bytes(quest.Objectives)
         data = pack(
-            '<QI%us%us%usI' % (len(quest_title), len(quest_details), len(quest_objectives)),
+            f'<QI{len(quest_title)}s{len(quest_details)}s{len(quest_objectives)}sI',
             quest_giver_guid,
             quest.entry,
             quest_title,

@@ -233,7 +233,7 @@ class CreatureManager(UnitManager):
         name_bytes = PacketWriter.string_to_bytes(self.creature_template.name)
         subname_bytes = PacketWriter.string_to_bytes(self.creature_template.subname)
         data = pack(
-            '<I%ussss%us3I' % (len(name_bytes), len(subname_bytes)),
+            f'<I{len(name_bytes)}ssss{len(subname_bytes)}s3I',
             self.entry,
             name_bytes, b'\x00', b'\x00', b'\x00',
             subname_bytes,

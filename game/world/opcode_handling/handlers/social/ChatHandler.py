@@ -50,8 +50,7 @@ class ChatHandler(object):
             target_name = PacketReader.read_string(reader.data, 8).strip()
             target_player_mgr = WorldSessionStateHandler.find_player_by_name(target_name)
             if not target_player_mgr:
-                ChatManager.send_system_message(world_session, 'No player named \'%s\' is currently playing.'
-                                                % target_name.capitalize())
+                ChatManager.send_system_message(world_session, f'No player named \'{target_name.capitalize()}\' is currently playing.')
                 return 0
             message = PacketReader.read_string(reader.data, 8 + len(target_name)+1)
             if not ChatHandler.check_if_command(world_session, message):

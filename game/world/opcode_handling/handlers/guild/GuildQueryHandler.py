@@ -17,7 +17,7 @@ class GuildQueryHandler(object):
 
             name_bytes = PacketWriter.string_to_bytes(guild.guild_name)
             data += pack(
-                '<%us' % len(name_bytes),
+                f'<{len(name_bytes)}s',
                 name_bytes,
             )
 
