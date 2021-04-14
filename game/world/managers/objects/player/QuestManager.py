@@ -4,6 +4,7 @@ from typing import NamedTuple
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
 from database.world.WorldModels import QuestTemplate
+from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import QuestGiverStatus, QuestStatus, QuestFailedReasons, ObjectTypes
 
@@ -257,12 +258,28 @@ class QuestManager(object):
         self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_LIST, data))
 
     def send_quest_giver_quest_details(self, quest, quest_giver_guid, activate_accept):
+        # Send item query details and return item struct segments of SMSG_QUESTGIVER_QUEST_DETAILS
+        def _gen_item_reward_struct(item_entry, count):
+            item_template = WorldDatabaseManager.item_template_get_by_entry(item_entry)
+            display_id = 0
+            if item_template:
+                item_mgr = ItemManager(item_template=item_template)
+                self.player_mgr.session.request.sendall(item_mgr.query_details())
+                display_id = item_template.display_id
+
+            return pack(
+                '<3I',
+                item_entry,
+                count,
+                display_id
+            )
+
         # Quest information
         quest_title = PacketWriter.string_to_bytes(quest.Title)
         quest_details = PacketWriter.string_to_bytes(quest.Details)
         quest_objectives = PacketWriter.string_to_bytes(quest.Objectives)
         data = pack(
-            '<QL%us%us%usL' % (len(quest_title), len(quest_details), len(quest_objectives)),
+            '<QI%us%us%usI' % (len(quest_title), len(quest_details), len(quest_objectives)),
             quest_giver_guid,
             quest.entry,
             quest_title,
@@ -274,53 +291,35 @@ class QuestManager(object):
         # Reward choices
         rew_choice_item_list = self.generate_rew_choice_item_list(quest)
         rew_choice_count_list = self.generate_rew_choice_count_list(quest)
-        data += pack('<L', len(rew_choice_item_list))
+        data += pack('<I', len(rew_choice_item_list))
         for index, item in enumerate(rew_choice_item_list):
-            item_template = WorldDatabaseManager.item_template_get_by_entry(item)
-            data += pack(
-                '<3L',
-                item,
-                rew_choice_count_list[index],
-                item_template.display_id
-            )
+            data += _gen_item_reward_struct(item, rew_choice_count_list[index])
 
         # Reward items
         rew_item_list = self.generate_rew_item_list(quest)
         rew_count_list = self.generate_rew_count_list(quest)
-        data += pack('<L', len(rew_item_list))
+        data += pack('<I', len(rew_item_list))
         for index, item in enumerate(rew_item_list):
-            # TODO: Query item check
-            item_template = WorldDatabaseManager.item_template_get_by_entry(item)
-            data += pack(
-                '<3L',
-                item,
-                rew_count_list[index],
-                item_template.display_id if item_template.display_id else 0
-            )
+            data += _gen_item_reward_struct(item, rew_count_list[index])
 
         # Reward money
-        data += pack('<L', quest.RewOrReqMoney)
+        data += pack('<I', quest.RewOrReqMoney)
 
         # Required items
         req_item_list = self.generate_req_item_list(quest)
         req_count_list = self.generate_req_count_list(quest)
-        data += pack('<L', len(req_item_list))
+        data += pack('<I', len(req_item_list))
         for index, item in enumerate(req_item_list):
-            # TODO: Query item check
-            data += pack(
-                '<2L',
-                item,
-                req_count_list[index],
-            )
+            data += _gen_item_reward_struct(item, req_count_list[index])
 
         # Required kill / item count
         req_creature_or_go_list = self.generate_req_creature_or_go_list(quest)
         req_creature_or_go_count_list = self.generate_req_creature_or_go_count_list(quest)
-        data += pack('<L', len(req_creature_or_go_list))
+        data += pack('<I', len(req_creature_or_go_list))
         for index, creature_or_go in enumerate(req_creature_or_go_list):
             data += pack(
-                '<2L',
-                creature_or_go if creature_or_go >= 0 else creature_or_go * -1 or 0x80000000,
+                '<2I',
+                creature_or_go if creature_or_go >= 0 else (creature_or_go * -1) | 0x80000000,
                 req_creature_or_go_count_list[index]
             )
 
