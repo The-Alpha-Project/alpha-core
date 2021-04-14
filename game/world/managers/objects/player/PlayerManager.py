@@ -73,7 +73,7 @@ class PlayerManager(UnitManager):
         self.race_mask = 0
         self.class_mask = 0
         self.deathbind = deathbind
-        self.team = Teams.TEAM_NONE #Set @ set_player_variables().
+        self.team = Teams.TEAM_NONE  # Set at set_player_variables().
         self.trade_data = None
         self.last_regen = 0
         self.spirit_release_timer = 0
@@ -221,7 +221,9 @@ class PlayerManager(UnitManager):
             else:
                 self.guild_manager.leave(self)
 
+        # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
+
         self.friends_manager.send_offline_notification()
         self.online = False
         self.session.save_character()
@@ -494,7 +496,7 @@ class PlayerManager(UnitManager):
         # If in party, check if this player has rights to release the loot for FFA
         elif enemy and enemy.killed_by and enemy.killed_by.group_manager:
             if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
-                if not enemy.loot_manager.has_loot(): #Flush looters for this enemy
+                if not enemy.loot_manager.has_loot():  # Flush looters for this enemy.
                     enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
                 enemy.killed_by = None
 

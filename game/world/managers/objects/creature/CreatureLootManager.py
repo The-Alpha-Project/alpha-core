@@ -38,12 +38,12 @@ class CreatureLootManager(LootManager):
         # Not tagged, anyone can loot.
         if not victim.killed_by:
             loot_type = LootTypes.LOOT_TYPE_CORPSE
-
-        # Killer has party and loot_method allows player to loot
+        # Killer has party and loot_method allows player to loot.
         elif victim.killed_by and victim.killed_by.group_manager and victim.killed_by.group_manager.is_party_member(player):
             if player in victim.killed_by.group_manager.get_allowed_looters(victim):
                 loot_type = LootTypes.LOOT_TYPE_CORPSE
-        elif victim.killed_by == player: # No party but looter is the actual killer.
+        # No party but looter is the actual killer.
+        elif victim.killed_by == player:
             loot_type = LootTypes.LOOT_TYPE_CORPSE
 
         return loot_type

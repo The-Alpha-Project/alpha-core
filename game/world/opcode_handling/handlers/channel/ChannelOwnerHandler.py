@@ -24,4 +24,5 @@ class ChannelOwnerHandler(object):
             ChannelManager.set_owner(channel, world_session.player_mgr, target_player_mgr)
         else:
             ChatManager.send_system_message(world_session, f'No player named [{player_name}] is currently playing.')
+
         return 0

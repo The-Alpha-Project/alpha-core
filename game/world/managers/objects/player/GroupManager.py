@@ -11,7 +11,6 @@ MAX_GROUP_SIZE = 5
 
 # TODO: 0.5.3 has no SMSG_LOOT_MASTER_LIST nor CMSG_LOOT_MASTER_GIVE, how exactly they handled ML?
 class GroupManager(object):
-
     def __init__(self, player_mgr):
         self.party_leader = player_mgr
         self.members = {player_mgr.guid: player_mgr}
@@ -21,7 +20,7 @@ class GroupManager(object):
         self.party_leader.set_group_leader(True)
         self.party_leader.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
         self.allowed_looters = {}
-        self._last_looter = None # For RR, cycle will start at leader.
+        self._last_looter = None  # For Round Robin, cycle will start at leader.
 
     def try_add_member(self, player_mgr, invite):
         # Check if new player is not in a group already and if we have space.
@@ -94,7 +93,7 @@ class GroupManager(object):
         data += pack(
             '<BQ',
             self.loot_method,
-            0 if not self.master_looter else self.master_looter.guid # Master Looter guid
+            0 if not self.master_looter else self.master_looter.guid  # Master Looter guid
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
@@ -110,7 +109,7 @@ class GroupManager(object):
                 member.set_group_leader(False)
                 member.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
 
-                if is_kicked and member == player_mgr: # 'You have been removed from the group.'
+                if is_kicked and member == player_mgr:  # 'You have been removed from the group.' message
                     packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_UNINVITE)
                     player_mgr.session.request.sendall(packet)
 
@@ -192,8 +191,9 @@ class GroupManager(object):
         elif self.loot_method == LootMethods.LOOT_METHOD_ROUNDROBIN:
             if not self._last_looter:
                 self._last_looter = self.party_leader
-                return  [self._last_looter]
+                return [self._last_looter]
             return [self._get_next_looter(self._last_looter)]
+        return []
 
     def _set_previous_looter(self, player_mgr):
         _list = list(self.members.values())

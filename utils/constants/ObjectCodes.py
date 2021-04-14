@@ -632,41 +632,44 @@ class BankSlotErrors(IntEnum):
     BANKSLOT_ERROR_NOTBANKER = 2
     BANKSLOT_ERROR_OK = 3
 
+
 class ChannelMemberFlags(IntEnum):
-    None_ = 0x0,
-    Owner = 0x1,
-    Moderator = 0x2,
-    Voice = 0x4,
+    NONE = 0x0
+    OWNER = 0x1
+    MODERATOR = 0x2
+    VOICE = 0x4
+
 
 class ChannelNotifications(IntEnum):
-    PlayerJoined = 0x00,
-    PlayerLeft = 0x01,
-    YouJoined = 0x02,
-    YouLeft = 0x03,
-    WrongPassword = 0x04,
-    NotMember = 0x05,
-    NotModerator = 0x06,
-    PasswordChanged = 0x07,
-    OwnerChanged = 0x08,
-    PlayerNotFound = 0x09,
-    NotOwner = 0x0A,
-    ChannelOwner = 0x0B,
-    MemberFlagChange = 0x0C,
-    Moderator = 0x0C,
-    AnnouncementsOn = 0x0D,
-    AnnouncementsOff = 0x0E,
-    ModerationOn = 0x0F,
-    ModerationOff = 0x10,
-    SelfMuted = 0x11,
-    Kicked = 0x12,
-    PlayerBanned = 0x13,
-    Banned = 0x14,
-    Unbanned = 0x15,
-    PlayerNotBanned = 0x16,
-    PlayerAlreadyMember = 0x17,
-    Invite = 0x18,
-    InviteWrongFaction = 0x19,
-    WrongFaction = 0x1A
+    PLAYER_JOINED = 0x00
+    PLAYER_LEFT = 0x01
+    YOU_JOINED = 0x02
+    YOU_LEFT = 0x03
+    WRONG_PASSWORD = 0x04
+    NOT_MEMBER = 0x05
+    NOT_MODERATOR = 0x06
+    PASSWORD_CHANGED = 0x07
+    OWNER_CHANGED = 0x08
+    PLAYER_NOT_FOUND = 0x09
+    NOT_OWNER = 0x0A
+    CHANNEL_OWNER = 0x0B
+    MEMBER_FLAG_CHANGE = 0x0C
+    MODERATOR = 0x0C
+    ANNOUNCEMENTS_ON = 0x0D
+    ANNOUNCEMENTS_OFF = 0x0E
+    MODERATION_ON = 0x0F
+    MODERATION_OFF = 0x10
+    SELF_MUTED = 0x11
+    KICKED = 0x12
+    PLAYER_BANNED = 0x13
+    BANNED = 0x14
+    UNBANNED = 0x15
+    PLAYER_NOT_BANNED = 0x16
+    PLAYER_ALREADY_MEMBER = 0x17
+    INVITE = 0x18
+    INVITE_WRONG_FACTION = 0x19
+    WRONG_FACTION = 0x1A
+
 
 class GuildTypeCommand(IntEnum):
     GUILD_CREATE_S = 0x00
