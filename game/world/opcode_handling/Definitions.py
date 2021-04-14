@@ -75,6 +75,7 @@ from game.world.opcode_handling.handlers.group.GroupUnInviteHandler import Group
 from game.world.opcode_handling.handlers.group.GroupUnInviteGuidHandler import GroupUnInviteGuidHandler
 from game.world.opcode_handling.handlers.group.GroupDisbandHandler import GroupDisbandHandler
 from game.world.opcode_handling.handlers.group.GroupSetLeaderHandler import GroupSetLeaderHandler
+from game.world.opcode_handling.handlers.group.GroupLootMethodHandler import GroupLootMethodHandler
 from game.world.opcode_handling.handlers.group.MinimapPingHandler import MinimapPingHandler
 from game.world.opcode_handling.handlers.guild.GuildCreateHandler import GuildCreateHandler
 from game.world.opcode_handling.handlers.guild.GuildQueryHandler import GuildQueryHandler
@@ -95,7 +96,17 @@ from game.world.opcode_handling.handlers.friends.FriendAddHandler import FriendA
 from game.world.opcode_handling.handlers.friends.FriendIgnoreHandler import FriendIgnoreHandler
 from game.world.opcode_handling.handlers.friends.FriendDeleteHandler import FriendDeleteHandler
 from game.world.opcode_handling.handlers.friends.FriendDeleteIgnoreHandler import FriendDeleteIgnoreHandler
-
+from game.world.opcode_handling.handlers.channel.ChannelJoinHandler import ChannelJoinHandler
+from game.world.opcode_handling.handlers.channel.ChannelLeaveHandler import ChannelLeaveHandler
+from game.world.opcode_handling.handlers.channel.ChannelInviteHandler import ChannelInviteHandler
+from game.world.opcode_handling.handlers.channel.ChannelBanHandler import ChannelBanHandler
+from game.world.opcode_handling.handlers.channel.ChannelKickHandler import ChannelKickHandler
+from game.world.opcode_handling.handlers.channel.ChannelAnnounceHandler import ChannelAnnounceHandler
+from game.world.opcode_handling.handlers.channel.ChannelListHandler import ChannelListHandler
+from game.world.opcode_handling.handlers.channel.ChannelModeratorHandler import ChannelModeratorHandler
+from game.world.opcode_handling.handlers.channel.ChannelMuteHandler import ChannelMuteHandler
+from game.world.opcode_handling.handlers.channel.ChannelOwnerHandler import ChannelOwnerHandler
+from game.world.opcode_handling.handlers.channel.ChannelPasswordHandler import ChannelPasswordHandler
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -205,6 +216,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GROUP_UNINVITE: GroupUnInviteHandler.handle,
     OpCode.CMSG_GROUP_UNINVITE_GUID: GroupUnInviteGuidHandler.handle,
     OpCode.CMSG_GROUP_SET_LEADER: GroupSetLeaderHandler.handle,
+    OpCode.CMSG_LOOT_METHOD: GroupLootMethodHandler.handle,
     OpCode.MSG_MINIMAP_PING: MinimapPingHandler.handle,
     OpCode.CMSG_GUILD_CREATE: GuildCreateHandler.handle,
     OpCode.CMSG_GUILD_QUERY: GuildQueryHandler.handle,
@@ -225,6 +237,22 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_ADD_IGNORE: FriendIgnoreHandler.handle,
     OpCode.CMSG_DEL_FRIEND: FriendDeleteHandler.handle,
     OpCode.CMSG_DEL_IGNORE: FriendDeleteIgnoreHandler.handle,
+    OpCode.CMSG_JOIN_CHANNEL: ChannelJoinHandler.handle,
+    OpCode.CMSG_LEAVE_CHANNEL: ChannelLeaveHandler.handle,
+    OpCode.CMSG_CHANNEL_INVITE: ChannelInviteHandler.handle,
+    OpCode.CMSG_CHANNEL_KICK: ChannelKickHandler.handle,
+    OpCode.CMSG_CHANNEL_BAN: ChannelBanHandler.handle_ban,
+    OpCode.CMSG_CHANNEL_UNBAN: ChannelBanHandler.handle_unban,
+    OpCode.CMSG_CHANNEL_MODERATOR: ChannelModeratorHandler.handle_add_mod,
+    OpCode.CMSG_CHANNEL_UNMODERATOR: ChannelModeratorHandler.handle_remove_mod,
+    OpCode.CMSG_CHANNEL_MODERATE: ChannelModeratorHandler.handle_moderate,
+    OpCode.CMSG_CHANNEL_MUTE: ChannelMuteHandler.handle_mute,
+    OpCode.CMSG_CHANNEL_UNMUTE: ChannelMuteHandler.handle_unmute,
+    OpCode.CMSG_CHANNEL_ANNOUNCEMENTS: ChannelAnnounceHandler.handle,
+    OpCode.CMSG_CHANNEL_OWNER: ChannelOwnerHandler.handle,
+    OpCode.CMSG_CHANNEL_SET_OWNER: ChannelOwnerHandler.handle_set_owner,
+    OpCode.CMSG_CHANNEL_PASSWORD: ChannelPasswordHandler.handle,
+    OpCode.CMSG_CHANNEL_LIST: ChannelListHandler.handle,
 }
 
 

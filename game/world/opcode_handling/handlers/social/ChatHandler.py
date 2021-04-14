@@ -27,6 +27,12 @@ class ChatHandler(object):
         if world_session.player_mgr.is_gm:
             lang = Languages.LANG_UNIVERSAL
 
+        # Channel
+        if chat_type == ChatMsgs.CHAT_MSG_CHANNEL:
+            channel = PacketReader.read_string(reader.data, 8).strip()
+            message = PacketReader.read_string(reader.data, 8 + len(channel)+1)
+            ChatManager.send_channel_message(world_session.player_mgr, channel, message, lang)
+
         # Say, Yell, Emote
         if chat_type == ChatMsgs.CHAT_MSG_SAY \
                 or chat_type == ChatMsgs.CHAT_MSG_EMOTE \

@@ -11,7 +11,10 @@ class GroupInviteHandler(object):
         target_name = PacketReader.read_string(reader.data, 0).strip()
         target_player_mgr = WorldSessionStateHandler.find_player_by_name(target_name)
 
-        if target_player_mgr:
+        if world_session.player_mgr.group_manager and world_session.player_mgr.group_manager.is_full:
+            GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_INVITE, '',
+                                                     PartyResults.ERR_GROUP_FULL)
+        elif target_player_mgr:
             GroupManager.invite_player(world_session.player_mgr, target_player_mgr)
         else:
             GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_INVITE,
