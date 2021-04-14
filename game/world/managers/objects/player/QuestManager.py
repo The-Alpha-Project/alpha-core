@@ -259,7 +259,7 @@ class QuestManager(object):
 
     def send_quest_giver_quest_details(self, quest, quest_giver_guid, activate_accept):
         # Send item query details and return item struct segments of SMSG_QUESTGIVER_QUEST_DETAILS
-        def _gen_item_reward_struct(item_entry, count):
+        def _gen_item_struct(item_entry, count):
             item_template = WorldDatabaseManager.item_template_get_by_entry(item_entry)
             display_id = 0
             if item_template:
@@ -293,14 +293,14 @@ class QuestManager(object):
         rew_choice_count_list = self.generate_rew_choice_count_list(quest)
         data += pack('<I', len(rew_choice_item_list))
         for index, item in enumerate(rew_choice_item_list):
-            data += _gen_item_reward_struct(item, rew_choice_count_list[index])
+            data += _gen_item_struct(item, rew_choice_count_list[index])
 
         # Reward items
         rew_item_list = self.generate_rew_item_list(quest)
         rew_count_list = self.generate_rew_count_list(quest)
         data += pack('<I', len(rew_item_list))
         for index, item in enumerate(rew_item_list):
-            data += _gen_item_reward_struct(item, rew_count_list[index])
+            data += _gen_item_struct(item, rew_count_list[index])
 
         # Reward money
         data += pack('<I', quest.RewOrReqMoney)
@@ -310,7 +310,7 @@ class QuestManager(object):
         req_count_list = self.generate_req_count_list(quest)
         data += pack('<I', len(req_item_list))
         for index, item in enumerate(req_item_list):
-            data += _gen_item_reward_struct(item, req_count_list[index])
+            data += _gen_item_struct(item, req_count_list[index])
 
         # Required kill / item count
         req_creature_or_go_list = self.generate_req_creature_or_go_list(quest)
