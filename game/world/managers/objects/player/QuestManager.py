@@ -259,7 +259,7 @@ class QuestManager(object):
 
     def send_quest_giver_quest_details(self, quest, quest_giver_guid, activate_accept):
         # Send item query details and return item struct segments of SMSG_QUESTGIVER_QUEST_DETAILS
-        def _gen_item_struct(item_entry, count):
+        def _gen_item_struct(item_entry, count, include_display_id=True):
             item_template = WorldDatabaseManager.item_template_get_by_entry(item_entry)
             display_id = 0
             if item_template:
@@ -267,12 +267,15 @@ class QuestManager(object):
                 self.player_mgr.session.request.sendall(item_mgr.query_details())
                 display_id = item_template.display_id
 
-            return pack(
-                '<3I',
+            item_data = pack(
+                '<2I',
                 item_entry,
-                count,
-                display_id
+                count
             )
+            if include_display_id:
+                item_data += pack('<I', display_id)
+
+            return item_data
 
         # Quest information
         quest_title = PacketWriter.string_to_bytes(quest.Title)
@@ -310,7 +313,7 @@ class QuestManager(object):
         req_count_list = self.generate_req_count_list(quest)
         data += pack('<I', len(req_item_list))
         for index, item in enumerate(req_item_list):
-            data += _gen_item_struct(item, req_count_list[index])
+            data += _gen_item_struct(item, req_count_list[index], include_display_id=False)
 
         # Required kill / item count
         req_creature_or_go_list = self.generate_req_creature_or_go_list(quest)
