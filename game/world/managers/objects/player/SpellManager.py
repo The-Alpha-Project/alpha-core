@@ -8,7 +8,7 @@ from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
-    SpellMissReason, SpellTargetMask, SpellState
+    SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellTargetType, SpellAttributes
 
 
 class CastingSpell(object):
@@ -38,12 +38,134 @@ class CastingSpell(object):
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0
 
+    def cast_on_swing(self):
+        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 == SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1
+
     def get_base_cast_time(self):
         skill = self.spell_caster.skill_manager.get_skill_for_spell_id(self.spell_entry.ID)
         if not skill:
             return self.cast_time_entry.Minimum
 
         return int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill.value))
+
+    def get_effects(self):
+        effects = []
+        if self.spell_entry.Effect_1 != 0:
+            effects.append(SpellEffect(self.spell_entry, 1))
+        if self.spell_entry.Effect_2 != 0:
+            effects.append(SpellEffect(self.spell_entry, 2))
+        if self.spell_entry.Effect_3 != 0:
+            effects.append(SpellEffect(self.spell_entry, 3))
+        return effects
+
+class SpellEffect(object):
+    effect_type: SpellEffects
+    die_sides: int
+    base_dice: int
+    dice_per_level: int
+    real_points_per_level: int
+    base_points: int
+    implicit_target_a: SpellTargetType
+    implicit_target_b: SpellTargetType
+    radius_index: int
+    aura_id: int
+    aura_period: int
+    amplitude: int
+    chain_targets: int
+    item_type: int
+    misc_value: int
+    trigger_spell: int
+
+    def __init__(self, spell, index):
+        if index == 1:
+            self.load_first(spell)
+        elif index == 2:
+            self.load_second(spell)
+        elif index == 3:
+            self.load_third(spell)
+
+    def load_first(self, spell):
+        self.effect_type = spell.Effect_1
+        self.die_sides = spell.EffectDieSides_1
+        self.base_dice = spell.EffectBaseDice_1
+        self.dice_per_level = spell.EffectDicePerLevel_1
+        self.real_points_per_level = spell.EffectRealPointsPerLevel_1
+        self.base_points = spell.EffectBasePoints_1
+        self.implicit_target_a = spell.ImplicitTargetA_1
+        self.implicit_target_b = spell.ImplicitTargetB_1
+        self.radius_index = spell.EffectRadiusIndex_1
+        self.aura_id = spell.EffectAura_1
+        self.aura_period = spell.EffectAuraPeriod_1
+        self.amplitude = spell.EffectAmplitude_1
+        self.chain_targets = spell.EffectChainTargets_1
+        self.item_type = spell.EffectItemType_1
+        self.misc_value = spell.EffectMiscValue_1
+        self.trigger_spell = spell.EffectTriggerSpell_1
+        
+    def load_second(self, spell):
+        self.effect_type = spell.Effect_2
+        self.die_sides = spell.EffectDieSides_2
+        self.base_dice = spell.EffectBaseDice_2
+        self.dice_per_level = spell.EffectDicePerLevel_2
+        self.real_points_per_level = spell.EffectRealPointsPerLevel_2
+        self.base_points = spell.EffectBasePoints_2
+        self.implicit_target_a = spell.ImplicitTargetA_2
+        self.implicit_target_b = spell.ImplicitTargetB_2
+        self.radius_index = spell.EffectRadiusIndex_2
+        self.aura_id = spell.EffectAura_2
+        self.aura_period = spell.EffectAuraPeriod_2
+        self.amplitude = spell.EffectAmplitude_2
+        self.chain_targets = spell.EffectChainTargets_2
+        self.item_type = spell.EffectItemType_2
+        self.misc_value = spell.EffectMiscValue_2
+        self.trigger_spell = spell.EffectTriggerSpell_2
+
+    def load_third(self, spell):
+        self.effect_type = spell.Effect_3
+        self.die_sides = spell.EffectDieSides_3
+        self.base_dice = spell.EffectBaseDice_3
+        self.dice_per_level = spell.EffectDicePerLevel_3
+        self.real_points_per_level = spell.EffectRealPointsPerLevel_3
+        self.base_points = spell.EffectBasePoints_3
+        self.implicit_target_a = spell.ImplicitTargetA_3
+        self.implicit_target_b = spell.ImplicitTargetB_3
+        self.radius_index = spell.EffectRadiusIndex_3
+        self.aura_id = spell.EffectAura_3
+        self.aura_period = spell.EffectAuraPeriod_3
+        self.amplitude = spell.EffectAmplitude_3
+        self.chain_targets = spell.EffectChainTargets_3
+        self.item_type = spell.EffectItemType_3
+        self.misc_value = spell.EffectMiscValue_3
+        self.trigger_spell = spell.EffectTriggerSpell_3
+    
+
+class SpellEffectHandler(object):  # TODO implement die sides https://wowdev.wiki/DB/Spell
+    @staticmethod
+    def apply_effect(spell, effect, caster, unit):
+        if effect.effect_type not in SPELL_EFFECTS:
+            Logger.debug("Unimplemented effect called: " + str(effect.effect_type))
+            return
+        SPELL_EFFECTS[effect.effect_type](spell, effect, caster, unit)
+
+    @staticmethod
+    def handle_school_damage(spell, effect, caster, unit):
+        damage = int(effect.base_points + effect.real_points_per_level * caster.level)
+        caster.deal_spell_damage(unit, damage, spell.School, spell.ID)
+
+    @staticmethod
+    def handle_heal(spell, effect, caster, unit):
+        healing = int(effect.base_points + effect.real_points_per_level * caster.level)
+
+    @staticmethod
+    def handle_weapon_damage(spell, effect, caster, unit):
+        damage = int(caster.calculate_damage + effect.base_points)
+        caster.deal_spell_damage(unit, damage, spell.School, spell.ID)
+
+SPELL_EFFECTS = {
+    SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
+    SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
+    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage
+}
 
 
 class SpellManager(object):
@@ -82,14 +204,17 @@ class SpellManager(object):
 
     def handle_cast_attempt(self, spell_id, caster, target_guid, target_mask):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
-        if not self.can_cast_spell(spell):
+        if not spell:
             return
-        spell_target = GridManager.get_surrounding_unit_by_guid(caster, target_guid) if target_guid else caster
+        spell_target = GridManager.get_surrounding_unit_by_guid(caster, target_guid) if target_guid and target_guid != caster.guid else caster
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 
     def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
         targets = self.build_targets_for_spell(spell, spell_target, target_mask)
         casting_spell = CastingSpell(spell, caster_obj, spell_target, targets, target_mask)  # Initializes dbc references
+
+        if not self.validate_cast(casting_spell):
+            return
 
         if not casting_spell.is_instant_cast():
             self.send_cast_start(casting_spell)
@@ -109,26 +234,58 @@ class SpellManager(object):
             casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED
             casting_spell.spell_delay_end_timestamp = time.time() + travel_time
             return
-        casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
+        elif casting_spell.cast_on_swing():
+            casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED
+            # TODO send spell activate packet ??
 
-    # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Only channeled spells
+        casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
+        # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Only channeled spells
+
+    has_moved = False
+
+    def trigger_melee_swing(self):
+        for casting_spell in self.casting_spells:
+            if not casting_spell.cast_on_swing():
+                continue
+            for effect in casting_spell.get_effects():  # TODO check effect flags
+                SpellEffectHandler.apply_effect(casting_spell.spell_entry, effect,
+                                                casting_spell.spell_caster, casting_spell.initial_target_unit)
+            self.remove_cast(casting_spell)
+
+    def flag_as_moved(self):
+        # TODO temporary way of handling this until movement data can be passed to update()
+        if len(self.casting_spells) == 0:
+            return
+        self.has_moved = True
 
     def update(self, timestamp):
+        moved = self.has_moved
+        self.has_moved = False  # Reset has_moved on every update
         for casting_spell in list(self.casting_spells):
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
                 if casting_spell.cast_end_timestamp <= timestamp:
+                    if not self.validate_cast(casting_spell):  # Spell finished casting, validate again
+                        self.remove_cast(casting_spell)
+                        return
                     self.perform_spell_cast(casting_spell)
                     if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED:  # Spell finished after perform (no impact delay)
-                        self.casting_spells.remove(casting_spell)
-#                else:  # Spell has not finished casting, just do movement check
-
+                        self.remove_cast(casting_spell)
+                elif moved:  # Spell has not finished casting, check movement
+                    self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_MOVING)
+                    self.has_moved = False
+                    return
 
             elif casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
                     casting_spell.spell_delay_end_timestamp <= timestamp:  # Spell was cast already and impact delay is done
-                print("Spell impact")  # TODO
-                casting_spell.spell_caster.deal_damage(casting_spell.initial_target_unit, 10)
-                self.casting_spells.remove(casting_spell)
+                for effect in casting_spell.get_effects():
+                    SpellEffectHandler.apply_effect(casting_spell.spell_entry, effect,
+                                                    casting_spell.spell_caster, casting_spell.initial_target_unit)
+                self.remove_cast(casting_spell)
 
+    def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_CAST_OK):
+        self.casting_spells.remove(casting_spell)
+        if cast_result != SpellCheckCastResult.SPELL_CAST_OK:
+            self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
 
 
     def calculate_time_to_impact(self, casting_spell):
@@ -160,6 +317,7 @@ class SpellManager(object):
         data = pack(signature, *data)
         Logger.debug("sending cast start of spell " + casting_spell.spell_entry.Name_enUS + " with cast time " + str(casting_spell.get_base_cast_time()))
 
+        # TODO send surrounding probably
         self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data))
 
     def send_spell_GO(self, casting_spell):
@@ -208,9 +366,21 @@ class SpellManager(object):
     def is_on_cooldown(self, spell_id):
         return spell_id in self.cooldowns
 
-    def can_cast_spell(self, spell):
-        if not spell or spell.ID not in self.spells:
-            self.send_cast_result(spell.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
+    def validate_cast(self, casting_spell):
+        if not casting_spell.spell_entry or casting_spell.spell_entry.ID not in self.spells:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
+            return False
+
+        if not casting_spell.initial_target_unit:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return False
+
+        if not casting_spell.initial_target_unit or not casting_spell.initial_target_unit.is_alive:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
+            return False
+
+        if self.has_moved:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_MOVING)
             return False
         return True
 
