@@ -231,6 +231,7 @@ class RealmDatabaseManager(object):
             realm_db_session.flush()
             realm_db_session.refresh(character_social)
             realm_db_session.close()
+            return character_social
 
     @staticmethod
     def character_social_delete_friend(character_social):
@@ -239,15 +240,6 @@ class RealmDatabaseManager(object):
             realm_db_session.delete(character_social)
             realm_db_session.flush()
             realm_db_session.close()
-
-    @staticmethod
-    def character_add_friend(character_social):
-        realm_db_session = SessionHolder()
-        realm_db_session.add(character_social)
-        realm_db_session.flush()
-        realm_db_session.refresh(character_social)
-        realm_db_session.close()
-        return character_social
 
     @staticmethod
     def character_get_skills(guid):
