@@ -127,13 +127,7 @@ class MovementManager(object):
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data), self.unit,
                                      include_self=self.is_player)
 
-        # Player should dismount after some seconds have passed since FP destination is reached (Blizzlike).
-        # This is also kind of a hackfix (at least for now) since the client always takes a bit more time to reach
-        # the actual destination than the time you specify in SMSG_MONSTER_MOVE, for some reason.
-        if self.is_player and spline_flag == SplineFlags.SPLINEFLAG_FLYING:
-            self.total_waypoint_time = total_time + (total_distance * 0.0042)  # TODO This can't be normal, investigate ^
-        else:
-            self.total_waypoint_time = total_time
+        self.total_waypoint_time = total_time
 
         # Generate the spline
         spline = MovementSpline()
