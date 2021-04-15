@@ -281,7 +281,7 @@ class ChannelManager(object):
 
     @staticmethod
     def default_checks(channel, sender, check_owner=False, check_moderator=False, target_player=None):
-        # Check if channel exist and requester is in that channel
+        # Check if channel exist and if requester is in that channel
         if not ChannelManager._exist(channel, sender) or not ChannelManager._in_channel(channel, sender):
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(sender, packet)
@@ -300,6 +300,8 @@ class ChannelManager(object):
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
                                                         player_name=target_player.player.name)
             ChannelManager.send_to_player(sender, packet)
+        elif target_player and target_player == sender: # Avoid self ban/kick
+            return False
         else:
             return True
 
@@ -315,25 +317,24 @@ class ChannelManager(object):
 
     @staticmethod
     def list_channel(channel, sender):
-        if channel in ChannelManager.CHANNELS[sender.team]:
+        if not ChannelManager._exist(channel, sender):
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
+            ChannelManager.send_to_player(sender, packet)
+        else:
             len_members = len(ChannelManager.CHANNELS[sender.team][channel].members)
             name_bytes = PacketWriter.string_to_bytes(ChannelManager.CHANNELS[sender.team][channel].name)
             data = pack(f'<{len(name_bytes)}sBI', name_bytes, 0x3, len_members)  # TODO '0x3' Unknown flags.
 
-            for member in ChannelManager.CHANNELS[sender.team][channel].members:
+            for member in ChannelManager._get_members(channel, sender):
                 data += pack('<Q', member.guid)
                 mode = 0
-                if member in ChannelManager.CHANNELS[sender.team][channel].muted:
+                if ChannelManager._is_muted(channel, member):
                     mode |= ChannelMemberFlags.VOICE
-                if member in ChannelManager.CHANNELS[sender.team][channel].moderators \
-                        or member == ChannelManager.CHANNELS[sender.team][channel].owner:
+                if ChannelManager._is_moderator(channel, member) or ChannelManager._is_owner(channel, member):
                     mode |= ChannelMemberFlags.MODERATOR
                 data += pack('<B', mode)
 
             packet = PacketWriter.get_packet(OpCode.SMSG_CHANNEL_LIST, data)
-            ChannelManager.send_to_player(sender, packet)
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(sender, packet)
 
     @staticmethod
@@ -353,21 +354,17 @@ class ChannelManager(object):
 
     @staticmethod
     def broadcast_to_channel(sender, channel, packet, ignore=None):
-        if channel not in ChannelManager.CHANNELS[sender.team]:
+        if not ChannelManager._exist(channel, sender):
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(sender, packet)
-            return
-
-        if sender in ChannelManager.CHANNELS[sender.team][channel].muted:
+        elif ChannelManager._is_muted(sender, channel):
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.SELF_MUTED)
             ChannelManager.send_to_player(sender, packet)
-            return
-
-        for player in ChannelManager.CHANNELS[sender.team][channel].members:
-            if ignore and player in ignore:
-                continue
-
-            player.session.request.sendall(packet)
+        else:
+            for player in ChannelManager._get_members(channel, sender):
+                if ignore and player in ignore:
+                    continue
+                player.session.request.sendall(packet)
 
     @staticmethod
     def build_notify_packet(channel, notification_type, target1=None, target2=None, player_name=None, flags=None):
@@ -393,6 +390,10 @@ class ChannelManager(object):
     @staticmethod
     def _is_default(channel, player_mgr):
         return ChannelManager.CHANNELS[player_mgr.team][channel].is_default
+
+    @staticmethod
+    def _get_members(channel, player_mgr):
+        return list(ChannelManager.CHANNELS[player_mgr.team][channel].members)
 
     @staticmethod
     def _password_ok(channel, player_mgr, password):
