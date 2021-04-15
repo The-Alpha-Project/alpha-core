@@ -127,11 +127,9 @@ class MovementManager(object):
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data), self.unit,
                                      include_self=self.is_player)
 
-        # Player should dismount after some seconds have passed since FP destination is reached (Blizzlike).
-        # This is also kind of a hackfix (at least for now) since the client always takes a bit more time to reach
-        # the actual destination than the time you specify in SMSG_MONSTER_MOVE, for some reason.
+        # Player shouldn't instantly dismount after reaching the taxi destination
         if self.is_player and spline_flag == SplineFlags.SPLINEFLAG_FLYING:
-            self.total_waypoint_time = total_time + (0.25 * waypoints_length)
+            self.total_waypoint_time = total_time + 1.0  # Add 1 extra second
         else:
             self.total_waypoint_time = total_time
 

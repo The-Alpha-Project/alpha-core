@@ -424,7 +424,7 @@ class UnitManager(ObjectManager):
         return 0, 0
 
     def deal_damage(self, target, damage):
-        if not target or damage < 1:
+        if not target or not target.is_alive or damage < 1:
             return
 
         if not self.in_combat:
@@ -444,6 +444,13 @@ class UnitManager(ObjectManager):
 
         update_packet = target.generate_proper_update_packet(is_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
         GridManager.send_surrounding(update_packet, target, include_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
+
+    def deal_spell_damage(self, target, damage, school, spell_id):  # TODO Spell hit damage visual?
+        data = pack('<IQQIIfiii', 1, self.guid, target.guid, spell_id,
+                    damage, damage, school, damage, 0)
+        packet = PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL, data)
+        GridManager.send_surrounding(packet, target, include_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
+        self.deal_damage(target, damage)
 
     def set_current_target(self, guid):
         self.current_target = guid

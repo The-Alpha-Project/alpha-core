@@ -1,6 +1,5 @@
 import time
 from struct import unpack
-from math import pi
 
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
@@ -1027,6 +1026,9 @@ class PlayerManager(UnitManager):
             self.attack_update(elapsed)
             # Waypoints (mostly flying paths) update
             self.movement_manager.update_pending_waypoints(elapsed)
+
+            # SpellManager tick
+            self.spell_manager.update(now)
 
             # Release spirit timer
             if not self.is_alive:

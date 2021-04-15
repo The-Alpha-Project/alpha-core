@@ -77,6 +77,7 @@ from game.world.opcode_handling.handlers.group.GroupDisbandHandler import GroupD
 from game.world.opcode_handling.handlers.group.GroupSetLeaderHandler import GroupSetLeaderHandler
 from game.world.opcode_handling.handlers.group.GroupLootMethodHandler import GroupLootMethodHandler
 from game.world.opcode_handling.handlers.group.MinimapPingHandler import MinimapPingHandler
+from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpellHandler
 from game.world.opcode_handling.handlers.guild.GuildCreateHandler import GuildCreateHandler
 from game.world.opcode_handling.handlers.guild.GuildQueryHandler import GuildQueryHandler
 from game.world.opcode_handling.handlers.guild.GuildInfoHandler import GuildInfoHandler
@@ -177,6 +178,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_TRAINER_LIST: TrainerListHandler.handle,
     OpCode.CMSG_TAXIQUERYAVAILABLENODES: TaxiQueryNodesHandler.handle,
     OpCode.CMSG_ACTIVATETAXI: ActivateTaxiHandler.handle,
+    OpCode.CMSG_CAST_SPELL: CastSpellHandler.handle,
 
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,

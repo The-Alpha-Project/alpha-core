@@ -30,6 +30,10 @@ class MovementHandler(object):
 
                     return 0
 
+                # Send movement info to SpellManager until movement handling is merged to update system
+                if flags & 0xF != 0:  # MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK
+                    world_session.player_mgr.spell_manager.flag_as_moved()
+
                 world_session.player_mgr.transport_id = transport_guid
 
                 world_session.player_mgr.transport.x = transport_x
