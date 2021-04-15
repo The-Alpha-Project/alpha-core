@@ -166,7 +166,7 @@ class SpellAttributes(IntEnum):
     SPELL_ATTR_PROC_FAILURE_BURNS_CHARGE = 0x00000001  # 0
     SPELL_ATTR_RANGED = 0x00000002  # 1 All ranged abilites have this flag
     SPELL_ATTR_ON_NEXT_SWING_1 = 0x00000004  # 2 on next swing
-    SPELL_ATTR_DO_NOT_LOG_IMMUNE_MISSES = 0x00000008  # 3
+    SPELL_ATTR_REQ_EXOTIC_AMMO = 0x00000008  # 3
     SPELL_ATTR_IS_ABILITY = 0x00000010  # 4 isAbility
     SPELL_ATTR_TRADESPELL = 0x00000020  # 5 trade spells will be added by client to a sublist of profession spell
     SPELL_ATTR_PASSIVE = 0x00000040  # 6 Passive spell
