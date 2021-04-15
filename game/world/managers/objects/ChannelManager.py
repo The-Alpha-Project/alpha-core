@@ -1,8 +1,5 @@
 from utils.constants.ObjectCodes import ChannelNotifications, ChannelMemberFlags
-from utils.constants.UnitCodes import Teams
-from network.packet.PacketWriter import *
 from game.world.managers.objects.player.PlayerManager import *
-from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 
 
 class Channel(object):
@@ -72,7 +69,7 @@ class ChannelManager(object):
     @staticmethod
     def add_mute(channel, sender, target_player):
         if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True, target_player=target_player):
-            if ChannelManager._is_muted(channel, target_player): #Already muted, ignore
+            if ChannelManager._is_muted(channel, target_player):  # Already muted, ignore
                 packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.MEMBER_FLAG_CHANGE,
                                                             target_player, flags=[ChannelMemberFlags.VOICE,
                                                                                   ChannelMemberFlags.OWNER])
@@ -86,7 +83,7 @@ class ChannelManager(object):
     @staticmethod
     def remove_mute(channel, sender, target_player):
         if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True, target_player=target_player):
-            if not ChannelManager._is_muted(channel, target_player): #Already not muted, ignore
+            if not ChannelManager._is_muted(channel, target_player):  # Already not muted, ignore
                 packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.MEMBER_FLAG_CHANGE,
                                                             target_player, flags=[ChannelMemberFlags.OWNER,
                                                                                   ChannelMemberFlags.VOICE])
@@ -101,7 +98,7 @@ class ChannelManager(object):
     @staticmethod
     def add_mod(channel, sender, target_player):
         if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=False, target_player=target_player):
-            if not ChannelManager._is_moderator(channel, target_player): # Already mod, ignore
+            if not ChannelManager._is_moderator(channel, target_player):  # Already mod, ignore
                 packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.MEMBER_FLAG_CHANGE,
                                                             target_player, flags=[ChannelMemberFlags.OWNER,
                                                                                   ChannelMemberFlags.MODERATOR])
@@ -116,7 +113,7 @@ class ChannelManager(object):
     @staticmethod
     def remove_mod(channel, sender, target_player):
         if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=False, target_player=target_player):
-            if ChannelManager._is_moderator(channel, target_player): # Already not mod, ignore
+            if ChannelManager._is_moderator(channel, target_player):  # Already not mod, ignore
                 packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.MEMBER_FLAG_CHANGE,
                                                             target_player, flags=[ChannelMemberFlags.MODERATOR,
                                                                                   ChannelMemberFlags.OWNER])
@@ -299,7 +296,7 @@ class ChannelManager(object):
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
                                                         player_name=target_player.player.name)
             ChannelManager.send_to_player(sender, packet)
-        elif target_player and target_player == sender: # Avoid self ban/kick
+        elif target_player and target_player == sender:  # Avoid self ban / kick
             return False
         else:
             return True
@@ -425,4 +422,3 @@ class ChannelManager(object):
     @staticmethod
     def _in_channel(channel, player_mgr):
         return player_mgr in ChannelManager.CHANNELS[player_mgr.team][channel].members
-    
