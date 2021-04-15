@@ -131,7 +131,7 @@ class MovementManager(object):
         # This is also kind of a hackfix (at least for now) since the client always takes a bit more time to reach
         # the actual destination than the time you specify in SMSG_MONSTER_MOVE, for some reason.
         if self.is_player and spline_flag == SplineFlags.SPLINEFLAG_FLYING:
-            self.total_waypoint_time = total_time + (0.25 * waypoints_length)
+            self.total_waypoint_time = total_time + (total_distance * 0.0042)  # TODO This can't be normal, investigate ^
         else:
             self.total_waypoint_time = total_time
 
