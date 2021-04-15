@@ -158,7 +158,7 @@ class GuildManager(object):
                     and self.get_guild_rank(member) > GuildRank.GUILDRANK_OFFICER:
                 continue
 
-            if source and member.friends_manager.has_ignore(source):
+            if source and member.friends_manager.has_ignore(source.guid):
                 continue
 
             member.session.request.sendall(packet)
