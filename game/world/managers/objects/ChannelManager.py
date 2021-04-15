@@ -5,7 +5,6 @@ from game.world.managers.objects.player.PlayerManager import *
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 
 
-# TODO: In need of a cleanup / refactor
 class Channel(object):
     def __init__(self, name, members, password, is_default, owner, announce, moderators=None, banned=None, muted=None):
         self.name = name
