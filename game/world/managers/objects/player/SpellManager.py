@@ -283,6 +283,8 @@ class SpellManager(object):
                 self.remove_cast(casting_spell)
 
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_CAST_OK):
+        if casting_spell not in self.casting_spells:
+            return
         self.casting_spells.remove(casting_spell)
         if cast_result != SpellCheckCastResult.SPELL_CAST_OK:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
