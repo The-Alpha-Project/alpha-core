@@ -1,5 +1,8 @@
+from struct import pack
+
+from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import ChannelNotifications, ChannelMemberFlags
-from game.world.managers.objects.player.PlayerManager import *
+from utils.constants.UnitCodes import Teams
 
 
 class Channel(object):
