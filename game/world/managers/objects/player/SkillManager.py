@@ -312,6 +312,16 @@ class SkillManager(object):
 
         return skill in self.skills
 
+    def get_skill_for_spell_id(self, spell_id):
+        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell_id)
+        if not skill_line_ability:
+            return None
+
+        skill_id = skill_line_ability.SkillLine
+        if skill_id not in self.skills:
+            return None
+        return self.skills[skill_id]
+
     @staticmethod
     def get_all_languages():
         return LANG_DESCRIPTION.items()

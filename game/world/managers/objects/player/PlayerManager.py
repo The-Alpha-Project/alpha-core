@@ -1023,6 +1023,9 @@ class PlayerManager(UnitManager):
             # Waypoints (mostly flying paths) update
             self.movement_manager.update_pending_waypoints(elapsed)
 
+            # SpellManager tick
+            self.spell_manager.update(now)
+
             # Release spirit timer
             if not self.is_alive:
                 if self.spirit_release_timer < 300:  # 5 min
