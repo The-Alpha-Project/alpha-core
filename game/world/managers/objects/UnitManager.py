@@ -424,7 +424,7 @@ class UnitManager(ObjectManager):
         return 0, 0
 
     def deal_damage(self, target, damage):
-        if not target or damage < 1:
+        if not target or not target.is_alive or damage < 1:
             return
 
         if not self.in_combat:
