@@ -58,6 +58,7 @@ class CastingSpell(object):
             effects.append(SpellEffect(self.spell_entry, 3))
         return effects
 
+
 class SpellEffect(object):
     effect_type: SpellEffects
     die_sides: int
@@ -160,6 +161,7 @@ class SpellEffectHandler(object):  # TODO implement die sides https://wowdev.wik
     def handle_weapon_damage(spell, effect, caster, unit):
         damage = int(caster.calculate_damage + effect.base_points)
         caster.deal_spell_damage(unit, damage, spell.School, spell.ID)
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
@@ -349,12 +351,6 @@ class SpellManager(object):
         if casting_spell.spell_target_mask & SpellTargetMask.UNIT == SpellTargetMask.UNIT:
             sign += 'Q'
             data.append(casting_spell.initial_target_unit.guid)
-
-        #data = pack("QQIHBBH", self.player_mgr.guid, self.player_mgr.guid,
-        #            casting_spell.spell_entry.ID, 0,
-        #            0, 0,  # Hit targets count, miss targets count
-        #            0,   # SpellTargetMask - 0 for self
-        #            )
 
         packed = pack(sign, *data)
         self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed))
