@@ -425,3 +425,4 @@ class ChannelManager(object):
     @staticmethod
     def _in_channel(channel, player_mgr):
         return player_mgr in ChannelManager.CHANNELS[player_mgr.team][channel].members
+    
