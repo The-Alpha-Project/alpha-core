@@ -111,52 +111,56 @@ class SpellCheckCastResult(IntEnum):
     SPELL_FAILED_NOT_FISHABLE = 0x56
     SPELL_CAST_OK = 0x57
 
+
 class SpellCastStatus(IntEnum):
     CAST_SUCCESS = 0x0
     CAST_SUCCESS_KEEP_TRACKING = 0x1  # (HasAttribute(SpellAttribute.TrackTargetInCast) || HasAttribute(SpellAttributeEx.TargetTrackWhileChanneling) ?
     CAST_FAILED = 0x2
 
+
 class SpellMissReason(IntEnum):
     MISS_REASON_NONE = 0x0
-    MISS_REASON_PHYSICAL = 0x1,
-    MISS_REASON_RESIST = 0x2,
-    MISS_REASON_IMMUNE = 0x3,
-    MISS_REASON_EVADED = 0x4,
-    MISS_REASON_DODGED = 0x5,
-    MISS_REASON_PARRIED = 0x6,
-    MISS_REASON_BLOCKED = 0x7,
-    MISS_REASON_TEMPIMMUNE = 0x8,
-    MISS_REASON_DEFLECTED = 0x9,
+    MISS_REASON_PHYSICAL = 0x1
+    MISS_REASON_RESIST = 0x2
+    MISS_REASON_IMMUNE = 0x3
+    MISS_REASON_EVADED = 0x4
+    MISS_REASON_DODGED = 0x5
+    MISS_REASON_PARRIED = 0x6
+    MISS_REASON_BLOCKED = 0x7
+    MISS_REASON_TEMPIMMUNE = 0x8
+    MISS_REASON_DEFLECTED = 0x9
+
 
 class SpellTargetMask(IntFlag):
-    SELF = 0,
-    UNIT = 0x2,
-    PLAYER = 0x8,  # ImplicitTarget.SingleParty only
-    ITEM = 0x10,
-    SOURCE_LOCATION = 0x20,
-    DEST_LOCATION = 0x40,
-    ENEMIES = 0x80,
-    UNIT_SELF = 0x100,  # ?, ImplicitTarget.SingleFriend & & ImplicitTarget.None only
-    UNIT_DEAD = 0x400,
-    GAMEOBJECT = 0x800,
-    TRADE_ITEM = 0x1000,
-    TARGET_STRING = 0x2000,
-    GAMEOBJECT_ITEM = 0x4000,
+    SELF = 0
+    UNIT = 0x2
+    PLAYER = 0x8  # ImplicitTarget.SingleParty only
+    ITEM = 0x10
+    SOURCE_LOCATION = 0x20
+    DEST_LOCATION = 0x40
+    ENEMIES = 0x80
+    UNIT_SELF = 0x100  # ?, ImplicitTarget.SingleFriend & & ImplicitTarget.None only
+    UNIT_DEAD = 0x400
+    GAMEOBJECT = 0x800
+    TRADE_ITEM = 0x1000
+    TARGET_STRING = 0x2000
+    GAMEOBJECT_ITEM = 0x4000
 
-    UNIT_TARGET_MASK = 0x802,
-    ITEM_TARGET_MASK = 0x1010,
+    UNIT_TARGET_MASK = 0x802
+    ITEM_TARGET_MASK = 0x1010
 
     # Note: masks are (value & mask) != 0
 
-    CanTargetMe = 0x50A,  # && (m_attributesEx & 0x80000) == 0
-    CanTargetDead = 0x400,
-    CanTargetEnemies = 0x480,
-    CanTargetFriends = 0x500,
-    CanTargetItems = 0x4010,
-    CanTargetTerrain = 0x60,
-    CanTargetObjects = 0x4800,
-    CanTargetParty = 0x408,
-    CanTargetUnits = 0x58A,
+    CAN_TARGET_ME = 0x50A  # && (m_attributesEx & 0x80000) == 0
+    CAN_TARGET_DEAD = 0x400
+    CAN_TARGET_ENEMIES = 0x480
+    CAN_TARGET_FRIENDS = 0x500
+    CAN_TARGET_ITEMS = 0x4010
+    CAN_TARGET_TERRAIN = 0x60
+    CAN_TARGET_OBJECTS = 0x4800
+    CAN_TARGET_PARTY = 0x408
+    CAN_TARGET_UNITS = 0x58A
+
 
 class SpellAttributes(IntEnum):
     SPELL_ATTR_PROC_FAILURE_BURNS_CHARGE = 0x00000001  # 0
