@@ -113,73 +113,73 @@ class SpellCheckCastResult(IntEnum):
 
 
 class SpellAttributes(IntEnum):
-    SPELL_ATTR_UNK0 = 0x00000001  # 0
+    SPELL_ATTR_PROC_FAILURE_BURNS_CHARGE = 0x00000001  # 0
     SPELL_ATTR_RANGED = 0x00000002  # 1 All ranged abilites have this flag
     SPELL_ATTR_ON_NEXT_SWING_1 = 0x00000004  # 2 on next swing
-    SPELL_ATTR_UNK3 = 0x00000008  # 3 not set in 2.4.2
-    SPELL_ATTR_UNK4 = 0x00000010  # 4 isAbility
+    SPELL_ATTR_DO_NOT_LOG_IMMUNE_MISSES = 0x00000008  # 3
+    SPELL_ATTR_IS_ABILITY = 0x00000010  # 4 isAbility
     SPELL_ATTR_TRADESPELL = 0x00000020  # 5 trade spells will be added by client to a sublist of profession spell
     SPELL_ATTR_PASSIVE = 0x00000040  # 6 Passive spell
-    SPELL_ATTR_UNK7 = 0x00000080  # 7 can't be linked in chat?
-    SPELL_ATTR_UNK8 = 0x00000100  # 8 hide created item in tooltip (for effect=24)
-    SPELL_ATTR_UNK9 = 0x00000200  # 9
+    SPELL_ATTR_DO_NOT_DISPLAY = 0x00000080  # 7 can't be linked in chat?
+    SPELL_ATTR_DO_NOT_LOG = 0x00000100  # 8 hide created item in tooltip (for effect=24)
+    SPELL_ATTR_HELD_ITEM_ONLY = 0x00000200  # 9
     SPELL_ATTR_ON_NEXT_SWING_2 = 0x00000400  # 10 on next swing 2
-    SPELL_ATTR_UNK11 = 0x00000800  # 11
+    SPELL_ATTR_WEARER_CASTS_PROC_TRIGGER = 0x00000800  # 11
     SPELL_ATTR_DAYTIME_ONLY = 0x00001000  # 12 only useable at daytime not set in 2.4.2
     SPELL_ATTR_NIGHT_ONLY = 0x00002000  # 13 only useable at night not set in 2.4.2
     SPELL_ATTR_INDOORS_ONLY = 0x00004000  # 14 only useable indoors not set in 2.4.2
     SPELL_ATTR_OUTDOORS_ONLY = 0x00008000  # 15 Only useable outdoors.
     SPELL_ATTR_NOT_SHAPESHIFT = 0x00010000  # 16 Not while shapeshifted
     SPELL_ATTR_ONLY_STEALTHED = 0x00020000  # 17 Must be in stealth
-    SPELL_ATTR_UNK18 = 0x00040000  # 18
+    SPELL_ATTR_DO_NOT_STEALTH = 0x00040000  # 18
     SPELL_ATTR_LEVEL_DAMAGE_CALCULATION = 0x00080000  # 19 spelldamage depends on caster level
     SPELL_ATTR_STOP_ATTACK_TARGET = 0x00100000  # 20 Stop attack after use this spell (and not begin attack if use)
     SPELL_ATTR_IMPOSSIBLE_DODGE_PARRY_BLOCK = 0x00200000  # 21 Cannot be dodged/parried/blocked
     SPELL_ATTR_SET_TRACKING_TARGET = 0x00400000  # 22 SetTrackingTarget
-    SPELL_ATTR_UNK23 = 0x00800000  # 23 castable while dead?
+    SPELL_ATTR_ALLOW_CAST_WHILE_DEAD = 0x00800000  # 23 castable while dead
     SPELL_ATTR_CASTABLE_WHILE_MOUNTED = 0x01000000  # 24 castable while mounted
     SPELL_ATTR_DISABLED_WHILE_ACTIVE = 0x02000000  # 25 Activate and start cooldown after aura fade or remove summoned creature or go
-    SPELL_ATTR_UNK26 = 0x04000000  # 26
+    SPELL_ATTR_AURA_IS_DEBUFF = 0x04000000  # 26
     SPELL_ATTR_CASTABLE_WHILE_SITTING = 0x08000000  # 27 castable while sitting
     SPELL_ATTR_CANT_USED_IN_COMBAT = 0x10000000  # 28 Cannot be used in combat
     SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY = 0x20000000  # 29 unaffected by invulnerability (hmm possible not...)
-    SPELL_ATTR_UNK30 = 0x40000000  # 30 breakable by damage?
+    SPELL_ATTR_HEARTBEAT_RESIST = 0x40000000  # 30 breakable by damage?
     SPELL_ATTR_CANT_CANCEL = 0x80000000  # 31 positive aura can't be canceled
 
 
 class SpellAttributesEx(IntEnum):
-    SPELL_ATTR_EX_UNK0 = 0x00000001  # 0
+    SPELL_ATTR_EX_DISMISS_PET_FIRST = 0x00000001  # 0
     SPELL_ATTR_EX_DRAIN_ALL_POWER = 0x00000002  # 1 use all power (Only paladin Lay of Hands and Bunyanize)
     SPELL_ATTR_EX_CHANNELED_1 = 0x00000004  # 2 channeled 1
-    SPELL_ATTR_EX_UNK3 = 0x00000008  # 3
-    SPELL_ATTR_EX_UNK4 = 0x00000010  # 4
+    SPELL_ATTR_EX_CANT_BE_REDIRECTED = 0x00000008  # 3
+    SPELL_ATTR_EX_NO_SKILL_INCREASE = 0x00000010  # 4
     SPELL_ATTR_EX_NOT_BREAK_STEALTH = 0x00000020  # 5 Not break stealth
     SPELL_ATTR_EX_CHANNELED_2 = 0x00000040  # 6 channeled 2
     SPELL_ATTR_EX_NEGATIVE = 0x00000080  # 7
     SPELL_ATTR_EX_NOT_IN_COMBAT_TARGET = 0x00000100  # 8 Spell req target not to be in combat state
-    SPELL_ATTR_EX_UNK9 = 0x00000200  # 9
+    SPELL_ATTR_EX_MELEE_COMBAT_START = 0x00000200  # 9
     SPELL_ATTR_EX_NO_THREAT = 0x00000400  # 10 no generates threat on cast 100%
-    SPELL_ATTR_EX_UNK11 = 0x00000800  # 11
-    SPELL_ATTR_EX_UNK12 = 0x00001000  # 12
+    SPELL_ATTR_EX_AURA_UNIQUE = 0x00000800  # 11
+    SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH = 0x00001000  # 12 pickpocketing
     SPELL_ATTR_EX_FARSIGHT = 0x00002000  # 13 related to farsight
-    SPELL_ATTR_EX_UNK14 = 0x00004000  # 14
+    SPELL_ATTR_EX_CHANNEL_TRACK_TARGET = 0x00004000  # 14
     SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY = 0x00008000  # 15 remove auras on immunity
-    SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE = 0x00010000  # 16 unaffected by school immunity
-    SPELL_ATTR_EX_UNK17 = 0x00020000  # 17 for auras SPELL_AURA_TRACK_CREATURES SPELL_AURA_TRACK_RESOURCES and SPELL_AURA_TRACK_STEALTHED select non-stacking tracking spells
-    SPELL_ATTR_EX_UNK18 = 0x00040000  # 18
-    SPELL_ATTR_EX_UNK19 = 0x00080000  # 19
+    SPELL_ATTR_EX_IMMUNITY_HOSTILE_FRIENDLY_EFFECTS = 0x00010000  # 16 unaffected by school immunity
+    SPELL_ATTR_EX_NO_AUTOCAST_AI = 0x00020000  # 17 for auras SPELL_AURA_TRACK_CREATURES SPELL_AURA_TRACK_RESOURCES and SPELL_AURA_TRACK_STEALTHED select non-stacking tracking spells
+    SPELL_ATTR_EX_PREVENTS_ANIM = 0x00040000  # 18
+    SPELL_ATTR_EX_CANT_TARGET_SELF = 0x00080000  # 19
     SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS = 0x00100000  # 20 Req combo points on target
-    SPELL_ATTR_EX_UNK21 = 0x00200000  # 21
+    SPELL_ATTR_EX_THREAT_ON_MISS = 0x00200000  # 21
     SPELL_ATTR_EX_REQ_COMBO_POINTS = 0x00400000  # 22 Use combo points (in 4.x not required combo point target selected)
-    SPELL_ATTR_EX_UNK23 = 0x00800000  # 23
-    SPELL_ATTR_EX_UNK24 = 0x01000000  # 24 Req fishing pole??
-    SPELL_ATTR_EX_UNK25 = 0x02000000  # 25 not set in 2.4.2
-    SPELL_ATTR_EX_UNK26 = 0x04000000  # 26
-    SPELL_ATTR_EX_UNK27 = 0x08000000  # 27
-    SPELL_ATTR_EX_UNK28 = 0x10000000  # 28
-    SPELL_ATTR_EX_UNK29 = 0x20000000  # 29
-    SPELL_ATTR_EX_UNK30 = 0x40000000  # 30 overpower
-    SPELL_ATTR_EX_UNK31 = 0x80000000  # 31
+    SPELL_ATTR_EX_IGNORE_OWNER_DEATH = 0x00800000  # 23
+    SPELL_ATTR_EX_IS_FISHING = 0x01000000  # 24 Req fishing pole
+    SPELL_ATTR_EX_AURA_STAYS_AFTER_COMBAT = 0x02000000  # 25
+    SPELL_ATTR_EX_REQUIRE_ALL_TARGETS = 0x04000000  # 26
+    SPELL_ATTR_EX_REFUND_POWER = 0x08000000  # 27
+    SPELL_ATTR_EX_DONT_DISPLAY_IN_AURA_BAR = 0x10000000  # 28
+    SPELL_ATTR_EX_CHANNEL_DISPLAY_SPELL_NAME = 0x20000000  # 29
+    SPELL_ATTR_EX_ENABLE_AT_DODGE = 0x40000000  # 30 overpower
+    SPELL_ATTR_EX_CAST_WHEN_LEARNED = 0x80000000  # 31 battle stance
 
 
 class SpellSchools(IntEnum):
