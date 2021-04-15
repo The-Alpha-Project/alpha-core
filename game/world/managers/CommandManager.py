@@ -180,9 +180,10 @@ class CommandManager(object):
         skills = DbcDatabaseManager.skill_get_by_name(skill_name)
 
         for skill in skills:
-            skill_text = '%u - |cFF00FFFF[%s]|r' % (skill.ID, skill.DisplayName_enUS.replace('\\', ''))
+            skill_name = skill.DisplayName_enUS.replace('\\', '')
+            skill_text = f'{skill.ID} - |cFF00FFFF[{skill_name}]|r'
             ChatManager.send_system_message(world_session, skill_text)
-        return 0, '%u skills found.' % len(skills)
+        return 0, f'{len(skills)} skills found.'
 
     @staticmethod
     def lskill(world_session, args):
