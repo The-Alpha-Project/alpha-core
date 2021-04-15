@@ -17,7 +17,7 @@ class Vector(object):
         return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
 
     def __str__(self):
-        return '%f, %f, %f. %f' % (self.x, self.y, self.z, self.o)
+        return f'{self.x}, {self.y}, {self.z}. {self.o}'
 
     @staticmethod
     def from_bytes(vector_bytes):

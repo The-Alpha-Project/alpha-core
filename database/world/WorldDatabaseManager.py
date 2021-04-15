@@ -9,12 +9,13 @@ from database.world.WorldModels import *
 from utils.ConfigManager import *
 from utils.constants.ObjectCodes import HighGuid
 
-world_db_engine = create_engine('mysql+pymysql://%s:%s@%s/%s?charset=utf8mb4' % (
-                    os.getenv('MYSQL_USERNAME', config.Database.Connection.username),
-                    os.getenv('MYSQL_PASSWORD', config.Database.Connection.password),
-                    os.getenv('MYSQL_HOST', config.Database.Connection.host),
-                    config.Database.DBNames.world_db
-                ), pool_pre_ping=True)
+DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
+DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
+DB_HOST = os.getenv('MYSQL_HOST', config.Database.Connection.host)
+DB_WORLD_NAME = config.Database.DBNames.world_db
+
+world_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_WORLD_NAME}?charset=utf8mb4',
+                                pool_pre_ping=True)
 SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autocommit=True, autoflush=True))
 
 
@@ -149,6 +150,12 @@ class WorldDatabaseManager(object):
     def gameobject_spawn_get_by_guid(guid):
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_GAMEOBJECT).first()
+        return res, world_db_session
+
+    @staticmethod
+    def gameobject_template_get_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(GameobjectTemplate).filter_by(entry=entry)
         return res, world_db_session
 
     # Creature stuff

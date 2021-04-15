@@ -24,8 +24,7 @@ class MovementHandler(object):
                 # Also acts as a rudimentary teleport cheat detection
                 if not world_session.player_mgr.pending_taxi_destination and world_session.player_mgr.location.distance(
                         x=x, y=y, z=z) > 64:
-                    Logger.anticheat("Preventing coordinate desync from player %s (%s)." %
-                                     (world_session.player_mgr.player.name, world_session.player_mgr.guid))
+                    Logger.anticheat(f'Preventing coordinate desync from player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}).')
                     world_session.player_mgr.teleport(world_session.player_mgr.map_,
                                                       world_session.player_mgr.location)
 
@@ -54,7 +53,7 @@ class MovementHandler(object):
                     world_session.player_mgr.movement_spline = MovementManager.MovementSpline.from_bytes(
                         reader.data[48:])
 
-                movement_data = pack('<Q%us' % len(reader.data),
+                movement_data = pack(f'<Q{len(reader.data)}s',
                                      world_session.player_mgr.guid,
                                      reader.data)
 
@@ -80,6 +79,6 @@ class MovementHandler(object):
                     world_session.player_mgr.set_dirty()
 
             except (AttributeError, error):
-                Logger.error('Error while handling %s, skipping. Data: %s' % (OpCode(reader.opcode), reader.data))
+                Logger.error(f'Error while handling {OpCode(reader.opcode).name}, skipping. Data: {reader.data}')
 
         return 0

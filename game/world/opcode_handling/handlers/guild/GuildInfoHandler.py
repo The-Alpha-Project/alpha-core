@@ -16,7 +16,7 @@ class GuildInfoHandler(object):
             # Guild name
             name_bytes = PacketWriter.string_to_bytes(player.guild_manager.guild_name)
             data = pack(
-                '<%us' % len(name_bytes),
+                f'<{len(name_bytes)}s',
                 name_bytes
             )
 

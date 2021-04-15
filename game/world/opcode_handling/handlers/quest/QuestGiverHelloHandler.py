@@ -16,7 +16,7 @@ class QuestGiverHelloHandler(object):
             guid = unpack('<Q', reader.data[:8])[0]
             quest_giver = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
             if not quest_giver:
-                Logger.error("Error in CMSG_QUESTGIVER_HELLO, could not find quest giver with guid of: %u" % guid)
+                Logger.error(f'Error in CMSG_QUESTGIVER_HELLO, could not find quest giver with guid of: {guid}')
                 return 0
             if world_session.player_mgr.is_enemy_to(quest_giver):
                 return 0

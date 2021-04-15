@@ -27,6 +27,12 @@ class ChatHandler(object):
         if world_session.player_mgr.is_gm:
             lang = Languages.LANG_UNIVERSAL
 
+        # Channel
+        if chat_type == ChatMsgs.CHAT_MSG_CHANNEL:
+            channel = PacketReader.read_string(reader.data, 8).strip()
+            message = PacketReader.read_string(reader.data, 8 + len(channel)+1)
+            ChatManager.send_channel_message(world_session.player_mgr, channel, message, lang)
+
         # Say, Yell, Emote
         if chat_type == ChatMsgs.CHAT_MSG_SAY \
                 or chat_type == ChatMsgs.CHAT_MSG_EMOTE \
@@ -44,8 +50,7 @@ class ChatHandler(object):
             target_name = PacketReader.read_string(reader.data, 8).strip()
             target_player_mgr = WorldSessionStateHandler.find_player_by_name(target_name)
             if not target_player_mgr:
-                ChatManager.send_system_message(world_session, 'No player named \'%s\' is currently playing.'
-                                                % target_name.capitalize())
+                ChatManager.send_system_message(world_session, f'No player named \'{target_name.capitalize()}\' is currently playing.')
                 return 0
             message = PacketReader.read_string(reader.data, 8 + len(target_name)+1)
             if not ChatHandler.check_if_command(world_session, message):

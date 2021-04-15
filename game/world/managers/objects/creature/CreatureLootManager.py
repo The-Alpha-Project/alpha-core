@@ -11,7 +11,6 @@ class CreatureLootManager(LootManager):
 
     # override
     def generate_loot(self):
-        # TODO: Implement loot group handling
         money = randint(self.world_obj.creature_template.gold_min, self.world_obj.creature_template.gold_max)
         self.current_money = money
 
@@ -36,12 +35,15 @@ class CreatureLootManager(LootManager):
     def get_loot_type(self, player, victim):
         loot_type = LootTypes.LOOT_TYPE_NOTALLOWED
 
-        # killed_by is None or looter is the actual killer, allow.
-        if not victim.killed_by or victim.killed_by == player:
+        # Not tagged, anyone can loot.
+        if not victim.killed_by:
             loot_type = LootTypes.LOOT_TYPE_CORPSE
-
-        # Looter is part of the killer_by player party, allow.
-        elif victim.killed_by.group_manager and victim.killed_by.group_manager.is_party_member(player):
+        # Killer has party and loot_method allows player to loot.
+        elif victim.killed_by and victim.killed_by.group_manager and victim.killed_by.group_manager.is_party_member(player):
+            if player in victim.killed_by.group_manager.get_allowed_looters(victim):
+                loot_type = LootTypes.LOOT_TYPE_CORPSE
+        # No party but looter is the actual killer.
+        elif victim.killed_by == player:
             loot_type = LootTypes.LOOT_TYPE_CORPSE
 
         return loot_type

@@ -25,12 +25,11 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def serve_realm(sck):
         name_bytes = PacketWriter.string_to_bytes(config.Server.Connection.RealmServer.realm_name)
-        address_bytes = PacketWriter.string_to_bytes(('%s:%s' % (config.Server.Connection.RealmProxy.host,
-                                                                 config.Server.Connection.RealmProxy.port)))
+        address_bytes = PacketWriter.string_to_bytes(f'{config.Server.Connection.RealmProxy.host}:{config.Server.Connection.RealmProxy.port}')
 
         # TODO: Should probably move realms to database at some point, instead of config.yml
         packet = pack(
-            '<B%us%usI' % (len(name_bytes), len(address_bytes)),
+            f'<B{len(name_bytes)}s{len(address_bytes)}sI',
             1,  # Number of realms
             name_bytes,
             address_bytes,
@@ -39,7 +38,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
             WorldSessionStateHandler.get_process_shared_session_number()
         )
 
-        Logger.debug('[%s] Sending realmlist...' % sck.getpeername()[0])
+        Logger.debug(f'[{sck.getpeername()[0]}] Sending realmlist...')
         sck.sendall(packet)
 
     @staticmethod
@@ -72,14 +71,13 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def redirect_to_world(sck):
-        world_bytes = PacketWriter.string_to_bytes(('%s:%s' % (config.Server.Connection.WorldServer.host,
-                                                               config.Server.Connection.WorldServer.port)))
+        world_bytes = PacketWriter.string_to_bytes(f'{config.Server.Connection.WorldServer.host}:{config.Server.Connection.WorldServer.port}')
         packet = pack(
-            '<%us' % len(world_bytes),
+            f'<{len(world_bytes)}s',
             world_bytes
         )
 
-        Logger.debug('[%s] Redirecting to world server...' % sck.getpeername()[0])
+        Logger.debug(f'[{sck.getpeername()[0]}] Redirecting to world server...')
         sck.sendall(packet)
 
     @staticmethod

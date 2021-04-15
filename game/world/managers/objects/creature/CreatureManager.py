@@ -136,9 +136,10 @@ class CreatureManager(UnitManager):
                     creature_equip_template = WorldDatabaseManager.creature_get_equipment_by_id(
                         self.creature_template.equipment_id
                     )
-                    self.set_virtual_item(0, creature_equip_template.equipentry1)
-                    self.set_virtual_item(1, creature_equip_template.equipentry2)
-                    self.set_virtual_item(2, creature_equip_template.equipentry3)
+                    if creature_equip_template:
+                        self.set_virtual_item(0, creature_equip_template.equipentry1)
+                        self.set_virtual_item(1, creature_equip_template.equipentry2)
+                        self.set_virtual_item(2, creature_equip_template.equipentry3)
 
                 self.fully_loaded = True
 
@@ -232,7 +233,7 @@ class CreatureManager(UnitManager):
         name_bytes = PacketWriter.string_to_bytes(self.creature_template.name)
         subname_bytes = PacketWriter.string_to_bytes(self.creature_template.subname)
         data = pack(
-            '<I%ussss%us3I' % (len(name_bytes), len(subname_bytes)),
+            f'<I{len(name_bytes)}ssss{len(subname_bytes)}s3I',
             self.entry,
             name_bytes, b'\x00', b'\x00', b'\x00',
             subname_bytes,
@@ -290,6 +291,9 @@ class CreatureManager(UnitManager):
 
         self.loot_manager.clear()
         self.set_lootable(False)
+
+        if self.killed_by and self.killed_by.group_manager:
+            self.killed_by.group_manager.clear_looters_for_victim(self)
         self.killed_by = None
 
         self.is_spawned = True
@@ -306,12 +310,14 @@ class CreatureManager(UnitManager):
             self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_NONE)
 
         super().die(killer)
+        self.loot_manager.generate_loot()
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
             self.killed_by = killer
+            if self.killed_by.group_manager and self.loot_manager.has_loot():
+                self.killed_by.group_manager.set_allowed_looters(self)
 
-        self.loot_manager.generate_loot()
         if self.loot_manager.has_loot():
             self.set_lootable(True)
 

@@ -90,10 +90,11 @@ class MovementManager(object):
 
         start_time = int(WorldManager.get_seconds_since_startup() * 1000)
 
+        location_bytes = self.unit.location.to_bytes(include_orientation=False)
         data = pack(
-            '<Q12sIBI',
+            f'<Q{len(location_bytes)}sIBI',
             self.unit.guid,
-            self.unit.location.to_bytes(include_orientation=False),
+            location_bytes,
             start_time,
             0,
             spline_flag
@@ -117,7 +118,7 @@ class MovementManager(object):
             current_id += 1
 
         data += pack(
-            '<2I%us' % len(waypoints_data),
+            f'<2I{len(waypoints_data)}s',
             int(total_time * 1000),
             waypoints_length,
             waypoints_data
@@ -128,9 +129,9 @@ class MovementManager(object):
 
         # Player should dismount after some seconds have passed since FP destination is reached (Blizzlike).
         # This is also kind of a hackfix (at least for now) since the client always takes a bit more time to reach
-        # the actual destination than the time you specify in SMSG_MONSTER_MOVE.
+        # the actual destination than the time you specify in SMSG_MONSTER_MOVE, for some reason.
         if self.is_player and spline_flag == SplineFlags.SPLINEFLAG_FLYING:
-            self.total_waypoint_time = total_time + (0.15 * waypoints_length)
+            self.total_waypoint_time = total_time + (total_distance * 0.0042)  # TODO This can't be normal, investigate ^
         else:
             self.total_waypoint_time = total_time
 

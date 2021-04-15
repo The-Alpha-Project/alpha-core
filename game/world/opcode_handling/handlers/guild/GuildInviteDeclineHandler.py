@@ -15,7 +15,7 @@ class GuildInviteDeclineHandler(object):
 
             inviter_name_bytes = PacketWriter.string_to_bytes(inviter.player.name)
             data = pack(
-                '<%us' % len(inviter_name_bytes),
+                f'<{len(inviter_name_bytes)}s',
                 inviter_name_bytes,
             )
 

@@ -23,7 +23,7 @@ class CharEnumHandler(object):
     @staticmethod
     def get_char_packet(world_session, character):
         name_bytes = PacketWriter.string_to_bytes(character.name)
-        char_fmt = '<Q%us9B2I3f4I' % len(name_bytes)
+        char_fmt = f'<Q{len(name_bytes)}s9B2I3f4I'
         char_packet = pack(
             char_fmt,
             character.guid,

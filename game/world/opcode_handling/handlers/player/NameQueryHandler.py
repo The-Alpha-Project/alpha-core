@@ -28,7 +28,7 @@ class NameQueryHandler(object):
     def get_query_details(player):
         name_bytes = PacketWriter.string_to_bytes(player.name)
         player_data = pack(
-            '<Q%usIII' % len(name_bytes),
+            f'<Q{len(name_bytes)}s3I',
             player.guid,
             name_bytes,
             player.race,

@@ -9,8 +9,7 @@ class SpeedCheatHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         if not world_session.player_mgr.is_gm:
-            Logger.anticheat('Player %s (%s) tried to use speed hacks.' % (world_session.player_mgr.player.name,
-                                                                           world_session.player_mgr.guid))
+            Logger.anticheat(f'Player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}) tried to use speed hacks.')
             if reader.opcode == OpCode.MSG_MOVE_SET_RUN_SPEED_CHEAT:
                 world_session.player_mgr.change_speed()
             elif reader.opcode == OpCode.MSG_MOVE_SET_SWIM_SPEED_CHEAT:
@@ -25,4 +24,3 @@ class SpeedCheatHandler(object):
                 return -1
 
         return 0
-

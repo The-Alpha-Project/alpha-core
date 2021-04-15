@@ -12,13 +12,13 @@ class GroupUnInviteGuidHandler(object):
             guid = unpack('<Q', reader.data[:8])[0]
             target_player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
 
-            if not target_player_mgr:
-                GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_LEAVE, '',
-                                                         PartyResults.ERR_BAD_PLAYER_NAME_S)
-            elif world_session.player_mgr.group_manager:
-                world_session.player_mgr.group_manager.un_invite_player(world_session.player_mgr, target_player_mgr)
-            else:
+            if not world_session.player_mgr.group_manager:
                 GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_LEAVE, '',
                                                          PartyResults.ERR_NOT_IN_GROUP)
+            elif not target_player_mgr:
+                GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_LEAVE, '',
+                                                         PartyResults.ERR_BAD_PLAYER_NAME_S)
+            else:
+                world_session.player_mgr.group_manager.un_invite_player(world_session.player_mgr, target_player_mgr)
 
         return 0
