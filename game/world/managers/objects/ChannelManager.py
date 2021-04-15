@@ -356,7 +356,7 @@ class ChannelManager(object):
         if not ChannelManager._exist(channel, sender):
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(sender, packet)
-        elif ChannelManager._is_muted(sender, channel):
+        elif ChannelManager._is_muted(channel, sender):
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.SELF_MUTED)
             ChannelManager.send_to_player(sender, packet)
         else:
