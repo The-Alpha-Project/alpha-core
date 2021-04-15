@@ -47,196 +47,103 @@ class ChannelManager(object):
     }
 
     @staticmethod
-    def has_players(team, channel):
-        return channel in ChannelManager.CHANNELS[team] and len(ChannelManager.CHANNELS[team][channel].members) > 0
+    def toggle_moderation(channel, sender):
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True):
+            flag = ChannelManager.CHANNELS[sender.team][channel].moderated
+            ChannelManager.CHANNELS[sender.team][channel].moderated = not flag  # Flip
+            notify = ChannelNotifications.MODERATION_ON if not flag else ChannelNotifications.MODERATION_OFF
+            packet = ChannelManager.build_notify_packet(channel, notify, target1=sender)
+            if ChannelManager._should_announce(channel, sender):
+                ChannelManager.broadcast_to_channel(sender, channel, packet)
+            else:
+                ChannelManager.send_to_player(sender, packet)
 
     @staticmethod
-    def toggle_moderation(channel, sender):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
-                ChannelManager.send_to_player(sender, packet)
+    def toggle_announce(channel, sender):
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True):
+            flag = ChannelManager.CHANNELS[sender.team][channel].announce
+            ChannelManager.CHANNELS[sender.team][channel].announce = not flag  # Flip
+            notify = ChannelNotifications.ANNOUNCEMENTS_ON if not flag else ChannelNotifications.ANNOUNCEMENTS_OFF
+            packet = ChannelManager.build_notify_packet(channel, notify, target1=sender)
+            if ChannelManager._should_announce(channel, sender):
+                ChannelManager.broadcast_to_channel(sender, channel, packet)
             else:
-                flag = ChannelManager.CHANNELS[sender.team][channel].moderated
-                ChannelManager.CHANNELS[sender.team][channel].moderated = not flag  # Flip
-                notify = ChannelNotifications.MODERATION_ON if not flag else ChannelNotifications.MODERATION_OFF
-                packet = ChannelManager.build_notify_packet(channel, notify, target1=sender)
-                if ChannelManager.CHANNELS[sender.team][channel].announce:
-                    ChannelManager.broadcast_to_channel(sender, channel, packet)
-                else:
-                    ChannelManager.send_to_player(sender, packet)
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(sender, packet)
+                ChannelManager.send_to_player(sender, packet)
 
     @staticmethod
     def add_mute(channel, sender, target_player):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender == target_player:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.CHANNEL_OWNER,
-                                                            player_name=sender.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
-                ChannelManager.send_to_player(sender, packet)
-            elif target_player not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
-                                                            player_name=target_player.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            else:
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True, target_player=target_player):
+            if ChannelManager._is_muted(channel, target_player): #Already muted, ignore
                 packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.MEMBER_FLAG_CHANGE,
                                                             target_player, flags=[ChannelMemberFlags.VOICE,
                                                                                   ChannelMemberFlags.OWNER])
-
-                if target_player not in ChannelManager.CHANNELS[sender.team][channel].muted:
-                    ChannelManager.CHANNELS[sender.team][channel].muted.append(target_player)
-
-                if ChannelManager.CHANNELS[sender.team][channel].announce:
+                ChannelManager.CHANNELS[sender.team][channel].muted.append(target_player)
+                if ChannelManager._should_announce(channel, sender):
                     ChannelManager.broadcast_to_channel(sender, channel, packet)
                 else:  # 1 on 1
                     ChannelManager.send_to_player(sender, packet)
                     ChannelManager.send_to_player(target_player, packet)
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(sender, packet)
 
     @staticmethod
     def remove_mute(channel, sender, target_player):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender == target_player:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.CHANNEL_OWNER,
-                                                            player_name=sender.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
-                ChannelManager.send_to_player(sender, packet)
-            elif target_player not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
-                                                            player_name=target_player.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            else:
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True, target_player=target_player):
+            if not ChannelManager._is_muted(channel, target_player): #Already not muted, ignore
                 packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.MEMBER_FLAG_CHANGE,
                                                             target_player, flags=[ChannelMemberFlags.OWNER,
                                                                                   ChannelMemberFlags.VOICE])
+                ChannelManager.CHANNELS[sender.team][channel].muted.remove(target_player)
 
-                if target_player in ChannelManager.CHANNELS[sender.team][channel].muted:
-                    ChannelManager.CHANNELS[sender.team][channel].muted.remove(target_player)
-
-                if ChannelManager.CHANNELS[sender.team][channel].announce:
+                if ChannelManager._should_announce(channel, sender):
                     ChannelManager.broadcast_to_channel(sender, channel, packet)
                 else:  # 1on1
                     ChannelManager.send_to_player(sender, packet)
                     ChannelManager.send_to_player(target_player, packet)
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(sender, packet)
 
     @staticmethod
     def add_mod(channel, sender, target_player):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender == target_player:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.CHANNEL_OWNER,
-                                                            player_name=sender.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
-                ChannelManager.send_to_player(sender, packet)
-            elif target_player not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
-                                                            player_name=target_player.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            else:
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=False, target_player=target_player):
+            if not ChannelManager._is_moderator(channel, target_player): # Already mod, ignore
                 packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.MEMBER_FLAG_CHANGE,
                                                             target_player, flags=[ChannelMemberFlags.OWNER,
                                                                                   ChannelMemberFlags.MODERATOR])
+                ChannelManager.CHANNELS[sender.team][channel].moderators.append(target_player)
 
-                if target_player not in ChannelManager.CHANNELS[sender.team][channel].moderators:
-                    ChannelManager.CHANNELS[sender.team][channel].moderators.append(target_player)
-
-                if ChannelManager.CHANNELS[sender.team][channel].announce:
+                if ChannelManager._should_announce(channel, sender):
                     ChannelManager.broadcast_to_channel(sender, channel, packet)
                 else:  # 1 on 1
                     ChannelManager.send_to_player(sender, packet)
                     ChannelManager.send_to_player(target_player, packet)
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(sender, packet)
 
     @staticmethod
     def remove_mod(channel, sender, target_player):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender == target_player:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.CHANNEL_OWNER,
-                                                            player_name=sender.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
-                ChannelManager.send_to_player(sender, packet)
-            elif target_player not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
-                                                            player_name=target_player.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            else:
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=False, target_player=target_player):
+            if ChannelManager._is_moderator(channel, target_player): # Already not mod, ignore
                 packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.MEMBER_FLAG_CHANGE,
                                                             target_player, flags=[ChannelMemberFlags.MODERATOR,
                                                                                   ChannelMemberFlags.OWNER])
+                ChannelManager.CHANNELS[sender.team][channel].moderators.remove(target_player)
 
-                if target_player in ChannelManager.CHANNELS[sender.team][channel].moderators:
-                    ChannelManager.CHANNELS[sender.team][channel].moderators.remove(target_player)
-
-                if ChannelManager.CHANNELS[sender.team][channel].announce:
+                if ChannelManager._should_announce(channel, sender):
                     ChannelManager.broadcast_to_channel(sender, channel, packet)
                 else:  # 1 on 1
                     ChannelManager.send_to_player(sender, packet)
                     ChannelManager.send_to_player(target_player, packet)
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(sender, packet)
 
     @staticmethod
-    def kick_player(channel, sender, target_player):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender == target_player:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.CHANNEL_OWNER,
-                                                            player_name=sender.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
-                ChannelManager.send_to_player(sender, packet)
-            elif target_player not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
-                                                            player_name=target_player.player.name)
-                ChannelManager.send_to_player(sender, packet)
+    def kick_player(channel, sender, target_player, banned=False):
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True, target_player=target_player):
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.KICKED, target_player, sender)
+            if ChannelManager._should_announce(channel, sender):
+                ChannelManager.broadcast_to_channel(sender, channel, packet, [target_player])
             else:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.KICKED, target_player, sender)
-                if ChannelManager.CHANNELS[sender.team][channel].announce:
-                    ChannelManager.broadcast_to_channel(sender, channel, packet, [target_player])
-                else:
-                    ChannelManager.send_to_player(sender, packet)
-                    ChannelManager.send_to_player(target_player, packet)
+                # Send to sender
+                ChannelManager.send_to_player(sender, packet)
 
-                ChannelManager.leave_channel(target_player, channel)
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(sender, packet)
+            # Send to target, if we haven't sent banned message already.
+            if not banned:
+                ChannelManager.send_to_player(target_player, packet)
+
+            ChannelManager.leave_channel(target_player, channel)
 
     @staticmethod
     def get_owner(channel, sender):
@@ -250,50 +157,161 @@ class ChannelManager(object):
 
     @staticmethod
     def set_owner(channel, sender, target_player):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=False, target_player=target_player):
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.OWNER_CHANGED, target_player)
+            if ChannelManager._should_announce(channel, sender):
+                ChannelManager.broadcast_to_channel(sender, channel, packet)
+            else:  # 1on1
                 ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
+                ChannelManager.send_to_player(target_player, packet)
+
+            ChannelManager.CHANNELS[sender.team][channel].owner = target_player
+
+    @staticmethod
+    def set_password(channel, sender, password):
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True):
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PASSWORD_CHANGED, sender)
+            if ChannelManager._should_announce(channel, sender):
+                ChannelManager.broadcast_to_channel(sender, channel, packet)
+            else:
                 ChannelManager.send_to_player(sender, packet)
-            elif target_player not in ChannelManager.CHANNELS[sender.team][channel].members:
+
+            ChannelManager.CHANNELS[sender.team][channel].password = password
+
+    @staticmethod
+    def ban_player(channel, sender, target_player):
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True, target_player=target_player):
+            if not ChannelManager._is_banned(channel, target_player):
+                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.BANNED, target_player, sender)
+                ChannelManager.CHANNELS[sender.team][channel].banned.append(target_player)
+
+                if ChannelManager._should_announce(channel, sender):
+                    ChannelManager.broadcast_to_channel(sender, channel, packet)
+                else:  # Send to sender
+                    ChannelManager.send_to_player(sender, packet)
+
+                # Send to target
+                ChannelManager.send_to_player(target_player, packet)
+
+                if ChannelManager._is_moderator(channel, target_player):
+                    ChannelManager.remove_mod(channel, sender, target_player)
+
+                ChannelManager.kick_player(channel, sender, target_player, banned=True)
+
+    @staticmethod
+    def unban_player(channel, sender, target_player):
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True):
+            if not ChannelManager._is_banned(channel, target_player):
                 packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
                                                             player_name=target_player.player.name)
                 ChannelManager.send_to_player(sender, packet)
             else:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.OWNER_CHANGED, target_player)
-                if ChannelManager.CHANNELS[sender.team][channel].announce:
+                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.UNBANNED, target_player,
+                                                            sender)
+                ChannelManager.CHANNELS[sender.team][channel].banned.remove(target_player)
+
+                if ChannelManager._should_announce(channel, sender):
                     ChannelManager.broadcast_to_channel(sender, channel, packet)
                 else:  # 1on1
                     ChannelManager.send_to_player(sender, packet)
                     ChannelManager.send_to_player(target_player, packet)
 
-                ChannelManager.CHANNELS[sender.team][channel].owner = target_player
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(sender, packet)
-
     @staticmethod
-    def set_password(channel, sender, password):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
+    def invite_player(channel, sender, target_player):
+        if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True):
+            if ChannelManager._is_banned(channel, target_player):
+                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_BANNED)
                 ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
+            elif not ChannelManager._can_communicate_with_(sender, target_player):
+                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.WRONG_FACTION)
+                ChannelManager.send_to_player(sender, packet)
+            elif ChannelManager._in_channel(channel, target_player):
+                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_ALREADY_MEMBER)
                 ChannelManager.send_to_player(sender, packet)
             else:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PASSWORD_CHANGED, sender)
-                if ChannelManager.CHANNELS[sender.team][channel].announce:
-                    ChannelManager.broadcast_to_channel(sender, channel, packet)
-                else:
-                    ChannelManager.send_to_player(sender, packet)
+                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.INVITE, target1=sender)
+                ChannelManager.send_to_player(target_player, packet)
 
-                ChannelManager.CHANNELS[sender.team][channel].password = password
+    @staticmethod
+    def join_channel(player_mgr, channel, password=''):
+        if not ChannelManager._exist(channel, player_mgr):
+            ChannelManager.CHANNELS[player_mgr.team][channel] = Channel(
+                    name=channel.capitalize(),
+                    members=[],
+                    password=password if password else '',
+                    is_default=True,
+                    owner=player_mgr,
+                    announce=True,
+                    moderators=[player_mgr])
+
+        if ChannelManager._in_channel(channel, player_mgr):
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_ALREADY_MEMBER, player_mgr)
+            ChannelManager.send_to_player(player_mgr, packet)
+        elif not ChannelManager._password_ok(channel, player_mgr, password):
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.WRONG_PASSWORD)
+            ChannelManager.send_to_player(player_mgr, packet)
+        elif ChannelManager._is_banned(channel, player_mgr):
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_BANNED)
+            ChannelManager.send_to_player(player_mgr, packet)
         else:
+            ChannelManager.CHANNELS[player_mgr.team][channel].members.append(player_mgr)
+
+            if ChannelManager._should_announce(channel, player_mgr):
+                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_JOINED, player_mgr)
+                ChannelManager.broadcast_to_channel(player_mgr, channel, packet, ignore=[player_mgr])
+
+            # Send direct message upon join, this gets the player inside channel on client.
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.YOU_JOINED)
+            ChannelManager.send_to_player(player_mgr, packet)
+
+    @staticmethod
+    def leave_channel(player_mgr, channel, logout=False):
+        if ChannelManager.default_checks(channel, player_mgr):
+            ChannelManager.CHANNELS[player_mgr.team][channel].members.remove(player_mgr)
+
+            if ChannelManager._should_announce(channel, player_mgr):
+                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_LEFT, target1=player_mgr)
+                ChannelManager.broadcast_to_channel(player_mgr, channel, packet)
+
+            if not logout:
+                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.YOU_LEFT)
+                ChannelManager.send_to_player(player_mgr, packet)
+
+            ChannelManager.check_if_remove(channel, player_mgr)
+
+    @staticmethod
+    def default_checks(channel, sender, check_owner=False, check_moderator=False, target_player=None):
+        # Check if channel exist and requester is in that channel
+        if not ChannelManager._exist(channel, sender) or not ChannelManager._in_channel(channel, sender):
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(sender, packet)
+            return False
+        # Check owner rights
+        elif check_owner and not ChannelManager._is_owner(channel, sender):
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
+            ChannelManager.send_to_player(sender, packet)
+            return False
+        # Check moderator rights
+        elif check_moderator and not ChannelManager._is_moderator(channel, sender):
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MODERATOR)
+            ChannelManager.send_to_player(sender, packet)
+            return False
+        elif target_player and not ChannelManager._in_channel(channel, target_player):
+            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
+                                                        player_name=target_player.player.name)
+            ChannelManager.send_to_player(sender, packet)
+        else:
+            return True
+
+    @staticmethod
+    def check_if_remove(channel, player_mgr):
+        # Pop channel if its left with 0 players and its not a default channel.
+        if channel in ChannelManager.CHANNELS[player_mgr.team]:
+            if ChannelManager.CHANNELS[player_mgr.team][channel].is_default:
+                return
+            elif len(ChannelManager.CHANNELS[player_mgr.team][channel].members) == 0:
+                ChannelManager.CHANNELS[player_mgr.team][channel].flush()
+                ChannelManager.CHANNELS[player_mgr.team].pop(channel)
 
     @staticmethod
     def list_channel(channel, sender):
@@ -317,175 +335,6 @@ class ChannelManager(object):
         else:
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(sender, packet)
-
-    @staticmethod
-    def ban_player(channel, sender, target_player):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender == target_player:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.CHANNEL_OWNER,
-                                                            player_name=sender.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
-                ChannelManager.send_to_player(sender, packet)
-            elif target_player not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
-                                                            player_name=target_player.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            elif target_player not in ChannelManager.CHANNELS[sender.team][channel].banned:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.BANNED, target_player, sender)
-                ChannelManager.CHANNELS[sender.team][channel].banned.append(target_player)
-
-                if ChannelManager.CHANNELS[sender.team][channel].announce:
-                    ChannelManager.broadcast_to_channel(sender, channel, packet)
-                else:  # 1 on 1
-                    ChannelManager.send_to_player(sender, packet)
-                    ChannelManager.send_to_player(target_player, packet)
-
-                ChannelManager.kick_player(channel, sender, target_player)
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(sender, packet)
-
-    @staticmethod
-    def unban_player(channel, sender, target_player):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender == target_player:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.CHANNEL_OWNER,
-                                                            player_name=sender.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
-                ChannelManager.send_to_player(sender, packet)
-            elif target_player not in ChannelManager.CHANNELS[sender.team][channel].banned:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
-                                                            player_name=target_player.player.name)
-                ChannelManager.send_to_player(sender, packet)
-            elif target_player in ChannelManager.CHANNELS[sender.team][channel].banned:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.UNBANNED, target_player, sender)
-                ChannelManager.CHANNELS[sender.team][channel].banned.remove(target_player)
-
-                if ChannelManager.CHANNELS[sender.team][channel].announce:
-                    ChannelManager.broadcast_to_channel(sender, channel, packet)
-                else:  # 1on1
-                    ChannelManager.send_to_player(sender, packet)
-                    ChannelManager.send_to_player(target_player, packet)
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(sender, packet)
-
-    @staticmethod
-    def invite_player(channel, sender, target_player):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender == target_player:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_ALREADY_MEMBER)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
-                ChannelManager.send_to_player(sender, packet)
-            elif target_player in ChannelManager.CHANNELS[sender.team][channel].banned:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_BANNED)
-                ChannelManager.send_to_player(sender, packet)
-            elif target_player in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_ALREADY_MEMBER, target_player)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender.team != target_player.team:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.WRONG_FACTION)
-                ChannelManager.send_to_player(sender, packet)
-            else:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.INVITE, target1=sender)
-                ChannelManager.send_to_player(target_player, packet)
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(sender, packet)
-
-    @staticmethod
-    def toggle_announce(channel, sender):
-        if channel in ChannelManager.CHANNELS[sender.team]:
-            if sender not in ChannelManager.CHANNELS[sender.team][channel].members:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-                ChannelManager.send_to_player(sender, packet)
-            elif sender != ChannelManager.CHANNELS[sender.team][channel].owner:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_OWNER)
-                ChannelManager.send_to_player(sender, packet)
-            else:
-                flag = ChannelManager.CHANNELS[sender.team][channel].announce
-                ChannelManager.CHANNELS[sender.team][channel].announce = not flag  # Flip
-                notify = ChannelNotifications.ANNOUNCEMENTS_ON if not flag else ChannelNotifications.ANNOUNCEMENTS_OFF
-                packet = ChannelManager.build_notify_packet(channel, notify, target1=sender)
-                if ChannelManager.CHANNELS[sender.team][channel].announce:
-                    ChannelManager.broadcast_to_channel(sender, channel, packet)
-                else:
-                    ChannelManager.send_to_player(sender, packet)
-        else:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(sender, packet)
-
-    @staticmethod
-    def join_channel(player_mgr, channel, password=''):
-        if channel not in ChannelManager.CHANNELS[player_mgr.team]:
-            ChannelManager.CHANNELS[player_mgr.team][channel] = Channel(
-                    name=channel.capitalize(),
-                    members=[],
-                    password=password if password else '',
-                    is_default=True,
-                    owner=player_mgr,
-                    announce=True,
-                    moderators=[player_mgr])
-        if player_mgr in ChannelManager.CHANNELS[player_mgr.team][channel].members:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_ALREADY_MEMBER, player_mgr)
-            ChannelManager.send_to_player(player_mgr, packet)
-        elif password != ChannelManager.CHANNELS[player_mgr.team][channel].password:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.WRONG_PASSWORD)
-            ChannelManager.send_to_player(player_mgr, packet)
-        elif player_mgr in ChannelManager.CHANNELS[player_mgr.team][channel].banned:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_BANNED)
-            ChannelManager.send_to_player(player_mgr, packet)
-        else:
-            ChannelManager.CHANNELS[player_mgr.team][channel].members.append(player_mgr)
-
-            if ChannelManager.CHANNELS[player_mgr.team][channel].announce:
-                packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_JOINED, player_mgr)
-                ChannelManager.broadcast_to_channel(player_mgr, channel, packet, ignore=[player_mgr])
-
-            # Send direct message upon join, this gets the player inside channel on client.
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.YOU_JOINED)
-            ChannelManager.send_to_player(player_mgr, packet)
-
-    @staticmethod
-    def leave_channel(player_mgr, channel, logout=False):
-        if channel not in ChannelManager.CHANNELS[player_mgr.team] or player_mgr not in ChannelManager.CHANNELS[player_mgr.team][channel].members:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
-            ChannelManager.send_to_player(player_mgr, packet)
-            return
-
-        ChannelManager.CHANNELS[player_mgr.team][channel].members.remove(player_mgr)
-
-        if ChannelManager.CHANNELS[player_mgr.team][channel].announce:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_LEFT, target1=player_mgr)
-            ChannelManager.broadcast_to_channel(player_mgr, channel, packet)
-
-        if not logout:
-            packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.YOU_LEFT)
-            ChannelManager.send_to_player(player_mgr, packet)
-
-        ChannelManager.check_if_remove(channel, player_mgr)
-
-    @staticmethod
-    def check_if_remove(channel, player_mgr):
-        # Pop channel if its left with 0 players and its not a default channel.
-        if channel in ChannelManager.CHANNELS[player_mgr.team]:
-            if ChannelManager.CHANNELS[player_mgr.team][channel].is_default:
-                return
-            elif len(ChannelManager.CHANNELS[player_mgr.team][channel].members) == 0:
-                ChannelManager.CHANNELS[player_mgr.team][channel].flush()
-                ChannelManager.CHANNELS[player_mgr.team].pop(channel)
 
     @staticmethod
     def join_default_channels(player_mgr):
@@ -536,3 +385,43 @@ class ChannelManager(object):
             data += pack('<2B', flags[0], flags[1])
 
         return PacketWriter.get_packet(OpCode.SMSG_CHANNEL_NOTIFY, data)
+
+    @staticmethod
+    def _exist(channel, player_mgr):
+        return player_mgr.team in ChannelManager.CHANNELS and channel in ChannelManager.CHANNELS[player_mgr.team]
+
+    @staticmethod
+    def _is_default(channel, player_mgr):
+        return ChannelManager.CHANNELS[player_mgr.team][channel].is_default
+
+    @staticmethod
+    def _password_ok(channel, player_mgr, password):
+        return ChannelManager.CHANNELS[player_mgr.team][channel].password == password
+
+    @staticmethod
+    def _should_announce(channel, player_mgr):
+        return ChannelManager.CHANNELS[player_mgr.team][channel].announce
+
+    @staticmethod
+    def _can_communicate_with_(player1_mgr, player2_mgr):
+        return player1_mgr.team == player2_mgr.team
+
+    @staticmethod
+    def _is_muted(channel, player_mgr):
+        return player_mgr in ChannelManager.CHANNELS[player_mgr.team][channel].muted
+
+    @staticmethod
+    def _is_banned(channel, player_mgr):
+        return player_mgr in ChannelManager.CHANNELS[player_mgr.team][channel].banned
+
+    @staticmethod
+    def _is_moderator(channel, player_mgr):
+        return player_mgr in ChannelManager.CHANNELS[player_mgr.team][channel].moderators
+
+    @staticmethod
+    def _is_owner(channel, player_mgr):
+        return ChannelManager.CHANNELS[player_mgr.team][channel].owner == player_mgr
+
+    @staticmethod
+    def _in_channel(channel, player_mgr):
+        return player_mgr in ChannelManager.CHANNELS[player_mgr.team][channel].members
