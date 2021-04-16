@@ -7,8 +7,10 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterS
 from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
+from utils.constants.ObjectCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellTargetType, SpellAttributes
+from utils.constants.UnitCodes import PowerTypes
 
 
 class CastingSpell(object):
@@ -20,8 +22,11 @@ class CastingSpell(object):
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
     cast_time_entry: SpellCastTimes
+
     cast_end_timestamp: float
     spell_delay_end_timestamp: float
+
+    trigger_melee_attack_type: int
 
     def __init__(self, spell, caster_obj, initial_target_unit, target_results, target_mask):
         self.spell_entry = spell
@@ -38,7 +43,7 @@ class CastingSpell(object):
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0
 
-    def cast_on_swing(self):
+    def casts_on_swing(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 == SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1
 
     def get_base_cast_time(self):
@@ -47,6 +52,13 @@ class CastingSpell(object):
             return self.cast_time_entry.Minimum
 
         return int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill.value))
+
+    def get_resource_cost(self):
+        if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and self.spell_entry.ManaCostPct != 0:
+            return self.spell_caster.base_mana * self.spell_entry.ManaCostPct/100
+
+        # ManaCostPerLevel is not used by anything relevant (only 271/4513/7290)
+        return self.spell_entry.ManaCost
 
     def get_effects(self):
         effects = []
@@ -142,25 +154,28 @@ class SpellEffect(object):
 
 class SpellEffectHandler(object):  # TODO implement die sides https://wowdev.wiki/DB/Spell
     @staticmethod
-    def apply_effect(spell, effect, caster, unit):
+    def apply_effect(casting_spell, effect):
         if effect.effect_type not in SPELL_EFFECTS:
             Logger.debug("Unimplemented effect called: " + str(effect.effect_type))
             return
-        SPELL_EFFECTS[effect.effect_type](spell, effect, caster, unit)
+        SPELL_EFFECTS[effect.effect_type](casting_spell, effect, casting_spell.spell_caster, casting_spell.initial_target_unit)
 
     @staticmethod
-    def handle_school_damage(spell, effect, caster, unit):
+    def handle_school_damage(casting_spell, effect, caster, target):
         damage = int(effect.base_points + effect.real_points_per_level * caster.level)
-        caster.deal_spell_damage(unit, damage, spell.School, spell.ID)
+        caster.deal_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
 
     @staticmethod
-    def handle_heal(spell, effect, caster, unit):
+    def handle_heal(casting_spell, effect, caster, target):
         healing = int(effect.base_points + effect.real_points_per_level * caster.level)
 
     @staticmethod
-    def handle_weapon_damage(spell, effect, caster, unit):
-        damage = int(caster.calculate_damage + effect.base_points)
-        caster.deal_spell_damage(unit, damage, spell.School, spell.ID)
+    def handle_weapon_damage(casting_spell, effect, caster, target):
+        damage_info = caster.calculate_melee_damage(target, casting_spell.trigger_melee_attack_type)
+        if not damage_info:
+            return
+        damage = damage_info.total_damage + effect.base_points
+        caster.deal_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
 
 
 SPELL_EFFECTS = {
@@ -171,29 +186,32 @@ SPELL_EFFECTS = {
 
 
 class SpellManager(object):
-    def __init__(self, player_mgr):
-        self.player_mgr = player_mgr
+    def __init__(self, unit_mgr):
+        self.unit_mgr = unit_mgr
         self.spells = {}
         self.cooldowns = {}
         self.casting_spells = []
 
     def load_spells(self):
-        for spell in RealmDatabaseManager.character_get_spells(self.player_mgr.guid):
+        for spell in RealmDatabaseManager.character_get_spells(self.unit_mgr.guid):
             self.spells[spell.spell] = spell
 
     def learn_spell(self, spell_id):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not spell:
             return
 
         db_spell = CharacterSpell()
-        db_spell.guid = self.player_mgr.guid
+        db_spell.guid = self.unit_mgr.guid
         db_spell.spell = spell_id
         RealmDatabaseManager.character_add_spell(db_spell)
         self.spells[spell_id] = db_spell
 
         data = pack('<H', spell_id)
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
+        self.unit_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
         # Teach skills required as well like in CharCreateHandler?
 
     def get_initial_spells(self):
@@ -218,41 +236,65 @@ class SpellManager(object):
         if not self.validate_cast(casting_spell):
             return
 
+        self.casting_spells.append(casting_spell)
+        casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
+
         if not casting_spell.is_instant_cast():
             self.send_cast_start(casting_spell)
-            casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
-            self.casting_spells.append(casting_spell)
+            return
+
+        if casting_spell.casts_on_swing():
+            casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED  # Wait for next swing
             return
 
         # Spell is instant, perform cast
-        self.perform_spell_cast(casting_spell)
+        self.perform_spell_cast(casting_spell, False)
 
-    def perform_spell_cast(self, casting_spell):
-        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_CAST_OK)
-        self.send_spell_GO(casting_spell)
+    def perform_spell_cast(self, casting_spell, validate=True):
+        if validate and not self.validate_cast(casting_spell):
+            self.remove_cast(casting_spell)
+            return
+
+        if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_CAST_OK)
+            self.send_spell_GO(casting_spell)
+        else:
+            return  # Spell is in delayed state, do nothing for now
 
         travel_time = self.calculate_time_to_impact(casting_spell)
+
         if travel_time != 0:
             casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED
             casting_spell.spell_delay_end_timestamp = time.time() + travel_time
             return
-        elif casting_spell.cast_on_swing():
-            casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED
-            # TODO send spell activate packet ??
 
-        casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
-        # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Only channeled spells
+        self.consume_resources_for_cast(casting_spell)
+        self.apply_spell_effects_and_remove(casting_spell)  # Travel time is 0, apply effects
+        # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Channeled spells
 
     has_moved = False
 
-    def trigger_melee_swing(self):
+    def apply_spell_effects_and_remove(self, casting_spell):
+        for effect in casting_spell.get_effects():
+            SpellEffectHandler.apply_effect(casting_spell, effect)
+        self.remove_cast(casting_spell)
+
+    def cast_queued_melee_abilities(self, attack_type):
         for casting_spell in self.casting_spells:
-            if not casting_spell.cast_on_swing():
+            if not casting_spell.casts_on_swing() or \
+                    casting_spell.cast_state != SpellState.SPELL_STATE_DELAYED:
                 continue
-            for effect in casting_spell.get_effects():  # TODO check effect flags
-                SpellEffectHandler.apply_effect(casting_spell.spell_entry, effect,
-                                                casting_spell.spell_caster, casting_spell.initial_target_unit)
-            self.remove_cast(casting_spell)
+
+            if not self.validate_cast(casting_spell):
+                self.remove_cast(casting_spell)
+                return
+
+            casting_spell.trigger_melee_attack_type = attack_type
+
+            casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
+            self.perform_spell_cast(casting_spell, False)
+            return True
+        return False
 
     def flag_as_moved(self):
         # TODO temporary way of handling this until movement data can be passed to update()
@@ -264,6 +306,8 @@ class SpellManager(object):
         moved = self.has_moved
         self.has_moved = False  # Reset has_moved on every update
         for casting_spell in list(self.casting_spells):
+            if casting_spell.casts_on_swing():  # spells cast on swing will be updated on call from attack handling
+                continue
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
                 if casting_spell.cast_end_timestamp <= timestamp:
                     if not self.validate_cast(casting_spell):  # Spell finished casting, validate again
@@ -280,9 +324,9 @@ class SpellManager(object):
             elif casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
                     casting_spell.spell_delay_end_timestamp <= timestamp:  # Spell was cast already and impact delay is done
                 for effect in casting_spell.get_effects():
-                    SpellEffectHandler.apply_effect(casting_spell.spell_entry, effect,
-                                                    casting_spell.spell_caster, casting_spell.initial_target_unit)
+                    SpellEffectHandler.apply_effect(casting_spell, effect)
                 self.remove_cast(casting_spell)
+
 
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_CAST_OK):
         if casting_spell not in self.casting_spells:
@@ -309,7 +353,7 @@ class SpellManager(object):
         return {target.guid: SpellMissReason.MISS_REASON_NONE}
 
     def send_cast_start(self, casting_spell):
-        data = [self.player_mgr.guid, self.player_mgr.guid,
+        data = [self.unit_mgr.guid, self.unit_mgr.guid,
                 casting_spell.spell_entry.ID, 0, casting_spell.get_base_cast_time(),
                 casting_spell.spell_target_mask]
 
@@ -321,11 +365,12 @@ class SpellManager(object):
         data = pack(signature, *data)
         Logger.debug("sending cast start of spell " + casting_spell.spell_entry.Name_enUS + " with cast time " + str(casting_spell.get_base_cast_time()))
 
-        # TODO send surrounding probably
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data))
+        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
+                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
+        #self.unit_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data))
 
     def send_spell_GO(self, casting_spell):
-        data = [self.player_mgr.guid, self.player_mgr.guid,
+        data = [self.unit_mgr.guid, self.unit_mgr.guid,
                 casting_spell.spell_entry.ID, 0]  # TODO Flags
 
         sign = "<QQIH"
@@ -353,13 +398,18 @@ class SpellManager(object):
             data.append(casting_spell.initial_target_unit.guid)
 
         packed = pack(sign, *data)
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed))
+        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.unit_mgr,
+                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
+        #self.unit_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed))
 
     def set_on_cooldown(self, spell):
         self.cooldowns[spell.ID] = spell.RecoveryTime + time.time()
 
-        data = pack('<IQH', spell.ID, self.player_mgr.guid, spell.RecoveryTime)
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        data = pack('<IQH', spell.ID, self.unit_mgr.guid, spell.RecoveryTime)
+        self.unit_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def is_on_cooldown(self, spell_id):
         return spell_id in self.cooldowns
@@ -380,12 +430,45 @@ class SpellManager(object):
         if self.has_moved:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_MOVING)
             return False
+
+        if not self.has_resources_for_cast(casting_spell):
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
+            return False
+
         return True
+
+    def has_resources_for_cast(self, casting_spell):
+        if casting_spell.spell_entry.PowerType != self.unit_mgr.power_type:  # Doesn't have the correct power type
+            return False
+
+        if casting_spell.get_resource_cost() > self.unit_mgr.get_power_type_value():  # Doesn't have enough power
+            print(casting_spell.get_resource_cost(), self.unit_mgr.get_power_type_value())
+            return False
+        return True
+
+    def consume_resources_for_cast(self, casting_spell):
+        power_type = casting_spell.spell_entry.PowerType
+        cost = casting_spell.spell_entry.ManaCost
+        new_power = self.unit_mgr.get_power_type_value() - cost
+        if power_type == PowerTypes.TYPE_MANA:
+            self.unit_mgr.set_mana(new_power)
+        elif power_type == PowerTypes.TYPE_RAGE:
+            self.unit_mgr.set_rage(new_power)
+        elif power_type == PowerTypes.TYPE_FOCUS:
+            self.unit_mgr.set_focus(new_power)
+        elif power_type == PowerTypes.TYPE_ENERGY:
+            self.unit_mgr.set_energy(new_power)
+
+        self.unit_mgr.set_dirty()
 
     def send_cast_result(self, spell_id, error):
         # cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED  # TODO CAST_SUCCESS_KEEP_TRACKING
+
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
         if error == SpellCheckCastResult.SPELL_CAST_OK:
             data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
         else:
             data = pack('<IBB', spell_id, SpellCastStatus.CAST_FAILED, error)
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
+        self.unit_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))

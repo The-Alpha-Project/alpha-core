@@ -126,7 +126,6 @@ class PlayerManager(UnitManager):
             self.stat_manager = StatManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
-            self.spell_manager = SpellManager(self)
             self.quest_manager = QuestManager(self)
             self.friends_manager = FriendsManager(self)
             self.guild_manager = None

@@ -7,6 +7,7 @@ from game.world import WorldManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.player.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
@@ -194,6 +195,8 @@ class UnitManager(ObjectManager):
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
+
+        self.spell_manager = SpellManager(self)
         self.movement_manager = MovementManager(self)
 
     def attack(self, victim, is_melee=True):
@@ -336,6 +339,9 @@ class UnitManager(ObjectManager):
             if not extra and self.extra_attacks > 0:
                 self.execute_extra_attacks()
                 return
+
+            if self.spell_manager.cast_queued_melee_abilities(attack_type):
+                return  # Melee ability replaces regular attack
 
         damage_info = self.calculate_melee_damage(victim, attack_type)
         if not damage_info:
