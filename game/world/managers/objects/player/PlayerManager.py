@@ -462,6 +462,9 @@ class PlayerManager(UnitManager):
                     self.mod_money(enemy.loot_manager.current_money)
                     enemy.loot_manager.clear_money()
 
+                if enemy and not enemy.loot_manager.has_loot():
+                    self.send_loot_release(enemy.guid)
+
     def loot_item(self, slot):
         if self.current_selection > 0:
             enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=False)
@@ -472,6 +475,9 @@ class PlayerManager(UnitManager):
                         enemy.loot_manager.do_loot(slot)
                         data = pack('<B', slot)
                         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
+
+                if enemy and not enemy.loot_manager.has_loot():
+                    self.send_loot_release(enemy.guid)
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
