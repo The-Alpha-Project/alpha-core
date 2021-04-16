@@ -641,8 +641,12 @@ class UnitManager(ObjectManager):
     def die(self, killer=None):
         if not self.is_alive:
             return
-
         self.is_alive = False
+
+        # Stop movement on death
+        if len(self.movement_manager.pending_waypoints) > 0:
+            self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_NONE)
+
         self.set_health(0)
         self.set_stand_state(StandState.UNIT_DEAD)
 
