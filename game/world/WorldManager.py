@@ -1,3 +1,4 @@
+import _queue
 import socketserver
 import threading
 import socket
@@ -25,17 +26,17 @@ def get_seconds_since_startup():
     return time() - STARTUP_TIME
 
 
-class ThreadedWorldServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    pass
-
-
-class WorldServerSessionHandler(socketserver.BaseRequestHandler):
-    def __init__(self, request, client_address, server):
-        super().__init__(request, client_address, server)
+class WorldServerSessionHandler(object):
+    def __init__(self, request, client_address):
+        self.request = request
+        self.client_address = client_address
 
         self.account_mgr = None
         self.player_mgr = None
         self.keep_alive = False
+
+        self.incoming_pending = _queue.SimpleQueue()
+        self.outgoing_pending = _queue.SimpleQueue()
 
     def handle(self):
         try:
@@ -54,11 +55,43 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
                                            seconds=config.Server.Settings.realm_saving_interval_seconds)
             realm_saving_scheduler.start()
 
+            incoming_thread = threading.Thread(target=self.process_incoming)
+            incoming_thread.daemon = True
+            incoming_thread.start()
+
+            outgoing_thread = threading.Thread(target=self.process_outgoing)
+            outgoing_thread.daemon = True
+            outgoing_thread.start()
+
             while self.receive(self.request) != -1 and self.keep_alive:
                 continue
 
         finally:
             self.disconnect()
+
+    def send_message(self, data):
+        self.outgoing_pending.put_nowait(data)
+
+    def process_outgoing(self):
+        while self.keep_alive:
+            data = self.outgoing_pending.get(block=True, timeout=None)
+            if data:  # Can be None if we shutdown the thread.
+                self.request.sendall(data)
+
+    def process_incoming(self):
+        while self.keep_alive:
+            data = self.incoming_pending.get(block=True, timeout=None)
+            if data:  # Can be None if we shutdown the thread.
+                reader = PacketReader(data)
+                if reader.opcode:
+                    handler, res = Definitions.get_handler_from_packet(self, reader.opcode)
+                    if handler:
+                        Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
+                        if handler(self, self.request, reader) != 0:
+                            self.disconnect()
+                            break
+                    elif res == -1:
+                        Logger.warning(f'[{self.client_address[0]}] Received unknown data: {data}')
 
     def disconnect(self):
         try:
@@ -68,6 +101,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
             pass
 
         self.keep_alive = False
+        self.incoming_pending.empty()
+        self.outgoing_pending.empty()
         WorldSessionStateHandler.remove(self)
 
         try:
@@ -92,15 +127,8 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         try:
             data = sck.recv(2048)
             if len(data) > 0:
-                reader = PacketReader(data)
-                if reader.opcode:
-                    handler, res = Definitions.get_handler_from_packet(self, reader.opcode)
-                    if handler:
-                        Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
-                        if handler(self, sck, reader) != 0:
-                            return -1
-                    elif res == -1:
-                        Logger.warning(f'[{self.client_address[0]}] Received unknown data: {data}')
+                self.incoming_pending.put(data)
+                return 0
             else:
                 return -1
         except OSError:
@@ -133,17 +161,21 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def start():
         WorldLoader.load_data()
-        Logger.success('World server started.')
+
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.bind((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port))
+        server_socket.listen()
 
         WorldServerSessionHandler.schedule_updates()
 
-        ThreadedWorldServer.allow_reuse_address = True
-        ThreadedWorldServer.timeout = 10
-        with ThreadedWorldServer((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port),
-                                 WorldServerSessionHandler) as world_instance:
+        Logger.success('World server started.')
+
+        while WORLD_ON:  # sck.accept() is a blocking call, we cant exit this loop gracefully.
             try:
-                world_session_thread = threading.Thread(target=world_instance.serve_forever())
+                (client_socket, client_address) = server_socket.accept()
+                server_handler = WorldServerSessionHandler(client_socket, client_address)
+                world_session_thread = threading.Thread(target=server_handler.handle)
                 world_session_thread.daemon = True
                 world_session_thread.start()
-            except KeyboardInterrupt:
-                Logger.info("World server turned off.")
+            except:
+                break

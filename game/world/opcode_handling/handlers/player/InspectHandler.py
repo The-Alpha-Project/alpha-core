@@ -23,5 +23,5 @@ class InspectHandler(object):
                 world_session.player_mgr.set_current_target(guid)
 
                 data = pack('<Q', world_session.player_mgr.guid)
-                inspected_player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_INSPECT, data))
+                inspected_player.session.send_message(PacketWriter.get_packet(OpCode.SMSG_INSPECT, data))
         return 0

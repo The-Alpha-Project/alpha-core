@@ -69,7 +69,7 @@ class MovementHandler(object):
                 #        reader.opcode == OpCode.MSG_MOVE_STOP_STRAFE or \
                 #        reader.opcode == OpCode.MSG_MOVE_STOP_TURN:
                 #    data = pack('<2QI', world_session.player_mgr.guid, 0, 0)
-                #    socket.sendall(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data))
+                #    world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data))
 
                 # Get up if you jump while not standing
                 if reader.opcode == OpCode.MSG_MOVE_JUMP and \

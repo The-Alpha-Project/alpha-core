@@ -193,7 +193,7 @@ class SpellManager(object):
         self.spells[spell_id] = db_spell
 
         data = pack('<H', spell_id)
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
+        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
         # Teach skills required as well like in CharCreateHandler?
 
     def get_initial_spells(self):
@@ -322,7 +322,7 @@ class SpellManager(object):
         Logger.debug("sending cast start of spell " + casting_spell.spell_entry.Name_enUS + " with cast time " + str(casting_spell.get_base_cast_time()))
 
         # TODO send surrounding probably
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data))
+        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data))
 
     def send_spell_GO(self, casting_spell):
         data = [self.player_mgr.guid, self.player_mgr.guid,
@@ -353,13 +353,13 @@ class SpellManager(object):
             data.append(casting_spell.initial_target_unit.guid)
 
         packed = pack(sign, *data)
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed))
+        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed))
 
     def set_on_cooldown(self, spell):
         self.cooldowns[spell.ID] = spell.RecoveryTime + time.time()
 
         data = pack('<IQH', spell.ID, self.player_mgr.guid, spell.RecoveryTime)
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def is_on_cooldown(self, spell_id):
         return spell_id in self.cooldowns
@@ -388,4 +388,4 @@ class SpellManager(object):
             data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
         else:
             data = pack('<IBB', spell_id, SpellCastStatus.CAST_FAILED, error)
-        self.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
+        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))

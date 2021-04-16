@@ -94,7 +94,7 @@ class CharCreateHandler(object):
             RealmDatabaseManager.character_add_deathbind(default_deathbind)
 
         data = pack('<B', result)
-        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHAR_CREATE, data))
+        world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_CHAR_CREATE, data))
 
         return 0
 

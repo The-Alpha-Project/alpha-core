@@ -244,7 +244,7 @@ class Grid(object):
                 if use_ignore and source and player_mgr.friends_manager.has_ignore(source.guid):
                     continue
 
-                threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
+                threading.Thread(target=player_mgr.session.send_message, args=(packet,)).start()
 
     def send_all_in_range(self, packet, range_, source, include_self=True, exclude=None, use_ignore=False):
         if range_ <= 0:
@@ -257,4 +257,4 @@ class Grid(object):
                     if use_ignore and player_mgr.friends_manager.has_ignore(source.guid):
                         continue
 
-                    threading.Thread(target=player_mgr.session.request.sendall, args=(packet,)).start()
+                    threading.Thread(target=player_mgr.session.send_message, args=(packet,)).start()

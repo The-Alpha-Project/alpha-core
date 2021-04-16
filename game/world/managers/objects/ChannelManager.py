@@ -349,7 +349,7 @@ class ChannelManager(object):
 
     @staticmethod
     def send_to_player(player_mgr, packet):
-        player_mgr.session.request.sendall(packet)
+        player_mgr.session.send_message(packet)
 
     @staticmethod
     def broadcast_to_channel(sender, channel, packet, ignore=None):
@@ -363,7 +363,7 @@ class ChannelManager(object):
             for player in ChannelManager._get_members(channel, sender):
                 if ignore and player in ignore:
                     continue
-                player.session.request.sendall(packet)
+                player.session.send_message(packet)
 
     @staticmethod
     def build_notify_packet(channel, notification_type, target1=None, target2=None, player_name=None, flags=None):

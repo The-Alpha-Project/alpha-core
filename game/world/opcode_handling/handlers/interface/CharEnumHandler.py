@@ -16,7 +16,7 @@ class CharEnumHandler(object):
         data = pack('<B', count)
         for character in characters:
             data += CharEnumHandler.get_char_packet(world_session, character)
-        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHAR_ENUM, data))
+        world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_CHAR_ENUM, data))
 
         return 0
 

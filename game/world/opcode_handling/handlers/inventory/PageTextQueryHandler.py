@@ -39,6 +39,6 @@ class PageTextQueryHandler(object):
 
                     keep_looking = False
 
-                socket.sendall(PacketWriter.get_packet(OpCode.SMSG_PAGE_TEXT_QUERY_RESPONSE, data))
+                world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_PAGE_TEXT_QUERY_RESPONSE, data))
 
         return 0

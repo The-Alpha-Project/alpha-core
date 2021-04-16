@@ -1,4 +1,5 @@
 from multiprocessing import Process
+from time import sleep
 
 import colorama
 
@@ -28,3 +29,21 @@ if __name__ == '__main__':
 
     world_process = Process(target=WorldManager.WorldServerSessionHandler.start)
     world_process.start()
+
+    try:
+        if config.Server.Settings.console_mode:
+            while input() != 'exit':
+                Logger.error('Invalid command.')
+        else:
+            while True:
+                sleep(60)
+    except:
+        Logger.info('Shutting down alpha core...')
+
+    # Make sure main processes are killed.
+    world_process.kill()
+    Logger.info('Killed world process.')
+    proxy_process.kill()
+    Logger.info('Killed proxy process.')
+    login_process.kill()
+    Logger.info('Killed login process.')

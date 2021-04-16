@@ -29,7 +29,7 @@ class FriendsManager(object):
             if player_mgr and player_mgr.online:  # Player is online.
                 data += pack('<B3I', 1, player_mgr.zone, player_mgr.level, player_mgr.player.class_)
 
-            self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
+            self.owner.session.send_message(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
             self.send_friends()
 
     def _create_friend(self, player_guid, ignored=False):
@@ -44,14 +44,14 @@ class FriendsManager(object):
             RealmDatabaseManager.character_social_delete_friend(self.friends[player_guid])
             self.friends.pop(player_guid)
             data = pack('<BQ', FriendResults.FRIEND_REMOVED, player_guid)
-            self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
+            self.owner.session.send_message(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
             self.send_friends()
 
     def remove_ignore(self, player_guid):
         if player_guid in self.friends:
             RealmDatabaseManager.character_social_delete_friend(self.friends[player_guid])
             data = pack('<BQ', FriendResults.FRIEND_IGNORE_REMOVED, player_guid)
-            self.owner.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
+            self.owner.session.send_message(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
             self.send_ignores()
 
     def has_friend(self, player_guid):
@@ -70,7 +70,7 @@ class FriendsManager(object):
         RealmDatabaseManager.character_update_social([self.friends[player_guid]])
         data = pack('<BQ', FriendResults.FRIEND_IGNORE_ADDED, player_guid)
         packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
-        self.owner.session.request.sendall(packet)
+        self.owner.session.send_message(packet)
         self.send_ignores()
 
     def send_friends_and_ignores(self):
@@ -84,13 +84,13 @@ class FriendsManager(object):
         for entry in friends_list:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(entry.friend)
             if player_mgr and player_mgr.online:
-                self.owner.session.request.sendall(NameQueryHandler.get_query_details(player_mgr.player))
+                self.owner.session.send_message(NameQueryHandler.get_query_details(player_mgr.player))
                 data += pack('<QB3I', player_mgr.guid, 1, player_mgr.zone, player_mgr.level, player_mgr.player.class_)
             else:
                 data += pack('QB', entry.friend, 0)  # 0 = Offline
 
         packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_LIST, data)
-        self.owner.session.request.sendall(packet)
+        self.owner.session.send_message(packet)
 
     def send_ignores(self):
         ignore_list = [f for f in self.friends.values() if f.ignore]
@@ -100,7 +100,7 @@ class FriendsManager(object):
             data += pack('<Q', entry.friend)  # Ignored player guid.
 
         packet = PacketWriter.get_packet(OpCode.SMSG_IGNORE_LIST, data)
-        self.owner.session.request.sendall(packet)
+        self.owner.session.send_message(packet)
 
     def send_online_notification(self):
         have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
@@ -111,7 +111,7 @@ class FriendsManager(object):
                             self.owner.level,
                             self.owner.player.class_)
                 packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
-                player_mgr.session.request.sendall(packet)
+                player_mgr.session.send_message(packet)
                 player_mgr.friends_manager.send_friends()
 
     def send_offline_notification(self):
@@ -121,7 +121,7 @@ class FriendsManager(object):
             if player_mgr:
                 data = pack('<BQB', FriendResults.FRIEND_OFFLINE, self.owner.guid, 0)
                 packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
-                player_mgr.session.request.sendall(packet)
+                player_mgr.session.send_message(packet)
                 player_mgr.friends_manager.send_friends()
 
     def send_update_to_friends(self):

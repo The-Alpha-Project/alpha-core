@@ -11,6 +11,6 @@ class PlayedTimeHandler(object):
         data = pack('<2I',
                     int(world_session.player_mgr.player.totaltime),
                     int(world_session.player_mgr.player.leveltime))
-        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_PLAYED_TIME, data))
+        world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_PLAYED_TIME, data))
 
         return 0

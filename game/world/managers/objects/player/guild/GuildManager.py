@@ -161,7 +161,7 @@ class GuildManager(object):
             if source and member.friends_manager.has_ignore(source.guid):
                 continue
 
-            member.session.request.sendall(packet)
+            member.session.send_message(packet)
 
     def invite_member(self, player_mgr, invited_player):
         if invited_player.guid not in GuildManager.PENDING_INVITES:
@@ -277,4 +277,4 @@ class GuildManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_COMMAND_RESULT, data)
-        player_mgr.session.request.sendall(packet)
+        player_mgr.session.send_message(packet)

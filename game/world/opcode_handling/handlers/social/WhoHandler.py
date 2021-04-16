@@ -96,6 +96,6 @@ class WhoHandler(object):
                     player_count += 1
 
             data = pack('<2I', player_count, online_count if online_count > 49 else player_count) + player_data
-            socket.sendall(PacketWriter.get_packet(OpCode.SMSG_WHO, data))
+            world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_WHO, data))
 
         return 0

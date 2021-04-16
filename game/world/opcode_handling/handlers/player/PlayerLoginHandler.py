@@ -45,12 +45,12 @@ class PlayerLoginHandler(object):
                 data = pack(
                     '<B', CharLogin.CHAR_LOGIN_DISABLED
                 )
-                socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHARACTER_LOGIN_FAILED, data))
+                world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_CHARACTER_LOGIN_FAILED, data))
                 return 0
 
         # Class & race allowed, continue with the login process
 
-        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
+        world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
                                                PlayerLoginHandler._get_login_timespeed()))
 
         world_session.player_mgr.spell_manager.load_spells()
@@ -58,11 +58,11 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.deathbind = RealmDatabaseManager.character_get_deathbind(world_session.player_mgr.guid)
         world_session.player_mgr.friends_manager.load_from_db(RealmDatabaseManager.character_get_social(world_session.player_mgr.guid))
 
-        socket.sendall(world_session.player_mgr.get_deathbind_packet())
+        world_session.send_message(world_session.player_mgr.get_deathbind_packet())
         #  Tutorials aren't implemented in 0.5.3
-        #  socket.sendall(world_session.player_mgr.get_tutorial_packet())
-        socket.sendall(world_session.player_mgr.spell_manager.get_initial_spells())
-        socket.sendall(world_session.player_mgr.get_action_buttons())
+        #  world_session.send_message(world_session.player_mgr.get_tutorial_packet())
+        world_session.send_message(world_session.player_mgr.spell_manager.get_initial_spells())
+        world_session.send_message(world_session.player_mgr.get_action_buttons())
 
         # MotD
         ChatManager.send_system_message(world_session, config.Server.General.motd)
@@ -103,7 +103,7 @@ class PlayerLoginHandler(object):
             data = pack(
                 '<I', cinematic_id
             )
-            socket.sendall(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
+            world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
 
     @staticmethod
     def _get_login_timespeed():
