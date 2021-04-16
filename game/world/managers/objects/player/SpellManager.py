@@ -1,4 +1,5 @@
 import time
+import random
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -102,6 +103,10 @@ class SpellEffect(object):
         elif index == 3:
             self.load_third(spell)
 
+    def get_effect_points(self, level):
+        rolled_points = random.randint(1, self.die_sides + self.dice_per_level) if self.die_sides != 0 else 0
+        return self.base_points + int(self.real_points_per_level * level) + rolled_points
+
     def load_first(self, spell):
         self.effect_type = spell.Effect_1
         self.die_sides = spell.EffectDieSides_1
@@ -157,7 +162,7 @@ class SpellEffect(object):
         self.trigger_spell = spell.EffectTriggerSpell_3
     
 
-class SpellEffectHandler(object):  # TODO implement die sides https://wowdev.wiki/DB/Spell
+class SpellEffectHandler(object):
     @staticmethod
     def apply_effect(casting_spell, effect):
         if effect.effect_type not in SPELL_EFFECTS:
@@ -167,19 +172,19 @@ class SpellEffectHandler(object):  # TODO implement die sides https://wowdev.wik
 
     @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
-        damage = int(effect.base_points + effect.real_points_per_level * caster.level)
+        damage = effect.get_effect_points(caster.level)
         caster.deal_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
 
     @staticmethod
     def handle_heal(casting_spell, effect, caster, target):
-        healing = int(effect.base_points + effect.real_points_per_level * caster.level)
+        healing = effect.get_effect_points(caster.level)
 
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):
         damage_info = caster.calculate_melee_damage(target, casting_spell.trigger_melee_attack_type)
         if not damage_info:
             return
-        damage = damage_info.total_damage + effect.base_points
+        damage = damage_info.total_damage + effect.get_effect_points(caster.level)
         caster.deal_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
 
     @staticmethod
@@ -188,7 +193,7 @@ class SpellEffectHandler(object):  # TODO implement die sides https://wowdev.wik
         if not damage_info:
             return
         damage = damage_info.total_damage
-        damage_bonus = effect.base_points
+        damage_bonus = effect.get_effect_points(caster.level)
 
         if caster.get_type() == ObjectTypes.TYPE_PLAYER and \
                 casting_spell.requires_combo_points():
@@ -198,7 +203,7 @@ class SpellEffectHandler(object):  # TODO implement die sides https://wowdev.wik
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):
-        caster.add_combo_points_on_target(target, effect.base_points+1)
+        caster.add_combo_points_on_target(target, effect.get_effect_points(caster.level))
 
 
 SPELL_EFFECTS = {
@@ -261,15 +266,20 @@ class SpellManager(object):
         if not self.validate_cast(casting_spell):
             return
 
+        if casting_spell.casts_on_swing():  # Handle swing ability queue and state
+            queued_melee_ability = self.get_queued_melee_ability()
+            if queued_melee_ability:
+                self.remove_cast(queued_melee_ability, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)  # Only one melee ability can be queued
+
+            casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED  # Wait for next swing
+            self.casting_spells.append(casting_spell)
+            return
+
         self.casting_spells.append(casting_spell)
         casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
 
         if not casting_spell.is_instant_cast():
             self.send_cast_start(casting_spell)
-            return
-
-        if casting_spell.casts_on_swing():
-            casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED  # Wait for next swing
             return
 
         # Spell is instant, perform cast
@@ -306,22 +316,26 @@ class SpellManager(object):
             SpellEffectHandler.apply_effect(casting_spell, effect)
         self.remove_cast(casting_spell)
 
-    def cast_queued_melee_abilities(self, attack_type):
+    def cast_queued_melee_ability(self, attack_type):
+        melee_ability = self.get_queued_melee_ability()
+
+        if not melee_ability or not self.validate_cast(melee_ability):
+            self.remove_cast(melee_ability)
+            return False
+
+        melee_ability.trigger_melee_attack_type = attack_type
+
+        melee_ability.cast_state = SpellState.SPELL_STATE_CASTING
+        self.perform_spell_cast(melee_ability, False)
+        return True
+
+    def get_queued_melee_ability(self):
         for casting_spell in self.casting_spells:
             if not casting_spell.casts_on_swing() or \
                     casting_spell.cast_state != SpellState.SPELL_STATE_DELAYED:
                 continue
-
-            if not self.validate_cast(casting_spell):
-                self.remove_cast(casting_spell)
-                return
-
-            casting_spell.trigger_melee_attack_type = attack_type
-
-            casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
-            self.perform_spell_cast(casting_spell, False)
-            return True
-        return False
+            return casting_spell
+        return None
 
     def flag_as_moved(self):
         # TODO temporary way of handling this until movement data can be passed to update()
@@ -427,7 +441,6 @@ class SpellManager(object):
         packed = pack(sign, *data)
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.unit_mgr,
                                      include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
-        #self.unit_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed))
 
     def set_on_cooldown(self, spell):
         self.cooldowns[spell.ID] = spell.RecoveryTime + time.time()
@@ -466,13 +479,16 @@ class SpellManager(object):
 
     def has_resources_for_cast(self, casting_spell):
         if casting_spell.spell_entry.PowerType != self.unit_mgr.power_type:  # Doesn't have the correct power type
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 
         if casting_spell.get_resource_cost() > self.unit_mgr.get_power_type_value():  # Doesn't have enough power
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and casting_spell.requires_combo_points() and \
                 (casting_spell.initial_target_unit.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
         return True
 

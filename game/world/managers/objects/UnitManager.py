@@ -340,7 +340,7 @@ class UnitManager(ObjectManager):
                 self.execute_extra_attacks()
                 return
 
-            if self.spell_manager.cast_queued_melee_abilities(attack_type):
+            if self.spell_manager.cast_queued_melee_ability(attack_type):
                 return  # Melee ability replaces regular attack
 
         damage_info = self.calculate_melee_damage(victim, attack_type)
