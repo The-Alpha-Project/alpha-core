@@ -997,26 +997,33 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
-    def add_combo_points_on_target(self, target_guid, combo_points):
-        if combo_points <= 0:
+    def add_combo_points_on_target(self, target, combo_points):
+        if combo_points <= 0 or not target.is_alive:  # Killing an unit with a combo generator can generate a combo point after death
             return
 
-        if target_guid != self.combo_target:
+        if target.guid != self.combo_target:
             self.combo_points = min(combo_points, 5)
-            self.combo_target = target_guid
+            self.combo_target = target.guid
         else:
             self.combo_points = min(combo_points + self.combo_points, 5)
 
         self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
-        self.combo_target = target_guid
+        self.combo_target = target.guid
+        self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
 
         self.set_dirty()
 
+    # override
     def remove_combo_points(self):
         self.combo_points = 0
-        self.combo_target = None
+        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
+
+        self.combo_target = 0
+        self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
+
         self.set_dirty()
 
     def set_dirty(self, is_dirty=True, dirty_inventory=False):

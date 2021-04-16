@@ -198,7 +198,7 @@ class SpellEffectHandler(object):  # TODO implement die sides https://wowdev.wik
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):
-        caster.add_combo_points_on_target(target.guid, effect.base_points+1)
+        caster.add_combo_points_on_target(target, effect.base_points+1)
 
 
 SPELL_EFFECTS = {
@@ -470,8 +470,8 @@ class SpellManager(object):
         if casting_spell.get_resource_cost() > self.unit_mgr.get_power_type_value():  # Doesn't have enough power
             return False
 
-        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
-                casting_spell.requires_combo_points() and self.unit_mgr.combo_points == 0:  # Doesn't have required combo points
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and casting_spell.requires_combo_points() and \
+                (casting_spell.initial_target_unit.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points
             return False
         return True
 

@@ -624,7 +624,12 @@ class UnitManager(ObjectManager):
             # Update ranged temp enchants
             pass
 
-    def set_combo_points_on_target(self, target_guid, combo_points):
+    # Implemented by PlayerManager
+    def add_combo_points_on_target(self, target, combo_points):
+        pass
+
+    # Implemented by PlayerManager
+    def remove_combo_points(self):
         pass
 
     def set_stand_state(self, stand_state):
@@ -664,6 +669,10 @@ class UnitManager(ObjectManager):
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             if killer.current_selection == self.guid:
                 killer.set_current_selection(0)
+
+            # Clear combo of killer if this unit was the target
+            if killer.combo_target == self.guid:
+                killer.remove_combo_points()
 
         # Clear all pending waypoint movement
         self.movement_manager.reset()
