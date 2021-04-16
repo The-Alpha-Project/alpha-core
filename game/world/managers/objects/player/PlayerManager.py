@@ -492,7 +492,7 @@ class PlayerManager(UnitManager):
                 enemy.killed_by = None
 
         if enemy and not enemy.loot_manager.has_loot():
-            enemy.set_lootable(False)
+            enemy.set_lootable(False, set_dirty=False)
 
         self.set_dirty()
 
