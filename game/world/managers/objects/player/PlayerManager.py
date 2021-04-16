@@ -996,7 +996,7 @@ class PlayerManager(UnitManager):
 
     # override
     def add_combo_points_on_target(self, target, combo_points):
-        if combo_points <= 0 or not target.is_alive:  # Killing an unit with a combo generator can generate a combo point after death
+        if combo_points <= 0 or not target.is_alive:  # Killing a unit with a combo generator can generate a combo point after death
             return
 
         if target.guid != self.combo_target:
