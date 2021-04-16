@@ -305,10 +305,6 @@ class CreatureManager(UnitManager):
 
     # override
     def die(self, killer=None):
-        # Stop creature movement on death
-        if len(self.movement_manager.pending_waypoints) > 0:
-            self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_NONE)
-
         super().die(killer)
         self.loot_manager.generate_loot()
 
@@ -343,8 +339,7 @@ class CreatureManager(UnitManager):
         if flag:
             self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
         else:
-            # self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
-            self.dynamic_flags = UnitDynamicTypes.UNIT_DYNAMIC_DEAD
+            self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
         if set_dirty:
