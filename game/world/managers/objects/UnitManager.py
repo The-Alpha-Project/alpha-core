@@ -663,7 +663,7 @@ class UnitManager(ObjectManager):
         # Clear all pending waypoint movement
         self.movement_manager.reset()
 
-        self.leave_combat()
+        self.leave_combat(force_update=False)
 
     def respawn(self, force_update=True):
         self.in_combat = False
