@@ -291,6 +291,7 @@ class SpellManager(object):
         if travel_time != 0:
             casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED
             casting_spell.spell_delay_end_timestamp = time.time() + travel_time
+            self.consume_resources_for_cast(casting_spell)  # Remove resources
             return
 
 
