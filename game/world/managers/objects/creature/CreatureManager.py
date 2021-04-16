@@ -319,7 +319,7 @@ class CreatureManager(UnitManager):
                 self.killed_by.group_manager.set_allowed_looters(self)
 
         if self.loot_manager.has_loot():
-            self.set_lootable(True)
+            self.set_lootable(True, set_dirty=False)
 
         self.set_dirty()
 
@@ -339,15 +339,16 @@ class CreatureManager(UnitManager):
         min_damage, max_damage = unpack('<2H', pack('<I', self.damage))
         return int(min_damage), int(max_damage)
 
-    def set_lootable(self, flag=True):
+    def set_lootable(self, flag=True, set_dirty=True):
         if flag:
             self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
-            self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         else:
-            self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
-            self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+            # self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
+            self.dynamic_flags = UnitDynamicTypes.UNIT_DYNAMIC_DEAD
+        self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
-        self.set_dirty()
+        if set_dirty:
+            self.set_dirty()
 
     # override
     def has_offhand_weapon(self):

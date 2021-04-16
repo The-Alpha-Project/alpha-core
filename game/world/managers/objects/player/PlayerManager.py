@@ -1,6 +1,5 @@
 import time
 from struct import unpack
-from math import pi
 
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
