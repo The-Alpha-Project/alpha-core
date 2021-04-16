@@ -624,6 +624,9 @@ class UnitManager(ObjectManager):
             # Update ranged temp enchants
             pass
 
+    def set_combo_points_on_target(self, target_guid, combo_points):
+        pass
+
     def set_stand_state(self, stand_state):
         self.stand_state = stand_state
 

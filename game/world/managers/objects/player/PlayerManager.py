@@ -43,6 +43,7 @@ class PlayerManager(UnitManager):
                  base_hp=0,
                  base_mana=0,
                  combo_points=0,
+                 combo_target=0,
                  chat_flags=0,
                  online=False,
                  current_selection=0,
@@ -65,6 +66,8 @@ class PlayerManager(UnitManager):
         self.base_hp = base_hp
         self.base_mana = base_mana
         self.combo_points = combo_points
+        self.combo_target = combo_target
+
         self.current_selection = current_selection
 
         self.chat_flags = chat_flags
@@ -992,6 +995,29 @@ class PlayerManager(UnitManager):
         super().set_stand_state(stand_state)
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+
+    # override
+    def add_combo_points_on_target(self, target_guid, combo_points):
+        if combo_points <= 0:
+            return
+
+        if target_guid != self.combo_target:
+            self.combo_points = min(combo_points, 5)
+            self.combo_target = target_guid
+        else:
+            self.combo_points = min(combo_points + self.combo_points, 5)
+
+        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
+
+        self.combo_target = target_guid
+
+        self.set_dirty()
+
+    def remove_combo_points(self):
+        self.combo_points = 0
+        self.combo_target = None
+        self.set_dirty()
 
     def set_dirty(self, is_dirty=True, dirty_inventory=False):
         self.dirty = is_dirty

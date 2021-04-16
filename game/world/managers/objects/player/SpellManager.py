@@ -9,7 +9,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
-    SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellTargetType, SpellAttributes
+    SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellTargetType, SpellAttributes, SpellAttributesEx
 from utils.constants.UnitCodes import PowerTypes
 
 
@@ -45,6 +45,11 @@ class CastingSpell(object):
 
     def casts_on_swing(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 == SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1
+
+    def requires_combo_points(self):
+        cp_att = SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS
+        return self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and \
+            self.spell_entry.AttributesEx & cp_att != 0
 
     def get_base_cast_time(self):
         skill = self.spell_caster.skill_manager.get_skill_for_spell_id(self.spell_entry.ID)
@@ -177,11 +182,31 @@ class SpellEffectHandler(object):  # TODO implement die sides https://wowdev.wik
         damage = damage_info.total_damage + effect.base_points
         caster.deal_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
 
+    @staticmethod
+    def handle_weapon_damage_plus(casting_spell, effect, caster, target):
+        damage_info = caster.calculate_melee_damage(target, casting_spell.trigger_melee_attack_type)
+        if not damage_info:
+            return
+        damage = damage_info.total_damage
+        damage_bonus = effect.base_points
+
+        if caster.get_type() == ObjectTypes.TYPE_PLAYER and \
+                casting_spell.requires_combo_points():
+            damage_bonus *= caster.combo_points
+
+        caster.deal_spell_damage(target, damage + damage_bonus, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
+
+    @staticmethod
+    def handle_add_combo_points(casting_spell, effect, caster, target):
+        caster.add_combo_points_on_target(target.guid, effect.base_points+1)
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
     SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
-    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage
+    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage,
+    SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
+    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus
 }
 
 
@@ -268,8 +293,9 @@ class SpellManager(object):
             casting_spell.spell_delay_end_timestamp = time.time() + travel_time
             return
 
-        self.consume_resources_for_cast(casting_spell)
-        self.apply_spell_effects_and_remove(casting_spell)  # Travel time is 0, apply effects
+
+        self.apply_spell_effects_and_remove(casting_spell)  # Apply effects
+        self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
         # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Channeled spells
 
     has_moved = False
@@ -442,7 +468,10 @@ class SpellManager(object):
             return False
 
         if casting_spell.get_resource_cost() > self.unit_mgr.get_power_type_value():  # Doesn't have enough power
-            print(casting_spell.get_resource_cost(), self.unit_mgr.get_power_type_value())
+            return False
+
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
+                casting_spell.requires_combo_points() and self.unit_mgr.combo_points == 0:  # Doesn't have required combo points
             return False
         return True
 
@@ -458,6 +487,10 @@ class SpellManager(object):
             self.unit_mgr.set_focus(new_power)
         elif power_type == PowerTypes.TYPE_ENERGY:
             self.unit_mgr.set_energy(new_power)
+
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
+                casting_spell.requires_combo_points():
+            self.unit_mgr.remove_combo_points()
 
         self.unit_mgr.set_dirty()
 
