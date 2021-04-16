@@ -342,10 +342,10 @@ class CreatureManager(UnitManager):
     def set_lootable(self, flag=True, set_dirty=True):
         if flag:
             self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
-            self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         else:
-            self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
-            self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+            # self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
+            self.dynamic_flags = UnitDynamicTypes.UNIT_DYNAMIC_DEAD
+        self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
         if set_dirty:
             self.set_dirty()
