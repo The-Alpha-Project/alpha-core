@@ -74,7 +74,7 @@ class ChatManager(object):
 
     @staticmethod
     def send_whisper(sender, receiver, message, lang):
-        if receiver.friends_manager.has_ignore(sender):
+        if receiver.friends_manager.has_ignore(sender.guid):
             sender_packet = ChatManager._get_message_packet(receiver.guid, receiver.chat_flags, message,
                                                             ChatMsgs.CHAT_MSG_IGNORED, lang)
             sender.session.request.sendall(sender_packet)

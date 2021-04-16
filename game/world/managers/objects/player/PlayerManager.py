@@ -207,6 +207,7 @@ class PlayerManager(UnitManager):
         GridManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
         ChannelManager.join_default_channels(self)  # Once in-world
+        self.friends_manager.send_online_notification()  # Notify our friends
 
     def logout(self):
         # TODO: Temp hackfix until groups are saved in db
@@ -223,8 +224,8 @@ class PlayerManager(UnitManager):
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
 
-        self.friends_manager.send_offline_notification()
         self.online = False
+        self.friends_manager.send_offline_notification()
         self.session.save_character()
         GridManager.remove_object(self)
         self.session.player_mgr = None
@@ -376,6 +377,8 @@ class PlayerManager(UnitManager):
         self.location.y = location.y
         self.location.z = location.z
         self.location.o = location.o
+
+        self.friends_manager.send_update_to_friends()
 
         return True
 
@@ -604,6 +607,7 @@ class PlayerManager(UnitManager):
                 self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
                 self.quest_manager.update_surrounding_quest_status()
+                self.friends_manager.send_update_to_friends()
 
                 self.set_dirty()
 

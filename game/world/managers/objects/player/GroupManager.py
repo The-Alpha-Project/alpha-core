@@ -281,7 +281,7 @@ class GroupManager(object):
         for member in self.members.values():
             if member == ignore:
                 continue
-            if use_ignore and source and member.friends_manager.has_ignore(source):
+            if use_ignore and source and member.friends_manager.has_ignore(source.guid):
                 continue
 
             member.session.request.sendall(packet)
@@ -297,7 +297,7 @@ class GroupManager(object):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PLAYER_WRONG_FACTION)
             return
 
-        if target_player_mgr.friends_manager.has_ignore(player_mgr):
+        if target_player_mgr.friends_manager.has_ignore(player_mgr.guid):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_IGNORING_YOU_S)
             return
 

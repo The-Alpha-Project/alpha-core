@@ -200,6 +200,48 @@ class RealmDatabaseManager(object):
         return character
 
     @staticmethod
+    def character_get_social(guid):
+        realm_db_session = SessionHolder()
+        character_social = realm_db_session.query(CharacterSocial).filter_by(
+            guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        realm_db_session.close()
+        return character_social if character_social else []
+
+    @staticmethod
+    def character_get_friends_of(guid):
+        realm_db_session = SessionHolder()
+        character_social = realm_db_session.query(CharacterSocial).filter_by(friend=guid).all()
+        realm_db_session.close()
+        return character_social if character_social else []
+
+    @staticmethod
+    def character_update_social(character_social):
+        if len(character_social) > 0:
+            for entry in character_social:
+                realm_db_session = SessionHolder()
+                realm_db_session.merge(entry)
+                realm_db_session.flush()
+                realm_db_session.close()
+
+    @staticmethod
+    def character_add_friend(character_social):
+        if character_social:
+            realm_db_session = SessionHolder()
+            realm_db_session.add(character_social)
+            realm_db_session.flush()
+            realm_db_session.refresh(character_social)
+            realm_db_session.close()
+            return character_social
+
+    @staticmethod
+    def character_social_delete_friend(character_social):
+        if character_social:
+            realm_db_session = SessionHolder()
+            realm_db_session.delete(character_social)
+            realm_db_session.flush()
+            realm_db_session.close()
+
+    @staticmethod
     def character_get_skills(guid):
         realm_db_session = SessionHolder()
         skills = realm_db_session.query(CharacterSkill).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()

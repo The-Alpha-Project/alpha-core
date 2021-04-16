@@ -80,6 +80,7 @@ class WorldServerSessionHandler(socketserver.BaseRequestHandler):
         try:
             self.player_mgr.sync_player()
             RealmDatabaseManager.character_update(self.player_mgr.player)
+            RealmDatabaseManager.character_update_social(self.player_mgr.friends_manager.character_social)
         except AttributeError:
             pass
 
