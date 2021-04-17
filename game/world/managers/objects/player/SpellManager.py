@@ -205,12 +205,17 @@ class SpellEffectHandler(object):
     def handle_add_combo_points(casting_spell, effect, caster, target):
         caster.add_combo_points_on_target(target, effect.get_effect_points(caster.level))
 
+    @staticmethod
+    def handle_request_duel(casting_spell, effect, caster, target):
+        caster.duel_manager.request_duel(target)
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
     SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage,
     SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
+    SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus
 }
 
@@ -256,7 +261,8 @@ class SpellManager(object):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not spell:
             return
-        spell_target = GridManager.get_surrounding_unit_by_guid(caster, target_guid) if target_guid and target_guid != caster.guid else caster
+        spell_target = GridManager.get_surrounding_unit_by_guid(caster, target_guid,
+                                                                include_players=True) if target_guid and target_guid != caster.guid else caster
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 
     def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
@@ -264,6 +270,7 @@ class SpellManager(object):
         casting_spell = CastingSpell(spell, caster_obj, spell_target, targets, target_mask)  # Initializes dbc references
 
         if not self.validate_cast(casting_spell):
+            print('er1')
             return
 
         if casting_spell.casts_on_swing():  # Handle swing ability queue and state
@@ -283,6 +290,7 @@ class SpellManager(object):
             return
 
         # Spell is instant, perform cast
+        print('instant')
         self.perform_spell_cast(casting_spell, False)
 
     def perform_spell_cast(self, casting_spell, validate=True):
@@ -476,11 +484,12 @@ class SpellManager(object):
         return True
 
     def has_resources_for_cast(self, casting_spell):
-        if casting_spell.spell_entry.PowerType != self.unit_mgr.power_type:  # Doesn't have the correct power type
+        # Do not validate PowerType if ManaCost is set to 0, example: Duel.
+        cost = casting_spell.get_resource_cost()
+        if cost > 0 and casting_spell.spell_entry.PowerType != self.unit_mgr.power_type:  # Doesn't have the correct power type
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
-
-        if casting_spell.get_resource_cost() > self.unit_mgr.get_power_type_value():  # Doesn't have enough power
+        if cost > self.unit_mgr.get_power_type_value():  # Doesn't have enough power
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 

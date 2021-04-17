@@ -161,7 +161,7 @@ class WorldDatabaseManager(object):
     @staticmethod
     def gameobject_template_get_by_entry(entry):
         world_db_session = SessionHolder()
-        res = world_db_session.query(GameobjectTemplate).filter_by(entry=entry)
+        res = world_db_session.query(GameobjectTemplate).filter_by(entry=entry).first()
         return res, world_db_session
 
     # Creature stuff

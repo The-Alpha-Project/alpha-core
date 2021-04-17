@@ -29,6 +29,7 @@ class GameObjectManager(ObjectManager):
 
         if self.gobject_template:
             self.display_id = self.gobject_template.display_id
+            self.scale = self.gobject_template.scale
 
         if gobject_instance:
             self.state = self.gobject_instance.spawn_state
@@ -37,7 +38,6 @@ class GameObjectManager(ObjectManager):
             self.location.z = self.gobject_instance.spawn_positionZ
             self.location.o = self.gobject_instance.spawn_orientation
             self.map_ = self.gobject_instance.spawn_map
-            self.scale = self.gobject_template.scale
 
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)

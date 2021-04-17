@@ -7,6 +7,7 @@ from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.ChannelManager import ChannelManager
 from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.SpellManager import SpellManager
+from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
@@ -129,6 +130,7 @@ class PlayerManager(UnitManager):
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.quest_manager = QuestManager(self)
+            self.duel_manager = DuelManager(self)
             self.friends_manager = FriendsManager(self)
             self.guild_manager = None
             self.group_manager = None
