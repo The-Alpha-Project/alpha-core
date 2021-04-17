@@ -111,7 +111,7 @@ class GroupManager(object):
 
                 if is_kicked and member == player_mgr:  # 'You have been removed from the group.' message
                     packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_UNINVITE)
-                    player_mgr.session.request.sendall(packet)
+                    player_mgr.session.send_message(packet)
 
         if disband:
             self.members.clear()
@@ -229,9 +229,9 @@ class GroupManager(object):
             # TODO: MSG_SPLIT_MONEY seems not to have any effect on the client.
             # data = pack('<Q2I', creature.guid, creature.loot_manager.current_money, ply_share)
             # split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
-            # member.session.request.sendall(split_packet)
+            # member.session.send_message(split_packet)
             data = pack('<I', player_share)
-            member.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
+            member.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
             member.mod_money(player_share)
 
         creature.loot_manager.clear_money()
@@ -275,16 +275,16 @@ class GroupManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
-        self.party_leader.session.request.sendall(packet)
+        self.party_leader.session.send_message(packet)
 
     def send_packet_to_members(self, packet, ignore=None, source=None, use_ignore=False):
         for member in self.members.values():
             if member == ignore:
                 continue
-            if use_ignore and source and member.friends_manager.has_ignore(source):
+            if use_ignore and source and member.friends_manager.has_ignore(source.guid):
                 continue
 
-            member.session.request.sendall(packet)
+            member.session.send_message(packet)
 
     def send_minimap_ping(self, player_mgr, x, y):
         data = pack('<Q2f', player_mgr.guid, x, y)
@@ -297,7 +297,7 @@ class GroupManager(object):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PLAYER_WRONG_FACTION)
             return
 
-        if target_player_mgr.friends_manager.has_ignore(player_mgr):
+        if target_player_mgr.friends_manager.has_ignore(player_mgr.guid):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_IGNORING_YOU_S)
             return
 
@@ -328,7 +328,7 @@ class GroupManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_INVITE, data)
-        target_player_mgr.session.request.sendall(packet)
+        target_player_mgr.session.send_message(packet)
 
         GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PARTY_RESULT_OK)
 
@@ -343,4 +343,4 @@ class GroupManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_PARTY_COMMAND_RESULT, data)
-        player.session.request.sendall(packet)
+        player.session.send_message(packet)

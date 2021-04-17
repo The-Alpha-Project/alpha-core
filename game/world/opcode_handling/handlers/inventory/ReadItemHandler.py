@@ -19,7 +19,7 @@ class ReadItemHandler(object):
             # TODO: Better handling of this: check if player can use item, etc.
             if item:
                 data += pack('<2Q', item.guid, item.guid)
-                socket.sendall(PacketWriter.get_packet(OpCode.SMSG_READ_ITEM_OK, data))
+                world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_READ_ITEM_OK, data))
             else:
                 world_session.player_mgr.inventory.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
 

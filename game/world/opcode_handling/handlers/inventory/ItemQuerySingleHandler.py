@@ -17,6 +17,6 @@ class ItemQuerySingleHandler(object):
                     item_mgr = ItemManager(
                         item_template=item_template
                     )
-                    socket.sendall(item_mgr.query_details())
+                    world_session.send_message(item_mgr.query_details())
 
         return 0

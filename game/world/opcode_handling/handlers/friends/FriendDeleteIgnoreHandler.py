@@ -10,18 +10,11 @@ class FriendDeleteIgnoreHandler(object):
     def handle(world_session, socket, reader):
         if len(reader.data) >= 8:  # Avoid handling empty friend delete ignore handler
             guid = unpack('<Q', reader.data[:8])[0]
-            target_player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
-            friend_result = None
-
-            if not target_player_mgr:
-                friend_result = FriendResults.FRIEND_NOT_FOUND
-            elif not world_session.player_mgr.friends_manager.has_ignore(target_player_mgr):
-                friend_result = FriendResults.FRIEND_NOT_FOUND
-
-            if not friend_result:
-                world_session.player_mgr.friends_manager.remove_ignore(target_player_mgr)
+            if world_session.player_mgr.friends_manager.has_friend(guid):
+                world_session.player_mgr.friends_manager.remove_ignore(guid)
             else:
-                data = pack('<B', friend_result)
-                world_session.player_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
+                data = pack('<B', FriendResults.FRIEND_NOT_FOUND)
+                world_session.player_mgr.session.send_message(
+                    PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
 
         return 0

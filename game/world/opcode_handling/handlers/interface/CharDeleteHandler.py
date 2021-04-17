@@ -19,6 +19,6 @@ class CharDeleteHandler(object):
             res = CharDelete.CHAR_DELETE_FAILED
             Logger.error(f'Error deleting character with guid {guid}.')
 
-        socket.sendall(PacketWriter.get_packet(OpCode.SMSG_CHAR_DELETE, pack('<B', res)))
+        world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_CHAR_DELETE, pack('<B', res)))
 
         return 0

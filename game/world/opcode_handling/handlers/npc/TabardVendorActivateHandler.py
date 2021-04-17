@@ -11,6 +11,6 @@ class TabardVendorActivateHandler(object):
             guid = unpack('<Q', reader.data[:8])[0]
             if guid > 0:
                 data = pack('<Q', guid)
-                socket.sendall(PacketWriter.get_packet(OpCode.MSG_TABARDVENDOR_ACTIVATE, data))
+                world_session.send_message(PacketWriter.get_packet(OpCode.MSG_TABARDVENDOR_ACTIVATE, data))
 
         return 0

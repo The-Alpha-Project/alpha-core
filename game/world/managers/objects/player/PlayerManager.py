@@ -209,6 +209,7 @@ class PlayerManager(UnitManager):
         GridManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
         ChannelManager.join_default_channels(self)  # Once in-world
+        self.friends_manager.send_online_notification()  # Notify our friends
 
     def logout(self):
         # TODO: Temp hackfix until groups are saved in db
@@ -225,8 +226,8 @@ class PlayerManager(UnitManager):
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
 
-        self.friends_manager.send_offline_notification()
         self.online = False
+        self.friends_manager.send_offline_notification()
         self.session.save_character()
         GridManager.remove_object(self)
         self.session.player_mgr = None
@@ -272,8 +273,8 @@ class PlayerManager(UnitManager):
             if self.guid != guid:
                 if guid not in self.objects_in_range:
                     update_packet = player.generate_proper_update_packet(create=True)
-                    self.session.request.sendall(update_packet)
-                    self.session.request.sendall(NameQueryHandler.get_query_details(player.player))
+                    self.session.send_message(update_packet)
+                    self.session.send_message(NameQueryHandler.get_query_details(player.player))
                 self.objects_in_range[guid] = {'object': player, 'synced': True}
 
         for guid, creature in creatures.items():
@@ -282,8 +283,8 @@ class PlayerManager(UnitManager):
                     update_packet = UpdatePacketFactory.compress_if_needed(
                         PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                 creature.get_full_update_packet(is_self=False)))
-                    self.session.request.sendall(update_packet)
-                    self.session.request.sendall(creature.query_details())
+                    self.session.send_message(update_packet)
+                    self.session.send_message(creature.query_details())
             self.objects_in_range[guid] = {'object': creature, 'synced': True}
 
         for guid, gobject in gobjects.items():
@@ -291,8 +292,8 @@ class PlayerManager(UnitManager):
                 update_packet = UpdatePacketFactory.compress_if_needed(
                     PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                             gobject.get_full_update_packet(is_self=False)))
-                self.session.request.sendall(update_packet)
-                self.session.request.sendall(gobject.query_details())
+                self.session.send_message(update_packet)
+                self.session.send_message(gobject.query_details())
             self.objects_in_range[guid] = {'object': gobject, 'synced': True}
 
         for guid, object_info in list(self.objects_in_range.items()):
@@ -301,7 +302,7 @@ class PlayerManager(UnitManager):
 
     def destroy_near_object(self, guid, skip_check=False):
         if skip_check or guid in self.objects_in_range:
-            self.session.request.sendall(self.objects_in_range[guid]['object'].get_destroy_packet())
+            self.session.send_message(self.objects_in_range[guid]['object'].get_destroy_packet())
             del self.objects_in_range[guid]
             return True
         return False
@@ -339,7 +340,7 @@ class PlayerManager(UnitManager):
 
             # Always make sure self is destroyed for others
             if not player.destroy_near_object(self.guid):
-                player.session.request.sendall(self.get_destroy_packet())
+                player.session.send_message(self.get_destroy_packet())
 
         # Same map and not inside instance
         if self.map_ == map_ and self.map_ <= 1:
@@ -357,10 +358,10 @@ class PlayerManager(UnitManager):
                 0,  # ?
                 0  # MovementFlags
             )
-            self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
+            self.session.send_message(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
         # Loading screen
         else:
-            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
+            self.session.send_message(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
 
             data = pack(
                 '<B4f',
@@ -371,13 +372,15 @@ class PlayerManager(UnitManager):
                 location.o
             )
 
-            self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
+            self.session.send_message(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
 
         self.map_ = map_
         self.location.x = location.x
         self.location.y = location.y
         self.location.z = location.z
         self.location.o = location.o
+
+        self.friends_manager.send_update_to_friends()
 
         return True
 
@@ -411,7 +414,7 @@ class PlayerManager(UnitManager):
             speed = 56  # Max speed without glitches
         self.running_speed = speed
         data = pack('<f', speed)
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
+        self.session.send_message(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
 
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                              self.get_movement_update_packet()), self)
@@ -423,7 +426,7 @@ class PlayerManager(UnitManager):
             swim_speed = 56  # Max possible swim speed
         self.swim_speed = swim_speed
         data = pack('<f', swim_speed)
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
+        self.session.send_message(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
 
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                              self.get_movement_update_packet()), self)
@@ -435,7 +438,7 @@ class PlayerManager(UnitManager):
             walk_speed = 56  # Max speed without glitches
         self.walk_speed = walk_speed
         data = pack('<f', walk_speed)
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
+        self.session.send_message(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
 
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                              self.get_movement_update_packet()), self)
@@ -446,7 +449,7 @@ class PlayerManager(UnitManager):
         self.turn_rate = turn_speed
         data = pack('<f', turn_speed)
         # TODO NOT WORKING
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
+        self.session.send_message(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                              self.get_movement_update_packet()), self)
@@ -458,9 +461,9 @@ class PlayerManager(UnitManager):
                 if self.group_manager:
                     self.group_manager.reward_group_money(self, enemy)
                 else:
-                    self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
+                    self.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
                     data = pack('<I', enemy.loot_manager.current_money)
-                    self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
+                    self.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
                     self.mod_money(enemy.loot_manager.current_money)
                     enemy.loot_manager.clear_money()
 
@@ -486,7 +489,7 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
         data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
+        self.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
         # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
         enemy = GridManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
@@ -520,7 +523,7 @@ class PlayerManager(UnitManager):
             for loot in victim.loot_manager.current_loot:
                 if loot:
                     # Send item query information
-                    self.session.request.sendall(loot.item.query_details())
+                    self.session.send_message(loot.item.query_details())
 
                     data += pack('<B3I',
                                  slot,
@@ -531,7 +534,7 @@ class PlayerManager(UnitManager):
                 slot += 1
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
-        self.session.request.sendall(packet)
+        self.session.send_message(packet)
 
         return loot_type != LootTypes.LOOT_TYPE_NOTALLOWED
 
@@ -562,7 +565,7 @@ class PlayerManager(UnitManager):
             new_xp += amount
             data += pack('<QI', self.guid, amount)
 
-        self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
+        self.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
 
         if new_xp >= self.next_level_xp:  # Level up!
             self.xp = (new_xp - self.next_level_xp)  # Set the overload xp as current
@@ -597,7 +600,7 @@ class PlayerManager(UnitManager):
                                 hp_diff,
                                 mana_diff if self.power_type == PowerTypes.TYPE_MANA else 0
                                 )
-                    self.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
+                    self.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
 
                     # Add Talent and Skill points
                     self.add_talent_points(Formulas.PlayerFormulas.talent_points_gain_per_level(self.level))
@@ -606,6 +609,7 @@ class PlayerManager(UnitManager):
                 self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
                 self.quest_manager.update_surrounding_quest_status()
+                self.friends_manager.send_update_to_friends()
 
                 self.set_dirty()
 
@@ -954,7 +958,7 @@ class PlayerManager(UnitManager):
 
     def _send_attack_swing_error(self, victim, opcode):
         data = pack('<2Q', self.guid, victim.guid if victim else 0)
-        self.session.request.sendall(PacketWriter.get_packet(opcode, data))
+        self.session.send_message(PacketWriter.get_packet(opcode, data))
 
     # override
     def send_attack_swing_not_in_range(self, victim):
@@ -1080,7 +1084,7 @@ class PlayerManager(UnitManager):
         if not update_packet:
             update_packet = self.generate_proper_update_packet(is_self=True, create=create)
 
-        self.session.request.sendall(update_packet)
+        self.session.send_message(update_packet)
 
         if reset_fields:
             self.reset_fields()
@@ -1105,7 +1109,7 @@ class PlayerManager(UnitManager):
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
-            self.session.request.sendall(death_notify_packet)
+            self.session.send_message(death_notify_packet)
 
         TradeManager.cancel_trade(self)
         self.spirit_release_timer = 0

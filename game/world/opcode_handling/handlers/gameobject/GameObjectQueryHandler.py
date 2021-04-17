@@ -23,6 +23,6 @@ class GameObjectQueryHandler(object):
                         )
                     session.close()
                 if gobject_mgr:
-                    socket.sendall(gobject_mgr.query_details())
+                    world_session.send_message(gobject_mgr.query_details())
 
         return 0

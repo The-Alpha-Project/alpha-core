@@ -35,6 +35,6 @@ class GuildRosterHandler(object):
                     member.guild_manager.get_guild_rank(member)
                 )
 
-            player.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_GUILD_ROSTER, data))
+            player.session.send_message(PacketWriter.get_packet(OpCode.SMSG_GUILD_ROSTER, data))
 
         return 0

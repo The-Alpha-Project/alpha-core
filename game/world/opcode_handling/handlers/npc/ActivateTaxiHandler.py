@@ -36,7 +36,7 @@ class ActivateTaxiHandler(object):
                 result = ActivateTaxiReplies.ERR_TAXINOTENOUGHMONEY
 
             data = pack('<I', result)
-            socket.sendall(PacketWriter.get_packet(OpCode.SMSG_ACTIVATETAXIREPLY, data))
+            world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_ACTIVATETAXIREPLY, data))
 
             if result == ActivateTaxiReplies.ERR_TAXIOK:
                 world_session.player_mgr.mod_money(-taxi_path.Cost)

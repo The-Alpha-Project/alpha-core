@@ -19,6 +19,6 @@ class GuildInviteDeclineHandler(object):
                 inviter_name_bytes,
             )
 
-            inviter.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_GUILD_DECLINE, data))
+            inviter.session.send_message(PacketWriter.get_packet(OpCode.SMSG_GUILD_DECLINE, data))
 
         return 0
