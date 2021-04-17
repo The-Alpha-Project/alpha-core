@@ -11,6 +11,17 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 
 
+def release_process(process):
+    retry = True
+    while retry:
+        try:
+            process.close()
+        except ValueError:
+            sleep(0.1)
+        finally:
+            retry = False
+
+
 if __name__ == '__main__':
     # Initialize colorama
     colorama.init()
@@ -46,3 +57,11 @@ if __name__ == '__main__':
     Logger.info('Proxy process terminated.')
     login_process.terminate()
     Logger.info('Login process terminated.')
+
+    # Release process resources.
+    Logger.info('Waiting to release resources...')
+    release_process(world_process)
+    release_process(proxy_process)
+    release_process(login_process)
+
+    Logger.success('Core gracefully shut down.')
