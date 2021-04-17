@@ -8,7 +8,7 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterS
 from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.ObjectCodes import ObjectTypes, AttackTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellTargetType, SpellAttributes, SpellAttributesEx
 from utils.constants.UnitCodes import PowerTypes
@@ -27,7 +27,7 @@ class CastingSpell(object):
     cast_end_timestamp: float
     spell_delay_end_timestamp: float
 
-    trigger_melee_attack_type: int
+    spell_attack_type: int
 
     def __init__(self, spell, caster_obj, initial_target_unit, target_results, target_mask):
         self.spell_entry = spell
@@ -39,10 +39,15 @@ class CastingSpell(object):
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
 
+        self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged() else AttackTypes.BASE_ATTACK
+
         self.cast_state = SpellState.SPELL_STATE_PREPARING
 
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0
+
+    def is_ranged(self):
+        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_RANGED == SpellAttributes.SPELL_ATTR_RANGED
 
     def casts_on_swing(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 == SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1
@@ -181,7 +186,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):
-        damage_info = caster.calculate_melee_damage(target, casting_spell.trigger_melee_attack_type)
+        damage_info = caster.calculate_melee_damage(target, casting_spell.spell_attack_type)
         if not damage_info:
             return
         damage = damage_info.total_damage + effect.get_effect_points(caster.level)
@@ -189,7 +194,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_weapon_damage_plus(casting_spell, effect, caster, target):
-        damage_info = caster.calculate_melee_damage(target, casting_spell.trigger_melee_attack_type)
+        damage_info = caster.calculate_melee_damage(target, casting_spell.spell_attack_type)
         if not damage_info:
             return
         damage = damage_info.total_damage
@@ -325,7 +330,7 @@ class SpellManager(object):
             self.remove_cast(melee_ability)
             return False
 
-        melee_ability.trigger_melee_attack_type = attack_type
+        melee_ability.spell_attack_type = attack_type
 
         melee_ability.cast_state = SpellState.SPELL_STATE_CASTING
         self.perform_spell_cast(melee_ability, False)
