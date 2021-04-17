@@ -37,13 +37,6 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def player_create_skill_get(race, class_):
-        world_db_session = SessionHolder()
-        res = world_db_session.query(PlayercreateinfoSkill).filter_by(race=race, _class=class_).all()
-        world_db_session.close()
-        return res
-
-    @staticmethod
     def player_create_item_get(race, class_):
         world_db_session = SessionHolder()
         res = world_db_session.query(PlayercreateinfoItem).filter_by(race=race, _class=class_).all()
