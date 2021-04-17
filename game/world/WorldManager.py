@@ -79,7 +79,7 @@ class WorldServerSessionHandler(object):
                 if data:  # Can be None if we shutdown the thread.
                     self.request.sendall(data)
             except OSError:
-                pass
+                self.disconnect()
 
     def process_incoming(self):
         while self.keep_alive:
