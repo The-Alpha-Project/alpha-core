@@ -285,7 +285,7 @@ class InventoryManager(object):
                 continue
             for slot, item in list(container.sorted_slots.items()):
                 if item.item_template.entry == entry:
-                    count += 1
+                    count += item.item_instance.stackcount
         return count
 
     def get_container(self, slot):
@@ -321,6 +321,25 @@ class InventoryManager(object):
         if target_container.is_backpack and \
                 self.is_bag_pos(target_slot) and self.get_container(target_slot):  # Equipped bags
             self.remove_bag(target_slot)
+
+    def remove_items(self, entry, count):
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                continue
+            if count == 0:
+                break
+            for slot, item in list(container.sorted_slots.items()):
+                if item.item_template.entry == entry:
+                    if count < item.item_instance.stackcount:
+                        item.item_instance.stackcount -= count
+                        count = 0
+                        RealmDatabaseManager.character_inventory_update_item(item.item_instance)
+                        break
+                    elif count >= item.item_instance.stackcount:
+                        self.remove_item(container_slot, slot, True)
+                        count -= item.item_instance.stackcount
+        self.owner.send_update_self(force_inventory_update=True)
+        return count  # Return the amount of items not removed
 
     def get_item_info_by_guid(self, guid):
         for container_slot, container in list(self.containers.items()):
