@@ -37,7 +37,7 @@ class FriendsManager(object):
         friend.guid = self.owner.guid
         friend.friend = player_guid
         friend.ignore = ignored
-        return  friend
+        return friend
 
     def remove_friend(self, player_guid):
         if player_guid in self.friends:
@@ -108,7 +108,7 @@ class FriendsManager(object):
         have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
         for friend in have_me_as_friend:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(friend.guid)
-            if player_mgr and not player_mgr.friends_manager.has_ignore(self.guid):
+            if player_mgr and not player_mgr.friends_manager.has_ignore(self.owner.guid):
                 data = pack('<BQB3I', FriendResults.FRIEND_ONLINE, self.owner.guid, 1, self.owner.zone,
                             self.owner.level,
                             self.owner.player.class_)
