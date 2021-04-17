@@ -272,7 +272,7 @@ class SpellManager(object):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not spell:
             return
-        spell_target = GridManager.get_surrounding_unit_by_guid(caster, target_guid) if target_guid and target_guid != caster.guid else caster
+        spell_target = GridManager.get_surrounding_unit_by_guid(caster, target_guid, include_players=True) if target_guid and target_guid != caster.guid else caster
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 
     def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
