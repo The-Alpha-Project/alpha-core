@@ -309,8 +309,6 @@ class SpellManager(object):
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
         # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Channeled spells
 
-    has_moved = False
-
     def apply_spell_effects_and_remove(self, casting_spell):
         for effect in casting_spell.get_effects():
             SpellEffectHandler.apply_effect(casting_spell, effect)
@@ -336,6 +334,8 @@ class SpellManager(object):
                 continue
             return casting_spell
         return None
+
+    has_moved = False
 
     def flag_as_moved(self):
         # TODO temporary way of handling this until movement data can be passed to update()
@@ -470,17 +470,13 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 
-        if self.has_moved and not casting_spell.is_instant_cast():
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_MOVING)
-            return False
-
         if not self.has_resources_for_cast(casting_spell):
             return False
 
         return True
 
     def has_resources_for_cast(self, casting_spell):
-        if casting_spell.spell_entry.PowerType != self.unit_mgr.power_type:  # Doesn't have the correct power type
+        if casting_spell.spell_entry.PowerType != self.unit_mgr.power_type and casting_spell.spell_entry.ManaCost != 0:  # Doesn't have the correct power type
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 
