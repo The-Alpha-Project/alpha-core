@@ -361,7 +361,7 @@ class ChannelManager(object):
             ChannelManager.send_to_player(sender, packet)
         else:
             for player in ChannelManager._get_members(channel, sender):
-                if ignore and player in ignore:
+                if ignore and player in ignore or player.friends_manager.has_ignore(sender.guid):
                     continue
                 player.session.send_message(packet)
 
