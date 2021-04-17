@@ -292,7 +292,7 @@ class SpellManager(object):
 
         if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_CAST_OK)
-            self.send_spell_GO(casting_spell)
+            self.send_spell_go(casting_spell)
         else:
             return  # Spell is in delayed state, do nothing for now
 
@@ -408,7 +408,7 @@ class SpellManager(object):
                                      include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
         # self.unit_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data))
 
-    def send_spell_GO(self, casting_spell):
+    def send_spell_go(self, casting_spell):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,
                 casting_spell.spell_entry.ID, 0]  # TODO Flags
 
