@@ -85,7 +85,6 @@ class FriendsManager(object):
 
         for entry in friends_list:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(entry.friend)
-            print(f'sending friend {player_mgr.player.name}')
             if player_mgr and player_mgr.online:
                 self.owner.session.send_message(NameQueryHandler.get_query_details(player_mgr.player))
                 data += pack('<QB3I', player_mgr.guid, 1, player_mgr.zone, player_mgr.level, player_mgr.player.class_)
