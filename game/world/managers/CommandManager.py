@@ -167,7 +167,8 @@ class CommandManager(object):
             if not spell:
                 return -1, 'The spell was not found.'
 
-            world_session.player_mgr.spell_manager.learn_spell(spell_id)
+            if not world_session.player_mgr.spell_manager.learn_spell(spell_id):
+                return -1, 'You already know that spell.'
             return 0, 'Spell learned.'
         except ValueError:
             return -1, 'Invalid ID.'

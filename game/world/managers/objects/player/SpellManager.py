@@ -228,11 +228,14 @@ class SpellManager(object):
 
     def learn_spell(self, spell_id):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
-            return
+            return False
 
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not spell:
-            return
+            return False
+
+        if spell_id in self.spells:
+            return False
 
         db_spell = CharacterSpell()
         db_spell.guid = self.unit_mgr.guid
@@ -243,6 +246,7 @@ class SpellManager(object):
         data = pack('<H', spell_id)
         self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
         # Teach skills required as well like in CharCreateHandler?
+        return True
 
     def get_initial_spells(self):
         data = pack('<BH', 0, len(self.spells))
