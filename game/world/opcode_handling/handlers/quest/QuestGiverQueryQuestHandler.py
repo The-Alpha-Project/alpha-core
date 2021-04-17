@@ -25,7 +25,7 @@ class QuestGiverQueryQuestHandler(object):
                 Logger.error(f'Error in CMSG_QUESTGIVER_QUERY_QUEST, quest giver {quest_giver.entry} was not related to quest {quest_entry}')
                 return 0
 
-            quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
+            quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest:
                 Logger.error(f'Error in CMSG_QUESTGIVER_QUERY_QUEST, could not find quest with an entry of: {quest_entry}')
                 return 0

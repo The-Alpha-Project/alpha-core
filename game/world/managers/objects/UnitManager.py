@@ -382,7 +382,7 @@ class UnitManager(ObjectManager):
             damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
             damage_info.hit_info = HitInfo.SUCCESS | HitInfo.OFFHAND
         elif attack_type == AttackTypes.RANGED_ATTACK:
-            damage_info.proc_attacker = ProcFlags.ProcFlags.DEAL_COMBAT_DMG
+            damage_info.proc_attacker = ProcFlags.DEAL_COMBAT_DMG
             damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
             damage_info.hit_info = HitInfo.DAMAGE  # ?
 

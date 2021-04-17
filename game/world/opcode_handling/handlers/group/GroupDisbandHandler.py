@@ -1,6 +1,7 @@
 from game.world.managers.objects.player.GroupManager import GroupManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 
+
 class GroupDisbandHandler(object):
 
     @staticmethod
