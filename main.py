@@ -39,10 +39,10 @@ if __name__ == '__main__':
     except:
         Logger.info('Shutting down the core...')
 
-    # Make sure main processes are killed.
-    world_process.kill()
-    Logger.info('Killed world process.')
-    proxy_process.kill()
-    Logger.info('Killed proxy process.')
-    login_process.kill()
-    Logger.info('Killed login process.')
+    # Send SIGTERM to processes.
+    world_process.terminate()
+    Logger.info('World process terminated.')
+    proxy_process.terminate()
+    Logger.info('Proxy process terminated.')
+    login_process.terminate()
+    Logger.info('Login process terminated.')
