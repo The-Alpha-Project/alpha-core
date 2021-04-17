@@ -260,7 +260,7 @@ class QuestManager(object):
     def send_quest_giver_quest_details(self, quest, quest_giver_guid, activate_accept):
         # Send item query details and return item struct segments of SMSG_QUESTGIVER_QUEST_DETAILS
         def _gen_item_struct(item_entry, count, include_display_id=True):
-            item_template = WorldDatabaseManager.item_template_get_by_entry(item_entry)
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
             display_id = 0
             if item_template:
                 item_mgr = ItemManager(item_template=item_template)

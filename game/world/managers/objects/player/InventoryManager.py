@@ -32,7 +32,7 @@ class InventoryManager(object):
 
         # First load bags
         for item_instance in character_inventory:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(item_instance.item_template)
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_instance.item_template)
             if item_template and item_template.inventory_type == InventoryTypes.BAG:
                 container_mgr = ContainerManager(
                     owner=self.owner.guid,
@@ -45,7 +45,7 @@ class InventoryManager(object):
 
         # Then load items
         for item_instance in character_inventory:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(item_instance.item_template)
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_instance.item_template)
             if item_template:
                 if item_template.display_id > MAX_3368_ITEM_DISPLAY_ID and \
                         self.is_equipment_pos(item_instance.bag, item_instance.slot):
@@ -85,7 +85,7 @@ class InventoryManager(object):
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False,
                  send_message=True, show_item_get=True):
         if entry != 0 and not item_template:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         amount_left = count
         target_bag_slot = -1  # Highest bag slot items were added to
         if item_template:
@@ -127,7 +127,7 @@ class InventoryManager(object):
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
                          handle_error=True):
         if entry != 0 and not item_template:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         if not item_template:
             if handle_error:
                 self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)

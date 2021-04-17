@@ -150,7 +150,7 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, 0)
             return
 
-        item_template = WorldDatabaseManager.item_template_get_by_entry(item_entry)
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
         if item_template:
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, item_template.display_id)
             virtual_item_info = unpack('<I', pack('<4B',
