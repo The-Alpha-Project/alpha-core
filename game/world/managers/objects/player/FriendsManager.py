@@ -50,6 +50,7 @@ class FriendsManager(object):
     def remove_ignore(self, player_guid):
         if player_guid in self.friends:
             RealmDatabaseManager.character_social_delete_friend(self.friends[player_guid])
+            self.friends.pop(player_guid)
             data = pack('<BQ', FriendResults.FRIEND_IGNORE_REMOVED, player_guid)
             self.owner.session.send_message(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
             self.send_ignores()
@@ -64,10 +65,11 @@ class FriendsManager(object):
     def add_ignore(self, player_guid):
         if player_guid not in self.friends:
             self.friends[player_guid] = self._create_friend(player_guid, ignored=True)
+            RealmDatabaseManager.character_add_friend(self.friends[player_guid])
         else:
             self.friends[player_guid].ignore = True
+            RealmDatabaseManager.character_update_social([self.friends[player_guid]])
 
-        RealmDatabaseManager.character_update_social([self.friends[player_guid]])
         data = pack('<BQ', FriendResults.FRIEND_IGNORE_ADDED, player_guid)
         packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
         self.owner.session.send_message(packet)
@@ -83,6 +85,7 @@ class FriendsManager(object):
 
         for entry in friends_list:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(entry.friend)
+            print(f'sending friend {player_mgr.player.name}')
             if player_mgr and player_mgr.online:
                 self.owner.session.send_message(NameQueryHandler.get_query_details(player_mgr.player))
                 data += pack('<QB3I', player_mgr.guid, 1, player_mgr.zone, player_mgr.level, player_mgr.player.class_)
@@ -106,7 +109,7 @@ class FriendsManager(object):
         have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
         for friend in have_me_as_friend:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(friend.guid)
-            if player_mgr:
+            if player_mgr and not player_mgr.friends_manager.has_ignore(self.guid):
                 data = pack('<BQB3I', FriendResults.FRIEND_ONLINE, self.owner.guid, 1, self.owner.zone,
                             self.owner.level,
                             self.owner.player.class_)
@@ -118,7 +121,7 @@ class FriendsManager(object):
         have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
         for friend in have_me_as_friend:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(friend.guid)
-            if player_mgr:
+            if player_mgr and not player_mgr.friends_manager.has_ignore(self.owner.guid):
                 data = pack('<BQB', FriendResults.FRIEND_OFFLINE, self.owner.guid, 0)
                 packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
                 player_mgr.session.send_message(packet)
