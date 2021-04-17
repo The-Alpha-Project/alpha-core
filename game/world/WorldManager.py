@@ -74,9 +74,12 @@ class WorldServerSessionHandler(object):
 
     def process_outgoing(self):
         while self.keep_alive:
-            data = self.outgoing_pending.get(block=True, timeout=None)
-            if data:  # Can be None if we shutdown the thread.
-                self.request.sendall(data)
+            try:
+                data = self.outgoing_pending.get(block=True, timeout=None)
+                if data:  # Can be None if we shutdown the thread.
+                    self.request.sendall(data)
+            except OSError:
+                pass
 
     def process_incoming(self):
         while self.keep_alive:
