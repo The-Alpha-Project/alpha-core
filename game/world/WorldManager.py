@@ -173,7 +173,7 @@ class WorldServerSessionHandler(object):
 
         Logger.success('World server started.')
 
-        while WORLD_ON:  # sck.accept() is a blocking call, we cant exit this loop gracefully.
+        while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
             try:
                 (client_socket, client_address) = server_socket.accept()
                 server_handler = WorldServerSessionHandler(client_socket, client_address)
