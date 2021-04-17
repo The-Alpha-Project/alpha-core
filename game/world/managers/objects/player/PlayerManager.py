@@ -206,8 +206,8 @@ class PlayerManager(UnitManager):
     def complete_login(self):
         self.online = True
 
-        GridManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
+        GridManager.update_object(self)
         ChannelManager.join_default_channels(self)  # Once in-world
         self.friends_manager.send_online_notification()  # Notify our friends
 
