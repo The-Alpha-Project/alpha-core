@@ -80,6 +80,13 @@ class CastingSpell(object):
         if self.spell_entry.Effect_3 != 0:
             effects.append(SpellEffect(self.spell_entry, 3))
         return effects
+    
+    def get_reagents(self):
+        return (self.spell_entry.Reagent_1, self.spell_entry.ReagentCount_1), (self.spell_entry.Reagent_2, self.spell_entry.ReagentCount_2), \
+               (self.spell_entry.Reagent_3, self.spell_entry.ReagentCount_3), (self.spell_entry.Reagent_4, self.spell_entry.ReagentCount_4), \
+               (self.spell_entry.Reagent_5, self.spell_entry.ReagentCount_5), (self.spell_entry.Reagent_6, self.spell_entry.ReagentCount_6), \
+               (self.spell_entry.Reagent_7, self.spell_entry.ReagentCount_7), (self.spell_entry.Reagent_8, self.spell_entry.ReagentCount_8)
+
 
 
 class SpellEffect(object):
@@ -497,9 +504,17 @@ class SpellManager(object):
                 (casting_spell.initial_target_unit.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
             return False
+
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+            for reagent_info in casting_spell.get_reagents():
+                if reagent_info[0] == 0:
+                    break
+                if self.unit_mgr.inventory.get_item_count(reagent_info[0]) < reagent_info[1]:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_REAGENTS)
+                    return False
         return True
 
-    def consume_resources_for_cast(self, casting_spell):
+    def consume_resources_for_cast(self, casting_spell):  # This method assumes that the reagents exist (has_resources_for_cast was run)
         power_type = casting_spell.spell_entry.PowerType
         cost = casting_spell.spell_entry.ManaCost
         new_power = self.unit_mgr.get_power_type_value() - cost
@@ -515,6 +530,11 @@ class SpellManager(object):
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
                 casting_spell.requires_combo_points():
             self.unit_mgr.remove_combo_points()
+
+        for reagent_info in casting_spell.get_reagents():  # Reagents
+            if reagent_info[0] == 0:
+                break
+            self.unit_mgr.inventory.remove_items(reagent_info[0], reagent_info[1])
 
         self.unit_mgr.set_dirty()
 
