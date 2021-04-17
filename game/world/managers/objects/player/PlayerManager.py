@@ -732,6 +732,7 @@ class PlayerManager(UnitManager):
         else:
             self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 
+        self.duel_manager.build_update()
         self.inventory.build_update()
 
         return self.get_object_create_packet(is_self)
@@ -1061,6 +1062,9 @@ class PlayerManager(UnitManager):
 
             # SpellManager tick
             self.spell_manager.update(now)
+
+            # Duel tick
+            self.duel_manager.update(elapsed)
 
             # Release spirit timer
             if not self.is_alive:

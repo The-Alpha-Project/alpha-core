@@ -168,7 +168,7 @@ class WorldServerSessionHandler(object):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.bind((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port))
         server_socket.listen()
-
+        server_socket.settimeout(1)
         WorldServerSessionHandler.schedule_updates()
 
         Logger.success('World server started.')
@@ -180,5 +180,7 @@ class WorldServerSessionHandler(object):
                 world_session_thread = threading.Thread(target=server_handler.handle)
                 world_session_thread.daemon = True
                 world_session_thread.start()
+            except socket.timeout:
+                continue
             except:
                 break
