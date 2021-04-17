@@ -241,7 +241,7 @@ class SpellManager(object):
         self.spells[spell_id] = db_spell
 
         data = pack('<H', spell_id)
-        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
+        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
         # Teach skills required as well like in CharCreateHandler?
 
     def get_initial_spells(self):
@@ -445,12 +445,11 @@ class SpellManager(object):
     def set_on_cooldown(self, spell):
         self.cooldowns[spell.ID] = spell.RecoveryTime + time.time()
 
-
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        data = pack('<IQH', spell.ID, self.player_mgr.guid, spell.RecoveryTime)
-        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+        data = pack('<IQH', spell.ID, self.unit_mgr.guid, spell.RecoveryTime)
+        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def is_on_cooldown(self, spell_id):
         return spell_id in self.cooldowns
@@ -523,4 +522,4 @@ class SpellManager(object):
         else:
             data = pack('<IBB', spell_id, SpellCastStatus.CAST_FAILED, error)
 
-        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
+        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
