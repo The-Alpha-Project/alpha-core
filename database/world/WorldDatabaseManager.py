@@ -97,10 +97,23 @@ class WorldDatabaseManager(object):
 
     # Item stuff
 
+    class ItemTemplateHolder:
+        ITEM_TEMPLATES = {}
+
+        @staticmethod
+        def load_item_template(item_template):
+            WorldDatabaseManager.ItemTemplateHolder.ITEM_TEMPLATES[item_template.entry] = item_template
+
+        @staticmethod
+        def item_template_get_by_entry(entry):
+            if entry in WorldDatabaseManager.ItemTemplateHolder.ITEM_TEMPLATES:
+                return WorldDatabaseManager.ItemTemplateHolder.ITEM_TEMPLATES[entry]
+            return None
+
     @staticmethod
-    def item_template_get_by_entry(entry):
+    def item_template_get_all():
         world_db_session = SessionHolder()
-        res = world_db_session.query(ItemTemplate).filter_by(entry=entry).first()
+        res = world_db_session.query(ItemTemplate).filter_by().all()
         world_db_session.close()
         return res
 

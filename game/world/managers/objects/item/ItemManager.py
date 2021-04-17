@@ -167,7 +167,7 @@ class ItemManager(ObjectManager):
 
     @staticmethod
     def generate_item_from_entry(entry):
-        item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
 
         if item_template:
             item_mgr = ItemManager(item_template=item_template)
@@ -177,7 +177,7 @@ class ItemManager(ObjectManager):
 
     @staticmethod
     def generate_starting_item(owner, entry, last_bag_slot):
-        item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         if item_template:
             if item_template.inventory_type == 24:  # Ammo
                 count = 100

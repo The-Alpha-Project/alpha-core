@@ -54,7 +54,7 @@ class CharEnumHandler(object):
             inventory_type = 0
 
             if item:
-                item_template = WorldDatabaseManager.item_template_get_by_entry(item.item_template)
+                item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item.item_template)
                 if item_template:
                     display_id = item_template.display_id
                     inventory_type = item_template.inventory_type
