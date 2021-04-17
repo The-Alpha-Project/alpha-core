@@ -7,6 +7,7 @@ from game.world import WorldManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.player.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
@@ -194,6 +195,8 @@ class UnitManager(ObjectManager):
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
+
+        self.spell_manager = SpellManager(self)
         self.movement_manager = MovementManager(self)
 
     def attack(self, victim, is_melee=True):
@@ -336,6 +339,9 @@ class UnitManager(ObjectManager):
             if not extra and self.extra_attacks > 0:
                 self.execute_extra_attacks()
                 return
+
+            if self.spell_manager.cast_queued_melee_ability(attack_type):
+                return  # Melee ability replaces regular attack
 
         damage_info = self.calculate_melee_damage(victim, attack_type)
         if not damage_info:
@@ -618,6 +624,14 @@ class UnitManager(ObjectManager):
             # Update ranged temp enchants
             pass
 
+    # Implemented by PlayerManager
+    def add_combo_points_on_target(self, target, combo_points):
+        pass
+
+    # Implemented by PlayerManager
+    def remove_combo_points(self):
+        pass
+
     def set_stand_state(self, stand_state):
         self.stand_state = stand_state
 
@@ -659,6 +673,10 @@ class UnitManager(ObjectManager):
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             if killer.current_selection == self.guid:
                 killer.set_current_selection(0)
+
+            # Clear combo of killer if this unit was the target
+            if killer.combo_target == self.guid:
+                killer.remove_combo_points()
 
         # Clear all pending waypoint movement
         self.movement_manager.reset()
