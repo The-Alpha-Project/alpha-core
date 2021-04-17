@@ -182,3 +182,4 @@ class WorldServerSessionHandler(object):
                 world_session_thread.start()
             except:
                 break
+

@@ -8,7 +8,6 @@ from sys import platform
 from game.realm import RealmManager
 from game.world import WorldManager
 from utils.ConfigManager import config
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from utils.Logger import Logger
 
 
@@ -16,10 +15,10 @@ if __name__ == '__main__':
     # Initialize colorama
     colorama.init()
 
-    if platform != 'win32':
-        from signal import signal, SIGPIPE, SIG_DFL
-        # https://stackoverflow.com/a/30091579
-        signal(SIGPIPE, SIG_DFL)
+    # if platform != 'win32':
+    #    from signal import signal, SIGPIPE, SIG_DFL
+    #    # https://stackoverflow.com/a/30091579
+    #    signal(SIGPIPE, SIG_DFL)
 
     login_process = Process(target=RealmManager.LoginServerSessionHandler.start)
     login_process.start()
@@ -38,7 +37,7 @@ if __name__ == '__main__':
             while True:
                 sleep(60)
     except:
-        Logger.info('Shutting down alpha core...')
+        Logger.info('Shutting down the core...')
 
     # Make sure main processes are killed.
     world_process.kill()
