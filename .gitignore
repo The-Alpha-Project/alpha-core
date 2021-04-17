@@ -2,9 +2,10 @@
 
 # IDE configuration files
 .idea
-.vscode/
+.vscode
 
+# Project files
 etc/config/config.yml
 
 # virtualenv folder
-venv/
+venv
