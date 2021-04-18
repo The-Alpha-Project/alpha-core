@@ -166,6 +166,7 @@ class WorldServerSessionHandler(object):
         WorldLoader.load_data()
 
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         server_socket.bind((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port))
         server_socket.listen()
 
