@@ -43,7 +43,7 @@ class DuelManager(object):
 
         # If requester is already dueling, lose current duel and start a new one.
         if requester.duel_manager:
-            requester.duel_manager.force_duel_end(retreat=False)
+            requester.duel_manager.force_duel_end(requester, retreat=False)
             return
 
         arbiter = DuelManager.create_arbiter(requester, target, arbiter_entry=arbiter_entry)
