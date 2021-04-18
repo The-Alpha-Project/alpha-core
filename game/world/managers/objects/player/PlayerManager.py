@@ -130,8 +130,8 @@ class PlayerManager(UnitManager):
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.quest_manager = QuestManager(self)
-            self.duel_manager = DuelManager(self)
             self.friends_manager = FriendsManager(self)
+            self.duel_manager = None
             self.guild_manager = None
             self.group_manager = None
 
@@ -225,8 +225,8 @@ class PlayerManager(UnitManager):
             else:
                 self.guild_manager.leave(self)
 
-        if self.duel_manager.is_dueling():
-            self.duel_manager.force_duel_retreat()
+        if self.duel_manager:
+            self.duel_manager.force_duel_retreat(self)
 
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
@@ -337,11 +337,8 @@ class PlayerManager(UnitManager):
         if not DbcDatabaseManager.map_get_by_id(map_):
             return False
 
-        if self.duel_manager.is_dueling():
-            self.duel_manager.force_duel_retreat()
-            # TODO: Total hackfix, client will crash if you teleport to another map while dueling if you don't wait. INVESTIGATE
-            if self.map_ != map_:
-                time.sleep(1)
+        if self.duel_manager:
+            self.duel_manager.force_duel_retreat(self)
 
         self.is_teleporting = True
 
@@ -741,7 +738,9 @@ class PlayerManager(UnitManager):
         else:
             self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 
-        self.duel_manager.build_update()
+        if self.duel_manager:
+            self.duel_manager.build_update(self)
+
         self.inventory.build_update()
 
         return self.get_object_create_packet(is_self)
@@ -1073,7 +1072,8 @@ class PlayerManager(UnitManager):
             self.spell_manager.update(now)
 
             # Duel tick
-            self.duel_manager.update(elapsed)
+            if self.duel_manager:
+                self.duel_manager.update(self, elapsed)
 
             # Release spirit timer
             if not self.is_alive:
@@ -1120,10 +1120,9 @@ class PlayerManager(UnitManager):
 
     # override
     def die(self, killer=None):
-        if killer and self.duel_manager.is_dueling() and self.duel_manager.dueling_with == killer:
-            self.set_health(1)
+        if killer and self.duel_manager and self.duel_manager.player_involved(killer):
             self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
-            killer.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
+            self.set_health(1)
             return
 
         super().die(killer)

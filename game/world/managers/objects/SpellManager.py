@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from game.world.managers.GridManager import GridManager
+from game.world.managers.objects.player.DuelManager import DuelManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes, AttackTypes
@@ -218,7 +219,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
-        caster.duel_manager.request_duel(target, effect.misc_value)
+        DuelManager.request_duel(caster, target, effect.misc_value)
 
 
 SPELL_EFFECTS = {
