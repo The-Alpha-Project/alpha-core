@@ -9,7 +9,7 @@ from utils.constants.UpdateFields import PlayerFields, UnitFields
 
 
 class DuelManager(object):
-    ARBITERS_GUID = 40000  # TODO: Need a way to dynamically generate available guids for go's
+    ARBITERS_GUID = 40000  # TODO: HackFix, We need a way to dynamically generate valid guids for go's
 
     def __init__(self, owner):
         self.owner = owner
@@ -17,103 +17,17 @@ class DuelManager(object):
         self.duel_status = DUEL_STATUS.DUEL_STATUS_INBOUNDS
         self.duel_state = DUEL_STATE.DUEL_STATE_REQUESTED
         self.arbiter = None
-        self.count_down_timer = 3  # seconds
-
-    def is_dueling(self):
-        return not self.dueling_with
-
-    def start_duel(self):
-        self.duel_state = DUEL_STATE.DUEL_STATE_STARTED
-        self.duel_status = DUEL_STATUS.DUEL_STATUS_INBOUNDS
-        self.count_down_timer = 3  # seconds
-
-    # This is called by 1 player only.
-    def handle_duel_accept(self):
-        self.build_update()
-        print(self.owner.player.name)
-        self.start_duel()
-
-        #data = pack('<I', self.count_down_timer)
-        #packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_COUNTDOWN, data)
-
-        #self.owner.session.send_message(packet)
-        #self.dueling_with.session.send_message(packet)  # '<player> has challenged you to a duel ui box'
-
-    def handle_duel_canceled(self):
-        pass
-
-    def end_duel(self, duel_winner_flag, winner):
-
-        if duel_winner_flag == DUEL_WINNER.DUEL_WINNER_KNOCKOUT and winner == self.owner:
-            pass
-            #self.dueling_with.emote(EMOTES.EMOTE_ONESHOT_BEG)
-            #self.dueling_with.root(3000)
-
-        if winner == self.owner:
-            winner_name_bytes = PacketWriter.string_to_bytes(winner.player.name)
-            data = pack(f'<B{len(winner_name_bytes)}s', duel_winner_flag, winner_name_bytes)
-            packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_WINNER, data)
-            GridManager.send_surrounding(packet, winner)
-
-        GridManager.remove_object(self.arbiter)
-
-        packet = PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT)
-        self.owner.session.send_message(packet)
-        self.owner.leave_combat()
-
-        self.dueling_with = None
-        self.arbiter = None
-        self.count_down_timer = 3
-        self.duel_state = DUEL_STATE.DUEL_STATE_REQUESTED
-        self.duel_status = DUEL_STATUS.DUEL_STATUS_INBOUNDS
-
-    def boundary_test(self, elapsed):
-        dist = self.arbiter.location.distance(self.owner.location)
-        print(dist)
-        if dist >= 75:
-            if self.duel_status == DUEL_STATUS.DUEL_STATUS_OUTOFBOUNDS:
-                self.count_down_timer -= elapsed  # seconds
-                if self.count_down_timer == 0:
-                    self.dueling_with.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT)
-            else:  # Was in range and now is out of bounds.
-                self.count_down_timer = 10  # 10 seconds to come back.
-
-            if self.count_down_timer % 1 == 0:
-                data = pack('<I', self.count_down_timer)
-                packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_OUTOFBOUNDS, data)
-                self.owner.session.send_message(packet)  # Notify out of bounds.
-        else:  # in range
-            if self.duel_status == DUEL_STATUS.DUEL_STATUS_OUTOFBOUNDS: # Just got in range again, notify
-                self.owner.session.send_message(PacketWriter.get_packet(OpCode.SMSG_DUEL_INBOUNDS))
-
-    def set_arbiter(self, arbiter):
-        self.arbiter = arbiter
-        self.build_update()
-
-    def update(self, elapsed):
-        if self.arbiter and self.duel_state == DUEL_STATE.DUEL_STATE_STARTED:
-            self.boundary_test(elapsed)
-
-    def build_update(self, set_dirty=False):
-        if self.arbiter:
-            self.owner.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, self.arbiter.guid)
-            if self.duel_state == DUEL_STATE.DUEL_STATE_STARTED:
-                self.owner.set_uint32(UnitFields.UNIT_FIELD_POWER2, 0)
-                self.owner.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, self.owner.guid)
-        else:
-            self.owner.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, 0)
-            if self.duel_state == DUEL_STATE.DUEL_STATE_REQUESTED:
-                self.owner.set_uint32(UnitFields.UNIT_FIELD_POWER2, 0)
-                self.owner.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, 0)
-
-        if set_dirty:
-            self.owner.set_dirty()
+        self.out_bounds_timer = 10  # seconds
+        self.elapsed = 0
+        self.team_id = 0
 
     def request_duel(self, target):
         print(f'{self.owner.player.name} requested a duel to {target.player.name}')
         self.duel_state = DUEL_STATE.DUEL_STATE_REQUESTED
         self.dueling_with = target
         target.duel_manager.dueling_with = self.owner
+        self.team_id = 1
+        target.duel_manager.team_id = 2
 
         arbiter = self._create_arbiter(target)
         if arbiter:
@@ -127,8 +41,101 @@ class DuelManager(object):
             data = pack('<2Q', arbiter.guid, self.owner.guid)
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_REQUESTED, data)
             self.owner.session.send_message(packet) # 'You have requested a duel.' Message
+            self.out_bounds_timer = 10
 
-            self.count_down_timer = 3000
+    def handle_duel_accept(self):
+        self.build_update()
+        self.start_duel()
+
+    def handle_duel_canceled(self):
+        self.dueling_with.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, self.dueling_with)
+        self.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, self.dueling_with)
+
+    def start_duel(self):
+        self.duel_state = DUEL_STATE.DUEL_STATE_STARTED
+        self.duel_status = DUEL_STATUS.DUEL_STATUS_INBOUNDS
+        self.out_bounds_timer = 10  # seconds
+        self.build_update(set_dirty=True)
+
+    def end_duel(self, duel_winner_flag, duel_complete_flag, winner):
+        print(f'{self.owner.player.name} End duel')
+        if duel_winner_flag == DUEL_WINNER.DUEL_WINNER_KNOCKOUT and winner == self.owner:
+            pass
+            # self.dueling_with.emote(EMOTES.EMOTE_ONESHOT_BEG)
+            # self.dueling_with.root(3000)
+
+        #  Only the winner will broadcast result to its surroundings.
+        if winner == self.owner:
+            # Send either the duel ended by natural means or if it was canceled/interrupted
+            packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_COMPLETE, pack('<B', duel_complete_flag))
+            GridManager.send_surrounding(packet, winner)
+            # Was not interrupted, broadcast duel result.
+            if duel_complete_flag == DUEL_COMPLETE.DUEL_FINISHED:
+                winner_name_bytes = PacketWriter.string_to_bytes(winner.player.name)
+                loser_name_bytes = PacketWriter.string_to_bytes(self.dueling_with.player.name)
+                data = pack(f'<B{len(winner_name_bytes)}s{len(loser_name_bytes)}s', duel_winner_flag, winner_name_bytes, loser_name_bytes)
+                packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_WINNER, data)
+                GridManager.send_surrounding(packet, winner)
+
+        # Clean up arbiter go and cleanup.
+        GridManager.remove_object(self.arbiter)
+
+        packet = PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT)
+        self.owner.session.send_message(packet)
+        self.owner.leave_combat(force_update=True)
+
+        self.dueling_with = None
+        self.arbiter = None
+        self.out_bounds_timer = 10
+        self.duel_state = DUEL_STATE.DUEL_STATE_REQUESTED
+        self.duel_status = DUEL_STATUS.DUEL_STATUS_INBOUNDS
+        self.build_update(set_dirty=True)
+
+    # Boundary check by Arbiter every second. We can tweak this later if sample rate is not sufficient
+    def boundary_check(self, elapsed):
+        self.elapsed += elapsed
+        if self.elapsed >= 1:
+            dist = self.arbiter.location.distance(self.owner.location)
+            if dist >= 75:
+                if self.duel_status == DUEL_STATUS.DUEL_STATUS_OUTOFBOUNDS:
+                    self.out_bounds_timer -= self.elapsed  # seconds
+                    if self.out_bounds_timer <= 0:
+                        self.dueling_with.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, self.dueling_with)
+                else:  # Was in range and now is out of bounds.
+                    self.duel_status = DUEL_STATUS.DUEL_STATUS_OUTOFBOUNDS
+                    self.out_bounds_timer = 10  # 10 seconds to come back.
+                    data = pack('<I', self.out_bounds_timer)
+                    packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_OUTOFBOUNDS, data)
+                    self.owner.session.send_message(packet)  # Notify out of bounds.
+            else:  # in range
+                if self.duel_status == DUEL_STATUS.DUEL_STATUS_OUTOFBOUNDS:  # Just got in range again, notify
+                    self.duel_status = DUEL_STATUS.DUEL_STATUS_INBOUNDS
+                    self.owner.session.send_message(PacketWriter.get_packet(OpCode.SMSG_DUEL_INBOUNDS))
+            self.elapsed = 0
+
+    def is_dueling(self):
+        return not self.dueling_with
+
+    def set_arbiter(self, arbiter):
+        self.arbiter = arbiter
+        self.build_update(set_dirty=True)
+
+    def update(self, elapsed):
+        if self.arbiter and self.duel_state == DUEL_STATE.DUEL_STATE_STARTED:
+            self.boundary_check(elapsed)
+
+    def build_update(self, set_dirty=False):
+        if self.arbiter:
+            self.owner.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, self.arbiter.guid)
+            if self.duel_state == DUEL_STATE.DUEL_STATE_STARTED:
+                self.owner.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, self.team_id)
+        else:
+            self.owner.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, 0)
+            if self.duel_state == DUEL_STATE.DUEL_STATE_REQUESTED:
+                self.owner.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, 0)
+
+        if set_dirty:
+            self.owner.set_dirty()
 
     def _create_arbiter(self, target):
         try:
@@ -153,7 +160,7 @@ class DuelManager(object):
             DuelManager.ARBITERS_GUID += 1
 
             go_arbiter = GameObjectManager(
-                gobject_template=go_template,  # go_template returns wrapped in a tuple...
+                gobject_template=go_template,
                 gobject_instance=instance
             )
 
