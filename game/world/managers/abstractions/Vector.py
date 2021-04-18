@@ -65,6 +65,9 @@ class Vector(object):
 
         return Vector(x3, y3, z3)
 
+    def get_point_in_middle(self, vector):
+        return Vector((self.x + vector.x) / 2, (self.y + vector.y) / 2, (self.z + vector.z) / 2)
+
     # https://stackoverflow.com/a/50746409/4208583
     def get_random_point_in_radius(self, radius):
         r = radius * math.sqrt(random())

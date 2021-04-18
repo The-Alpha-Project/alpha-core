@@ -7,6 +7,7 @@ from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.ChannelManager import ChannelManager
 from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.SpellManager import SpellManager
+from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
@@ -16,6 +17,7 @@ from game.world.managers.objects.player.QuestManager import QuestManager
 from game.world.managers.objects.player.FriendsManager import FriendsManager
 from network.packet.PacketWriter import *
 from utils import Formulas
+from utils.constants.DuelCodes import *
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, StandState
@@ -129,6 +131,7 @@ class PlayerManager(UnitManager):
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.quest_manager = QuestManager(self)
+            self.duel_manager = DuelManager(self)
             self.friends_manager = FriendsManager(self)
             self.guild_manager = None
             self.group_manager = None
@@ -222,6 +225,9 @@ class PlayerManager(UnitManager):
                 self.guild_manager.disband()
             else:
                 self.guild_manager.leave(self)
+
+        if self.duel_manager.is_dueling():
+            self.duel_manager.force_duel_retreat()
 
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
@@ -331,6 +337,9 @@ class PlayerManager(UnitManager):
     def teleport(self, map_, location):
         if not DbcDatabaseManager.map_get_by_id(map_):
             return False
+
+        if self.duel_manager.is_dueling():
+            self.duel_manager.force_duel_retreat()
 
         self.is_teleporting = True
 
@@ -730,6 +739,7 @@ class PlayerManager(UnitManager):
         else:
             self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 
+        self.duel_manager.build_update()
         self.inventory.build_update()
 
         return self.get_object_create_packet(is_self)
@@ -1060,6 +1070,9 @@ class PlayerManager(UnitManager):
             # SpellManager tick
             self.spell_manager.update(now)
 
+            # Duel tick
+            self.duel_manager.update(elapsed)
+
             # Release spirit timer
             if not self.is_alive:
                 if self.spirit_release_timer < 300:  # 5 min
@@ -1105,6 +1118,12 @@ class PlayerManager(UnitManager):
 
     # override
     def die(self, killer=None):
+        if killer and self.duel_manager.is_dueling() and self.duel_manager.dueling_with == killer:
+            self.health = 5
+            self.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_KNOCKOUT, DUEL_COMPLETE.DUEL_FINISHED, killer)
+            killer.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_KNOCKOUT, DUEL_COMPLETE.DUEL_FINISHED, killer)
+            return
+
         super().die(killer)
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
