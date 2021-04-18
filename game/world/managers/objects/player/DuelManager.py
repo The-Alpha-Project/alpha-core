@@ -17,14 +17,30 @@ class DuelManager(object):
         self.duel_status = DUEL_STATUS.DUEL_STATUS_INBOUNDS
         self.duel_state = DUEL_STATE.DUEL_STATE_REQUESTED
         self.arbiter = None
-        self.count_down_timer = 3000
+        self.count_down_timer = 3  # seconds
 
     def is_dueling(self):
         return not self.dueling_with
 
     def start_duel(self):
         self.duel_state = DUEL_STATE.DUEL_STATE_STARTED
-        self.dueling_with.duel_manager.duel_state = DUEL_STATE.DUEL_STATE_STARTED
+        self.duel_status = DUEL_STATUS.DUEL_STATUS_INBOUNDS
+        self.count_down_timer = 3  # seconds
+
+    # This is called by 1 player only.
+    def handle_duel_accept(self):
+        self.build_update()
+        print(self.owner.player.name)
+        self.start_duel()
+
+        #data = pack('<I', self.count_down_timer)
+        #packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_COUNTDOWN, data)
+
+        #self.owner.session.send_message(packet)
+        #self.dueling_with.session.send_message(packet)  # '<player> has challenged you to a duel ui box'
+
+    def handle_duel_canceled(self):
+        pass
 
     def end_duel(self, duel_winner_flag, winner):
 
@@ -47,26 +63,22 @@ class DuelManager(object):
 
         self.dueling_with = None
         self.arbiter = None
-        self.count_down_timer = 3000
+        self.count_down_timer = 3
         self.duel_state = DUEL_STATE.DUEL_STATE_REQUESTED
         self.duel_status = DUEL_STATUS.DUEL_STATUS_INBOUNDS
 
-    def duel_countdown(self, elapsed):
-        self.count_down_timer -= elapsed
-        if self.count_down_timer <= 0:
-            print('Start/Cancel')
-        else:
-            print(f'Time left: {self.count_down_timer}')
-
-    def boundary_test(self):
+    def boundary_test(self, elapsed):
         dist = self.arbiter.location.distance(self.owner.location)
+        print(dist)
         if dist >= 75:
             if self.duel_status == DUEL_STATUS.DUEL_STATUS_OUTOFBOUNDS:
-                self.count_down_timer -= 500
+                self.count_down_timer -= elapsed  # seconds
                 if self.count_down_timer == 0:
                     self.dueling_with.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT)
-            else:
-                self.count_down_timer = 10000
+            else:  # Was in range and now is out of bounds.
+                self.count_down_timer = 10  # 10 seconds to come back.
+
+            if self.count_down_timer % 1 == 0:
                 data = pack('<I', self.count_down_timer)
                 packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_OUTOFBOUNDS, data)
                 self.owner.session.send_message(packet)  # Notify out of bounds.
@@ -79,12 +91,10 @@ class DuelManager(object):
         self.build_update()
 
     def update(self, elapsed):
-        if self.dueling_with and self.duel_state == DUEL_STATE.DUEL_STATE_REQUESTED:
-            self.duel_countdown(elapsed)
         if self.arbiter and self.duel_state == DUEL_STATE.DUEL_STATE_STARTED:
-            self.boundary_test()
+            self.boundary_test(elapsed)
 
-    def build_update(self):
+    def build_update(self, set_dirty=False):
         if self.arbiter:
             self.owner.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, self.arbiter.guid)
             if self.duel_state == DUEL_STATE.DUEL_STATE_STARTED:
@@ -95,6 +105,9 @@ class DuelManager(object):
             if self.duel_state == DUEL_STATE.DUEL_STATE_REQUESTED:
                 self.owner.set_uint32(UnitFields.UNIT_FIELD_POWER2, 0)
                 self.owner.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, 0)
+
+        if set_dirty:
+            self.owner.set_dirty()
 
     def request_duel(self, target):
         print(f'{self.owner.player.name} requested a duel to {target.player.name}')
@@ -120,8 +133,7 @@ class DuelManager(object):
     def _create_arbiter(self, target):
         try:
             go_template = WorldDatabaseManager.gameobject_template_get_by_entry(21680)[0]  # Why does it returns a tuple
-            go_template.scale = 0.3
-
+            go_template.scale = 0.5
             in_between_pos = self.owner.location.get_point_in_middle(target.location)
 
             #  TODO: Need a builder for this.

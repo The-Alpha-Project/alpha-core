@@ -109,6 +109,9 @@ from game.world.opcode_handling.handlers.channel.ChannelMuteHandler import Chann
 from game.world.opcode_handling.handlers.channel.ChannelOwnerHandler import ChannelOwnerHandler
 from game.world.opcode_handling.handlers.channel.ChannelPasswordHandler import ChannelPasswordHandler
 from game.world.opcode_handling.handlers.player.RandomRollHandler import RandomRollHandler
+from game.world.opcode_handling.handlers.player.DuelAcceptHandler import DuelAcceptHandler
+from game.world.opcode_handling.handlers.player.DuelCanceledHandler import DuelCanceledHandler
+
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -232,6 +235,9 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_CHANNEL_PASSWORD: ChannelPasswordHandler.handle,
     OpCode.CMSG_CHANNEL_LIST: ChannelListHandler.handle,
     OpCode.MSG_RANDOM_ROLL: RandomRollHandler.handle,
+    OpCode.CMSG_DUEL_ACCEPTED: DuelAcceptHandler.handle,
+    OpCode.CMSG_DUEL_CANCELLED: DuelCanceledHandler.handle,
+
 
     # Movement packets
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,

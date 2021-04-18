@@ -503,7 +503,8 @@ class SpellManager(object):
         if casting_spell.spell_entry.PowerType != self.unit_mgr.power_type and casting_spell.spell_entry.ManaCost != 0:  # Doesn't have the correct power type
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
-        if cost > self.unit_mgr.get_power_type_value():  # Doesn't have enough power
+
+        if casting_spell.get_resource_cost() > self.unit_mgr.get_power_type_value():  # Doesn't have enough power
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 
