@@ -286,7 +286,6 @@ class SpellManager(object):
         casting_spell = CastingSpell(spell, caster_obj, spell_target, targets, target_mask)  # Initializes dbc references
 
         if not self.validate_cast(casting_spell):
-            print('er1')
             return
 
         if casting_spell.casts_on_swing():  # Handle swing ability queue and state
@@ -306,7 +305,6 @@ class SpellManager(object):
             return
 
         # Spell is instant, perform cast
-        print('instant')
         self.perform_spell_cast(casting_spell, False)
 
     def perform_spell_cast(self, casting_spell, validate=True):

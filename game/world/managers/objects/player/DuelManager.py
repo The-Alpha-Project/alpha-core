@@ -25,7 +25,6 @@ class DuelManager(object):
         self.team_id = 0
 
     def request_duel(self, target):
-        print(f'{self.owner.player.name} requested a duel to {target.player.name}')
         self.duel_state = DUEL_STATE.DUEL_STATE_REQUESTED
         self.dueling_with = target
         target.duel_manager.dueling_with = self.owner
