@@ -3,16 +3,16 @@ import random
 from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world import WorldManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.player.SpellManager import SpellManager
+from game.world.managers.objects.spell.AuraManager import AuraManager
+from game.world.managers.objects.spell.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.ConfigManager import config
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, AttackTypes, ProcFlags, \
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags
 from utils.constants.UpdateFields import UnitFields
@@ -197,6 +197,7 @@ class UnitManager(ObjectManager):
                               AttackTypes.RANGED_ATTACK: 0}
 
         self.spell_manager = SpellManager(self)
+        self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
 
     def attack(self, victim, is_melee=True):
@@ -382,7 +383,7 @@ class UnitManager(ObjectManager):
             damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
             damage_info.hit_info = HitInfo.SUCCESS | HitInfo.OFFHAND
         elif attack_type == AttackTypes.RANGED_ATTACK:
-            damage_info.proc_attacker = ProcFlags.ProcFlags.DEAL_COMBAT_DMG
+            damage_info.proc_attacker = ProcFlags.DEAL_COMBAT_DMG
             damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
             damage_info.hit_info = HitInfo.DAMAGE  # ?
 

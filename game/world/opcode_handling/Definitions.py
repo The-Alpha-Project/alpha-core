@@ -108,6 +108,10 @@ from game.world.opcode_handling.handlers.channel.ChannelModeratorHandler import 
 from game.world.opcode_handling.handlers.channel.ChannelMuteHandler import ChannelMuteHandler
 from game.world.opcode_handling.handlers.channel.ChannelOwnerHandler import ChannelOwnerHandler
 from game.world.opcode_handling.handlers.channel.ChannelPasswordHandler import ChannelPasswordHandler
+from game.world.opcode_handling.handlers.player.RandomRollHandler import RandomRollHandler
+from game.world.opcode_handling.handlers.player.DuelAcceptHandler import DuelAcceptHandler
+from game.world.opcode_handling.handlers.player.DuelCanceledHandler import DuelCanceledHandler
+
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -179,31 +183,6 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_TAXIQUERYAVAILABLENODES: TaxiQueryNodesHandler.handle,
     OpCode.CMSG_ACTIVATETAXI: ActivateTaxiHandler.handle,
     OpCode.CMSG_CAST_SPELL: CastSpellHandler.handle,
-
-    OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_ROOT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_SET_PITCH: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_SET_FACING: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_STOP_SWIM: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_START_SWIM: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_SET_WALK_MODE: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_SET_RUN_MODE: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_STOP_PITCH: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_START_PITCH_DOWN: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_START_PITCH_UP: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_STOP_TURN: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_START_TURN_LEFT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_START_TURN_RIGHT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_JUMP: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_STOP_STRAFE: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_START_STRAFE_RIGHT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_START_STRAFE_LEFT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_STOP: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_START_BACKWARD: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_START_FORWARD: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_COLLIDE_REDIRECT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status,
     OpCode.CMSG_LOOT: LootRequestHandler.handle,
     OpCode.CMSG_LOOT_RELEASE: LootReleaseHandler.handle,
     OpCode.CMSG_LOOT_MONEY: LootMoneyHandler.handle,
@@ -255,6 +234,36 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_CHANNEL_SET_OWNER: ChannelOwnerHandler.handle_set_owner,
     OpCode.CMSG_CHANNEL_PASSWORD: ChannelPasswordHandler.handle,
     OpCode.CMSG_CHANNEL_LIST: ChannelListHandler.handle,
+    OpCode.MSG_RANDOM_ROLL: RandomRollHandler.handle,
+    OpCode.CMSG_DUEL_ACCEPTED: DuelAcceptHandler.handle,
+    OpCode.CMSG_DUEL_CANCELLED: DuelCanceledHandler.handle,
+
+
+    # Movement packets
+    OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_UNROOT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_ROOT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_SET_PITCH: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_SET_FACING: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_STOP_SWIM: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_SWIM: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_SET_WALK_MODE: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_SET_RUN_MODE: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_STOP_PITCH: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_PITCH_DOWN: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_PITCH_UP: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_STOP_TURN: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_TURN_LEFT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_TURN_RIGHT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_JUMP: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_STOP_STRAFE: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_STRAFE_RIGHT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_STRAFE_LEFT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_STOP: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_BACKWARD: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_START_FORWARD: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_COLLIDE_REDIRECT: MovementHandler.handle_movement_status,
+    OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status
 }
 
 

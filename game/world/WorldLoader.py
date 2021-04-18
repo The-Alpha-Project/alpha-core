@@ -18,9 +18,13 @@ class WorldLoader:
         if config.Server.Settings.load_creatures:
             WorldLoader.load_creature_loot_templates()
             WorldLoader.load_creatures()
+            WorldLoader.load_creature_quests()
+            WorldLoader.load_creature_involved_quests()
         else:
             Logger.info('Skipped creature loading.')
 
+        WorldLoader.load_item_templates()
+        WorldLoader.load_quests()
         WorldLoader.load_spells()
         WorldLoader.load_skills()
         WorldLoader.load_skill_line_abilities()
@@ -75,6 +79,34 @@ class WorldLoader:
             WorldDatabaseManager.CreatureLootTemplateHolder.load_creature_loot_template(loot_template)
             count += 1
             Logger.progress('Loading creature loot templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_item_templates():
+        item_templates = WorldDatabaseManager.item_template_get_all()
+        length = len(item_templates)
+        count = 0
+
+        for item_template in item_templates:
+            WorldDatabaseManager.ItemTemplateHolder.load_item_template(item_template)
+
+            count += 1
+            Logger.progress('Loading item templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_quests():
+        quest_templates = WorldDatabaseManager.quest_template_get_all()
+        length = len(quest_templates)
+        count = 0
+
+        for quest_template in quest_templates:
+            WorldDatabaseManager.QuestTemplateHolder.load_quest_template(quest_template)
+
+            count += 1
+            Logger.progress('Loading quest templates...', count, length)
 
         return length
 
@@ -145,5 +177,33 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading taxi path nodes...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_quests():
+        creature_quests = WorldDatabaseManager.creature_quest_get_all()
+        length = len(creature_quests)
+        count = 0
+
+        for creature_quest in creature_quests:
+            WorldDatabaseManager.QuestRelationHolder.load_creature_quest(creature_quest)
+
+            count += 1
+            Logger.progress('Loading creature quest relations...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_involved_quests():
+        creature_involved_quests = WorldDatabaseManager.creature_involved_quest_get_all()
+        length = len(creature_involved_quests)
+        count = 0
+
+        for creature_involved_quest in creature_involved_quests:
+            WorldDatabaseManager.QuestRelationHolder.load_creature_involved_quest(creature_involved_quest)
+
+            count += 1
+            Logger.progress('Loading creature involved quest relations...', count, length)
 
         return length

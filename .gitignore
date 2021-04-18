@@ -1,3 +1,11 @@
 **.pyc
+
+# IDE configuration files
 .idea
+.vscode
+
+# Project files
 etc/config/config.yml
+
+# virtualenv folder
+venv

@@ -16,7 +16,7 @@ class CreatureLootManager(LootManager):
 
         for loot_item in self.loot_template:
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
-            item_template = WorldDatabaseManager.item_template_get_by_entry(loot_item.item)
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:
                 item_chance = loot_item.ChanceOrQuestChance
                 item_chance = item_chance if item_chance > 0 else item_chance * -1

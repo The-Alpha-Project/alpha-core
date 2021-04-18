@@ -32,7 +32,7 @@ class InventoryManager(object):
 
         # First load bags
         for item_instance in character_inventory:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(item_instance.item_template)
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_instance.item_template)
             if item_template and item_template.inventory_type == InventoryTypes.BAG:
                 container_mgr = ContainerManager(
                     owner=self.owner.guid,
@@ -45,7 +45,7 @@ class InventoryManager(object):
 
         # Then load items
         for item_instance in character_inventory:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(item_instance.item_template)
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_instance.item_template)
             if item_template:
                 if item_template.display_id > MAX_3368_ITEM_DISPLAY_ID and \
                         self.is_equipment_pos(item_instance.bag, item_instance.slot):
@@ -85,7 +85,7 @@ class InventoryManager(object):
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False,
                  send_message=True, show_item_get=True):
         if entry != 0 and not item_template:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         amount_left = count
         target_bag_slot = -1  # Highest bag slot items were added to
         if item_template:
@@ -127,7 +127,7 @@ class InventoryManager(object):
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
                          handle_error=True):
         if entry != 0 and not item_template:
-            item_template = WorldDatabaseManager.item_template_get_by_entry(entry)
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         if not item_template:
             if handle_error:
                 self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
@@ -285,7 +285,7 @@ class InventoryManager(object):
                 continue
             for slot, item in list(container.sorted_slots.items()):
                 if item.item_template.entry == entry:
-                    count += 1
+                    count += item.item_instance.stackcount
         return count
 
     def get_container(self, slot):
@@ -321,6 +321,25 @@ class InventoryManager(object):
         if target_container.is_backpack and \
                 self.is_bag_pos(target_slot) and self.get_container(target_slot):  # Equipped bags
             self.remove_bag(target_slot)
+
+    def remove_items(self, entry, count):
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                continue
+            if count == 0:
+                break
+            for slot, item in list(container.sorted_slots.items()):
+                if item.item_template.entry == entry:
+                    if count < item.item_instance.stackcount:
+                        item.item_instance.stackcount -= count
+                        count = 0
+                        RealmDatabaseManager.character_inventory_update_item(item.item_instance)
+                        break
+                    elif count >= item.item_instance.stackcount:
+                        self.remove_item(container_slot, slot, True)
+                        count -= item.item_instance.stackcount
+        self.owner.send_update_self(force_inventory_update=True)
+        return count  # Return the amount of items not removed
 
     def get_item_info_by_guid(self, guid):
         for container_slot, container in list(self.containers.items()):

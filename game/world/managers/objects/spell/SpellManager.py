@@ -3,12 +3,13 @@ import random
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange
+from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange, SpellDuration
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from game.world.managers.GridManager import GridManager
+from game.world.managers.objects.player.DuelManager import DuelManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.ObjectCodes import ObjectTypes, AttackTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellTargetType, SpellAttributes, SpellAttributesEx
 from utils.constants.UnitCodes import PowerTypes
@@ -22,12 +23,13 @@ class CastingSpell(object):
     target_results: dict
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
+    duration_entry: SpellDuration
     cast_time_entry: SpellCastTimes
 
     cast_end_timestamp: float
     spell_delay_end_timestamp: float
 
-    trigger_melee_attack_type: int
+    spell_attack_type: int
 
     def __init__(self, spell, caster_obj, initial_target_unit, target_results, target_mask):
         self.spell_entry = spell
@@ -35,14 +37,20 @@ class CastingSpell(object):
         self.initial_target_unit = initial_target_unit
         self.target_results = target_results
         self.spell_target_mask = target_mask
+        self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
+
+        self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged() else AttackTypes.BASE_ATTACK
 
         self.cast_state = SpellState.SPELL_STATE_PREPARING
 
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0
+
+    def is_ranged(self):
+        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_RANGED == SpellAttributes.SPELL_ATTR_RANGED
 
     def casts_on_swing(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 == SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1
@@ -75,6 +83,12 @@ class CastingSpell(object):
         if self.spell_entry.Effect_3 != 0:
             effects.append(SpellEffect(self.spell_entry, 3))
         return effects
+    
+    def get_reagents(self):
+        return (self.spell_entry.Reagent_1, self.spell_entry.ReagentCount_1), (self.spell_entry.Reagent_2, self.spell_entry.ReagentCount_2), \
+               (self.spell_entry.Reagent_3, self.spell_entry.ReagentCount_3), (self.spell_entry.Reagent_4, self.spell_entry.ReagentCount_4), \
+               (self.spell_entry.Reagent_5, self.spell_entry.ReagentCount_5), (self.spell_entry.Reagent_6, self.spell_entry.ReagentCount_6), \
+               (self.spell_entry.Reagent_7, self.spell_entry.ReagentCount_7), (self.spell_entry.Reagent_8, self.spell_entry.ReagentCount_8)
 
 
 class SpellEffect(object):
@@ -87,7 +101,7 @@ class SpellEffect(object):
     implicit_target_a: SpellTargetType
     implicit_target_b: SpellTargetType
     radius_index: int
-    aura_id: int
+    aura_type: int
     aura_period: int
     amplitude: int
     chain_targets: int
@@ -117,7 +131,7 @@ class SpellEffect(object):
         self.implicit_target_a = spell.ImplicitTargetA_1
         self.implicit_target_b = spell.ImplicitTargetB_1
         self.radius_index = spell.EffectRadiusIndex_1
-        self.aura_id = spell.EffectAura_1
+        self.aura_type = spell.EffectAura_1
         self.aura_period = spell.EffectAuraPeriod_1
         self.amplitude = spell.EffectAmplitude_1
         self.chain_targets = spell.EffectChainTargets_1
@@ -135,7 +149,7 @@ class SpellEffect(object):
         self.implicit_target_a = spell.ImplicitTargetA_2
         self.implicit_target_b = spell.ImplicitTargetB_2
         self.radius_index = spell.EffectRadiusIndex_2
-        self.aura_id = spell.EffectAura_2
+        self.aura_type = spell.EffectAura_2
         self.aura_period = spell.EffectAuraPeriod_2
         self.amplitude = spell.EffectAmplitude_2
         self.chain_targets = spell.EffectChainTargets_2
@@ -153,7 +167,7 @@ class SpellEffect(object):
         self.implicit_target_a = spell.ImplicitTargetA_3
         self.implicit_target_b = spell.ImplicitTargetB_3
         self.radius_index = spell.EffectRadiusIndex_3
-        self.aura_id = spell.EffectAura_3
+        self.aura_type = spell.EffectAura_3
         self.aura_period = spell.EffectAuraPeriod_3
         self.amplitude = spell.EffectAmplitude_3
         self.chain_targets = spell.EffectChainTargets_3
@@ -166,7 +180,7 @@ class SpellEffectHandler(object):
     @staticmethod
     def apply_effect(casting_spell, effect):
         if effect.effect_type not in SPELL_EFFECTS:
-            Logger.debug("Unimplemented effect called: " + str(effect.effect_type))
+            Logger.debug(f'Unimplemented effect called: {effect.effect_type}')
             return
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, casting_spell.spell_caster, casting_spell.initial_target_unit)
 
@@ -181,7 +195,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):
-        damage_info = caster.calculate_melee_damage(target, casting_spell.trigger_melee_attack_type)
+        damage_info = caster.calculate_melee_damage(target, casting_spell.spell_attack_type)
         if not damage_info:
             return
         damage = damage_info.total_damage + effect.get_effect_points(caster.level)
@@ -189,7 +203,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_weapon_damage_plus(casting_spell, effect, caster, target):
-        damage_info = caster.calculate_melee_damage(target, casting_spell.trigger_melee_attack_type)
+        damage_info = caster.calculate_melee_damage(target, casting_spell.spell_attack_type)
         if not damage_info:
             return
         damage = damage_info.total_damage
@@ -205,13 +219,23 @@ class SpellEffectHandler(object):
     def handle_add_combo_points(casting_spell, effect, caster, target):
         caster.add_combo_points_on_target(target, effect.get_effect_points(caster.level))
 
+    @staticmethod
+    def handle_aura_application(casting_spell, effect, caster, target):
+        target.aura_manager.apply_spell_effect_aura(caster, casting_spell, effect)
+
+    @staticmethod
+    def handle_request_duel(casting_spell, effect, caster, target):
+        DuelManager.request_duel(caster, target, effect.misc_value)
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
     SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage,
     SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
-    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus
+    SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
+    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus,
+    SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application
 }
 
 
@@ -228,11 +252,14 @@ class SpellManager(object):
 
     def learn_spell(self, spell_id):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
-            return
+            return False
 
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not spell:
-            return
+            return False
+
+        if spell_id in self.spells:
+            return False
 
         db_spell = CharacterSpell()
         db_spell.guid = self.unit_mgr.guid
@@ -243,6 +270,7 @@ class SpellManager(object):
         data = pack('<H', spell_id)
         self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
         # Teach skills required as well like in CharCreateHandler?
+        return True
 
     def get_initial_spells(self):
         data = pack('<BH', 0, len(self.spells))
@@ -256,7 +284,8 @@ class SpellManager(object):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not spell:
             return
-        spell_target = GridManager.get_surrounding_unit_by_guid(caster, target_guid) if target_guid and target_guid != caster.guid else caster
+
+        spell_target = GridManager.get_surrounding_unit_by_guid(caster, target_guid, include_players=True) if target_guid and target_guid != caster.guid else caster
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 
     def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
@@ -309,8 +338,6 @@ class SpellManager(object):
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
         # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Channeled spells
 
-    has_moved = False
-
     def apply_spell_effects_and_remove(self, casting_spell):
         for effect in casting_spell.get_effects():
             SpellEffectHandler.apply_effect(casting_spell, effect)
@@ -323,7 +350,7 @@ class SpellManager(object):
             self.remove_cast(melee_ability)
             return False
 
-        melee_ability.trigger_melee_attack_type = attack_type
+        melee_ability.spell_attack_type = attack_type
 
         melee_ability.cast_state = SpellState.SPELL_STATE_CASTING
         self.perform_spell_cast(melee_ability, False)
@@ -336,6 +363,8 @@ class SpellManager(object):
                 continue
             return casting_spell
         return None
+
+    has_moved = False
 
     def flag_as_moved(self):
         # TODO temporary way of handling this until movement data can be passed to update()
@@ -457,6 +486,11 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
             return False
 
+        if not self.unit_mgr.is_alive and \
+                casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD != SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_CASTER_DEAD)
+            return False
+
         if not casting_spell.initial_target_unit:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return False
@@ -465,18 +499,13 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 
-        if self.has_moved:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_MOVING)
-            return False
-
         if not self.has_resources_for_cast(casting_spell):
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 
         return True
 
     def has_resources_for_cast(self, casting_spell):
-        if casting_spell.spell_entry.PowerType != self.unit_mgr.power_type:  # Doesn't have the correct power type
+        if casting_spell.spell_entry.PowerType != self.unit_mgr.power_type and casting_spell.spell_entry.ManaCost != 0:  # Doesn't have the correct power type
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 
@@ -486,11 +515,19 @@ class SpellManager(object):
 
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and casting_spell.requires_combo_points() and \
                 (casting_spell.initial_target_unit.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
             return False
+
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+            for reagent_info in casting_spell.get_reagents():
+                if reagent_info[0] == 0:
+                    break
+                if self.unit_mgr.inventory.get_item_count(reagent_info[0]) < reagent_info[1]:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_REAGENTS)
+                    return False
         return True
 
-    def consume_resources_for_cast(self, casting_spell):
+    def consume_resources_for_cast(self, casting_spell):  # This method assumes that the reagents exist (has_resources_for_cast was run)
         power_type = casting_spell.spell_entry.PowerType
         cost = casting_spell.spell_entry.ManaCost
         new_power = self.unit_mgr.get_power_type_value() - cost
@@ -506,6 +543,11 @@ class SpellManager(object):
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
                 casting_spell.requires_combo_points():
             self.unit_mgr.remove_combo_points()
+
+        for reagent_info in casting_spell.get_reagents():  # Reagents
+            if reagent_info[0] == 0:
+                break
+            self.unit_mgr.inventory.remove_items(reagent_info[0], reagent_info[1])
 
         self.unit_mgr.set_dirty()
 
