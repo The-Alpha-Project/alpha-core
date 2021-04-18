@@ -146,7 +146,6 @@ class DuelManager(object):
 
     def build_update(self, player_mgr, set_dirty=False):
         if self.players and self.arbiter and player_mgr.guid in self.players:
-            print(f'Build update fo player {self.players[player_mgr.guid].player.player.name} dirty: {set_dirty}')
             if self.duel_state != DuelState.DUEL_STATE_FINISHED:
                 player_mgr.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, self.arbiter.guid)
                 if self.duel_state == DuelState.DUEL_STATE_STARTED:
