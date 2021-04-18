@@ -166,9 +166,14 @@ class WorldServerSessionHandler(object):
         WorldLoader.load_data()
 
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        # Use SO_REUSEADDR if SO_REUSEPORT doesn't exist.
+        except AttributeError:
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port))
         server_socket.listen()
-        server_socket.settimeout(1)
+        
         WorldServerSessionHandler.schedule_updates()
 
         Logger.success('World server started.')
@@ -180,8 +185,6 @@ class WorldServerSessionHandler(object):
                 world_session_thread = threading.Thread(target=server_handler.handle)
                 world_session_thread.daemon = True
                 world_session_thread.start()
-            except socket.timeout:
-                continue
             except:
                 break
 

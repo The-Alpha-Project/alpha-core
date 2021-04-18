@@ -1,4 +1,4 @@
-from multiprocessing import Process
+import multiprocessing
 from time import sleep
 
 import colorama
@@ -31,13 +31,19 @@ if __name__ == '__main__':
     #    # https://stackoverflow.com/a/30091579
     #    signal(SIGPIPE, SIG_DFL)
 
-    login_process = Process(target=RealmManager.LoginServerSessionHandler.start)
+    # Semaphore objects are leaked on shutdown in macOS if using spawn for some reason.
+    if platform == 'darwin':
+        context = multiprocessing.get_context('fork')
+    else:
+        context = multiprocessing.get_context('spawn')
+
+    login_process = context.Process(target=RealmManager.LoginServerSessionHandler.start)
     login_process.start()
 
-    proxy_process = Process(target=RealmManager.ProxyServerSessionHandler.start)
+    proxy_process = context.Process(target=RealmManager.ProxyServerSessionHandler.start)
     proxy_process.start()
 
-    world_process = Process(target=WorldManager.WorldServerSessionHandler.start)
+    world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start)
     world_process.start()
 
     try:
