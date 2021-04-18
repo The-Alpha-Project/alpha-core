@@ -340,6 +340,9 @@ class PlayerManager(UnitManager):
 
         if self.duel_manager.is_dueling():
             self.duel_manager.force_duel_retreat()
+            # TODO: Total hackfix, client will crash if you teleport to another map while dueling if you don't wait. INVESTIGATE
+            if self.map_ != map_:
+                time.sleep(1)
 
         self.is_teleporting = True
 
