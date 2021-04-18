@@ -173,7 +173,7 @@ class WorldServerSessionHandler(object):
             server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port))
         server_socket.listen()
-        
+
         WorldServerSessionHandler.schedule_updates()
 
         Logger.success('World server started.')
@@ -187,5 +187,3 @@ class WorldServerSessionHandler(object):
                 world_session_thread.start()
             except:
                 break
-
-

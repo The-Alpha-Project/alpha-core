@@ -1119,9 +1119,9 @@ class PlayerManager(UnitManager):
     # override
     def die(self, killer=None):
         if killer and self.duel_manager.is_dueling() and self.duel_manager.dueling_with == killer:
-            self.health = 5
-            self.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_KNOCKOUT, DUEL_COMPLETE.DUEL_FINISHED, killer)
-            killer.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_KNOCKOUT, DUEL_COMPLETE.DUEL_FINISHED, killer)
+            self.set_health(1)
+            self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
+            killer.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
             return
 
         super().die(killer)

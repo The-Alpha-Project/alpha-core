@@ -88,7 +88,6 @@ class CastingSpell(object):
                (self.spell_entry.Reagent_7, self.spell_entry.ReagentCount_7), (self.spell_entry.Reagent_8, self.spell_entry.ReagentCount_8)
 
 
-
 class SpellEffect(object):
     effect_type: SpellEffects
     die_sides: int
@@ -219,7 +218,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
-        caster.duel_manager.request_duel(target)
+        caster.duel_manager.request_duel(target, effect.misc_value)
 
 
 SPELL_EFFECTS = {
