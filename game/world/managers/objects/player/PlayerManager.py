@@ -17,6 +17,7 @@ from game.world.managers.objects.player.QuestManager import QuestManager
 from game.world.managers.objects.player.FriendsManager import FriendsManager
 from network.packet.PacketWriter import *
 from utils import Formulas
+from utils.constants.DuelCodes import *
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, StandState
@@ -1117,6 +1118,12 @@ class PlayerManager(UnitManager):
 
     # override
     def die(self, killer=None):
+        if killer and self.duel_manager.is_dueling() and self.duel_manager.dueling_with == killer:
+            self.health = 5
+            self.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_KNOCKOUT, DUEL_COMPLETE.DUEL_FINISHED, killer)
+            killer.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_KNOCKOUT, DUEL_COMPLETE.DUEL_FINISHED, killer)
+            return
+
         super().die(killer)
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:

@@ -5,9 +5,11 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.GameObjectManager import GameObjectManager
 from utils.constants.DuelCodes import *
-from utils.constants.UpdateFields import PlayerFields, UnitFields
+from utils.constants.UpdateFields import PlayerFields
 
 
+# TODO: Need to figure a way to make both players hostile to each other while duel is ongoing.
+# TODO: Missing checks before requesting a duel, check if already in duel, faction, etc.
 class DuelManager(object):
     ARBITERS_GUID = 40000  # TODO: HackFix, We need a way to dynamically generate valid guids for go's
     BOUNDARY_RADIUS = 50
@@ -37,11 +39,11 @@ class DuelManager(object):
 
             data = pack('<2Q', arbiter.guid, self.owner.guid)
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_REQUESTED, data)
-            target.session.send_message(packet) # '<player> has challenged you to a duel ui box'
+            target.session.send_message(packet)  # '<player> has challenged you to a duel ui box'
 
             data = pack('<2Q', arbiter.guid, self.owner.guid)
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_REQUESTED, data)
-            self.owner.session.send_message(packet) # 'You have requested a duel.' Message
+            self.owner.session.send_message(packet)  # 'You have requested a duel.' Message
             self.out_bounds_timer = 10
 
     def handle_duel_accept(self):
@@ -70,11 +72,11 @@ class DuelManager(object):
 
         self.duel_state = DUEL_STATE.DUEL_STATE_FINISHED
         if duel_winner_flag == DUEL_WINNER.DUEL_WINNER_KNOCKOUT and winner == self.owner:
+            # TODO: Should trigger EMOTE BEG on target?
+            # TODO: Should root target for 3 secs?
             pass
-            # self.dueling_with.emote(EMOTES.EMOTE_ONESHOT_BEG)
-            # self.dueling_with.root(3000)
 
-        #  Only the winner will broadcast result to its surroundings.
+        # Only the winner will broadcast result to its surroundings.
         if winner == self.owner:
             # Send either the duel ended by natural means or if it was canceled/interrupted
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_COMPLETE, pack('<B', duel_complete_flag))
@@ -179,5 +181,3 @@ class DuelManager(object):
             return go_arbiter
         except:
             return None
-
-
