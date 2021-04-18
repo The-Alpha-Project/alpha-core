@@ -5,6 +5,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.GameObjectManager import GameObjectManager
 from utils.constants.DuelCodes import *
+from utils.constants.SpellCodes import SpellCheckCastResult
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -21,6 +22,7 @@ class PlayerDuelInformation(object):
 # TODO: Need to figure a way to make both players hostile to each other while duel is ongoing.
 # TODO: Missing checks before requesting a duel, check if already in duel, faction, etc.
 class DuelManager(object):
+    DUEL_SPELL_ID = 7266
     ARBITERS_GUID = 4000000  # TODO: Hackfix, We need a way to dynamically generate valid guids for go's
     BOUNDARY_RADIUS = 50
 
@@ -34,6 +36,16 @@ class DuelManager(object):
 
     @staticmethod
     def request_duel(requester, target, arbiter_entry):
+        # If target is already dueling, fail Duel spell cast.
+        if target.duel_manager:
+            requester.send_cast_result(DuelManager.DUEL_SPELL_ID, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
+            return
+
+        # If requester is already dueling, lose current duel and start a new one.
+        if requester.duel_manager:
+            requester.duel_manager.force_duel_end(retreat=False)
+            return
+
         arbiter = DuelManager.create_arbiter(requester, target, arbiter_entry=arbiter_entry)
         if arbiter:
             duel_manager = DuelManager(requester, target, arbiter)
@@ -60,7 +72,8 @@ class DuelManager(object):
             self.start_duel()
 
     def handle_duel_canceled(self, player_mgr):
-        self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_CANCELED_INTERRUPTED, self.players[player_mgr.guid].target)
+        if player_mgr.guid in self.players:
+            self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_CANCELED_INTERRUPTED, self.players[player_mgr.guid].target)
 
     def start_duel(self):
         self.duel_state = DuelState.DUEL_STATE_STARTED
@@ -68,9 +81,10 @@ class DuelManager(object):
             entry.duel_status = DuelStatus.DUEL_STATUS_INBOUNDS
             self.build_update(entry.player, set_dirty=True)
 
-    def force_duel_retreat(self, player_mgr):
+    def force_duel_end(self, player_mgr, retreat=True):
         if player_mgr.guid in self.players:
-            self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_FINISHED, self.players[player_mgr.guid].target)
+            self.end_duel(DuelWinner.DUEL_WINNER_RETREAT if retreat else DuelWinner.DUEL_WINNER_KNOCKOUT,
+                          DuelComplete.DUEL_FINISHED, self.players[player_mgr.guid].target)
 
     def end_duel(self, duel_winner_flag, duel_complete_flag, winner):
         if not self.arbiter or self.duel_state == DuelState.DUEL_STATE_FINISHED or not self.players:

@@ -226,7 +226,7 @@ class PlayerManager(UnitManager):
                 self.guild_manager.leave(self)
 
         if self.duel_manager:
-            self.duel_manager.force_duel_retreat(self)
+            self.duel_manager.force_duel_end(self)
 
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
@@ -340,7 +340,7 @@ class PlayerManager(UnitManager):
         self.is_teleporting = True
 
         if self.duel_manager:
-            self.duel_manager.force_duel_retreat(self)
+            self.duel_manager.force_duel_end(self)
 
         for guid, player in list(GridManager.get_surrounding_players(self).items()):
             if self.guid == guid:
