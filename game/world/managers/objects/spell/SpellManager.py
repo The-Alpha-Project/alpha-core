@@ -3,7 +3,7 @@ import random
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange
+from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange, SpellDuration
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.player.DuelManager import DuelManager
@@ -23,6 +23,7 @@ class CastingSpell(object):
     target_results: dict
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
+    duration_entry: SpellDuration
     cast_time_entry: SpellCastTimes
 
     cast_end_timestamp: float
@@ -36,6 +37,7 @@ class CastingSpell(object):
         self.initial_target_unit = initial_target_unit
         self.target_results = target_results
         self.spell_target_mask = target_mask
+        self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
@@ -99,7 +101,7 @@ class SpellEffect(object):
     implicit_target_a: SpellTargetType
     implicit_target_b: SpellTargetType
     radius_index: int
-    aura_id: int
+    aura_type: int
     aura_period: int
     amplitude: int
     chain_targets: int
@@ -129,7 +131,7 @@ class SpellEffect(object):
         self.implicit_target_a = spell.ImplicitTargetA_1
         self.implicit_target_b = spell.ImplicitTargetB_1
         self.radius_index = spell.EffectRadiusIndex_1
-        self.aura_id = spell.EffectAura_1
+        self.aura_type = spell.EffectAura_1
         self.aura_period = spell.EffectAuraPeriod_1
         self.amplitude = spell.EffectAmplitude_1
         self.chain_targets = spell.EffectChainTargets_1
@@ -147,7 +149,7 @@ class SpellEffect(object):
         self.implicit_target_a = spell.ImplicitTargetA_2
         self.implicit_target_b = spell.ImplicitTargetB_2
         self.radius_index = spell.EffectRadiusIndex_2
-        self.aura_id = spell.EffectAura_2
+        self.aura_type = spell.EffectAura_2
         self.aura_period = spell.EffectAuraPeriod_2
         self.amplitude = spell.EffectAmplitude_2
         self.chain_targets = spell.EffectChainTargets_2
@@ -165,7 +167,7 @@ class SpellEffect(object):
         self.implicit_target_a = spell.ImplicitTargetA_3
         self.implicit_target_b = spell.ImplicitTargetB_3
         self.radius_index = spell.EffectRadiusIndex_3
-        self.aura_id = spell.EffectAura_3
+        self.aura_type = spell.EffectAura_3
         self.aura_period = spell.EffectAuraPeriod_3
         self.amplitude = spell.EffectAmplitude_3
         self.chain_targets = spell.EffectChainTargets_3
@@ -178,7 +180,7 @@ class SpellEffectHandler(object):
     @staticmethod
     def apply_effect(casting_spell, effect):
         if effect.effect_type not in SPELL_EFFECTS:
-            Logger.debug("Unimplemented effect called: " + str(effect.effect_type))
+            Logger.debug(f'Unimplemented effect called: {effect.effect_type}')
             return
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, casting_spell.spell_caster, casting_spell.initial_target_unit)
 
@@ -218,6 +220,10 @@ class SpellEffectHandler(object):
         caster.add_combo_points_on_target(target, effect.get_effect_points(caster.level))
 
     @staticmethod
+    def handle_aura_application(casting_spell, effect, caster, target):
+        target.aura_manager.apply_spell_effect_aura(caster, casting_spell, effect)
+
+    @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
         DuelManager.request_duel(caster, target, effect.misc_value)
 
@@ -228,7 +234,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage,
     SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
     SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
-    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus
+    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus,
+    SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application
 }
 
 
