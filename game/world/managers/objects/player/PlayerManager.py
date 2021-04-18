@@ -337,10 +337,10 @@ class PlayerManager(UnitManager):
         if not DbcDatabaseManager.map_get_by_id(map_):
             return False
 
+        self.is_teleporting = True
+
         if self.duel_manager:
             self.duel_manager.force_duel_retreat(self)
-
-        self.is_teleporting = True
 
         for guid, player in list(GridManager.get_surrounding_players(self).items()):
             if self.guid == guid:

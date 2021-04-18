@@ -26,8 +26,8 @@ class DuelManager(object):
 
     # Both players will share this DuelManager instance.
     def __init__(self, player1, player2, arbiter):
-        self.players = {player1:PlayerDuelInformation(player1, player2, False, 1),
-                        player2:PlayerDuelInformation(player2, player1, True, 2)}
+        self.players = {player1.guid: PlayerDuelInformation(player1, player2, False, 1),
+                        player2.guid: PlayerDuelInformation(player2, player1, True, 2)}
         self.duel_state = DuelState.DUEL_STATE_FINISHED
         self.arbiter = arbiter
         self.elapsed = 0  # Used to control 1 update per second based on global tick rate.
@@ -56,11 +56,11 @@ class DuelManager(object):
 
     # Only accept the trigger from the target
     def handle_duel_accept(self, player_mgr):
-        if player_mgr in self.players and self.players[player_mgr].is_target:
+        if player_mgr.guid in self.players and self.players[player_mgr.guid].is_target:
             self.start_duel()
 
     def handle_duel_canceled(self, player_mgr):
-        self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_CANCELED_INTERRUPTED, self.players[player_mgr].target)
+        self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_CANCELED_INTERRUPTED, self.players[player_mgr.guid].target)
 
     def start_duel(self):
         self.duel_state = DuelState.DUEL_STATE_STARTED
@@ -69,8 +69,8 @@ class DuelManager(object):
             self.build_update(entry.player, set_dirty=True)
 
     def force_duel_retreat(self, player_mgr):
-        if player_mgr in self.players:
-            self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_FINISHED, self.players[player_mgr].target)
+        if player_mgr.guid in self.players:
+            self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_FINISHED, self.players[player_mgr.guid].target)
 
     def end_duel(self, duel_winner_flag, duel_complete_flag, winner):
         if not self.arbiter or self.duel_state == DuelState.DUEL_STATE_FINISHED or not self.players:
@@ -91,7 +91,7 @@ class DuelManager(object):
         # Was not interrupted, broadcast duel result.
         if duel_complete_flag == DuelComplete.DUEL_FINISHED:
             winner_name_bytes = PacketWriter.string_to_bytes(winner.player.name)
-            loser_name_bytes = PacketWriter.string_to_bytes(self.players[winner].target.player.name)
+            loser_name_bytes = PacketWriter.string_to_bytes(self.players[winner.guid].target.player.name)
             data = pack(f'<B{len(winner_name_bytes)}s{len(loser_name_bytes)}s', duel_winner_flag, winner_name_bytes,
                         loser_name_bytes)
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_WINNER, data)
@@ -102,10 +102,10 @@ class DuelManager(object):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT)
 
-        for entry in self.players:
-            entry.session.send_message(packet)
-            entry.leave_combat(force_update=False)
-            self.build_update(entry, set_dirty=True)
+        for entry in self.players.values():
+            entry.player.session.send_message(packet)
+            entry.player.leave_combat(force_update=False)
+            self.build_update(entry.player, set_dirty=not entry.player.is_teleporting)
 
         # Finally, flush this DualManager instance.
         self.flush()
@@ -115,7 +115,7 @@ class DuelManager(object):
         self.arbiter = None
 
     def player_involved(self, player_mgr):
-        return self.players and player_mgr in self.players
+        return self.players and player_mgr.guid in self.players
 
     def boundary_check(self):
         for entry in list(self.players.values()):  # Prevent mutability
@@ -140,16 +140,17 @@ class DuelManager(object):
             # Only accept update calls from 1 of both player since they share the same DuelManager ref.
             self.elapsed += elapsed
             if self.elapsed >= 1 and self.duel_state != DuelState.DUEL_STATE_FINISHED:
-                if self.players and self.arbiter and player_mgr in self.players and self.players[player_mgr].is_target:
+                if self.players and self.arbiter and player_mgr.guid in self.players and self.players[player_mgr.guid].is_target:
                     self.boundary_check()
                     self.elapsed = 0
 
     def build_update(self, player_mgr, set_dirty=False):
-        if self.players and self.arbiter and player_mgr in self.players:
+        if self.players and self.arbiter and player_mgr.guid in self.players:
+            print(f'Build update fo player {self.players[player_mgr.guid].player.player.name} dirty: {set_dirty}')
             if self.duel_state != DuelState.DUEL_STATE_FINISHED:
                 player_mgr.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, self.arbiter.guid)
                 if self.duel_state == DuelState.DUEL_STATE_STARTED:
-                    player_mgr.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, self.players[player_mgr].team_id)
+                    player_mgr.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, self.players[player_mgr.guid].team_id)
             else:
                 player_mgr.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, 0)
                 if self.duel_state == DuelState.DUEL_STATE_FINISHED:
