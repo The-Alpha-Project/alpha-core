@@ -137,12 +137,12 @@ class DuelManager(object):
                     entry.player.session.send_message(PacketWriter.get_packet(OpCode.SMSG_DUEL_INBOUNDS))
 
     def update(self, player_mgr, elapsed):
-            # Only accept update calls from 1 of both player since they share the same DuelManager ref.
-            self.elapsed += elapsed
-            if self.elapsed >= 1 and self.duel_state != DuelState.DUEL_STATE_FINISHED:
-                if self.players and self.arbiter and player_mgr.guid in self.players and self.players[player_mgr.guid].is_target:
-                    self.boundary_check()
-                    self.elapsed = 0
+        # Only accept update calls from 1 of both player since they share the same DuelManager ref.
+        self.elapsed += elapsed
+        if self.elapsed >= 1 and self.duel_state != DuelState.DUEL_STATE_FINISHED:
+            if self.players and self.arbiter and player_mgr.guid in self.players and self.players[player_mgr.guid].is_target:
+                self.boundary_check()
+                self.elapsed = 0
 
     def build_update(self, player_mgr, set_dirty=False):
         if self.players and self.arbiter and player_mgr.guid in self.players:
