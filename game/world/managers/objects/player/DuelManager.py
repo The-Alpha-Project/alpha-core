@@ -125,6 +125,7 @@ class DuelManager(object):
                     entry.timer -= self.elapsed  # seconds
                     if entry.timer <= 0:
                         self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_FINISHED, entry.target)
+                        break
                 else:  # Was in range and now is out of bounds.
                     entry.duel_status = DuelStatus.DUEL_STATUS_OUTOFBOUNDS
                     entry.timer = 10  # 10 seconds to come back.
@@ -137,12 +138,13 @@ class DuelManager(object):
                     entry.player.session.send_message(PacketWriter.get_packet(OpCode.SMSG_DUEL_INBOUNDS))
 
     def update(self, player_mgr, elapsed):
+        if not self.players or not self.arbiter:
+            return
         # Only accept update calls from 1 of both player since they share the same DuelManager ref.
-        self.elapsed += elapsed
+        self.elapsed += elapsed / 2  # Two players append to this
         if self.elapsed >= 1 and self.duel_state != DuelState.DUEL_STATE_FINISHED:
-            if self.players and self.arbiter and player_mgr.guid in self.players and self.players[player_mgr.guid].is_target:
-                self.boundary_check()
-                self.elapsed = 0
+            self.boundary_check()
+            self.elapsed = 0
 
     def build_update(self, player_mgr, set_dirty=False):
         if self.players and self.arbiter and player_mgr.guid in self.players:
