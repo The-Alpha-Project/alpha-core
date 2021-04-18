@@ -128,7 +128,7 @@ class WorldServerSessionHandler(object):
 
     def receive(self, sck):
         try:
-            data = sck.recv(2048)
+            data = sck.recv(4096)
             if len(data) > 0:
                 self.incoming_pending.put(data)
                 return 0
