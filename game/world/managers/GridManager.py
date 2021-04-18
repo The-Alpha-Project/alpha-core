@@ -5,7 +5,7 @@ from game.world.managers.abstractions.Vector import Vector
 from utils.constants.ObjectCodes import ObjectTypes
 
 TOLERANCE = 0.00001
-GRID_SIZE = 128
+GRID_SIZE = 150
 
 GRIDS = dict()
 

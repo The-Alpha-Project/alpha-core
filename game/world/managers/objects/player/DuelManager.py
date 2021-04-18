@@ -11,7 +11,7 @@ from utils.constants.UpdateFields import PlayerFields
 # TODO: Need to figure a way to make both players hostile to each other while duel is ongoing.
 # TODO: Missing checks before requesting a duel, check if already in duel, faction, etc.
 class DuelManager(object):
-    ARBITERS_GUID = 400000  # TODO: Hackfix, We need a way to dynamically generate valid guids for go's
+    ARBITERS_GUID = 4000000  # TODO: Hackfix, We need a way to dynamically generate valid guids for go's
     BOUNDARY_RADIUS = 50
 
     def __init__(self, owner):
