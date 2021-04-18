@@ -140,7 +140,12 @@ class DuelManager(object):
     def update(self, player_mgr, elapsed):
         if not self.players or not self.arbiter:
             return
-        self.elapsed += elapsed / 2  # Two players append to this
+
+        # Only player who initiated the duel should update the Duel status.
+        if self.players[player_mgr.guid].is_target:
+            return
+
+        self.elapsed += elapsed
         if self.elapsed >= 1 and self.duel_state != DuelState.DUEL_STATE_FINISHED:
             self.boundary_check()
             self.elapsed = 0
