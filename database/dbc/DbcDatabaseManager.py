@@ -74,6 +74,8 @@ class DbcDatabaseManager(object):
 
             return DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
 
+    # TODO Caching for all spell database methods?
+
     @staticmethod
     def spell_get_all():
         dbc_db_session = SessionHolder()
@@ -99,6 +101,13 @@ class DbcDatabaseManager(object):
     def spell_range_get_by_id(range_index):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellRange).filter_by(ID=range_index).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def spell_duration_get_by_id(duration_index):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellDuration).filter_by(ID=duration_index).first()
         dbc_db_session.close()
         return res
 

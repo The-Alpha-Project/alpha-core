@@ -6,7 +6,6 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.ChannelManager import ChannelManager
 from game.world.managers.objects.player.SkillManager import SkillManager
-from game.world.managers.objects.player.SpellManager import SpellManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager

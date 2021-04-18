@@ -3,11 +3,11 @@ import random
 from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world import WorldManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.player.SpellManager import SpellManager
+from game.world.managers.objects.spell.AuraManager import AuraManager
+from game.world.managers.objects.spell.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
@@ -197,6 +197,7 @@ class UnitManager(ObjectManager):
                               AttackTypes.RANGED_ATTACK: 0}
 
         self.spell_manager = SpellManager(self)
+        self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
 
     def attack(self, victim, is_melee=True):
