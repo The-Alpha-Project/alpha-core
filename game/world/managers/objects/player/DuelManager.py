@@ -10,12 +10,13 @@ from utils.constants.UpdateFields import PlayerFields, UnitFields
 
 class DuelManager(object):
     ARBITERS_GUID = 40000  # TODO: HackFix, We need a way to dynamically generate valid guids for go's
+    BOUNDARY_RADIUS = 50
 
     def __init__(self, owner):
         self.owner = owner
         self.dueling_with = None
         self.duel_status = DUEL_STATUS.DUEL_STATUS_INBOUNDS
-        self.duel_state = DUEL_STATE.DUEL_STATE_REQUESTED
+        self.duel_state = DUEL_STATE.DUEL_STATE_FINISHED
         self.arbiter = None
         self.out_bounds_timer = 10  # seconds
         self.elapsed = 0
@@ -48,8 +49,8 @@ class DuelManager(object):
         self.start_duel()
 
     def handle_duel_canceled(self):
-        self.dueling_with.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, self.dueling_with)
-        self.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, self.dueling_with)
+        self.dueling_with.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, DUEL_COMPLETE.DUEL_CANCELED_INTERRUPTED, self.dueling_with)
+        self.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, DUEL_COMPLETE.DUEL_CANCELED_INTERRUPTED, self.dueling_with)
 
     def start_duel(self):
         self.duel_state = DUEL_STATE.DUEL_STATE_STARTED
@@ -57,8 +58,17 @@ class DuelManager(object):
         self.out_bounds_timer = 10  # seconds
         self.build_update(set_dirty=True)
 
+    def force_duel_retreat(self):
+        if self.dueling_with:
+            self.dueling_with.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, DUEL_COMPLETE.DUEL_FINISHED,
+                                                    self.dueling_with)
+            self.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, DUEL_COMPLETE.DUEL_FINISHED, self.dueling_with)
+
     def end_duel(self, duel_winner_flag, duel_complete_flag, winner):
-        print(f'{self.owner.player.name} End duel')
+        if not self.dueling_with:
+            return
+
+        self.duel_state = DUEL_STATE.DUEL_STATE_FINISHED
         if duel_winner_flag == DUEL_WINNER.DUEL_WINNER_KNOCKOUT and winner == self.owner:
             pass
             # self.dueling_with.emote(EMOTES.EMOTE_ONESHOT_BEG)
@@ -87,7 +97,6 @@ class DuelManager(object):
         self.dueling_with = None
         self.arbiter = None
         self.out_bounds_timer = 10
-        self.duel_state = DUEL_STATE.DUEL_STATE_REQUESTED
         self.duel_status = DUEL_STATUS.DUEL_STATUS_INBOUNDS
         self.build_update(set_dirty=True)
 
@@ -96,11 +105,12 @@ class DuelManager(object):
         self.elapsed += elapsed
         if self.elapsed >= 1:
             dist = self.arbiter.location.distance(self.owner.location)
-            if dist >= 75:
+            if dist >= DuelManager.BOUNDARY_RADIUS:
                 if self.duel_status == DUEL_STATUS.DUEL_STATUS_OUTOFBOUNDS:
                     self.out_bounds_timer -= self.elapsed  # seconds
                     if self.out_bounds_timer <= 0:
-                        self.dueling_with.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, self.dueling_with)
+                        self.dueling_with.duel_manager.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, DUEL_COMPLETE.DUEL_FINISHED, self.dueling_with)
+                        self.end_duel(DUEL_WINNER.DUEL_WINNER_RETREAT, DUEL_COMPLETE.DUEL_FINISHED, self.dueling_with)
                 else:  # Was in range and now is out of bounds.
                     self.duel_status = DUEL_STATUS.DUEL_STATUS_OUTOFBOUNDS
                     self.out_bounds_timer = 10  # 10 seconds to come back.
@@ -114,7 +124,7 @@ class DuelManager(object):
             self.elapsed = 0
 
     def is_dueling(self):
-        return not self.dueling_with
+        return self.dueling_with
 
     def set_arbiter(self, arbiter):
         self.arbiter = arbiter
@@ -131,7 +141,7 @@ class DuelManager(object):
                 self.owner.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, self.team_id)
         else:
             self.owner.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, 0)
-            if self.duel_state == DUEL_STATE.DUEL_STATE_REQUESTED:
+            if self.duel_state == DUEL_STATE.DUEL_STATE_FINISHED:
                 self.owner.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, 0)
 
         if set_dirty:

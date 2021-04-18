@@ -225,6 +225,9 @@ class PlayerManager(UnitManager):
             else:
                 self.guild_manager.leave(self)
 
+        if self.duel_manager.is_dueling():
+            self.duel_manager.force_duel_retreat()
+
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
 
@@ -333,6 +336,9 @@ class PlayerManager(UnitManager):
     def teleport(self, map_, location):
         if not DbcDatabaseManager.map_get_by_id(map_):
             return False
+
+        if self.duel_manager.is_dueling():
+            self.duel_manager.force_duel_retreat()
 
         self.is_teleporting = True
 
