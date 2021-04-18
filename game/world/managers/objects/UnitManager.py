@@ -3,16 +3,15 @@ import random
 from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world import WorldManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.player.SpellManager import SpellManager
+from game.world.managers.objects.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.ConfigManager import config
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, AttackTypes, ProcFlags, \
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags
 from utils.constants.UpdateFields import UnitFields

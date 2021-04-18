@@ -1,13 +1,10 @@
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.GridManager import GridManager
 from network.packet.PacketReader import *
-from struct import pack, unpack, error
-from game.world.managers.ChatManager import ChatManager
-from utils.constants.ObjectCodes import ChatMsgs, ChatFlags, Languages
+from struct import unpack
+from game.world.managers.objects.player.ChatManager import ChatManager
+from utils.constants.ObjectCodes import ChatMsgs, Languages
 from utils.ConfigManager import config
 from game.world.managers.CommandManager import CommandManager
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from utils.Logger import Logger
 
 
 class ChatHandler(object):

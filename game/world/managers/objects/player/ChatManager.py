@@ -4,7 +4,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, GuildTypeCommand
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.GroupManager import GroupManager
-from game.world.managers.objects.ChannelManager import ChannelManager
+from game.world.managers.objects.player.ChannelManager import ChannelManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 
 
@@ -13,8 +13,8 @@ class ChatManager(object):
     @staticmethod
     def send_system_message(world_session, message):
         world_session.send_message(ChatManager._get_message_packet(world_session.player_mgr.guid,
-                                                                      ChatFlags.CHAT_TAG_NONE,
-                                                                      message, ChatMsgs.CHAT_MSG_SYSTEM, 0))
+                                                                   ChatFlags.CHAT_TAG_NONE,
+                                                                   message, ChatMsgs.CHAT_MSG_SYSTEM, 0))
 
     # This message will only be shown on the client console
     #

@@ -4,9 +4,8 @@ from struct import unpack
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
-from game.world.managers.objects.ChannelManager import ChannelManager
+from game.world.managers.objects.player.ChannelManager import ChannelManager
 from game.world.managers.objects.player.SkillManager import SkillManager
-from game.world.managers.objects.player.SpellManager import SpellManager
 from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
@@ -20,7 +19,7 @@ from utils import Formulas
 from utils.constants.DuelCodes import *
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, StandState
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.dbc.DbcDatabaseManager import *
