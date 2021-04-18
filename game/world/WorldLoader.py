@@ -10,18 +10,18 @@ class WorldLoader:
 
     @staticmethod
     def load_data():
-        #if config.Server.Settings.load_gameobjects:
-        #    WorldLoader.load_gameobjects()
-        #else:
-        #    Logger.info('Skipped game object loading.')
+        if config.Server.Settings.load_gameobjects:
+            WorldLoader.load_gameobjects()
+        else:
+            Logger.info('Skipped game object loading.')
 
-        #if config.Server.Settings.load_creatures:
-        #    WorldLoader.load_creature_loot_templates()
-        #    WorldLoader.load_creatures()
-        #    WorldLoader.load_creature_quests()
-        #    WorldLoader.load_creature_involved_quests()
-        #else:
-        #    Logger.info('Skipped creature loading.')
+        if config.Server.Settings.load_creatures:
+            WorldLoader.load_creature_loot_templates()
+            WorldLoader.load_creatures()
+            WorldLoader.load_creature_quests()
+            WorldLoader.load_creature_involved_quests()
+        else:
+            Logger.info('Skipped creature loading.')
 
         WorldLoader.load_item_templates()
         WorldLoader.load_quests()
