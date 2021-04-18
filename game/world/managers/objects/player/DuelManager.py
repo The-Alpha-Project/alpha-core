@@ -140,7 +140,6 @@ class DuelManager(object):
     def update(self, player_mgr, elapsed):
         if not self.players or not self.arbiter:
             return
-        # Only accept update calls from 1 of both player since they share the same DuelManager ref.
         self.elapsed += elapsed / 2  # Two players append to this
         if self.elapsed >= 1 and self.duel_state != DuelState.DUEL_STATE_FINISHED:
             self.boundary_check()
