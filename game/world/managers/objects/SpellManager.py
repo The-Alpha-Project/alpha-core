@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange, SpellDuration
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from game.world.managers.GridManager import GridManager
+from game.world.managers.objects.player.DuelManager import DuelManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes, AttackTypes
@@ -222,12 +223,17 @@ class SpellEffectHandler(object):
     def handle_aura_application(casting_spell, effect, caster, target):
         target.aura_manager.apply_spell_effect_aura(caster, casting_spell, effect)
 
+    @staticmethod
+    def handle_request_duel(casting_spell, effect, caster, target):
+        DuelManager.request_duel(caster, target, effect.misc_value)
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
     SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage,
     SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
+    SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus,
     SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application
 }
@@ -278,6 +284,7 @@ class SpellManager(object):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not spell:
             return
+
         spell_target = GridManager.get_surrounding_unit_by_guid(caster, target_guid, include_players=True) if target_guid and target_guid != caster.guid else caster
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 

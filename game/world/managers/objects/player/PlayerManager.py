@@ -4,8 +4,9 @@ from struct import unpack
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
-from game.world.managers.objects.ChannelManager import ChannelManager
+from game.world.managers.objects.player.ChannelManager import ChannelManager
 from game.world.managers.objects.player.SkillManager import SkillManager
+from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
@@ -15,9 +16,10 @@ from game.world.managers.objects.player.QuestManager import QuestManager
 from game.world.managers.objects.player.FriendsManager import FriendsManager
 from network.packet.PacketWriter import *
 from utils import Formulas
+from utils.constants.DuelCodes import *
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, StandState
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
 from database.dbc.DbcDatabaseManager import *
@@ -129,6 +131,7 @@ class PlayerManager(UnitManager):
             self.skill_manager = SkillManager(self)
             self.quest_manager = QuestManager(self)
             self.friends_manager = FriendsManager(self)
+            self.duel_manager = None
             self.guild_manager = None
             self.group_manager = None
 
@@ -221,6 +224,9 @@ class PlayerManager(UnitManager):
                 self.guild_manager.disband()
             else:
                 self.guild_manager.leave(self)
+
+        if self.duel_manager:
+            self.duel_manager.force_duel_retreat(self)
 
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
@@ -332,6 +338,9 @@ class PlayerManager(UnitManager):
             return False
 
         self.is_teleporting = True
+
+        if self.duel_manager:
+            self.duel_manager.force_duel_retreat(self)
 
         for guid, player in list(GridManager.get_surrounding_players(self).items()):
             if self.guid == guid:
@@ -729,6 +738,9 @@ class PlayerManager(UnitManager):
         else:
             self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 
+        if self.duel_manager:
+            self.duel_manager.build_update(self)
+
         self.inventory.build_update()
 
         return self.get_object_create_packet(is_self)
@@ -1059,6 +1071,10 @@ class PlayerManager(UnitManager):
             # SpellManager tick
             self.spell_manager.update(now)
 
+            # Duel tick
+            if self.duel_manager:
+                self.duel_manager.update(self, elapsed)
+
             # Release spirit timer
             if not self.is_alive:
                 if self.spirit_release_timer < 300:  # 5 min
@@ -1104,6 +1120,11 @@ class PlayerManager(UnitManager):
 
     # override
     def die(self, killer=None):
+        if killer and self.duel_manager and self.duel_manager.player_involved(killer):
+            self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
+            self.set_health(1)
+            return
+
         super().die(killer)
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:

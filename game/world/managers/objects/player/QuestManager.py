@@ -19,8 +19,8 @@ class QuestManager(object):
     def get_dialog_status(self, world_obj):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
         # Relations bounds, the quest giver; Involved relations bounds, the quest completer
-        relations_list = WorldDatabaseManager.creature_quest_get_by_entry(world_obj.entry)
-        involved_relations_list = WorldDatabaseManager.creature_involved_quest_get_by_entry(world_obj.entry)
+        relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(world_obj.entry)
+        involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(world_obj.entry)
         if self.player_mgr.is_enemy_to(world_obj):
             return dialog_status
 
@@ -29,7 +29,7 @@ class QuestManager(object):
             if len(involved_relation) == 0:
                 continue
             quest_entry = involved_relation[1]
-            quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
+            quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest:
                 continue
             # TODO: put in a check for quest status when you have quests that are already accepted by player
@@ -38,7 +38,7 @@ class QuestManager(object):
         for relation in relations_list:
             new_dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
             quest_entry = relation[1]
-            quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
+            quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest or not self.check_quest_requirements(quest):
                 continue
             
@@ -60,8 +60,8 @@ class QuestManager(object):
         quest_menu = QuestMenu()
         # Type is unit, but not player
         if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
-            relations_list = WorldDatabaseManager.creature_quest_get_by_entry(quest_giver.entry)
-            involved_relations_list = WorldDatabaseManager.creature_involved_quest_get_by_entry(quest_giver.entry)
+            relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(quest_giver.entry)
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(quest_giver.entry)
         elif quest_giver.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             # TODO: Gameobjects
             relations_list = []
@@ -80,7 +80,7 @@ class QuestManager(object):
             if len(relation) == 0:
                 continue
             quest_entry = relation[1]
-            quest = WorldDatabaseManager.quest_get_by_entry(quest_entry)
+            quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
             quest_menu.add_menu_item(quest, QuestStatus.QUEST_OFFER)
@@ -142,7 +142,7 @@ class QuestManager(object):
     @staticmethod
     def check_quest_giver_npc_is_related(quest_giver_entry, quest_entry):
         is_related = False
-        relations_list = WorldDatabaseManager.creature_quest_get_by_entry(quest_giver_entry)
+        relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(quest_giver_entry)
         for relation in relations_list:
             if relation.entry == quest_giver_entry and relation.quest == quest_entry:
                 is_related = True
@@ -218,7 +218,7 @@ class QuestManager(object):
 
     def update_surrounding_quest_status(self):
         for guid, unit in list(GridManager.get_surrounding_units(self.player_mgr).items()):
-            if WorldDatabaseManager.creature_involved_quest_get_by_entry(unit.entry) or WorldDatabaseManager.creature_quest_get_by_entry(unit.entry):
+            if WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(unit.entry):
                 quest_status = self.get_dialog_status(unit)
                 self.send_quest_giver_status(guid, quest_status)
 

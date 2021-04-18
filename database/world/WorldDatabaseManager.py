@@ -161,7 +161,7 @@ class WorldDatabaseManager(object):
     @staticmethod
     def gameobject_template_get_by_entry(entry):
         world_db_session = SessionHolder()
-        res = world_db_session.query(GameobjectTemplate).filter_by(entry=entry)
+        res = world_db_session.query(GameobjectTemplate).filter_by(entry=entry).first()
         return res, world_db_session
 
     # Creature stuff
@@ -234,25 +234,68 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    class QuestRelationHolder:
+        QUEST_RELATION = {}
+        QUEST_INVOLVEMENT = {}
+
+        @staticmethod
+        def load_creature_quest(creature_quest_relation):
+            if creature_quest_relation.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_RELATION:
+                WorldDatabaseManager.QuestRelationHolder.QUEST_RELATION[creature_quest_relation.entry] = []
+
+            WorldDatabaseManager.QuestRelationHolder.QUEST_RELATION[creature_quest_relation.entry]\
+                .append(creature_quest_relation)
+
+        @staticmethod
+        def load_creature_involved_quest(creature_quest_involved_relation):
+            if creature_quest_involved_relation.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_INVOLVEMENT:
+                WorldDatabaseManager.QuestRelationHolder.QUEST_INVOLVEMENT[creature_quest_involved_relation.entry] = []
+
+            WorldDatabaseManager.QuestRelationHolder.QUEST_INVOLVEMENT[creature_quest_involved_relation.entry]\
+                .append(creature_quest_involved_relation)
+
+        @staticmethod
+        def creature_quest_get_by_entry(entry):
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_RELATION[entry] \
+                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_RELATION else []
+
+        @staticmethod
+        def creature_involved_quest_get_by_entry(entry):
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_INVOLVEMENT[entry] \
+                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_INVOLVEMENT else []
+
     @staticmethod
-    def creature_quest_get_by_entry(entry):
+    def creature_quest_get_all():
         world_db_session = SessionHolder()
-        res = world_db_session.query(t_creature_questrelation).filter_by(entry=entry).all()
+        res = world_db_session.query(t_creature_questrelation).all()
         world_db_session.close()
         return res
 
     @staticmethod
-    def creature_involved_quest_get_by_entry(entry):
+    def creature_involved_quest_get_all():
         world_db_session = SessionHolder()
-        res = world_db_session.query(t_creature_involvedrelation).filter_by(entry=entry).all()
+        res = world_db_session.query(t_creature_involvedrelation).all()
         world_db_session.close()
         return res
 
     # Quest stuff
 
+    class QuestTemplateHolder:
+        QUEST_TEMPLATES = {}
+
+        @staticmethod
+        def load_quest_template(quest_template):
+            WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES[quest_template.entry] = quest_template
+
+        @staticmethod
+        def quest_get_by_entry(entry):
+            if entry in WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES:
+                return WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES[entry]
+            return None
+
     @staticmethod
-    def quest_get_by_entry(entry):
+    def quest_template_get_all():
         world_db_session = SessionHolder()
-        res = world_db_session.query(QuestTemplate).filter_by(entry=entry, ignored=0).first()
+        res = world_db_session.query(QuestTemplate).filter_by(ignored=0).all()
         world_db_session.close()
         return res

@@ -1,17 +1,15 @@
-from struct import pack
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world import WorldManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
-from network.packet.PacketWriter import PacketWriter, OpCode
-from game.world.managers.ChatManager import ChatManager
+from game.world.managers.objects.player.ChatManager import ChatManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from utils.ConfigManager import config
 from utils.TextUtils import GameTextFormatter
-from utils.constants.ObjectCodes import HighGuid, ObjectTypes
+from utils.constants.ObjectCodes import HighGuid
 from utils.constants.UpdateFields import PlayerFields
 
 

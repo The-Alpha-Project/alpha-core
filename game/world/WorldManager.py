@@ -128,7 +128,7 @@ class WorldServerSessionHandler(object):
 
     def receive(self, sck):
         try:
-            data = sck.recv(2048)
+            data = sck.recv(4096)
             if len(data) > 0:
                 self.incoming_pending.put(data)
                 return 0
@@ -166,6 +166,11 @@ class WorldServerSessionHandler(object):
         WorldLoader.load_data()
 
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        # Use SO_REUSEADDR if SO_REUSEPORT doesn't exist.
+        except AttributeError:
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port))
         server_socket.listen()
 

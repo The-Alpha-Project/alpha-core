@@ -1,6 +1,6 @@
 from network.packet.PacketReader import *
-from game.world.managers.objects.ChannelManager import ChannelManager
-from game.world.managers.ChatManager import ChatManager
+from game.world.managers.objects.player.ChannelManager import ChannelManager
+from game.world.managers.objects.player.ChatManager import ChatManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 
 

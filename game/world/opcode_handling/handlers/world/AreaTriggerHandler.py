@@ -1,8 +1,7 @@
-from struct import pack, unpack
+from struct import unpack
 
-from game.world.managers.ChatManager import ChatManager
+from game.world.managers.objects.player.ChatManager import ChatManager
 from game.world.managers.abstractions.Vector import Vector
-from network.packet.PacketWriter import *
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 
 

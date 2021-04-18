@@ -12,7 +12,7 @@ class ClearTradeItemHandler(object):
             return 0
 
         if len(reader.data) >= 1:  # Avoid handling empty clear trade item packet
-            trade_slot = unpack('<B', reader.data)[0]
+            trade_slot = unpack('<B', reader.data[:1])[0]
             if trade_slot > TradeManager.TradeData.TRADE_SLOT_COUNT:
                 return 0
 

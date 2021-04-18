@@ -292,6 +292,7 @@ class SkillManager(object):
 
         return False
 
+    # TODO: Use ChrProficiency.dbc
     def can_use_equipment(self, item_class, item_subclass):
         # No Cloth, Leather or Mail spells / skills exist in 0.5.3, but according to Ziggurat armor restrictions existed.
         if item_class == ItemClasses.ITEM_CLASS_ARMOR and \
