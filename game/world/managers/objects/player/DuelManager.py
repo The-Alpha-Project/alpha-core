@@ -111,6 +111,8 @@ class DuelManager(object):
         self.flush()
 
     def flush(self):
+        for duel_info in self.players.values():
+            duel_info.player.duel_manager = None
         self.players.clear()
         self.arbiter = None
 
