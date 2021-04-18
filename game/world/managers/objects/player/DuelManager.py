@@ -93,7 +93,7 @@ class DuelManager(object):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT)
         self.owner.session.send_message(packet)
-        self.owner.leave_combat(force_update=True)
+        self.owner.leave_combat(force_update=False)
 
         self.dueling_with = None
         self.arbiter = None
