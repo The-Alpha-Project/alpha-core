@@ -384,6 +384,8 @@ class PlayerManager(UnitManager):
         return True
 
     def spawn_player_from_teleport(self):
+        # TODO: Send just move packet instead of object recreation if the teleport happens within the same Grid.
+
         # Remove ourselves from the old location.
         for guid, player in list(GridManager.get_surrounding_players(self).items()):
             if self.guid == guid:

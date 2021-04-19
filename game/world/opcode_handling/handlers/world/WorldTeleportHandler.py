@@ -22,5 +22,24 @@ class WorldTeleportHandler(object):
     @staticmethod
     def handle_ack(world_session, socket, reader):
         if world_session.player_mgr:
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+
+
+
             world_session.player_mgr.spawn_player_from_teleport()
         return 0
