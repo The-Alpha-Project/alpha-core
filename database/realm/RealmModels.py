@@ -160,3 +160,31 @@ class CharacterSpell(Base):
     disabled = Column(TINYINT(3), nullable=False, server_default=text("0"))
 
     character = relationship('Character')
+
+
+class Guild(Base):
+    __tablename__ = 'guild'
+
+    guild_id = Column(INTEGER(11), autoincrement=True, primary_key=True, server_default=text("0"))
+    name = Column(String(255), nullable=False, server_default=text("''"))
+    leader_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("0"))
+    motd = Column(String(255), nullable=False, server_default=text("''"))
+    creation_date = Column(TIMESTAMP, nullable=False, server_default=text("current_timestamp()"))
+    emblem_style = Column(INTEGER(5), nullable=False, server_default=text("-1"))
+    emblem_color = Column(INTEGER(5), nullable=False, server_default=text("-1"))
+    border_style = Column(INTEGER(5), nullable=False, server_default=text("-1"))
+    border_color = Column(INTEGER(5), nullable=False, server_default=text("-1"))
+    background_color = Column(INTEGER(5), nullable=False, server_default=text("-1"))
+
+    leader = relationship('Character')
+
+
+class GuildMember(Base):
+    __tablename__ = 'guild_member'
+
+    guild_id = Column(ForeignKey('guild.guild_id', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("0"))
+    guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"))
+    rank = Column(TINYINT(2), nullable=False, server_default=text("0"))
+
+    character = relationship('Character')
+    guild = relationship('Guild')

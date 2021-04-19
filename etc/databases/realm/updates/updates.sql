@@ -53,5 +53,34 @@ begin not atomic
 
         insert into applied_updates values ('250320211');
     end if;
+
+    -- 20/04/2021 1
+    if (select count(*) from applied_updates where id='200420211') = 0 then
+        CREATE TABLE IF NOT EXISTS `guild` (
+          `guild_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+          `name` VARCHAR(255) NOT NULL DEFAULT '',
+          `leader_guid` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+          `motd` VARCHAR(255) NOT NULL DEFAULT '',
+          `creation_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          `emblem_style` INT(5) NOT NULL DEFAULT -1,
+          `emblem_color` INT(5) NOT NULL DEFAULT -1,
+          `border_style` INT(5) NOT NULL DEFAULT -1,
+          `border_color` INT(5) NOT NULL DEFAULT -1,
+          `background_color` INT(5) NOT NULL DEFAULT -1,
+          PRIMARY KEY (`guild_id`),
+          CONSTRAINT `leader_guid_fk` FOREIGN KEY (`leader_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+        CREATE TABLE IF NOT EXISTS `guild_member` (
+          `guild_id` int(11) UNSIGNED NOT NULL DEFAULT 0,
+          `guid` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+          `rank` TINYINT(2) UNSIGNED NOT NULL DEFAULT 0,
+          PRIMARY KEY (`guild_id`, `guid`),
+          CONSTRAINT `guid_fk` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+          CONSTRAINT `guild_id_fk` FOREIGN KEY (`guild_id`) REFERENCES `guild` (`guild_id`) ON DELETE CASCADE ON UPDATE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+        insert into applied_updates values ('200420211');
+    end if;
 end $
 delimiter ;
