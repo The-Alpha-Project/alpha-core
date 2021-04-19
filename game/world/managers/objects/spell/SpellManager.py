@@ -227,6 +227,23 @@ class SpellEffectHandler(object):
     def handle_request_duel(casting_spell, effect, caster, target):
         DuelManager.request_duel(caster, target, effect.misc_value)
 
+    @staticmethod
+    def handle_energize(casting_spell, effect, caster, target):
+        power_type = effect.misc_value
+
+        if power_type != target.power_type:
+            return
+
+        new_power = target.get_power_type_value() + effect.get_effect_points(caster.level)
+        if power_type == PowerTypes.TYPE_MANA:
+            target.set_mana(new_power)
+        elif power_type == PowerTypes.TYPE_RAGE:
+            target.set_rage(new_power)
+        elif power_type == PowerTypes.TYPE_FOCUS:
+            target.set_focus(new_power)
+        elif power_type == PowerTypes.TYPE_ENERGY:
+            target.set_energy(new_power)
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
@@ -235,7 +252,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
     SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus,
-    SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application
+    SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
+    SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize
 }
 
 
