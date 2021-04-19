@@ -883,7 +883,7 @@ class PlayerManager(UnitManager):
                         if self.power_2 < 200:
                             self.set_rage(0)
                         else:
-                            self.set_rage(int((self.power_2 / 10) - 2))
+                            self.set_rage(int((self.power_2 / 10) - 2)*10)
             # Focus
             elif self.power_type == PowerTypes.TYPE_FOCUS:
                 # Apparently focus didn't regenerate while moving.

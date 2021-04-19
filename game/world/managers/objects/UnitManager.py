@@ -546,26 +546,25 @@ class UnitManager(ObjectManager):
     def set_mana(self, mana):
         if mana < 0:
             mana = 0
-        self.power_1 = mana
+        self.power_1 = min(mana, self.max_power_1)
         self.set_uint32(UnitFields.UNIT_FIELD_POWER1, mana)
 
     def set_rage(self, rage):
         if rage < 0:
             rage = 0
-        rage = rage * 10
-        self.power_2 = rage
+        self.power_2 = min(rage, self.max_power_2)
         self.set_uint32(UnitFields.UNIT_FIELD_POWER2, rage)
 
     def set_focus(self, focus):
         if focus < 0:
             focus = 0
-        self.power_3 = focus
+        self.power_3 = min(focus, self.max_power_3)
         self.set_uint32(UnitFields.UNIT_FIELD_POWER3, focus)
 
     def set_energy(self, energy):
         if energy < 0:
             energy = 0
-        self.power_4 = energy
+        self.power_4 = min(energy, self.max_power_4)
         self.set_uint32(UnitFields.UNIT_FIELD_POWER4, energy)
 
     def set_max_mana(self, mana):
