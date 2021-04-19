@@ -71,9 +71,6 @@ class AuraManager:
 
         self.write_aura_to_unit(aura)
         self.write_aura_flag_to_unit(aura)
-        data = pack('<Bi', aura.index, aura.duration_entry.Duration)
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data), self.unit_mgr,
-                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
         self.unit_mgr.set_dirty()
 
@@ -108,10 +105,16 @@ class AuraManager:
 
         self.unit_mgr.set_dirty()
 
+    def send_aura_duration(self, aura):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        data = pack('<Bi', aura.index, aura.duration_entry.Duration)
+        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))
+
     def write_aura_to_unit(self, aura, clear=False):
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index
         self.unit_mgr.set_uint32(field_index, aura.spell_id if not clear else 0)
-
 
     def write_aura_flag_to_unit(self, aura, clear=False):
         if not aura:
