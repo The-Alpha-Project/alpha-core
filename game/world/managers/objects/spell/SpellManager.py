@@ -226,7 +226,7 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
         DuelManager.request_duel(caster, target, effect.misc_value)
-
+        caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_CAST_OK)
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,

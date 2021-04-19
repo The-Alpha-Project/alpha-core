@@ -21,16 +21,6 @@ class WorldTeleportHandler(object):
 
     @staticmethod
     def handle_ack(world_session, socket, reader):
-        world_session.player_mgr.send_update_self(create=True, force_inventory_update=True, reset_fields=False)
-        world_session.player_mgr.send_update_surrounding(world_session.player_mgr.generate_proper_update_packet(
-            create=True), include_self=False, create=True, force_inventory_update=True)
-        GridManager.update_object(world_session.player_mgr)
-        world_session.player_mgr.reset_fields()
-
-        world_session.player_mgr.is_teleporting = False
-
-        # Update group info after a teleport
-        if world_session.player_mgr.group_manager:
-            world_session.player_mgr.group_manager.send_update()
-
+        if world_session.player_mgr:
+            world_session.player_mgr.spawn_player_from_teleport()
         return 0
