@@ -1,5 +1,6 @@
 from struct import pack
 
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
@@ -25,8 +26,9 @@ class AuraEffectHandler:
         if aura.spell_effect.effect_type != SpellEffects.SPELL_EFFECT_APPLY_AURA:
             return
         if aura.spell_effect.aura_type not in AURA_EFFECTS:
-            Logger.debug(f'Unimplemented effect called: {aura.spell_effect.aura_type}')
+            Logger.debug(f'Unimplemented aura effect called: {aura.spell_effect.aura_type}')
             return
+
         AURA_EFFECTS[aura.spell_effect.aura_type](aura)
 
     @staticmethod
@@ -35,11 +37,24 @@ class AuraEffectHandler:
         aura.target.set_shapeshift_form(aura.spell_effect.misc_value)
         if aura.spell_effect.misc_value not in SHAPESHIFT_MODEL_IDS:
             return
+
         aura.target.set_display_id(SHAPESHIFT_MODEL_IDS[aura.spell_effect.misc_value])
+
+    @staticmethod
+    def handle_mounted(aura):
+        creature_entry = aura.spell_effect.misc_value
+        creature_template = WorldDatabaseManager.creature_get_by_entry(creature_entry)
+        if not creature_template:
+            Logger.error(f'SPELL_AURA_MOUNTED: Creature template ({creature_entry}) not found in database.')
+            return
+
+        aura.target.mount(creature_template.display_id1)
+        # TODO Handle removal
 
 
 AURA_EFFECTS = {
-    AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift
+    AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
+    AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted
 }
 
 SHAPESHIFT_MODEL_IDS = {  # Ugly solution but there doesn't seem to be a connection in databases
