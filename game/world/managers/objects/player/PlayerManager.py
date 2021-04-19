@@ -54,6 +54,8 @@ class PlayerManager(UnitManager):
 
         self.session = session
         self.is_teleporting = False
+        self.teleport_destination = None
+        self.teleport_destination_map = None
         self.objects_in_range = dict()
 
         self.player = player
@@ -208,8 +210,8 @@ class PlayerManager(UnitManager):
     def complete_login(self):
         self.online = True
 
-        GridManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
+        GridManager.update_object(self)
         ChannelManager.join_default_channels(self)  # Once in-world
         self.friends_manager.send_online_notification()  # Notify our friends
 
@@ -342,13 +344,9 @@ class PlayerManager(UnitManager):
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
 
-        for guid, player in list(GridManager.get_surrounding_players(self).items()):
-            if self.guid == guid:
-                continue
-
-            # Always make sure self is destroyed for others
-            if not player.destroy_near_object(self.guid):
-                player.session.send_message(self.get_destroy_packet())
+        # New destination we will use when we receive an acknowledge message from client.
+        self.teleport_destination_map = map_
+        self.teleport_destination = Vector(location.x, location.y, location.z, location.o)
 
         # Same map and not inside instance
         if self.map_ == map_ and self.map_ <= 1:
@@ -366,6 +364,7 @@ class PlayerManager(UnitManager):
                 0,  # ?
                 0  # MovementFlags
             )
+
             self.session.send_message(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
         # Loading screen
         else:
@@ -382,15 +381,39 @@ class PlayerManager(UnitManager):
 
             self.session.send_message(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
 
-        self.map_ = map_
-        self.location.x = location.x
-        self.location.y = location.y
-        self.location.z = location.z
-        self.location.o = location.o
-
-        self.friends_manager.send_update_to_friends()
-
         return True
+
+    def spawn_player_from_teleport(self):
+        # Remove ourself from the old location.
+        for guid, player in list(GridManager.get_surrounding_players(self).items()):
+            if self.guid == guid:
+                continue
+
+            # Always make sure self is destroyed for others
+            if not player.destroy_near_object(self.guid):
+                player.session.send_message(self.get_destroy_packet())
+
+        # Update new coordinates and map.
+        self.map_ = self.teleport_destination_map
+        self.location = self.teleport_destination
+
+        # Get us in-world again.
+        self.send_update_self(create=True, force_inventory_update=True, reset_fields=False)
+        self.send_update_surrounding(self.generate_proper_update_packet(
+            create=True), include_self=False, create=True, force_inventory_update=True)
+
+        # Get us in a new grid.
+        GridManager.update_object(self)
+
+        self.reset_fields()
+        self.is_teleporting = False
+        self.teleport_destination_map = None
+        self.teleport_destination = None
+
+        # Update our friends and group info after a teleport
+        if self.group_manager:
+            self.group_manager.send_update()
+        self.friends_manager.send_update_to_friends()
 
     def mount(self, mount_display_id):
         if mount_display_id > 0 and self.mount_display_id == 0 and \
