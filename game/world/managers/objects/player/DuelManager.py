@@ -161,7 +161,7 @@ class DuelManager(object):
             return
 
         self.elapsed += elapsed
-        if self.elapsed >= 1 and self.duel_state != DuelState.DUEL_STATE_FINISHED:
+        if self.elapsed >= 1 and self.duel_state == DuelState.DUEL_STATE_STARTED:
             self.boundary_check()
             self.elapsed = 0
 
