@@ -333,7 +333,6 @@ class SpellManager(object):
             self.consume_resources_for_cast(casting_spell)  # Remove resources
             return
 
-
         self.apply_spell_effects_and_remove(casting_spell)  # Apply effects
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
         # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Channeled spells
