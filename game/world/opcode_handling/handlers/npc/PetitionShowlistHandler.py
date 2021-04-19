@@ -26,6 +26,6 @@ class PetitionShowlistHandler(object):
                     CHARTER_COST,  # charter cost (10s)
                     1  # unknown flag
                 )
-                world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_PETITION_SHOWLIST, data))
+                world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PETITION_SHOWLIST, data))
 
         return 0

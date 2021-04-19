@@ -21,6 +21,6 @@ class CreatureQueryHandler(object):
                         )
                     session.close()
                 if creature_mgr:
-                    world_session.send_message(creature_mgr.query_details())
+                    world_session.enqueue_packet(creature_mgr.query_details())
 
         return 0

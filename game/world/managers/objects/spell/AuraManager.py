@@ -110,7 +110,7 @@ class AuraManager:
             return
 
         data = pack('<Bi', aura.index, aura.duration_entry.Duration)
-        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))
 
     def write_aura_to_unit(self, aura, clear=False):
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index

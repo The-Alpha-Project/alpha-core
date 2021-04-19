@@ -69,7 +69,7 @@ class WorldServerSessionHandler(object):
         finally:
             self.disconnect()
 
-    def send_message(self, data):
+    def enqueue_packet(self, data):
         self.outgoing_pending.put_nowait(data)
 
     def process_outgoing(self):

@@ -45,6 +45,6 @@ class GuildInviteHandler(object):
                     guild_name_bytes,
                 )
 
-                target_player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_GUILD_INVITE, data))
+                target_player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_INVITE, data))
 
         return 0

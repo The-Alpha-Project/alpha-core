@@ -17,6 +17,6 @@ class ItemQuerySingleHandler(object):
                     item_mgr = ItemManager(
                         item_template=item_template
                     )
-                    world_session.send_message(item_mgr.query_details())
+                    world_session.enqueue_packet(item_mgr.query_details())
 
         return 0

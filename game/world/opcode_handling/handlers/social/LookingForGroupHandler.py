@@ -9,7 +9,7 @@ class LookingForGroupHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         data = pack('<I', world_session.player_mgr.group_status)
-        world_session.send_message(PacketWriter.get_packet(OpCode.MSG_LOOKING_FOR_GROUP, data))
+        world_session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_LOOKING_FOR_GROUP, data))
 
         return 0
 

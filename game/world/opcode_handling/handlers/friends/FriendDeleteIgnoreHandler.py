@@ -14,7 +14,7 @@ class FriendDeleteIgnoreHandler(object):
                 world_session.player_mgr.friends_manager.remove_ignore(guid)
             else:
                 data = pack('<B', FriendResults.FRIEND_NOT_FOUND)
-                world_session.player_mgr.session.send_message(
+                world_session.player_mgr.session.enqueue_packet(
                     PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
 
         return 0

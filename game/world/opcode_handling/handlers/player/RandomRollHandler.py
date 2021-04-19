@@ -19,6 +19,6 @@ class RandomRollHandler(object):
             if world_session.player_mgr.group_manager:
                 world_session.player_mgr.group_manager.send_packet_to_members(roll_packet, use_ignore=True)
             else:
-                world_session.send_message(roll_packet)
+                world_session.enqueue_packet(roll_packet)
 
         return 0

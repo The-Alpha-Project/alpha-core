@@ -21,7 +21,7 @@ class TradeManager(object):
             data += pack('<I', status)
 
         if player.session:
-            player.session.send_message(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS, data))
+            player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS, data))
 
     @staticmethod
     def cancel_trade(player):
@@ -63,7 +63,7 @@ class TradeManager(object):
             )
 
         if player.session:
-            player.session.send_message(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS_EXTENDED, data))
+            player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS_EXTENDED, data))
 
     @staticmethod
     def send_trade_request(player, other_player):
@@ -76,7 +76,7 @@ class TradeManager(object):
             other_player.guid
         )
 
-        player.session.send_message(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS, data))
+        player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS, data))
 
     class TradeData(object):
         TRADE_SLOT_COUNT = 6
@@ -98,8 +98,8 @@ class TradeManager(object):
                 return
 
             self.items[slot] = item
-            self.player.session.send_message(item.query_details())
-            self.other_player.session.send_message(item.query_details())
+            self.player.session.enqueue_packet(item.query_details())
+            self.other_player.session.enqueue_packet(item.query_details())
 
             self.set_accepted(False)
             self.other_player.trade_data.set_accepted(False)

@@ -20,9 +20,9 @@ class BinderActivateHandler(object):
                 world_session.player_mgr.deathbind.deathbind_position_y = world_session.player_mgr.location.y
                 world_session.player_mgr.deathbind.deathbind_position_z = world_session.player_mgr.location.z
                 RealmDatabaseManager.character_update_deathbind(world_session.player_mgr.deathbind)
-                world_session.send_message(world_session.player_mgr.get_deathbind_packet())
+                world_session.enqueue_packet(world_session.player_mgr.get_deathbind_packet())
 
                 data = pack('<Q', binder_guid)
-                world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_PLAYERBOUND, data))
+                world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PLAYERBOUND, data))
 
         return 0

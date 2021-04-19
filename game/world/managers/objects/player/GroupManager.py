@@ -111,7 +111,7 @@ class GroupManager(object):
 
                 if is_kicked and member == player_mgr:  # 'You have been removed from the group.' message
                     packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_UNINVITE)
-                    player_mgr.session.send_message(packet)
+                    player_mgr.session.enqueue_packet(packet)
 
         if disband:
             self.members.clear()
@@ -231,7 +231,7 @@ class GroupManager(object):
             # split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
             # member.session.send_message(split_packet)
             data = pack('<I', player_share)
-            member.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
+            member.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
             member.mod_money(player_share)
 
         creature.loot_manager.clear_money()
@@ -275,7 +275,7 @@ class GroupManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
-        self.party_leader.session.send_message(packet)
+        self.party_leader.session.enqueue_packet(packet)
 
     def send_packet_to_members(self, packet, ignore=None, source=None, use_ignore=False):
         for member in self.members.values():
@@ -284,7 +284,7 @@ class GroupManager(object):
             if use_ignore and source and member.friends_manager.has_ignore(source.guid):
                 continue
 
-            member.session.send_message(packet)
+            member.session.enqueue_packet(packet)
 
     def send_minimap_ping(self, player_mgr, x, y):
         data = pack('<Q2f', player_mgr.guid, x, y)
@@ -328,7 +328,7 @@ class GroupManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_INVITE, data)
-        target_player_mgr.session.send_message(packet)
+        target_player_mgr.session.enqueue_packet(packet)
 
         GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PARTY_RESULT_OK)
 
@@ -343,4 +343,4 @@ class GroupManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_PARTY_COMMAND_RESULT, data)
-        player.session.send_message(packet)
+        player.session.enqueue_packet(packet)

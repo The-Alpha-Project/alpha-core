@@ -377,7 +377,7 @@ class InventoryManager(object):
         return True
 
     def send_destroy_packet(self, slot, slot_list):
-        self.owner.session.send_message(slot_list[slot].get_destroy_packet())
+        self.owner.session.enqueue_packet(slot_list[slot].get_destroy_packet())
 
     def get_empty_slots(self):
         empty_slots = 0
@@ -641,7 +641,7 @@ class InventoryManager(object):
                 item_2.guid if item_2 else self.owner.guid,
                 0
             )
-        self.owner.session.send_message(PacketWriter.get_packet(OpCode.SMSG_INVENTORY_CHANGE_FAILURE, data))
+        self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_INVENTORY_CHANGE_FAILURE, data))
 
     def send_buy_error(self, error, entry, vendor_guid=0):
         data = pack(
@@ -650,7 +650,7 @@ class InventoryManager(object):
             entry,
             error
         )
-        self.owner.session.send_message(PacketWriter.get_packet(OpCode.SMSG_BUY_FAILED, data))
+        self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_BUY_FAILED, data))
 
     def send_sell_error(self, error, item_guid, vendor_guid=0):
         data = pack(
@@ -659,7 +659,7 @@ class InventoryManager(object):
             item_guid,
             error
         )
-        self.owner.session.send_message(PacketWriter.get_packet(OpCode.SMSG_SELL_ITEM, data))
+        self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SELL_ITEM, data))
 
     def send_item_receive_message(self, guid, item_entry, bag_slot, looted=False, show_in_chat=True):
         if bag_slot == InventorySlots.SLOT_INBACKPACK:
@@ -668,7 +668,7 @@ class InventoryManager(object):
             '<Q2IBI',
             guid, not looted, show_in_chat, bag_slot, item_entry
         )
-        self.owner.session.send_message(PacketWriter.get_packet(OpCode.SMSG_ITEM_PUSH_RESULT, data))
+        self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_PUSH_RESULT, data))
 
     def mark_as_removed(self, item):
         if item:
@@ -685,8 +685,8 @@ class InventoryManager(object):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(is_self=False)))
         if is_self:
-            world_session.send_message(update_packet)
-            world_session.send_message(item.query_details())
+            world_session.enqueue_packet(update_packet)
+            world_session.enqueue_packet(item.query_details())
         else:
             GridManager.send_surrounding(update_packet, world_session.player_mgr, include_self=False)
             GridManager.send_surrounding(item.query_details(), world_session.player_mgr,

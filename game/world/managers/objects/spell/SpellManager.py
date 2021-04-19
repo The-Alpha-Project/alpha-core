@@ -228,7 +228,14 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
-        DuelManager.request_duel(caster, target, effect.misc_value)
+        duel_result = DuelManager.request_duel(caster, target, effect.misc_value)
+        if duel_result == 1:
+            result = SpellCheckCastResult.SPELL_CAST_OK
+        elif duel_result == 0:
+            result = SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING
+        else:
+            result = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
+        caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, result)
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
@@ -289,7 +296,7 @@ class SpellManager(object):
         self.spells[spell_id] = db_spell
 
         data = pack('<H', spell_id)
-        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
         # Teach skills required as well like in CharCreateHandler?
         return True
 
@@ -503,7 +510,7 @@ class SpellManager(object):
             return
 
         data = pack('<IQI', spell.ID, self.unit_mgr.guid, spell.RecoveryTime)
-        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def remove_cooldown(self, spell):
         self.cooldowns.pop(spell.ID, None)
@@ -598,4 +605,4 @@ class SpellManager(object):
         else:
             data = pack('<IBB', spell_id, SpellCastStatus.CAST_FAILED, error)
 
-        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))

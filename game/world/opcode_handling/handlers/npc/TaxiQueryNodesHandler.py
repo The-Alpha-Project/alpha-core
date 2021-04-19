@@ -23,7 +23,7 @@ class TaxiQueryNodesHandler(object):
                 guid,  # NPC taxi guid
                 node,  # Node location
             )
-            world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_SHOWTAXINODES, data))
+            world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SHOWTAXINODES, data))
 
         return 0
 
