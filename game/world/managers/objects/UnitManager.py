@@ -212,10 +212,6 @@ class UnitManager(ObjectManager):
         if self.get_type() == ObjectTypes.TYPE_PLAYER and self.mount_display_id > 0:
             return False
 
-        # Nobody can attack a GM
-        if victim.get_type() == ObjectTypes.TYPE_PLAYER and victim.is_gm:
-            return False
-
         # In fight already
         if self.combat_target:
             if self.combat_target == victim:
