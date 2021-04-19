@@ -52,6 +52,9 @@ class CastingSpell(object):
     def is_ranged(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_RANGED == SpellAttributes.SPELL_ATTR_RANGED
 
+    def trigger_cooldown_on_remove(self):
+        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE == SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE
+
     def casts_on_swing(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 == SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1
 
@@ -234,6 +237,23 @@ class SpellEffectHandler(object):
             result = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
         caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, result)
 
+    @staticmethod
+    def handle_energize(casting_spell, effect, caster, target):
+        power_type = effect.misc_value
+
+        if power_type != target.power_type:
+            return
+
+        new_power = target.get_power_type_value() + effect.get_effect_points(caster.level)
+        if power_type == PowerTypes.TYPE_MANA:
+            target.set_mana(new_power)
+        elif power_type == PowerTypes.TYPE_RAGE:
+            target.set_rage(new_power)
+        elif power_type == PowerTypes.TYPE_FOCUS:
+            target.set_focus(new_power)
+        elif power_type == PowerTypes.TYPE_ENERGY:
+            target.set_energy(new_power)
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
@@ -242,7 +262,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
     SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus,
-    SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application
+    SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
+    SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize
 }
 
 
@@ -341,6 +362,13 @@ class SpellManager(object):
             return
 
         self.apply_spell_effects_and_remove(casting_spell)  # Apply effects
+
+        if not casting_spell.trigger_cooldown_on_remove():
+            self.set_on_cooldown(casting_spell.spell_entry)
+        else:
+            self.remove_cooldown(casting_spell.spell_entry)
+
+
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
         # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Channeled spells
 
@@ -481,8 +509,17 @@ class SpellManager(object):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        data = pack('<IQH', spell.ID, self.unit_mgr.guid, spell.RecoveryTime)
+        data = pack('<IQI', spell.ID, self.unit_mgr.guid, spell.RecoveryTime)
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+
+    def remove_cooldown(self, spell):
+        self.cooldowns.pop(spell.ID, None)
+
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        data = pack('<IQ', spell.ID, self.unit_mgr.guid)
+        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
 
     def is_on_cooldown(self, spell_id):
         return spell_id in self.cooldowns

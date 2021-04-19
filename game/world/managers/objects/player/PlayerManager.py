@@ -908,7 +908,7 @@ class PlayerManager(UnitManager):
                         if self.power_2 < 200:
                             self.set_rage(0)
                         else:
-                            self.set_rage(int((self.power_2 / 10) - 2))
+                            self.set_rage(self.power_2 - 20)
             # Focus
             elif self.power_type == PowerTypes.TYPE_FOCUS:
                 # Apparently focus didn't regenerate while moving.
@@ -1031,6 +1031,12 @@ class PlayerManager(UnitManager):
     # override
     def set_stand_state(self, stand_state):
         super().set_stand_state(stand_state)
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+
+    #override
+    def set_shapeshift_form(self, shapeshift_form):
+        super().set_shapeshift_form(shapeshift_form)
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 

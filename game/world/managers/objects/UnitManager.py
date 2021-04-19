@@ -108,6 +108,7 @@ class UnitManager(ObjectManager):
                  resistance_5=0,
                  stand_state=0,
                  sheathe_state=WeaponMode.SHEATHEDMODE,
+                 shapeshift_form=0,
                  bytes_1=0,  # stand state, shapeshift form, sheathstate
                  mod_cast_speed=1,
                  dynamic_flags=0,
@@ -173,6 +174,7 @@ class UnitManager(ObjectManager):
         self.resistance_5 = resistance_5
         self.stand_state = stand_state
         self.sheath_state = sheathe_state
+        self.shapeshift_form = shapeshift_form
         self.bytes_1 = bytes_1  # stand state, shapeshift form, sheathstate
         self.mod_cast_speed = mod_cast_speed
         self.dynamic_flags = dynamic_flags
@@ -546,26 +548,25 @@ class UnitManager(ObjectManager):
     def set_mana(self, mana):
         if mana < 0:
             mana = 0
-        self.power_1 = mana
+        self.power_1 = min(mana, self.max_power_1)
         self.set_uint32(UnitFields.UNIT_FIELD_POWER1, mana)
 
     def set_rage(self, rage):
         if rage < 0:
             rage = 0
-        rage = rage * 10
-        self.power_2 = rage
+        self.power_2 = min(rage, self.max_power_2)
         self.set_uint32(UnitFields.UNIT_FIELD_POWER2, rage)
 
     def set_focus(self, focus):
         if focus < 0:
             focus = 0
-        self.power_3 = focus
+        self.power_3 = min(focus, self.max_power_3)
         self.set_uint32(UnitFields.UNIT_FIELD_POWER3, focus)
 
     def set_energy(self, energy):
         if energy < 0:
             energy = 0
-        self.power_4 = energy
+        self.power_4 = min(energy, self.max_power_4)
         self.set_uint32(UnitFields.UNIT_FIELD_POWER4, energy)
 
     def set_max_mana(self, mana):
@@ -620,6 +621,9 @@ class UnitManager(ObjectManager):
         elif WeaponMode.RANGEDMODE:
             # Update ranged temp enchants
             pass
+
+    def set_shapeshift_form(self, shapeshift_form):
+        self.shapeshift_form = shapeshift_form
 
     # Implemented by PlayerManager
     def add_combo_points_on_target(self, target, combo_points):
