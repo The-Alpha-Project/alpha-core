@@ -3,6 +3,7 @@ import random
 from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
@@ -534,6 +535,32 @@ class UnitManager(ObjectManager):
             data = pack('<IQ', emote, self.guid)
             GridManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data),
                                                   self, config.World.Chat.ChatRange.emote_range)
+
+    def summon_mount(self, creature_entry):
+        creature_template = WorldDatabaseManager.creature_get_by_entry(creature_entry)
+        if not creature_template:
+            return False
+
+        self.mount(creature_template.display_id1)
+        return True
+
+    def mount(self, mount_display_id):
+        if mount_display_id > 0 and self.mount_display_id == 0 and \
+                DbcDatabaseManager.creature_display_info_get_by_id(mount_display_id):
+            self.mount_display_id = mount_display_id
+            self.unit_flags |= UnitFlags.UNIT_MASK_MOUNTED
+            self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
+            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+            self.set_dirty()
+
+    def unmount(self, force_update=True):
+        if self.mount_display_id > 0:
+            self.mount_display_id = 0
+            self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
+            self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
+            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+            if force_update:
+                self.set_dirty()
 
     def set_health(self, health):
         if health < 0:

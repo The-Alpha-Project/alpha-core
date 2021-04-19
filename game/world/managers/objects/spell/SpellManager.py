@@ -11,8 +11,9 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes, AttackTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
-    SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellTargetType, SpellAttributes, SpellAttributesEx
-from utils.constants.UnitCodes import PowerTypes
+    SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellTargetType, SpellAttributes, SpellAttributesEx, \
+    AuraTypes
+from utils.constants.UnitCodes import PowerTypes, UnitFlags
 
 
 class CastingSpell(object):
@@ -254,6 +255,21 @@ class SpellEffectHandler(object):
         elif power_type == PowerTypes.TYPE_ENERGY:
             target.set_energy(new_power)
 
+    @staticmethod
+    def handle_summon_mount(casting_spell, effect, caster, target):
+        already_mounted = target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED
+        if already_mounted:
+            # Remove any existing mount aura.
+            target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED)
+            # Force dismount if target is still mounted (like a previous SPELL_EFFECT_SUMMON_MOUNT that doesn't
+            # leave any applied aura).
+            if target.mount_display_id > 0:
+                target.unmount()
+        else:
+            creature_entry = effect.misc_value
+            if not target.summon_mount(creature_entry):
+                Logger.error(f'SPELL_EFFECT_SUMMON_MOUNT: Creature template ({creature_entry}) not found in database.')
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
@@ -263,7 +279,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus,
     SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
-    SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize
+    SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
+    SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount
 }
 
 

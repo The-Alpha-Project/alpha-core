@@ -43,12 +43,9 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mounted(aura):
         creature_entry = aura.spell_effect.misc_value
-        creature_template = WorldDatabaseManager.creature_get_by_entry(creature_entry)
-        if not creature_template:
+        if not aura.target.summon_mount(creature_entry):
             Logger.error(f'SPELL_AURA_MOUNTED: Creature template ({creature_entry}) not found in database.')
-            return
 
-        aura.target.mount(creature_template.display_id1)
         # TODO Handle removal
 
 
