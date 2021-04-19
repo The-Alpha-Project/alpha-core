@@ -38,13 +38,12 @@ class DuelManager(object):
     def request_duel(requester, target, arbiter_entry):
         # If target is already dueling, fail Duel spell cast.
         if target.duel_manager:
-            requester.send_cast_result(DuelManager.DUEL_SPELL_ID, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
+            requester.spell_manager.send_cast_result(DuelManager.DUEL_SPELL_ID, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
             return
 
-        # If requester is already dueling, lose current duel and start a new one.
+        # If requester is already dueling, lose current duel before starting a new one.
         if requester.duel_manager:
             requester.duel_manager.force_duel_end(requester, retreat=False)
-            return
 
         arbiter = DuelManager.create_arbiter(requester, target, arbiter_entry=arbiter_entry)
         if arbiter:
