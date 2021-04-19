@@ -52,6 +52,9 @@ class CastingSpell(object):
     def is_ranged(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_RANGED == SpellAttributes.SPELL_ATTR_RANGED
 
+    def trigger_cooldown_on_remove(self):
+        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE == SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE
+
     def casts_on_swing(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 == SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1
 
@@ -352,6 +355,13 @@ class SpellManager(object):
             return
 
         self.apply_spell_effects_and_remove(casting_spell)  # Apply effects
+
+        if not casting_spell.trigger_cooldown_on_remove():
+            self.set_on_cooldown(casting_spell.spell_entry)
+        else:
+            self.remove_cooldown(casting_spell.spell_entry)
+
+
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
         # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Channeled spells
 
@@ -492,8 +502,17 @@ class SpellManager(object):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        data = pack('<IQH', spell.ID, self.unit_mgr.guid, spell.RecoveryTime)
+        data = pack('<IQI', spell.ID, self.unit_mgr.guid, spell.RecoveryTime)
         self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+
+    def remove_cooldown(self, spell):
+        self.cooldowns.pop(spell.ID, None)
+
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        data = pack('<IQ', spell.ID, self.unit_mgr.guid)
+        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
 
     def is_on_cooldown(self, spell_id):
         return spell_id in self.cooldowns

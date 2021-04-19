@@ -1009,6 +1009,12 @@ class PlayerManager(UnitManager):
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
+    #override
+    def set_shapeshift_form(self, shapeshift_form):
+        super().set_shapeshift_form(shapeshift_form)
+        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+
     # override
     def add_combo_points_on_target(self, target, combo_points):
         if combo_points <= 0 or not target.is_alive:  # Killing a unit with a combo generator can generate a combo point after death
