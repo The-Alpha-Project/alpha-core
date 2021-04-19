@@ -155,7 +155,7 @@ class DuelManager(object):
                     entry.player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_DUEL_INBOUNDS))
 
     def update(self, player_mgr, elapsed):
-        if not self.players or not self.arbiter:
+        if not self.players or not self.arbiter or self.duel_state != DuelState.DUEL_STATE_STARTED:
             return
 
         # Only player who initiated the duel should update the Duel status.
@@ -163,7 +163,7 @@ class DuelManager(object):
             return
 
         self.elapsed += elapsed
-        if self.elapsed >= 1 and self.duel_state == DuelState.DUEL_STATE_STARTED:
+        if self.elapsed >= 1:
             self.boundary_check()
             self.elapsed = 0
 
