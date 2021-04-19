@@ -110,10 +110,10 @@ class CreatureManager(UnitManager):
                     0,  # durability
                     0,  # stack count
                 )
-                world_session.send_message(ItemManager(item_template=vendor_data_entry.item_template).query_details())
+                world_session.enqueue_packet(ItemManager(item_template=vendor_data_entry.item_template).query_details())
 
         session.close()
-        world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
+        world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
 
     def finish_loading(self):
         if self.creature_template and self.creature_instance:

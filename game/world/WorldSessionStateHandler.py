@@ -1,4 +1,3 @@
-import threading
 from multiprocessing import Value
 
 WORLD_SESSIONS = []

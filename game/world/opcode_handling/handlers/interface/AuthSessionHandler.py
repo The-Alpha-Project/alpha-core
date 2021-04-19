@@ -49,6 +49,6 @@ class AuthSessionHandler(object):
         WorldSessionStateHandler.add(world_session)
 
         data = pack('<B', auth_code)
-        world_session.send_message(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
+        world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
 
         return 0 if auth_code == AuthCode.AUTH_OK else -1

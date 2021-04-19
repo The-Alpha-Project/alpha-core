@@ -46,4 +46,4 @@ class AuraManager:
 
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
             data = pack('<bi', len(self.active_auras), duration)
-            self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))
+            self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))

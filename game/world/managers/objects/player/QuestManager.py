@@ -224,7 +224,7 @@ class QuestManager(object):
 
     def send_cant_take_quest_response(self, reason_code):
         data = pack('<I', reason_code)
-        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_INVALID, data))
+        self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_INVALID, data))
 
     def send_quest_giver_status(self, quest_giver_guid, quest_status):
         data = pack(
@@ -232,7 +232,7 @@ class QuestManager(object):
             quest_giver_guid if quest_giver_guid > 0 else self.player_mgr.guid,
             quest_status
         )
-        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_STATUS, data))
+        self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_STATUS, data))
 
     def send_quest_giver_quest_list(self, message, quest_giver_guid, quests):
         message_bytes = PacketWriter.string_to_bytes(message)
@@ -255,7 +255,7 @@ class QuestManager(object):
                 quest_title
             )
 
-        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_LIST, data))
+        self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_LIST, data))
 
     def send_quest_giver_quest_details(self, quest, quest_giver_guid, activate_accept):
         # Send item query details and return item struct segments of SMSG_QUESTGIVER_QUEST_DETAILS
@@ -264,7 +264,7 @@ class QuestManager(object):
             display_id = 0
             if item_template:
                 item_mgr = ItemManager(item_template=item_template)
-                self.player_mgr.session.send_message(item_mgr.query_details())
+                self.player_mgr.session.enqueue_packet(item_mgr.query_details())
                 display_id = item_template.display_id
 
             item_data = pack(
@@ -326,7 +326,7 @@ class QuestManager(object):
                 req_creature_or_go_count_list[index]
             )
 
-        self.player_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
+        self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
 
 
 class QuestMenu:

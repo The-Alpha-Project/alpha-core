@@ -23,6 +23,6 @@ class GuildInfoHandler(object):
             # TODO: Handle proper data and nº of accounts
             # Day, Month, Years, Players, Nº Accounts
             data += pack('<5I', 0, 0, 0, len(player.guild_manager.members), 0)
-            player.session.send_message(PacketWriter.get_packet(OpCode.SMSG_GUILD_INFO, data))
+            player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_INFO, data))
 
         return 0

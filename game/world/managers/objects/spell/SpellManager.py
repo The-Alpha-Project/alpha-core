@@ -275,7 +275,7 @@ class SpellManager(object):
         self.spells[spell_id] = db_spell
 
         data = pack('<H', spell_id)
-        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
         # Teach skills required as well like in CharCreateHandler?
         return True
 
@@ -482,7 +482,7 @@ class SpellManager(object):
             return
 
         data = pack('<IQH', spell.ID, self.unit_mgr.guid, spell.RecoveryTime)
-        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def is_on_cooldown(self, spell_id):
         return spell_id in self.cooldowns
@@ -568,4 +568,4 @@ class SpellManager(object):
         else:
             data = pack('<IBB', spell_id, SpellCastStatus.CAST_FAILED, error)
 
-        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
