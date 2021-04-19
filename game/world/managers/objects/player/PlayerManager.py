@@ -384,7 +384,7 @@ class PlayerManager(UnitManager):
         return True
 
     def spawn_player_from_teleport(self):
-        # Remove ourself from the old location.
+        # Remove ourselves from the old location.
         for guid, player in list(GridManager.get_surrounding_players(self).items()):
             if self.guid == guid:
                 continue
@@ -397,7 +397,7 @@ class PlayerManager(UnitManager):
         self.map_ = self.teleport_destination_map
         self.location = self.teleport_destination
 
-        # Get us in-world again.
+        # Get us in world again.
         self.send_update_self(create=True, force_inventory_update=True, reset_fields=False)
         self.send_update_surrounding(self.generate_proper_update_packet(
             create=True), include_self=False, create=True, force_inventory_update=True)

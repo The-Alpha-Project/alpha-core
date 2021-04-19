@@ -21,7 +21,6 @@ class PlayerDuelInformation(object):
 # TODO: Need to figure a way to make both players hostile to each other while duel is ongoing.
 # TODO: Missing checks before requesting a duel, check if already in duel, faction, etc.
 class DuelManager(object):
-    DUEL_SPELL_ID = 7266
     ARBITERS_GUID = 4000000  # TODO: Hackfix, We need a way to dynamically generate valid guids for go's
     BOUNDARY_RADIUS = 50
 
@@ -38,8 +37,7 @@ class DuelManager(object):
     def request_duel(requester, target, arbiter_entry):
         # If target is already dueling, fail Duel spell cast.
         if target.duel_manager:
-            requester.spell_manager.send_cast_result(DuelManager.DUEL_SPELL_ID, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
-            return
+            return 0
 
         # If requester is already dueling, lose current duel before starting a new one.
         if requester.duel_manager:
@@ -61,9 +59,13 @@ class DuelManager(object):
             for entry in duel_manager.players.values():
                 entry.player.duel_manager = duel_manager
                 duel_manager.build_update(entry.player, set_dirty=True)
+
+            return 1
         else:
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_COMPLETE, pack('<B', DuelComplete.DUEL_CANCELED_INTERRUPTED))
             requester.session.send_message(packet)
+
+            return -1
 
     # Only accept the trigger from the target
     def handle_duel_accept(self, player_mgr):
