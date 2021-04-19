@@ -403,7 +403,7 @@ class SpellAuraInterruptFlags(IntEnum):
 
 
 class ShapeshiftForms(IntEnum):
-    SHAPESHIFT_FORM_NONE = 0
+    SHAPESHIFT_FORM_NONE = 0x0
     SHAPESHIFT_FORM_CAT = 0x1
     SHAPESHIFT_FORM_TREE = 0x2
     SHAPESHIFT_FORM_FLYING = 0x3

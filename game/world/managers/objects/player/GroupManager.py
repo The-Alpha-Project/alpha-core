@@ -229,7 +229,7 @@ class GroupManager(object):
             # TODO: MSG_SPLIT_MONEY seems not to have any effect on the client.
             # data = pack('<Q2I', creature.guid, creature.loot_manager.current_money, ply_share)
             # split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
-            # member.session.send_message(split_packet)
+            # member.session.enqueue_packet(split_packet)
             data = pack('<I', player_share)
             member.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
             member.mod_money(player_share)

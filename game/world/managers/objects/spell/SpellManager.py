@@ -368,7 +368,6 @@ class SpellManager(object):
         else:
             self.remove_cooldown(casting_spell.spell_entry)
 
-
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
         # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Channeled spells
 
@@ -519,7 +518,7 @@ class SpellManager(object):
             return
 
         data = pack('<IQ', spell.ID, self.unit_mgr.guid)
-        self.unit_mgr.session.send_message(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
 
     def is_on_cooldown(self, spell_id):
         return spell_id in self.cooldowns
