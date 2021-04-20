@@ -1,11 +1,12 @@
 from struct import pack
 
-from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes, Factions
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, ShapeshiftForms
+from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -39,6 +40,7 @@ class AuraEffectHandler:
             aura.target.aura_manager.remove_auras_by_type(aura.spell_effect.aura_type)  # Remove existing shapeshift
         if remove or aura.spell_effect.misc_value not in SHAPESHIFT_MODEL_IDS:
             aura.target.reset_display_id()
+            aura.target.reset_scale()
             return
 
         shapeshift_display_info = SHAPESHIFT_MODEL_IDS[aura.spell_effect.misc_value]
@@ -51,16 +53,38 @@ class AuraEffectHandler:
     def handle_mounted(aura, remove):
         if remove:
             aura.target.unmount()
+        elif aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+            aura.target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED)
+            aura.target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED)
+        else:
+            aura.target.aura_manager.remove_auras_by_type(aura.spell_effect.aura_type)  # Remove existing mount aura TODO Exclusive effects?
+
+            creature_entry = aura.spell_effect.misc_value
+            if not aura.target.summon_mount(creature_entry):
+                Logger.error(f'SPELL_AURA_MOUNTED: Creature template ({creature_entry}) not found in database.')
+
+    @staticmethod
+    def handle_increase_mounted_speed(aura, remove):
+        # TODO: Should handle for creatures too? (refactor all change speed methods?)
+        if aura.target.get_type() != ObjectTypes.TYPE_PLAYER:
             return
-        aura.target.aura_manager.remove_auras_by_type(aura.spell_effect.aura_type)  # Remove existing mount aura TODO Exclusive effects?
-        creature_entry = aura.spell_effect.misc_value
-        if not aura.target.summon_mount(creature_entry):
-            Logger.error(f'SPELL_AURA_MOUNTED: Creature template ({creature_entry}) not found in database.')
+
+        if remove:
+            aura.target.change_speed()
+            return
+
+        # TODO Not properly being removed when you cast another mount
+        aura.target.aura_manager.remove_auras_by_type(aura.spell_effect.aura_type)
+
+        default_speed = config.Unit.Defaults.run_speed
+        speed_percentage = aura.spell_effect.get_effect_points(aura.target.level) / 100.0
+        aura.target.change_speed(default_speed + (default_speed * speed_percentage))
 
 
 AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
-    AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted
+    AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted,
+    AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_mounted_speed
 }
 
 # Alliance / Default display_id, Horde display_id, Scale

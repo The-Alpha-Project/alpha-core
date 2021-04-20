@@ -15,6 +15,7 @@ from utils import Formulas
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes
+from utils.constants.SpellCodes import AuraTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags
 from utils.constants.UpdateFields import UnitFields
 
@@ -552,13 +553,13 @@ class UnitManager(ObjectManager):
             self.set_dirty()
 
     def unmount(self, force_update=True):
-        if self.mount_display_id > 0:
-            self.mount_display_id = 0
-            self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
-            self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
-            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-            if force_update:
-                self.set_dirty()
+        self.mount_display_id = 0
+        self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
+        self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+        if force_update:
+            self.set_dirty()
 
     def set_health(self, health):
         if health < 0:

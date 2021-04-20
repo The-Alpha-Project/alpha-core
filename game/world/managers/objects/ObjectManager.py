@@ -131,6 +131,9 @@ class ObjectManager(object):
         if force_update:
             self.set_dirty()
 
+    def reset_scale(self):
+        self.set_scale(self.native_scale)
+
     def reset_fields(self):
         # Reset updated fields
         self.update_packet_factory.reset()
