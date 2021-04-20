@@ -56,6 +56,7 @@ class ObjectManager(object):
         self.object_type = [ObjectTypes.TYPE_OBJECT]
         self.update_packet_factory = UpdatePacketFactory()
 
+        self.dirty = False
         self.current_grid = ''
         self.last_tick = 0
         self.movement_spline = None
@@ -111,17 +112,24 @@ class ObjectManager(object):
 
         return data
 
+    def set_dirty(self, is_dirty=True):
+        self.dirty = is_dirty
+
     def get_display_id(self):
         return self.current_display_id
 
-    def set_display_id(self, display_id):
+    def set_display_id(self, display_id, force_update=True):
         self.current_display_id = display_id
 
-    def reset_display_id(self):
-        self.set_display_id(self.native_display_id)
+    def reset_display_id(self, force_update=True):
+        self.set_display_id(self.native_display_id, force_update=force_update)
 
-    def set_scale(self, scale):
+    def set_scale(self, scale, force_update=True):
         self.current_scale = scale
+        self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
+
+        if force_update:
+            self.set_dirty()
 
     def reset_fields(self):
         # Reset updated fields

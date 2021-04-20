@@ -476,14 +476,12 @@ class SpellManager(object):
                 casting_spell.spell_entry.ID, 0, casting_spell.get_base_cast_time(),
                 casting_spell.spell_target_mask]
 
-        signature = "<QQIHiH"  # TODO
+        signature = '<2QIHiH'  # TODO
         if casting_spell.initial_target_unit and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written
             data.append(casting_spell.initial_target_unit.guid)
-            signature += "Q"
+            signature += 'Q'
 
         data = pack(signature, *data)
-        Logger.debug("sending cast start of spell " + casting_spell.spell_entry.Name_enUS + " with cast time " + str(casting_spell.get_base_cast_time()))
-
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
                                      include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
@@ -491,7 +489,7 @@ class SpellManager(object):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,
                 casting_spell.spell_entry.ID, 0]  # TODO Flags
 
-        sign = "<QQIH"
+        sign = '<2QIH'
 
         hit_count = 0
         if len(casting_spell.target_results.keys()) > 0:
@@ -619,6 +617,6 @@ class SpellManager(object):
         if error == SpellCheckCastResult.SPELL_CAST_OK:
             data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
         else:
-            data = pack('<IBB', spell_id, SpellCastStatus.CAST_FAILED, error)
+            data = pack('<I2B', spell_id, SpellCastStatus.CAST_FAILED, error)
 
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))

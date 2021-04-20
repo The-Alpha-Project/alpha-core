@@ -44,9 +44,8 @@ class AuraEffectHandler:
         shapeshift_display_info = SHAPESHIFT_MODEL_IDS[aura.spell_effect.misc_value]
         display_index = 0 if aura.target.faction == Factions.HORDE else 1
         model_scale = shapeshift_display_info[2]
-        aura.target.set_display_id(shapeshift_display_info[display_index])
+        aura.target.set_display_id(shapeshift_display_info[display_index], force_update=False)
         aura.target.set_scale(model_scale)
-
 
     @staticmethod
     def handle_mounted(aura, remove):
@@ -57,7 +56,6 @@ class AuraEffectHandler:
         creature_entry = aura.spell_effect.misc_value
         if not aura.target.summon_mount(creature_entry):
             Logger.error(f'SPELL_AURA_MOUNTED: Creature template ({creature_entry}) not found in database.')
-
 
 
 AURA_EFFECTS = {

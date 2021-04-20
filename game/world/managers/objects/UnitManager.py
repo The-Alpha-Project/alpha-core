@@ -186,7 +186,6 @@ class UnitManager(ObjectManager):
         self.object_type.append(ObjectTypes.TYPE_UNIT)
         self.update_packet_factory.init_values(UnitFields.UNIT_END)
 
-        self.dirty = False
         self.is_alive = True
         self.is_sitting = False
         self.in_combat = False
@@ -663,12 +662,16 @@ class UnitManager(ObjectManager):
         self.stand_state = stand_state
 
     # override
-    def set_display_id(self, display_id):
+    def set_display_id(self, display_id, force_update=True):
         super().set_display_id(display_id)
         if display_id <= 0 or not \
                 DbcDatabaseManager.creature_display_info_get_by_id(display_id):
             return
+
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
+
+        if force_update:
+            self.set_dirty()
 
     def generate_proper_update_packet(self, is_self=False, create=False):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
@@ -718,9 +721,6 @@ class UnitManager(ObjectManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
         self.set_stand_state(StandState.UNIT_STANDING)
-
-    def set_dirty(self, is_dirty=True):
-        self.dirty = is_dirty
 
     # override
     def on_grid_change(self):
