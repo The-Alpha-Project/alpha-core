@@ -28,8 +28,10 @@ class GameObjectManager(ObjectManager):
         self.guid = (gobject_instance.spawn_id if gobject_instance else 0) | HighGuid.HIGHGUID_GAMEOBJECT
 
         if self.gobject_template:
-            self.display_id = self.gobject_template.display_id
-            self.scale = self.gobject_template.scale
+            self.native_display_id = self.gobject_template.display_id
+            self.current_display_id = self.native_display_id
+            self.native_scale = self.gobject_template.scale
+            self.current_scale = self.native_scale
 
         if gobject_instance:
             self.state = self.gobject_instance.spawn_state
@@ -69,7 +71,7 @@ class GameObjectManager(ObjectManager):
             if slots > 0:
                 orthogonal_orientation = self.location.o + pi * 0.5
                 for x in range(0, slots):
-                    relative_distance = (self.scale * x) - (self.scale * (slots - 1) / 2.0)
+                    relative_distance = (self.current_scale * x) - (self.current_scale * (slots - 1) / 2.0)
                     x_i = self.location.x + relative_distance * cos(orthogonal_orientation)
                     y_i = self.location.y + relative_distance * sin(orthogonal_orientation)
 
@@ -82,17 +84,26 @@ class GameObjectManager(ObjectManager):
                 player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
     # override
+    def set_display_id(self, display_id):
+        super().set_display_id(display_id)
+        if display_id <= 0 or not \
+                DbcDatabaseManager.gameobject_display_info_get_by_id(display_id):
+            return
+
+        self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
+
+    # override
     def get_full_update_packet(self, is_self=True):
         if self.gobject_template and self.gobject_instance:
             # Object fields
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
             self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.gobject_template.entry)
-            self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.scale)
+            self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
             self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
             # Gameobject fields
-            self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.display_id)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
             self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.gobject_template.flags)
             self.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.gobject_template.faction)
             self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
@@ -121,7 +132,7 @@ class GameObjectManager(ObjectManager):
             f'<3I{len(name_bytes)}ssss10I',
             self.gobject_template.entry,
             self.gobject_template.type,
-            self.display_id,
+            self.current_display_id,
             name_bytes, b'\x00', b'\x00', b'\x00',
             self.gobject_template.data0,
             self.gobject_template.data1,

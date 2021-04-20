@@ -662,16 +662,13 @@ class UnitManager(ObjectManager):
     def set_stand_state(self, stand_state):
         self.stand_state = stand_state
 
+    # override
     def set_display_id(self, display_id):
-        if display_id > 0 and \
+        super().set_display_id(display_id)
+        if display_id <= 0 or not \
                 DbcDatabaseManager.creature_display_info_get_by_id(display_id):
-            self.display_id = display_id
-            self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
-            self.set_dirty()
-
-    # Implemented by PlayerManager and CreatureManager
-    def demorph(self):
-        pass
+            return
+        self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
 
     def generate_proper_update_packet(self, is_self=False, create=False):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(

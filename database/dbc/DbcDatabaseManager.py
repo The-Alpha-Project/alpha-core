@@ -191,6 +191,15 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return res
 
+    # GameObjectDisplayInfo
+
+    @staticmethod
+    def gameobject_display_info_get_by_id(display_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(GameObjectDisplayInfo).filter_by(ID=display_id).first()
+        dbc_db_session.close()
+        return res
+
     # CinematicSequences
 
     @staticmethod

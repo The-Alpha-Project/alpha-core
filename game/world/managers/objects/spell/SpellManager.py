@@ -477,7 +477,7 @@ class SpellManager(object):
                 casting_spell.spell_target_mask]
 
         signature = "<QQIHiH"  # TODO
-        if casting_spell.initial_target_unit:
+        if casting_spell.initial_target_unit and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written
             data.append(casting_spell.initial_target_unit.guid)
             signature += "Q"
 
@@ -486,7 +486,6 @@ class SpellManager(object):
 
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
                                      include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
-        # self.unit_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data))
 
     def send_spell_go(self, casting_spell):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,

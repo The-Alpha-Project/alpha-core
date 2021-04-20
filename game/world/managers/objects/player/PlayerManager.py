@@ -160,7 +160,8 @@ class PlayerManager(UnitManager):
 
         is_male = self.player.gender == Genders.GENDER_MALE
 
-        self.display_id = self.get_native_display_id(is_male, race)
+        self.native_display_id = self.get_native_display_id(is_male, race)
+        self.current_display_id = self.native_display_id
 
         # Power type
         if self.player.class_ == Classes.CLASS_WARRIOR:
@@ -190,15 +191,16 @@ class PlayerManager(UnitManager):
         elif self.player.race == Races.RACE_TAUREN:
             self.bounding_radius = 0.9747 if is_male else 0.8725
             self.combat_reach = 4.05 if is_male else 3.75
-            self.scale = 1.35 if is_male else 1.25
+            self.native_scale = 1.35 if is_male else 1.25
         elif self.player.race == Races.RACE_GNOME:
             self.bounding_radius = 0.3519
             self.combat_reach = 1.725
-            self.scale = 1.15
+            self.native_scale = 1.15
         elif self.player.race == Races.RACE_TROLL:
             self.bounding_radius = 0.306
             self.combat_reach = 1.5
 
+        self.current_scale = self.native_scale
         self.race_mask = 1 << self.player.race - 1
         self.class_mask = 1 << self.player.class_ - 1
         self.team = PlayerManager.get_team_for_race(self.player.race)
@@ -416,10 +418,6 @@ class PlayerManager(UnitManager):
         if self.group_manager:
             self.group_manager.send_update()
         self.friends_manager.send_update_to_friends()
-
-    # override
-    def demorph(self):
-        self.set_display_id(self.get_native_display_id(self.player.gender == 0))
 
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
@@ -665,7 +663,7 @@ class PlayerManager(UnitManager):
         self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.player.guid)
         self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
         self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
-        self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.scale)
+        self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
         # Unit fields
         self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
@@ -706,7 +704,7 @@ class PlayerManager(UnitManager):
         self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
         self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
-        self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
+        self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, self.resistance_buff_mods_positive_0)
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, self.resistance_buff_mods_positive_1)
