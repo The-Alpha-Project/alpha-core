@@ -86,7 +86,7 @@ class GameObjectManager(ObjectManager):
     def set_display_id(self, display_id):
         super().set_display_id(display_id)
         if display_id <= 0 or not \
-                DbcDatabaseManager.creature_display_info_get_by_id(display_id):
+                DbcDatabaseManager.gameobject_display_info_get_by_id(display_id):
             return
 
         self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
