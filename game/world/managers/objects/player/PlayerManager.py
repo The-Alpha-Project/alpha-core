@@ -342,7 +342,7 @@ class PlayerManager(UnitManager):
         if not DbcDatabaseManager.map_get_by_id(map_):
             return False
 
-        # From here on, update is blocked until player is teleported no new location.
+        # From here on, the update is blocked until the player teleports to a new location.
         # If another teleport triggers from a client message, then it will proceed once this TP is done.
         self.update_lock.acquire(block=True)
 
