@@ -705,7 +705,7 @@ class UnitManager(ObjectManager):
 
         self.leave_combat()
 
-    def respawn(self,):
+    def respawn(self):
         self.in_combat = False
         self.is_alive = True
 
