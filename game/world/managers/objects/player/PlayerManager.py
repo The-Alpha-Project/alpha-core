@@ -161,6 +161,7 @@ class PlayerManager(UnitManager):
         is_male = self.player.gender == Genders.GENDER_MALE
 
         self.display_id = self.get_native_display_id(is_male, race)
+        self.current_display_id = self.display_id
 
         # Power type
         if self.player.class_ == Classes.CLASS_WARRIOR:
@@ -416,10 +417,6 @@ class PlayerManager(UnitManager):
         if self.group_manager:
             self.group_manager.send_update()
         self.friends_manager.send_update_to_friends()
-
-    # override
-    def demorph(self):
-        self.set_display_id(self.get_native_display_id(self.player.gender == 0))
 
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
@@ -706,7 +703,7 @@ class PlayerManager(UnitManager):
         self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
         self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
-        self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
+        self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, self.resistance_buff_mods_positive_0)
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, self.resistance_buff_mods_positive_1)

@@ -82,6 +82,15 @@ class GameObjectManager(ObjectManager):
                 player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
     # override
+    def set_display_id(self, display_id):
+        super().set_display_id(display_id)
+        if display_id <= 0 or not \
+                DbcDatabaseManager.creature_display_info_get_by_id(display_id):
+            return
+
+        self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
+
+    # override
     def get_full_update_packet(self, is_self=True):
         if self.gobject_template and self.gobject_instance:
             # Object fields
@@ -92,7 +101,7 @@ class GameObjectManager(ObjectManager):
             self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
             # Gameobject fields
-            self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.display_id)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
             self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.gobject_template.flags)
             self.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.gobject_template.faction)
             self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)

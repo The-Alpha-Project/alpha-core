@@ -52,6 +52,7 @@ class CreatureManager(UnitManager):
             self.faction = self.creature_template.faction
             self.creature_type = self.creature_template.type
             self.sheath_state = WeaponMode.SHEATHEDMODE  # Default one
+            self.display_id = self.generate_display_id()
 
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
@@ -242,10 +243,6 @@ class CreatureManager(UnitManager):
             self.creature_template.beast_family
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
-
-    # override
-    def demorph(self):
-        self.set_display_id(self.generate_display_id())
 
     # override
     def update(self):
