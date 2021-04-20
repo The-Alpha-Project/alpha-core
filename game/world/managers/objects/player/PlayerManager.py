@@ -191,15 +191,16 @@ class PlayerManager(UnitManager):
         elif self.player.race == Races.RACE_TAUREN:
             self.bounding_radius = 0.9747 if is_male else 0.8725
             self.combat_reach = 4.05 if is_male else 3.75
-            self.scale = 1.35 if is_male else 1.25
+            self.native_scale = 1.35 if is_male else 1.25
         elif self.player.race == Races.RACE_GNOME:
             self.bounding_radius = 0.3519
             self.combat_reach = 1.725
-            self.scale = 1.15
+            self.native_scale = 1.15
         elif self.player.race == Races.RACE_TROLL:
             self.bounding_radius = 0.306
             self.combat_reach = 1.5
 
+        self.current_scale = self.native_scale
         self.race_mask = 1 << self.player.race - 1
         self.class_mask = 1 << self.player.class_ - 1
         self.team = PlayerManager.get_team_for_race(self.player.race)
@@ -662,7 +663,7 @@ class PlayerManager(UnitManager):
         self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.player.guid)
         self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
         self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
-        self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.scale)
+        self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
         # Unit fields
         self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)

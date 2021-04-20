@@ -127,11 +127,12 @@ class CreatureManager(UnitManager):
                 if self.creature_template.scale == 0:
                     display_scale = DbcDatabaseManager.creature_display_info_get_by_id(self.current_display_id)
                     if display_scale and display_scale.CreatureModelScale > 0:
-                        self.scale = display_scale.CreatureModelScale
+                        self.native_scale = display_scale.CreatureModelScale
                     else:
-                        self.scale = 1
+                        self.native_scale = 1
                 else:
-                    self.scale = self.creature_template.scale
+                    self.native_scale = self.creature_template.scale
+                self.current_scale = self.native_scale
 
                 if self.creature_template.equipment_id > 0:
                     creature_equip_template = WorldDatabaseManager.creature_get_equipment_by_id(
@@ -196,7 +197,7 @@ class CreatureManager(UnitManager):
         self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
         self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
         self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
-        self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.scale)
+        self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
         # Unit fields
         self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)

@@ -30,7 +30,8 @@ class GameObjectManager(ObjectManager):
         if self.gobject_template:
             self.native_display_id = self.gobject_template.display_id
             self.current_display_id = self.native_display_id
-            self.scale = self.gobject_template.scale
+            self.native_scale = self.gobject_template.scale
+            self.current_scale = self.native_scale
 
         if gobject_instance:
             self.state = self.gobject_instance.spawn_state
@@ -70,7 +71,7 @@ class GameObjectManager(ObjectManager):
             if slots > 0:
                 orthogonal_orientation = self.location.o + pi * 0.5
                 for x in range(0, slots):
-                    relative_distance = (self.scale * x) - (self.scale * (slots - 1) / 2.0)
+                    relative_distance = (self.current_scale * x) - (self.current_scale * (slots - 1) / 2.0)
                     x_i = self.location.x + relative_distance * cos(orthogonal_orientation)
                     y_i = self.location.y + relative_distance * sin(orthogonal_orientation)
 
@@ -98,7 +99,7 @@ class GameObjectManager(ObjectManager):
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
             self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.gobject_template.entry)
-            self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.scale)
+            self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
             self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
             # Gameobject fields
