@@ -1056,7 +1056,7 @@ class PlayerManager(UnitManager):
         if not self.online:
             return
 
-        # Prevent updates while teleporting
+        # Specify that the player is being updated
         self.update_lock = True
 
         now = time.time()
