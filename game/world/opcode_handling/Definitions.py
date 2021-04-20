@@ -78,6 +78,7 @@ from game.world.opcode_handling.handlers.group.GroupSetLeaderHandler import Grou
 from game.world.opcode_handling.handlers.group.GroupLootMethodHandler import GroupLootMethodHandler
 from game.world.opcode_handling.handlers.group.MinimapPingHandler import MinimapPingHandler
 from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpellHandler
+from game.world.opcode_handling.handlers.spell.CancelAuraHandler import CancelAuraHandler
 from game.world.opcode_handling.handlers.guild.GuildCreateHandler import GuildCreateHandler
 from game.world.opcode_handling.handlers.guild.GuildQueryHandler import GuildQueryHandler
 from game.world.opcode_handling.handlers.guild.GuildInfoHandler import GuildInfoHandler
@@ -183,6 +184,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_TAXIQUERYAVAILABLENODES: TaxiQueryNodesHandler.handle,
     OpCode.CMSG_ACTIVATETAXI: ActivateTaxiHandler.handle,
     OpCode.CMSG_CAST_SPELL: CastSpellHandler.handle,
+    OpCode.CMSG_CANCEL_AURA: CancelAuraHandler.handle,
     OpCode.CMSG_LOOT: LootRequestHandler.handle,
     OpCode.CMSG_LOOT_RELEASE: LootReleaseHandler.handle,
     OpCode.CMSG_LOOT_MONEY: LootMoneyHandler.handle,

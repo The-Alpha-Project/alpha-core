@@ -4,7 +4,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.ObjectCodes import ObjectTypes, Factions
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, ShapeshiftForms
 from utils.constants.UpdateFields import UnitFields
 
@@ -22,31 +22,42 @@ class AppliedAura:
 
 class AuraEffectHandler:
     @staticmethod
-    def handle_aura_effect(aura):
+    def handle_aura_effect_change(aura, remove=False):
         if aura.spell_effect.effect_type != SpellEffects.SPELL_EFFECT_APPLY_AURA:
             return
         if aura.spell_effect.aura_type not in AURA_EFFECTS:
             Logger.debug(f'Unimplemented aura effect called: {aura.spell_effect.aura_type}')
             return
 
-        AURA_EFFECTS[aura.spell_effect.aura_type](aura)
+        AURA_EFFECTS[aura.spell_effect.aura_type](aura, remove)
 
     @staticmethod
-    def handle_shapeshift(aura):
-        aura.target.aura_manager.remove_auras_by_type(aura.spell_effect.aura_type)  # Remove existing shapeshift
-        aura.target.set_shapeshift_form(aura.spell_effect.misc_value)
-        if aura.spell_effect.misc_value not in SHAPESHIFT_MODEL_IDS:
+    def handle_shapeshift(aura, remove):
+        form = aura.spell_effect.misc_value if not remove else ShapeshiftForms.SHAPESHIFT_FORM_NONE
+        aura.target.set_shapeshift_form(form)
+        if not remove:
+            aura.target.aura_manager.remove_auras_by_type(aura.spell_effect.aura_type)  # Remove existing shapeshift
+        if remove or aura.spell_effect.misc_value not in SHAPESHIFT_MODEL_IDS:
+            aura.target.reset_display_id()
             return
 
-        aura.target.set_display_id(SHAPESHIFT_MODEL_IDS[aura.spell_effect.misc_value])
+        shapeshift_display_info = SHAPESHIFT_MODEL_IDS[aura.spell_effect.misc_value]
+        display_index = 0 if aura.target.faction == Factions.HORDE else 1
+        model_scale = shapeshift_display_info[2]
+        aura.target.set_display_id(shapeshift_display_info[display_index])
+        aura.target.set_scale(model_scale)
+
 
     @staticmethod
-    def handle_mounted(aura):
+    def handle_mounted(aura, remove):
+        if remove:
+            aura.target.unmount()
+            return
+        aura.target.aura_manager.remove_auras_by_type(aura.spell_effect.aura_type)  # Remove existing mount aura TODO Exclusive effects?
         creature_entry = aura.spell_effect.misc_value
         if not aura.target.summon_mount(creature_entry):
             Logger.error(f'SPELL_AURA_MOUNTED: Creature template ({creature_entry}) not found in database.')
 
-        # TODO Handle removal
 
 
 AURA_EFFECTS = {
@@ -54,11 +65,11 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted
 }
 
-SHAPESHIFT_MODEL_IDS = {  # Ugly solution but there doesn't seem to be a connection in databases
-    ShapeshiftForms.SHAPESHIFT_FORM_CAT: 892,
-    ShapeshiftForms.SHAPESHIFT_FORM_TREE: 864,
-    ShapeshiftForms.SHAPESHIFT_FORM_AQUATIC: 2428,
-    ShapeshiftForms.SHAPESHIFT_FORM_BEAR: 2281
+SHAPESHIFT_MODEL_IDS = {
+    ShapeshiftForms.SHAPESHIFT_FORM_CAT: (892, 892, 0.8),
+    ShapeshiftForms.SHAPESHIFT_FORM_TREE: (864, 864, 1.0),
+    ShapeshiftForms.SHAPESHIFT_FORM_AQUATIC: (2428, 2428, 0.8),
+    ShapeshiftForms.SHAPESHIFT_FORM_BEAR: (2281, 2289, 1.0)
 }
 
 
@@ -76,29 +87,31 @@ class AuraManager:
     def add_aura(self, aura):
         if not self.can_apply_aura(aura):
             return
-        AuraEffectHandler.handle_aura_effect(aura)
+        AuraEffectHandler.handle_aura_effect_change(aura)
 
         aura.index = self.get_next_aura_index()
         self.active_auras[aura.index] = aura
 
         self.write_aura_to_unit(aura)
         self.write_aura_flag_to_unit(aura)
+        self.send_aura_duration(aura)
 
         self.unit_mgr.set_dirty()
 
     def can_apply_aura(self, aura):
         if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
-                self.get_aura_by_spell_id(aura.spell_id) is not None:
+                len(self.get_auras_by_spell_id(aura.spell_id)) > 0:
             return False  # Don't apply shapeshift effect if it already exists
 
         return True
 
-    def get_aura_by_spell_id(self, spell_id):
-        for aura in list(self.active_auras.values()):
-            if aura.spell_id is not spell_id:
+    def get_auras_by_spell_id(self, spell_id):
+        auras = []
+        for aura in self.active_auras.values():
+            if aura.spell_id != spell_id:
                 continue
-            return aura
-        return None
+            auras.append(aura)
+        return auras
 
     def remove_auras_by_type(self, aura_type):
         for aura in list(self.active_auras.values()):
@@ -107,15 +120,22 @@ class AuraManager:
             self.remove_aura(aura)
 
     def remove_aura(self, aura):
+        # TODO check if aura can be removed (by player)
+        AuraEffectHandler.handle_aura_effect_change(aura, True)
         self.write_aura_to_unit(aura, clear=True)
-        self.write_aura_flag_to_unit(aura, clear=False)
+        self.write_aura_flag_to_unit(aura, clear=True)
 
         data = pack('<Bi', aura.index, 0)
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data), self.unit_mgr,
-                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
+
         self.active_auras.pop(aura.index)
 
         self.unit_mgr.set_dirty()
+
+    def cancel_auras_by_spell_id(self, spell_id):
+        auras = self.get_auras_by_spell_id(spell_id)
+
+        for aura in auras:
+            self.remove_aura(aura)
 
     def send_aura_duration(self, aura):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
