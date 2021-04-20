@@ -34,7 +34,8 @@ class CreatureManager(UnitManager):
 
         if self.creature_template:
             self.entry = self.creature_template.entry
-            self.display_id = self.generate_display_id()
+            self.native_display_id = self.generate_display_id()
+            self.current_display_id = self.native_display_id
             self.max_health = self.creature_template.health_max
             self.power_1 = self.creature_template.mana_min
             self.max_power_1 = self.creature_template.mana_max
@@ -52,7 +53,6 @@ class CreatureManager(UnitManager):
             self.faction = self.creature_template.faction
             self.creature_type = self.creature_template.type
             self.sheath_state = WeaponMode.SHEATHEDMODE  # Default one
-            self.display_id = self.generate_display_id()
 
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
@@ -119,13 +119,13 @@ class CreatureManager(UnitManager):
     def finish_loading(self):
         if self.creature_template and self.creature_instance:
             if not self.fully_loaded:
-                creature_model_info = WorldDatabaseManager.creature_get_model_info(self.display_id)
+                creature_model_info = WorldDatabaseManager.creature_get_model_info(self.current_display_id)
                 if creature_model_info:
                     self.bounding_radius = creature_model_info.bounding_radius
                     self.combat_reach = creature_model_info.combat_reach
 
                 if self.creature_template.scale == 0:
-                    display_scale = DbcDatabaseManager.creature_display_info_get_by_id(self.display_id)
+                    display_scale = DbcDatabaseManager.creature_display_info_get_by_id(self.current_display_id)
                     if display_scale and display_scale.CreatureModelScale > 0:
                         self.scale = display_scale.CreatureModelScale
                     else:
@@ -221,7 +221,7 @@ class CreatureManager(UnitManager):
         self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
         self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
-        self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.display_id)
+        self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
         self.set_float(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)

@@ -160,8 +160,8 @@ class PlayerManager(UnitManager):
 
         is_male = self.player.gender == Genders.GENDER_MALE
 
-        self.display_id = self.get_native_display_id(is_male, race)
-        self.current_display_id = self.display_id
+        self.native_display_id = self.get_native_display_id(is_male, race)
+        self.current_display_id = self.native_display_id
 
         # Power type
         if self.player.class_ == Classes.CLASS_WARRIOR:

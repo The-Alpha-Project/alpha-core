@@ -339,7 +339,7 @@ class CommandManager(object):
     @staticmethod
     def demorph(world_session, args):
         unit = CommandManager._target_or_self(world_session)
-        unit.demorph()
+        unit.reset_display_id()
         return 0, ''
 
     @staticmethod

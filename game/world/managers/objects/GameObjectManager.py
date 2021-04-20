@@ -28,7 +28,8 @@ class GameObjectManager(ObjectManager):
         self.guid = (gobject_instance.spawn_id if gobject_instance else 0) | HighGuid.HIGHGUID_GAMEOBJECT
 
         if self.gobject_template:
-            self.display_id = self.gobject_template.display_id
+            self.native_display_id = self.gobject_template.display_id
+            self.current_display_id = self.native_display_id
             self.scale = self.gobject_template.scale
 
         if gobject_instance:
@@ -130,7 +131,7 @@ class GameObjectManager(ObjectManager):
             f'<3I{len(name_bytes)}ssss10I',
             self.gobject_template.entry,
             self.gobject_template.type,
-            self.display_id,
+            self.current_display_id,
             name_bytes, b'\x00', b'\x00', b'\x00',
             self.gobject_template.data0,
             self.gobject_template.data1,

@@ -24,7 +24,7 @@ class ObjectManager(object):
                  unit_flags=0,
                  dynamic_flags=0,
                  scale=1,
-                 display_id=0,
+                 native_display_id=0,
                  bounding_radius=config.Unit.Defaults.bounding_radius,
                  location=None,
                  transport_id=0,
@@ -42,8 +42,8 @@ class ObjectManager(object):
         self.unit_flags = unit_flags
         self.dynamic_flags = dynamic_flags
         self.scale = scale
-        self.display_id = display_id  # Native display ID
-        self.current_display_id = display_id
+        self.native_display_id = native_display_id  # Native display ID
+        self.current_display_id = native_display_id
         self.bounding_radius = bounding_radius
         self.location = Vector()
         self.transport_id = transport_id
@@ -117,7 +117,7 @@ class ObjectManager(object):
         self.current_display_id = display_id
 
     def reset_display_id(self):
-        self.current_display_id = self.display_id
+        self.current_display_id = self.native_display_id
 
     def reset_fields(self):
         # Reset updated fields
