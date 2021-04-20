@@ -19,7 +19,7 @@ class PlayerDuelInformation(object):
 
 
 # TODO: Need to figure a way to make both players hostile to each other while duel is ongoing.
-# TODO: Missing checks before requesting a duel, check if already in duel, faction, etc.
+# TODO: Missing checks before requesting a duel, is the map allow duel, etc.
 class DuelManager(object):
     ARBITERS_GUID = 4000000  # TODO: Hackfix, We need a way to dynamically generate valid guids for go's
     BOUNDARY_RADIUS = 50
@@ -33,7 +33,6 @@ class DuelManager(object):
         self.arbiter = arbiter
         self.elapsed = 0  # Used to control 1 update per second based on global tick rate.
         self.map = player1.map_
-        self.faction = player1.faction
 
     @staticmethod
     def request_duel(requester, target, arbiter_entry):
@@ -133,7 +132,6 @@ class DuelManager(object):
         self.players.clear()
         self.team_ids.clear()
         self.arbiter = None
-        self.faction = None
         self.map = None
 
     def player_involved(self, player_mgr):
@@ -181,11 +179,6 @@ class DuelManager(object):
         team_id = self.team_ids[player_mgr.guid] if self.duel_state != DuelState.DUEL_STATE_FINISHED else 0
         player_mgr.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, arbiter_guid)
         player_mgr.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, team_id)
-
-        # Temporal Hackfix in order to allow players to duel.
-        if self.players[player_mgr.guid].is_target:
-            player_mgr.faction = self.faction if self.duel_state != DuelState.DUEL_STATE_STARTED else 128 # Enemy
-            player_mgr.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, player_mgr.faction)
 
         if set_dirty:
             player_mgr.set_dirty()
