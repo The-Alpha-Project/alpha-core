@@ -266,17 +266,6 @@ class CreatureManager(UnitManager):
                             self.last_random_movement = now
             # Dead
             else:
-                # Setting mob as lootable here instead of on die(). Sometimes player gets stuck on looting animation,
-                # this issue seems to happen A LOT less if the mob is set as lootable at least 1 second after it died.
-                # Blizzard had this issue too back in the day and they solved it (most likely) by sending loot release
-                # every 15 seconds:
-                #     "loot bug" partially fixed (should only get stuck for 15 seconds max now, no more re-logging needed).
-                #     https://wowpedia.fandom.com/wiki/Patch_0.5.3
-                # TODO: Investigate if there's a better fix (or hackfix) for this issue.
-                if self.loot_manager.has_loot() and 1.2 <= self.respawn_timer <= 2.0:
-                    if not (self.dynamic_flags & UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE):
-                        self.set_lootable(True, set_dirty=True)
-
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
                     self.respawn()
@@ -318,6 +307,10 @@ class CreatureManager(UnitManager):
     def die(self, killer=None):
         super().die(killer)
         self.loot_manager.generate_loot()
+
+        if self.loot_manager.has_loot():
+            if not (self.dynamic_flags & UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE):
+                self.set_lootable(True, set_dirty=True)
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
