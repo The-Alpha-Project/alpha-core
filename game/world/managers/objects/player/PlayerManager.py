@@ -1133,7 +1133,8 @@ class PlayerManager(UnitManager):
             self.set_health(1)
             return
 
-        super().die(killer)
+        if not super().die(killer):
+            return
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))

@@ -272,6 +272,11 @@ class SpellEffectHandler(object):
             if not target.summon_mount(creature_entry):
                 Logger.error(f'SPELL_EFFECT_SUMMON_MOUNT: Creature template ({creature_entry}) not found in database.')
 
+    @staticmethod
+    def handle_insta_kill(casting_spell, effect, caster, target):
+        # No SMSG_SPELLINSTAKILLLOG in 0.5.3?
+        target.die(killer=caster)
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
@@ -282,7 +287,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus,
     SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
     SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
-    SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount
+    SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount,
+    SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill
 }
 
 
