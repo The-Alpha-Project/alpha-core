@@ -267,6 +267,7 @@ class UnitManager(ObjectManager):
         if not self.combat_target:
             if self.in_combat and len(self.attackers) == 0:
                 self.leave_combat()
+                self.set_dirty()
             return False
 
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
@@ -434,10 +435,12 @@ class UnitManager(ObjectManager):
             return
 
         if not self.in_combat:
-            self.enter_combat(force_update=True)
+            self.enter_combat()
+            self.set_dirty()
 
         if not target.in_combat:
-            target.enter_combat(force_update=True)
+            target.enter_combat()
+            target.set_dirty()
 
         if not target.in_combat:
             target.enter_combat()
@@ -486,15 +489,12 @@ class UnitManager(ObjectManager):
     def has_offhand_weapon(self):
         return False
 
-    def enter_combat(self, force_update=False):
+    def enter_combat(self):
         self.in_combat = True
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
-        if force_update:
-            self.set_dirty()
-
-    def leave_combat(self, force_update=True):
+    def leave_combat(self):
         if not self.in_combat:
             return
 
@@ -506,9 +506,6 @@ class UnitManager(ObjectManager):
         self.in_combat = False
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-
-        if force_update:
-            self.set_dirty()
 
     def can_use_attack_type(self, attack_type):
         if attack_type == AttackTypes.BASE_ATTACK:
@@ -542,6 +539,8 @@ class UnitManager(ObjectManager):
             return False
 
         self.mount(creature_template.display_id1)
+        self.set_dirty()
+
         return True
 
     def mount(self, mount_display_id):
@@ -550,16 +549,12 @@ class UnitManager(ObjectManager):
             self.unit_flags |= UnitFlags.UNIT_MASK_MOUNTED
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
             self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-            self.set_dirty()
 
-    def unmount(self, force_update=True):
+    def unmount(self):
         self.mount_display_id = 0
         self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-
-        if force_update:
-            self.set_dirty()
 
     def set_health(self, health):
         if health < 0:
@@ -663,16 +658,13 @@ class UnitManager(ObjectManager):
         self.stand_state = stand_state
 
     # override
-    def set_display_id(self, display_id, force_update=True):
+    def set_display_id(self, display_id):
         super().set_display_id(display_id)
         if display_id <= 0 or not \
                 DbcDatabaseManager.creature_display_info_get_by_id(display_id):
             return
 
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
-
-        if force_update:
-            self.set_dirty()
 
     def generate_proper_update_packet(self, is_self=False, create=False):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
@@ -701,17 +693,19 @@ class UnitManager(ObjectManager):
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             if killer.current_selection == self.guid:
                 killer.set_current_selection(0)
+                killer.set_dirty()
 
             # Clear combo of killer if this unit was the target
             if killer.combo_target == self.guid:
                 killer.remove_combo_points()
+                killer.set_dirty()
 
         # Clear all pending waypoint movement
         self.movement_manager.reset()
 
-        self.leave_combat(force_update=False)
+        self.leave_combat()
 
-    def respawn(self, force_update=True):
+    def respawn(self,):
         self.in_combat = False
         self.is_alive = True
 

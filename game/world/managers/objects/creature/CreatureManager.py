@@ -264,6 +264,8 @@ class CreatureManager(UnitManager):
                             self.last_random_movement = now
             # Dead
             else:
+                self.respawn_timer += elapsed
+
                 # Setting mob as lootable here instead of on die(). Sometimes player gets stuck on looting animation,
                 # this issue seems to happen A LOT less if the mob is set as lootable at least 1 second after it died.
                 # Blizzard had this issue too back in the day and they solved it (most likely) by sending loot release
@@ -273,9 +275,10 @@ class CreatureManager(UnitManager):
                 # TODO: Investigate if there's a better fix (or hackfix) for this issue.
                 if self.loot_manager.has_loot() and 1.2 <= self.respawn_timer <= 2.0:
                     if not (self.dynamic_flags & UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE):
-                        self.set_lootable(True, set_dirty=True)
+                        self.set_lootable(True)
+                        self.set_dirty()
+                    return
 
-                self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
                     self.respawn()
                 # Destroy body when creature is about to respawn
@@ -292,7 +295,7 @@ class CreatureManager(UnitManager):
             self.set_dirty(is_dirty=False)
 
     # override
-    def respawn(self, force_update=True):
+    def respawn(self):
         super().respawn()
 
         self.set_health(self.max_health)
@@ -309,8 +312,7 @@ class CreatureManager(UnitManager):
         self.respawn_timer = 0
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
-        if force_update:
-            GridManager.send_surrounding(self.generate_proper_update_packet(create=True), self, include_self=False)
+        GridManager.send_surrounding(self.generate_proper_update_packet(create=True), self, include_self=False)
 
     # override
     def die(self, killer=None):
@@ -341,15 +343,12 @@ class CreatureManager(UnitManager):
         min_damage, max_damage = unpack('<2H', pack('<I', self.damage))
         return int(min_damage), int(max_damage)
 
-    def set_lootable(self, flag=True, set_dirty=True):
+    def set_lootable(self, flag=True):
         if flag:
             self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
         else:
             self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
-
-        if set_dirty:
-            self.set_dirty()
 
     # override
     def has_offhand_weapon(self):
@@ -361,7 +360,6 @@ class CreatureManager(UnitManager):
         self.bytes_2 = unpack('<I', pack('<4B', self.sheath_state, 0, 0, 0))[0]
 
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
-        self.set_dirty()
 
     # override
     def set_stand_state(self, stand_state):

@@ -53,6 +53,7 @@ class ActivateTaxiHandler(object):
                                                                            dest_taxi_node.Y,
                                                                            dest_taxi_node.Z)
                 world_session.player_mgr.mount(GRYPHON_DISPLAY_ID)
+                world_session.player_mgr.set_dirty()
 
                 world_session.player_mgr.movement_manager.send_move_to(waypoints,
                                                                        config.Unit.Player.Defaults.flight_speed,

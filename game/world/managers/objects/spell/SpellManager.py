@@ -266,6 +266,7 @@ class SpellEffectHandler(object):
             # leave any applied aura).
             if target.mount_display_id > 0:
                 target.unmount()
+                target.set_dirty()
         else:
             creature_entry = effect.misc_value
             if not target.summon_mount(creature_entry):
@@ -600,6 +601,7 @@ class SpellManager(object):
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
                 casting_spell.requires_combo_points():
             self.unit_mgr.remove_combo_points()
+            self.unit_mgr.set_dirty()
 
         for reagent_info in casting_spell.get_reagents():  # Reagents
             if reagent_info[0] == 0:

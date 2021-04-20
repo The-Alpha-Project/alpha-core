@@ -84,16 +84,13 @@ class GameObjectManager(ObjectManager):
                 player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
     # override
-    def set_display_id(self, display_id, force_update=True):
+    def set_display_id(self, display_id):
         super().set_display_id(display_id)
         if display_id <= 0 or not \
                 DbcDatabaseManager.gameobject_display_info_get_by_id(display_id):
             return
 
         self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
-
-        if force_update:
-            self.set_dirty()
 
     # override
     def get_full_update_packet(self, is_self=True):

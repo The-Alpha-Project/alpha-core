@@ -752,12 +752,9 @@ class PlayerManager(UnitManager):
 
         return self.get_object_create_packet(is_self)
 
-    def set_current_selection(self, guid, force_update=True):
+    def set_current_selection(self, guid):
         self.current_selection = guid
         self.set_uint64(PlayerFields.PLAYER_SELECTION, guid)
-
-        if force_update:
-            self.set_dirty()
 
     def set_weapon_reach(self, reach):
         self.weapon_reach = reach
@@ -919,6 +916,7 @@ class PlayerManager(UnitManager):
     def attack_update(self, elapsed):
         if self.combat_target and not self.combat_target.is_alive:
             self.leave_combat()
+            self.set_dirty()
             return
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
@@ -1008,7 +1006,6 @@ class PlayerManager(UnitManager):
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
 
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
-        self.set_dirty()
 
     # override
     def set_stand_state(self, stand_state):
@@ -1049,8 +1046,6 @@ class PlayerManager(UnitManager):
 
         self.combo_target = 0
         self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
-
-        self.set_dirty()
 
     def set_dirty(self, is_dirty=True, dirty_inventory=False):
         self.dirty = is_dirty
@@ -1150,7 +1145,7 @@ class PlayerManager(UnitManager):
         self.set_dirty()
 
     # override
-    def respawn(self, force_update=True):
+    def respawn(self):
         super().respawn()
 
         self.set_health(int(self.max_health / 2))
@@ -1165,11 +1160,8 @@ class PlayerManager(UnitManager):
 
         self.spirit_release_timer = 0
 
-        if force_update:
-            self.set_dirty()
-
     def repop(self):
-        self.respawn(force_update=False)
+        self.respawn()
         self.teleport_deathbind()
 
     # override

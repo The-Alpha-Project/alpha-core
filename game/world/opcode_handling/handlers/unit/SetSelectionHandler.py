@@ -10,5 +10,6 @@ class SetSelectionHandler(object):
             if world_session.player_mgr and world_session.player_mgr.current_selection != guid:
                 world_session.player_mgr.send_melee_attack_stop(guid)
                 world_session.player_mgr.set_current_selection(guid)
+                world_session.player_mgr.set_dirty()
 
         return 0

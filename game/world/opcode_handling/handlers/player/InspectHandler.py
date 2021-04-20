@@ -21,6 +21,7 @@ class InspectHandler(object):
 
                 world_session.player_mgr.set_current_selection(guid)
                 world_session.player_mgr.set_current_target(guid)
+                world_session.player_mgr.set_dirty()
 
                 data = pack('<Q', world_session.player_mgr.guid)
                 inspected_player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_INSPECT, data))

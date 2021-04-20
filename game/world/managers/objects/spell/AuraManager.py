@@ -41,18 +41,21 @@ class AuraEffectHandler:
         if remove or aura.spell_effect.misc_value not in SHAPESHIFT_MODEL_IDS:
             aura.target.reset_display_id()
             aura.target.reset_scale()
+            aura.target.set_dirty()
             return
 
         shapeshift_display_info = SHAPESHIFT_MODEL_IDS[aura.spell_effect.misc_value]
         display_index = 1 if aura.target.faction == Factions.HORDE else 0
         model_scale = shapeshift_display_info[2]
-        aura.target.set_display_id(shapeshift_display_info[display_index], force_update=False)
+        aura.target.set_display_id(shapeshift_display_info[display_index])
         aura.target.set_scale(model_scale)
+        aura.target.set_dirty()
 
     @staticmethod
     def handle_mounted(aura, remove):
         if remove:
             aura.target.unmount()
+            aura.target.set_dirty()
         elif aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
             aura.target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED)
             aura.target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED)

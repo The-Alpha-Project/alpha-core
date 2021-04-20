@@ -59,7 +59,8 @@ class DuelManager(object):
 
             for entry in duel_manager.players.values():
                 entry.player.duel_manager = duel_manager
-                duel_manager.build_update(entry.player, set_dirty=True)
+                duel_manager.build_update(entry.player)
+                entry.player.set_dirty()
 
             return 1
         else:
@@ -81,7 +82,8 @@ class DuelManager(object):
         self.duel_state = DuelState.DUEL_STATE_STARTED
         for entry in self.players.values():
             entry.duel_status = DuelStatus.DUEL_STATUS_INBOUNDS
-            self.build_update(entry.player, set_dirty=True)
+            self.build_update(entry.player)
+            entry.player.set_dirty()
 
     def force_duel_end(self, player_mgr, retreat=True):
         if player_mgr.guid in self.players:
@@ -116,8 +118,9 @@ class DuelManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT)
         for entry in self.players.values():
             entry.player.session.enqueue_packet(packet)
-            entry.player.leave_combat(force_update=False)
-            self.build_update(entry.player, set_dirty=True)
+            entry.player.leave_combat()
+            self.build_update(entry.player)
+            entry.player.set_dirty()
 
         # Clean up arbiter go and cleanup.
         GridManager.remove_object(self.arbiter)
@@ -174,14 +177,11 @@ class DuelManager(object):
             self.boundary_check()
             self.elapsed = 0
 
-    def build_update(self, player_mgr, set_dirty=False):
+    def build_update(self, player_mgr):
         arbiter_guid = self.arbiter.guid if self.duel_state == DuelState.DUEL_STATE_STARTED else 0
         team_id = self.team_ids[player_mgr.guid] if self.duel_state != DuelState.DUEL_STATE_FINISHED else 0
         player_mgr.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, arbiter_guid)
         player_mgr.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, team_id)
-
-        if set_dirty:
-            player_mgr.set_dirty()
 
     @staticmethod
     def create_arbiter(requester, target, arbiter_entry):

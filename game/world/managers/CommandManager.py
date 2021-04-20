@@ -316,6 +316,7 @@ class CommandManager(object):
             mount_display_id = int(args)
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             player_mgr.mount(mount_display_id)
+            player_mgr.set_dirty()
             return 0, ''
         except ValueError:
             return -1, 'please specify a valid mount display id.'
@@ -324,6 +325,7 @@ class CommandManager(object):
     def unmount(world_session, args):
         player_mgr = CommandManager._target_or_self(world_session, only_players=True)
         player_mgr.unmount()
+        player_mgr.set_dirty()
         return 0, ''
 
     @staticmethod
@@ -332,6 +334,7 @@ class CommandManager(object):
             display_id = int(args)
             unit = CommandManager._target_or_self(world_session)
             unit.set_display_id(display_id)
+            unit.set_dirty()
             return 0, ''
         except ValueError:
             return -1, 'please specify a valid display id.'
@@ -340,6 +343,7 @@ class CommandManager(object):
     def demorph(world_session, args):
         unit = CommandManager._target_or_self(world_session)
         unit.reset_display_id()
+        unit.set_dirty()
         return 0, ''
 
     @staticmethod
@@ -363,7 +367,7 @@ class CommandManager(object):
         if creature:
             return 0, f'[{creature.creature_template.name}] - Guid: {creature.guid & ~HighGuid.HIGHGUID_UNIT}, ' \
                       f'Entry: {creature.creature_template.entry}, ' \
-                      f'Display ID: {creature.display_id}, ' \
+                      f'Display ID: {creature.current_display_id}, ' \
                       f'X: {creature.location.x}, ' \
                       f'Y: {creature.location.y}, ' \
                       f'Z: {creature.location.z}, ' \
