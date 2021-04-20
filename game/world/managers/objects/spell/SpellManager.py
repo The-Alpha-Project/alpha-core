@@ -477,7 +477,7 @@ class SpellManager(object):
                 casting_spell.spell_target_mask]
 
         signature = "<QQIHiH"  # TODO
-        if casting_spell.initial_target_unit:
+        if casting_spell.initial_target_unit and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written
             data.append(casting_spell.initial_target_unit.guid)
             signature += "Q"
 
