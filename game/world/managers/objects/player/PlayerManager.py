@@ -501,7 +501,7 @@ class PlayerManager(UnitManager):
                 # if not enemy.loot_manager.has_loot():
                 #    self.send_loot_release(enemy.guid)
 
-    def send_loot_release(self, guid, by_pass_checks=False):
+    def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
@@ -510,19 +510,17 @@ class PlayerManager(UnitManager):
 
         # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
         enemy = GridManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
-
-        if not by_pass_checks:
-            if enemy and enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
+        if enemy and enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
+            enemy.killed_by = None
+        # If in party, check if this player has rights to release the loot for FFA
+        elif enemy and enemy.killed_by and enemy.killed_by.group_manager:
+            if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
+                if not enemy.loot_manager.has_loot():  # Flush looters for this enemy.
+                    enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
                 enemy.killed_by = None
-            # If in party, check if this player has rights to release the loot for FFA
-            elif enemy and enemy.killed_by and enemy.killed_by.group_manager:
-                if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
-                    if not enemy.loot_manager.has_loot():  # Flush looters for this enemy.
-                        enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
-                    enemy.killed_by = None
 
-            if enemy and not enemy.loot_manager.has_loot():
-                enemy.set_lootable(False)
+        if enemy and not enemy.loot_manager.has_loot():
+            enemy.set_lootable(False)
 
         self.set_dirty()
 
@@ -759,26 +757,6 @@ class PlayerManager(UnitManager):
     def set_current_selection(self, guid, force_update=True):
         self.current_selection = guid
         self.set_uint64(PlayerFields.PLAYER_SELECTION, guid)
-
-        # Completely circumvent CMSG_LOOT, client has a bug in which players gets stuck while trying to loot a corpse,
-        # after this happens, clients will no longer trigger any subsequent CMSG_LOOT message, leaving us with no way
-        # to know he got stuck. We can easily manage CMSG_LOOT in this handler, and it will always trigger.
-        # Blizzard had this issue too back in the day and they solved it (most likely) by sending loot release
-        # every 15 seconds:
-        #     "loot bug" partially fixed (should only get stuck for 15 seconds max now, no more re-logging needed).
-        #     https://wowpedia.fandom.com/wiki/Patch_0.5.3
-        # TODO: Investigate if there's a better fix (or hackfix) for this issue.
-        enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection)
-        if enemy and enemy.loot_manager.has_loot() and self.send_loot(enemy):
-            self.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
-            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-            self.set_dirty()
-        # If the looter had no permissions to loot, set its selection to 0 and send loot_release,
-        # we need to change the selection so if he clicks again (stubborn), this handler triggers once again.
-        elif enemy and enemy.loot_manager.has_loot():
-            self.current_selection = 0
-            self.set_uint64(PlayerFields.PLAYER_SELECTION, 0)
-            self.send_loot_release(enemy.guid, by_pass_checks=True)
 
         if force_update:
             self.set_dirty()
