@@ -42,7 +42,7 @@ class AuraEffectHandler:
             return
 
         shapeshift_display_info = SHAPESHIFT_MODEL_IDS[aura.spell_effect.misc_value]
-        display_index = 0 if aura.target.faction == Factions.HORDE else 1
+        display_index = 1 if aura.target.faction == Factions.HORDE else 0
         model_scale = shapeshift_display_info[2]
         aura.target.set_display_id(shapeshift_display_info[display_index], force_update=False)
         aura.target.set_scale(model_scale)
@@ -63,6 +63,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted
 }
 
+# Alliance / Default display_id, Horde display_id, Scale
 SHAPESHIFT_MODEL_IDS = {
     ShapeshiftForms.SHAPESHIFT_FORM_CAT: (892, 892, 0.8),
     ShapeshiftForms.SHAPESHIFT_FORM_TREE: (864, 864, 1.0),
