@@ -486,7 +486,6 @@ class SpellManager(object):
 
         GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
                                      include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
-        # self.unit_mgr.session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data))
 
     def send_spell_go(self, casting_spell):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,
