@@ -6,7 +6,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.GameObjectManager import GameObjectManager
 from utils.constants.DuelCodes import *
 from utils.constants.SpellCodes import SpellCheckCastResult
-from utils.constants.UpdateFields import PlayerFields
+from utils.constants.UpdateFields import PlayerFields, UnitFields
 
 
 class PlayerDuelInformation(object):
@@ -19,7 +19,7 @@ class PlayerDuelInformation(object):
 
 
 # TODO: Need to figure a way to make both players hostile to each other while duel is ongoing.
-# TODO: Missing checks before requesting a duel, check if already in duel, faction, etc.
+# TODO: Missing checks before requesting a duel, is the map allow duel, etc.
 class DuelManager(object):
     ARBITERS_GUID = 4000000  # TODO: Hackfix, We need a way to dynamically generate valid guids for go's
     BOUNDARY_RADIUS = 50
@@ -32,6 +32,7 @@ class DuelManager(object):
         self.duel_state = DuelState.DUEL_STATE_FINISHED
         self.arbiter = arbiter
         self.elapsed = 0  # Used to control 1 update per second based on global tick rate.
+        self.map = player1.map_
 
     @staticmethod
     def request_duel(requester, target, arbiter_entry):
@@ -116,6 +117,7 @@ class DuelManager(object):
         for entry in self.players.values():
             entry.player.session.enqueue_packet(packet)
             entry.player.leave_combat(force_update=False)
+            self.build_update(entry.player, set_dirty=True)
 
         # Clean up arbiter go and cleanup.
         GridManager.remove_object(self.arbiter)
@@ -130,12 +132,17 @@ class DuelManager(object):
         self.players.clear()
         self.team_ids.clear()
         self.arbiter = None
+        self.map = None
 
     def player_involved(self, player_mgr):
         return self.players and player_mgr.guid in self.players
 
     def boundary_check(self):
         for entry in list(self.players.values()):  # Prevent mutability
+            # Check if player switched maps, if he did, end duel as retreat.
+            if entry.player.map_ != self.map:
+                self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_FINISHED, entry.target)
+                break
             dist = self.arbiter.location.distance(entry.player.location)
             if dist >= DuelManager.BOUNDARY_RADIUS:
                 if entry.duel_status == DuelStatus.DUEL_STATUS_OUTOFBOUNDS:

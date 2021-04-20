@@ -1,3 +1,4 @@
+import multiprocessing
 import time
 from struct import unpack
 
@@ -53,7 +54,7 @@ class PlayerManager(UnitManager):
         super().__init__(**kwargs)
 
         self.session = session
-        self.is_teleporting = False
+        self.update_lock = multiprocessing.Lock()
         self.teleport_destination = None
         self.teleport_destination_map = None
         self.objects_in_range = dict()
@@ -341,10 +342,9 @@ class PlayerManager(UnitManager):
         if not DbcDatabaseManager.map_get_by_id(map_):
             return False
 
-        self.is_teleporting = True
-
-        if self.duel_manager:
-            self.duel_manager.force_duel_end(self)
+        # From here on, update is blocked until player is teleported no new location.
+        # If another teleport triggers from a client message, then it will proceed once this TP is done.
+        self.update_lock.acquire(block=True)
 
         # New destination we will use when we receive an acknowledge message from client.
         self.teleport_destination_map = map_
@@ -410,14 +410,16 @@ class PlayerManager(UnitManager):
         GridManager.update_object(self)
 
         self.reset_fields()
-        self.is_teleporting = False
+        self.update_lock.release()
         self.teleport_destination_map = None
         self.teleport_destination = None
 
-        # Update our friends and group info after a teleport
+        # Update managers.
+        self.friends_manager.send_update_to_friends()
         if self.group_manager:
             self.group_manager.send_update()
-        self.friends_manager.send_update_to_friends()
+        if self.duel_manager:
+            self.duel_manager.force_duel_end(self)
 
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
@@ -1056,13 +1058,12 @@ class PlayerManager(UnitManager):
 
     # override
     def update(self):
-        # Prevent updates while teleporting
-        if self.is_teleporting:
-            return
-
         # Prevent updates if not online
         if not self.online:
             return
+
+        # Prevent updates while teleporting
+        self.update_lock.acquire(block=True)
 
         now = time.time()
         if now > self.last_tick > 0:
@@ -1099,8 +1100,9 @@ class PlayerManager(UnitManager):
             self.send_update_surrounding(self.generate_proper_update_packet())
             GridManager.update_object(self)
             self.reset_fields()
-
             self.set_dirty(is_dirty=False, dirty_inventory=False)
+
+        self.update_lock.release()
 
     def send_update_self(self, update_packet=None, create=False, force_inventory_update=False, reset_fields=True):
         if not create and (self.dirty_inventory or force_inventory_update):
