@@ -117,7 +117,7 @@ class ObjectManager(object):
         self.current_display_id = display_id
 
     def reset_display_id(self):
-        self.current_display_id = self.native_display_id
+        self.set_display_id(self.native_display_id)
 
     def reset_fields(self):
         # Reset updated fields
