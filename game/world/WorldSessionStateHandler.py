@@ -70,4 +70,5 @@ class WorldSessionStateHandler(object):
     def update_players():
         for session in WORLD_SESSIONS:
             if session.player_mgr and session.player_mgr.online:
-                session.player_mgr.update()
+                if not session.player_mgr.update_lock.locked:
+                    session.player_mgr.update()

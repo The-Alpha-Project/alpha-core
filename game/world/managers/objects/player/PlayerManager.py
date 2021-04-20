@@ -1,4 +1,4 @@
-import multiprocessing
+import threading
 import time
 from struct import unpack
 
@@ -54,7 +54,7 @@ class PlayerManager(UnitManager):
         super().__init__(**kwargs)
 
         self.session = session
-        self.update_lock = multiprocessing.Lock()
+        self.update_lock = threading.Lock()
         self.teleport_destination = None
         self.teleport_destination_map = None
         self.objects_in_range = dict()
@@ -344,7 +344,7 @@ class PlayerManager(UnitManager):
 
         # From here on, the update is blocked until the player teleports to a new location.
         # If another teleport triggers from a client message, then it will proceed once this TP is done.
-        self.update_lock.acquire(block=True)
+        self.update_lock.acquire(blocking=True)
 
         # New destination we will use when we receive an acknowledge message from client.
         self.teleport_destination_map = map_
@@ -1063,7 +1063,7 @@ class PlayerManager(UnitManager):
             return
 
         # Prevent updates while teleporting
-        self.update_lock.acquire(block=True)
+        self.update_lock.acquire(blocking=True)
 
         now = time.time()
         if now > self.last_tick > 0:
