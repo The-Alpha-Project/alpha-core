@@ -6,7 +6,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.GameObjectManager import GameObjectManager
 from utils.constants.DuelCodes import *
 from utils.constants.SpellCodes import SpellCheckCastResult
-from utils.constants.UpdateFields import PlayerFields
+from utils.constants.UpdateFields import PlayerFields, UnitFields
 
 
 class PlayerDuelInformation(object):
@@ -32,6 +32,8 @@ class DuelManager(object):
         self.duel_state = DuelState.DUEL_STATE_FINISHED
         self.arbiter = arbiter
         self.elapsed = 0  # Used to control 1 update per second based on global tick rate.
+        self.map = player1.map_
+        self.faction = player1.faction
 
     @staticmethod
     def request_duel(requester, target, arbiter_entry):
@@ -116,6 +118,7 @@ class DuelManager(object):
         for entry in self.players.values():
             entry.player.session.enqueue_packet(packet)
             entry.player.leave_combat(force_update=False)
+            self.build_update(entry.player, set_dirty=True)
 
         # Clean up arbiter go and cleanup.
         GridManager.remove_object(self.arbiter)
@@ -130,12 +133,18 @@ class DuelManager(object):
         self.players.clear()
         self.team_ids.clear()
         self.arbiter = None
+        self.faction = None
+        self.map = None
 
     def player_involved(self, player_mgr):
         return self.players and player_mgr.guid in self.players
 
     def boundary_check(self):
         for entry in list(self.players.values()):  # Prevent mutability
+            # Check if player switched maps, if he did, end duel as retreat.
+            if entry.player.map_ != self.map:
+                self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_FINISHED, entry.target)
+                break
             dist = self.arbiter.location.distance(entry.player.location)
             if dist >= DuelManager.BOUNDARY_RADIUS:
                 if entry.duel_status == DuelStatus.DUEL_STATUS_OUTOFBOUNDS:
@@ -172,6 +181,11 @@ class DuelManager(object):
         team_id = self.team_ids[player_mgr.guid] if self.duel_state != DuelState.DUEL_STATE_FINISHED else 0
         player_mgr.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, arbiter_guid)
         player_mgr.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, team_id)
+
+        # Temporal Hackfix in order to allow players to duel.
+        if self.players[player_mgr.guid].is_target:
+            player_mgr.faction = self.faction if self.duel_state != DuelState.DUEL_STATE_STARTED else 128 # Enemy
+            player_mgr.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, player_mgr.faction)
 
         if set_dirty:
             player_mgr.set_dirty()
