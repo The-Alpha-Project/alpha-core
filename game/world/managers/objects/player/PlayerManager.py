@@ -1,4 +1,3 @@
-import threading
 import time
 from struct import unpack
 
@@ -54,7 +53,7 @@ class PlayerManager(UnitManager):
         super().__init__(**kwargs)
 
         self.session = session
-        self.update_lock = threading.Lock()
+        self.update_lock = False
         self.teleport_destination = None
         self.teleport_destination_map = None
         self.objects_in_range = dict()
@@ -344,7 +343,7 @@ class PlayerManager(UnitManager):
 
         # From here on, the update is blocked until the player teleports to a new location.
         # If another teleport triggers from a client message, then it will proceed once this TP is done.
-        self.update_lock.acquire(blocking=True)
+        self.update_lock = True
 
         # New destination we will use when we receive an acknowledge message from client.
         self.teleport_destination_map = map_
@@ -410,7 +409,7 @@ class PlayerManager(UnitManager):
         GridManager.update_object(self)
 
         self.reset_fields()
-        self.update_lock.release()
+        self.update_lock = False
         self.teleport_destination_map = None
         self.teleport_destination = None
 
@@ -1058,7 +1057,7 @@ class PlayerManager(UnitManager):
             return
 
         # Prevent updates while teleporting
-        self.update_lock.acquire(blocking=True)
+        self.update_lock = True
 
         now = time.time()
         if now > self.last_tick > 0:
@@ -1097,7 +1096,7 @@ class PlayerManager(UnitManager):
             self.reset_fields()
             self.set_dirty(is_dirty=False, dirty_inventory=False)
 
-        self.update_lock.release()
+        self.update_lock = False
 
     def send_update_self(self, update_packet=None, create=False, force_inventory_update=False, reset_fields=True):
         if not create and (self.dirty_inventory or force_inventory_update):
