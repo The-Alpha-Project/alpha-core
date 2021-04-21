@@ -518,6 +518,7 @@ class PlayerManager(UnitManager):
 
         if enemy and not enemy.loot_manager.has_loot():
             enemy.set_lootable(False)
+            enemy.set_dirty()
 
         self.set_dirty()
 
