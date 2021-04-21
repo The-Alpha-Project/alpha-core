@@ -716,7 +716,7 @@ class UnitManager(ObjectManager):
         self.set_stand_state(StandState.UNIT_STANDING)
 
     # override
-    def on_grid_change(self):
+    def on_cell_change(self):
         pass
 
     # override

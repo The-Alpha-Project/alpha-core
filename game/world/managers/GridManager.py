@@ -1,91 +1,91 @@
 import math
 
 from game.world.managers.abstractions.Vector import Vector
+from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes
 
 TOLERANCE = 0.00001
-GRID_SIZE = 200
+CELL_SIZE = config.Server.Settings.cell_size
 
-GRIDS = dict()
+CELLS = dict()
 
 
 class GridManager(object):
-
-    ACTIVE_GRID_KEYS = []
+    ACTIVE_CELL_KEYS = []
 
     @staticmethod
     def add_or_get(world_obj, store=False):
         min_x, min_y, max_x, max_y = GridManager.generate_coord_data(world_obj.location)
-        grid_coords = GridManager.get_grid_key(world_obj.location, world_obj.map_)
-        if grid_coords in GRIDS:
-            grid = GRIDS[grid_coords]
+        cell_coords = GridManager.get_cell_key(world_obj.location, world_obj.map_)
+        if cell_coords in CELLS:
+            cell = CELLS[cell_coords]
         else:
-            grid = Grid(min_x, min_y, max_x, max_y, world_obj.map_)
-            GRIDS[grid.key] = grid
+            cell = Cell(min_x, min_y, max_x, max_y, world_obj.map_)
+            CELLS[cell.key] = cell
 
         if store:
-            grid.add(world_obj)
+            cell.add(world_obj)
 
-        return grid
+        return cell
 
     @staticmethod
     def update_object(world_obj):
-        grid_coords = GridManager.get_grid_key(world_obj.location, world_obj.map_)
+        cell_coords = GridManager.get_cell_key(world_obj.location, world_obj.map_)
 
-        if grid_coords != world_obj.current_grid:
-            if world_obj.current_grid in GRIDS:
-                grid = GRIDS[world_obj.current_grid]
-                grid.remove(world_obj)
+        if cell_coords != world_obj.current_cell:
+            if world_obj.current_cell in CELLS:
+                cell = CELLS[world_obj.current_cell]
+                cell.remove(world_obj)
 
-            if grid_coords in GRIDS:
-                GRIDS[grid_coords].add(world_obj)
+            if cell_coords in CELLS:
+                CELLS[cell_coords].add(world_obj)
             else:
                 GridManager.add_or_get(world_obj, store=True)
 
-            world_obj.on_grid_change()
+            world_obj.on_cell_change()
 
     @staticmethod
     def remove_object(world_obj):
-        if world_obj.current_grid in GRIDS:
-            grid = GRIDS[world_obj.current_grid]
-            grid.remove(world_obj)
-            grid.send_all_in_range(world_obj.get_destroy_packet(), source=world_obj, range_=GRID_SIZE)
+        if world_obj.current_cell in CELLS:
+            cell = CELLS[world_obj.current_cell]
+            cell.remove(world_obj)
+            cell.send_all_in_range(world_obj.get_destroy_packet(), source=world_obj, range_=CELL_SIZE)
 
     @staticmethod
     def get_surrounding(world_obj, x_s=-1, x_m=1, y_s=-1, y_m=1):
         vector = world_obj.location
-        near_grids = set()
+        near_cells = set()
 
         for x in range(x_s, x_m + 1):
             for y in range(y_s, y_m + 1):
-                grid_coords = GridManager.get_grid_key(
-                    Vector(vector.x + (x * GRID_SIZE), vector.y + (y * GRID_SIZE), 0),
+                cell_coords = GridManager.get_cell_key(
+                    Vector(vector.x + (x * CELL_SIZE), vector.y + (y * CELL_SIZE), 0),
                     world_obj.map_)
-                if grid_coords in GRIDS:
-                    near_grids.add(GRIDS[grid_coords])
+                if cell_coords in CELLS:
+                    near_cells.add(CELLS[cell_coords])
 
-        return near_grids
+        return near_cells
 
     @staticmethod
     def send_surrounding(packet, world_obj, include_self=True, exclude=None, use_ignore=False):
-        for grid in GridManager.get_surrounding(world_obj):
-            grid.send_all(packet, source=None if include_self else world_obj, exclude=exclude, use_ignore=use_ignore)
+        for cell in GridManager.get_surrounding(world_obj):
+            cell.send_all(packet, source=None if include_self else world_obj, exclude=exclude, use_ignore=use_ignore)
 
     @staticmethod
     def send_surrounding_in_range(packet, world_obj, range_, include_self=True, exclude=None, use_ignore=False):
-        for grid in GridManager.get_surrounding(world_obj):
-            grid.send_all_in_range(packet, range_, world_obj, include_self, exclude, use_ignore)
+        for cell in GridManager.get_surrounding(world_obj):
+            cell.send_all_in_range(packet, range_, world_obj, include_self, exclude, use_ignore)
 
     @staticmethod
     def get_surrounding_objects(world_obj, object_types):
         surrounding_objects = [{}, {}, {}]
-        for grid in GridManager.get_surrounding(world_obj):
+        for cell in GridManager.get_surrounding(world_obj):
             if ObjectTypes.TYPE_PLAYER in object_types:
-                surrounding_objects[0] = {**surrounding_objects[0], **grid.players}
+                surrounding_objects[0] = {**surrounding_objects[0], **cell.players}
             if ObjectTypes.TYPE_UNIT in object_types:
-                surrounding_objects[1] = {**surrounding_objects[1], **grid.creatures}
+                surrounding_objects[1] = {**surrounding_objects[1], **cell.creatures}
             if ObjectTypes.TYPE_GAMEOBJECT in object_types:
-                surrounding_objects[2] = {**surrounding_objects[2], **grid.gameobjects}
+                surrounding_objects[2] = {**surrounding_objects[2], **cell.gameobjects}
 
         return surrounding_objects
 
@@ -137,43 +137,43 @@ class GridManager(object):
 
     @staticmethod
     def generate_coord_data(vector):
-        mod_x = vector.x / GRID_SIZE
-        mod_y = vector.y / GRID_SIZE
+        mod_x = vector.x / CELL_SIZE
+        mod_y = vector.y / CELL_SIZE
 
-        max_x = math.ceil(mod_x) * GRID_SIZE - TOLERANCE
-        max_y = math.ceil(mod_y) * GRID_SIZE - TOLERANCE
-        min_x = max_x - GRID_SIZE + TOLERANCE
-        min_y = max_y - GRID_SIZE + TOLERANCE
+        max_x = math.ceil(mod_x) * CELL_SIZE - TOLERANCE
+        max_y = math.ceil(mod_y) * CELL_SIZE - TOLERANCE
+        min_x = max_x - CELL_SIZE + TOLERANCE
+        min_y = max_y - CELL_SIZE + TOLERANCE
 
         return min_x, min_y, max_x, max_y
 
     @staticmethod
-    def get_grid_key(vector, map_):
+    def get_cell_key(vector, map_):
         min_x, min_y, max_x, max_y = GridManager.generate_coord_data(vector)
         key = f'{round(min_x, 5)}:{round(min_y, 5)}:{round(max_x, 5)}:{round(max_y, 5)}:{map_}'
 
         return key
 
     @staticmethod
-    def get_grids():
-        return GRIDS
+    def get_cells():
+        return CELLS
 
     @staticmethod
     def update_creatures():
-        for key in GridManager.ACTIVE_GRID_KEYS:
-            grid = GRIDS[key]
-            for guid, creature in list(grid.creatures.items()):
+        for key in GridManager.ACTIVE_CELL_KEYS:
+            cell = CELLS[key]
+            for guid, creature in list(cell.creatures.items()):
                 creature.update()
 
     @staticmethod
     def update_gameobjects():
-        for key in GridManager.ACTIVE_GRID_KEYS:
-            grid = GRIDS[key]
-            for guid, gameobject in list(grid.gameobjects.items()):
+        for key in GridManager.ACTIVE_CELL_KEYS:
+            cell = CELLS[key]
+            for guid, gameobject in list(cell.gameobjects.items()):
                 gameobject.update()
 
 
-class Grid(object):
+class Cell(object):
     def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, gameobjects=None,
                  creatures=None, players=None, key=''):
         self.min_x = min_x
@@ -212,22 +212,22 @@ class Grid(object):
     def add(self, world_obj):
         if world_obj.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players[world_obj.guid] = world_obj
-            # Add Grid key to the active grid list
-            if self.key not in GridManager.ACTIVE_GRID_KEYS:
-                GridManager.ACTIVE_GRID_KEYS.append(self.key)
+            # Add Cell key to the active cell list
+            if self.key not in GridManager.ACTIVE_CELL_KEYS:
+                GridManager.ACTIVE_CELL_KEYS.append(self.key)
         elif world_obj.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures[world_obj.guid] = world_obj
         elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects[world_obj.guid] = world_obj
 
-        world_obj.current_grid = self.key
+        world_obj.current_cell = self.key
 
     def remove(self, world_obj):
         if world_obj.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players.pop(world_obj.guid, None)
-            # If no players left on Grid, remove its key from the active grid list
-            if len(self.players) == 0 and self.key in GridManager.ACTIVE_GRID_KEYS:
-                GridManager.ACTIVE_GRID_KEYS.remove(self.key)
+            # If no players left on Cell, remove its key from the active cell list
+            if len(self.players) == 0 and self.key in GridManager.ACTIVE_CELL_KEYS:
+                GridManager.ACTIVE_CELL_KEYS.remove(self.key)
         elif world_obj.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures.pop(world_obj.guid, None)
         elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:

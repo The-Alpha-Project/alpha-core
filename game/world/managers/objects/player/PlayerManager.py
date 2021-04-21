@@ -1165,7 +1165,7 @@ class PlayerManager(UnitManager):
         self.teleport_deathbind()
 
     # override
-    def on_grid_change(self):
+    def on_cell_change(self):
         self.update_surrounding_on_me()
         self.quest_manager.update_surrounding_quest_status()
 
