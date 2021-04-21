@@ -83,9 +83,8 @@ class WorldServerSessionHandler(object):
 
     def process_incoming(self):
         while self.keep_alive:
-            data = self.incoming_pending.get(block=True, timeout=None)
-            if data:  # Can be None if we shutdown the thread.
-                reader = PacketReader(data)
+            reader = self.incoming_pending.get(block=True, timeout=None)
+            if reader:  # Can be None if we shutdown the thread.
                 if reader.opcode:
                     handler, res = Definitions.get_handler_from_packet(self, reader.opcode)
                     if handler:
@@ -128,15 +127,42 @@ class WorldServerSessionHandler(object):
 
     def receive(self, sck):
         try:
-            data = sck.recv(4096)
-            if len(data) > 0:
-                self.incoming_pending.put(data)
-                return 0
+            reader = self.receive_client_message(sck)
+            if reader:
+                self.incoming_pending.put(reader)
             else:
                 return -1
+            return 0
         except OSError:
             self.disconnect()
             return -1
+
+    def receive_client_message(self, sck):
+        header_bytes = self.receive_all(sck, 6)
+        if not header_bytes:
+            return None
+
+        reader = PacketReader(header_bytes)
+        reader.data = self.receive_all(sck, int(reader.size))
+        return reader
+
+    def receive_all(self, sck, n):
+        # Try to fill at once.
+        received = sck.recv(n)
+        if not received:
+            return None
+        # We got what we expect, return buffer.
+        if received == n:
+            return received
+        # If we got incomplete data, request missing payload.
+        buffer = bytearray(received)
+        while len(buffer) < n:
+            Logger.warning('Got incomplete data from client, requesting missing payload.')
+            received = sck.recv(n - len(buffer))
+            if not received:
+                return None
+            buffer.extend(received) # Keep appending to our buffer until we're done.
+        return buffer
 
     @staticmethod
     def schedule_updates():
