@@ -7,7 +7,7 @@ class PacketReader(object):
     def __init__(self, data):
         if len(data) > 5:
             size, opcode = unpack(
-                '<HI', data[0:6]
+                '<HI', data[:6]
             )
 
             self.size = (size / 0x100) - 4

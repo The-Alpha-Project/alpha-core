@@ -93,7 +93,9 @@ class WorldServerSessionHandler(object):
                             self.disconnect()
                             break
                     elif res == -1:
-                        Logger.warning(f'[{self.client_address[0]}] Received unknown data: {data}')
+                        Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
+            else:
+                self.disconnect()
 
     def disconnect(self):
         try:
@@ -138,7 +140,7 @@ class WorldServerSessionHandler(object):
             return -1
 
     def receive_client_message(self, sck):
-        header_bytes = self.receive_all(sck, 6)
+        header_bytes = self.receive_all(sck, 6)  # 6 = header size
         if not header_bytes:
             return None
 
@@ -146,22 +148,22 @@ class WorldServerSessionHandler(object):
         reader.data = self.receive_all(sck, int(reader.size))
         return reader
 
-    def receive_all(self, sck, n):
+    def receive_all(self, sck, expected_size):
         # Try to fill at once.
-        received = sck.recv(n)
+        received = sck.recv(expected_size)
         if not received:
             return None
         # We got what we expect, return buffer.
-        if received == n:
+        if received == expected_size:
             return received
         # If we got incomplete data, request missing payload.
         buffer = bytearray(received)
-        while len(buffer) < n:
+        while len(buffer) < expected_size:
             Logger.warning('Got incomplete data from client, requesting missing payload.')
-            received = sck.recv(n - len(buffer))
+            received = sck.recv(expected_size - len(buffer))
             if not received:
                 return None
-            buffer.extend(received) # Keep appending to our buffer until we're done.
+            buffer.extend(received)  # Keep appending to our buffer until we're done.
         return buffer
 
     @staticmethod
