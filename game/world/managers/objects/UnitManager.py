@@ -539,8 +539,6 @@ class UnitManager(ObjectManager):
             return False
 
         self.mount(creature_template.display_id1)
-        self.set_dirty()
-
         return True
 
     def mount(self, mount_display_id):
