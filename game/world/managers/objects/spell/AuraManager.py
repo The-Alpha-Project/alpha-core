@@ -248,6 +248,5 @@ class AuraManager:
 
         for i in range(min_index, max_index):
             if i not in self.active_auras:
-                print(i)
                 return i
         return min_index  # No aura slots free, return first possible. TODO Some kind of priority system?
