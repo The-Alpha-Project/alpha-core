@@ -53,6 +53,9 @@ class CastingSpell(object):
     def is_ranged(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_RANGED == SpellAttributes.SPELL_ATTR_RANGED
 
+    def is_passive(self):
+        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE == SpellAttributes.SPELL_ATTR_PASSIVE
+
     def trigger_cooldown_on_remove(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE == SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE
 
@@ -112,6 +115,7 @@ class SpellEffect(object):
     item_type: int
     misc_value: int
     trigger_spell: int
+    effect_index: int
 
     def __init__(self, spell, index):
         if index == 1:
@@ -142,6 +146,8 @@ class SpellEffect(object):
         self.item_type = spell.EffectItemType_1
         self.misc_value = spell.EffectMiscValue_1
         self.trigger_spell = spell.EffectTriggerSpell_1
+
+        self.effect_index = 1
         
     def load_second(self, spell):
         self.effect_type = spell.Effect_2
@@ -161,6 +167,8 @@ class SpellEffect(object):
         self.misc_value = spell.EffectMiscValue_2
         self.trigger_spell = spell.EffectTriggerSpell_2
 
+        self.effect_index = 2
+
     def load_third(self, spell):
         self.effect_type = spell.Effect_3
         self.die_sides = spell.EffectDieSides_3
@@ -178,6 +186,8 @@ class SpellEffect(object):
         self.item_type = spell.EffectItemType_3
         self.misc_value = spell.EffectMiscValue_3
         self.trigger_spell = spell.EffectTriggerSpell_3
+
+        self.effect_index = 3
     
 
 class SpellEffectHandler(object):
