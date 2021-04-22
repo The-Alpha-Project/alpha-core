@@ -179,9 +179,9 @@ class ItemManager(ObjectManager):
     def generate_starting_item(owner, entry, last_bag_slot):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         if item_template:
-            if item_template.inventory_type == 24:  # Ammo
-                count = 100
-                bag = 19
+            if item_template.inventory_type == InventoryTypes.AMMO:
+                count = 100  # Start with 100 arrows / bullets
+                bag = InventorySlots.SLOT_BAG1  # Quiver / Pouch
                 slot = 0
             else:
                 slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
