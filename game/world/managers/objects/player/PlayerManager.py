@@ -416,7 +416,7 @@ class PlayerManager(UnitManager):
 
         # Update managers.
         self.friends_manager.send_update_to_friends()
-        if self.group_manager and self.group_manager.is_valid_party():
+        if self.group_manager and self.group_manager.is_party_formed():
             self.group_manager.send_update()
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
@@ -473,7 +473,7 @@ class PlayerManager(UnitManager):
         if self.current_selection > 0:
             enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection)
             if enemy and enemy.loot_manager.has_money():
-                if self.group_manager and self.group_manager.is_valid_party():
+                if self.group_manager and self.group_manager.is_party_formed():
                     self.group_manager.reward_group_money(self, enemy)
                 else:
                     self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))

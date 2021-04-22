@@ -21,9 +21,9 @@ class GroupManager(object):
         self.allowed_looters = {}
         self._last_looter = None  # For Round Robin, cycle will start at leader.
 
-    # When player sends an invite, a GroupManager is created, that doesnt mean the party actually exist until
+    # When player sends an invite, a GroupManager is created, that doesnt mean the party actually exists until
     # the other player accepts the invitation.
-    def is_valid_party(self):
+    def is_party_formed(self):
         return len(self.members) > 1
 
     def try_add_member(self, player_mgr, invite):
@@ -314,7 +314,7 @@ class GroupManager(object):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_IGNORING_YOU_S)
             return
 
-        if target_player_mgr.group_manager and target_player_mgr.group_manager.is_valid_party():
+        if target_player_mgr.group_manager and target_player_mgr.group_manager.is_party_formed():
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_ALREADY_IN_GROUP_S)
             return
 
