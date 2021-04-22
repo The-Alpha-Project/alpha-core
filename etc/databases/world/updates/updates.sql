@@ -114,6 +114,18 @@ begin not atomic
 
         UPDATE `creature_template` SET `inhabit_type` = 4 WHERE `entry` = 8446;
 
+        -- Shadowforge Commander shouldn't drop Blue Pearls (it was obviously an error since the Giant Clam gameobject has the
+        -- same entry as this NPC).
+        DELETE FROM `creature_loot_template` WHERE `item` = 4611 AND `entry` = 2744;
+
+        -- Fix loot template of Giant Clam gameobject
+        -- https://www.youtube.com/watch?v=iujWLpMG2s4
+        -- https://classic.wowhead.com/object=2744/giant-clam#contains
+        UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance` = 100, `groupid` = 1 WHERE `entry` = 2264 AND `item` = 4611;
+        UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance` = 35 WHERE `entry` = 2264 AND `item` = 4655;
+
+        UPDATE `quest_template` SET `RequestItemsText` = 'Ah, yes. Another traveler seeking something from the dwarves.$B$B$G Sir:Ma''am;, I''m truly sorry, but I''ve no time to answer meaningless questions right now.' WHERE `entry` = 724;
+
         insert into applied_updates values ('230420211');
     end if;
 end $
