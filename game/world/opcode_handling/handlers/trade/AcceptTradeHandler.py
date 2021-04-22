@@ -62,19 +62,16 @@ class AcceptTradeHandler(object):
                                               count=other_player_item.item_instance.stackcount,
                                               show_item_get=False)
 
-                    other_player.inventory.mark_as_removed(other_player_item)
-                    other_player.session.enqueue_packet(other_player_item.get_destroy_packet())
-                    other_player.inventory.get_container(other_player_item.item_instance.bag).remove_item(
-                        other_player_item)
+                    other_player.inventory.remove_item(other_player_item.item_instance.bag,
+                                                       other_player_item.current_slot, True)
 
                 if player_item:
                     other_player.inventory.add_item(item_template=player_item.item_template,
                                                     count=player_item.item_instance.stackcount,
                                                     show_item_get=False)
 
-                    player.inventory.mark_as_removed(player_item)
-                    player.session.enqueue_packet(player_item.get_destroy_packet())
-                    player.inventory.get_container(player_item.item_instance.bag).remove_item(player_item)
+                    player.inventory.remove_item(player_item.item_instance.bag,
+                                                 player_item.current_slot, True)
 
             player.mod_money(other_player_trade.money)
             player.mod_money(-player_trade.money)
