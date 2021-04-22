@@ -23,7 +23,7 @@ class GroupManager(object):
 
     # When player sends an invite, a GroupManager is created, that doesnt mean the party actually exist until
     # the other player accepts the invitation.
-    def is_party(self):
+    def is_valid_party(self):
         return len(self.members) > 1
 
     def try_add_member(self, player_mgr, invite):
@@ -314,7 +314,7 @@ class GroupManager(object):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_IGNORING_YOU_S)
             return
 
-        if target_player_mgr.group_manager and target_player_mgr.group_manager.is_party():
+        if target_player_mgr.group_manager and target_player_mgr.group_manager.is_valid_party():
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_ALREADY_IN_GROUP_S)
             return
 
