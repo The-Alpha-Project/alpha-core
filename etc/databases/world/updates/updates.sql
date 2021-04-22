@@ -80,5 +80,41 @@ begin not atomic
 
         insert into applied_updates values ('140420211');
     end if;
+
+    -- 23/04/2021 1
+    if (select count(*) from applied_updates where id='230420211') = 0 then
+        UPDATE `spawns_creatures` SET `position_x` = -9290.27, `position_y` = -2941.76, `position_z` = 128.802, `movement_type` = 2 WHERE `spawn_id` = 25449;
+        UPDATE `spawns_creatures` SET `position_x` = -9291.14, `position_y` = -2991.8, `position_z` = 121.398, `orientation` = 5.74213, `movement_type` = 0, `wander_distance` = 0 WHERE `spawn_id` = 18396;
+        UPDATE `spawns_creatures` SET `position_x` = -9272.69, `position_y` = -2948.96, `position_z` = 128.702, `movement_type` = 2 WHERE `spawn_id` = 26171;
+        DELETE FROM `spawns_creatures` WHERE `spawn_id` IN (31824, 18377, 18394, 18389);
+        UPDATE `spawns_creatures` SET `position_x` = -9390.57, `position_y` = -3026.71, `position_z` = 137.051, `movement_type` = 2 WHERE `spawn_id` = 18434;
+        UPDATE `spawns_creatures` SET `position_x` = -9340.59, `position_y` = -3043.07, `position_z` = 136.224 WHERE `spawn_id` = 26167;
+        UPDATE `spawns_creatures` SET `position_x` = -9347.26, `position_y` = -3012.09, `position_z` = 136.79 WHERE `spawn_id` = 18379;
+        UPDATE `spawns_creatures` SET `position_x` = -9439.3, `position_y` = -3080.77, `position_z` = 136.72, `movement_type` = 2 WHERE `spawn_id` = 18397;
+        REPLACE INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `health_percent`, `mana_percent`) VALUES
+        (31824, 436, -9435.27, -3078.54, 136.72, 2.3911, 900, 900, 100, 100),
+        (18377, 4065, -9440.13, -3073.22, 136.72, 5.02655, 900, 900, 100, 0),
+        (18394, 4462, -9441.58, -3077.65, 136.72, 0.436332, 900, 900, 100, 0);
+        UPDATE `spawns_creatures` SET `position_x` = -9421.56, `position_y` = -3059.08, `position_z` = 136.809, `movement_type` = 2, `wander_distance` = 0 WHERE `spawn_id` = 31829;
+        UPDATE `spawns_creatures` SET `position_x` = -9467.47, `position_y` = -2986.67, `position_z` = 130.932 WHERE `spawn_id` = 31823;
+        UPDATE `spawns_creatures` SET `position_x` = -9524.7, `position_y` = -2876.99, `position_z` = 93.2134, `movement_type` = 2, `wander_distance` = 0 WHERE `spawn_id` = 17972;
+        UPDATE `spawns_creatures` SET `position_x` = -9219.22, `position_y` = -2919.18, `position_z` = 112.948, `movement_type` = 2, `wander_distance` = 0 WHERE `spawn_id` = 10214;
+        UPDATE `spawns_creatures` SET `wander_distance` = 0 WHERE `spawn_id` IN (31824, 18377, 18394);
+
+        -- [Silver Piffeny Band] shouldn't appear in chests.
+        DELETE FROM `gameobject_loot_template` WHERE `item` = 7342;
+
+        UPDATE `quest_template` SET `StartScript` = 0 WHERE `entry` = 252;
+
+        DELETE FROM `page_text` WHERE `entry` IN (219, 220, 221);
+        INSERT INTO `page_text` VALUES
+        (219,'From the hand of Baros Alexston, Office of the City Architect Stormwind Your Majesty, There are many reasons as to why I felt that a report should be compiled and presented on the recent affairs of the \"Defias Brotherhood\" and their activities throughout the kingdom. For perspective, I shall begin with a bit of history. As you may or may not know, my service to the city of Stormwind began as a member of the Stonemasons\' Guild. Through years of work, we completed the rebuilding of',220),
+        (220,'Stormwind, at which time the Stonemasons\' Guild bills and fees and salaries left unpaid and unspoken for. At that time, Edwin VanCleef had been elected Guildmaster of the Stonemasons, and spoke out, demanding restitution for our works. In response, the Stormwind House of Nobles ordered the Stonemasons\' Guild disbanded, which, understandably, angered VanCleef. Leading a riot, VanCleef led the Stonemasons out of the city. Before I continue, there are some other events that took place during',221),
+        (221,'this time that I should bring to your attention. First, it was at this time that I was offered the position of city architect if I did not join with VanCleef. Because of certain idealogical differences, I chose to remain in Stormwind. During the riots, VanCleef\'s lieutenant and most trusted assistant, Bazil Thredd, was captured and held in prison. Awaiting trial and questioning, Thredd was almost forgotten about in the Stockade. Returning to VanCleef, after he led the remnants of the',222);
+
+        UPDATE `creature_template` SET `inhabit_type` = 4 WHERE `entry` = 8446;
+
+        insert into applied_updates values ('230420211');
+    end if;
 end $
 delimiter ;
