@@ -1077,6 +1077,8 @@ class PlayerManager(UnitManager):
 
             # SpellManager tick
             self.spell_manager.update(now)
+            # AuraManager tick
+            self.aura_manager.update(elapsed)
 
             # Duel tick
             if self.duel_manager:

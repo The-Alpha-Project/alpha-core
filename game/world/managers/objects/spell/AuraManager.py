@@ -1,3 +1,4 @@
+from enum import IntEnum
 from struct import pack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
@@ -11,14 +12,25 @@ from utils.constants.UpdateFields import UnitFields
 
 
 class AppliedAura:
-    def __init__(self, target, caster, spell_id, duration_entry, spell_effect):
-        self.target = target
+    def __init__(self, caster, casting_spell, spell_effect):
+        self.target = casting_spell.initial_target_unit
         self.caster = caster
+        self.spell_id = casting_spell.spell_entry.ID
+        self.spell_effect = spell_effect
+        self.duration_entry = casting_spell.duration_entry
+        self.duration = self.duration_entry.Duration
+        self.spell_effect = spell_effect
+
+        self.harmful = True if casting_spell.initial_target_unit.is_enemy_to(caster) else False
+        self.passive = casting_spell.is_passive() or spell_effect.effect_index != 1
+
         self.index = -1  # Set on application
-        self.spell_id = spell_id
-        self.spell_effect = spell_effect
-        self.duration_entry = duration_entry
-        self.spell_effect = spell_effect
+
+    def has_duration(self):
+        return self.duration != -1
+
+    def is_passive(self):
+        return
 
 
 class AuraEffectHandler:
@@ -36,8 +48,6 @@ class AuraEffectHandler:
     def handle_shapeshift(aura, remove):
         form = aura.spell_effect.misc_value if not remove else ShapeshiftForms.SHAPESHIFT_FORM_NONE
         aura.target.set_shapeshift_form(form)
-        if not remove:
-            aura.target.aura_manager.remove_auras_by_type(aura.spell_effect.aura_type)  # Remove existing shapeshift
         if remove or aura.spell_effect.misc_value not in SHAPESHIFT_MODEL_IDS:
             aura.target.reset_display_id()
             aura.target.reset_scale()
@@ -52,32 +62,24 @@ class AuraEffectHandler:
         aura.target.set_dirty()
 
     @staticmethod
-    def handle_mounted(aura, remove):
+    def handle_mounted(aura, remove):  # TODO Summon Nightmare (5784) does not apply for other players ?
         if remove:
             aura.target.unmount()
             aura.target.set_dirty()
-        elif aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
-            aura.target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED)
-            aura.target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED)
-        else:
-            aura.target.aura_manager.remove_auras_by_type(aura.spell_effect.aura_type)  # Remove existing mount aura TODO Exclusive effects?
+            return
 
-            creature_entry = aura.spell_effect.misc_value
-            if not aura.target.summon_mount(creature_entry):
-                Logger.error(f'SPELL_AURA_MOUNTED: Creature template ({creature_entry}) not found in database.')
+        creature_entry = aura.spell_effect.misc_value
+        if not aura.target.summon_mount(creature_entry):
+            Logger.error(f'SPELL_AURA_MOUNTED: Creature template ({creature_entry}) not found in database.')
 
     @staticmethod
     def handle_increase_mounted_speed(aura, remove):
         # TODO: Should handle for creatures too? (refactor all change speed methods?)
         if aura.target.get_type() != ObjectTypes.TYPE_PLAYER:
             return
-
+        aura.target.change_speed()
         if remove:
-            aura.target.change_speed()
             return
-
-        # TODO Not properly being removed when you cast another mount
-        aura.target.aura_manager.remove_auras_by_type(aura.spell_effect.aura_type)
 
         default_speed = config.Unit.Defaults.run_speed
         speed_percentage = aura.spell_effect.get_effect_points(aura.target.level) / 100.0
@@ -99,6 +101,13 @@ SHAPESHIFT_MODEL_IDS = {
 }
 
 
+class AuraSlots(IntEnum):
+    AURA_SLOT_POSITIVE_AURA_START = 0  # 40 positive slots
+    AURA_SLOT_HARMFUL_AURA_START = 40  # 16 harmful slots
+    AURA_SLOT_PASSIVE_AURA_START = 56
+    AURA_SLOT_END = 191
+
+
 class AuraManager:
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
@@ -106,16 +115,19 @@ class AuraManager:
         self.current_flags = 0x0
 
     def apply_spell_effect_aura(self, caster, casting_spell, spell_effect):
-        aura = AppliedAura(casting_spell.initial_target_unit, caster,
-                           casting_spell.spell_entry.ID, casting_spell.duration_entry, spell_effect)
+        aura = AppliedAura(caster, casting_spell, spell_effect)
         self.add_aura(aura)
 
     def add_aura(self, aura):
-        if not self.can_apply_aura(aura):
+        # Note: This order of applying, removing colliding and then returning might be problematic if cases are added to can_apply_aura.
+        # The reason for this order is that auras that are toggled need to be removed on toggle but not reapplied.
+        can_apply = self.can_apply_aura(aura)
+        self.remove_colliding_effects(aura)
+        if not can_apply:
             return
-        AuraEffectHandler.handle_aura_effect_change(aura)
 
-        aura.index = self.get_next_aura_index()
+        AuraEffectHandler.handle_aura_effect_change(aura)
+        aura.index = self.get_next_aura_index(aura)
         self.active_auras[aura.index] = aura
 
         self.write_aura_to_unit(aura)
@@ -124,17 +136,57 @@ class AuraManager:
 
         self.unit_mgr.set_dirty()
 
+    def update(self, elapsed):
+        for aura in list(self.active_auras.values()):
+            if not aura.has_duration():
+                continue
+            aura.duration -= int(elapsed*1000)
+            if aura.duration <= 0:
+                self.remove_aura(aura)
+                return
+
+
     def can_apply_aura(self, aura):
         if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
                 len(self.get_auras_by_spell_id(aura.spell_id)) > 0:
-            return False  # Don't apply shapeshift effect if it already exists
+            return False  # Don't apply same shapeshift effect if it already exists
 
+        if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOUNTED and \
+                aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+            return False
+
+        if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED and \
+                aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED == 0:
+            return False
         return True
+
+    def remove_colliding_effects(self, aura):
+        aura_type = aura.spell_effect.aura_type
+        caster_guid = aura.caster.guid
+
+        # Special case with SpellEffect mounting and mounting by aura
+        if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOUNTED and \
+                aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED and not \
+                self.get_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED):
+            AuraEffectHandler.handle_mounted(aura, True)  # Remove mount effect
+
+        for aura in list(self.active_auras.values()):
+            if aura.spell_effect.aura_type != aura_type or aura.caster.guid != caster_guid:
+                continue
+            self.remove_aura(aura)  # Remove identical auras the caster has applied
 
     def get_auras_by_spell_id(self, spell_id):
         auras = []
         for aura in self.active_auras.values():
             if aura.spell_id != spell_id:
+                continue
+            auras.append(aura)
+        return auras
+
+    def get_auras_by_type(self, aura_type):
+        auras = []
+        for aura in list(self.active_auras.values()):
+            if aura.spell_effect.aura_type != aura_type:
                 continue
             auras.append(aura)
         return auras
@@ -150,8 +202,6 @@ class AuraManager:
         AuraEffectHandler.handle_aura_effect_change(aura, True)
         self.write_aura_to_unit(aura, clear=True)
         self.write_aura_flag_to_unit(aura, clear=True)
-
-        data = pack('<Bi', aura.index, 0)
 
         self.active_auras.pop(aura.index)
 
@@ -185,8 +235,19 @@ class AuraManager:
 
         self.unit_mgr.set_uint32(UnitFields.UNIT_FIELD_AURAFLAGS + (aura.index >> 3), self.current_flags)
 
-    def get_next_aura_index(self):
-        for i in range(0, 30):
+    def get_next_aura_index(self, aura):
+        if aura.passive:
+            min_index = AuraSlots.AURA_SLOT_PASSIVE_AURA_START
+            max_index = AuraSlots.AURA_SLOT_END
+        elif aura.harmful:
+            min_index = AuraSlots.AURA_SLOT_HARMFUL_AURA_START
+            max_index = AuraSlots.AURA_SLOT_PASSIVE_AURA_START
+        else:
+            min_index = AuraSlots.AURA_SLOT_POSITIVE_AURA_START
+            max_index = AuraSlots.AURA_SLOT_HARMFUL_AURA_START
+
+        for i in range(min_index, max_index):
             if i not in self.active_auras:
+                print(i)
                 return i
-        return None
+        return min_index  # No aura slots free, return first possible. TODO Some kind of priority system?
