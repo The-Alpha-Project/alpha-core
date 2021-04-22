@@ -5,7 +5,7 @@ from database.realm.RealmModels import CharacterInventory
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags
+from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.UpdateFields import ObjectFields, ItemFields
 
@@ -179,6 +179,7 @@ class ItemManager(ObjectManager):
     def generate_starting_item(owner, entry, last_bag_slot):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         if item_template:
+            # Change count and bag for arrows and bullets
             if item_template.inventory_type == InventoryTypes.AMMO:
                 count = 100  # Start with 100 arrows / bullets
                 bag = InventorySlots.SLOT_BAG1  # Quiver / Pouch
@@ -188,8 +189,11 @@ class ItemManager(ObjectManager):
                 if slot >= InventorySlots.SLOT_INBACKPACK:
                     slot = last_bag_slot
                 bag = InventorySlots.SLOT_INBACKPACK.value
-                if item_template.inventory_type == 0 and item_template.class_ == 0:  # Food and Water
-                    count = 2 if item_template.spellid_1 == 430 else 4
+                # Change count for food and water
+                if item_template.inventory_type == InventoryTypes.NONE_EQUIP \
+                        and item_template.class_ == ItemClasses.ITEM_CLASS_CONSUMABLE:
+                    count = 2 if item_template.spellid_1 == 430 else 4  # 430 spell -> Low level drink
+                # Rest of items start with 1 instance
                 else:
                     count = 1
             return ItemManager.generate_item(item_template, owner, bag, slot, count=count)
