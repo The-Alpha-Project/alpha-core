@@ -105,7 +105,7 @@ class AuraSlots(IntEnum):
     AURA_SLOT_POSITIVE_AURA_START = 0  # 40 positive slots
     AURA_SLOT_HARMFUL_AURA_START = 40  # 16 harmful slots
     AURA_SLOT_PASSIVE_AURA_START = 56
-    AURA_SLOT_END = 191
+    AURA_SLOT_END = 191  # Unlimited - not written to unit
 
 
 class AuraManager:
@@ -143,7 +143,6 @@ class AuraManager:
             aura.duration -= int(elapsed*1000)
             if aura.duration <= 0:
                 self.remove_aura(aura)
-                return
 
 
     def can_apply_aura(self, aura):
@@ -200,11 +199,12 @@ class AuraManager:
     def remove_aura(self, aura):
         # TODO check if aura can be removed (by player)
         AuraEffectHandler.handle_aura_effect_change(aura, True)
+        self.active_auras.pop(aura.index)
+        if aura.passive:
+            return  # Passive auras aren't written to unit
+
         self.write_aura_to_unit(aura, clear=True)
         self.write_aura_flag_to_unit(aura, clear=True)
-
-        self.active_auras.pop(aura.index)
-
         self.unit_mgr.set_dirty()
 
     def cancel_auras_by_spell_id(self, spell_id):
