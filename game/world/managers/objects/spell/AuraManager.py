@@ -120,7 +120,7 @@ class AuraManager:
 
     def add_aura(self, aura):
         # Note: This order of applying, removing colliding and then returning might be problematic if cases are added to can_apply_aura.
-        # The reason for this order is that auras that are toggled need to be removed on toggle but not reapplied.
+        # At the moment mount behaviour depends on this order
         can_apply = self.can_apply_aura(aura)
         self.remove_colliding_effects(aura)
         if not can_apply:
