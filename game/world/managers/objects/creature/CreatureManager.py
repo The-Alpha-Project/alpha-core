@@ -252,6 +252,9 @@ class CreatureManager(UnitManager):
             elapsed = now - self.last_tick
 
             if self.is_alive:
+                # Spell/aura updates
+                self.spell_manager.update(now)
+                self.aura_manager.update(elapsed)
                 # Movement Updates
                 self.movement_manager.update_pending_waypoints(elapsed)
                 # Random Movement
