@@ -21,7 +21,7 @@ class AppliedAura:
         self.duration = self.duration_entry.Duration
         self.spell_effect = spell_effect
 
-        self.harmful = True if casting_spell.initial_target_unit.is_enemy_to(caster) else False
+        self.harmful = self.caster.is_enemy_to(self.target)
         self.passive = casting_spell.is_passive() or spell_effect.effect_index != 1
 
         self.index = -1  # Set on application
