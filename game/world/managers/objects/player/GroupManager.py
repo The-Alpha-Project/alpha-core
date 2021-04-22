@@ -18,26 +18,38 @@ class GroupManager(object):
         self.loot_method = LootMethods.LOOT_METHOD_FREEFORALL
         self.master_looter = None
         self.party_leader.set_group_leader(True)
-        self.party_leader.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
         self.allowed_looters = {}
         self._last_looter = None  # For Round Robin, cycle will start at leader.
 
+    # When player receives an invite, a GroupManager is created, that doesnt mean the party actually exist until
+    # the other player accepts the invitation.
+    def is_party(self):
+        return len(self.members) > 1
+
     def try_add_member(self, player_mgr, invite):
-        # Check if new player is not in a group already and if we have space.
+        # Check if we have space.
         if self.is_full():
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, '',
+                                                     PartyResults.ERR_GROUP_FULL)
             return False
 
         if invite:
             self.invites[player_mgr.guid] = player_mgr
             player_mgr.group_manager = self
+            player_mgr.has_pending_group_invite = True
             return True
         else:
             self.members[player_mgr.guid] = player_mgr
             player_mgr.group_manager = self
             player_mgr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
+            player_mgr.has_pending_group_invite = False
 
             query_details_packet = NameQueryHandler.get_query_details(player_mgr.player)
             self.send_packet_to_members(query_details_packet)
+
+            # At this point, party is least 2 players, change leader group status.
+            if self.party_leader.group_status != WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY:
+                self.party_leader.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
 
             if player_mgr != self.party_leader:
                 player_mgr.set_group_leader(False)
@@ -156,6 +168,7 @@ class GroupManager(object):
     def remove_invitation(self, player_mgr):
         if player_mgr.guid in self.invites:
             self.invites.pop(player_mgr.guid, None)
+            player_mgr.has_pending_group_invite = False
             player_mgr.group_manager = None
             player_mgr.set_group_leader(False)
             player_mgr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
@@ -301,7 +314,7 @@ class GroupManager(object):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_IGNORING_YOU_S)
             return
 
-        if target_player_mgr.group_manager:
+        if target_player_mgr.group_manager and target_player_mgr.group_manager.is_party():
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_ALREADY_IN_GROUP_S)
             return
 
@@ -310,7 +323,7 @@ class GroupManager(object):
                 GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_NOT_LEADER)
                 return
 
-            if len(player_mgr.group_manager.members) == MAX_GROUP_SIZE:
+            if player_mgr.group_manager.is_full():
                 GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_GROUP_FULL)
                 return
 
@@ -318,9 +331,10 @@ class GroupManager(object):
                 return
         else:
             player_mgr.group_manager = GroupManager(player_mgr)
-            if not player_mgr.group_manager.try_add_member(target_player_mgr, True):
+            if not player_mgr.group_manager.try_add_member(target_player_mgr, invite=True):
                 return
 
+        target_player_mgr.has_pending_group_invite = True
         name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
         data = pack(
             f'<{len(name_bytes)}s',
