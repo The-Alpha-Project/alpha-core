@@ -182,7 +182,7 @@ class ItemManager(ObjectManager):
             # Change count and bag for arrows and bullets
             if item_template.inventory_type == InventoryTypes.AMMO:
                 count = 100  # Start with 100 arrows / bullets
-                bag = InventorySlots.SLOT_BAG1  # Quiver / Pouch
+                bag = InventorySlots.SLOT_BAG1.value  # Quiver / Pouch
                 slot = 0
             else:
                 slot = ItemManager.get_inv_slot_by_type(item_template.inventory_type)
