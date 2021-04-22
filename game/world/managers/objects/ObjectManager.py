@@ -57,7 +57,7 @@ class ObjectManager(object):
         self.update_packet_factory = UpdatePacketFactory()
 
         self.dirty = False
-        self.current_grid = ''
+        self.current_cell = ''
         self.last_tick = 0
         self.movement_spline = None
 
@@ -208,7 +208,7 @@ class ObjectManager(object):
         pass
 
     # override
-    def on_grid_change(self):
+    def on_cell_change(self):
         pass
 
     # override
