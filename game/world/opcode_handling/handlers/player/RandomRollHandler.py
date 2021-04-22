@@ -18,7 +18,7 @@ class RandomRollHandler(object):
                                                   pack('<3IQ', minimum, maximum, roll, player.guid))
 
             if player.group_manager and player.group_manager.is_valid_party():
-                player.send_packet_to_members(roll_packet, use_ignore=True)
+                player.group_manager.send_packet_to_members(roll_packet, use_ignore=True)
             else:
                 world_session.enqueue_packet(roll_packet)
 
