@@ -6,7 +6,7 @@ from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes, Factions
-from utils.constants.SpellCodes import AuraTypes, SpellEffects, ShapeshiftForms
+from utils.constants.SpellCodes import AuraTypes, SpellEffects, ShapeshiftForms, AuraSlots
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import UnitFields
 
@@ -99,13 +99,6 @@ SHAPESHIFT_MODEL_IDS = {
     ShapeshiftForms.SHAPESHIFT_FORM_AQUATIC: (2428, 2428, 0.8),
     ShapeshiftForms.SHAPESHIFT_FORM_BEAR: (2281, 2289, 1.0)
 }
-
-
-class AuraSlots(IntEnum):
-    AURA_SLOT_POSITIVE_AURA_START = 0  # 40 positive slots
-    AURA_SLOT_HARMFUL_AURA_START = 40  # 16 harmful slots
-    AURA_SLOT_PASSIVE_AURA_START = 56
-    AURA_SLOT_END = 191  # Unlimited - not written to unit
 
 
 class AuraManager:

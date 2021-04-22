@@ -510,6 +510,13 @@ class AuraTypes(IntEnum):  # from cmangos-classic; entries over 88 don't exist i
     SPELL_AURA_MOD_HEALTH_REGEN_PERCENT = 88
 
 
+class AuraSlots(IntEnum):
+    AURA_SLOT_POSITIVE_AURA_START = 0  # 40 positive slots
+    AURA_SLOT_HARMFUL_AURA_START = 40  # 16 harmful slots
+    AURA_SLOT_PASSIVE_AURA_START = 56
+    AURA_SLOT_END = 191  # Unlimited - not written to unit
+
+
 class SpellImplicitTargets(IntEnum):
     TARGET_NOTHING = 0
     TARGET_SELF = 1
