@@ -1134,10 +1134,10 @@ class PlayerManager(UnitManager):
         if killer and self.duel_manager and self.duel_manager.player_involved(killer):
             self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
             self.set_health(1)
-            return
+            return False
 
         if not super().die(killer):
-            return
+            return False
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
@@ -1147,6 +1147,7 @@ class PlayerManager(UnitManager):
         self.spirit_release_timer = 0
 
         self.set_dirty()
+        return True
 
     # override
     def respawn(self):

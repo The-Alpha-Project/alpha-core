@@ -329,6 +329,7 @@ class CreatureManager(UnitManager):
                 self.killed_by.group_manager.set_allowed_looters(self)
 
         self.set_dirty()
+        return True
 
     def reward_kill_xp(self, player):
         # Critters don't award XP

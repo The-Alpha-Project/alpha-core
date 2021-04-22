@@ -672,7 +672,7 @@ class UnitManager(ObjectManager):
 
     def die(self, killer=None):
         if not self.is_alive:
-            return
+            return False
         self.is_alive = False
 
         # Stop movement on death
@@ -702,6 +702,7 @@ class UnitManager(ObjectManager):
         self.movement_manager.reset()
 
         self.leave_combat()
+        return True
 
     def respawn(self):
         self.in_combat = False
