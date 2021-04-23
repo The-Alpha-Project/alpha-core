@@ -109,7 +109,8 @@ class SpellCheckCastResult(IntEnum):
     SPELL_FAILED_TARGET_DUELING = 0x54
     SPELL_FAILED_NOTUNSHEATHED = 0x55
     SPELL_FAILED_NOT_FISHABLE = 0x56
-    SPELL_CAST_OK = 0x57
+    SPELL_FAILED_UNKNOWN = 0x57
+    SPELL_NO_ERROR = 0xFF
 
 
 class SpellCastStatus(IntEnum):

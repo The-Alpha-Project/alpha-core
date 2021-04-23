@@ -241,11 +241,11 @@ class SpellEffectHandler(object):
     def handle_request_duel(casting_spell, effect, caster, target):
         duel_result = DuelManager.request_duel(caster, target, effect.misc_value)
         if duel_result == 1:
-            result = SpellCheckCastResult.SPELL_CAST_OK
+            result = SpellCheckCastResult.SPELL_NO_ERROR
         elif duel_result == 0:
             result = SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING
         else:
-            result = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
+            result = SpellCheckCastResult.SPELL_FAILED_UNKNOWN
         caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, result)
 
     @staticmethod
@@ -383,7 +383,7 @@ class SpellManager(object):
             return
 
         if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_CAST_OK)
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
             self.send_spell_go(casting_spell)
         else:
             return  # Spell is in delayed state, do nothing for now
@@ -465,11 +465,11 @@ class SpellManager(object):
                     SpellEffectHandler.apply_effect(casting_spell, effect)
                 self.remove_cast(casting_spell)
 
-    def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_CAST_OK):
+    def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
         if casting_spell not in self.casting_spells:
             return
         self.casting_spells.remove(casting_spell)
-        if cast_result != SpellCheckCastResult.SPELL_CAST_OK:
+        if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
 
     def calculate_time_to_impact(self, casting_spell):
@@ -632,7 +632,7 @@ class SpellManager(object):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        if error == SpellCheckCastResult.SPELL_CAST_OK:
+        if error == SpellCheckCastResult.SPELL_NO_ERROR:
             data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
         else:
             data = pack('<I2B', spell_id, SpellCastStatus.CAST_FAILED, error)
