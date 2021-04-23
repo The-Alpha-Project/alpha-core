@@ -8,7 +8,7 @@ class ListInventoryHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty ping packet
+        if len(reader.data) >= 8:  # Avoid handling empty list inventory packet
             npc_guid = unpack('<Q', reader.data[:8])[0]
 
             if npc_guid > 0:
