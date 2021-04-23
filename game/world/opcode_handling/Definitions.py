@@ -1,4 +1,4 @@
-from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheat import TriggerCinematicCheat
+from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
 
@@ -240,7 +240,7 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_RANDOM_ROLL: RandomRollHandler.handle,
     OpCode.CMSG_DUEL_ACCEPTED: DuelAcceptHandler.handle,
     OpCode.CMSG_DUEL_CANCELLED: DuelCanceledHandler.handle,
-    OpCode.CMSG_TRIGGER_CINEMATIC_CHEAT: TriggerCinematicCheat.handle,
+    OpCode.CMSG_TRIGGER_CINEMATIC_CHEAT: TriggerCinematicCheatHandler.handle
 
 
     # Movement packets

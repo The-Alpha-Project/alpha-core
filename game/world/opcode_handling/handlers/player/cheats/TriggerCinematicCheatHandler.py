@@ -4,7 +4,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import *
 
 
-class TriggerCinematicCheat(object):
+class TriggerCinematicCheatHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
