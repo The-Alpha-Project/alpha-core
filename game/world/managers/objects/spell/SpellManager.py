@@ -535,6 +535,8 @@ class SpellManager(object):
                                      include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
     def set_on_cooldown(self, spell):
+        if spell.RecoveryTime == 0:
+            return
         self.cooldowns[spell.ID] = spell.RecoveryTime + time.time()
 
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
