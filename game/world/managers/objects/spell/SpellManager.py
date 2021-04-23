@@ -245,7 +245,7 @@ class SpellEffectHandler(object):
         elif duel_result == 0:
             result = SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING
         else:
-            result = SpellCheckCastResult.SPELL_FAILED_UNKNOWN
+            result = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
         caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, result)
 
     @staticmethod
