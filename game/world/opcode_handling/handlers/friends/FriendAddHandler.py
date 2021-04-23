@@ -35,6 +35,6 @@ class FriendAddHandler(object):
             world_session.player_mgr.friends_manager.add_friend(target_guid)
         else:
             data = pack('<B', friend_result_error)
-            world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
+            world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
 
         return 0

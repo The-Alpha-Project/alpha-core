@@ -1,3 +1,4 @@
+from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheat import TriggerCinematicCheat
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
 
@@ -13,7 +14,7 @@ from game.world.opcode_handling.handlers.world.TimeQueryHandler import TimeQuery
 from game.world.opcode_handling.handlers.player.LogoutRequestHandler import LogoutRequestHandler
 from game.world.opcode_handling.handlers.world.WorldTeleportHandler import WorldTeleportHandler
 from game.world.opcode_handling.handlers.world.AreaTriggerHandler import AreaTriggerHandler
-from game.world.opcode_handling.handlers.player.SpeedCheatHandler import SpeedCheatHandler
+from game.world.opcode_handling.handlers.player.cheats.SpeedCheatHandler import SpeedCheatHandler
 from game.world.opcode_handling.handlers.world.ZoneUpdateHandler import ZoneUpdateHandler
 from game.world.opcode_handling.handlers.social.BugHandler import BugHandler
 from game.world.opcode_handling.handlers.social.TextEmoteHandler import TextEmoteHandler
@@ -239,6 +240,7 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_RANDOM_ROLL: RandomRollHandler.handle,
     OpCode.CMSG_DUEL_ACCEPTED: DuelAcceptHandler.handle,
     OpCode.CMSG_DUEL_CANCELLED: DuelCanceledHandler.handle,
+    OpCode.CMSG_TRIGGER_CINEMATIC_CHEAT: TriggerCinematicCheat.handle,
 
 
     # Movement packets

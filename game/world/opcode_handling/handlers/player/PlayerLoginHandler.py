@@ -98,9 +98,7 @@ class PlayerLoginHandler(object):
         # Sadly, ONLY undeads have intro cinematic.
         cinematic_id = DbcDatabaseManager.chr_races_get_by_race(player.race).CinematicSequenceID
         if cinematic_id != 0:
-            data = pack(
-                '<I', cinematic_id
-            )
+            data = pack('<I', cinematic_id)
             world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
 
     @staticmethod

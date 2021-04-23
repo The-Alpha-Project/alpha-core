@@ -52,7 +52,7 @@ class SellItemHandler(object):
                     RealmDatabaseManager.character_inventory_update_item(item.item_instance)
                 else:
                     world_session.player_mgr.inventory.mark_as_removed(item)
-                    world_session.player_mgr.session.enqueue_packet(item.get_destroy_packet())
+                    world_session.enqueue_packet(item.get_destroy_packet())
                     world_session.player_mgr.inventory.containers[container_slot].remove_item_in_slot(slot)
                     RealmDatabaseManager.character_inventory_delete(item.item_instance)
 
