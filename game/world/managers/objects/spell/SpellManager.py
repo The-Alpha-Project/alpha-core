@@ -558,6 +558,9 @@ class SpellManager(object):
         return spell_id in self.cooldowns
 
     def validate_cast(self, casting_spell):
+        if self.is_on_cooldown(casting_spell):
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
+            return False
         if not casting_spell.spell_entry or casting_spell.spell_entry.ID not in self.spells:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
             return False
