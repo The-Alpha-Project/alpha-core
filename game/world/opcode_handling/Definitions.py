@@ -1,3 +1,4 @@
+from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
@@ -241,6 +242,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_DUEL_ACCEPTED: DuelAcceptHandler.handle,
     OpCode.CMSG_DUEL_CANCELLED: DuelCanceledHandler.handle,
     OpCode.CMSG_TRIGGER_CINEMATIC_CHEAT: TriggerCinematicCheatHandler.handle,
+    OpCode.CMSG_GODMODE: GodModeHandler.handle,
 
 
     # Movement packets

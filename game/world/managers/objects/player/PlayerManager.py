@@ -117,6 +117,7 @@ class PlayerManager(UnitManager):
             self.coinage = self.player.money
             self.online = self.player.online
 
+            self.is_god = False
             self.is_gm = self.session.account_mgr.account.gmlevel > 0
 
             if self.is_gm:
@@ -1047,6 +1048,13 @@ class PlayerManager(UnitManager):
 
         self.combo_target = 0
         self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
+
+    # override
+    def receive_damage(self, amount):
+        if self.is_god:
+            return
+
+        super().receive_damage(amount)
 
     def set_dirty(self, is_dirty=True, dirty_inventory=False):
         self.dirty = is_dirty

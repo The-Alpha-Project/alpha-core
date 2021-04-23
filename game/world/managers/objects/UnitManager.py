@@ -445,14 +445,19 @@ class UnitManager(ObjectManager):
         if not target.in_combat:
             target.enter_combat()
 
-        new_health = target.health - damage
-        if new_health <= 0:
-            target.die(self)
-        else:
-            target.set_health(new_health)
+        target.receive_damage(damage)
 
-        update_packet = target.generate_proper_update_packet(is_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
-        GridManager.send_surrounding(update_packet, target, include_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
+    def receive_damage(self, amount):
+        is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
+
+        new_health = self.health - amount
+        if new_health <= 0:
+            self.die(self)
+        else:
+            self.set_health(new_health)
+
+        update_packet = self.generate_proper_update_packet(is_self=is_player)
+        GridManager.send_surrounding(update_packet, self, include_self=is_player)
 
     def deal_spell_damage(self, target, damage, school, spell_id):  # TODO Spell hit damage visual?
         data = pack('<IQQIIfiii', 1, self.guid, target.guid, spell_id,
