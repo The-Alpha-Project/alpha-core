@@ -19,6 +19,7 @@ from utils import Formulas
 from utils.constants.DuelCodes import *
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
+from utils.constants.SpellCodes import ShapeshiftForms
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
@@ -889,10 +890,7 @@ class PlayerManager(UnitManager):
                     should_update_power = False
                 else:
                     if not self.in_combat:
-                        if self.power_2 < 200:
-                            self.set_rage(0)
-                        else:
-                            self.set_rage(self.power_2 - 20)
+                        self.set_rage(self.power_2 - 20)
             # Focus
             elif self.power_type == PowerTypes.TYPE_FOCUS:
                 # Apparently focus didn't regenerate while moving.
@@ -976,6 +974,15 @@ class PlayerManager(UnitManager):
         max_damage = (weapon_max_dmg + attack_power / 14) * dual_wield_penalty
 
         return int(min_damage), int(max_damage)
+
+    def after_damage_calculation(self, damage_info, as_player=False):
+        if self.player.class_ == Classes.CLASS_WARRIOR:
+            self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, as_player=as_player))
+            self.set_dirty()
+        elif self.player.class_ == Classes.CLASS_DRUID and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
+            self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, as_player=as_player))
+            self.set_dirty()
+        return
 
     def _send_attack_swing_error(self, victim, opcode):
         data = pack('<2Q', self.guid, victim.guid if victim else 0)
