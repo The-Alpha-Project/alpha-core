@@ -49,9 +49,9 @@ class PlayerFormulas(object):
         return 0.0091107836 * level ** 2 + 3.225598133 * level + 4.2652911
 
     @staticmethod
-    def calculate_rage_regen(damage_info, as_player=True):
-        # R=(15d/4c)+(fs/2) d=WeaponDamage c=rage conversion rate f=hit rating s=speed
-        if as_player:
+    def calculate_rage_regen(damage_info, is_player=True):
+        # R=(15d/4c)+(fs/2) | d=WeaponDamage, c=rage conversion rate, f=hit rating, s=speed
+        if is_player:
             main_hand = damage_info.attack_type == AttackTypes.BASE_ATTACK
             damage = damage_info.damage  # This is already calculated based off either Main or Offhand weapon.
             speed = damage_info.attacker.base_attack_time

@@ -373,7 +373,8 @@ class UnitManager(ObjectManager):
         # Not taking "subdamages" into account
         damage_info.total_damage = damage_info.damage
 
-        self.after_damage_calculation(damage_info, as_player=self.get_type() == ObjectTypes.TYPE_PLAYER)
+        # Generate rage (if needed)
+        self.generate_rage(damage_info, is_player=self.get_type() == ObjectTypes.TYPE_PLAYER)
 
         if attack_type == AttackTypes.BASE_ATTACK:
             damage_info.proc_attacker = ProcFlags.DEAL_COMBAT_DMG | ProcFlags.SWING
@@ -427,9 +428,8 @@ class UnitManager(ObjectManager):
 
         return random.randint(min_damage, max_damage)
 
-
     # Implemented by PlayerManager
-    def after_damage_calculation(self, damage_info, as_player=False):
+    def generate_rage(self, damage_info, is_player=False):
         # TODO: Creatures that use rage should call this as well.
         return
 

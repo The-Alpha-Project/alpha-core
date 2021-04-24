@@ -12,7 +12,6 @@ from game.world.managers.GridManager import GridManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
-
 from database.world.WorldDatabaseManager import *
 from utils.Logger import Logger
 

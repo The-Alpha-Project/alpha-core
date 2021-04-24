@@ -975,14 +975,12 @@ class PlayerManager(UnitManager):
 
         return int(min_damage), int(max_damage)
 
-    def after_damage_calculation(self, damage_info, as_player=False):
-        if self.player.class_ == Classes.CLASS_WARRIOR:
-            self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, as_player=as_player))
+    def generate_rage(self, damage_info, is_player=False):
+        # Warriors or Druids in Bear form
+        if self.player.class_ == Classes.CLASS_WARRIOR or (self.player.class_ == Classes.CLASS_DRUID and
+                                                           self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR)):
+            self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, is_player=is_player))
             self.set_dirty()
-        elif self.player.class_ == Classes.CLASS_DRUID and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
-            self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, as_player=as_player))
-            self.set_dirty()
-        return
 
     def _send_attack_swing_error(self, victim, opcode):
         data = pack('<2Q', self.guid, victim.guid if victim else 0)
