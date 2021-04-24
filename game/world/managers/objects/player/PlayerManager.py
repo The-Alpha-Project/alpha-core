@@ -884,7 +884,7 @@ class PlayerManager(UnitManager):
                         self.set_mana(self.max_power_1)
                     elif self.power_1 < self.max_power_1:
                         self.set_mana(self.power_1 + int(mana_regen))
-            # Rage
+            # Rage decay
             elif self.power_type == PowerTypes.TYPE_RAGE:
                 if self.power_2 == 0:
                     should_update_power = False
