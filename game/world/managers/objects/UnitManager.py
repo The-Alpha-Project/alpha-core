@@ -427,8 +427,10 @@ class UnitManager(ObjectManager):
 
         return random.randint(min_damage, max_damage)
 
+
     # Implemented by PlayerManager
     def after_damage_calculation(self, damage_info, as_player=False):
+        # TODO: Creatures that use rage should call this as well.
         return
 
     # Implemented by PlayerManager and CreatureManager

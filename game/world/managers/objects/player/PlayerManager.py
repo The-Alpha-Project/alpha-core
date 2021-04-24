@@ -977,6 +977,7 @@ class PlayerManager(UnitManager):
 
         return int(min_damage), int(max_damage)
 
+    # TODO: Handle bear form.
     def after_damage_calculation(self, damage_info, as_player=False):
         if self.player.class_ == Classes.CLASS_WARRIOR:
             new_rage = self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, as_player=as_player)
