@@ -32,6 +32,7 @@ class GameObjectManager(ObjectManager):
             self.current_display_id = self.native_display_id
             self.native_scale = self.gobject_template.scale
             self.current_scale = self.native_scale
+            self.faction = self.gobject_template.faction
 
         if gobject_instance:
             self.state = self.gobject_instance.spawn_state
@@ -105,7 +106,7 @@ class GameObjectManager(ObjectManager):
             # Gameobject fields
             self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
             self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.gobject_template.flags)
-            self.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.gobject_template.faction)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.faction)
             self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
             self.set_float(GameObjectFields.GAMEOBJECT_ROTATION, self.gobject_instance.spawn_rotation0)
             self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 1, self.gobject_instance.spawn_rotation1)

@@ -25,6 +25,7 @@ class ObjectManager(object):
                  dynamic_flags=0,
                  native_scale=1,
                  native_display_id=0,
+                 faction=0,
                  bounding_radius=config.Unit.Defaults.bounding_radius,
                  location=None,
                  transport_id=0,
@@ -45,6 +46,7 @@ class ObjectManager(object):
         self.current_scale = native_scale
         self.native_display_id = native_display_id  # Native display ID
         self.current_display_id = native_display_id
+        self.faction = faction
         self.bounding_radius = bounding_radius
         self.location = Vector()
         self.transport_id = transport_id

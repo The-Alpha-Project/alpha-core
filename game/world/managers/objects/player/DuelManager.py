@@ -213,6 +213,7 @@ class DuelManager(object):
             gobject_template=go_template,
             gobject_instance=instance
         )
+        go_arbiter.faction = requester.faction
 
         go_arbiter.load()
         go_arbiter.send_update_surrounding()  # spawn arbiter
