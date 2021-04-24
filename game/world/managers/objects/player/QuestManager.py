@@ -104,20 +104,18 @@ class QuestManager(object):
     def check_quest_requirements(self, quest):
         # Is the player character the required race
         race_is_required = quest.RequiredRaces > 0
-        is_not_required_race = quest.RequiredRaces & self.player_mgr.player.race != self.player_mgr.player.race
-        if race_is_required and is_not_required_race:
+        if race_is_required and not (quest.RequiredRaces & self.player_mgr.race_mask):
+            return False
+
+        # Is the character the required class
+        class_is_required = quest.RequiredClasses > 0
+        if class_is_required and not (quest.RequiredClasses & self.player_mgr.class_mask):
             return False
 
         # Does the character have the required source item
         source_item_required = quest.SrcItemId > 0
         does_not_have_source_item = self.player_mgr.inventory.get_item_count(quest.SrcItemId) == 0
         if source_item_required and does_not_have_source_item:
-            return False
-
-        # Is the character the required class
-        class_is_required = quest.RequiredClasses > 0
-        is_not_required_class = quest.RequiredClasses & self.player_mgr.player.class_ != self.player_mgr.player.class_
-        if class_is_required and is_not_required_class:
             return False
 
         # Has the character already started the next quest in the chain
