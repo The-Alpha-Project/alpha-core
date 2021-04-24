@@ -609,7 +609,7 @@ class PlayerManager(UnitManager):
                 self.set_mana(self.max_power_1)
 
                 self.skill_manager.update_skills_max_value()
-                self.skill_manager.build_skill_update()
+                self.skill_manager.build_update()
 
                 if should_send_info:
                     data = pack('<3I',
@@ -656,9 +656,6 @@ class PlayerManager(UnitManager):
 
     # override
     def get_full_update_packet(self, is_self=True):
-        self.inventory.send_inventory_update(self.session, is_self)
-        self.skill_manager.build_skill_update()
-
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
         self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
@@ -741,6 +738,9 @@ class PlayerManager(UnitManager):
         self.set_float(PlayerFields.PLAYER_PARRY_PERCENTAGE, self.parry_percentage)
         self.set_uint32(PlayerFields.PLAYER_BASE_MANA, self.base_mana)
 
+        # Skills
+        self.skill_manager.build_update()
+
         # Guild
         if self.guild_manager:
             self.guild_manager.build_update(self)
@@ -752,6 +752,7 @@ class PlayerManager(UnitManager):
             self.duel_manager.build_update(self)
 
         # Inventory
+        self.inventory.send_inventory_update(self.session, is_self)
         self.inventory.build_update()
 
         return self.get_object_create_packet(is_self)
