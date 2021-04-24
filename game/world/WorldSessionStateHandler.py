@@ -90,4 +90,3 @@ class WorldSessionStateHandler(object):
             RealmDatabaseManager.character_update(player_mgr.player)
         except AttributeError:
             pass
-        
