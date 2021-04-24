@@ -137,7 +137,6 @@ class AuraManager:
             if aura.duration <= 0:
                 self.remove_aura(aura)
 
-
     def can_apply_aura(self, aura):
         if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
                 len(self.get_auras_by_spell_id(aura.spell_id)) > 0:
