@@ -653,6 +653,9 @@ class UnitManager(ObjectManager):
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form
 
+    def has_form(self, shapeshift_form):
+        return self.shapeshift_form == shapeshift_form
+
     # Implemented by PlayerManager
     def add_combo_points_on_target(self, target, combo_points):
         pass

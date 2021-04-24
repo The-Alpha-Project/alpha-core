@@ -19,6 +19,7 @@ from utils import Formulas
 from utils.constants.DuelCodes import *
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
+from utils.constants.SpellCodes import ShapeshiftForms
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
@@ -974,11 +975,12 @@ class PlayerManager(UnitManager):
 
         return int(min_damage), int(max_damage)
 
-    # TODO: Handle bear form.
     def after_damage_calculation(self, damage_info, as_player=False):
         if self.player.class_ == Classes.CLASS_WARRIOR:
-            new_rage = self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, as_player=as_player)
-            self.set_rage(new_rage)
+            self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, as_player=as_player))
+            self.set_dirty()
+        elif self.player.class_ == Classes.CLASS_DRUID and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
+            self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, as_player=as_player))
             self.set_dirty()
         return
 
