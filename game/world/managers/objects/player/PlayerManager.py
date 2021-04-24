@@ -889,7 +889,7 @@ class PlayerManager(UnitManager):
                     should_update_power = False
                 else:
                     if not self.in_combat:
-                        if self.power_2 < 200:
+                        if self.power_2 - 20 < 0:
                             self.set_rage(0)
                         else:
                             self.set_rage(self.power_2 - 20)
@@ -976,6 +976,13 @@ class PlayerManager(UnitManager):
         max_damage = (weapon_max_dmg + attack_power / 14) * dual_wield_penalty
 
         return int(min_damage), int(max_damage)
+
+    def after_damage_calculation(self, damage_info, as_player=False):
+        if self.player.class_ == Classes.CLASS_WARRIOR:
+            new_rage = self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, as_player=as_player)
+            self.set_rage(new_rage)
+            self.set_dirty()
+        return
 
     def _send_attack_swing_error(self, victim, opcode):
         data = pack('<2Q', self.guid, victim.guid if victim else 0)

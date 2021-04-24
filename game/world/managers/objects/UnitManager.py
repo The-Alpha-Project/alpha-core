@@ -373,6 +373,8 @@ class UnitManager(ObjectManager):
         # Not taking "subdamages" into account
         damage_info.total_damage = damage_info.damage
 
+        self.after_damage_calculation(damage_info, as_player=self.get_type() == ObjectTypes.TYPE_PLAYER)
+
         if attack_type == AttackTypes.BASE_ATTACK:
             damage_info.proc_attacker = ProcFlags.DEAL_COMBAT_DMG | ProcFlags.SWING
             damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
@@ -424,6 +426,10 @@ class UnitManager(ObjectManager):
             max_damage = tmp_min
 
         return random.randint(min_damage, max_damage)
+
+    # Implemented by PlayerManager
+    def after_damage_calculation(self, damage_info, as_player=False):
+        return
 
     # Implemented by PlayerManager and CreatureManager
     def calculate_min_max_damage(self, attack_type=0):
