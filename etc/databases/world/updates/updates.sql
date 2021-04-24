@@ -128,5 +128,17 @@ begin not atomic
 
         insert into applied_updates values ('230420211');
     end if;
+
+    -- 24/04/2021 1
+    if (select count(*) from applied_updates where id='240420211') = 0 then'
+        -- Fix reward count of Kobold Camp Cleanup
+        update quest_template set RewItemCount1 = 1 where entry = 7;
+        -- Fix rewards of quest A New Threat
+        update quest_template set RewItemId1 = 0, RewChoiceItemId1 = 2173, RewChoiceItemCount3 = 0 where entry = 170;
+        -- Rustic Belt -> Dwarven Chain Belt
+        update item_template set name = 'Dwarven Chain Belt' where entry = 2172;
+
+        insert into applied_updates values ('240420211');
+    end if;
 end $
 delimiter ;
