@@ -130,7 +130,7 @@ begin not atomic
     end if;
 
     -- 24/04/2021 1
-    if (select count(*) from applied_updates where id='240420211') = 0 then'
+    if (select count(*) from applied_updates where id='240420211') = 0 then
         -- Fix reward count of Kobold Camp Cleanup
         update quest_template set RewItemCount1 = 1 where entry = 7;
         -- Fix rewards of quest A New Threat
