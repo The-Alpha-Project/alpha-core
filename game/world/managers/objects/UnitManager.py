@@ -442,9 +442,6 @@ class UnitManager(ObjectManager):
             target.enter_combat()
             target.set_dirty()
 
-        if not target.in_combat:
-            target.enter_combat()
-
         target.receive_damage(damage)
 
     def receive_damage(self, amount):
