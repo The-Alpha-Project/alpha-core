@@ -747,9 +747,11 @@ class PlayerManager(UnitManager):
         else:
             self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 
+        # Duel
         if self.duel_manager:
             self.duel_manager.build_update(self)
 
+        # Inventory
         self.inventory.build_update()
 
         return self.get_object_create_packet(is_self)
