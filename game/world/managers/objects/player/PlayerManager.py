@@ -889,7 +889,7 @@ class PlayerManager(UnitManager):
                     should_update_power = False
                 else:
                     if not self.in_combat:
-                        if self.power_2 - 20 < 0:
+                        if self.power_2 - 20 <= 0:
                             self.set_rage(0)
                         else:
                             self.set_rage(self.power_2 - 20)
