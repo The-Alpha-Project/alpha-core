@@ -376,13 +376,13 @@ class QuestManager(object):
 
     def build_update(self):
         for index, quest_id in enumerate(self.quests.keys()):
-            self.player_mgr.set_uint64(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6), quest_id)
+            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6), quest_id)
             # TODO Finish / investigate below values
-            self.player_mgr.set_uint64(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 1, 0)  # quest giver ID ?
-            self.player_mgr.set_uint64(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 2, 0)  # quest rewarder ID ?
-            self.player_mgr.set_uint64(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 3, 0)  # quest progress
-            self.player_mgr.set_uint64(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 4, 0)  # quest failure time
-            self.player_mgr.set_uint64(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 5, 0)  # number of mobs to kill
+            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 1, 0)  # quest giver ID ?
+            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 2, 0)  # quest rewarder ID ?
+            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 3, 0)  # quest progress
+            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 4, 0)  # quest failure time
+            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 5, 0)  # number of mobs to kill
 
 
 class QuestMenu:
