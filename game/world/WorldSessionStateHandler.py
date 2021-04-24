@@ -1,4 +1,5 @@
 from multiprocessing import Value
+from database.realm.RealmDatabaseManager import *
 
 WORLD_SESSIONS = []
 CURRENT_SESSIONS = Value('i', 0)
@@ -72,3 +73,20 @@ class WorldSessionStateHandler(object):
             if session.player_mgr and session.player_mgr.online:
                 if not session.player_mgr.update_lock:
                     session.player_mgr.update()
+
+    @staticmethod
+    def save_characters():
+        try:
+            for session in WorldSessionStateHandler.get_world_sessions():
+                if session.player_mgr and session.player_mgr.online:
+                    WorldSessionStateHandler.save_character(session.player_mgr)
+        except AttributeError:
+            pass
+
+    @staticmethod
+    def save_character(player_mgr):
+        try:
+            player_mgr.sync_player()
+            RealmDatabaseManager.character_update(player_mgr.player)
+        except AttributeError:
+            pass

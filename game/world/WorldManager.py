@@ -12,9 +12,7 @@ from game.world.managers.GridManager import GridManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
-from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import *
-
 from utils.Logger import Logger
 
 
@@ -49,12 +47,6 @@ class WorldServerSessionHandler(object):
 
             self.auth_challenge(self.request)
 
-            realm_saving_scheduler = BackgroundScheduler()
-            realm_saving_scheduler._daemon = True
-            realm_saving_scheduler.add_job(self.save_character, 'interval',
-                                           seconds=config.Server.Settings.realm_saving_interval_seconds)
-            realm_saving_scheduler.start()
-
             incoming_thread = threading.Thread(target=self.process_incoming)
             incoming_thread.daemon = True
             incoming_thread.start()
@@ -68,6 +60,9 @@ class WorldServerSessionHandler(object):
 
         finally:
             self.disconnect()
+
+    def save_character(self):
+        WorldSessionStateHandler.save_character(self.player_mgr)
 
     def enqueue_packet(self, data):
         self.outgoing_pending.put_nowait(data)
@@ -115,14 +110,6 @@ class WorldServerSessionHandler(object):
         except OSError:
             pass
 
-    def save_character(self):
-        try:
-            self.player_mgr.sync_player()
-            RealmDatabaseManager.character_update(self.player_mgr.player)
-            RealmDatabaseManager.character_update_social(self.player_mgr.friends_manager.character_social)
-        except AttributeError:
-            pass
-
     def auth_challenge(self, sck):
         data = pack('<6B', 0, 0, 0, 0, 0, 0)
         sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))
@@ -168,6 +155,13 @@ class WorldServerSessionHandler(object):
 
     @staticmethod
     def schedule_updates():
+        # Save characters
+        realm_saving_scheduler = BackgroundScheduler()
+        realm_saving_scheduler._daemon = True
+        realm_saving_scheduler.add_job(WorldSessionStateHandler.save_characters, 'interval',
+                                       seconds=config.Server.Settings.realm_saving_interval_seconds)
+        realm_saving_scheduler.start()
+
         # Player updates
         player_update_scheduler = BackgroundScheduler()
         player_update_scheduler._daemon = True
