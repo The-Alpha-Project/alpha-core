@@ -7,6 +7,7 @@ from database.world.WorldModels import QuestTemplate
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import QuestGiverStatus, QuestStatus, QuestFailedReasons, ObjectTypes
+from utils.constants.UpdateFields import PlayerFields
 
 MAX_QUEST_LOG = 20
 
@@ -150,71 +151,79 @@ class QuestManager(object):
 
     @staticmethod
     def generate_rew_choice_item_list(quest):
-        rew_choice_item_list = list(filter((0).__ne__, [quest.RewChoiceItemId1,
-                                                        quest.RewChoiceItemId2,
-                                                        quest.RewChoiceItemId3,
-                                                        quest.RewChoiceItemId4,
-                                                        quest.RewChoiceItemId5,
-                                                        quest.RewChoiceItemId6]))
+        rew_choice_item_list = list([quest.RewChoiceItemId1,
+                                     quest.RewChoiceItemId2,
+                                     quest.RewChoiceItemId3,
+                                     quest.RewChoiceItemId4,
+                                     quest.RewChoiceItemId5,
+                                     quest.RewChoiceItemId6])
         return rew_choice_item_list
 
     @staticmethod
     def generate_rew_choice_count_list(quest):
-        rew_choice_count_list = list(filter((0).__ne__, [quest.RewChoiceItemCount1,
-                                                         quest.RewChoiceItemCount2,
-                                                         quest.RewChoiceItemCount3,
-                                                         quest.RewChoiceItemCount4,
-                                                         quest.RewChoiceItemCount5,
-                                                         quest.RewChoiceItemCount6]))
+        rew_choice_count_list = list([quest.RewChoiceItemCount1,
+                                      quest.RewChoiceItemCount2,
+                                      quest.RewChoiceItemCount3,
+                                      quest.RewChoiceItemCount4,
+                                      quest.RewChoiceItemCount5,
+                                      quest.RewChoiceItemCount6])
         return rew_choice_count_list
 
     @staticmethod
     def generate_rew_item_list(quest):
-        rew_item_list = list(filter((0).__ne__, [quest.RewItemId1,
-                                                 quest.RewItemId2,
-                                                 quest.RewItemId3,
-                                                 quest.RewItemId4]))
+        rew_item_list = list([quest.RewItemId1,
+                              quest.RewItemId3,
+                              quest.RewItemId2,
+                              quest.RewItemId4])
         return rew_item_list
 
     @staticmethod
     def generate_rew_count_list(quest):
-        rew_count_list = list(filter((0).__ne__, [quest.RewItemCount1,
-                                                  quest.RewItemCount2,
-                                                  quest.RewItemCount3,
-                                                  quest.RewItemCount4]))
+        rew_count_list = list([quest.RewItemCount1,
+                               quest.RewItemCount2,
+                               quest.RewItemCount3,
+                               quest.RewItemCount4])
         return rew_count_list
 
     @staticmethod
     def generate_req_item_list(quest):
-        req_item_list = list(filter((0).__ne__, [quest.ReqItemId1,
-                                                 quest.ReqItemId2,
-                                                 quest.ReqItemId3,
-                                                 quest.ReqItemId4]))
+        req_item_list = list([quest.ReqItemId1,
+                              quest.ReqItemId2,
+                              quest.ReqItemId3,
+                              quest.ReqItemId4])
         return req_item_list
 
     @staticmethod
     def generate_req_count_list(quest):
-        req_count_list = list(filter((0).__ne__, [quest.ReqItemCount1,
-                                                  quest.ReqItemCount2,
-                                                  quest.ReqItemCount3,
-                                                  quest.ReqItemCount4]))
+        req_count_list = list([quest.ReqItemCount1,
+                               quest.ReqItemCount2,
+                               quest.ReqItemCount3,
+                               quest.ReqItemCount4])
         return req_count_list
 
     @staticmethod
     def generate_req_creature_or_go_list(quest):
-        req_creature_or_go_list = list(filter((0).__ne__, [quest.ReqCreatureOrGOId1,
-                                                           quest.ReqCreatureOrGOId2,
-                                                           quest.ReqCreatureOrGOId3,
-                                                           quest.ReqCreatureOrGOId4]))
+        req_creature_or_go_list = list([quest.ReqCreatureOrGOId1,
+                                        quest.ReqCreatureOrGOId2,
+                                        quest.ReqCreatureOrGOId3,
+                                        quest.ReqCreatureOrGOId4])
         return req_creature_or_go_list
 
     @staticmethod
     def generate_req_creature_or_go_count_list(quest):
-        req_creature_or_go_count_list = list(filter((0).__ne__, [quest.ReqCreatureOrGOCount1,
-                                                                 quest.ReqCreatureOrGOCount2,
-                                                                 quest.ReqCreatureOrGOCount3,
-                                                                 quest.ReqCreatureOrGOCount4]))
+        req_creature_or_go_count_list = list([quest.ReqCreatureOrGOCount1,
+                                              quest.ReqCreatureOrGOCount2,
+                                              quest.ReqCreatureOrGOCount3,
+                                              quest.ReqCreatureOrGOCount4])
         return req_creature_or_go_count_list
+
+    @staticmethod
+    def generate_objective_text_list(quest):
+        req_objective_text_list = list([quest.ObjectiveText1,
+                                        quest.ObjectiveText2,
+                                        quest.ObjectiveText3,
+                                        quest.ObjectiveText4])
+        return req_objective_text_list
 
     def update_surrounding_quest_status(self):
         for guid, unit in list(GridManager.get_surrounding_units(self.player_mgr).items()):
@@ -292,15 +301,15 @@ class QuestManager(object):
         )
 
         # Reward choices
-        rew_choice_item_list = self.generate_rew_choice_item_list(quest)
-        rew_choice_count_list = self.generate_rew_choice_count_list(quest)
+        rew_choice_item_list = list(filter((0).__ne__, self.generate_rew_choice_item_list(quest)))
+        rew_choice_count_list = list(filter((0).__ne__, self.generate_rew_choice_count_list(quest)))
         data += pack('<I', len(rew_choice_item_list))
         for index, item in enumerate(rew_choice_item_list):
             data += _gen_item_struct(item, rew_choice_count_list[index])
 
         # Reward items
-        rew_item_list = self.generate_rew_item_list(quest)
-        rew_count_list = self.generate_rew_count_list(quest)
+        rew_item_list = list(filter((0).__ne__, self.generate_rew_item_list(quest)))
+        rew_count_list = list(filter((0).__ne__, self.generate_rew_count_list(quest)))
         data += pack('<I', len(rew_item_list))
         for index, item in enumerate(rew_item_list):
             data += _gen_item_struct(item, rew_count_list[index])
@@ -309,15 +318,15 @@ class QuestManager(object):
         data += pack('<I', quest.RewOrReqMoney)
 
         # Required items
-        req_item_list = self.generate_req_item_list(quest)
-        req_count_list = self.generate_req_count_list(quest)
+        req_item_list = list(filter((0).__ne__, self.generate_req_item_list(quest)))
+        req_count_list = list(filter((0).__ne__, self.generate_req_count_list(quest)))
         data += pack('<I', len(req_item_list))
         for index, item in enumerate(req_item_list):
             data += _gen_item_struct(item, req_count_list[index], include_display_id=False)
 
         # Required kill / item count
-        req_creature_or_go_list = self.generate_req_creature_or_go_list(quest)
-        req_creature_or_go_count_list = self.generate_req_creature_or_go_count_list(quest)
+        req_creature_or_go_list = list(filter((0).__ne__, self.generate_req_creature_or_go_list(quest)))
+        req_creature_or_go_count_list = list(filter((0).__ne__, self.generate_req_creature_or_go_count_list(quest)))
         data += pack('<I', len(req_creature_or_go_list))
         for index, creature_or_go in enumerate(req_creature_or_go_list):
             data += pack(
@@ -328,6 +337,71 @@ class QuestManager(object):
 
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
 
+    def send_quest_query_response(self, quest_id):
+        data = b''
+        quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
+
+        data += pack(f'<8I',
+            quest_id,
+            quest.Method,
+            quest.QuestLevel,
+            quest.ZoneOrSort,
+            quest.Type,
+            quest.NextQuestInChain,
+            quest.RewOrReqMoney,
+            quest.SrcItemId,
+        )
+
+        # Req items
+        req_item_list = self.generate_req_item_list(quest)
+        req_count_list = self.generate_req_count_list(quest)
+        for index, item in enumerate(req_item_list):
+            data += pack('<2I', item, req_count_list[index])
+
+        # Reward choices
+        rew_choice_item_list = self.generate_rew_choice_item_list(quest)
+        rew_choice_count_list = self.generate_rew_choice_count_list(quest)
+        for index, item in enumerate(rew_choice_item_list):
+            data += pack('<2I', item, rew_choice_count_list[index])
+
+        data += pack(f'<I2fI{len(quest.Title)+1}s{len(quest.Details)+1}s{len(quest.Objectives)+1}s{len(quest.EndText)+1}s',
+            quest.PointMapId,
+            quest.PointX,
+            quest.PointY,
+            quest.PointOpt,
+            PacketWriter.string_to_bytes(quest.Title),
+            PacketWriter.string_to_bytes(quest.Details),
+            PacketWriter.string_to_bytes(quest.Objectives),
+            PacketWriter.string_to_bytes(quest.EndText),
+        )
+
+        # Required kill / item count / Objective Text List
+        req_creature_or_go_list = self.generate_req_creature_or_go_list(quest)
+        req_creature_or_go_count_list = self.generate_req_creature_or_go_count_list(quest)
+        rew_choice_item_list = self.generate_rew_choice_item_list(quest)
+        rew_choice_count_list = self.generate_rew_choice_count_list(quest)
+        req_objective_text_list = self.generate_objective_text_list(quest)
+        for index, creature_or_go in enumerate(req_creature_or_go_list):
+            data += pack(f'<4I{len(req_objective_text_list[index])}s',
+                creature_or_go if creature_or_go >= 0 else (creature_or_go * -1) | 0x80000000,
+                req_creature_or_go_count_list[index],
+                rew_choice_item_list[index],
+                rew_choice_count_list[index],
+                PacketWriter.string_to_bytes(req_objective_text_list[index]),
+            )
+
+        self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUEST_QUERY_RESPONSE, data))
+
+    def add_quest(self, quest_id, quest_giver_guid):
+        self.quests[quest_id] = True  # TODO: Use a real quest status
+        self.send_quest_query_response(quest_id)
+        self.player_mgr.set_dirty()
+        data = pack('QI', quest_giver_guid, 0) # TODO: figure out this quest giver status
+        self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_STATUS, data))
+
+    def build_update(self):
+        for quest_id in self.quests.keys():
+            self.player_mgr.set_uint64(PlayerFields.PLAYER_QUEST_LOG_1_1, quest_id)
 
 class QuestMenu:
     class QuestMenuItem(NamedTuple):
