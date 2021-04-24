@@ -442,14 +442,14 @@ class UnitManager(ObjectManager):
             target.enter_combat()
             target.set_dirty()
 
-        target.receive_damage(damage)
+        target.receive_damage(damage, source=self)
 
-    def receive_damage(self, amount):
+    def receive_damage(self, amount, source=None):
         is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
 
         new_health = self.health - amount
         if new_health <= 0:
-            self.die(self)
+            self.die(killer=source)
         else:
             self.set_health(new_health)
 

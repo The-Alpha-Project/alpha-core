@@ -1050,11 +1050,11 @@ class PlayerManager(UnitManager):
         self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
 
     # override
-    def receive_damage(self, amount):
+    def receive_damage(self, amount, source=None):
         if self.is_god:
             return
 
-        super().receive_damage(amount)
+        super().receive_damage(amount, source)
 
     def set_dirty(self, is_dirty=True, dirty_inventory=False):
         self.dirty = is_dirty
