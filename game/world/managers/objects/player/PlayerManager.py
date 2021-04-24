@@ -1126,8 +1126,6 @@ class PlayerManager(UnitManager):
             self.inventory.send_inventory_update(self.session, is_self=True)
             self.inventory.build_update()
 
-        self.quest_manager.build_update()
-
         if not update_packet:
             update_packet = self.generate_proper_update_packet(is_self=True, create=create)
 
