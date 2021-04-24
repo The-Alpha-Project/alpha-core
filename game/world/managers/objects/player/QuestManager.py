@@ -312,11 +312,11 @@ class QuestManager(object):
             quest.SrcItemId,
         )
 
-        # Req items
-        req_item_list = self.generate_req_item_list(quest)
-        req_count_list = self.generate_req_count_list(quest)
-        for index, item in enumerate(req_item_list):
-            data += pack('<2I', item, req_count_list[index])
+        # Rew items
+        rew_item_list = self.generate_rew_item_list(quest)
+        rew_item_count_list = self.generate_rew_count_list(quest)
+        for index, item in enumerate(rew_item_list):
+            data += pack('<2I', item, rew_item_count_list[index])
 
         # Reward choices
         rew_choice_item_list = self.generate_rew_choice_item_list(quest)
@@ -340,21 +340,27 @@ class QuestManager(object):
             end_bytes,
         )
 
-        # Required kill / item count / Objective Text List
+        # Required kills / Required items count
         req_creature_or_go_list = self.generate_req_creature_or_go_list(quest)
         req_creature_or_go_count_list = self.generate_req_creature_or_go_count_list(quest)
-        rew_choice_item_list = self.generate_rew_choice_item_list(quest)
-        rew_choice_count_list = self.generate_rew_choice_count_list(quest)
-        req_objective_text_list = self.generate_objective_text_list(quest)
+        req_item_list = self.generate_req_item_list(quest)
+        req_count_list = self.generate_req_count_list(quest)
         for index, creature_or_go in enumerate(req_creature_or_go_list):
-            req_objective_text_bytes = PacketWriter.string_to_bytes(req_objective_text_list[index])
             data += pack(
-                f'<4I{len(req_objective_text_bytes)}s',
+                '<4I',
                 creature_or_go if creature_or_go >= 0 else (creature_or_go * -1) | 0x80000000,
                 req_creature_or_go_count_list[index],
-                rew_choice_item_list[index],
-                rew_choice_count_list[index],
-                req_objective_text_bytes,
+                req_item_list[index],
+                req_count_list[index]
+            )
+
+        # Objective texts
+        req_objective_text_list = self.generate_objective_text_list(quest)
+        for index, objective_text in enumerate(req_objective_text_list):
+            req_objective_text_bytes = PacketWriter.string_to_bytes(req_objective_text_list[index])
+            data += pack(
+                f'{len(req_objective_text_bytes)}s',
+                req_objective_text_bytes
             )
 
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUEST_QUERY_RESPONSE, data))
