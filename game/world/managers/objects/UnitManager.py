@@ -246,6 +246,7 @@ class UnitManager(ObjectManager):
         self.combat_target = None
 
         self.send_melee_attack_stop(victim.guid if victim else self.guid)
+        self.set_dirty()
 
     def send_melee_attack_start(self, victim_guid):
         data = pack('<2Q', self.guid, victim_guid)
@@ -690,7 +691,7 @@ class UnitManager(ObjectManager):
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             if killer.current_selection == self.guid:
-                killer.set_current_selection(0)
+                killer.set_current_selection(killer.guid)
                 killer.set_dirty()
 
             # Clear combo of killer if this unit was the target
