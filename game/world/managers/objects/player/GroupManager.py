@@ -20,6 +20,7 @@ class GroupManager(object):
         self.party_leader.set_group_leader(True)
         self.allowed_looters = {}
         self._last_looter = None  # For Round Robin, cycle will start at leader.
+        self.last_surrounding = None  # Avoid two consecutive calls to GridManager
 
     # When player sends an invite, a GroupManager is created, that doesnt mean the party actually exists until
     # the other player accepts the invitation.
@@ -86,8 +87,7 @@ class GroupManager(object):
             len(self.members),
             leader_name_bytes,
             self.party_leader.guid,
-            1  # If party leader is online or not
-        )
+            1)  # If party leader is online or not
 
         # Fill all group members.
         for member in self.members.values():
@@ -99,14 +99,12 @@ class GroupManager(object):
                 f'<{len(member_name_bytes)}sQB',
                 member_name_bytes,
                 member.guid,
-                1  # If member is online or not
-             )
+                1)  # If member is online or not
 
         data += pack(
             '<BQ',
             self.loot_method,
-            0 if not self.master_looter else self.master_looter.guid  # Master Looter guid
-        )
+            0 if not self.master_looter else self.master_looter.guid)  # Master Looter guid
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
         self.send_packet_to_members(packet)
@@ -116,7 +114,9 @@ class GroupManager(object):
         disband = player_mgr == self.party_leader or len(self.members) == 2 or force_disband
         for member in self.members.values():
             if disband or member == player_mgr:
-                GroupManager.send_group_operation_result(member, PartyOperations.PARTY_OP_LEAVE, member.player.name, PartyResults.ERR_PARTY_RESULT_OK)
+                #  If this GroupManager is being destroyed due a canceled invitation, just let the leader know the target declined.
+                if self.is_party_formed():
+                    GroupManager.send_group_operation_result(member, PartyOperations.PARTY_OP_LEAVE, member.player.name, PartyResults.ERR_PARTY_RESULT_OK)
                 member.group_manager = None
                 member.set_group_leader(False)
                 member.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
@@ -126,12 +126,11 @@ class GroupManager(object):
                     player_mgr.session.enqueue_packet(packet)
 
         if disband:
-            self.members.clear()
+            self.flush()
         elif player_mgr.guid in self.members:
             self._set_previous_looter(player_mgr)
             self.members.pop(player_mgr.guid)
-
-        self.send_update()
+            self.send_update()
 
     def un_invite_player(self, player_mgr, target_player_mgr):
         if not target_player_mgr.group_manager or target_player_mgr.guid not in self.members:
@@ -231,13 +230,17 @@ class GroupManager(object):
     def is_party_member(self, player):
         return player in self.members.values()
 
-    def reward_group_money(self, player, creature):
+    def can_split_money(self, player, creature):
         surrounding = [m for m in self.members.values() if m in GridManager.get_surrounding_players(player).values()]
-        share = int(creature.loot_manager.current_money / len(surrounding))
-        # Append div remainder to the player who killed the creature for now.
-        remainder = int(creature.loot_manager.current_money % len(surrounding))
+        self.last_surrounding = surrounding
+        return int(creature.loot_manager.current_money / len(surrounding)) >= 1
 
-        for member in surrounding:
+    def reward_group_money(self, creature):
+        share = int(creature.loot_manager.current_money / len(self.last_surrounding))
+        # Append div remainder to the player who killed the creature for now.
+        remainder = int(creature.loot_manager.current_money % len(self.last_surrounding))
+
+        for member in self.last_surrounding:
             player_share = share if member != creature.killed_by else share + remainder
             # TODO: MSG_SPLIT_MONEY seems not to have any effect on the client.
             # data = pack('<Q2I', creature.guid, creature.loot_manager.current_money, ply_share)
@@ -302,6 +305,15 @@ class GroupManager(object):
         data = pack('<Q2f', player_mgr.guid, x, y)
         packet = PacketWriter.get_packet(OpCode.MSG_MINIMAP_PING, data)
         self.send_packet_to_members(packet)
+
+    def flush(self):
+        self.members.clear()
+        self.last_surrounding = None
+        self.allowed_looters.clear()
+        self.invites.clear()
+        self.party_leader = None
+        self.master_looter = None
+        self._last_looter = None
 
     @staticmethod
     def invite_player(player_mgr, target_player_mgr):
