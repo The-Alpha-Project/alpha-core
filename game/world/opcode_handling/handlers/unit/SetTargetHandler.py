@@ -8,10 +8,6 @@ class SetTargetHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty set target packet
-            guid = unpack('<Q', reader.data[:8])[0]
-            if world_session.player_mgr and world_session.player_mgr.current_target != guid:
-                world_session.player_mgr.set_current_target(guid)
-                world_session.player_mgr.send_update_self()
-
+        #  Obsolete, this event triggers on client MouseOver event, triggered by mobs, game objects, npcs.
+        #  Selection instead triggers only when the user mouse clicks one of the above, which asure us he wants to interact.
         return 0
