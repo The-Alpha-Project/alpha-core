@@ -251,7 +251,6 @@ class GroupManager(object):
             member.mod_money(player_share)
 
         creature.loot_manager.clear_money()
-        self.send_packet_to_members(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
 
     def reward_group_xp(self, player, creature, is_elite):
         surrounding = [m for m in self.members.values() if m in GridManager.get_surrounding_players(player).values()]

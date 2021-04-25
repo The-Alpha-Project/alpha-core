@@ -62,15 +62,6 @@ class MovementHandler(object):
                 GridManager.update_object(world_session.player_mgr)
                 world_session.player_mgr.sync_player()
 
-                # Hackfix for client not sending CMSG_ATTACKSWING.
-                # m_combat.m_attackSent getting stuck in true: https://i.imgur.com/LLasM8i.png
-                # if reader.opcode == OpCode.MSG_MOVE_STOP or \
-                #        reader.opcode == OpCode.MSG_MOVE_STOP_PITCH or \
-                #        reader.opcode == OpCode.MSG_MOVE_STOP_STRAFE or \
-                #        reader.opcode == OpCode.MSG_MOVE_STOP_TURN:
-                #    data = pack('<2QI', world_session.player_mgr.guid, 0, 0)
-                #    world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data))
-
                 # Get up if you jump while not standing
                 if reader.opcode == OpCode.MSG_MOVE_JUMP and \
                         world_session.player_mgr.stand_state != StandState.UNIT_DEAD and \

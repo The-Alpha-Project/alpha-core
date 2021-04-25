@@ -159,7 +159,8 @@ class WorldServerSessionHandler(object):
         realm_saving_scheduler = BackgroundScheduler()
         realm_saving_scheduler._daemon = True
         realm_saving_scheduler.add_job(WorldSessionStateHandler.save_characters, 'interval',
-                                       seconds=config.Server.Settings.realm_saving_interval_seconds)
+                                       seconds=config.Server.Settings.realm_saving_interval_seconds,
+                                       max_instances=1)
         realm_saving_scheduler.start()
 
         # Player updates

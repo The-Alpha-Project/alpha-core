@@ -264,7 +264,7 @@ class LootTypes(IntEnum):
     LOOT_TYPE_FISHING = 3
 
 
-class QuestStatus(IntEnum):
+class QuestState(IntEnum):
     QUEST_GREETING = 0
     QUEST_OFFER = 1
     QUEST_ACCEPTED = 2
