@@ -290,7 +290,7 @@ class Definitions(object):
         try:
             opcode = OpCode(opcode)
             if opcode in HANDLER_DEFINITIONS:
-                return HANDLER_DEFINITIONS.get(OpCode(opcode)), 1
+                return HANDLER_DEFINITIONS.get(OpCode(opcode)), True
             else:
                 Logger.warning(f'[{world_session.client_address[0]}] Received {opcode.name} OpCode but is not handled.')
         except ValueError:
