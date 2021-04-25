@@ -115,7 +115,7 @@ class GroupManager(object):
         disband = player_mgr == self.party_leader or len(self.members) == 2 or force_disband
         for member in self.members.values():
             if disband or member == player_mgr:
-                #  If this GroupManager is being destroyed due a canceled invitation, just let the leader know the target declined.
+                # If this GroupManager is being destroyed due a canceled invitation, just let the leader know the target declined.
                 if self.is_party_formed():
                     GroupManager.send_group_operation_result(member, PartyOperations.PARTY_OP_LEAVE, member.player.name, PartyResults.ERR_PARTY_RESULT_OK)
                 member.group_manager = None
