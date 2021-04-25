@@ -478,9 +478,11 @@ class PlayerManager(UnitManager):
                 if self.group_manager and self.group_manager.is_party_formed():
                     self.group_manager.reward_group_money(self, enemy)
                 else:  # No need to send SMSG_LOOT_MONEY_NOTIFY ('Your share of the loot was...') if you are not in party.
-                    self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
                     self.mod_money(enemy.loot_manager.current_money)
                     enemy.loot_manager.clear_money()
+                    packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY)
+                    for looter in enemy.loot_manager.get_active_looters():
+                        looter.session.enqueue_packet(packet)
 
                 # if not enemy.loot_manager.has_loot():
                 #    self.send_loot_release(enemy.guid)
@@ -494,7 +496,9 @@ class PlayerManager(UnitManager):
                     if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
                         enemy.loot_manager.do_loot(slot)
                         data = pack('<B', slot)
-                        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
+                        packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
+                        for looter in enemy.loot_manager.get_active_looters():
+                            looter.session.enqueue_packet(packet)
 
                 # if not enemy.loot_manager.has_loot():
                 #    self.send_loot_release(enemy.guid)
@@ -508,22 +512,28 @@ class PlayerManager(UnitManager):
 
         # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
         enemy = GridManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
-        if enemy and enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
-            enemy.killed_by = None
-        # If in party, check if this player has rights to release the loot for FFA
-        elif enemy and enemy.killed_by and enemy.killed_by.group_manager:
-            if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
-                if not enemy.loot_manager.has_loot():  # Flush looters for this enemy.
-                    enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
+        if enemy:
+            if enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
                 enemy.killed_by = None
+            # If in party, check if this player has rights to release the loot for FFA
+            elif enemy.killed_by and enemy.killed_by.group_manager:
+                if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
+                    if not enemy.loot_manager.has_loot():  # Flush looters for this enemy.
+                        enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
+                    enemy.killed_by = None
 
-        if enemy and not enemy.loot_manager.has_loot():
-            enemy.set_lootable(False)
-            enemy.set_dirty()
+            if not enemy.loot_manager.has_loot():
+                enemy.set_lootable(False)
+                enemy.set_dirty()
+                enemy.loot_manager.clear()
+
+            enemy.loot_manager.remove_active_looter(self)
 
         self.set_dirty()
 
     def send_loot(self, victim):
+        #  At this point, this player have access to the loot window, add him to the active looters.
+        victim.loot_manager.add_active_looter(self)
         loot_type = victim.loot_manager.get_loot_type(self, victim)
         data = pack('<QBIB',
                     victim.guid,
