@@ -477,10 +477,8 @@ class PlayerManager(UnitManager):
             if enemy and enemy.loot_manager.has_money():
                 if self.group_manager and self.group_manager.is_party_formed():
                     self.group_manager.reward_group_money(self, enemy)
-                else:
+                else:  # No need to send SMSG_LOOT_MONEY_NOTIFY ('Your share of the loot was...') if you are not in party.
                     self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
-                    data = pack('<I', enemy.loot_manager.current_money)
-                    self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
                     self.mod_money(enemy.loot_manager.current_money)
                     enemy.loot_manager.clear_money()
 
