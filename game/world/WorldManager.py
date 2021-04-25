@@ -81,7 +81,7 @@ class WorldServerSessionHandler(object):
             reader = self.incoming_pending.get(block=True, timeout=None)
             if reader:  # Can be None if we shutdown the thread.
                 if reader.opcode:
-                    handler, res = Definitions.get_handler_from_packet(self, reader.opcode)
+                    handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
                     if handler:
                         res = handler(self, self.request, reader)
                         if res == 0:
@@ -91,7 +91,7 @@ class WorldServerSessionHandler(object):
                         elif res < 0:
                             self.disconnect()
                             break
-                    elif res == -1:
+                    elif not found:
                         Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
             else:
                 self.disconnect()

@@ -294,5 +294,7 @@ class Definitions(object):
             else:
                 Logger.warning(f'[{world_session.client_address[0]}] Received {opcode.name} OpCode but is not handled.')
         except ValueError:
-            return None, -1
-        return None, 0
+            # No handler, OpCode not found
+            return None, False
+        # No handler, but OpCode found
+        return None, True
