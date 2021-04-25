@@ -1,3 +1,4 @@
+from game.world.opcode_handling.handlers.NullHandler import NullHandler
 from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from utils.constants.OpCodes import OpCode
@@ -36,7 +37,6 @@ from game.world.opcode_handling.handlers.gameobject.GameObjectQueryHandler impor
 from game.world.opcode_handling.handlers.gameobject.GameobjUseHandler import GameobjUseHandler
 from game.world.opcode_handling.handlers.npc.CreatureQueryHandler import CreatureQueryHandler
 from game.world.opcode_handling.handlers.unit.SetSelectionHandler import SetSelectionHandler
-from game.world.opcode_handling.handlers.unit.SetTargetHandler import SetTargetHandler
 from game.world.opcode_handling.handlers.npc.TabardVendorActivateHandler import TabardVendorActivateHandler
 from game.world.opcode_handling.handlers.npc.BinderActivateHandler import BinderActivateHandler
 from game.world.opcode_handling.handlers.npc.PetitionShowlistHandler import PetitionShowlistHandler
@@ -159,7 +159,6 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GAMEOBJ_USE: GameobjUseHandler.handle,
     OpCode.CMSG_CREATURE_QUERY: CreatureQueryHandler.handle,
     OpCode.CMSG_SET_SELECTION: SetSelectionHandler.handle,
-    OpCode.CMSG_SET_TARGET: SetTargetHandler.handle,
     OpCode.MSG_TABARDVENDOR_ACTIVATE: TabardVendorActivateHandler.handle,
     OpCode.CMSG_BINDER_ACTIVATE: BinderActivateHandler.handle,
     OpCode.CMSG_PETITION_SHOWLIST: PetitionShowlistHandler.handle,
@@ -271,7 +270,16 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_START_BACKWARD: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_START_FORWARD: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_COLLIDE_REDIRECT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status
+    OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status,
+
+    # Ignored packets
+
+    # Triggers when hovering units with the mouse, handling it and setting UNIT_FIELD_TARGET every time it's received
+    # seems to be causing unexpected issues. We are just setting the field on CMSG_SET_SELECTION and manually in the
+    # places where it's required.
+    OpCode.CMSG_SET_TARGET: NullHandler.handle,
+    # No real purpose for now, just ignore. It's sent on object hover while having 'debugTargetInfo' set to "1".
+    OpCode.CMSG_DEBUG_AISTATE: NullHandler.handle
 }
 
 

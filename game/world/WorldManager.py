@@ -83,8 +83,12 @@ class WorldServerSessionHandler(object):
                 if reader.opcode:
                     handler, res = Definitions.get_handler_from_packet(self, reader.opcode)
                     if handler:
-                        Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
-                        if handler(self, self.request, reader) != 0:
+                        res = handler(self, self.request, reader)
+                        if res == 0:
+                            Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
+                        elif res == 1:
+                            Logger.debug(f'[{self.client_address[0]}] Ignoring {OpCode(reader.opcode).name}')
+                        elif res < 0:
                             self.disconnect()
                             break
                     elif res == -1:
