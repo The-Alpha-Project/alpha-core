@@ -1,6 +1,7 @@
 from struct import pack, unpack
 from game.world.managers.GridManager import GridManager
 from network.packet.PacketWriter import *
+from utils.constants.UnitCodes import WeaponMode
 
 
 class AttackSwingHandler(object):
@@ -16,6 +17,7 @@ class AttackSwingHandler(object):
                 AttackSwingHandler.handle_stop(world_session, socket, reader)
                 return 0
 
+            world_session.player_mgr.set_weapon_mode(WeaponMode.NORMALMODE)
             world_session.player_mgr.attack(enemy)
 
         return 0
