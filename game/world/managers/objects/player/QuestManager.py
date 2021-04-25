@@ -81,17 +81,20 @@ class QuestManager(object):
             if len(relation) == 0:
                 continue
             quest_entry = relation[1]
+            quest_status = QuestStatus.QUEST_STATUS_NONE
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
-            quest_menu.add_menu_item(quest, QuestStatus.QUEST_OFFER)
+            if quest_entry in self.quests:
+                quest_status = self.quests[quest_entry]
+            quest_menu.add_menu_item(quest, quest_status)
 
         if len(quest_menu.items) == 1:
             quest_menu_item = list(quest_menu.items.values())[0]
-            if quest_menu_item.status == QuestStatus.QUEST_REWARD:
+            if quest_menu_item.status == QuestStatus.QUEST_STATUS_AVAILABLE:
                 # TODO: Handle completed quest
                 return 0
-            elif quest_menu_item.status == QuestStatus.QUEST_ACCEPTED:
+            elif quest_menu_item.status == QuestStatus.QUEST_STATUS_INCOMPLETE:
                 # TODO: Handle in progress quests
                 return 0
             else:
@@ -366,7 +369,7 @@ class QuestManager(object):
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUEST_QUERY_RESPONSE, data))
 
     def add_quest(self, quest_id, quest_giver_guid):
-        self.quests[quest_id] = True  # TODO: Use a real quest status
+        self.quests[quest_id] = QuestStatus.QUEST_STATUS_INCOMPLETE
         self.send_quest_query_response(quest_id)
         data = pack('QI', quest_giver_guid, 0)  # TODO: figure out this quest giver status
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_STATUS, data))
