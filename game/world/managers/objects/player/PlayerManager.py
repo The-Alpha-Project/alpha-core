@@ -475,8 +475,8 @@ class PlayerManager(UnitManager):
         if self.current_selection > 0:
             enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection)
             if enemy and enemy.loot_manager.has_money():
-                if self.group_manager and self.group_manager.is_party_formed():
-                    self.group_manager.reward_group_money(self, enemy)
+                if self.group_manager and self.group_manager.is_party_formed() and self.group_manager.can_split_money(self, enemy):
+                    self.group_manager.reward_group_money(enemy)
                 else:  # No need to send SMSG_LOOT_MONEY_NOTIFY ('Your share of the loot was...') if you are not in party.
                     self.mod_money(enemy.loot_manager.current_money)
                     enemy.loot_manager.clear_money()

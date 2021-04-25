@@ -57,7 +57,7 @@ class LootManager(object):
             self.active_looters.remove(player_mgr)
 
     def get_active_looters(self):
-        return self.active_looters
+        return [looter for looter in self.active_looters if looter]
 
     def clear(self):
         self.clear_money()
