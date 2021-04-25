@@ -532,8 +532,6 @@ class PlayerManager(UnitManager):
         self.set_dirty()
 
     def send_loot(self, victim):
-        #  At this point, this player have access to the loot window, add him to the active looters.
-        victim.loot_manager.add_active_looter(self)
         loot_type = victim.loot_manager.get_loot_type(self, victim)
         data = pack('<QBIB',
                     victim.guid,
@@ -558,6 +556,9 @@ class PlayerManager(UnitManager):
                                  loot.item.item_template.display_id
                                  )
                 slot += 1
+
+            #  At this point, this player have access to the loot window, add him to the active looters.
+            victim.loot_manager.add_active_looter(self)
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
         self.session.enqueue_packet(packet)
