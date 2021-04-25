@@ -6,7 +6,7 @@ from game.world.managers.GridManager import GridManager
 from database.world.WorldModels import QuestTemplate
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ObjectCodes import QuestGiverStatus, QuestStatus, QuestFailedReasons, ObjectTypes
+from utils.constants.ObjectCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes
 from utils.constants.UpdateFields import PlayerFields
 
 MAX_QUEST_LOG = 20
@@ -84,14 +84,17 @@ class QuestManager(object):
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
-            quest_menu.add_menu_item(quest, QuestStatus.QUEST_OFFER)
+            quest_state = QuestState.QUEST_OFFER
+            if quest_entry in self.quests:
+                quest_state = self.quests[quest_entry].state
+            quest_menu.add_menu_item(quest, quest_state)
 
         if len(quest_menu.items) == 1:
             quest_menu_item = list(quest_menu.items.values())[0]
-            if quest_menu_item.status == QuestStatus.QUEST_REWARD:
+            if quest_menu_item.status == QuestState.QUEST_REWARD:
                 # TODO: Handle completed quest
                 return 0
-            elif quest_menu_item.status == QuestStatus.QUEST_ACCEPTED:
+            elif quest_menu_item.status == QuestState.QUEST_ACCEPTED:
                 # TODO: Handle in progress quests
                 return 0
             else:
@@ -209,8 +212,8 @@ class QuestManager(object):
             f'<Q{len(message_bytes)}s2iB',
             quest_giver_guid,
             message_bytes,
-            0,  # TODO: Gossip menu count
-            0,  # TODO: Gossip menu items
+            0,  # TODO: delay
+            0,  # TODO: emoteID
             len(quests)
         )
 
@@ -366,7 +369,7 @@ class QuestManager(object):
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUEST_QUERY_RESPONSE, data))
 
     def add_quest(self, quest_id, quest_giver_guid):
-        self.quests[quest_id] = True  # TODO: Use a real quest status
+        self.quests[quest_id] = Quest(quest_id)
         self.send_quest_query_response(quest_id)
         data = pack('QI', quest_giver_guid, 0)  # TODO: figure out this quest giver status
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_STATUS, data))
@@ -388,7 +391,7 @@ class QuestManager(object):
 class QuestMenu:
     class QuestMenuItem(NamedTuple):
         quest: QuestTemplate
-        status: QuestStatus
+        status: QuestState
 
     def __init__(self):
         self.items = {}
@@ -398,3 +401,8 @@ class QuestMenu:
 
     def clear_menu(self):
         self.items.clear()
+
+class Quest:
+    def __init__(self, quest_id):
+        self.quest_id = quest_id
+        self.state = QuestState.QUEST_ACCEPTED
