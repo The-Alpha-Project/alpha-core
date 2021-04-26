@@ -14,7 +14,7 @@ from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from database.world.WorldDatabaseManager import *
 from utils.Logger import Logger
-
+from utils.constants.AuthCodes import AuthCode
 
 STARTUP_TIME = time()
 WORLD_ON = True
@@ -45,18 +45,17 @@ class WorldServerSessionHandler(object):
             self.account_mgr = None
             self.keep_alive = True
 
-            self.auth_challenge(self.request)
+            if self.auth_challenge(self.request):
+                incoming_thread = threading.Thread(target=self.process_incoming)
+                incoming_thread.daemon = True
+                incoming_thread.start()
 
-            incoming_thread = threading.Thread(target=self.process_incoming)
-            incoming_thread.daemon = True
-            incoming_thread.start()
+                outgoing_thread = threading.Thread(target=self.process_outgoing)
+                outgoing_thread.daemon = True
+                outgoing_thread.start()
 
-            outgoing_thread = threading.Thread(target=self.process_outgoing)
-            outgoing_thread.daemon = True
-            outgoing_thread.start()
-
-            while self.receive(self.request) != -1 and self.keep_alive:
-                continue
+                while self.receive(self.request) != -1 and self.keep_alive:
+                    continue
 
         finally:
             self.disconnect()
@@ -97,35 +96,64 @@ class WorldServerSessionHandler(object):
                 self.disconnect()
 
     def disconnect(self):
+        # Avoid multiple calls.
+        if not self.keep_alive:
+            return
+        self.keep_alive = False
+
         try:
             if self.player_mgr:
                 self.player_mgr.logout()
         except AttributeError:
             pass
 
-        self.keep_alive = False
-        self.incoming_pending.empty()
-        self.outgoing_pending.empty()
-        WorldSessionStateHandler.remove(self)
+        # Unblock queues if they are waiting inside loop.
+        if self.incoming_pending.empty():
+            self.incoming_pending.put_nowait(None)
+        if self.outgoing_pending.empty():
+            self.outgoing_pending.put_nowait(None)
 
+        WorldSessionStateHandler.remove(self)
         try:
             self.request.shutdown(socket.SHUT_RDWR)
             self.request.close()
         except OSError:
             pass
 
+    #  We handle auth_challenge before launching queue threads and anything else.
     def auth_challenge(self, sck):
         data = pack('<6B', 0, 0, 0, 0, 0, 0)
-        sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))
+        try:
+            sck.settimeout(3)  # Set a 3 second timeout.
+            sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))  # Request challenge
+            reader = self.receive_client_message(sck)
+            if reader and reader.opcode == OpCode.CMSG_AUTH_SESSION:
+                handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
+                if handler:
+                    res = handler(self, sck, reader)
+                    if res == 0:
+                        return True
+            return False
+        except socket.timeout:  # Cant check this inside Auth handler.
+            data = pack('<B', AuthCode.AUTH_SESSION_EXPIRED)
+            sck.request.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
+            return False
+        finally:
+            sck.settimeout(None)
 
     def receive(self, sck):
         try:
+            sck.settimeout(120)  # Need to make sure we don't hang in here forever.
             reader = self.receive_client_message(sck)
+            sck.settimeout(None)
             if reader:
                 self.incoming_pending.put(reader)
             else:
                 return -1
             return 0
+        except socket.timeout:
+            self.disconnect()
+            return -1
         except OSError:
             self.disconnect()
             return -1
