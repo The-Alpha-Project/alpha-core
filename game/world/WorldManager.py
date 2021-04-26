@@ -107,10 +107,13 @@ class WorldServerSessionHandler(object):
         except AttributeError:
             pass
 
-        self.incoming_pending.empty()
-        self.outgoing_pending.empty()
-        WorldSessionStateHandler.remove(self)
+        # Unblock queues if they are waiting inside loop.
+        if self.incoming_pending.empty():
+            self.incoming_pending.put_nowait(None)
+        if self.outgoing_pending.empty():
+            self.outgoing_pending.put_nowait(None)
 
+        WorldSessionStateHandler.remove(self)
         try:
             self.request.shutdown(socket.SHUT_RDWR)
             self.request.close()
@@ -121,7 +124,7 @@ class WorldServerSessionHandler(object):
     def auth_challenge(self, sck):
         data = pack('<6B', 0, 0, 0, 0, 0, 0)
         try:
-            sck.settimeout(3)  #  Set a 3 second timeout.
+            sck.settimeout(3)  # Set a 3 second timeout.
             sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))  # Request challenge
             reader = self.receive_client_message(sck)
             if reader and reader.opcode == OpCode.CMSG_AUTH_SESSION:
@@ -131,7 +134,7 @@ class WorldServerSessionHandler(object):
                     if res == 0:
                         return True
             return False
-        except socket.timeout: #  Cant check this inside Auth handler.
+        except socket.timeout:  # Cant check this inside Auth handler.
             data = pack('<B', AuthCode.AUTH_SESSION_EXPIRED)
             sck.request.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
             return False
