@@ -46,6 +46,8 @@ class WorldServerSessionHandler(object):
             self.keep_alive = True
 
             if self.auth_challenge(self.request):
+                self.request.settimeout(120)  # 2 minutes timeout should be more than enough.
+
                 incoming_thread = threading.Thread(target=self.process_incoming)
                 incoming_thread.daemon = True
                 incoming_thread.start()
@@ -124,7 +126,7 @@ class WorldServerSessionHandler(object):
     def auth_challenge(self, sck):
         data = pack('<6B', 0, 0, 0, 0, 0, 0)
         try:
-            sck.settimeout(3)  # Set a 3 second timeout.
+            sck.settimeout(10)  # Set a 10 second timeout.
             sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))  # Request challenge
             reader = self.receive_client_message(sck)
             if reader and reader.opcode == OpCode.CMSG_AUTH_SESSION:
@@ -138,12 +140,9 @@ class WorldServerSessionHandler(object):
             data = pack('<B', AuthCode.AUTH_SESSION_EXPIRED)
             sck.request.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
             return False
-        finally:
-            sck.settimeout(None)
 
     def receive(self, sck):
         try:
-            sck.settimeout(120)  # Need to make sure we don't hang in here forever.
             reader = self.receive_client_message(sck)
             if reader:
                 self.incoming_pending.put(reader)
@@ -156,8 +155,6 @@ class WorldServerSessionHandler(object):
         except OSError:
             self.disconnect()
             return -1
-        finally:
-            sck.settimeout(None)
 
     def receive_client_message(self, sck):
         header_bytes = self.receive_all(sck, 6)  # 6 = header size
