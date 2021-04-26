@@ -45,7 +45,7 @@ class WorldServerSessionHandler(object):
             self.account_mgr = None
             self.keep_alive = True
 
-            if self.auth_challenge(self.request)
+            if self.auth_challenge(self.request):
                 incoming_thread = threading.Thread(target=self.process_incoming)
                 incoming_thread.daemon = True
                 incoming_thread.start()
