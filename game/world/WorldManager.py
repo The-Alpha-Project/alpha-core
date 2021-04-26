@@ -120,7 +120,7 @@ class WorldServerSessionHandler(object):
         except OSError:
             pass
 
-    #  We handle auth_challenge before launching queue threads and anything else.
+    # We handle auth_challenge before launching queue threads and anything else.
     def auth_challenge(self, sck):
         data = pack('<6B', 0, 0, 0, 0, 0, 0)
         try:
@@ -134,7 +134,7 @@ class WorldServerSessionHandler(object):
                     if res == 0:
                         return True
             return False
-        except socket.timeout:  # Cant check this inside Auth handler.
+        except socket.timeout:  # Can't check this inside Auth handler.
             data = pack('<B', AuthCode.AUTH_SESSION_EXPIRED)
             sck.request.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
             return False
@@ -145,7 +145,6 @@ class WorldServerSessionHandler(object):
         try:
             sck.settimeout(120)  # Need to make sure we don't hang in here forever.
             reader = self.receive_client_message(sck)
-            sck.settimeout(None)
             if reader:
                 self.incoming_pending.put(reader)
             else:
@@ -157,6 +156,8 @@ class WorldServerSessionHandler(object):
         except OSError:
             self.disconnect()
             return -1
+        finally:
+            sck.settimeout(None)
 
     def receive_client_message(self, sck):
         header_bytes = self.receive_all(sck, 6)  # 6 = header size
