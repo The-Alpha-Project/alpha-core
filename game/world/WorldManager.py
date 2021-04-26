@@ -45,15 +45,15 @@ class WorldServerSessionHandler(object):
             self.account_mgr = None
             self.keep_alive = True
 
-            incoming_thread = threading.Thread(target=self.process_incoming)
-            incoming_thread.daemon = True
-            incoming_thread.start()
+            if self.auth_challenge(self.request)
+                incoming_thread = threading.Thread(target=self.process_incoming)
+                incoming_thread.daemon = True
+                incoming_thread.start()
 
-            outgoing_thread = threading.Thread(target=self.process_outgoing)
-            outgoing_thread.daemon = True
-            outgoing_thread.start()
+                outgoing_thread = threading.Thread(target=self.process_outgoing)
+                outgoing_thread.daemon = True
+                outgoing_thread.start()
 
-            if self.auth_challenge(self.request):
                 while self.receive(self.request) != -1 and self.keep_alive:
                     continue
 
