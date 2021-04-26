@@ -459,7 +459,7 @@ class CommandManager(object):
     def kick(world_session, args):
         player = CommandManager._target_or_self(world_session, only_players=True)
         if player:
-            player.session.keep_alive = False
+            player.session.disconnect()
 
         return 0, ''
 
@@ -476,7 +476,7 @@ class CommandManager(object):
         # Kick all players
         for session in WorldSessionStateHandler.get_world_sessions():
             if session.player_mgr and session.player_mgr.online:
-                session.keep_alive = False
+                session.disconnect()
 
         return 0, ''
 

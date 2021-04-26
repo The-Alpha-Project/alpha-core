@@ -140,5 +140,12 @@ begin not atomic
 
         insert into applied_updates values ('240420211');
     end if;
+
+    -- 25/04/2021 1
+    if (select count(*) from applied_updates where id='250420211') = 0 then
+        update spawns_gameobjects set ignored = 1 where spawn_entry in (149045, 149046);
+
+        insert into applied_updates values ('250420211');
+    end if;
 end $
 delimiter ;

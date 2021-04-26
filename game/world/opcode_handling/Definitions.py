@@ -1,5 +1,3 @@
-from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
-from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
 
@@ -36,7 +34,6 @@ from game.world.opcode_handling.handlers.gameobject.GameObjectQueryHandler impor
 from game.world.opcode_handling.handlers.gameobject.GameobjUseHandler import GameobjUseHandler
 from game.world.opcode_handling.handlers.npc.CreatureQueryHandler import CreatureQueryHandler
 from game.world.opcode_handling.handlers.unit.SetSelectionHandler import SetSelectionHandler
-from game.world.opcode_handling.handlers.unit.SetTargetHandler import SetTargetHandler
 from game.world.opcode_handling.handlers.npc.TabardVendorActivateHandler import TabardVendorActivateHandler
 from game.world.opcode_handling.handlers.npc.BinderActivateHandler import BinderActivateHandler
 from game.world.opcode_handling.handlers.npc.PetitionShowlistHandler import PetitionShowlistHandler
@@ -116,6 +113,10 @@ from game.world.opcode_handling.handlers.channel.ChannelPasswordHandler import C
 from game.world.opcode_handling.handlers.player.RandomRollHandler import RandomRollHandler
 from game.world.opcode_handling.handlers.player.DuelAcceptHandler import DuelAcceptHandler
 from game.world.opcode_handling.handlers.player.DuelCanceledHandler import DuelCanceledHandler
+from game.world.opcode_handling.handlers.NullHandler import NullHandler
+from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
+from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
+from game.world.opcode_handling.handlers.unit.SetTargetHandler import SetTargetHandler
 
 
 HANDLER_DEFINITIONS = {
@@ -273,7 +274,12 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_START_BACKWARD: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_START_FORWARD: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_COLLIDE_REDIRECT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status
+    OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status,
+
+    # Ignored packets
+
+    # No real purpose for now, just ignore. It's sent on object hover while having 'debugTargetInfo' set to "1".
+    OpCode.CMSG_DEBUG_AISTATE: NullHandler.handle
 }
 
 
@@ -284,9 +290,11 @@ class Definitions(object):
         try:
             opcode = OpCode(opcode)
             if opcode in HANDLER_DEFINITIONS:
-                return HANDLER_DEFINITIONS.get(OpCode(opcode)), 1
+                return HANDLER_DEFINITIONS.get(OpCode(opcode)), True
             else:
                 Logger.warning(f'[{world_session.client_address[0]}] Received {opcode.name} OpCode but is not handled.')
         except ValueError:
-            return None, -1
-        return None, 0
+            # No handler, OpCode not found
+            return None, False
+        # No handler, but OpCode found
+        return None, True
