@@ -20,7 +20,6 @@ class InspectHandler(object):
                     return 0
 
                 world_session.player_mgr.set_current_selection(guid)
-                world_session.player_mgr.set_current_target(guid)
                 world_session.player_mgr.set_dirty()
 
                 data = pack('<Q', world_session.player_mgr.guid)

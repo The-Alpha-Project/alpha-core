@@ -1,6 +1,3 @@
-from game.world.opcode_handling.handlers.NullHandler import NullHandler
-from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
-from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
 
@@ -115,6 +112,10 @@ from game.world.opcode_handling.handlers.channel.ChannelPasswordHandler import C
 from game.world.opcode_handling.handlers.player.RandomRollHandler import RandomRollHandler
 from game.world.opcode_handling.handlers.player.DuelAcceptHandler import DuelAcceptHandler
 from game.world.opcode_handling.handlers.player.DuelCanceledHandler import DuelCanceledHandler
+from game.world.opcode_handling.handlers.NullHandler import NullHandler
+from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
+from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
+from game.world.opcode_handling.handlers.unit.SetTargetHandler import SetTargetHandler
 
 
 HANDLER_DEFINITIONS = {
@@ -159,6 +160,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GAMEOBJ_USE: GameobjUseHandler.handle,
     OpCode.CMSG_CREATURE_QUERY: CreatureQueryHandler.handle,
     OpCode.CMSG_SET_SELECTION: SetSelectionHandler.handle,
+    OpCode.CMSG_SET_TARGET: SetTargetHandler.handle,
     OpCode.MSG_TABARDVENDOR_ACTIVATE: TabardVendorActivateHandler.handle,
     OpCode.CMSG_BINDER_ACTIVATE: BinderActivateHandler.handle,
     OpCode.CMSG_PETITION_SHOWLIST: PetitionShowlistHandler.handle,
@@ -274,10 +276,6 @@ HANDLER_DEFINITIONS = {
 
     # Ignored packets
 
-    # Triggers when hovering units with the mouse, handling it and setting UNIT_FIELD_TARGET every time it's received
-    # seems to be causing unexpected issues. We are just setting the field on CMSG_SET_SELECTION and manually in the
-    # places where it's required.
-    OpCode.CMSG_SET_TARGET: NullHandler.handle,
     # No real purpose for now, just ignore. It's sent on object hover while having 'debugTargetInfo' set to "1".
     OpCode.CMSG_DEBUG_AISTATE: NullHandler.handle
 }
