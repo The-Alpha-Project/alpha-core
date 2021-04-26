@@ -1,5 +1,6 @@
 from struct import pack
 from typing import NamedTuple
+from utils.Logger import Logger
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
@@ -20,6 +21,7 @@ class QuestManager(object):
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.active_quests = {}
+        self.slot2id = []
 
     def get_dialog_status(self, world_obj):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
@@ -50,7 +52,10 @@ class QuestManager(object):
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest or not self.check_quest_requirements(quest):
                 continue
-            
+
+            if quest_entry in self.active_quests:
+                continue
+
             if quest.Method == 0:
                 new_dialog_status = QuestGiverStatus.QUEST_GIVER_REWARD
             elif quest.MinLevel > self.player_mgr.level >= quest.MinLevel - 4:
@@ -411,15 +416,32 @@ class QuestManager(object):
         self.build_update()
         self.player_mgr.set_dirty()
 
+    def remove_quest(self, slot):
+        try:
+            quest_id = self.slot2id[slot]
+        except:
+            return
+        if quest_id in self.active_quests:
+            del self.active_quests[quest_id]
+            self.set_questlog_entry(slot, 0)
+            self.update_surrounding_quest_status()
+            self.build_update()
+            self.player_mgr.set_dirty()
+
     def build_update(self):
-        for index, quest_id in enumerate(self.active_quests.keys()):
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6), quest_id)
-            # TODO Finish / investigate below values
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 1, 0)  # quest giver ID ?
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 2, 0)  # quest rewarder ID ?
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 3, 0)  # quest progress
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 4, 0)  # quest failure time
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (index * 6) + 5, 0)  # number of mobs to kill
+        self.slot2id = [] # TODO: multi thread concerns?
+        for slot, quest_id in enumerate(self.active_quests.keys()):
+            self.slot2id.insert(slot, quest_id)
+            self.set_questlog_entry(slot, quest_id)
+
+    def set_questlog_entry(self, slot, quest_id):
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6), quest_id)
+        # TODO Finish / investigate below values
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 1, 0)  # quest giver ID ?
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 2, 0)  # quest rewarder ID ?
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 3, 0)  # quest progress
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 4, 0)  # quest failure time
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 5, 0)  # number of mobs to kill
 
     def is_instant_complete_quest(self, quest):
         req_item_list = self.generate_req_item_list(quest)
