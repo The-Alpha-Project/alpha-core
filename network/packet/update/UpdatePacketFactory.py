@@ -1,10 +1,7 @@
-from struct import pack, unpack
-from bitarray import bitarray
+from struct import pack
 
 from network.packet.update.UpdateMask import UpdateMask
 from utils.constants.OpCodes import OpCode
-from utils.constants.UpdateFields import *
-from utils.constants.ObjectCodes import *
 from network.packet.PacketWriter import PacketWriter
 
 
@@ -16,11 +13,10 @@ class UpdatePacketFactory(object):
 
     def init_values(self, fields_size):
         self.fields_size = fields_size
-        self.update_values = [None] * self.fields_size
+        self.update_values = [0x0] * self.fields_size
         self.update_mask.set_count(self.fields_size)
 
     def reset(self):
-        self.update_values = [None] * self.fields_size
         self.update_mask.clear()
 
     def update(self, index, value, value_type):
