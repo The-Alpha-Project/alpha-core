@@ -11,11 +11,12 @@ from utils.constants.ObjectCodes import QuestGiverStatus, QuestState, QuestFaile
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
-# - quest or questtemplate refer to the quest template (the db record)
-# - active_quest refers to quests in the player's questlog
+# - quest or quest template refer to the quest template (the db record)
+# - active_quest refers to quests in the player's quest log
 
 MAX_QUEST_LOG = 20
 QUEST_OBJECTIVES_COUNT = 4
+
 
 class QuestManager(object):
     def __init__(self, player_mgr):
@@ -38,7 +39,7 @@ class QuestManager(object):
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest:
                 continue
-            if not quest_entry in self.active_quests:
+            if quest_entry not in self.active_quests:
                 continue
             quest_state = self.active_quests[quest_entry].state
             if quest_state == QuestState.QUEST_REWARD:
@@ -82,7 +83,7 @@ class QuestManager(object):
         else:
             return
 
-        # Finish quests
+        # Finishing quests
         for involved_relation in involved_relations_list:
             if len(involved_relation) == 0:
                 continue
@@ -90,11 +91,11 @@ class QuestManager(object):
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
-            if not quest_entry in self.active_quests:
+            if quest_entry not in self.active_quests:
                 continue
             quest_state = self.active_quests[quest_entry].state
             if quest_state < QuestState.QUEST_ACCEPTED:
-                contine  # quest accept is handled by relation_list
+                continue  # Quest accept is handled by relation_list
             quest_menu.add_menu_item(quest, quest_state)
 
         # Starting quests
@@ -109,7 +110,7 @@ class QuestManager(object):
             if quest_entry in self.active_quests:
                 quest_state = self.active_quests[quest_entry].state
             if quest_state >= QuestState.QUEST_ACCEPTED:
-                continue  # quest turnin is handled by involved_relations_list
+                continue  # quest turn-in is handled by involved_relations_list
             quest_menu.add_menu_item(quest, quest_state)
 
         if len(quest_menu.items) == 1:
@@ -480,6 +481,7 @@ class QuestMenu:
 
     def clear_menu(self):
         self.items.clear()
+
 
 class ActiveQuest:
     def __init__(self, quest_id):
