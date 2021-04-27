@@ -117,6 +117,7 @@ from game.world.opcode_handling.handlers.NullHandler import NullHandler
 from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from game.world.opcode_handling.handlers.unit.SetTargetHandler import SetTargetHandler
+from game.world.opcode_handling.handlers.player.DebugAIStateHandler import DebugAIStateHandler
 
 
 HANDLER_DEFINITIONS = {
@@ -248,7 +249,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_DUEL_CANCELLED: DuelCanceledHandler.handle,
     OpCode.CMSG_TRIGGER_CINEMATIC_CHEAT: TriggerCinematicCheatHandler.handle,
     OpCode.CMSG_GODMODE: GodModeHandler.handle,
-
+    OpCode.CMSG_DEBUG_AISTATE: DebugAIStateHandler.handle,
 
     # Movement packets
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
@@ -276,10 +277,7 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_COLLIDE_REDIRECT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status,
 
-    # Ignored packets
-
-    # No real purpose for now, just ignore. It's sent on object hover while having 'debugTargetInfo' set to "1".
-    OpCode.CMSG_DEBUG_AISTATE: NullHandler.handle
+    # Ignored packets (Use NullHandler)
 }
 
 

@@ -2,7 +2,7 @@ from struct import pack, unpack
 from math import pi
 
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid
 from utils.ConfigManager import config
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter
@@ -237,6 +237,22 @@ class ObjectManager(object):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_OBJECT
+
+    # override
+    def get_debug_messages(self):
+        if self.get_type() == ObjectTypes.TYPE_UNIT:
+            guid = self.guid & ~HighGuid.HIGHGUID_UNIT
+        elif self.get_type() == ObjectTypes.TYPE_PLAYER:
+            guid = self.guid & ~HighGuid.HIGHGUID_PLAYER
+        elif self.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
+            guid = self.guid & ~HighGuid.HIGHGUID_GAMEOBJECT
+        else:
+            guid = self.guid
+
+        return [
+            f'Guid: {guid}, Entry: {self.entry}',
+            f'X: {self.location.x}, Y: {self.location.y}, Z: {self.location.z}, O: {self.location.o}'
+        ]
 
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)
