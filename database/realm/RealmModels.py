@@ -162,6 +162,28 @@ class CharacterSpell(Base):
     character = relationship('Character')
 
 
+class CharacterQuestStatus(Base):
+    __tablename__ = 'character_quest_status'
+
+    guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("0"))
+    quest = Column(INTEGER(11), primary_key=True, nullable=False, server_default=text("0"))
+    status = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    rewarded = Column(TINYINT(1), nullable=False, server_default=text("0"))
+    explored = Column(TINYINT(1), nullable=False, server_default=text("0"))
+    timer = Column(BIGINT(20), nullable=False, server_default=text("0"))
+    mobcount1 = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    mobcount2 = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    mobcount3 = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    mobcount4 = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    itemcount1 = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    itemcount2 = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    itemcount3 = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    itemcount4 = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    reward_choice = Column(INTEGER(11), nullable=False, server_default=text("0"))
+
+    character = relationship('Character')
+
+
 class Guild(Base):
     __tablename__ = 'guild'
 

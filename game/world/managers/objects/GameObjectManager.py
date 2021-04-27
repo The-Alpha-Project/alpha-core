@@ -28,6 +28,7 @@ class GameObjectManager(ObjectManager):
         self.guid = (gobject_instance.spawn_id if gobject_instance else 0) | HighGuid.HIGHGUID_GAMEOBJECT
 
         if self.gobject_template:
+            self.entry = self.gobject_template.entry
             self.native_display_id = self.gobject_template.display_id
             self.current_display_id = self.native_display_id
             self.native_scale = self.gobject_template.scale
@@ -99,7 +100,7 @@ class GameObjectManager(ObjectManager):
             # Object fields
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
             self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
-            self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.gobject_template.entry)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
             self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
