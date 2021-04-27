@@ -83,7 +83,7 @@ class QuestManager(object):
         else:
             return
 
-        # Finishing quests
+        # Quest finish
         for involved_relation in involved_relations_list:
             if len(involved_relation) == 0:
                 continue
@@ -98,7 +98,7 @@ class QuestManager(object):
                 continue  # Quest accept is handled by relation_list
             quest_menu.add_menu_item(quest, quest_state)
 
-        # Starting quests
+        # Quest start
         for relation in relations_list:
             if len(relation) == 0:
                 continue
@@ -110,7 +110,7 @@ class QuestManager(object):
             if quest_entry in self.active_quests:
                 quest_state = self.active_quests[quest_entry].state
             if quest_state >= QuestState.QUEST_ACCEPTED:
-                continue  # quest turn-in is handled by involved_relations_list
+                continue  # Quest turn-in is handled by involved_relations_list
             quest_menu.add_menu_item(quest, quest_state)
 
         if len(quest_menu.items) == 1:
