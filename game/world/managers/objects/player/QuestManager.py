@@ -21,7 +21,6 @@ class QuestManager(object):
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.active_quests = {}
-        self.slot2id = []
 
     def get_dialog_status(self, world_obj):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
@@ -417,21 +416,16 @@ class QuestManager(object):
         self.player_mgr.set_dirty()
 
     def remove_quest(self, slot):
-        try:
-            quest_id = self.slot2id[slot]
-        except:
-            return
+        quest_id = self.player_mgr.get_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6))
         if quest_id in self.active_quests:
             del self.active_quests[quest_id]
-            self.set_questlog_entry(slot, 0)
             self.update_surrounding_quest_status()
+            self.set_questlog_entry(len(self.active_quests), 0)
             self.build_update()
             self.player_mgr.set_dirty()
 
     def build_update(self):
-        self.slot2id = [] # TODO: multi thread concerns?
         for slot, quest_id in enumerate(self.active_quests.keys()):
-            self.slot2id.insert(slot, quest_id)
             self.set_questlog_entry(slot, quest_id)
 
     def set_questlog_entry(self, slot, quest_id):
