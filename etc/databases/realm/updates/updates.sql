@@ -84,7 +84,7 @@ begin not atomic
     end if;
 
     -- 27/04/2021 1
-    if (select count(*) from applied_updates where id='240420211') = 0 then
+    if (select count(*) from applied_updates where id='270420211') = 0 then
         CREATE TABLE `character_quest_status` (
           `guid` int(11) unsigned NOT NULL DEFAULT 0,
           `quest` int(11) unsigned NOT NULL DEFAULT 0,
