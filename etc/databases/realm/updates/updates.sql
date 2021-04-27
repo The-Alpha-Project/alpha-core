@@ -76,11 +76,36 @@ begin not atomic
           `guid` INT(11) UNSIGNED NOT NULL DEFAULT 0,
           `rank` TINYINT(2) UNSIGNED NOT NULL DEFAULT 0,
           PRIMARY KEY (`guild_id`, `guid`),
-          CONSTRAINT `guid_fk` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+          CONSTRAINT `guild_member_guid_fk` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
           CONSTRAINT `guild_id_fk` FOREIGN KEY (`guild_id`) REFERENCES `guild` (`guild_id`) ON DELETE CASCADE ON UPDATE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
         insert into applied_updates values ('200420211');
+    end if;
+
+    -- 27/04/2021 1
+    if (select count(*) from applied_updates where id='240420211') = 0 then
+        CREATE TABLE `character_quest_status` (
+          `guid` int(11) unsigned NOT NULL DEFAULT 0,
+          `quest` int(11) unsigned NOT NULL DEFAULT 0,
+          `status` int(11) unsigned NOT NULL DEFAULT 0,
+          `rewarded` tinyint(1) unsigned NOT NULL DEFAULT 0,
+          `explored` tinyint(1) unsigned NOT NULL DEFAULT 0,
+          `timer` bigint(20) unsigned NOT NULL DEFAULT 0,
+          `mobcount1` int(11) unsigned NOT NULL DEFAULT 0,
+          `mobcount2` int(11) unsigned NOT NULL DEFAULT 0,
+          `mobcount3` int(11) unsigned NOT NULL DEFAULT 0,
+          `mobcount4` int(11) unsigned NOT NULL DEFAULT 0,
+          `itemcount1` int(11) unsigned NOT NULL DEFAULT 0,
+          `itemcount2` int(11) unsigned NOT NULL DEFAULT 0,
+          `itemcount3` int(11) unsigned NOT NULL DEFAULT 0,
+          `itemcount4` int(11) unsigned NOT NULL DEFAULT 0,
+          `reward_choice` int(11) unsigned NOT NULL DEFAULT 0,
+          PRIMARY KEY (`guid`,`quest`),
+          CONSTRAINT `char_guid_quest_fk` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+        insert into applied_updates values ('270420211');
     end if;
 end $
 delimiter ;
