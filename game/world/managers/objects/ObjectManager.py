@@ -250,7 +250,7 @@ class ObjectManager(object):
             guid = self.guid
 
         return [
-            f'Guid: {guid}, Entry: {self.entry}',
+            f'Guid: {guid}, Entry: {self.entry}, Display ID: {self.current_display_id}',
             f'X: {self.location.x}, Y: {self.location.y}, Z: {self.location.z}, O: {self.location.o}'
         ]
 
