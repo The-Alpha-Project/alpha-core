@@ -89,9 +89,10 @@ class InventoryManager(object):
         amount_left = count
         target_bag_slot = -1  # Highest bag slot items were added to
         if item_template:
-            if not self.can_store_item(item_template, count):
+            error = self.can_store_item(item_template, count)
+            if error != InventoryError.BAG_OK:
                 if handle_error:
-                    self.send_equip_error(InventoryError.BAG_INV_FULL)
+                    self.send_equip_error(error)
                 return False
 
             # Add to any existing stacks
@@ -140,9 +141,10 @@ class InventoryManager(object):
 
         dest_item = dest_container.get_item(dest_slot)
 
-        if not self.can_store_item(item_template, count):
+        error = self.can_store_item(item_template, count)
+        if error != InventoryError.BAG_OK:
             if handle_error:
-                self.send_equip_error(InventoryError.BAG_INV_FULL)
+                self.send_equip_error(error)
             return
 
         is_valid_target_slot = self.item_can_be_moved_to_slot(item_template, dest_slot, dest_bag_slot, item)
@@ -391,7 +393,7 @@ class InventoryManager(object):
 
         # Reached unique limit
         if 0 < item_template.max_count <= self.get_item_count(item_template.entry):
-            return False
+            return InventoryError.BAG_ITEM_MAX_COUNT_EXCEEDED
 
         # Check bags
         if not on_bank:
@@ -417,7 +419,7 @@ class InventoryManager(object):
                     amount -= item_template.stackable - item_mgr.item_instance.stackcount
 
         if amount <= 0:
-            return True
+            return InventoryError.BAG_OK
 
         for container_slot, container in list(self.containers.items()):
             if not container or container.is_backpack or not container.can_contain_item(item_template):
@@ -429,9 +431,17 @@ class InventoryManager(object):
             # Free slots * Max stack count
             amount -= (container.total_slots - len(container.sorted_slots)) * item_template.stackable
             if amount <= 0:
-                return True
+                return InventoryError.BAG_OK
 
-        return False
+        return InventoryError.BAG_INV_FULL
+
+    def get_remaining_space(self):
+        empty_slots = 0
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                continue
+            empty_slots += container.get_empty_slots()
+        return empty_slots
 
     def get_next_available_inventory_slot(self):
         for container_slot, container in list(self.containers.items()):
@@ -533,9 +543,9 @@ class InventoryManager(object):
         if dest_container.is_backpack and dest_slot == InventorySlots.SLOT_MAINHAND:
             current_oh = self.get_offhand()
             source_is_2h = source_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
-            if current_oh and source_is_2h and not \
-                    self.can_store_item(current_oh.item_template,
-                                        current_oh.item_instance.stackcount):  # Equipping 2H with OH equipped but inv is full
+            # Equipping 2H with OH equipped but inv is full
+            error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount)
+            if current_oh and source_is_2h and error != InventoryError.BAG_OK:
                 self.send_equip_error(InventoryError.BAG_CANT_SWAP, source_item, dest_item)
                 return False
 
@@ -558,8 +568,9 @@ class InventoryManager(object):
         current_oh = self.get_offhand()
         source_is_2h = source_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
         dest_is_2h = dest_item and dest_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
-        if (current_oh and (source_is_2h or dest_is_2h)) and \
-                self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount):  # Case where OH is equipped and 2h is equipped, and it's possible to unequip OH.
+        # Case where OH is equipped and 2h is equipped, and it's possible to unequip OH.
+        error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount)
+        if (current_oh and (source_is_2h or dest_is_2h)) and error == InventoryError.BAG_OK:
 
             # Remove the offhand item from OH and add it to inventory
             # This is necessary in case of a stacking offhand (3675) - otherwise swap_item to free slot would be valid
