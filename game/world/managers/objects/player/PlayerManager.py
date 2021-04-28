@@ -91,7 +91,8 @@ class PlayerManager(UnitManager):
             self.guid = self.player.guid | HighGuid.HIGHGUID_PLAYER
             self.inventory = InventoryManager(self)
             self.level = self.player.level
-            self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.player.gender, self.power_type))[0]
+            self.gender = self.player.gender
+            self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.gender, self.power_type))[0]
             self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
             self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
             self.player_bytes = unpack('<I', pack('<4B', self.player.skin, self.player.face, self.player.hairstyle, self.player.haircolour))[0]
@@ -161,7 +162,7 @@ class PlayerManager(UnitManager):
         self.faction = race.FactionID
         self.creature_type = race.CreatureType
 
-        is_male = self.player.gender == Genders.GENDER_MALE
+        is_male = self.gender == Genders.GENDER_MALE
 
         self.native_display_id = self.get_native_display_id(is_male, race)
         self.current_display_id = self.native_display_id
