@@ -31,7 +31,7 @@ class QuestManager(object):
             if db_quest.status == QuestState.QUEST_ACCEPTED or db_quest.status == QuestState.QUEST_REWARD:
                 self.active_quests[db_quest.quest] = ActiveQuest(db_quest.quest, db_quest.status)
             else:
-                Logger.error(f"Quest database (guid={db_quest.guid}, quest_id={db_quest.quest}) has state {db_quest.status}. I don't know how to handle it.")
+                Logger.error(f"Quest database (guid={db_quest.guid}, quest_id={db_quest.quest}) has state {db_quest.status}. No handling.")
 
     def get_dialog_status(self, world_obj):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
