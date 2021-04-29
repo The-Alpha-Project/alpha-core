@@ -33,7 +33,7 @@ class DebugAIStateHandler(object):
             )
 
             for message in messages:
-                message_bytes = PacketWriter.string_to_bytes(message[:126])  # Max length is 128 (127 + null byte).
+                message_bytes = PacketWriter.string_to_bytes(message[:127])  # Max length is 128 (127 + null byte).
                 data += pack(
                     f'<{len(message_bytes)}s',
                     message_bytes

@@ -70,6 +70,7 @@ class UnitManager(ObjectManager):
                  max_power_3=100,
                  max_power_4=100,
                  level=0,
+                 gender=0,
                  bytes_0=0,  # race, class, gender, power_type
                  creature_type=0,
                  stat_0=0,
@@ -135,6 +136,7 @@ class UnitManager(ObjectManager):
         self.max_power_3 = max_power_3
         self.max_power_4 = max_power_4
         self.level = level
+        self.gender = gender
         self.bytes_0 = bytes_0  # race, class, gender, power_type
         self.creature_type = creature_type
         self.str = stat_0

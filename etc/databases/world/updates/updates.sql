@@ -147,5 +147,17 @@ begin not atomic
 
         insert into applied_updates values ('250420211');
     end if;
+
+    -- 28/04/2021 1
+    if (select count(*) from applied_updates where id='280420211') = 0 then
+        update item_template set name = 'Bloodstone' where entry = 5509;
+        update item_template set name = 'Greater Bloodstone' where entry = 5510;
+        update item_template set name = 'Lesser Bloodstone' where entry = 5511;
+        update item_template set name = 'Minor Bloodstone' where entry = 5512;
+        delete from item_template where entry = 9421;
+        delete from item_template where entry between 19004 and 19013;
+
+        insert into applied_updates values ('280420211');
+    end if;
 end $
 delimiter ;

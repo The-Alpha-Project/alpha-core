@@ -123,6 +123,7 @@ class CreatureManager(UnitManager):
                 if creature_model_info:
                     self.bounding_radius = creature_model_info.bounding_radius
                     self.combat_reach = creature_model_info.combat_reach
+                    self.gender = creature_model_info.gender
 
                 if self.creature_template.scale == 0:
                     display_scale = DbcDatabaseManager.creature_display_info_get_by_id(self.current_display_id)
@@ -186,6 +187,8 @@ class CreatureManager(UnitManager):
     def get_full_update_packet(self, is_self=True):
         self.finish_loading()
 
+        # race, class, gender, power_type
+        self.bytes_0 = unpack('<I', pack('<4B', 0, self.creature_template.unit_class, self.gender, 0))[0]
         # stand_state, npc_flags, shapeshift_form, visibility_flag
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form, 0))[0]
         # sheath_state, misc_flags, pet_flags, unknown
@@ -223,6 +226,7 @@ class CreatureManager(UnitManager):
         self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
         self.set_float(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
