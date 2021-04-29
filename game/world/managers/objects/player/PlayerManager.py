@@ -91,10 +91,6 @@ class PlayerManager(UnitManager):
             self.guid = self.player.guid | HighGuid.HIGHGUID_PLAYER
             self.inventory = InventoryManager(self)
             self.level = self.player.level
-            self.gender = self.player.gender
-            self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.gender, self.power_type))[0]
-            self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
-            self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
             self.player_bytes = unpack('<I', pack('<4B', self.player.skin, self.player.face, self.player.hairstyle, self.player.haircolour))[0]
             self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
             self.xp = player.xp
@@ -162,6 +158,7 @@ class PlayerManager(UnitManager):
         self.faction = race.FactionID
         self.creature_type = race.CreatureType
 
+        self.gender = self.player.gender
         is_male = self.gender == Genders.GENDER_MALE
 
         self.native_display_id = self.get_native_display_id(is_male, race)
@@ -665,6 +662,7 @@ class PlayerManager(UnitManager):
 
     # override
     def get_full_update_packet(self, is_self=True):
+        self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.gender, self.power_type))[0]
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
         self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
