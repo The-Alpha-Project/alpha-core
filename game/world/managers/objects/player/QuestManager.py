@@ -2,6 +2,7 @@ from struct import pack
 from typing import NamedTuple
 from utils.Logger import Logger
 
+from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestStatus
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
 from database.world.WorldModels import QuestTemplate
@@ -22,6 +23,15 @@ class QuestManager(object):
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.active_quests = {}
+
+    def load_quests(self):
+        db_quests = RealmDatabaseManager.character_get_quests(self.player_mgr.guid)
+
+        for db_quest in db_quests:
+            if db_quest.status == QuestState.QUEST_ACCEPTED or db_quest.status == QuestState.QUEST_REWARD:
+                self.active_quests[db_quest.quest] = ActiveQuest(db_quest.quest, db_quest.status)
+            else:
+                Logger.error(f"Quest database (guid={db_quest.guid}, quest_id={db_quest.quest}) has state {db_quest.status}. I don't know how to handle it.")
 
     def get_dialog_status(self, world_obj):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
@@ -416,6 +426,12 @@ class QuestManager(object):
         self.build_update()
         self.player_mgr.set_dirty()
 
+        db_quest = CharacterQuestStatus()
+        db_quest.guid = self.player_mgr.guid
+        db_quest.quest = quest_id
+        db_quest.status = int(active_quest.state)
+        RealmDatabaseManager.character_add_quest(db_quest)
+
     def remove_quest(self, slot):
         quest_id = self.player_mgr.get_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6))
         if quest_id in self.active_quests:
@@ -424,6 +440,7 @@ class QuestManager(object):
             self.set_questlog_entry(len(self.active_quests), 0)
             self.build_update()
             self.player_mgr.set_dirty()
+            RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_id)
 
     def build_update(self):
         for slot, quest_id in enumerate(self.active_quests.keys()):
@@ -484,7 +501,7 @@ class QuestMenu:
 
 
 class ActiveQuest:
-    def __init__(self, quest_id):
+    def __init__(self, quest_id, state=QuestState.QUEST_ACCEPTED):
         self.quest_id = quest_id
-        self.state = QuestState.QUEST_ACCEPTED
+        self.state = QuestState(state)
         self.quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)

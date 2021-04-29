@@ -69,6 +69,7 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.stat_manager.init_stats()
         world_session.player_mgr.stat_manager.apply_bonuses()
         world_session.player_mgr.skill_manager.load_skills()
+        world_session.player_mgr.quest_manager.load_quests()
 
         # First login
         if world_session.player_mgr.player.totaltime == 0:
