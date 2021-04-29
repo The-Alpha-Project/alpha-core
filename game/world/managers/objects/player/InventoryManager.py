@@ -544,10 +544,11 @@ class InventoryManager(object):
             current_oh = self.get_offhand()
             source_is_2h = source_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
             # Equipping 2H with OH equipped but inv is full
-            error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount)
-            if current_oh and source_is_2h and error != InventoryError.BAG_OK:
-                self.send_equip_error(InventoryError.BAG_CANT_SWAP, source_item, dest_item)
-                return False
+            if current_oh and source_is_2h:
+                error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount)
+                if error != InventoryError.BAG_OK:
+                    self.send_equip_error(InventoryError.BAG_CANT_SWAP, source_item, dest_item)
+                    return False
 
         # Offhand equip
         if dest_container.is_backpack and dest_slot == InventorySlots.SLOT_OFFHAND and self.has_two_handed_weapon():
@@ -569,8 +570,10 @@ class InventoryManager(object):
         source_is_2h = source_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
         dest_is_2h = dest_item and dest_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
         # Case where OH is equipped and 2h is equipped, and it's possible to unequip OH.
-        error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount)
-        if (current_oh and (source_is_2h or dest_is_2h)) and error == InventoryError.BAG_OK:
+        if current_oh and (source_is_2h or dest_is_2h):
+            error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount)
+            if error != InventoryError.BAG_OK:
+                return
 
             # Remove the offhand item from OH and add it to inventory
             # This is necessary in case of a stacking offhand (3675) - otherwise swap_item to free slot would be valid
