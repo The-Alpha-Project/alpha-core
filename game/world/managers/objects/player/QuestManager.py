@@ -424,7 +424,7 @@ class QuestManager(object):
         self.update_surrounding_quest_status()
 
         self.build_update()
-        self.player_mgr.set_dirty()
+        self.player_mgr.send_update_self()
 
         db_quest = CharacterQuestStatus()
         db_quest.guid = self.player_mgr.guid
@@ -439,7 +439,7 @@ class QuestManager(object):
             self.update_surrounding_quest_status()
             self.set_questlog_entry(len(self.active_quests), 0)
             self.build_update()
-            self.player_mgr.set_dirty()
+            self.player_mgr.send_update_self()
             RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_id)
 
     def build_update(self):
