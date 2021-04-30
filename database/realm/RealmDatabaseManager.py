@@ -289,6 +289,16 @@ class RealmDatabaseManager(object):
             realm_db_session.flush()
             realm_db_session.close()
 
+    @staticmethod
+    def character_get_guild(character):
+        realm_db_session = SessionHolder()
+        guild_member = realm_db_session.query(GuildMember).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).first()
+        guild = None
+        if guild_member:
+            guild = guild_member.guild
+        realm_db_session.close()
+        return guild
+
     # Ticket stuff
 
     @staticmethod
@@ -377,16 +387,6 @@ class RealmDatabaseManager(object):
         realm_db_session.refresh(guild_member)
         realm_db_session.close()
         return guild_member
-
-    @staticmethod
-    def character_get_guild(character):
-        realm_db_session = SessionHolder()
-        guild_member = realm_db_session.query(GuildMember).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).first()
-        guild = None
-        if guild_member:
-            guild = guild_member.guild
-        realm_db_session.close()
-        return guild
 
     @staticmethod
     def guild_get_members(guild):

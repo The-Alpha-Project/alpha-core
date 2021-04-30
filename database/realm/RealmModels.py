@@ -202,7 +202,7 @@ class GuildMember(Base):
     __tablename__ = 'guild_member'
 
     guild_id = Column(ForeignKey('guild.guild_id', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("0"))
-    guid = Column(ForeignKey('characters.guid',  ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"))
+    guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"))
     rank = Column(TINYINT(2), nullable=False, server_default=text("0"))
 
     # Need subquery attribute, else we get '<GuildMember> is not bound to a Session' exceptions when accessing ref.
