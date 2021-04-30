@@ -36,13 +36,13 @@ class GuildInviteHandler(object):
                 name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
                 data = pack(
                     f'<{len(name_bytes)}s',
-                    name_bytes,
+                    name_bytes
                 )
 
                 guild_name_bytes = PacketWriter.string_to_bytes(player_mgr.guild_manager.guild.name)
                 data += pack(
                     f'<{len(guild_name_bytes)}s',
-                    guild_name_bytes,
+                    guild_name_bytes
                 )
 
                 target_player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_INVITE, data))

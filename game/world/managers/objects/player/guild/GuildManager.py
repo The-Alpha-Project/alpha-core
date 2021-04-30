@@ -38,13 +38,13 @@ class GuildManager(object):
             name_bytes = PacketWriter.string_to_bytes(previous_gm.character.name)
             data += pack(
                 f'<{len(name_bytes)}s',
-                name_bytes,
+                name_bytes
             )
 
             name_bytes = PacketWriter.string_to_bytes(member.character.name)
             data += pack(
                 f'<{len(name_bytes)}s',
-                name_bytes,
+                name_bytes
             )
 
             packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
@@ -101,7 +101,7 @@ class GuildManager(object):
         name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
         data += pack(
             f'<{len(name_bytes)}s',
-            name_bytes,
+            name_bytes
         )
 
         self.build_update(player_mgr)
@@ -118,13 +118,13 @@ class GuildManager(object):
         target_name_bytes = PacketWriter.string_to_bytes(member.character.name)
         data += pack(
             f'<{len(target_name_bytes)}s',
-            target_name_bytes,
+            target_name_bytes
         )
 
         remover_name_bytes = PacketWriter.string_to_bytes(guild_master.character.name)
         data += pack(
             f'<{len(remover_name_bytes)}s',
-            remover_name_bytes,
+            remover_name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
@@ -146,7 +146,7 @@ class GuildManager(object):
         leaver_name_bytes = PacketWriter.string_to_bytes(member.character.name)
         data += pack(
             f'<{len(leaver_name_bytes)}s',
-            leaver_name_bytes,
+            leaver_name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
@@ -166,7 +166,7 @@ class GuildManager(object):
         leaver_name_bytes = PacketWriter.string_to_bytes(guild_master.character.name)
         data += pack(
             f'<{len(leaver_name_bytes)}s',
-            leaver_name_bytes,
+            leaver_name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
@@ -219,14 +219,14 @@ class GuildManager(object):
         target_name_bytes = PacketWriter.string_to_bytes(member.character.name)
         data += pack(
             f'<{len(target_name_bytes)}s',
-            target_name_bytes,
+            target_name_bytes
         )
 
         rank_name = GuildRank(member.rank).name.split('_')[1].capitalize()
         rank_name_bytes = PacketWriter.string_to_bytes(rank_name)
         data += pack(
             f'<{len(rank_name_bytes)}s',
-            rank_name_bytes,
+            rank_name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
@@ -254,14 +254,14 @@ class GuildManager(object):
         target_name_bytes = PacketWriter.string_to_bytes(member.character.name)
         data += pack(
             f'<{len(target_name_bytes)}s',
-            target_name_bytes,
+            target_name_bytes
         )
 
         rank_name = GuildRank(member.rank).name.split('_')[1].capitalize()
         rank_name_bytes = PacketWriter.string_to_bytes(rank_name)
         data += pack(
             f'<{len(rank_name_bytes)}s',
-            rank_name_bytes,
+            rank_name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
