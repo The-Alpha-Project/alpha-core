@@ -18,7 +18,10 @@ class GuildDemoteHandler(object):
         elif player_mgr.guild_manager.get_rank(player_mgr.guid) > GuildRank.GUILDRANK_OFFICER:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PERMISSIONS)
-        elif not target_player_mgr or not player_mgr.guild_manager.has_member(target_player_mgr.guid):
+        elif not target_player_mgr:
+            GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
+                                                   GuildCommandResults.GUILD_PLAYER_NOT_FOUND)
+        elif not player_mgr.guild_manager.has_member(target_player_mgr.guid):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
                                                    GuildCommandResults.GUILD_PLAYER_NOT_FOUND)
         elif not player_mgr.guild_manager.demote_rank(target_player_mgr.guid):
