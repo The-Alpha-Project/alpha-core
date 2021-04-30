@@ -81,7 +81,7 @@ class WhoHandler(object):
 
                     player_name_bytes = PacketWriter.string_to_bytes(session.player_mgr.player.name)
 
-                    player_guild_name = session.player_mgr.guild_manager.guild.name if session.player_mgr.guild_manager else ""
+                    player_guild_name = session.player_mgr.guild_manager.guild.name if session.player_mgr.guild_manager else ''
                     guild_name_bytes = PacketWriter.string_to_bytes(player_guild_name)
                     player_data += pack(
                         f'<{len(player_name_bytes)}s{len(guild_name_bytes)}s5I',

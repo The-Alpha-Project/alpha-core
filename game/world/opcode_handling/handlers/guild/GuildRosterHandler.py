@@ -32,7 +32,7 @@ class GuildRosterHandler(object):
                 data += pack(
                     f'<{len(player_name)}sI',
                     player_name,
-                    member.rank,
+                    member.rank
                 )
 
             player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_ROSTER, data))
