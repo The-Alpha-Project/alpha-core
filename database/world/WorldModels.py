@@ -870,12 +870,12 @@ class SkinningLootTemplate(Base):
 class SpawnsCreatures(Base):
     __tablename__ = 'spawns_creatures'
 
-    spawn_id = Column(INTEGER(10), primary_key=True, comment=u'Global Unique Identifier')
-    spawn_entry1 = Column(ForeignKey(u'creature_template.entry', ondelete=u'CASCADE', onupdate=u'CASCADE'), nullable=False, index=True, server_default=text("'0'"), comment=u'Creature Template Id')
-    spawn_entry2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment=u'Creature Template Id')
-    spawn_entry3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment=u'Creature Template Id')
-    spawn_entry4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment=u'Creature Template Id')
-    map = Column(SMALLINT(5), nullable=False, index=True, server_default=text("'0'"), comment=u'Map Identifier')
+    spawn_id = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
+    spawn_entry1 = Column(ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"), comment='Creature Template Id')
+    spawn_entry2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment='Creature Template Id')
+    spawn_entry3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment='Creature Template Id')
+    spawn_entry4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment='Creature Template Id')
+    map = Column(SMALLINT(5), nullable=False, index=True, server_default=text("'0'"), comment='Map Identifier')
     display_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     equipment_id = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
     position_x = Column(Float, nullable=False, server_default=text("'0'"))
@@ -892,8 +892,8 @@ class SpawnsCreatures(Base):
     visibility_mod = Column(Float, server_default=text("'0'"))
     ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
-    creature_template = relationship(u'CreatureTemplate', backref='CreatureTemplate', lazy='joined')
-    npc_text = relationship(u'NpcText', secondary=u'npc_gossip')
+    creature_template = relationship('CreatureTemplate', backref='CreatureTemplate', lazy='joined')
+    npc_text = relationship('NpcText', secondary='npc_gossip')
 
 
 class SpawnsGameobjects(Base):
