@@ -1,4 +1,5 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from game.world.managers.objects.player.ChatManager import ChatManager
 from network.packet.PacketReader import *
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from utils.constants.ObjectCodes import GuildCommandResults, GuildTypeCommand, GuildRank
@@ -23,7 +24,7 @@ class GuildDemoteHandler(object):
                                                    GuildCommandResults.GUILD_PLAYER_NOT_FOUND)
         elif not player_mgr.guild_manager.has_member(target_player_mgr.guid):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
-                                                   GuildCommandResults.GUILD_PLAYER_NOT_FOUND)
+                                                   GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
         elif not player_mgr.guild_manager.demote_rank(target_player_mgr.guid):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_INTERNAL)
