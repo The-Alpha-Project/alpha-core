@@ -54,7 +54,7 @@ class WhoHandler(object):
                         continue
                     if player_name and not player_name.lower() in session.player_mgr.player.name.lower:
                         continue
-                    if session.player_mgr.guild_manager and guild_name and guild_name.lower() not in session.player_mgr.guild_manager.guild_name.lower():
+                    if session.player_mgr.guild_manager and guild_name and guild_name.lower() not in session.player_mgr.guild_manager.guild.name.lower():
                         continue
                     if class_mask != 0xFFFFFFFF and class_mask & session.player_mgr.class_mask != session.player_mgr.class_mask:
                         continue
@@ -81,7 +81,7 @@ class WhoHandler(object):
 
                     player_name_bytes = PacketWriter.string_to_bytes(session.player_mgr.player.name)
 
-                    player_guild_name = session.player_mgr.guild_manager.guild_name if session.player_mgr.guild_manager else ""
+                    player_guild_name = session.player_mgr.guild_manager.guild.name if session.player_mgr.guild_manager else ""
                     guild_name_bytes = PacketWriter.string_to_bytes(player_guild_name)
                     player_data += pack(
                         f'<{len(player_name_bytes)}s{len(guild_name_bytes)}s5I',

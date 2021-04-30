@@ -15,7 +15,7 @@ class GuildMOTDHandler(object):
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
         elif not motd:
             player_mgr.guild_manager.send_motd()
-        elif player_mgr.guild_manager.get_guild_rank(player_mgr) > GuildRank.GUILDRANK_OFFICER:
+        elif player_mgr.guild_manager.get_rank(player_mgr.guid) > GuildRank.GUILDRANK_OFFICER:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PERMISSIONS)
         else:

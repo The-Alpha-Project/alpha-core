@@ -4,7 +4,6 @@ from sqlalchemy.dialects.mysql import BIGINT, INTEGER, LONGTEXT, MEDIUMINT, SMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-
 Base = declarative_base()
 metadata = Base.metadata
 
@@ -189,7 +188,6 @@ class Guild(Base):
 
     guild_id = Column(INTEGER(11), autoincrement=True, primary_key=True, server_default=text("0"))
     name = Column(String(255), nullable=False, server_default=text("''"))
-    leader_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("0"))
     motd = Column(String(255), nullable=False, server_default=text("''"))
     creation_date = Column(TIMESTAMP, nullable=False, server_default=text("current_timestamp()"))
     emblem_style = Column(INTEGER(5), nullable=False, server_default=text("-1"))
@@ -198,15 +196,15 @@ class Guild(Base):
     border_color = Column(INTEGER(5), nullable=False, server_default=text("-1"))
     background_color = Column(INTEGER(5), nullable=False, server_default=text("-1"))
 
-    leader = relationship('Character')
-
+    guild_master = relationship('GuildMember', lazy='subquery', uselist=False, primaryjoin='and_(Guild.guild_id==GuildMember.guild_id, GuildMember.rank==0)', viewonly=True)
 
 class GuildMember(Base):
     __tablename__ = 'guild_member'
 
     guild_id = Column(ForeignKey('guild.guild_id', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("0"))
-    guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"))
+    guid = Column(ForeignKey('characters.guid',  ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"))
     rank = Column(TINYINT(2), nullable=False, server_default=text("0"))
 
-    character = relationship('Character')
-    guild = relationship('Guild')
+    # Need subquery attribute, else we get '<GuildMember> is not bound to a Session' exceptions when accessing ref.
+    character = relationship('Character', lazy='subquery')
+    guild = relationship('Guild', lazy='subquery')

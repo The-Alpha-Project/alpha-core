@@ -63,7 +63,7 @@ class ChatManager(object):
             if chat_type == ChatMsgs.CHAT_MSG_GUILD:
                 sender.guild_manager.send_message_to_guild(sender_packet, GuildChatMessageTypes.G_MSGTYPE_ALL, source=sender)
             else:
-                if sender.guild_manager.get_guild_rank(sender) > GuildRank.GUILDRANK_OFFICER:
+                if sender.guild_manager.get_rank(sender.guid) > GuildRank.GUILDRANK_OFFICER:
                     GuildManager.send_guild_command_result(sender, GuildTypeCommand.GUILD_CREATE_S, '',
                                                            GuildCommandResults.GUILD_PERMISSIONS)
                 else:

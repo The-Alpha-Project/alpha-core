@@ -1,6 +1,7 @@
 import time
 from struct import unpack
 
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
@@ -223,13 +224,6 @@ class PlayerManager(UnitManager):
         if self.group_manager:
             self.group_manager.leave_party(self, force_disband=self.group_manager.party_leader == self)
 
-        # TODO: Temp hackfix until guilds are saved in db
-        if self.guild_manager:
-            if self.guild_manager.guild_master == self:
-                self.guild_manager.disband()
-            else:
-                self.guild_manager.leave(self)
-
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
 
@@ -242,6 +236,7 @@ class PlayerManager(UnitManager):
         GridManager.remove_object(self)
         self.session.player_mgr = None
         self.session = None
+        WorldSessionStateHandler.pop_active_player(self)
 
     def get_tutorial_packet(self):
         return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('<18I', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

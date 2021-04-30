@@ -16,7 +16,7 @@ class GuildInviteHandler(object):
         if not player_mgr.guild_manager:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
-        elif player_mgr.guild_manager.get_guild_rank(player_mgr) > GuildRank.GUILDRANK_OFFICER:
+        elif player_mgr.guild_manager.get_rank(player_mgr.guid) > GuildRank.GUILDRANK_OFFICER:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PERMISSIONS)
         elif not target_player_mgr:
@@ -39,7 +39,7 @@ class GuildInviteHandler(object):
                     name_bytes,
                 )
 
-                guild_name_bytes = PacketWriter.string_to_bytes(player_mgr.guild_manager.guild_name)
+                guild_name_bytes = PacketWriter.string_to_bytes(player_mgr.guild_manager.guild.name)
                 data += pack(
                     f'<{len(guild_name_bytes)}s',
                     guild_name_bytes,

@@ -16,7 +16,7 @@ class GuildRosterHandler(object):
             GuildManager.send_guild_command_result(player, GuildTypeCommand.GUILD_CREATE_S, '',
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
         else:
-            guild_name = PacketWriter.string_to_bytes(player.guild_manager.guild_name)
+            guild_name = PacketWriter.string_to_bytes(player.guild_manager.guild.name)
             data = pack(
                 f'<{len(guild_name)}s',
                 guild_name
@@ -28,11 +28,11 @@ class GuildRosterHandler(object):
             data += pack('<I', 0)
 
             for member in player.guild_manager.members.values():
-                player_name = PacketWriter.string_to_bytes(member.player.name)
+                player_name = PacketWriter.string_to_bytes(member.character.name)
                 data += pack(
                     f'<{len(player_name)}sI',
                     player_name,
-                    member.guild_manager.get_guild_rank(member)
+                    member.rank,
                 )
 
             player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_ROSTER, data))

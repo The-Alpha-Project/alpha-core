@@ -3,6 +3,10 @@ from database.realm.RealmDatabaseManager import *
 
 WORLD_SESSIONS = []
 CURRENT_SESSIONS = Value('i', 0)
+PLAYERS_BY_GUID = {}
+PLAYER_BY_NAME = {}
+SESSION_BY_GUID = {}
+SESSION_BY_NAME = {}
 
 
 class WorldSessionStateHandler(object):
@@ -14,10 +18,32 @@ class WorldSessionStateHandler(object):
             WORLD_SESSIONS.append(session)
 
     @staticmethod
+    def push_active_player_session(session):
+        # This is filled upon player successful login (in-world).
+        PLAYERS_BY_GUID[session.player_mgr.guid] = session.player_mgr;
+        PLAYER_BY_NAME[session.player_mgr.player.name] = session.player_mgr
+        SESSION_BY_GUID[session.player_mgr.guid] = session
+        SESSION_BY_NAME[session.player_mgr.player.name] = session
+
+    @staticmethod
+    def pop_active_player(player_mgr):
+        # Flushed when players leaves world and lands on selection character screen. (Also in disconnect from socket)
+        if player_mgr.player.name in PLAYER_BY_NAME:
+            PLAYER_BY_NAME.pop(player_mgr.player.name)
+        if player_mgr.guid in PLAYERS_BY_GUID:
+            PLAYERS_BY_GUID.pop(player_mgr.guid)
+        if player_mgr.player.name in SESSION_BY_NAME:
+            SESSION_BY_NAME.pop(player_mgr.player.name)
+        if player_mgr.guid in SESSION_BY_GUID:
+            SESSION_BY_GUID.pop(player_mgr.guid)
+
+    @staticmethod
     def remove(session):
         if session in WORLD_SESSIONS:
             CURRENT_SESSIONS.value -= 1
             WORLD_SESSIONS.remove(session)
+        if session.player_mgr:
+            WorldSessionStateHandler.pop_active_player(session.player_mgr)
 
     @staticmethod
     def disonnect_old_session(new_session):
@@ -46,25 +72,26 @@ class WorldSessionStateHandler(object):
 
     @staticmethod
     def get_session_by_character_guid(character_guid):
-        for session in WORLD_SESSIONS:
-            if session.player_mgr and session.player_mgr.guid == character_guid:
-                return session
+        if character_guid in SESSION_BY_GUID:
+            return SESSION_BY_GUID[character_guid]
+        return None
+
+    @staticmethod
+    def get_session_by_character_name(character_name):
+        if character_name in SESSION_BY_NAME:
+            return SESSION_BY_NAME[character_name]
         return None
 
     @staticmethod
     def find_player_by_guid(guid_to_search):
-        for session in WORLD_SESSIONS:
-            if session.player_mgr and session.player_mgr.online:
-                if session.player_mgr.guid == guid_to_search:
-                    return session.player_mgr
+        if guid_to_search in PLAYERS_BY_GUID:
+            return PLAYERS_BY_GUID[guid_to_search]
         return None
 
     @staticmethod
     def find_player_by_name(name_to_search):
-        for session in WORLD_SESSIONS:
-            if session.player_mgr and session.player_mgr.online:
-                if session.player_mgr.player.name.lower() == name_to_search.lower():
-                    return session.player_mgr
+        if name_to_search in PLAYER_BY_NAME:
+            return PLAYER_BY_NAME[name_to_search]
         return None
 
     @staticmethod
