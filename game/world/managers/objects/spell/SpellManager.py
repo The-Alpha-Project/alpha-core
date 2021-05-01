@@ -7,6 +7,7 @@ from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange, SpellDurat
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.player.DuelManager import DuelManager
+from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes, AttackTypes
@@ -84,11 +85,11 @@ class CastingSpell(object):
     def get_effects(self):
         effects = []
         if self.spell_entry.Effect_1 != 0:
-            effects.append(SpellEffect(self.spell_entry, 1))
+            effects.append(SpellEffect(self, 1))
         if self.spell_entry.Effect_2 != 0:
-            effects.append(SpellEffect(self.spell_entry, 2))
+            effects.append(SpellEffect(self, 2))
         if self.spell_entry.Effect_3 != 0:
-            effects.append(SpellEffect(self.spell_entry, 3))
+            effects.append(SpellEffect(self, 3))
         return effects
     
     def get_reagents(self):
@@ -115,15 +116,19 @@ class SpellEffect(object):
     item_type: int
     misc_value: int
     trigger_spell: int
-    effect_index: int
 
-    def __init__(self, spell, index):
+    effect_index: int
+    targets: EffectTargets
+
+    def __init__(self, casting_spell, index):
         if index == 1:
-            self.load_first(spell)
+            self.load_first(casting_spell.spell_entry)
         elif index == 2:
-            self.load_second(spell)
+            self.load_second(casting_spell.spell_entry)
         elif index == 3:
-            self.load_third(spell)
+            self.load_third(casting_spell.spell_entry)
+
+        self.targets = EffectTargets(casting_spell, self)
 
     def get_effect_points(self, level):
         rolled_points = random.randint(1, self.die_sides + self.dice_per_level) if self.die_sides != 0 else 0
@@ -561,6 +566,7 @@ class SpellManager(object):
         if self.is_on_cooldown(casting_spell):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
+
         if not casting_spell.spell_entry or casting_spell.spell_entry.ID not in self.spells:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
             return False

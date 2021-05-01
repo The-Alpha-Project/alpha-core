@@ -1137,6 +1137,11 @@ class PlayerManager(UnitManager):
                                                            self.deathbind.deathbind_position_y,
                                                            self.deathbind.deathbind_position_z))
 
+    def get_deathbind_coordinates(self):
+        return (self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,
+                                             self.deathbind.deathbind_position_y,
+                                             self.deathbind.deathbind_position_z))
+
     # override
     def die(self, killer=None):
         if killer and self.duel_manager and self.duel_manager.player_involved(killer):

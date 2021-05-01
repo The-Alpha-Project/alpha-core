@@ -522,6 +522,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_NOTHING = 0
     TARGET_SELF = 1
     TARGET_RANDOM_ENEMY_CHAIN_IN_AREA = 2  # Only one spell has this one but regardless it's a target type after all
+    TARGET_UNIT_NEAR_CASTER = 4
     TARGET_PET = 5
     TARGET_CHAIN_DAMAGE = 6
     TARGET_AREAEFFECT_CUSTOM = 8
@@ -548,23 +549,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_AREAEFFECT_PARTY = 37  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
     TARGET_SCRIPT = 38
     TARGET_SELF_FISHING = 39  # Equip a fishing pole and find a body of water to fish.
-    TARGET_TOTEM_EARTH = 41
-    TARGET_TOTEM_WATER = 42
-    TARGET_TOTEM_AIR = 43
-    TARGET_TOTEM_FIRE = 44
-    TARGET_CHAIN_HEAL = 45
-    TARGET_DYNAMIC_OBJECT = 47
-    TARGET_AREA_EFFECT_SELECTED = 53  # Inflicts $s1 Fire damage to all enemies in a selected area.
-    TARGET_UNK54 = 54
-    TARGET_RANDOM_RAID_MEMBER = 56
-    TARGET_SINGLE_FRIEND_2 = 57
-    TARGET_AREAEFFECT_PARTY_AND_CLASS = 61
-    TARGET_DUELVSPLAYER_COORDINATES = 63
-    TARGET_BEHIND_VICTIM = 65  # uses in teleport behind spells
-    TARGET_SINGLE_ENEMY = 77
-    TARGET_SELF2 = 87
-    TARGET_NONCOMBAT_PET = 90
-
+    TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER = 40  # 7728, 7729
 
 class SpellMissInfo(IntEnum):
     MISS_NONE = 0x0
