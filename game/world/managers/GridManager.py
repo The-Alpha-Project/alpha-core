@@ -11,7 +11,7 @@ CELLS = dict()
 
 
 class GridManager(object):
-    ACTIVE_CELL_KEYS = []
+    ACTIVE_CELL_KEYS = set()
 
     @staticmethod
     def add_or_get(world_obj, store=False):
@@ -53,7 +53,7 @@ class GridManager(object):
 
     @staticmethod
     def deactivate_cells():
-        for cell_key in GridManager.ACTIVE_CELL_KEYS:
+        for cell_key in list(GridManager.ACTIVE_CELL_KEYS):
             players_near = False
             for cell in GridManager.get_surrounding_cells_by_cell(CELLS[cell_key]):
                 if cell.has_players():
@@ -62,7 +62,7 @@ class GridManager(object):
 
             # Make sure only Cells with no players near are removed from the Active list.
             if not players_near:
-                GridManager.ACTIVE_CELL_KEYS.remove(cell_key)
+                GridManager.ACTIVE_CELL_KEYS.discard(cell_key)
 
     @staticmethod
     def get_surrounding_cell_keys(world_obj, vector=None, x_s=-1, x_m=1, y_s=-1, y_m=1):
@@ -253,8 +253,7 @@ class Cell(object):
             self.players[world_obj.guid] = world_obj
             # Set this Cell and surrounding ones as Active
             for cell_key in GridManager.get_surrounding_cell_keys(world_obj):
-                if cell_key not in GridManager.ACTIVE_CELL_KEYS:
-                    GridManager.ACTIVE_CELL_KEYS.append(cell_key)
+                GridManager.ACTIVE_CELL_KEYS.add(cell_key)
         elif world_obj.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures[world_obj.guid] = world_obj
         elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
