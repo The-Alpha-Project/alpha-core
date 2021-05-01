@@ -357,3 +357,11 @@ class RealmDatabaseManager(object):
             realm_db_session.close()
             return 0
         return -1
+
+    @staticmethod
+    def character_update_quest(quest_id):
+        if quest_id:
+            realm_db_session = SessionHolder()
+            realm_db_session.merge(quest_id)
+            realm_db_session.flush()
+            realm_db_session.close()
