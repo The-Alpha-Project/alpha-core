@@ -88,7 +88,7 @@ class GridManager(object):
         return GridManager.get_surrounding_cells_by_location(vector, cell.map_)
 
     @staticmethod
-    def get_surrounding_cells(world_obj, x_s=-1, x_m=1, y_s=-1, y_m=1):
+    def get_surrounding_cells_by_object(world_obj, x_s=-1, x_m=1, y_s=-1, y_m=1):
         vector = world_obj.location
         return GridManager.get_surrounding_cells_by_location(vector, world_obj.map_, x_s=x_s, x_m=x_m, y_s=y_s, y_m=y_m)
 
@@ -107,18 +107,18 @@ class GridManager(object):
 
     @staticmethod
     def send_surrounding(packet, world_obj, include_self=True, exclude=None, use_ignore=False):
-        for cell in GridManager.get_surrounding_cells(world_obj):
+        for cell in GridManager.get_surrounding_cells_by_object(world_obj):
             cell.send_all(packet, source=None if include_self else world_obj, exclude=exclude, use_ignore=use_ignore)
 
     @staticmethod
     def send_surrounding_in_range(packet, world_obj, range_, include_self=True, exclude=None, use_ignore=False):
-        for cell in GridManager.get_surrounding_cells(world_obj):
+        for cell in GridManager.get_surrounding_cells_by_object(world_obj):
             cell.send_all_in_range(packet, range_, world_obj, include_self, exclude, use_ignore)
 
     @staticmethod
     def get_surrounding_objects(world_obj, object_types):
         surrounding_objects = [{}, {}, {}]
-        for cell in GridManager.get_surrounding_cells(world_obj):
+        for cell in GridManager.get_surrounding_cells_by_object(world_obj):
             if ObjectTypes.TYPE_PLAYER in object_types:
                 surrounding_objects[0] = {**surrounding_objects[0], **cell.players}
             if ObjectTypes.TYPE_UNIT in object_types:
