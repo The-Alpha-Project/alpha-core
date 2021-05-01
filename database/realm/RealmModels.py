@@ -196,7 +196,6 @@ class Guild(Base):
     border_color = Column(INTEGER(5), nullable=False, server_default=text("-1"))
     background_color = Column(INTEGER(5), nullable=False, server_default=text("-1"))
 
-    guild_master = relationship('GuildMember', lazy='subquery', uselist=False, primaryjoin='and_(Guild.guild_id==GuildMember.guild_id, GuildMember.rank==0)', viewonly=True)
 
 class GuildMember(Base):
     __tablename__ = 'guild_member'
@@ -205,6 +204,5 @@ class GuildMember(Base):
     guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"))
     rank = Column(TINYINT(2), nullable=False, server_default=text("0"))
 
-    # Need subquery attribute, else we get '<GuildMember> is not bound to a Session' exceptions when accessing ref.
-    character = relationship('Character', lazy='subquery')
-    guild = relationship('Guild', lazy='subquery')
+    character = relationship('Character', lazy='joined')
+    guild = relationship('Guild', lazy='joined')

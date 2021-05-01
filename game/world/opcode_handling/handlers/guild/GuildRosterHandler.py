@@ -1,3 +1,4 @@
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from network.packet.PacketWriter import *
 from utils.constants.UnitCodes import Classes, Races
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -24,8 +25,8 @@ class GuildRosterHandler(object):
 
             # Members count
             data += pack('<I', len(player.guild_manager.members))
-            # TODO: Number of accounts
-            data += pack('<I', 0)
+            accounts = RealmDatabaseManager.guild_get_accounts(guild_id=player.guild_manager.guild.guild_id)
+            data += pack('<I', len(accounts))
 
             for member in player.guild_manager.members.values():
                 player_name = PacketWriter.string_to_bytes(member.character.name)

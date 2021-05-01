@@ -18,6 +18,7 @@ class GuildManager(object):
     def __init__(self, guild):
         self.guild = guild
         self.members = {}
+        self.guild_master = None
         GuildManager.GUILDS[self.guild.name] = self
 
     def load_guild_members(self):
@@ -25,10 +26,12 @@ class GuildManager(object):
 
         for member in members:
             self.members[member.guid] = member
+            if member.rank == 0:
+                self.guild_master = member
 
     def set_guild_master(self, player_guid):
-        member = self.members[player_guid].character
-        previous_gm = self.guild.guild_master
+        member = self.members[player_guid]
+        previous_gm = self.guild_master
 
         member.rank = int(GuildRank.GUILDRANK_GUILD_MASTER)
         previous_gm.rank = int(GuildRank.GUILDRANK_OFFICER)
@@ -50,18 +53,15 @@ class GuildManager(object):
             packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
             self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
-        self.update_db_guild_members(member_only=member)
+        self.update_db_guild_members()
         player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
         if player_mgr:
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, member.rank)
             player_mgr.set_dirty()
 
-    def update_db_guild_members(self, member_only=None):
-        if member_only:
-            RealmDatabaseManager.guild_update_player(member_only)
-        else:
-            for member in self.members.values():
-                RealmDatabaseManager.guild_update_player(member)
+    def update_db_guild_members(self):
+        for member in self.members.values():
+            RealmDatabaseManager.guild_update_player(member)
 
     def update_db_guild(self):
         RealmDatabaseManager.guild_update(self.guild)
@@ -88,6 +88,10 @@ class GuildManager(object):
         member.rank = int(rank)
         member.guid = player_guid
         RealmDatabaseManager.guild_create_player(member)
+
+        if rank == int(GuildRank.GUILDRANK_GUILD_MASTER):
+            self.guild_master = member;
+
         return member
 
     def add_new_member(self, player_mgr, is_guild_master=False):
@@ -109,10 +113,11 @@ class GuildManager(object):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
+        RealmDatabaseManager.character_update(player_mgr.player)
 
     def remove_member(self, player_guid):
         member = self.members[player_guid]
-        guild_master = self.guild.guild_master
+        guild_master = self.guild_master
 
         data = pack('<2B', GuildEvents.GUILD_EVENT_REMOVED, 2)
         target_name_bytes = PacketWriter.string_to_bytes(member.character.name)
@@ -133,6 +138,7 @@ class GuildManager(object):
         # Pop it at the end, so he gets the above message.
         RealmDatabaseManager.guild_remove_player(member)
         player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
+        self.members.pop(player_guid)
 
         if player_mgr:
             self.build_update(player_mgr, unset=True)
@@ -153,6 +159,7 @@ class GuildManager(object):
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
         RealmDatabaseManager.guild_remove_player(member)
+        self.members.pop(player_guid)
         player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
         if player_mgr:
             self.build_update(player_mgr, unset=True)
@@ -160,10 +167,8 @@ class GuildManager(object):
             player_mgr.set_dirty()
 
     def disband(self):
-        guild_master = self.guild.guild_master
-
         data = pack('<2B', GuildEvents.GUILD_EVENT_DISBANDED, 1)
-        leaver_name_bytes = PacketWriter.string_to_bytes(guild_master.character.name)
+        leaver_name_bytes = PacketWriter.string_to_bytes(self.guild_master.character.name)
         data += pack(
             f'<{len(leaver_name_bytes)}s',
             leaver_name_bytes
@@ -173,7 +178,6 @@ class GuildManager(object):
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
         for member in self.members.values():
-            RealmDatabaseManager.guild_remove_player(member)
             player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
             if player_mgr:
                 self.build_update(player_mgr, unset=True)
