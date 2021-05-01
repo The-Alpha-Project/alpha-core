@@ -52,9 +52,23 @@ class GridManager(object):
             cell.send_all_in_range(world_obj.get_destroy_packet(), source=world_obj, range_=CELL_SIZE)
 
     @staticmethod
-    def get_surrounding(world_obj, x_s=-1, x_m=1, y_s=-1, y_m=1):
-        vector = world_obj.location
-        near_cells = set()
+    def deactivate_cells():
+        for cell_key in GridManager.ACTIVE_CELL_KEYS:
+            players_near = False
+            for cell in GridManager.get_surrounding_cells_by_cell(CELLS[cell_key]):
+                if cell.has_players():
+                    players_near = True
+                    break
+
+            # Make sure only Cells with no players near are removed from the Active list.
+            if not players_near:
+                GridManager.ACTIVE_CELL_KEYS.remove(cell_key)
+
+    @staticmethod
+    def get_surrounding_cell_keys(world_obj, vector=None, x_s=-1, x_m=1, y_s=-1, y_m=1):
+        if not vector:
+            vector = world_obj.location
+        near_cell_keys = set()
 
         for x in range(x_s, x_m + 1):
             for y in range(y_s, y_m + 1):
@@ -62,24 +76,49 @@ class GridManager(object):
                     Vector(vector.x + (x * CELL_SIZE), vector.y + (y * CELL_SIZE), 0),
                     world_obj.map_)
                 if cell_coords in CELLS:
+                    near_cell_keys.add(cell_coords)
+
+        return near_cell_keys
+
+    @staticmethod
+    def get_surrounding_cells_by_cell(cell):
+        mid_x = (cell.min_x + cell.max_x) / 2
+        mid_y = (cell.min_y + cell.max_y) / 2
+        vector = Vector(mid_x, mid_y)
+        return GridManager.get_surrounding_cells_by_location(vector, cell.map_)
+
+    @staticmethod
+    def get_surrounding_cells(world_obj, x_s=-1, x_m=1, y_s=-1, y_m=1):
+        vector = world_obj.location
+        return GridManager.get_surrounding_cells_by_location(vector, world_obj.map_, x_s=x_s, x_m=x_m, y_s=y_s, y_m=y_m)
+
+    @staticmethod
+    def get_surrounding_cells_by_location(location, map_, x_s=-1, x_m=1, y_s=-1, y_m=1):
+        near_cells = set()
+
+        for x in range(x_s, x_m + 1):
+            for y in range(y_s, y_m + 1):
+                cell_coords = GridManager.get_cell_key(
+                    Vector(location.x + (x * CELL_SIZE), location.y + (y * CELL_SIZE), 0), map_)
+                if cell_coords in CELLS:
                     near_cells.add(CELLS[cell_coords])
 
         return near_cells
 
     @staticmethod
     def send_surrounding(packet, world_obj, include_self=True, exclude=None, use_ignore=False):
-        for cell in GridManager.get_surrounding(world_obj):
+        for cell in GridManager.get_surrounding_cells(world_obj):
             cell.send_all(packet, source=None if include_self else world_obj, exclude=exclude, use_ignore=use_ignore)
 
     @staticmethod
     def send_surrounding_in_range(packet, world_obj, range_, include_self=True, exclude=None, use_ignore=False):
-        for cell in GridManager.get_surrounding(world_obj):
+        for cell in GridManager.get_surrounding_cells(world_obj):
             cell.send_all_in_range(packet, range_, world_obj, include_self, exclude, use_ignore)
 
     @staticmethod
     def get_surrounding_objects(world_obj, object_types):
         surrounding_objects = [{}, {}, {}]
-        for cell in GridManager.get_surrounding(world_obj):
+        for cell in GridManager.get_surrounding_cells(world_obj):
             if ObjectTypes.TYPE_PLAYER in object_types:
                 surrounding_objects[0] = {**surrounding_objects[0], **cell.players}
             if ObjectTypes.TYPE_UNIT in object_types:
@@ -212,9 +251,10 @@ class Cell(object):
     def add(self, world_obj):
         if world_obj.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players[world_obj.guid] = world_obj
-            # Add Cell key to the active cell list
-            if self.key not in GridManager.ACTIVE_CELL_KEYS:
-                GridManager.ACTIVE_CELL_KEYS.append(self.key)
+            # Set this Cell and surrounding ones as Active
+            for cell_key in GridManager.get_surrounding_cell_keys(world_obj):
+                if cell_key not in GridManager.ACTIVE_CELL_KEYS:
+                    GridManager.ACTIVE_CELL_KEYS.append(cell_key)
         elif world_obj.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures[world_obj.guid] = world_obj
         elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
@@ -225,9 +265,6 @@ class Cell(object):
     def remove(self, world_obj):
         if world_obj.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players.pop(world_obj.guid, None)
-            # If no players left on Cell, remove its key from the active cell list
-            if len(self.players) == 0 and self.key in GridManager.ACTIVE_CELL_KEYS:
-                GridManager.ACTIVE_CELL_KEYS.remove(self.key)
         elif world_obj.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures.pop(world_obj.guid, None)
         elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:

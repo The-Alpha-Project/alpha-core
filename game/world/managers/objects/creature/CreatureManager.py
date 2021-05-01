@@ -11,6 +11,7 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.creature.CreatureLootManager import CreatureLootManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
+from utils.Formulas import UnitFormulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes
 from utils.constants.OpCodes import OpCode
