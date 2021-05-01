@@ -214,7 +214,7 @@ class WorldServerSessionHandler(object):
                                             max_instances=1)
         gameobject_update_scheduler.start()
 
-        # Cell unloading
+        # Cell deactivation
         cell_unloading_scheduler = BackgroundScheduler()
         cell_unloading_scheduler._daemon = True
         cell_unloading_scheduler.add_job(GridManager.deactivate_cells, 'interval', seconds=120.0,
