@@ -52,7 +52,7 @@ class CreatureManager(UnitManager):
             self.unit_flags = self.creature_template.unit_flags
             self.faction = self.creature_template.faction
             self.creature_type = self.creature_template.type
-            self.sheath_state = WeaponMode.SHEATHEDMODE  # Default one
+            self.sheath_state = WeaponMode.NORMALMODE
 
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
@@ -123,6 +123,7 @@ class CreatureManager(UnitManager):
                 if creature_model_info:
                     self.bounding_radius = creature_model_info.bounding_radius
                     self.combat_reach = creature_model_info.combat_reach
+                    self.gender = creature_model_info.gender
 
                 if self.creature_template.scale == 0:
                     display_scale = DbcDatabaseManager.creature_display_info_get_by_id(self.current_display_id)
@@ -186,6 +187,8 @@ class CreatureManager(UnitManager):
     def get_full_update_packet(self, is_self=True):
         self.finish_loading()
 
+        # race, class, gender, power_type
+        self.bytes_0 = unpack('<I', pack('<4B', 0, self.creature_template.unit_class, self.gender, 0))[0]
         # stand_state, npc_flags, shapeshift_form, visibility_flag
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form, 0))[0]
         # sheath_state, misc_flags, pet_flags, unknown
@@ -223,6 +226,7 @@ class CreatureManager(UnitManager):
         self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
         self.set_float(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
@@ -268,20 +272,6 @@ class CreatureManager(UnitManager):
             # Dead
             else:
                 self.respawn_timer += elapsed
-
-                # Setting mob as lootable here instead of on die(). Sometimes player gets stuck on looting animation,
-                # this issue seems to happen A LOT less if the mob is set as lootable at least 1 second after it died.
-                # Blizzard had this issue too back in the day and they solved it (most likely) by sending loot release
-                # every 15 seconds:
-                #     "loot bug" partially fixed (should only get stuck for 15 seconds max now, no more re-logging needed).
-                #     https://wowpedia.fandom.com/wiki/Patch_0.5.3
-                # TODO: Investigate if there's a better fix (or hackfix) for this issue.
-                if self.loot_manager.has_loot() and 1.2 <= self.respawn_timer <= 2.0:
-                    if not (self.dynamic_flags & UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE):
-                        self.set_lootable(True)
-                        self.set_dirty()
-                    return
-
                 if self.respawn_timer >= self.respawn_time:
                     self.respawn()
                 # Destroy body when creature is about to respawn
@@ -327,6 +317,9 @@ class CreatureManager(UnitManager):
             self.killed_by = killer
             if self.killed_by.group_manager and self.loot_manager.has_loot():
                 self.killed_by.group_manager.set_allowed_looters(self)
+
+        if self.loot_manager.has_loot():
+            self.set_lootable(True)
 
         self.set_dirty()
         return True

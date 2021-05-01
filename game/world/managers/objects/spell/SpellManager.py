@@ -5,11 +5,13 @@ from struct import pack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange, SpellDuration
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
 from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
+from utils.constants.ItemCodes import InventoryError
 from utils.constants.ObjectCodes import ObjectTypes, AttackTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellTargetType, SpellAttributes, SpellAttributesEx, \
@@ -68,6 +70,13 @@ class CastingSpell(object):
         return self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and \
             self.spell_entry.AttributesEx & cp_att != 0
 
+    def calculate_effective_level(self, level):
+        if level > self.spell_entry.MaxLevel > 0:
+            level = self.spell_entry.MaxLevel
+        elif level < self.spell_entry.BaseLevel:
+            level = self.spell_entry.BaseLevel
+        return level - self.spell_entry.SpellLevel
+
     def get_base_cast_time(self):
         skill = self.spell_caster.skill_manager.get_skill_for_spell_id(self.spell_entry.ID)
         if not skill:
@@ -77,7 +86,7 @@ class CastingSpell(object):
 
     def get_resource_cost(self):
         if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and self.spell_entry.ManaCostPct != 0:
-            return self.spell_caster.base_mana * self.spell_entry.ManaCostPct/100
+            return self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
 
         # ManaCostPerLevel is not used by anything relevant (only 271/4513/7290)
         return self.spell_entry.ManaCost
@@ -97,6 +106,13 @@ class CastingSpell(object):
                (self.spell_entry.Reagent_3, self.spell_entry.ReagentCount_3), (self.spell_entry.Reagent_4, self.spell_entry.ReagentCount_4), \
                (self.spell_entry.Reagent_5, self.spell_entry.ReagentCount_5), (self.spell_entry.Reagent_6, self.spell_entry.ReagentCount_6), \
                (self.spell_entry.Reagent_7, self.spell_entry.ReagentCount_7), (self.spell_entry.Reagent_8, self.spell_entry.ReagentCount_8)
+
+    def get_conjured_items(self):
+        conjured_items = []
+        for effect in self.get_effects():
+            item_count = abs(effect.get_effect_points(self.calculate_effective_level(self.spell_caster.level)))
+            conjured_items.append([effect.item_type, item_count])
+        return tuple(conjured_items)
 
 
 class SpellEffect(object):
@@ -130,9 +146,9 @@ class SpellEffect(object):
 
         self.targets = EffectTargets(casting_spell, self)
 
-    def get_effect_points(self, level):
+    def get_effect_points(self, effective_level):
         rolled_points = random.randint(1, self.die_sides + self.dice_per_level) if self.die_sides != 0 else 0
-        return self.base_points + int(self.real_points_per_level * level) + rolled_points
+        return self.base_points + int(self.real_points_per_level * effective_level) + rolled_points
 
     def load_first(self, spell):
         self.effect_type = spell.Effect_1
@@ -205,19 +221,19 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
-        damage = effect.get_effect_points(caster.level)
+        damage = effect.get_effect_points(casting_spell.calculate_effective_level(caster.level))
         caster.deal_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
 
     @staticmethod
     def handle_heal(casting_spell, effect, caster, target):
-        healing = effect.get_effect_points(caster.level)
+        healing = effect.get_effect_points(casting_spell.calculate_effective_level(caster.level))
 
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):
         damage_info = caster.calculate_melee_damage(target, casting_spell.spell_attack_type)
         if not damage_info:
             return
-        damage = damage_info.total_damage + effect.get_effect_points(caster.level)
+        damage = damage_info.total_damage + effect.get_effect_points(casting_spell.calculate_effective_level(caster.level))
         caster.deal_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
 
     @staticmethod
@@ -226,7 +242,7 @@ class SpellEffectHandler(object):
         if not damage_info:
             return
         damage = damage_info.total_damage
-        damage_bonus = effect.get_effect_points(caster.level)
+        damage_bonus = effect.get_effect_points(casting_spell.calculate_effective_level(caster.level))
 
         if caster.get_type() == ObjectTypes.TYPE_PLAYER and \
                 casting_spell.requires_combo_points():
@@ -236,7 +252,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):
-        caster.add_combo_points_on_target(target, effect.get_effect_points(caster.level))
+        caster.add_combo_points_on_target(target, effect.get_effect_points(casting_spell.calculate_effective_level(caster.level)))
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
@@ -260,7 +276,7 @@ class SpellEffectHandler(object):
         if power_type != target.power_type:
             return
 
-        new_power = target.get_power_type_value() + effect.get_effect_points(caster.level)
+        new_power = target.get_power_type_value() + effect.get_effect_points(casting_spell.calculate_effective_level(caster.level))
         if power_type == PowerTypes.TYPE_MANA:
             target.set_mana(new_power)
         elif power_type == PowerTypes.TYPE_RAGE:
@@ -292,6 +308,14 @@ class SpellEffectHandler(object):
         # No SMSG_SPELLINSTAKILLLOG in 0.5.3?
         target.die(killer=caster)
 
+    @staticmethod
+    def handle_create_item(casting_spell, effect, caster, target):
+        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        target.inventory.add_item(effect.item_type,
+                                  count=effect.get_effect_points(casting_spell.calculate_effective_level(caster.level)))
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
@@ -303,7 +327,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
     SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
     SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount,
-    SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill
+    SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill,
+    SpellEffects.SPELL_EFFECT_CREATE_ITEM: SpellEffectHandler.handle_create_item
 }
 
 
@@ -584,12 +609,12 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 
-        if not self.has_resources_for_cast(casting_spell):
+        if not self.meets_casting_requisites(casting_spell):
             return False
 
         return True
 
-    def has_resources_for_cast(self, casting_spell):
+    def meets_casting_requisites(self, casting_spell):
         if casting_spell.spell_entry.PowerType != self.unit_mgr.power_type and casting_spell.spell_entry.ManaCost != 0:  # Doesn't have the correct power type
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
@@ -598,21 +623,38 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 
-        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and casting_spell.requires_combo_points() and \
-                (casting_spell.initial_target_unit.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
-            return False
-
+        # Player only checks
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
-            for reagent_info in casting_spell.get_reagents():
-                if reagent_info[0] == 0:
+            # Check if player has required combo points
+            if casting_spell.requires_combo_points() and \
+                    (casting_spell.initial_target_unit.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
+                return False
+
+            # Check if player has required reagents
+            for reagent_info, count in casting_spell.get_reagents():
+                if reagent_info == 0:
                     break
-                if self.unit_mgr.inventory.get_item_count(reagent_info[0]) < reagent_info[1]:
+
+                if self.unit_mgr.inventory.get_item_count(reagent_info) < count:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_REAGENTS)
                     return False
+
+            # Check if player inventory has space left
+            for item, count in casting_spell.get_conjured_items():
+                if item == 0:
+                    break
+
+                item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item)
+                error = self.unit_mgr.inventory.can_store_item(item_template, count)
+                if error != InventoryError.BAG_OK:
+                    self.unit_mgr.inventory.send_equip_error(error)
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
+                    return False
+
         return True
 
-    def consume_resources_for_cast(self, casting_spell):  # This method assumes that the reagents exist (has_resources_for_cast was run)
+    def consume_resources_for_cast(self, casting_spell):  # This method assumes that the reagents exist (meets_casting_requisites was run)
         power_type = casting_spell.spell_entry.PowerType
         cost = casting_spell.spell_entry.ManaCost
         new_power = self.unit_mgr.get_power_type_value() - cost

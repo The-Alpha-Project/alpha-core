@@ -1,5 +1,3 @@
-from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
-from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
 
@@ -36,7 +34,6 @@ from game.world.opcode_handling.handlers.gameobject.GameObjectQueryHandler impor
 from game.world.opcode_handling.handlers.gameobject.GameobjUseHandler import GameobjUseHandler
 from game.world.opcode_handling.handlers.npc.CreatureQueryHandler import CreatureQueryHandler
 from game.world.opcode_handling.handlers.unit.SetSelectionHandler import SetSelectionHandler
-from game.world.opcode_handling.handlers.unit.SetTargetHandler import SetTargetHandler
 from game.world.opcode_handling.handlers.npc.TabardVendorActivateHandler import TabardVendorActivateHandler
 from game.world.opcode_handling.handlers.npc.BinderActivateHandler import BinderActivateHandler
 from game.world.opcode_handling.handlers.npc.PetitionShowlistHandler import PetitionShowlistHandler
@@ -70,6 +67,8 @@ from game.world.opcode_handling.handlers.loot.AutostoreLootItemHandler import Au
 from game.world.opcode_handling.handlers.quest.QuestGiverStatusHandler import QuestGiverStatusHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import QuestGiverHelloHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverQueryQuestHandler import QuestGiverQueryQuestHandler
+from game.world.opcode_handling.handlers.quest.QuestGiverAcceptQuestHandler import QuestGiverAcceptQuestHandler
+from game.world.opcode_handling.handlers.quest.QuestGiverRemoveQuestHandler import QuestGiverRemoveQuestHandler
 from game.world.opcode_handling.handlers.group.GroupInviteHandler import GroupInviteHandler
 from game.world.opcode_handling.handlers.group.GroupInviteAcceptHandler import GroupInviteAcceptHandler
 from game.world.opcode_handling.handlers.group.GroupInviteDeclineHandler import GroupInviteDeclineHandler
@@ -114,6 +113,11 @@ from game.world.opcode_handling.handlers.channel.ChannelPasswordHandler import C
 from game.world.opcode_handling.handlers.player.RandomRollHandler import RandomRollHandler
 from game.world.opcode_handling.handlers.player.DuelAcceptHandler import DuelAcceptHandler
 from game.world.opcode_handling.handlers.player.DuelCanceledHandler import DuelCanceledHandler
+from game.world.opcode_handling.handlers.NullHandler import NullHandler
+from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
+from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
+from game.world.opcode_handling.handlers.unit.SetTargetHandler import SetTargetHandler
+from game.world.opcode_handling.handlers.player.DebugAIStateHandler import DebugAIStateHandler
 
 
 HANDLER_DEFINITIONS = {
@@ -194,6 +198,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_QUESTGIVER_STATUS_QUERY: QuestGiverStatusHandler.handle,
     OpCode.CMSG_QUESTGIVER_HELLO: QuestGiverHelloHandler.handle,
     OpCode.CMSG_QUESTGIVER_QUERY_QUEST: QuestGiverQueryQuestHandler.handle,
+    OpCode.CMSG_QUESTGIVER_ACCEPT_QUEST: QuestGiverAcceptQuestHandler.handle,
+    OpCode.CMSG_QUESTLOG_REMOVE_QUEST: QuestGiverRemoveQuestHandler.handle,
     OpCode.CMSG_GROUP_INVITE: GroupInviteHandler.handle,
     OpCode.CMSG_GROUP_ACCEPT: GroupInviteAcceptHandler.handle,
     OpCode.CMSG_GROUP_DISBAND: GroupDisbandHandler.handle,
@@ -243,7 +249,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_DUEL_CANCELLED: DuelCanceledHandler.handle,
     OpCode.CMSG_TRIGGER_CINEMATIC_CHEAT: TriggerCinematicCheatHandler.handle,
     OpCode.CMSG_GODMODE: GodModeHandler.handle,
-
+    OpCode.CMSG_DEBUG_AISTATE: DebugAIStateHandler.handle,
 
     # Movement packets
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
@@ -269,7 +275,9 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_START_BACKWARD: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_START_FORWARD: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_COLLIDE_REDIRECT: MovementHandler.handle_movement_status,
-    OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status
+    OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status,
+
+    # Ignored packets (Use NullHandler)
 }
 
 
@@ -280,9 +288,11 @@ class Definitions(object):
         try:
             opcode = OpCode(opcode)
             if opcode in HANDLER_DEFINITIONS:
-                return HANDLER_DEFINITIONS.get(OpCode(opcode)), 1
+                return HANDLER_DEFINITIONS.get(OpCode(opcode)), True
             else:
                 Logger.warning(f'[{world_session.client_address[0]}] Received {opcode.name} OpCode but is not handled.')
         except ValueError:
-            return None, -1
-        return None, 0
+            # No handler, OpCode not found
+            return None, False
+        # No handler, but OpCode found
+        return None, True

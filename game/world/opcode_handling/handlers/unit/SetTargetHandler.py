@@ -1,7 +1,4 @@
-from struct import unpack, pack
-
-from network.packet.PacketWriter import PacketWriter
-from utils.constants.OpCodes import OpCode
+from struct import unpack
 
 
 class SetTargetHandler(object):
@@ -12,5 +9,6 @@ class SetTargetHandler(object):
             guid = unpack('<Q', reader.data[:8])[0]
             if world_session.player_mgr and world_session.player_mgr.current_target != guid:
                 world_session.player_mgr.set_current_target(guid)
+                world_session.player_mgr.set_dirty()
 
         return 0

@@ -1,8 +1,8 @@
-from struct import pack
+from struct import pack, unpack
 from math import pi
 
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes
+from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid
 from utils.ConfigManager import config
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter
@@ -25,6 +25,7 @@ class ObjectManager(object):
                  dynamic_flags=0,
                  native_scale=1,
                  native_display_id=0,
+                 faction=0,
                  bounding_radius=config.Unit.Defaults.bounding_radius,
                  location=None,
                  transport_id=0,
@@ -45,6 +46,7 @@ class ObjectManager(object):
         self.current_scale = native_scale
         self.native_display_id = native_display_id  # Native display ID
         self.current_display_id = native_display_id
+        self.faction = faction
         self.bounding_radius = bounding_radius
         self.location = Vector()
         self.transport_id = transport_id
@@ -187,17 +189,34 @@ class ObjectManager(object):
     def set_int32(self, index, value):
         self.update_packet_factory.update(index, value, 'i')
 
+    def get_int32(self, index):
+        return unpack('<i', self.update_packet_factory.update_values[index])[0]
+
     def set_uint32(self, index, value):
         self.update_packet_factory.update(index, value, 'I')
+
+    def get_uint32(self, index):
+        return unpack('<I', self.update_packet_factory.update_values[index])[0]
 
     def set_int64(self, index, value):
         self.update_packet_factory.update(index, value, 'q')
 
+    def get_int64(self, index):
+        return unpack('<q', self.update_packet_factory.update_values[index] +
+                      self.update_packet_factory.update_values[index + 1])[0]
+
     def set_uint64(self, index, value):
         self.update_packet_factory.update(index, value, 'Q')
 
+    def get_uint64(self, index):
+        return unpack('<Q', self.update_packet_factory.update_values[index] +
+                      self.update_packet_factory.update_values[index + 1])[0]
+
     def set_float(self, index, value):
         self.update_packet_factory.update(index, value, 'f')
+
+    def get_float(self, index):
+        return unpack('<f', self.update_packet_factory.update_values[index])[0]
 
     # override
     def update(self):
@@ -218,6 +237,22 @@ class ObjectManager(object):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_OBJECT
+
+    # override
+    def get_debug_messages(self):
+        if self.get_type() == ObjectTypes.TYPE_UNIT:
+            guid = self.guid & ~HighGuid.HIGHGUID_UNIT
+        elif self.get_type() == ObjectTypes.TYPE_PLAYER:
+            guid = self.guid & ~HighGuid.HIGHGUID_PLAYER
+        elif self.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
+            guid = self.guid & ~HighGuid.HIGHGUID_GAMEOBJECT
+        else:
+            guid = self.guid
+
+        return [
+            f'Guid: {guid}, Entry: {self.entry}, Display ID: {self.current_display_id}',
+            f'X: {self.location.x}, Y: {self.location.y}, Z: {self.location.z}, O: {self.location.o}'
+        ]
 
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)

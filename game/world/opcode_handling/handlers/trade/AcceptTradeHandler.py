@@ -2,6 +2,7 @@ from struct import pack, unpack
 
 from game.world.managers.objects.player.TradeManager import TradeManager
 from network.packet.PacketWriter import *
+from utils.constants.ItemCodes import InventoryError
 from utils.constants.ObjectCodes import TradeStatus
 
 
@@ -40,14 +41,16 @@ class AcceptTradeHandler(object):
             # Inventory checks
             for slot in range(TradeManager.TradeData.TRADE_SLOT_COUNT):
                 if player_trade.items[slot]:
-                    if not other_player.inventory.can_store_item(player_trade.items[slot].item_template,
-                                                                 player_trade.items[slot].item_instance.stackcount):
+                    error = other_player.inventory.can_store_item(player_trade.items[slot].item_template,
+                                                                  player_trade.items[slot].item_instance.stackcount)
+                    if error != InventoryError.BAG_OK:
                         TradeManager.cancel_trade(other_player)
                         return 0
 
                 if other_player_trade.items[slot]:
-                    if not player.inventory.can_store_item(other_player_trade.items[slot].item_template,
-                                                           other_player_trade.items[slot].item_instance.stackcount):
+                    error = player.inventory.can_store_item(other_player_trade.items[slot].item_template,
+                                                            other_player_trade.items[slot].item_instance.stackcount)
+                    if error != InventoryError.BAG_OK:
                         TradeManager.cancel_trade(player)
                         return 0
 

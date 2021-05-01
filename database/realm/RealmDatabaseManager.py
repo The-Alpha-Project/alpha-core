@@ -322,3 +322,38 @@ class RealmDatabaseManager(object):
         tickets = realm_db_session.query(Ticket).all()
         realm_db_session.close()
         return tickets if tickets else []
+
+    # Quests
+
+    @staticmethod
+    def character_get_quests(guid):
+        realm_db_session = SessionHolder()
+        quests = realm_db_session.query(CharacterQuestStatus).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        realm_db_session.close()
+        return quests
+
+    @staticmethod
+    def character_get_quest_by_id(guid, quest_id):
+        realm_db_session = SessionHolder()
+        quest = realm_db_session.query(CharacterQuestStatus).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER, quest=quest_id).first()
+        realm_db_session.close()
+        return quest
+
+    @staticmethod
+    def character_add_quest(quest_id):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(quest_id)
+        realm_db_session.flush()
+        realm_db_session.refresh(quest_id)
+        realm_db_session.close()
+
+    @staticmethod
+    def character_delete_quest(guid, quest_id):
+        realm_db_session = SessionHolder()
+        quest_to_delete = RealmDatabaseManager.character_get_quest_by_id(guid, quest_id)
+        if quest_to_delete:
+            realm_db_session.delete(quest_to_delete)
+            realm_db_session.flush()
+            realm_db_session.close()
+            return 0
+        return -1

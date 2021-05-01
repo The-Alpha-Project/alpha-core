@@ -5,6 +5,7 @@ from struct import pack, unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.AuraManager import AuraManager
@@ -70,7 +71,7 @@ class UnitManager(ObjectManager):
                  max_power_3=100,
                  max_power_4=100,
                  level=0,
-                 faction=0,
+                 gender=0,
                  bytes_0=0,  # race, class, gender, power_type
                  creature_type=0,
                  stat_0=0,
@@ -136,7 +137,7 @@ class UnitManager(ObjectManager):
         self.max_power_3 = max_power_3
         self.max_power_4 = max_power_4
         self.level = level
-        self.faction = faction
+        self.gender = gender
         self.bytes_0 = bytes_0  # race, class, gender, power_type
         self.creature_type = creature_type
         self.str = stat_0
@@ -248,6 +249,7 @@ class UnitManager(ObjectManager):
         self.combat_target = None
 
         self.send_melee_attack_stop(victim.guid if victim else self.guid)
+        self.set_dirty()
 
     def send_melee_attack_start(self, victim_guid):
         data = pack('<2Q', self.guid, victim_guid)
@@ -374,6 +376,9 @@ class UnitManager(ObjectManager):
         # Not taking "subdamages" into account
         damage_info.total_damage = damage_info.damage
 
+        # Generate rage (if needed)
+        self.generate_rage(damage_info, is_player=self.get_type() == ObjectTypes.TYPE_PLAYER)
+
         if attack_type == AttackTypes.BASE_ATTACK:
             damage_info.proc_attacker = ProcFlags.DEAL_COMBAT_DMG | ProcFlags.SWING
             damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
@@ -426,6 +431,11 @@ class UnitManager(ObjectManager):
 
         return random.randint(min_damage, max_damage)
 
+    # Implemented by PlayerManager
+    def generate_rage(self, damage_info, is_player=False):
+        # TODO: Creatures that use rage should call this as well.
+        return
+
     # Implemented by PlayerManager and CreatureManager
     def calculate_min_max_damage(self, attack_type=0):
         return 0, 0
@@ -439,20 +449,18 @@ class UnitManager(ObjectManager):
             self.set_dirty()
 
         if not target.in_combat:
+            target.combat_target = self
             target.enter_combat()
             target.set_dirty()
 
-        if not target.in_combat:
-            target.enter_combat()
+        target.receive_damage(damage, source=self)
 
-        target.receive_damage(damage)
-
-    def receive_damage(self, amount):
+    def receive_damage(self, amount, source=None):
         is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
 
         new_health = self.health - amount
         if new_health <= 0:
-            self.die(self)
+            self.die(killer=source)
         else:
             self.set_health(new_health)
 
@@ -649,6 +657,9 @@ class UnitManager(ObjectManager):
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form
 
+    def has_form(self, shapeshift_form):
+        return self.shapeshift_form == shapeshift_form
+
     # Implemented by PlayerManager
     def add_combo_points_on_target(self, target, combo_points):
         pass
@@ -695,7 +706,7 @@ class UnitManager(ObjectManager):
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             if killer.current_selection == self.guid:
-                killer.set_current_selection(0)
+                killer.set_current_selection(killer.guid)
                 killer.set_dirty()
 
             # Clear combo of killer if this unit was the target

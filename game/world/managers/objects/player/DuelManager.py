@@ -193,7 +193,7 @@ class DuelManager(object):
 
         in_between_pos = requester.location.get_point_in_middle(target.location)
 
-        #  TODO: Need a factory for GO's that also handles guids.
+        # TODO: Need a factory for GO's that also handles guids.
         instance = SpawnsGameobjects()
         instance.spawn_id = DuelManager.ARBITERS_GUID
         instance.spawn_entry = arbiter_entry
@@ -213,6 +213,7 @@ class DuelManager(object):
             gobject_template=go_template,
             gobject_instance=instance
         )
+        go_arbiter.faction = requester.faction
 
         go_arbiter.load()
         go_arbiter.send_update_surrounding()  # spawn arbiter

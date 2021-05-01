@@ -14,6 +14,7 @@ class LootManager(object):
         self.current_money = 0
         self.current_loot = []
         self.loot_template = self.populate_loot_template()
+        self.active_looters = []
 
     # Needs overriding
     def generate_loot(self):
@@ -47,6 +48,18 @@ class LootManager(object):
     def get_loot_type(self, player, victim):
         return LootTypes.LOOT_TYPE_NOTALLOWED
 
+    def add_active_looter(self, player_mgr):
+        if player_mgr not in self.active_looters:
+            self.active_looters.append(player_mgr)
+
+    def remove_active_looter(self, player_mgr):
+        if player_mgr in self.active_looters:
+            self.active_looters.remove(player_mgr)
+
+    def get_active_looters(self):
+        return [looter for looter in self.active_looters if looter]
+
     def clear(self):
         self.clear_money()
         self.current_loot.clear()
+        self.active_looters.clear()

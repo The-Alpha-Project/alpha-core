@@ -100,13 +100,12 @@ class GroupManager(object):
                 member_name_bytes,
                 member.guid,
                 1  # If member is online or not
-             )
+            )
 
         data += pack(
             '<BQ',
             self.loot_method,
-            0 if not self.master_looter else self.master_looter.guid  # Master Looter guid
-        )
+            0 if not self.master_looter else self.master_looter.guid)  # Master Looter guid
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
         self.send_packet_to_members(packet)
@@ -116,7 +115,9 @@ class GroupManager(object):
         disband = player_mgr == self.party_leader or len(self.members) == 2 or force_disband
         for member in self.members.values():
             if disband or member == player_mgr:
-                GroupManager.send_group_operation_result(member, PartyOperations.PARTY_OP_LEAVE, member.player.name, PartyResults.ERR_PARTY_RESULT_OK)
+                # If this GroupManager is being destroyed due a canceled invitation, just let the leader know the target declined.
+                if self.is_party_formed():
+                    GroupManager.send_group_operation_result(member, PartyOperations.PARTY_OP_LEAVE, member.player.name, PartyResults.ERR_PARTY_RESULT_OK)
                 member.group_manager = None
                 member.set_group_leader(False)
                 member.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
@@ -126,12 +127,11 @@ class GroupManager(object):
                     player_mgr.session.enqueue_packet(packet)
 
         if disband:
-            self.members.clear()
+            self.flush()
         elif player_mgr.guid in self.members:
             self._set_previous_looter(player_mgr)
             self.members.pop(player_mgr.guid)
-
-        self.send_update()
+            self.send_update()
 
     def un_invite_player(self, player_mgr, target_player_mgr):
         if not target_player_mgr.group_manager or target_player_mgr.guid not in self.members:
@@ -231,13 +231,19 @@ class GroupManager(object):
     def is_party_member(self, player):
         return player in self.members.values()
 
-    def reward_group_money(self, player, creature):
-        surrounding = [m for m in self.members.values() if m in GridManager.get_surrounding_players(player).values()]
-        share = int(creature.loot_manager.current_money / len(surrounding))
-        # Append div remainder to the player who killed the creature for now.
-        remainder = int(creature.loot_manager.current_money % len(surrounding))
+    def get_surrounding_members(self, player):
+        return [m for m in GridManager.get_surrounding_players(player).values() if m in self.members.values()]
 
-        for member in surrounding:
+    def reward_group_money(self, looter, creature):
+        surrounding_players = self.get_surrounding_members(looter)
+        if int(creature.loot_manager.current_money / len(surrounding_players)) < 1:
+            return False
+
+        share = int(creature.loot_manager.current_money / len(surrounding_players))
+        # Append div remainder to the player who killed the creature for now.
+        remainder = int(creature.loot_manager.current_money % len(surrounding_players))
+
+        for member in surrounding_players:
             player_share = share if member != creature.killed_by else share + remainder
             # TODO: MSG_SPLIT_MONEY seems not to have any effect on the client.
             # data = pack('<Q2I', creature.guid, creature.loot_manager.current_money, ply_share)
@@ -248,7 +254,7 @@ class GroupManager(object):
             member.mod_money(player_share)
 
         creature.loot_manager.clear_money()
-        self.send_packet_to_members(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
+        return True
 
     def reward_group_xp(self, player, creature, is_elite):
         surrounding = [m for m in self.members.values() if m in GridManager.get_surrounding_players(player).values()]
@@ -303,6 +309,14 @@ class GroupManager(object):
         data = pack('<Q2f', player_mgr.guid, x, y)
         packet = PacketWriter.get_packet(OpCode.MSG_MINIMAP_PING, data)
         self.send_packet_to_members(packet)
+
+    def flush(self):
+        self.members.clear()
+        self.allowed_looters.clear()
+        self.invites.clear()
+        self.party_leader = None
+        self.master_looter = None
+        self._last_looter = None
 
     @staticmethod
     def invite_player(player_mgr, target_player_mgr):

@@ -19,6 +19,7 @@ from utils import Formulas
 from utils.constants.DuelCodes import *
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
+from utils.constants.SpellCodes import ShapeshiftForms
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
@@ -90,9 +91,6 @@ class PlayerManager(UnitManager):
             self.guid = self.player.guid | HighGuid.HIGHGUID_PLAYER
             self.inventory = InventoryManager(self)
             self.level = self.player.level
-            self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.player.gender, self.power_type))[0]
-            self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
-            self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
             self.player_bytes = unpack('<I', pack('<4B', self.player.skin, self.player.face, self.player.hairstyle, self.player.haircolour))[0]
             self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
             self.xp = player.xp
@@ -160,7 +158,8 @@ class PlayerManager(UnitManager):
         self.faction = race.FactionID
         self.creature_type = race.CreatureType
 
-        is_male = self.player.gender == Genders.GENDER_MALE
+        self.gender = self.player.gender
+        is_male = self.gender == Genders.GENDER_MALE
 
         self.native_display_id = self.get_native_display_id(is_male, race)
         self.current_display_id = self.native_display_id
@@ -474,17 +473,18 @@ class PlayerManager(UnitManager):
         if self.current_selection > 0:
             enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection)
             if enemy and enemy.loot_manager.has_money():
+                # If party is formed, try to split money.
                 if self.group_manager and self.group_manager.is_party_formed():
-                    self.group_manager.reward_group_money(self, enemy)
-                else:
-                    self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
-                    data = pack('<I', enemy.loot_manager.current_money)
-                    self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
-                    self.mod_money(enemy.loot_manager.current_money)
-                    enemy.loot_manager.clear_money()
+                    # Try to split money and finish on success.
+                    if self.group_manager.reward_group_money(self, enemy):
+                        return
 
-                # if not enemy.loot_manager.has_loot():
-                #    self.send_loot_release(enemy.guid)
+                # Not able to split money or no group, loot money to self only.
+                self.mod_money(enemy.loot_manager.current_money)
+                enemy.loot_manager.clear_money()
+                packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY)
+                for looter in enemy.loot_manager.get_active_looters():
+                    looter.session.enqueue_packet(packet)
 
     def loot_item(self, slot):
         if self.current_selection > 0:
@@ -495,10 +495,9 @@ class PlayerManager(UnitManager):
                     if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
                         enemy.loot_manager.do_loot(slot)
                         data = pack('<B', slot)
-                        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data), self)
-
-                # if not enemy.loot_manager.has_loot():
-                #    self.send_loot_release(enemy.guid)
+                        packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
+                        for looter in enemy.loot_manager.get_active_looters():
+                            looter.session.enqueue_packet(packet)
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
@@ -509,18 +508,22 @@ class PlayerManager(UnitManager):
 
         # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
         enemy = GridManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
-        if enemy and enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
-            enemy.killed_by = None
-        # If in party, check if this player has rights to release the loot for FFA
-        elif enemy and enemy.killed_by and enemy.killed_by.group_manager:
-            if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
-                if not enemy.loot_manager.has_loot():  # Flush looters for this enemy.
-                    enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
+        if enemy:
+            if enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
                 enemy.killed_by = None
+            # If in party, check if this player has rights to release the loot for FFA.
+            elif enemy.killed_by and enemy.killed_by.group_manager:
+                if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
+                    if not enemy.loot_manager.has_loot():  # Flush looters for this enemy.
+                        enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
+                    enemy.killed_by = None
 
-        if enemy and not enemy.loot_manager.has_loot():
-            enemy.set_lootable(False)
-            enemy.set_dirty()
+            if not enemy.loot_manager.has_loot():
+                enemy.set_lootable(False)
+                enemy.set_dirty()
+                enemy.loot_manager.clear()
+
+            enemy.loot_manager.remove_active_looter(self)
 
         self.set_dirty()
 
@@ -549,6 +552,9 @@ class PlayerManager(UnitManager):
                                  loot.item.item_template.display_id
                                  )
                 slot += 1
+
+            # At this point, this player have access to the loot window, add him to the active looters.
+            victim.loot_manager.add_active_looter(self)
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
         self.session.enqueue_packet(packet)
@@ -609,7 +615,7 @@ class PlayerManager(UnitManager):
                 self.set_mana(self.max_power_1)
 
                 self.skill_manager.update_skills_max_value()
-                self.skill_manager.build_skill_update()
+                self.skill_manager.build_update()
 
                 if should_send_info:
                     data = pack('<3I',
@@ -656,9 +662,7 @@ class PlayerManager(UnitManager):
 
     # override
     def get_full_update_packet(self, is_self=True):
-        self.inventory.send_inventory_update(self.session, is_self)
-        self.skill_manager.build_skill_update()
-
+        self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.gender, self.power_type))[0]
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
         self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
@@ -741,16 +745,25 @@ class PlayerManager(UnitManager):
         self.set_float(PlayerFields.PLAYER_PARRY_PERCENTAGE, self.parry_percentage)
         self.set_uint32(PlayerFields.PLAYER_BASE_MANA, self.base_mana)
 
+        # Skills
+        self.skill_manager.build_update()
+
         # Guild
         if self.guild_manager:
             self.guild_manager.build_update(self)
         else:
             self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 
+        # Duel
         if self.duel_manager:
             self.duel_manager.build_update(self)
 
+        # Inventory
+        self.inventory.send_inventory_update(self.session, is_self)
         self.inventory.build_update()
+
+        # Quests
+        self.quest_manager.build_update()
 
         return self.get_object_create_packet(is_self)
 
@@ -880,16 +893,13 @@ class PlayerManager(UnitManager):
                         self.set_mana(self.max_power_1)
                     elif self.power_1 < self.max_power_1:
                         self.set_mana(self.power_1 + int(mana_regen))
-            # Rage
+            # Rage decay
             elif self.power_type == PowerTypes.TYPE_RAGE:
                 if self.power_2 == 0:
                     should_update_power = False
                 else:
                     if not self.in_combat:
-                        if self.power_2 < 200:
-                            self.set_rage(0)
-                        else:
-                            self.set_rage(self.power_2 - 20)
+                        self.set_rage(self.power_2 - 20)
             # Focus
             elif self.power_type == PowerTypes.TYPE_FOCUS:
                 # Apparently focus didn't regenerate while moving.
@@ -974,6 +984,13 @@ class PlayerManager(UnitManager):
 
         return int(min_damage), int(max_damage)
 
+    def generate_rage(self, damage_info, is_player=False):
+        # Warriors or Druids in Bear form
+        if self.player.class_ == Classes.CLASS_WARRIOR or (self.player.class_ == Classes.CLASS_DRUID and
+                                                           self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR)):
+            self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, is_player=is_player))
+            self.set_dirty()
+
     def _send_attack_swing_error(self, victim, opcode):
         data = pack('<2Q', self.guid, victim.guid if victim else 0)
         self.session.enqueue_packet(PacketWriter.get_packet(opcode, data))
@@ -1050,11 +1067,11 @@ class PlayerManager(UnitManager):
         self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
 
     # override
-    def receive_damage(self, amount):
+    def receive_damage(self, amount, source=None):
         if self.is_god:
             return
 
-        super().receive_damage(amount)
+        super().receive_damage(amount, source)
 
     def set_dirty(self, is_dirty=True, dirty_inventory=False):
         self.dirty = is_dirty

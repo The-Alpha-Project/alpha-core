@@ -224,7 +224,7 @@ class SkillManager(object):
     def load_skills(self):
         for skill in RealmDatabaseManager.character_get_skills(self.player_mgr.guid):
             self.skills[skill.skill] = skill
-        self.build_skill_update()
+        self.build_update()
 
     def add_skill(self, skill_id):
         # Skill already learnt
@@ -365,7 +365,7 @@ class SkillManager(object):
     def can_dual_wield(self):
         return SkillTypes.DUALWIELD in self.skills and self.player_mgr.level >= 10
 
-    def build_skill_update(self):
+    def build_update(self):
         count = 0
         for skill_id, skill in self.skills.items():
             self.player_mgr.set_uint32(PlayerFields.PLAYER_SKILL_INFO_1_1 + (count * 3),

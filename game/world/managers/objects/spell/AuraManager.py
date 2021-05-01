@@ -20,6 +20,7 @@ class AppliedAura:
         self.duration_entry = casting_spell.duration_entry
         self.duration = self.duration_entry.Duration
         self.spell_effect = spell_effect
+        self.effective_level = casting_spell.calculate_effective_level(caster.level)
 
         self.harmful = self.caster.is_enemy_to(self.target)
         self.passive = casting_spell.is_passive() or spell_effect.effect_index != 1
@@ -82,7 +83,7 @@ class AuraEffectHandler:
             return
 
         default_speed = config.Unit.Defaults.run_speed
-        speed_percentage = aura.spell_effect.get_effect_points(aura.target.level) / 100.0
+        speed_percentage = aura.spell_effect.get_effect_points(aura.effective_level) / 100.0
         aura.target.change_speed(default_speed + (default_speed * speed_percentage))
 
 
@@ -136,7 +137,6 @@ class AuraManager:
             aura.duration -= int(elapsed*1000)
             if aura.duration <= 0:
                 self.remove_aura(aura)
-
 
     def can_apply_aura(self, aura):
         if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \

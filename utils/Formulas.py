@@ -1,5 +1,7 @@
 import math
 
+from utils.constants.ObjectCodes import AttackTypes
+
 
 class CreatureFormulas(object):
 
@@ -45,6 +47,32 @@ class PlayerFormulas(object):
     @staticmethod
     def rage_conversion_value(level):
         return 0.0091107836 * level ** 2 + 3.225598133 * level + 4.2652911
+
+    @staticmethod
+    def calculate_rage_regen(damage_info, is_player=True):
+        # R=(15d/4c)+(fs/2) | d=WeaponDamage, c=rage conversion rate, f=hit rating, s=speed
+        if is_player:
+            main_hand = damage_info.attack_type == AttackTypes.BASE_ATTACK
+            damage = damage_info.damage  # This is already calculated based off either Main or Offhand weapon.
+            speed = damage_info.attacker.base_attack_time
+            hit_rate = 3.5 if main_hand else 1.75
+
+            if main_hand and damage_info.attacker.inventory.has_main_weapon():
+                main_weapon = damage_info.attacker.inventory.get_main_hand()
+                if main_weapon:
+                    speed = main_weapon.item_template.delay
+            elif damage_info.attacker.inventory.has_offhand_weapon():
+                offhand = damage_info.attacker.inventory.get_offhand()
+                if offhand:
+                    speed = offhand.item_template.delay
+
+            regen = ((15 * damage) / (4 * PlayerFormulas.rage_conversion_value(damage_info.attacker.level)) + (
+                        (hit_rate * speed) / 2))
+        else:
+            regen = (2.5 * (damage_info.damage / PlayerFormulas.rage_conversion_value(damage_info.victim.level)))
+
+        # Rage is measured 0 - 1000
+        return int(regen / 100)
 
     @staticmethod
     def zero_difference_value(level):

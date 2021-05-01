@@ -12,11 +12,9 @@ from game.world.managers.GridManager import GridManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
-from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import *
-
 from utils.Logger import Logger
-
+from utils.constants.AuthCodes import AuthCode
 
 STARTUP_TIME = time()
 WORLD_ON = True
@@ -47,27 +45,25 @@ class WorldServerSessionHandler(object):
             self.account_mgr = None
             self.keep_alive = True
 
-            self.auth_challenge(self.request)
+            if self.auth_challenge(self.request):
+                self.request.settimeout(120)  # 2 minutes timeout should be more than enough.
 
-            realm_saving_scheduler = BackgroundScheduler()
-            realm_saving_scheduler._daemon = True
-            realm_saving_scheduler.add_job(self.save_character, 'interval',
-                                           seconds=config.Server.Settings.realm_saving_interval_seconds)
-            realm_saving_scheduler.start()
+                incoming_thread = threading.Thread(target=self.process_incoming)
+                incoming_thread.daemon = True
+                incoming_thread.start()
 
-            incoming_thread = threading.Thread(target=self.process_incoming)
-            incoming_thread.daemon = True
-            incoming_thread.start()
+                outgoing_thread = threading.Thread(target=self.process_outgoing)
+                outgoing_thread.daemon = True
+                outgoing_thread.start()
 
-            outgoing_thread = threading.Thread(target=self.process_outgoing)
-            outgoing_thread.daemon = True
-            outgoing_thread.start()
-
-            while self.receive(self.request) != -1 and self.keep_alive:
-                continue
+                while self.receive(self.request) != -1 and self.keep_alive:
+                    continue
 
         finally:
             self.disconnect()
+
+    def save_character(self):
+        WorldSessionStateHandler.save_character(self.player_mgr)
 
     def enqueue_packet(self, data):
         self.outgoing_pending.put_nowait(data)
@@ -86,46 +82,64 @@ class WorldServerSessionHandler(object):
             reader = self.incoming_pending.get(block=True, timeout=None)
             if reader:  # Can be None if we shutdown the thread.
                 if reader.opcode:
-                    handler, res = Definitions.get_handler_from_packet(self, reader.opcode)
+                    handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
                     if handler:
-                        Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
-                        if handler(self, self.request, reader) != 0:
+                        res = handler(self, self.request, reader)
+                        if res == 0:
+                            Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
+                        elif res == 1:
+                            Logger.debug(f'[{self.client_address[0]}] Ignoring {OpCode(reader.opcode).name}')
+                        elif res < 0:
                             self.disconnect()
                             break
-                    elif res == -1:
+                    elif not found:
                         Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
             else:
                 self.disconnect()
 
     def disconnect(self):
+        # Avoid multiple calls.
+        if not self.keep_alive:
+            return
+        self.keep_alive = False
+
         try:
             if self.player_mgr:
                 self.player_mgr.logout()
         except AttributeError:
             pass
 
-        self.keep_alive = False
-        self.incoming_pending.empty()
-        self.outgoing_pending.empty()
-        WorldSessionStateHandler.remove(self)
+        # Unblock queues if they are waiting inside loop.
+        if self.incoming_pending.empty():
+            self.incoming_pending.put_nowait(None)
+        if self.outgoing_pending.empty():
+            self.outgoing_pending.put_nowait(None)
 
+        WorldSessionStateHandler.remove(self)
         try:
             self.request.shutdown(socket.SHUT_RDWR)
             self.request.close()
         except OSError:
             pass
 
-    def save_character(self):
-        try:
-            self.player_mgr.sync_player()
-            RealmDatabaseManager.character_update(self.player_mgr.player)
-            RealmDatabaseManager.character_update_social(self.player_mgr.friends_manager.character_social)
-        except AttributeError:
-            pass
-
+    # We handle auth_challenge before launching queue threads and anything else.
     def auth_challenge(self, sck):
         data = pack('<6B', 0, 0, 0, 0, 0, 0)
-        sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))
+        try:
+            sck.settimeout(10)  # Set a 10 second timeout.
+            sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))  # Request challenge
+            reader = self.receive_client_message(sck)
+            if reader and reader.opcode == OpCode.CMSG_AUTH_SESSION:
+                handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
+                if handler:
+                    res = handler(self, sck, reader)
+                    if res == 0:
+                        return True
+            return False
+        except socket.timeout:  # Can't check this inside Auth handler.
+            data = pack('<B', AuthCode.AUTH_SESSION_EXPIRED)
+            sck.request.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
+            return False
 
     def receive(self, sck):
         try:
@@ -135,6 +149,9 @@ class WorldServerSessionHandler(object):
             else:
                 return -1
             return 0
+        except socket.timeout:
+            self.disconnect()
+            return -1
         except OSError:
             self.disconnect()
             return -1
@@ -167,7 +184,15 @@ class WorldServerSessionHandler(object):
         return buffer
 
     @staticmethod
-    def schedule_updates():
+    def schedule_background_tasks():
+        # Save characters
+        realm_saving_scheduler = BackgroundScheduler()
+        realm_saving_scheduler._daemon = True
+        realm_saving_scheduler.add_job(WorldSessionStateHandler.save_characters, 'interval',
+                                       seconds=config.Server.Settings.realm_saving_interval_seconds,
+                                       max_instances=1)
+        realm_saving_scheduler.start()
+
         # Player updates
         player_update_scheduler = BackgroundScheduler()
         player_update_scheduler._daemon = True
@@ -189,6 +214,13 @@ class WorldServerSessionHandler(object):
                                             max_instances=1)
         gameobject_update_scheduler.start()
 
+        # Cell deactivation
+        cell_unloading_scheduler = BackgroundScheduler()
+        cell_unloading_scheduler._daemon = True
+        cell_unloading_scheduler.add_job(GridManager.deactivate_cells, 'interval', seconds=120.0,
+                                         max_instances=1)
+        cell_unloading_scheduler.start()
+
     @staticmethod
     def start():
         WorldLoader.load_data()
@@ -202,7 +234,7 @@ class WorldServerSessionHandler(object):
         server_socket.bind((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port))
         server_socket.listen()
 
-        WorldServerSessionHandler.schedule_updates()
+        WorldServerSessionHandler.schedule_background_tasks()
 
         Logger.success('World server started.')
 
