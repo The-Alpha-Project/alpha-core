@@ -184,7 +184,7 @@ class WorldServerSessionHandler(object):
         return buffer
 
     @staticmethod
-    def schedule_updates():
+    def schedule_background_tasks():
         # Save characters
         realm_saving_scheduler = BackgroundScheduler()
         realm_saving_scheduler._daemon = True
@@ -214,6 +214,13 @@ class WorldServerSessionHandler(object):
                                             max_instances=1)
         gameobject_update_scheduler.start()
 
+        # Cell deactivation
+        cell_unloading_scheduler = BackgroundScheduler()
+        cell_unloading_scheduler._daemon = True
+        cell_unloading_scheduler.add_job(GridManager.deactivate_cells, 'interval', seconds=120.0,
+                                         max_instances=1)
+        cell_unloading_scheduler.start()
+
     @staticmethod
     def start():
         WorldLoader.load_data()
@@ -227,7 +234,7 @@ class WorldServerSessionHandler(object):
         server_socket.bind((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port))
         server_socket.listen()
 
-        WorldServerSessionHandler.schedule_updates()
+        WorldServerSessionHandler.schedule_background_tasks()
 
         Logger.success('World server started.')
 

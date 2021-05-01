@@ -5,6 +5,7 @@ from struct import pack, unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.AuraManager import AuraManager
@@ -448,6 +449,7 @@ class UnitManager(ObjectManager):
             self.set_dirty()
 
         if not target.in_combat:
+            target.combat_target = self
             target.enter_combat()
             target.set_dirty()
 
