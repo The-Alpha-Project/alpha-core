@@ -542,7 +542,7 @@ class PlayerManager(UnitManager):
             # Slot should match real current_loot indexes.
             for loot in victim.loot_manager.current_loot:
                 if loot:
-                    # If this is quest item nd player does not need it, don't show it to this player.
+                    # If this is a quest item and player does not need it, don't show it to this player.
                     if loot.is_quest_item() and not self.player_or_group_require_quest_item(
                             loot.get_item_entry(), only_self=True):
                         slot += 1
