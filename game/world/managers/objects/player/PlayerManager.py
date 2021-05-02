@@ -542,6 +542,12 @@ class PlayerManager(UnitManager):
             # Slot should match real current_loot indexes.
             for loot in victim.loot_manager.current_loot:
                 if loot:
+                    # If this is quest item nd player does not need it, don't show it to this player.
+                    if loot.is_quest_item() and not self.player_or_group_require_quest_item(
+                            loot.get_item_entry(), only_self=True):
+                        slot += 1
+                        continue
+
                     # Send item query information
                     self.session.enqueue_packet(loot.item.query_details())
 
@@ -635,6 +641,19 @@ class PlayerManager(UnitManager):
                 self.friends_manager.send_update_to_friends()
 
                 self.set_dirty()
+
+    # TODO: Will move this out of here once euler is done with quests.
+    def player_or_group_require_quest_item(self, item_entry, only_self=False):
+        if not self.group_manager or only_self:
+            for active_quest in self.quest_manager.active_quests.values():
+                if item_entry in QuestManager.generate_req_item_list(active_quest.quest):
+                    return True
+        else:
+            for member in self.group_manager.members.values():
+                for active_quest in member.quest_manager.active_quests.values():
+                    if item_entry in QuestManager.generate_req_item_list(active_quest.quest):
+                        return True
+        return False
 
     def set_group_leader(self, flag=True):
         if flag:
