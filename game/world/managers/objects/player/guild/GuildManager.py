@@ -5,7 +5,7 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, Guild, Gui
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import GuildRank, GuildCommandResults, GuildTypeCommand, GuildEvents, \
-    GuildChatMessageTypes
+    GuildChatMessageTypes, FriendResults
 from game.world.managers.objects.player.guild.GuildPendingInvite import GuildPendingInvite
 from utils.TextUtils import TextChecker
 from utils.constants.UpdateFields import PlayerFields
@@ -93,6 +93,50 @@ class GuildManager(object):
             self.guild_master = member;
 
         return member
+
+    def send_offline_notification(self, player_mgr):
+        pass
+        # TODO: This doesn't seem to work in alpha
+        # data = pack('<2B', GuildEvents.GUILD_EVENT_HASGONEOFFLINE, 1)
+        # name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+        # data += pack(
+        #     f'<{len(name_bytes)}s',
+        #     name_bytes
+        # )
+        # packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
+        # self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
+
+        # Bypass by using FriendResults for now.
+        data = pack('<BQB', FriendResults.FRIEND_OFFLINE, player_mgr.guid, 0)
+        packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
+        self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL, exclude=player_mgr)
+
+    def send_online_notification(self, player_mgr):
+        # Send the current MOTD to the player that has just come online.
+        data = pack('<2B', GuildEvents.GUILD_EVENT_MOTD, 1)
+        motd_bytes = PacketWriter.string_to_bytes(self.guild.motd)
+        data += pack(
+            f'<{len(motd_bytes)}s',
+            motd_bytes
+        )
+
+        packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
+        player_mgr.session.enqueue_packet(packet)
+
+        # TODO: This doesn't seem to work in alpha
+        # data = pack('<2B', GuildEvents.GUILD_EVENT_HASCOMEONLINE, 1)
+        # name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+        # data += pack(
+        #     f'<{len(name_bytes)}s',
+        #     name_bytes,
+        # )
+        # packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
+        # self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL, exclude=player_mgr)
+
+        # Bypass by using FriendResults for now.
+        data = pack('<BQB3I', FriendResults.FRIEND_ONLINE, player_mgr.guid, 1, 0, 0, 0)
+        packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
+        self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL, exclude=player_mgr)
 
     def add_new_member(self, player_mgr, is_guild_master=False):
         rank = GuildRank.GUILDRANK_GUILD_MASTER if is_guild_master else GuildRank.GUILDRANK_INITIATE
@@ -188,8 +232,11 @@ class GuildManager(object):
         self.members.clear()
         RealmDatabaseManager.guild_destroy(self.guild)
 
-    def send_message_to_guild(self, packet, msg_type=None, source=None):
+    def send_message_to_guild(self, packet, msg_type=None, source=None, exclude=None):
         for member in self.members.values():
+            if exclude and member.guid == exclude.guid:
+                continue
+
             if msg_type and msg_type == GuildChatMessageTypes.G_MSGTYPE_OFFICERCHAT \
                     and member.rank > GuildRank.GUILDRANK_OFFICER:
                 continue

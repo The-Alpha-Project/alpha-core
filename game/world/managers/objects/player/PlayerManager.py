@@ -218,6 +218,8 @@ class PlayerManager(UnitManager):
         GridManager.update_object(self)
         ChannelManager.join_default_channels(self)  # Once in-world
         self.friends_manager.send_online_notification()  # Notify our friends
+        if self.guild_manager:
+            self.guild_manager.send_online_notification(self)
 
     def logout(self):
         # TODO: Temp hackfix until groups are saved in db
@@ -232,6 +234,8 @@ class PlayerManager(UnitManager):
 
         self.online = False
         self.friends_manager.send_offline_notification()
+        if self.guild_manager:
+            self.guild_manager.send_offline_notification(self)
         self.session.save_character()
         GridManager.remove_object(self)
         self.session.player_mgr = None

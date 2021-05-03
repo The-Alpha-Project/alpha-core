@@ -1,10 +1,7 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from network.packet.PacketWriter import *
-from utils.constants.UnitCodes import Classes, Races
-from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from utils.constants.ObjectCodes import GuildCommandResults, GuildTypeCommand
-from utils.TextUtils import GameTextFormatter
 
 
 class GuildRosterHandler(object):
