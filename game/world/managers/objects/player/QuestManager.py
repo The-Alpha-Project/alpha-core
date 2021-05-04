@@ -24,14 +24,14 @@ class QuestManager(object):
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.active_quests = {}
-        self.completed_quests = {}
+        self.completed_quests = set()
 
     def load_quests(self):
         quest_db_statuses = RealmDatabaseManager.character_get_quests(self.player_mgr.guid)
 
         for quest_db_status in quest_db_statuses:
             if quest_db_status.rewarded > 0:
-                self.completed_quests[quest_db_status.quest] = True
+                self.completed_quests.add(quest_db_status.quest)
             elif quest_db_status.state == QuestState.QUEST_ACCEPTED or quest_db_status.state == QuestState.QUEST_REWARD:
                 self.active_quests[quest_db_status.quest] = ActiveQuest(quest_db_status)
             else:
@@ -511,7 +511,7 @@ class QuestManager(object):
 
         # Remove from log and mark as rewarded
         self.remove_from_questlog(quest_id)
-        self.completed_quests[quest_id] = True
+        self.completed_quests.add(quest_id)
         active_quest.quest_db_status.rewarded = 1
         RealmDatabaseManager.character_update_quest_status(active_quest.quest_db_status)
 
