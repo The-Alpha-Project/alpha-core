@@ -20,6 +20,6 @@ class GuildMOTDHandler(object):
             else:
                 player_mgr.guild_manager.set_motd(motd)
         elif world_session.player_mgr.guild_manager:
-            world_session.player_mgr.guild_manager.send_motd()
+            world_session.player_mgr.guild_manager.send_motd(world_session.player_mgr)
 
         return 0

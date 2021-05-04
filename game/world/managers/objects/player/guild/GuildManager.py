@@ -71,7 +71,7 @@ class GuildManager(object):
         self.update_db_guild()
         self.send_motd()
 
-    def send_motd(self):
+    def send_motd(self, player_mgr=None):
         data = pack('<2B', GuildEvents.GUILD_EVENT_MOTD, 1)
         motd_bytes = PacketWriter.string_to_bytes(self.guild.motd)
         data += pack(
@@ -80,7 +80,11 @@ class GuildManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
-        self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
+
+        if player_mgr:
+            player_mgr.session.enqueue_packet(packet)
+        else:
+            self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
     def _create_new_member(self, player_guid, rank):
         member = GuildMember()
@@ -93,50 +97,6 @@ class GuildManager(object):
             self.guild_master = member;
 
         return member
-
-    def send_offline_notification(self, player_mgr):
-        pass
-        # TODO: This doesn't seem to work in alpha
-        # data = pack('<2B', GuildEvents.GUILD_EVENT_HASGONEOFFLINE, 1)
-        # name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
-        # data += pack(
-        #     f'<{len(name_bytes)}s',
-        #     name_bytes
-        # )
-        # packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
-        # self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
-
-        # Bypass by using FriendResults for now.
-        data = pack('<BQB', FriendResults.FRIEND_OFFLINE, player_mgr.guid, 0)
-        packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
-        self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL, exclude=player_mgr)
-
-    def send_online_notification(self, player_mgr):
-        # Send the current MOTD to the player that has just come online.
-        data = pack('<2B', GuildEvents.GUILD_EVENT_MOTD, 1)
-        motd_bytes = PacketWriter.string_to_bytes(self.guild.motd)
-        data += pack(
-            f'<{len(motd_bytes)}s',
-            motd_bytes
-        )
-
-        packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
-        player_mgr.session.enqueue_packet(packet)
-
-        # TODO: This doesn't seem to work in alpha
-        # data = pack('<2B', GuildEvents.GUILD_EVENT_HASCOMEONLINE, 1)
-        # name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
-        # data += pack(
-        #     f'<{len(name_bytes)}s',
-        #     name_bytes,
-        # )
-        # packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
-        # self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL, exclude=player_mgr)
-
-        # Bypass by using FriendResults for now.
-        data = pack('<BQB3I', FriendResults.FRIEND_ONLINE, player_mgr.guid, 1, 0, 0, 0)
-        packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
-        self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL, exclude=player_mgr)
 
     def add_new_member(self, player_mgr, is_guild_master=False):
         rank = GuildRank.GUILDRANK_GUILD_MASTER if is_guild_master else GuildRank.GUILDRANK_INITIATE
