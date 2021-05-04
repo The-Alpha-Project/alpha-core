@@ -269,7 +269,8 @@ class QuestState(IntEnum):
     QUEST_OFFER = 1
     QUEST_ACCEPTED = 2
     QUEST_REWARD = 3
-    QUEST_STATE_NUM_TYPES = 4
+    QUEST_DONE = 4
+    QUEST_STATE_NUM_TYPES = 5
 
 
 class QuestFailedReasons(IntEnum):
