@@ -289,6 +289,16 @@ class RealmDatabaseManager(object):
             realm_db_session.flush()
             realm_db_session.close()
 
+    @staticmethod
+    def character_get_guild(character):
+        realm_db_session = SessionHolder()
+        guild_member = realm_db_session.query(GuildMember).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).first()
+        guild = None
+        if guild_member:
+            guild = guild_member.guild
+        realm_db_session.close()
+        return guild
+
     # Ticket stuff
 
     @staticmethod
@@ -357,3 +367,75 @@ class RealmDatabaseManager(object):
             realm_db_session.close()
             return 0
         return -1
+
+    # Guild
+
+    @staticmethod
+    def guild_create(guild):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(guild)
+        realm_db_session.flush()
+        realm_db_session.refresh(guild)
+        realm_db_session.close()
+        return guild
+
+    @staticmethod
+    def guild_create_player(guild_member):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(guild_member)
+        realm_db_session.flush()
+        realm_db_session.refresh(guild_member)
+        realm_db_session.close()
+        return guild_member
+
+    @staticmethod
+    def guild_get_members(guild):
+        realm_db_session = SessionHolder()
+        guild_members = realm_db_session.query(GuildMember).filter_by(guild_id=guild.guild_id).all()
+        realm_db_session.close()
+        return guild_members
+
+    @staticmethod
+    def guild_get_all():
+        realm_db_session = SessionHolder()
+        guilds = realm_db_session.query(Guild).all()
+        realm_db_session.close()
+        return guilds
+
+    @staticmethod
+    def guild_get_accounts(guild_id):
+        realm_db_session = SessionHolder()
+        guild_members = realm_db_session.query(GuildMember).filter_by(guild_id=guild_id).all()
+        accounts = []
+        if guild_members:
+            accounts = list(set([member.character.account_id for member in guild_members])) # Distinct
+        realm_db_session.close()
+        return accounts
+
+    @staticmethod
+    def guild_update(guild):
+        realm_db_session = SessionHolder()
+        realm_db_session.merge(guild)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def guild_update_player(guild_member):
+        realm_db_session = SessionHolder()
+        realm_db_session.merge(guild_member)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def guild_destroy(guild):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(guild)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def guild_remove_player(guid_member):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(guid_member)
+        realm_db_session.flush()
+        realm_db_session.close()

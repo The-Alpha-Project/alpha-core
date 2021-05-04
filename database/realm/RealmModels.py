@@ -4,7 +4,6 @@ from sqlalchemy.dialects.mysql import BIGINT, INTEGER, LONGTEXT, MEDIUMINT, SMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-
 Base = declarative_base()
 metadata = Base.metadata
 
@@ -189,7 +188,6 @@ class Guild(Base):
 
     guild_id = Column(INTEGER(11), autoincrement=True, primary_key=True, server_default=text("0"))
     name = Column(String(255), nullable=False, server_default=text("''"))
-    leader_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("0"))
     motd = Column(String(255), nullable=False, server_default=text("''"))
     creation_date = Column(TIMESTAMP, nullable=False, server_default=text("current_timestamp()"))
     emblem_style = Column(INTEGER(5), nullable=False, server_default=text("-1"))
@@ -197,8 +195,6 @@ class Guild(Base):
     border_style = Column(INTEGER(5), nullable=False, server_default=text("-1"))
     border_color = Column(INTEGER(5), nullable=False, server_default=text("-1"))
     background_color = Column(INTEGER(5), nullable=False, server_default=text("-1"))
-
-    leader = relationship('Character')
 
 
 class GuildMember(Base):
@@ -208,5 +204,5 @@ class GuildMember(Base):
     guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"))
     rank = Column(TINYINT(2), nullable=False, server_default=text("0"))
 
-    character = relationship('Character')
-    guild = relationship('Guild')
+    character = relationship('Character', lazy='joined')
+    guild = relationship('Guild', lazy='joined')
