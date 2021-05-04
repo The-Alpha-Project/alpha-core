@@ -587,6 +587,12 @@ class QuestManager(object):
         # TODO: check that quest_giver_guid is turn-in for quest_id
         return True
 
+    def is_quest_item_required(self, item_entry):
+        for active_quest in list(self.active_quests.values()):
+            if item_entry in QuestManager.generate_req_item_list(active_quest.quest):
+                return True
+        return False
+
 
 class QuestMenu:
     class QuestMenuItem(NamedTuple):

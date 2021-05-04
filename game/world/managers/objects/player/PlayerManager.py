@@ -639,17 +639,14 @@ class PlayerManager(UnitManager):
 
                 self.set_dirty()
 
-    # TODO: Will move this out of here once euler is done with quests.
     def player_or_group_require_quest_item(self, item_entry, only_self=False):
         if not self.group_manager or only_self:
-            for active_quest in self.quest_manager.active_quests.values():
-                if item_entry in QuestManager.generate_req_item_list(active_quest.quest):
-                    return True
+            return self.quest_manager.is_quest_item_required(item_entry)
         else:
             for member in self.group_manager.members.values():
-                for active_quest in member.quest_manager.active_quests.values():
-                    if item_entry in QuestManager.generate_req_item_list(active_quest.quest):
-                        return True
+                is_required = member.quest_manager.is_quest_item_required(item_entry)
+                if is_required:
+                    return True
         return False
 
     def set_group_leader(self, flag=True):

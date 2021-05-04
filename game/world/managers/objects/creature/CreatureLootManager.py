@@ -2,6 +2,7 @@ from random import randint, uniform
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.LootManager import LootManager, LootHolder
 from game.world.managers.objects.item.ItemManager import ItemManager
+from utils.constants.ItemCodes import ItemClasses
 from utils.constants.ObjectCodes import LootTypes
 
 
@@ -10,7 +11,7 @@ class CreatureLootManager(LootManager):
         super(CreatureLootManager, self).__init__(creature_mgr)
 
     # override
-    def generate_loot(self, killer):
+    def generate_loot(self, requester):
         money = randint(self.world_obj.creature_template.gold_min, self.world_obj.creature_template.gold_max)
         self.current_money = money
 
@@ -19,10 +20,10 @@ class CreatureLootManager(LootManager):
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:
 
-                # Check if tis is a quest item and if the player or group needs it.
-                if item_template.class_ == 12 and killer:  # Quest item
-                    if not killer.player_or_group_require_quest_item(item_template.entry):
-                        continue # Move on to next item.
+                # Check if this is a quest item and if the player or group needs it.
+                if requester and item_template.class_ == ItemClasses.ITEM_CLASS_QUEST:  # Quest item
+                    if not requester.player_or_group_require_quest_item(item_template.entry):
+                        continue  # Move on to next item.
 
                 item_chance = loot_item.ChanceOrQuestChance
                 item_chance = item_chance if item_chance > 0 else item_chance * -1
