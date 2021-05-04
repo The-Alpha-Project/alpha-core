@@ -159,7 +159,7 @@ class WorldServerSessionHandler(object):
     def receive_client_message(self, sck):
         header_bytes = self.receive_all(sck, 6)  # 6 = header size
         if not header_bytes:
-            return None
+            return b''
 
         reader = PacketReader(header_bytes)
         reader.data = self.receive_all(sck, int(reader.size))
@@ -169,7 +169,7 @@ class WorldServerSessionHandler(object):
         # Try to fill at once.
         received = sck.recv(expected_size)
         if not received:
-            return None
+            return b''
         # We got what we expect, return buffer.
         if received == expected_size:
             return received
@@ -179,7 +179,7 @@ class WorldServerSessionHandler(object):
             Logger.warning('Got incomplete data from client, requesting missing payload.')
             received = sck.recv(expected_size - len(buffer))
             if not received:
-                return None
+                return b''
             buffer.extend(received)  # Keep appending to our buffer until we're done.
         return buffer
 
