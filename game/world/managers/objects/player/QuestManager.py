@@ -24,18 +24,18 @@ class QuestManager(object):
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.active_quests = {}
-        self.done_quests = {}
+        self.completed_quests = {}
 
     def load_quests(self):
-        db_quests = RealmDatabaseManager.character_get_quests(self.player_mgr.guid)
+        quest_db_statuses = RealmDatabaseManager.character_get_quests(self.player_mgr.guid)
 
-        for db_quest in db_quests:
-            if db_quest.status == QuestState.QUEST_ACCEPTED or db_quest.status == QuestState.QUEST_REWARD:
-                self.active_quests[db_quest.quest] = ActiveQuest(db_quest.quest, db_quest.status)
-            elif db_quest.rewarded > 0:
-                self.done_quests[db_quest.quest] = True
+        for quest_db_status in quest_db_statuses:
+            if quest_db_status.rewarded > 0:
+                self.completed_quests[quest_db_status.quest] = True
+            elif quest_db_status.status == QuestState.QUEST_ACCEPTED or quest_db_status.status == QuestState.QUEST_REWARD:
+                self.active_quests[quest_db_status.quest] = ActiveQuest(quest_db_status)
             else:
-                Logger.error(f"Quest database (guid={db_quest.guid}, quest_id={db_quest.quest}) has state {db_quest.status}. No handling.")
+                Logger.error(f"Quest database (guid={quest_db_status.guid}, quest_id={quest_db_status.quest}) has state {quest_db_status.status}. No handling.")
 
     def get_dialog_status(self, world_obj):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
@@ -69,7 +69,7 @@ class QuestManager(object):
 
             if quest_entry in self.active_quests:
                 continue
-            if quest_entry in self.done_quests:
+            if quest_entry in self.completed_quests:
                 continue
 
             if quest.Method == 0:
@@ -122,7 +122,7 @@ class QuestManager(object):
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
-            if quest_entry in self.done_quests:
+            if quest_entry in self.completed_quests:
                 continue
             quest_state = QuestState.QUEST_OFFER
             if quest_entry in self.active_quests:
@@ -164,11 +164,11 @@ class QuestManager(object):
             return False
 
         # Has the character already started the next quest in the chain
-        if quest.NextQuestInChain > 0 and quest.NextQuestInChain in self.done_quests:
+        if quest.NextQuestInChain > 0 and quest.NextQuestInChain in self.completed_quests:
             return False
 
         # Does the character have the previous quest
-        if quest.PrevQuestId > 0 and quest.PrevQuestId not in self.done_quests:
+        if quest.PrevQuestId > 0 and quest.PrevQuestId not in self.completed_quests:
             return False
 
         # TODO: Does the character have the required skill
@@ -463,7 +463,7 @@ class QuestManager(object):
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_OFFER_REWARD, data))
 
     def handle_add_quest(self, quest_id, quest_giver_guid):
-        active_quest = ActiveQuest(quest_id)
+        active_quest = ActiveQuest(self.create_db_quest_status(quest_id))
         self.active_quests[quest_id] = active_quest
         self.send_quest_query_response(active_quest)
 
@@ -475,7 +475,7 @@ class QuestManager(object):
         self.build_update()
         self.player_mgr.send_update_self()
 
-        RealmDatabaseManager.character_add_quest(self.make_db_quest(active_quest))
+        RealmDatabaseManager.character_add_quest_status(active_quest.quest_db_status)
 
     def handle_remove_quest(self, slot):
         quest_id = self.player_mgr.get_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6))
@@ -483,12 +483,12 @@ class QuestManager(object):
             self.remove_from_questlog(quest_id)
             RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_id)
 
-    def make_db_quest(self, active_quest):
-        db_quest = CharacterQuestStatus()
-        db_quest.guid = self.player_mgr.guid
-        db_quest.quest = active_quest.quest_id
-        db_quest.status = int(active_quest.state)
-        return db_quest
+    def create_db_quest_status(self, quest_id):
+        db_quest_status = CharacterQuestStatus()
+        db_quest_status.guid = self.player_mgr.guid
+        db_quest_status.quest = quest_id
+        db_quest_status.status = QuestState.QUEST_ACCEPTED.value
+        return db_quest_status
 
     def handle_complete_quest(self, quest_id, quest_giver_guid):
         if quest_id not in self.active_quests:
@@ -509,15 +509,15 @@ class QuestManager(object):
         self.reward_gold(active_quest)
         # self.reward_item(active_quest, item_choice)
 
+        # Remove from log and mark as rewarded
         self.remove_from_questlog(quest_id)
-        self.done_quests[quest_id] = True
-
-        active_quest.rewarded = 1
-        RealmDatabaseManager.character_update_quest(self.make_db_quest(active_quest))
+        self.completed_quests[quest_id] = True
+        active_quest.quest_db_status.rewarded = 1
+        RealmDatabaseManager.character_update_quest_status(active_quest.quest_db_status)
 
         if active_quest.quest.NextQuestInChain > 0:
             next_quest_id = active_quest.quest.NextQuestInChain
-            if next_quest_id not in self.active_quests and next_quest_id not in self.done_quests:
+            if next_quest_id not in self.active_quests and next_quest_id not in self.completed_quests:
                 next_quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(next_quest_id)
                 self.send_quest_giver_quest_details(next_quest, quest_giver_guid, True)
 
@@ -587,6 +587,7 @@ class QuestManager(object):
         # TODO: check that quest_giver_guid is turn-in for quest_id
         return True
 
+
 class QuestMenu:
     class QuestMenuItem(NamedTuple):
         quest: QuestTemplate
@@ -603,7 +604,8 @@ class QuestMenu:
 
 
 class ActiveQuest:
-    def __init__(self, quest_id, state=QuestState.QUEST_ACCEPTED):
-        self.quest_id = quest_id
-        self.state = QuestState(state)
-        self.quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
+    def __init__(self, quest_db_status):
+        self.quest_db_status = quest_db_status
+        self.quest_id = quest_db_status.quest
+        self.state = QuestState(quest_db_status.status)
+        self.quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(self.quest_id)

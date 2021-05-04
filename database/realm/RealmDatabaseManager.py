@@ -314,12 +314,13 @@ class RealmDatabaseManager(object):
         return quest
 
     @staticmethod
-    def character_add_quest(quest_id):
-        realm_db_session = SessionHolder()
-        realm_db_session.add(quest_id)
-        realm_db_session.flush()
-        realm_db_session.refresh(quest_id)
-        realm_db_session.close()
+    def character_add_quest_status(quest_status):
+        if quest_status:
+            realm_db_session = SessionHolder()
+            realm_db_session.add(quest_status)
+            realm_db_session.flush()
+            realm_db_session.refresh(quest_status)
+            realm_db_session.close()
 
     @staticmethod
     def character_delete_quest(guid, quest_id):
@@ -333,10 +334,10 @@ class RealmDatabaseManager(object):
         return -1
     
     @staticmethod
-    def character_update_quest(quest_id):
-        if quest_id:
+    def character_update_quest_status(quest_status):
+        if quest_status:
             realm_db_session = SessionHolder()
-            realm_db_session.merge(quest_id)
+            realm_db_session.merge(quest_status)
             realm_db_session.flush()
             realm_db_session.close()
     
