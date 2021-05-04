@@ -8,7 +8,7 @@ class QuestGiverCompleteQuestHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 12:  # Avoid handling empty quest giver accept quest packet
+        if len(reader.data) >= 12:  # Avoid handling empty quest giver complete quest packet
             quest_giver_guid, quest_id = unpack ('<QI', reader.data[:12])
             quest_giver = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, quest_giver_guid)
             if not quest_giver:

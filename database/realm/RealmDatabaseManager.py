@@ -298,8 +298,7 @@ class RealmDatabaseManager(object):
             guild = guild_member.guild
         realm_db_session.close()
         return guild
-    
-    
+
     @staticmethod
     def character_get_quests(guid):
         realm_db_session = SessionHolder()

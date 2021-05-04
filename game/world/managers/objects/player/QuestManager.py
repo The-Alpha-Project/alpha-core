@@ -32,7 +32,7 @@ class QuestManager(object):
         for db_quest in db_quests:
             if db_quest.status == QuestState.QUEST_ACCEPTED or db_quest.status == QuestState.QUEST_REWARD:
                 self.active_quests[db_quest.quest] = ActiveQuest(db_quest.quest, db_quest.status)
-            elif db_quest.status == QuestState.QUEST_DONE:
+            elif db_quest.rewarded > 0:
                 self.done_quests[db_quest.quest] = True
             else:
                 Logger.error(f"Quest database (guid={db_quest.guid}, quest_id={db_quest.quest}) has state {db_quest.status}. No handling.")
@@ -248,6 +248,25 @@ class QuestManager(object):
                 quest_status = self.get_dialog_status(unit)
                 self.send_quest_giver_status(guid, quest_status)
 
+    # Send item query details and return item struct byte segments.
+    def _gen_item_struct(self, item_entry, count, include_display_id=True):
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
+        display_id = 0
+        if item_template:
+            item_mgr = ItemManager(item_template=item_template)
+            self.player_mgr.session.enqueue_packet(item_mgr.query_details())
+            display_id = item_template.display_id
+
+        item_data = pack(
+            '<2I',
+            item_entry,
+            count
+        )
+        if include_display_id:
+            item_data += pack('<I', display_id)
+
+        return item_data
+
     def send_cant_take_quest_response(self, reason_code):
         data = pack('<I', reason_code)
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_INVALID, data))
@@ -284,25 +303,6 @@ class QuestManager(object):
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_LIST, data))
 
     def send_quest_giver_quest_details(self, quest, quest_giver_guid, activate_accept):
-        # Send item query details and return item struct segments of SMSG_QUESTGIVER_QUEST_DETAILS
-        def _gen_item_struct(item_entry, count, include_display_id=True):
-            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
-            display_id = 0
-            if item_template:
-                item_mgr = ItemManager(item_template=item_template)
-                self.player_mgr.session.enqueue_packet(item_mgr.query_details())
-                display_id = item_template.display_id
-
-            item_data = pack(
-                '<2I',
-                item_entry,
-                count
-            )
-            if include_display_id:
-                item_data += pack('<I', display_id)
-
-            return item_data
-
         # Quest information
         quest_title = PacketWriter.string_to_bytes(quest.Title)
         quest_details = PacketWriter.string_to_bytes(quest.Details)
@@ -322,14 +322,14 @@ class QuestManager(object):
         rew_choice_count_list = list(filter((0).__ne__, self.generate_rew_choice_count_list(quest)))
         data += pack('<I', len(rew_choice_item_list))
         for index, item in enumerate(rew_choice_item_list):
-            data += _gen_item_struct(item, rew_choice_count_list[index])
+            data += self._gen_item_struct(item, rew_choice_count_list[index])
 
         # Reward items
         rew_item_list = list(filter((0).__ne__, self.generate_rew_item_list(quest)))
         rew_count_list = list(filter((0).__ne__, self.generate_rew_count_list(quest)))
         data += pack('<I', len(rew_item_list))
         for index, item in enumerate(rew_item_list):
-            data += _gen_item_struct(item, rew_count_list[index])
+            data += self._gen_item_struct(item, rew_count_list[index])
 
         # Reward money
         data += pack('<I', quest.RewOrReqMoney)
@@ -339,7 +339,7 @@ class QuestManager(object):
         req_count_list = list(filter((0).__ne__, self.generate_req_item_count_list(quest)))
         data += pack('<I', len(req_item_list))
         for index, item in enumerate(req_item_list):
-            data += _gen_item_struct(item, req_count_list[index], include_display_id=False)
+            data += self._gen_item_struct(item, req_count_list[index], include_display_id=False)
 
         # Required kill / item count
         req_creature_or_go_list = list(filter((0).__ne__, self.generate_req_creature_or_go_list(quest)))
@@ -421,7 +421,7 @@ class QuestManager(object):
 
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUEST_QUERY_RESPONSE, data))
 
-    def send_quest_giver_offer_reward(self, active_quest, quest_giver_guid, enablenext=False):
+    def send_quest_giver_offer_reward(self, active_quest, quest_giver_guid, enable_next=True):
         # CGPlayer_C::OnQuestGiverChooseReward
         quest = active_quest.quest
         quest_title = PacketWriter.string_to_bytes(quest.Title)
@@ -432,27 +432,28 @@ class QuestManager(object):
             quest.entry,
             quest_title,
             quest_offer_reward_text,
-            0,  # enablenext
+            1 if enable_next else 0  # enable_next
         )
 
+        # TODO Handle emotes
         # Emote count
         data += pack('<I', 0)
-        #for i in range(4):
-        #    data += pack('<2I', 0, 0)
+        # for i in range(4):
+        #     data += pack('<2I', 0, 0)
 
         # Reward choices
         rew_choice_item_list = list(filter((0).__ne__, self.generate_rew_choice_item_list(quest)))
         rew_choice_count_list = list(filter((0).__ne__, self.generate_rew_choice_count_list(quest)))
         data += pack('<I', len(rew_choice_item_list))
         for index, item in enumerate(rew_choice_item_list):
-            data += _gen_item_struct(item, rew_choice_count_list[index])
+            data += self._gen_item_struct(item, rew_choice_count_list[index])
 
         # Required items
         req_item_list = list(filter((0).__ne__, self.generate_req_item_list(quest)))
         req_count_list = list(filter((0).__ne__, self.generate_req_item_count_list(quest)))
         data += pack('<I', len(req_item_list))
         for index, item in enumerate(req_item_list):
-            data += _gen_item_struct(item, req_count_list[index], include_display_id=False)
+            data += self._gen_item_struct(item, req_count_list[index], include_display_id=False)
 
         # Reward
         data += pack('<I', quest.RewOrReqMoney if quest.RewOrReqMoney >= 0 else -quest.RewOrReqMoney)
@@ -506,12 +507,12 @@ class QuestManager(object):
 
         self.reward_xp(active_quest)
         self.reward_gold(active_quest)
-        #self.reward_item(active_quest, item_choice)
+        # self.reward_item(active_quest, item_choice)
 
         self.remove_from_questlog(quest_id)
         self.done_quests[quest_id] = True
 
-        active_quest.state = QuestState.QUEST_DONE
+        active_quest.rewarded = 1
         RealmDatabaseManager.character_update_quest(self.make_db_quest(active_quest))
 
         if active_quest.quest.NextQuestInChain > 0:
