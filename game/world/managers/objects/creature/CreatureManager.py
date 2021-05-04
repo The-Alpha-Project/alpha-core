@@ -310,7 +310,7 @@ class CreatureManager(UnitManager):
     # override
     def die(self, killer=None):
         super().die(killer)
-        self.loot_manager.generate_loot()
+        self.loot_manager.generate_loot(killer)
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)

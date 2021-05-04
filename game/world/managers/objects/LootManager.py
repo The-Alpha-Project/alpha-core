@@ -7,6 +7,12 @@ class LootHolder(NamedTuple):
     item: ItemManager
     quantity: int
 
+    def is_quest_item(self):
+        return self.item.item_template.class_ == 12
+
+    def get_item_entry(self):
+        return self.item.item_template.entry
+
 
 class LootManager(object):
     def __init__(self, world_obj):
@@ -17,7 +23,7 @@ class LootManager(object):
         self.active_looters = []
 
     # Needs overriding
-    def generate_loot(self):
+    def generate_loot(self, killer):
         pass
 
     # Needs overriding
