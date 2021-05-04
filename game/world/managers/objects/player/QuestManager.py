@@ -2,7 +2,7 @@ from struct import pack
 from typing import NamedTuple
 from utils.Logger import Logger
 
-from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestStatus
+from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.GridManager import GridManager
 from database.world.WorldModels import QuestTemplate
@@ -32,10 +32,10 @@ class QuestManager(object):
         for quest_db_status in quest_db_statuses:
             if quest_db_status.rewarded > 0:
                 self.completed_quests[quest_db_status.quest] = True
-            elif quest_db_status.status == QuestState.QUEST_ACCEPTED or quest_db_status.status == QuestState.QUEST_REWARD:
+            elif quest_db_status.state == QuestState.QUEST_ACCEPTED or quest_db_status.state == QuestState.QUEST_REWARD:
                 self.active_quests[quest_db_status.quest] = ActiveQuest(quest_db_status)
             else:
-                Logger.error(f"Quest database (guid={quest_db_status.guid}, quest_id={quest_db_status.quest}) has state {quest_db_status.status}. No handling.")
+                Logger.error(f"Quest database (guid={quest_db_status.guid}, quest_id={quest_db_status.quest}) has state {quest_db_status.state}. No handling.")
 
     def get_dialog_status(self, world_obj):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
@@ -133,10 +133,10 @@ class QuestManager(object):
 
         if len(quest_menu.items) == 1:
             quest_menu_item = list(quest_menu.items.values())[0]
-            if quest_menu_item.status == QuestState.QUEST_REWARD:
+            if quest_menu_item.state == QuestState.QUEST_REWARD:
                 self.send_quest_giver_offer_reward(self.active_quests[quest_menu_item.quest.entry], quest_giver_guid, True)
                 return 0
-            elif quest_menu_item.status == QuestState.QUEST_ACCEPTED:
+            elif quest_menu_item.state == QuestState.QUEST_ACCEPTED:
                 # TODO: Handle in progress quests
                 return 0
             else:
@@ -295,7 +295,7 @@ class QuestManager(object):
             data += pack(
                 f'<3I{len(quest_title)}s',
                 entry,
-                quests[entry].status,
+                quests[entry].state,
                 quests[entry].quest.QuestLevel,
                 quest_title
             )
@@ -484,7 +484,7 @@ class QuestManager(object):
             RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_id)
 
     def create_db_quest_status(self, quest_id):
-        db_quest_status = CharacterQuestStatus()
+        db_quest_status = CharacterQuestState()
         db_quest_status.guid = self.player_mgr.guid
         db_quest_status.quest = quest_id
         db_quest_status.status = QuestState.QUEST_ACCEPTED.value
@@ -597,7 +597,7 @@ class QuestManager(object):
 class QuestMenu:
     class QuestMenuItem(NamedTuple):
         quest: QuestTemplate
-        status: QuestState
+        state: QuestState
 
     def __init__(self):
         self.items = {}
@@ -613,5 +613,5 @@ class ActiveQuest:
     def __init__(self, quest_db_status):
         self.quest_db_status = quest_db_status
         self.quest_id = quest_db_status.quest
-        self.state = QuestState(quest_db_status.status)
+        self.state = QuestState(quest_db_status.state)
         self.quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(self.quest_id)

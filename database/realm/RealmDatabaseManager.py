@@ -302,14 +302,14 @@ class RealmDatabaseManager(object):
     @staticmethod
     def character_get_quests(guid):
         realm_db_session = SessionHolder()
-        quests = realm_db_session.query(CharacterQuestStatus).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        quests = realm_db_session.query(CharacterQuestState).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
         realm_db_session.close()
         return quests
 
     @staticmethod
     def character_get_quest_by_id(guid, quest_id):
         realm_db_session = SessionHolder()
-        quest = realm_db_session.query(CharacterQuestStatus).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER, quest=quest_id).first()
+        quest = realm_db_session.query(CharacterQuestState).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER, quest=quest_id).first()
         realm_db_session.close()
         return quest
 

@@ -161,12 +161,12 @@ class CharacterSpell(Base):
     character = relationship('Character')
 
 
-class CharacterQuestStatus(Base):
-    __tablename__ = 'character_quest_status'
+class CharacterQuestState(Base):
+    __tablename__ = 'character_quest_state'
 
     guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("0"))
     quest = Column(INTEGER(11), primary_key=True, nullable=False, server_default=text("0"))
-    status = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    state = Column(INTEGER(11), nullable=False, server_default=text("0"))
     rewarded = Column(TINYINT(1), nullable=False, server_default=text("0"))
     explored = Column(TINYINT(1), nullable=False, server_default=text("0"))
     timer = Column(BIGINT(20), nullable=False, server_default=text("0"))
