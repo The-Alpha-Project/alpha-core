@@ -408,7 +408,7 @@ class RealmDatabaseManager(object):
         guild_members = realm_db_session.query(GuildMember).filter_by(guild_id=guild_id).all()
         accounts = []
         if guild_members:
-            accounts = list(set([member.character.account_id for member in guild_members])) # Distinct
+            accounts = list(set([member.character.account_id for member in guild_members]))  # Distinct
         realm_db_session.close()
         return accounts
 
@@ -434,8 +434,8 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
 
     @staticmethod
-    def guild_remove_player(guid_member):
+    def guild_remove_player(guild_member):
         realm_db_session = SessionHolder()
-        realm_db_session.delete(guid_member)
+        realm_db_session.delete(guild_member)
         realm_db_session.flush()
         realm_db_session.close()

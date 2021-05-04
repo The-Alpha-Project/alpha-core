@@ -3,6 +3,9 @@ from database.realm.RealmDatabaseManager import *
 
 WORLD_SESSIONS = []
 CURRENT_SESSIONS = Value('i', 0)
+
+# Storing players and sessions by different parameters to keep searches O(1)
+# TODO Find better way to do this?
 PLAYERS_BY_GUID = {}
 PLAYER_BY_NAME = {}
 SESSION_BY_GUID = {}
@@ -20,18 +23,19 @@ class WorldSessionStateHandler(object):
     @staticmethod
     def push_active_player_session(session):
         # This is filled upon player successful login (in-world).
-        PLAYERS_BY_GUID[session.player_mgr.guid] = session.player_mgr;
+        PLAYERS_BY_GUID[session.player_mgr.guid] = session.player_mgr
         PLAYER_BY_NAME[session.player_mgr.player.name] = session.player_mgr
         SESSION_BY_GUID[session.player_mgr.guid] = session
         SESSION_BY_NAME[session.player_mgr.player.name] = session
 
     @staticmethod
     def pop_active_player(player_mgr):
-        # Flushed when players leaves world and lands on selection character screen. (Also in disconnect from socket)
+        # Flushed when player leaves the world.
         if player_mgr.player.name in PLAYER_BY_NAME:
             PLAYER_BY_NAME.pop(player_mgr.player.name)
         if player_mgr.guid in PLAYERS_BY_GUID:
             PLAYERS_BY_GUID.pop(player_mgr.guid)
+
         if player_mgr.player.name in SESSION_BY_NAME:
             SESSION_BY_NAME.pop(player_mgr.player.name)
         if player_mgr.guid in SESSION_BY_GUID:

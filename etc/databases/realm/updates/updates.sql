@@ -109,11 +109,11 @@ begin not atomic
     end if;
 	
 	-- 30/04/2021 1
-	if (select count(*) from applied_updates where id='300420211') = 0 then
-		ALTER TABLE guild DROP FOREIGN KEY leader_guid_fk;
-		ALTER TABLE guild DROP COLUMN leader_guid;
-		insert into applied_updates values ('300420211');
-	end if;
+    if (select count(*) from applied_updates where id='300420211') = 0 then
+        ALTER TABLE guild DROP FOREIGN KEY leader_guid_fk;
+        ALTER TABLE guild DROP COLUMN leader_guid;
+        insert into applied_updates values ('300420211');
+    end if;
 	
 end $
 delimiter ;

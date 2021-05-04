@@ -121,8 +121,8 @@ class WorldLoader:
 
         for guild in guilds:
             if guild.name not in GuildManager.GUILDS:
-                GuildManager.GUILDS[guild.name] = GuildManager(guild)
-                GuildManager.GUILDS[guild.name].load_guild_members()
+                GuildManager.load_guild(guild)
+
                 count += 1
                 Logger.progress('Loading guilds...', count, length)
 

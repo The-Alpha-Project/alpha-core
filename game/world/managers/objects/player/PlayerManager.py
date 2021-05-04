@@ -236,9 +236,9 @@ class PlayerManager(UnitManager):
         self.friends_manager.send_offline_notification()
         self.session.save_character()
         GridManager.remove_object(self)
+        WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
         self.session = None
-        WorldSessionStateHandler.pop_active_player(self)
 
     def get_tutorial_packet(self):
         return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('<18I', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
