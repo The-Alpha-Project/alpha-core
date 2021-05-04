@@ -531,7 +531,9 @@ class QuestManager(object):
         self.player_mgr.send_update_self()
 
     def reward_xp(self, active_quest):
-        self.player_mgr.give_xp([Formulas.PlayerFormulas.quest_xp_reward(active_quest.quest.QuestLevel, self.player_mgr.level, active_quest.quest.RewXP)])
+        self.player_mgr.give_xp([Formulas.PlayerFormulas.quest_xp_reward(active_quest.quest.QuestLevel,
+                                                                         self.player_mgr.level,
+                                                                         active_quest.quest.RewXP)])
 
     def reward_gold(self, active_quest):
         if active_quest.quest.RewOrReqMoney != 0:
