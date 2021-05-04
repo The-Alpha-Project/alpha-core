@@ -1,7 +1,9 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
 
@@ -30,6 +32,7 @@ class WorldLoader:
         WorldLoader.load_skill_line_abilities()
         WorldLoader.load_taxi_nodes()
         WorldLoader.load_taxi_path_nodes()
+        WorldLoader.load_guilds()
 
     @staticmethod
     def load_gameobjects():
@@ -109,6 +112,19 @@ class WorldLoader:
             Logger.progress('Loading quest templates...', count, length)
 
         return length
+
+    @staticmethod
+    def load_guilds():
+        guilds = RealmDatabaseManager.guild_get_all()
+        length = len(guilds)
+        count = 0
+
+        for guild in guilds:
+            if guild.name not in GuildManager.GUILDS:
+                GuildManager.load_guild(guild)
+
+                count += 1
+                Logger.progress('Loading guilds...', count, length)
 
     @staticmethod
     def load_spells():

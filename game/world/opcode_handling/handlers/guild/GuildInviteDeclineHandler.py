@@ -16,7 +16,7 @@ class GuildInviteDeclineHandler(object):
             inviter_name_bytes = PacketWriter.string_to_bytes(inviter.player.name)
             data = pack(
                 f'<{len(inviter_name_bytes)}s',
-                inviter_name_bytes,
+                inviter_name_bytes
             )
 
             inviter.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_DECLINE, data))

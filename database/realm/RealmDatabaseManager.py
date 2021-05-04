@@ -289,6 +289,58 @@ class RealmDatabaseManager(object):
             realm_db_session.flush()
             realm_db_session.close()
 
+    @staticmethod
+    def character_get_guild(character):
+        realm_db_session = SessionHolder()
+        guild_member = realm_db_session.query(GuildMember).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).first()
+        guild = None
+        if guild_member:
+            guild = guild_member.guild
+        realm_db_session.close()
+        return guild
+    
+    
+    @staticmethod
+    def character_get_quests(guid):
+        realm_db_session = SessionHolder()
+        quests = realm_db_session.query(CharacterQuestStatus).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        realm_db_session.close()
+        return quests
+
+    @staticmethod
+    def character_get_quest_by_id(guid, quest_id):
+        realm_db_session = SessionHolder()
+        quest = realm_db_session.query(CharacterQuestStatus).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER, quest=quest_id).first()
+        realm_db_session.close()
+        return quest
+
+    @staticmethod
+    def character_add_quest(quest_id):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(quest_id)
+        realm_db_session.flush()
+        realm_db_session.refresh(quest_id)
+        realm_db_session.close()
+
+    @staticmethod
+    def character_delete_quest(guid, quest_id):
+        realm_db_session = SessionHolder()
+        quest_to_delete = RealmDatabaseManager.character_get_quest_by_id(guid, quest_id)
+        if quest_to_delete:
+            realm_db_session.delete(quest_to_delete)
+            realm_db_session.flush()
+            realm_db_session.close()
+            return 0
+        return -1
+    
+    @staticmethod
+    def character_update_quest(quest_id):
+        if quest_id:
+            realm_db_session = SessionHolder()
+            realm_db_session.merge(quest_id)
+            realm_db_session.flush()
+            realm_db_session.close()
+    
     # Ticket stuff
 
     @staticmethod
@@ -323,45 +375,74 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
         return tickets if tickets else []
 
-    # Quests
+    # Guild
 
     @staticmethod
-    def character_get_quests(guid):
+    def guild_create(guild):
         realm_db_session = SessionHolder()
-        quests = realm_db_session.query(CharacterQuestStatus).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
-        realm_db_session.close()
-        return quests
-
-    @staticmethod
-    def character_get_quest_by_id(guid, quest_id):
-        realm_db_session = SessionHolder()
-        quest = realm_db_session.query(CharacterQuestStatus).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER, quest=quest_id).first()
-        realm_db_session.close()
-        return quest
-
-    @staticmethod
-    def character_add_quest(quest_id):
-        realm_db_session = SessionHolder()
-        realm_db_session.add(quest_id)
+        realm_db_session.add(guild)
         realm_db_session.flush()
-        realm_db_session.refresh(quest_id)
+        realm_db_session.refresh(guild)
+        realm_db_session.close()
+        return guild
+
+    @staticmethod
+    def guild_create_player(guild_member):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(guild_member)
+        realm_db_session.flush()
+        realm_db_session.refresh(guild_member)
+        realm_db_session.close()
+        return guild_member
+
+    @staticmethod
+    def guild_get_members(guild):
+        realm_db_session = SessionHolder()
+        guild_members = realm_db_session.query(GuildMember).filter_by(guild_id=guild.guild_id).all()
+        realm_db_session.close()
+        return guild_members
+
+    @staticmethod
+    def guild_get_all():
+        realm_db_session = SessionHolder()
+        guilds = realm_db_session.query(Guild).all()
+        realm_db_session.close()
+        return guilds
+
+    @staticmethod
+    def guild_get_accounts(guild_id):
+        realm_db_session = SessionHolder()
+        guild_members = realm_db_session.query(GuildMember).filter_by(guild_id=guild_id).all()
+        accounts = []
+        if guild_members:
+            accounts = list(set([member.character.account_id for member in guild_members]))  # Distinct
+        realm_db_session.close()
+        return accounts
+
+    @staticmethod
+    def guild_update(guild):
+        realm_db_session = SessionHolder()
+        realm_db_session.merge(guild)
+        realm_db_session.flush()
         realm_db_session.close()
 
     @staticmethod
-    def character_delete_quest(guid, quest_id):
+    def guild_update_player(guild_member):
         realm_db_session = SessionHolder()
-        quest_to_delete = RealmDatabaseManager.character_get_quest_by_id(guid, quest_id)
-        if quest_to_delete:
-            realm_db_session.delete(quest_to_delete)
-            realm_db_session.flush()
-            realm_db_session.close()
-            return 0
-        return -1
+        realm_db_session.merge(guild_member)
+        realm_db_session.flush()
+        realm_db_session.close()
 
     @staticmethod
-    def character_update_quest(quest_id):
-        if quest_id:
-            realm_db_session = SessionHolder()
-            realm_db_session.merge(quest_id)
-            realm_db_session.flush()
-            realm_db_session.close()
+    def guild_destroy(guild):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(guild)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def guild_remove_player(guild_member):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(guild_member)
+        realm_db_session.flush()
+        realm_db_session.close()

@@ -1,167 +1,212 @@
 from struct import pack
+from datetime import datetime
+
+from database.realm.RealmDatabaseManager import RealmDatabaseManager, Guild, GuildMember
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ObjectCodes import GuildRank, GuildCommandResults, GuildTypeCommand, GuildEvents, GuildChatMessageTypes
+from utils.constants.ObjectCodes import GuildRank, GuildCommandResults, GuildTypeCommand, GuildEvents, \
+    GuildChatMessageTypes, FriendResults
 from game.world.managers.objects.player.guild.GuildPendingInvite import GuildPendingInvite
 from utils.TextUtils import TextChecker
 from utils.constants.UpdateFields import PlayerFields
 
 
 class GuildManager(object):
-    GUILD_COUNT = 0  # TODO, generate/recycle guild IDs when we have db persistence
-    GUILDS = {}
+    GUILDS = {}  # Check for name duplicity upon creation.
     PENDING_INVITES = {}
 
-    def __init__(self, guild_name):
-        GuildManager.GUILD_COUNT += 1
-        self.guild_id = GuildManager.GUILD_COUNT  # int32
-        self.guild_name = guild_name
+    def __init__(self, guild):
+        self.guild = guild
         self.members = {}
-        self.ranks = {}
         self.guild_master = None
-        self.created_at = 0  # Date
-        self.motd = ''
-        GuildManager.GUILDS[self.guild_id] = self
+        GuildManager.GUILDS[self.guild.name] = self
 
-    def set_guild_master(self, player_mgr):
+    def load_guild_members(self):
+        members = RealmDatabaseManager.guild_get_members(self.guild)
+
+        for member in members:
+            self.members[member.guid] = member
+            if member.rank == 0:
+                self.guild_master = member
+
+    def set_guild_master(self, player_guid):
+        member = self.members[player_guid]
         previous_gm = self.guild_master
-        self.guild_master = player_mgr
-        self.ranks[player_mgr.guid] = GuildRank.GUILDRANK_GUILD_MASTER
+
+        member.rank = int(GuildRank.GUILDRANK_GUILD_MASTER)
+        previous_gm.rank = int(GuildRank.GUILDRANK_OFFICER)
 
         if previous_gm:
-            self.ranks[previous_gm.guid] = GuildRank.GUILDRANK_OFFICER
             data = pack('<2B', GuildEvents.GUILD_EVENT_LEADER_CHANGED, 2)
-            name_bytes = PacketWriter.string_to_bytes(previous_gm.player.name)
+            name_bytes = PacketWriter.string_to_bytes(previous_gm.character.name)
             data += pack(
                 f'<{len(name_bytes)}s',
-                name_bytes,
+                name_bytes
             )
 
-            name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+            name_bytes = PacketWriter.string_to_bytes(member.character.name)
             data += pack(
                 f'<{len(name_bytes)}s',
-                name_bytes,
+                name_bytes
             )
 
             packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
             self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
-        player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.get_guild_rank(player_mgr))
-        player_mgr.set_dirty()
+        self.update_db_guild_members()
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
+        if player_mgr:
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, member.rank)
+            player_mgr.set_dirty()
+
+    def update_db_guild_members(self):
+        for member in self.members.values():
+            RealmDatabaseManager.guild_update_player(member)
+
+    def update_db_guild(self):
+        RealmDatabaseManager.guild_update(self.guild)
 
     def set_motd(self, motd):
-        self.motd = motd
+        self.guild.motd = motd
+        self.update_db_guild()
         self.send_motd()
 
-    def send_motd(self):
+    def send_motd(self, player_mgr=None):
         data = pack('<2B', GuildEvents.GUILD_EVENT_MOTD, 1)
-        motd_bytes = PacketWriter.string_to_bytes(self.motd)
+        motd_bytes = PacketWriter.string_to_bytes(self.guild.motd)
         data += pack(
             f'<{len(motd_bytes)}s',
             motd_bytes,
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
-        self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
-    def is_member(self, player_mgr):
-        return player_mgr.guid in self.members
+        if player_mgr:
+            player_mgr.session.enqueue_packet(packet)
+        else:
+            self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
+
+    def _create_new_member(self, player_guid, rank):
+        member = GuildMember()
+        member.guild_id = self.guild.guild_id
+        member.rank = int(rank)
+        member.guid = player_guid
+        RealmDatabaseManager.guild_create_player(member)
+
+        if rank == int(GuildRank.GUILDRANK_GUILD_MASTER):
+            self.guild_master = member
+
+        return member
 
     def add_new_member(self, player_mgr, is_guild_master=False):
-        self.members[player_mgr.guid] = player_mgr
+        rank = GuildRank.GUILDRANK_GUILD_MASTER if is_guild_master else GuildRank.GUILDRANK_INITIATE
+        guild_member = self._create_new_member(player_mgr.guid, rank)
+
         player_mgr.guild_manager = self
-        if is_guild_master:
-            self.set_guild_master(player_mgr)
-        else:
-            self.ranks[player_mgr.guid] = GuildRank.GUILDRANK_INITIATE
+        self.members[player_mgr.guid] = guild_member
 
         data = pack('<2B', GuildEvents.GUILD_EVENT_JOINED, 1)
         name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
         data += pack(
             f'<{len(name_bytes)}s',
-            name_bytes,
+            name_bytes
         )
-
-        packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
-        self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
         self.build_update(player_mgr)
         player_mgr.set_dirty()
 
-    def remove_member(self, player_mgr):
+        packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
+        self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
+        RealmDatabaseManager.character_update(player_mgr.player)
+
+    def remove_member(self, player_guid):
+        member = self.members[player_guid]
+        guild_master = self.guild_master
+
         data = pack('<2B', GuildEvents.GUILD_EVENT_REMOVED, 2)
-        target_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+        target_name_bytes = PacketWriter.string_to_bytes(member.character.name)
         data += pack(
             f'<{len(target_name_bytes)}s',
-            target_name_bytes,
+            target_name_bytes
         )
 
-        remover_name_bytes = PacketWriter.string_to_bytes(self.guild_master.player.name)
+        remover_name_bytes = PacketWriter.string_to_bytes(guild_master.character.name)
         data += pack(
             f'<{len(remover_name_bytes)}s',
-            remover_name_bytes,
+            remover_name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
         # Pop it at the end, so he gets the above message.
-        self.members.pop(player_mgr.guid)
-        self.ranks.pop(player_mgr.guid)
-        self.build_update(player_mgr, unset=True)
+        RealmDatabaseManager.guild_remove_player(member)
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
+        self.members.pop(player_guid)
 
-        player_mgr.guild_manager = None
-        player_mgr.set_dirty()
+        if player_mgr:
+            self.build_update(player_mgr, unset=True)
+            player_mgr.guild_manager = None
+            player_mgr.set_dirty()
 
-    def leave(self, player_mgr):
+    def leave(self, player_guid):
+        member = self.members[player_guid]
+
         data = pack('<2B', GuildEvents.GUILD_EVENT_LEFT, 1)
-
-        leaver_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+        leaver_name_bytes = PacketWriter.string_to_bytes(member.character.name)
         data += pack(
             f'<{len(leaver_name_bytes)}s',
-            leaver_name_bytes,
+            leaver_name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
-        self.members.pop(player_mgr.guid)
-        self.ranks.pop(player_mgr.guid)
-        self.build_update(player_mgr, unset=True)
-
-        player_mgr.guild_manager = None
-        player_mgr.set_dirty()
+        RealmDatabaseManager.guild_remove_player(member)
+        self.members.pop(player_guid)
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
+        if player_mgr:
+            self.build_update(player_mgr, unset=True)
+            player_mgr.guild_manager = None
+            player_mgr.set_dirty()
 
     def disband(self):
         data = pack('<2B', GuildEvents.GUILD_EVENT_DISBANDED, 1)
-
-        leaver_name_bytes = PacketWriter.string_to_bytes(self.guild_master.player.name)
+        leaver_name_bytes = PacketWriter.string_to_bytes(self.guild_master.character.name)
         data += pack(
             f'<{len(leaver_name_bytes)}s',
-            leaver_name_bytes,
+            leaver_name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
         for member in self.members.values():
-            self.build_update(member, unset=True)
-            member.guild_manager = None
-            member.set_dirty()
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
+            if player_mgr:
+                self.build_update(player_mgr, unset=True)
+                player_mgr.guild_manager = None
+                player_mgr.set_dirty()
 
-        GuildManager.GUILDS.pop(self.guild_id)
+        GuildManager.GUILDS.pop(self.guild.name)
         self.members.clear()
-        self.ranks.clear()
+        RealmDatabaseManager.guild_destroy(self.guild)
 
-    def send_message_to_guild(self, packet, msg_type=None, source=None):
+    def send_message_to_guild(self, packet, msg_type=None, source=None, exclude=None):
         for member in self.members.values():
+            if exclude and member.guid == exclude.guid:
+                continue
+
             if msg_type and msg_type == GuildChatMessageTypes.G_MSGTYPE_OFFICERCHAT \
-                    and self.get_guild_rank(member) > GuildRank.GUILDRANK_OFFICER:
+                    and member.rank > GuildRank.GUILDRANK_OFFICER:
                 continue
 
-            if source and member.friends_manager.has_ignore(source.guid):
-                continue
+            member_session = WorldSessionStateHandler.get_session_by_character_guid(member.guid)
+            if member_session and member_session.player_mgr:
+                if source and member_session.player_mgr.friends_manager.has_ignore(source.guid):
+                    continue
 
-            member.session.enqueue_packet(packet)
+                member_session.enqueue_packet(packet)
 
     def invite_member(self, player_mgr, invited_player):
         if invited_player.guid not in GuildManager.PENDING_INVITES:
@@ -169,73 +214,83 @@ class GuildManager(object):
             return True
         return False
 
-    def get_guild_rank(self, player_mgr):
-        return self.ranks[player_mgr.guid]
+    def promote_rank(self, player_guid):
+        member = self.members[player_guid]
 
-    def promote_rank(self, player_mgr):
-        if player_mgr == self.guild_master:
+        if member.rank == int(GuildRank.GUILDRANK_GUILD_MASTER):
             return False
 
-        current_rank = int(self.ranks[player_mgr.guid])
-        if current_rank == int(GuildRank.GUILDRANK_OFFICER):
+        if member.rank == int(GuildRank.GUILDRANK_OFFICER):
             return False
         else:
-            self.ranks[player_mgr.guid] = GuildRank((current_rank - 1))
+            member.rank -= 1
 
         data = pack('<2B', GuildEvents.GUILD_EVENT_PROMOTION, 2)
 
-        target_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+        target_name_bytes = PacketWriter.string_to_bytes(member.character.name)
         data += pack(
             f'<{len(target_name_bytes)}s',
-            target_name_bytes,
+            target_name_bytes
         )
 
-        rank_name = GuildRank(self.ranks[player_mgr.guid]).name.split('_')[1].capitalize()
+        rank_name = GuildRank(member.rank).name.split('_')[1].capitalize()
         rank_name_bytes = PacketWriter.string_to_bytes(rank_name)
         data += pack(
             f'<{len(rank_name_bytes)}s',
-            rank_name_bytes,
+            rank_name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
-        player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.get_guild_rank(player_mgr))
-        player_mgr.set_dirty()
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
+        if player_mgr:
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, member.rank)
+            player_mgr.set_dirty()
 
+        self.update_db_guild_members()
         return True
 
-    def demote_rank(self, player_mgr):
-        if player_mgr == self.guild_master:
+    def demote_rank(self, player_guid):
+        member = self.members[player_guid]
+        if member.rank == GuildRank.GUILDRANK_GUILD_MASTER:
             return False
 
-        current_rank = int(self.ranks[player_mgr.guid])
-        if current_rank == int(GuildRank.GUILDRANK_INITIATE):  # Use initiate as lowest for now
+        if member.rank == GuildRank.GUILDRANK_INITIATE:  # Use initiate as lowest for now
             return False
         else:
-            self.ranks[player_mgr.guid] = GuildRank((current_rank + 1))
+            member.rank += 1
 
         data = pack('<2B', GuildEvents.GUILD_EVENT_DEMOTION, 2)
-        target_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+        target_name_bytes = PacketWriter.string_to_bytes(member.character.name)
         data += pack(
             f'<{len(target_name_bytes)}s',
-            target_name_bytes,
+            target_name_bytes
         )
 
-        rank_name = GuildRank(self.ranks[player_mgr.guid]).name.split('_')[1].capitalize()
+        rank_name = GuildRank(member.rank).name.split('_')[1].capitalize()
         rank_name_bytes = PacketWriter.string_to_bytes(rank_name)
         data += pack(
             f'<{len(rank_name_bytes)}s',
-            rank_name_bytes,
+            rank_name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
-        player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.get_guild_rank(player_mgr))
-        player_mgr.set_dirty()
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
+        if player_mgr:
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, member.rank)
+            player_mgr.set_dirty()
 
+        self.update_db_guild_members()
         return True
+
+    def has_member(self, player_guid):
+        return player_guid in self.members
+
+    def get_rank(self, player_guid):
+        return self.members[player_guid].rank
 
     def build_update(self, player_mgr, unset=False):
         if unset:
@@ -243,9 +298,14 @@ class GuildManager(object):
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, 0)
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, 0)
         else:
-            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDID, self.guild_id)
-            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.get_guild_rank(player_mgr))
-            player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, self.created_at)
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDID, self.guild.guild_id)
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.members[player_mgr.guid].rank)
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, 0)  # Format creation_data
+
+    @staticmethod
+    def load_guild(raw_guild):
+        GuildManager.GUILDS[raw_guild.name] = GuildManager(raw_guild)
+        GuildManager.GUILDS[raw_guild.name].load_guild_members()
 
     @staticmethod
     def create_guild(player_mgr, guild_name):
@@ -253,18 +313,39 @@ class GuildManager(object):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, '',
                                                    GuildCommandResults.GUILD_NAME_INVALID)
             return
-        for guild in GuildManager.GUILDS.values():
-            if guild.guild_name == guild_name:
-                GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, guild_name,
-                                                       GuildCommandResults.GUILD_NAME_EXISTS)
-                return
+        if guild_name in GuildManager.GUILDS:
+            GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, guild_name,
+                                                   GuildCommandResults.GUILD_NAME_EXISTS)
+            return
         if player_mgr.guild_manager:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, '',
                                                    GuildCommandResults.GUILD_ALREADY_IN_GUILD)
             return
 
-        player_mgr.guild_manager = GuildManager(guild_name)
+        guild = GuildManager._create_guild("", guild_name, 0, 0, 0, 0, 0, player_mgr.guid)
+        player_mgr.guild_manager = GuildManager(guild)
         player_mgr.guild_manager.add_new_member(player_mgr, is_guild_master=True)
+
+    @staticmethod
+    def set_character_guild(player_mgr):
+        guild = RealmDatabaseManager.character_get_guild(player_mgr.player)
+        if guild and guild.name in GuildManager.GUILDS:
+            player_mgr.guild_manager = GuildManager.GUILDS[guild.name]
+
+    @staticmethod
+    def _create_guild(motd, name, bg_color, b_color, b_style, e_color, e_style, leader_guid):
+        guild = Guild()
+        guild.motd = motd
+        guild.name = name
+        guild.background_color = bg_color
+        guild.border_color = b_color
+        guild.border_style = b_style
+        guild.emblem_color = e_color
+        guild.emblem_style = e_style
+        guild.leader_guid = leader_guid
+        guild.creation_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        RealmDatabaseManager.guild_create(guild)
+        return guild
 
     @staticmethod
     def send_guild_command_result(player_mgr, command_type, message, command):

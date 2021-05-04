@@ -158,7 +158,7 @@ class GroupManager(object):
         name_bytes = PacketWriter.string_to_bytes(target_player_mgr.player.name)
         data = pack(
             f'<{len(name_bytes)}s',
-            name_bytes,
+            name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_SET_LEADER, data)
@@ -290,7 +290,7 @@ class GroupManager(object):
         name_bytes = PacketWriter.string_to_bytes(player_name)
         data = pack(
             f'<{len(name_bytes)}s',
-            name_bytes,
+            name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
@@ -352,7 +352,7 @@ class GroupManager(object):
         name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
         data = pack(
             f'<{len(name_bytes)}s',
-            name_bytes,
+            name_bytes
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_INVITE, data)
@@ -367,7 +367,7 @@ class GroupManager(object):
             f'<I{len(name_bytes)}sI',
             group_operation,
             name_bytes,
-            result,
+            result
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_PARTY_COMMAND_RESULT, data)
