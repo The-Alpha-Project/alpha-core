@@ -487,7 +487,7 @@ class QuestManager(object):
         db_quest_status = CharacterQuestState()
         db_quest_status.guid = self.player_mgr.guid
         db_quest_status.quest = quest_id
-        db_quest_status.status = QuestState.QUEST_ACCEPTED.value
+        db_quest_status.state = QuestState.QUEST_ACCEPTED.value
         return db_quest_status
 
     def handle_complete_quest(self, quest_id, quest_giver_guid):
