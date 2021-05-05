@@ -602,8 +602,8 @@ class QuestMenu:
     def __init__(self):
         self.items = {}
 
-    def add_menu_item(self, quest, status):
-        self.items[quest.entry] = QuestMenu.QuestMenuItem(quest, status)
+    def add_menu_item(self, quest, state):
+        self.items[quest.entry] = QuestMenu.QuestMenuItem(quest, state)
 
     def clear_menu(self):
         self.items.clear()
