@@ -1,5 +1,4 @@
 import _queue
-import socketserver
 import threading
 import socket
 
@@ -231,13 +230,13 @@ class WorldServerSessionHandler(object):
         # Use SO_REUSEADDR if SO_REUSEPORT doesn't exist.
         except AttributeError:
             server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server_socket.bind((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port))
+        server_socket.bind((config.Server.Connection.WorldServer.host, config.Server.Connection.WorldServer.port))
         server_socket.listen()
 
         WorldServerSessionHandler.schedule_background_tasks()
 
-        Logger.success('World server started.')
-
+        real_binding = server_socket.getsockname()
+        Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}')
         while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
             try:
                 (client_socket, client_address) = server_socket.accept()
