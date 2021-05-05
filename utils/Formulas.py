@@ -123,3 +123,18 @@ class PlayerFormulas(object):
 
         # Always round to the nearest hundred
         return int(round(((8 * level) + diff) * PlayerFormulas.base_xp_per_mob(level) + 1, -2))
+
+    @staticmethod
+    def quest_xp_reward(quest_level, player_level, rew_xp):
+        if player_level <= quest_level + 5:
+            return rew_xp
+        elif player_level == quest_level + 6:
+            return math.ceil(rew_xp * 0.8)
+        elif player_level == quest_level + 7:
+            return math.ceil(rew_xp * 0.6)
+        elif player_level == quest_level + 8:
+            return math.ceil(rew_xp * 0.4)
+        elif player_level == quest_level + 9:
+            return math.ceil(rew_xp * 0.2)
+        else:
+            return math.ceil(rew_xp * 0.1)

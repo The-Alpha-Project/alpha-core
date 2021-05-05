@@ -236,6 +236,7 @@ class PlayerManager(UnitManager):
         self.friends_manager.send_offline_notification()
         self.session.save_character()
         GridManager.remove_object(self)
+        WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
         self.session = None
         WorldSessionStateHandler.pop_active_player(self)
@@ -539,6 +540,12 @@ class PlayerManager(UnitManager):
             # Slot should match real current_loot indexes.
             for loot in victim.loot_manager.current_loot:
                 if loot:
+                    # If this is a quest item and player does not need it, don't show it to this player.
+                    if loot.is_quest_item() and not self.player_or_group_require_quest_item(
+                            loot.get_item_entry(), only_self=True):
+                        slot += 1
+                        continue
+
                     # Send item query information
                     self.session.enqueue_packet(loot.item.query_details())
 
@@ -632,6 +639,16 @@ class PlayerManager(UnitManager):
                 self.friends_manager.send_update_to_friends()
 
                 self.set_dirty()
+
+    def player_or_group_require_quest_item(self, item_entry, only_self=False):
+        if not self.group_manager or only_self:
+            return self.quest_manager.is_quest_item_required(item_entry)
+        else:
+            for member in self.group_manager.members.values():
+                is_required = member.quest_manager.is_quest_item_required(item_entry)
+                if is_required:
+                    return True
+        return False
 
     def set_group_leader(self, flag=True):
         if flag:

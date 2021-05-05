@@ -109,11 +109,18 @@ begin not atomic
     end if;
 	
 	-- 30/04/2021 1
-	if (select count(*) from applied_updates where id='300420211') = 0 then
-		ALTER TABLE guild DROP FOREIGN KEY leader_guid_fk;
-		ALTER TABLE guild DROP COLUMN leader_guid;
-		insert into applied_updates values ('300420211');
-	end if;
+    if (select count(*) from applied_updates where id='300420211') = 0 then
+        ALTER TABLE guild DROP FOREIGN KEY leader_guid_fk;
+        ALTER TABLE guild DROP COLUMN leader_guid;
+        insert into applied_updates values ('300420211');
+    end if;
+
+    -- 05/05/2021 1
+    if (select count(*) from applied_updates where id='050520211') = 0 then
+        alter table character_quest_status rename to character_quest_state;
+        alter table character_quest_state change status state int(11) unsigned NOT NULL DEFAULT 0;
+        insert into applied_updates values ('050520211');
+    end if;
 	
 end $
 delimiter ;

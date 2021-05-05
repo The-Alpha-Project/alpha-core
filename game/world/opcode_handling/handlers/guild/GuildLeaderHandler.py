@@ -8,7 +8,7 @@ class GuildLeaderHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if reader.data: #Can just type /gleader
+        if len(reader.data) > 1:  # Avoid handling empty Guild Demote packet.
             target_name = PacketReader.read_string(reader.data, 0).strip()
             target_player_mgr = RealmDatabaseManager.character_get_by_name(target_name)
             player_mgr = world_session.player_mgr

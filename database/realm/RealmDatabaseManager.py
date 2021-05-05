@@ -299,6 +299,48 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
         return guild
 
+    @staticmethod
+    def character_get_quests(guid):
+        realm_db_session = SessionHolder()
+        quests = realm_db_session.query(CharacterQuestState).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        realm_db_session.close()
+        return quests
+
+    @staticmethod
+    def character_get_quest_by_id(guid, quest_id):
+        realm_db_session = SessionHolder()
+        quest = realm_db_session.query(CharacterQuestState).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER, quest=quest_id).first()
+        realm_db_session.close()
+        return quest
+
+    @staticmethod
+    def character_add_quest_status(quest_status):
+        if quest_status:
+            realm_db_session = SessionHolder()
+            realm_db_session.add(quest_status)
+            realm_db_session.flush()
+            realm_db_session.refresh(quest_status)
+            realm_db_session.close()
+
+    @staticmethod
+    def character_delete_quest(guid, quest_id):
+        realm_db_session = SessionHolder()
+        quest_to_delete = RealmDatabaseManager.character_get_quest_by_id(guid, quest_id)
+        if quest_to_delete:
+            realm_db_session.delete(quest_to_delete)
+            realm_db_session.flush()
+            realm_db_session.close()
+            return 0
+        return -1
+    
+    @staticmethod
+    def character_update_quest_status(quest_status):
+        if quest_status:
+            realm_db_session = SessionHolder()
+            realm_db_session.merge(quest_status)
+            realm_db_session.flush()
+            realm_db_session.close()
+    
     # Ticket stuff
 
     @staticmethod
@@ -332,41 +374,6 @@ class RealmDatabaseManager(object):
         tickets = realm_db_session.query(Ticket).all()
         realm_db_session.close()
         return tickets if tickets else []
-
-    # Quests
-
-    @staticmethod
-    def character_get_quests(guid):
-        realm_db_session = SessionHolder()
-        quests = realm_db_session.query(CharacterQuestStatus).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
-        realm_db_session.close()
-        return quests
-
-    @staticmethod
-    def character_get_quest_by_id(guid, quest_id):
-        realm_db_session = SessionHolder()
-        quest = realm_db_session.query(CharacterQuestStatus).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER, quest=quest_id).first()
-        realm_db_session.close()
-        return quest
-
-    @staticmethod
-    def character_add_quest(quest_id):
-        realm_db_session = SessionHolder()
-        realm_db_session.add(quest_id)
-        realm_db_session.flush()
-        realm_db_session.refresh(quest_id)
-        realm_db_session.close()
-
-    @staticmethod
-    def character_delete_quest(guid, quest_id):
-        realm_db_session = SessionHolder()
-        quest_to_delete = RealmDatabaseManager.character_get_quest_by_id(guid, quest_id)
-        if quest_to_delete:
-            realm_db_session.delete(quest_to_delete)
-            realm_db_session.flush()
-            realm_db_session.close()
-            return 0
-        return -1
 
     # Guild
 
@@ -408,7 +415,7 @@ class RealmDatabaseManager(object):
         guild_members = realm_db_session.query(GuildMember).filter_by(guild_id=guild_id).all()
         accounts = []
         if guild_members:
-            accounts = list(set([member.character.account_id for member in guild_members])) # Distinct
+            accounts = list(set([member.character.account_id for member in guild_members]))  # Distinct
         realm_db_session.close()
         return accounts
 
@@ -434,8 +441,8 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
 
     @staticmethod
-    def guild_remove_player(guid_member):
+    def guild_remove_player(guild_member):
         realm_db_session = SessionHolder()
-        realm_db_session.delete(guid_member)
+        realm_db_session.delete(guild_member)
         realm_db_session.flush()
         realm_db_session.close()

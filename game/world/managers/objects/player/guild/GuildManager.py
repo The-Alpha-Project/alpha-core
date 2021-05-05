@@ -67,7 +67,7 @@ class GuildManager(object):
         RealmDatabaseManager.guild_update(self.guild)
 
     def set_motd(self, motd):
-        self.guild.motd = motd;
+        self.guild.motd = motd
         self.update_db_guild()
         self.send_motd()
 
@@ -94,7 +94,7 @@ class GuildManager(object):
         RealmDatabaseManager.guild_create_player(member)
 
         if rank == int(GuildRank.GUILDRANK_GUILD_MASTER):
-            self.guild_master = member;
+            self.guild_master = member
 
         return member
 
@@ -303,6 +303,11 @@ class GuildManager(object):
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, 0)  # Format creation_data
 
     @staticmethod
+    def load_guild(raw_guild):
+        GuildManager.GUILDS[raw_guild.name] = GuildManager(raw_guild)
+        GuildManager.GUILDS[raw_guild.name].load_guild_members()
+
+    @staticmethod
     def create_guild(player_mgr, guild_name):
         if not TextChecker.valid_text(guild_name, is_guild=True):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, '',
@@ -320,15 +325,6 @@ class GuildManager(object):
         guild = GuildManager._create_guild("", guild_name, 0, 0, 0, 0, 0, player_mgr.guid)
         player_mgr.guild_manager = GuildManager(guild)
         player_mgr.guild_manager.add_new_member(player_mgr, is_guild_master=True)
-
-    @staticmethod
-    def load_guilds():
-        guilds = RealmDatabaseManager.guild_get_all()
-
-        for guild in guilds:
-            if guild.name not in GuildManager.GUILDS:
-                GuildManager.GUILDS[guild.name] = GuildManager(guild)
-                GuildManager.GUILDS[guild.name].load_guild_members()
 
     @staticmethod
     def set_character_guild(player_mgr):
