@@ -43,12 +43,11 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def start():
-        Logger.success('Login server started.')
-
         ThreadedLoginServer.allow_reuse_address = True
         with ThreadedLoginServer((config.Server.Connection.RealmServer.host,
                                   config.Server.Connection.RealmServer.port), LoginServerSessionHandler) \
                 as login_instance:
+            Logger.success(f'Login server started, listening on {login_instance.server_address[0]}:{login_instance.server_address[1]}')
             try:
                 login_session_thread = threading.Thread(target=login_instance.serve_forever())
                 login_session_thread.daemon = True
@@ -82,12 +81,11 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def start():
-        Logger.success('Proxy server started.')
-
         ThreadedProxyServer.allow_reuse_address = True
-        with ThreadedProxyServer((config.Server.Connection.RealmServer.host,
+        with ThreadedProxyServer((config.Server.Connection.RealmProxy.host,
                                   config.Server.Connection.RealmProxy.port), ProxyServerSessionHandler) \
                 as proxy_instance:
+            Logger.success(f'Proxy server started, listening on {proxy_instance.server_address[0]}:{proxy_instance.server_address[1]}')
             try:
                 proxy_session_thread = threading.Thread(target=proxy_instance.serve_forever())
                 proxy_session_thread.daemon = True
