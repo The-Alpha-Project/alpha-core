@@ -267,14 +267,14 @@ class WorldDatabaseManager(object):
     @staticmethod
     def creature_quest_get_all():
         world_db_session = SessionHolder()
-        res = world_db_session.query(t_creature_questrelation).all()
+        res = world_db_session.query(t_creature_quest_relation).all()
         world_db_session.close()
         return res
 
     @staticmethod
     def creature_involved_quest_get_all():
         world_db_session = SessionHolder()
-        res = world_db_session.query(t_creature_involvedrelation).all()
+        res = world_db_session.query(t_creature_involved_relation).all()
         world_db_session.close()
         return res
 
