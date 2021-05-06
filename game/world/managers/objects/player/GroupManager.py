@@ -180,11 +180,16 @@ class GroupManager(object):
                 if member.guid == self.group.leader_guid:
                     GroupManager._remove_leader_flag(member)
 
-                self._set_previous_looter(member.guid)
+                if not disband:
+                    self._set_previous_looter(member.guid)
+
                 RealmDatabaseManager.group_remove_member(member)
                 self.members.pop(member.guid)
 
                 if was_formed and member_plyr and disband and not is_kicked:
+                    disband_packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DESTROYED)
+                    member_plyr.session.enqueue_packet(disband_packet)
+                elif was_formed and member_plyr and disband and member.guid != player_guid:
                     disband_packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DESTROYED)
                     member_plyr.session.enqueue_packet(disband_packet)
                 elif was_formed and member_plyr and not is_kicked:
