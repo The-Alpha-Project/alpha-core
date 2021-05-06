@@ -48,15 +48,15 @@ class GroupManager(object):
             player_mgr.has_pending_group_invite = True
             return True
         else:
-            if len(self.members) == 0:  # Party just formed, persist the group and params.
-                leader_plyr = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)
-                if leader_plyr:  # If online, we est leader group status
+            if len(self.members) == 0:  # Party just formed, store the group and params.
+                leader_player = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)
+                if leader_player:  # If online, we set leader group status.
                     RealmDatabaseManager.group_create(self.group)
                     GroupManager.GROUPS[self.group.group_id] = self
-                    leader = GroupManager._create_new_member(self.group, leader_plyr)
+                    leader = GroupManager._create_new_member(self.group, leader_player)
                     RealmDatabaseManager.group_add_member(leader)
                     self.members[self.group.leader_guid] = leader
-                    leader_plyr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
+                    leader_player.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
                     GroupManager._set_leader_flag(leader)
                 else:  # Leader went offline after sending the invite.
                     return False
@@ -147,18 +147,22 @@ class GroupManager(object):
     def send_party_member_stats(self, group_member):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(group_member.guid)
         if player_mgr and player_mgr.online:
-            data = pack('<Q2IB6I',
-                        player_mgr.guid,
-                        player_mgr.health,
-                        player_mgr.max_health,
-                        player_mgr.power_type,
-                        player_mgr.get_power_type_value(),
-                        player_mgr.get_max_power_value(),
-                        player_mgr.level,
-                        player_mgr.zone,
-                        player_mgr.map_,
-                        player_mgr.player.class_,
-                        )
+            data = pack(
+                '<Q2IB6I3f',
+                player_mgr.guid,
+                player_mgr.health,
+                player_mgr.max_health,
+                player_mgr.power_type,
+                player_mgr.get_power_type_value(),
+                player_mgr.get_max_power_value(),
+                player_mgr.level,
+                player_mgr.zone,
+                player_mgr.map_,
+                player_mgr.player.class_,
+                player_mgr.location.x,
+                player_mgr.location.y,
+                player_mgr.location.z
+            )
 
             packet = PacketWriter.get_packet(OpCode.SMSG_PARTY_MEMBER_STATS, data)
             self.send_packet_to_members(packet)
@@ -264,15 +268,15 @@ class GroupManager(object):
         return [m for m in GridManager.get_surrounding_players(player).values() if m.guid in self.members]
 
     def reward_group_money(self, looter, creature):
-        surrounding_players = self.get_surrounding_members(looter)
-        if int(creature.loot_manager.current_money / len(surrounding_players)) < 1:
+        surrounding_members = self.get_surrounding_members(looter)
+        if int(creature.loot_manager.current_money / len(surrounding_members)) < 1:
             return False
 
-        share = int(creature.loot_manager.current_money / len(surrounding_players))
+        share = int(creature.loot_manager.current_money / len(surrounding_members))
         # Append div remainder to the player who killed the creature for now.
-        remainder = int(creature.loot_manager.current_money % len(surrounding_players))
+        remainder = int(creature.loot_manager.current_money % len(surrounding_members))
 
-        for member in surrounding_players:
+        for member in surrounding_members:
             player_share = share if member != creature.killed_by else share + remainder
             # TODO: MSG_SPLIT_MONEY seems not to have any effect on the client.
             # data = pack('<Q2I', creature.guid, creature.loot_manager.current_money, ply_share)
@@ -286,13 +290,13 @@ class GroupManager(object):
         return True
 
     def reward_group_xp(self, player, creature, is_elite):
-        surrounding = GridManager.get_surrounding_players(player).values()
-        surrounding = [player for player in surrounding if player.guid in self.members]
-        surrounding.sort(key=lambda players: players.level, reverse=True)  # Highest level on top
-        sum_levels = sum(player.level for player in surrounding)
-        base_xp = Formulas.CreatureFormulas.xp_reward(creature.level, surrounding[0].level, is_elite)
+        surrounding_players = GridManager.get_surrounding_players(player).values()
+        surrounding_members = [player for player in surrounding_players if player.guid in self.members]
+        surrounding_members.sort(key=lambda players: players.level, reverse=True)  # Highest level on top
+        sum_levels = sum(player.level for player in surrounding_members)
+        base_xp = Formulas.CreatureFormulas.xp_reward(creature.level, surrounding_members[0].level, is_elite)
 
-        for member in surrounding:
+        for member in surrounding_members:
             member.give_xp([base_xp * member.level / sum_levels], creature)
 
     def send_invite_decline(self, player_name):
@@ -373,8 +377,8 @@ class GroupManager(object):
 
     @staticmethod
     def set_character_group(player_mgr):
-        group_id = RealmDatabaseManager.character_get_group(player_mgr.player)
-        if group_id and group_id in GroupManager.GROUPS:
+        group_id = RealmDatabaseManager.character_get_group_id(player_mgr.player)
+        if group_id >= 0 and group_id in GroupManager.GROUPS:
             player_mgr.group_manager = GroupManager.GROUPS[group_id]
 
     @staticmethod

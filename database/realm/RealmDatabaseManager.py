@@ -300,14 +300,14 @@ class RealmDatabaseManager(object):
         return guild
 
     @staticmethod
-    def character_get_group(character):
+    def character_get_group_id(character):
         realm_db_session = SessionHolder()
         group_member = realm_db_session.query(GroupMember).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).first()
-        group = None
+        group_id = -1
         if group_member:
-            group = group_member.group_id
+            group_id = group_member.group_id
         realm_db_session.close()
-        return group
+        return group_id
 
     @staticmethod
     def character_get_quests(guid):

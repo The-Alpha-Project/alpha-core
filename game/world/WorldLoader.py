@@ -33,8 +33,12 @@ class WorldLoader:
         WorldLoader.load_skill_line_abilities()
         WorldLoader.load_taxi_nodes()
         WorldLoader.load_taxi_path_nodes()
+
+        # Character related data
         WorldLoader.load_groups()
         WorldLoader.load_guilds()
+
+    # World data holders
 
     @staticmethod
     def load_gameobjects():
@@ -112,35 +116,6 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading quest templates...', count, length)
-
-        return length
-
-    @staticmethod
-    def load_groups():
-        groups = RealmDatabaseManager.group_get_all()
-        length = len(groups)
-        count = 0
-
-        for group in groups:
-            GroupManager.load_group(group)
-
-            count += 1
-            Logger.progress('Loading groups...', count, length)
-
-        return length
-
-    @staticmethod
-    def load_guilds():
-        guilds = RealmDatabaseManager.guild_get_all()
-        length = len(guilds)
-        count = 0
-
-        for guild in guilds:
-            if guild.name not in GuildManager.GUILDS:
-                GuildManager.load_guild(guild)
-
-                count += 1
-                Logger.progress('Loading guilds...', count, length)
 
         return length
 
@@ -239,5 +214,36 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading creature involved quest relations...', count, length)
+
+        return length
+
+    # Character data holders
+
+    @staticmethod
+    def load_groups():
+        groups = RealmDatabaseManager.group_get_all()
+        length = len(groups)
+        count = 0
+
+        for group in groups:
+            GroupManager.load_group(group)
+
+            count += 1
+            Logger.progress('Loading groups...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_guilds():
+        guilds = RealmDatabaseManager.guild_get_all()
+        length = len(guilds)
+        count = 0
+
+        for guild in guilds:
+            if guild.name not in GuildManager.GUILDS:
+                GuildManager.load_guild(guild)
+
+                count += 1
+                Logger.progress('Loading guilds...', count, length)
 
         return length
