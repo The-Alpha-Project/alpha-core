@@ -487,7 +487,7 @@ class QuestManager(object):
         db_quest_status = CharacterQuestState()
         db_quest_status.guid = self.player_mgr.guid
         db_quest_status.quest = quest_id
-        db_quest_status.status = QuestState.QUEST_ACCEPTED.value
+        db_quest_status.state = QuestState.QUEST_ACCEPTED.value
         return db_quest_status
 
     def handle_complete_quest(self, quest_id, quest_giver_guid):
@@ -602,8 +602,8 @@ class QuestMenu:
     def __init__(self):
         self.items = {}
 
-    def add_menu_item(self, quest, status):
-        self.items[quest.entry] = QuestMenu.QuestMenuItem(quest, status)
+    def add_menu_item(self, quest, state):
+        self.items[quest.entry] = QuestMenu.QuestMenuItem(quest, state)
 
     def clear_menu(self):
         self.items.clear()

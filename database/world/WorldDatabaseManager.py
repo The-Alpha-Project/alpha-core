@@ -239,12 +239,12 @@ class WorldDatabaseManager(object):
         QUEST_INVOLVEMENT = {}
 
         @staticmethod
-        def load_creature_quest(creature_quest_relation):
-            if creature_quest_relation.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_RELATION:
-                WorldDatabaseManager.QuestRelationHolder.QUEST_RELATION[creature_quest_relation.entry] = []
+        def load_creature_quest(creature_quest_starter):
+            if creature_quest_starter.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_RELATION:
+                WorldDatabaseManager.QuestRelationHolder.QUEST_RELATION[creature_quest_starter.entry] = []
 
-            WorldDatabaseManager.QuestRelationHolder.QUEST_RELATION[creature_quest_relation.entry]\
-                .append(creature_quest_relation)
+            WorldDatabaseManager.QuestRelationHolder.QUEST_RELATION[creature_quest_starter.entry]\
+                .append(creature_quest_starter)
 
         @staticmethod
         def load_creature_involved_quest(creature_quest_involved_relation):
@@ -267,14 +267,14 @@ class WorldDatabaseManager(object):
     @staticmethod
     def creature_quest_get_all():
         world_db_session = SessionHolder()
-        res = world_db_session.query(t_creature_questrelation).all()
+        res = world_db_session.query(t_creature_quest_starter).all()
         world_db_session.close()
         return res
 
     @staticmethod
     def creature_involved_quest_get_all():
         world_db_session = SessionHolder()
-        res = world_db_session.query(t_creature_involvedrelation).all()
+        res = world_db_session.query(t_creature_quest_finisher).all()
         world_db_session.close()
         return res
 
