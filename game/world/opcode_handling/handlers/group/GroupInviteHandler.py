@@ -18,12 +18,12 @@ class GroupInviteHandler(object):
             elif world_session.player_mgr.group_manager and world_session.player_mgr.group_manager.is_full():
                 GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_INVITE, '',
                                                          PartyResults.ERR_GROUP_FULL)
-            elif not target_player_mgr and target_player_mgr.friends_manager.has_ignore(world_session.player_mgr.guid):
-                GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_INVITE,
-                                                         target_name, PartyResults.ERR_IGNORING_YOU_S)
             elif not target_player_mgr:
                 GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_INVITE,
                                                          target_name, PartyResults.ERR_BAD_PLAYER_NAME_S)
+            elif target_player_mgr.friends_manager.has_ignore(world_session.player_mgr.guid):
+                GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_INVITE,
+                                                         target_name, PartyResults.ERR_IGNORING_YOU_S)
             elif target_player_mgr and (target_player_mgr.has_pending_group_invite or target_player_mgr.group_manager):
                 GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_INVITE,
                                                          target_player_mgr.player.name, PartyResults.ERR_ALREADY_IN_GROUP_S)
