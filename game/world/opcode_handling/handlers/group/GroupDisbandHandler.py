@@ -10,6 +10,6 @@ class GroupDisbandHandler(object):
             GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_LEAVE, '',
                                                      PartyResults.ERR_NOT_IN_GROUP)
         else:
-            world_session.player_mgr.group_manager.leave_party(world_session.player_mgr)
+            world_session.player_mgr.group_manager.leave_party(world_session.player_mgr.guid)
 
         return 0

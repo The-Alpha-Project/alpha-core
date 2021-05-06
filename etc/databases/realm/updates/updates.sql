@@ -122,5 +122,27 @@ begin not atomic
         insert into applied_updates values ('050520211');
     end if;
 	
+	-- 06/05/2021 1
+	if (select count(*) from applied_updates where id='060520211') = 0 then
+        CREATE TABLE IF NOT EXISTS `group` (
+		  `group_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+		  `leader_guid` int(11) UNSIGNED NOT NULL DEFAULT 0,
+		  `loot_method` INT(5) UNSIGNED NOT NULL DEFAULT 0,
+		  `loot_master` int(11) UNSIGNED NOT NULL DEFAULT 0,
+		  PRIMARY KEY (`group_id`),
+		  CONSTRAINT `group_leader_guid_fk` FOREIGN KEY (`leader_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+		
+		CREATE TABLE IF NOT EXISTS `group_member` (
+		  `group_id` int(11) UNSIGNED NOT NULL DEFAULT 0,
+		  `guid` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+		  PRIMARY KEY (`group_id`,`guid`),
+		  CONSTRAINT `group_member_guid_fk` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+		  CONSTRAINT `group_id_fk` FOREIGN KEY (`group_id`) REFERENCES `group` (`group_id`) ON DELETE CASCADE ON UPDATE CASCADE
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+		
+        insert into applied_updates values ('060520211');
+    end if;
+	
 end $
 delimiter ;

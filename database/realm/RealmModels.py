@@ -206,3 +206,21 @@ class GuildMember(Base):
 
     character = relationship('Character', lazy='joined')
     guild = relationship('Guild', lazy='joined')
+
+
+class Group(Base):
+    __tablename__ = 'group'
+
+    group_id = Column(INTEGER(11), primary_key=True, autoincrement=True)
+    leader_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=False, nullable=False, index=True, server_default=text("0"))
+    loot_method = Column(INTEGER(5), nullable=False, server_default=text("-1"))
+    loot_master = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=False, nullable=False, index=True, server_default=text("0"))
+
+
+class GroupMember(Base):
+    __tablename__ = 'group_member'
+    group_id = Column(ForeignKey('group.group_id', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("0"))
+    guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"))
+
+    character = relationship('Character', lazy='joined')
+    group = relationship('Group', lazy='joined')
