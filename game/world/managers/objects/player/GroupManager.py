@@ -342,7 +342,7 @@ class GroupManager(object):
         if self.group.loot_method == LootMethods.LOOT_METHOD_MASTERLOOTER:
             return [self.group.loot_master]
         elif self.group.loot_method == LootMethods.LOOT_METHOD_FREEFORALL:
-            return self.members.values()
+            return list(self.members.keys())
         elif self.group.loot_method == LootMethods.LOOT_METHOD_ROUNDROBIN:
             if not self._last_looter:
                 self._last_looter = self.group.leader_guid

@@ -18,6 +18,10 @@ class GroupUnInviteGuidHandler(object):
             elif not target_player_mgr:
                 GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_LEAVE, '',
                                                          PartyResults.ERR_BAD_PLAYER_NAME_S)
+            elif not target_player_mgr.group_manager or not target_player_mgr.group_manager.is_party_member(target_player_mgr.guid):
+                GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_LEAVE,
+                                                         target_player_mgr.name,
+                                                         PartyResults.ERR_TARGET_NOT_IN_YOUR_GROUP_S)
             else:
                 world_session.player_mgr.group_manager.un_invite_player(world_session.player_mgr.guid, target_player_mgr.guid)
 
