@@ -61,7 +61,7 @@ class GuildManager(object):
 
     def update_db_guild_members(self):
         for member in self.members.values():
-            RealmDatabaseManager.guild_update_player(member)
+            RealmDatabaseManager.guild_update_member(member)
 
     def update_db_guild(self):
         RealmDatabaseManager.guild_update(self.guild)
@@ -91,7 +91,7 @@ class GuildManager(object):
         member.guild_id = self.guild.guild_id
         member.rank = int(rank)
         member.guid = player_guid
-        RealmDatabaseManager.guild_create_player(member)
+        RealmDatabaseManager.guild_add_member(member)
 
         if rank == int(GuildRank.GUILDRANK_GUILD_MASTER):
             self.guild_master = member
@@ -140,7 +140,7 @@ class GuildManager(object):
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
         # Pop it at the end, so he gets the above message.
-        RealmDatabaseManager.guild_remove_player(member)
+        RealmDatabaseManager.guild_remove_member(member)
         player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
         self.members.pop(player_guid)
 
@@ -162,7 +162,7 @@ class GuildManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
-        RealmDatabaseManager.guild_remove_player(member)
+        RealmDatabaseManager.guild_remove_member(member)
         self.members.pop(player_guid)
         player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
         if player_mgr:

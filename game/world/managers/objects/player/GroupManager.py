@@ -1,25 +1,34 @@
-from struct import pack
+from struct import pack, unpack
+
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.realm.RealmModels import Group, GroupMember
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from utils import Formulas
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.GroupCodes import PartyOperations, PartyResults
-from utils.constants.ObjectCodes import WhoPartyStatus, LootMethods
+from utils.constants.ObjectCodes import WhoPartyStatus, LootMethods, PlayerFlags
 from game.world.managers.GridManager import GridManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
+from utils.constants.UpdateFields import PlayerFields
 
 MAX_GROUP_SIZE = 5
 
 
 # TODO: 0.5.3 has no SMSG_LOOT_MASTER_LIST nor CMSG_LOOT_MASTER_GIVE, how exactly they handled ML?
 class GroupManager(object):
-    def __init__(self, player_mgr):
-        self.party_leader = player_mgr
-        self.members = {player_mgr.guid: player_mgr}
+    GROUPS = {}
+
+    def __init__(self, group):
+        self.group = group
+        self.members = {}
         self.invites = {}
-        self.loot_method = LootMethods.LOOT_METHOD_FREEFORALL
-        self.master_looter = None
-        self.party_leader.set_group_leader(True)
         self.allowed_looters = {}
         self._last_looter = None  # For Round Robin, cycle will start at leader.
+
+    def load_group_members(self):
+        members = RealmDatabaseManager.group_get_members(self.group)
+        for member in members:
+            self.members[member.guid] = member
 
     # When player sends an invite, a GroupManager is created, that doesnt mean the party actually exists until
     # the other player accepts the invitation.
@@ -39,20 +48,30 @@ class GroupManager(object):
             player_mgr.has_pending_group_invite = True
             return True
         else:
-            self.members[player_mgr.guid] = player_mgr
+            if len(self.members) == 0:  # Party just formed, persist the group and params.
+                leader_plyr = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)
+                if leader_plyr:  # If online, we est leader group status
+                    RealmDatabaseManager.group_create(self.group)
+                    GroupManager.GROUPS[self.group.group_id] = self
+                    leader = GroupManager._create_new_member(self.group, leader_plyr)
+                    RealmDatabaseManager.group_add_member(leader)
+                    self.members[self.group.leader_guid] = leader
+                    leader_plyr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
+                    GroupManager._set_leader_flag(leader)
+                else:  # Leader went offline after sending the invite.
+                    return False
+
+            new_member = GroupManager._create_new_member(self.group, player_mgr)
+            new_member = RealmDatabaseManager.group_add_member(new_member)
+            self.members[player_mgr.guid] = new_member
+
+            # Update newly added member group_manager ref, party status and pending invite flag.
             player_mgr.group_manager = self
             player_mgr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
             player_mgr.has_pending_group_invite = False
 
             query_details_packet = NameQueryHandler.get_query_details(player_mgr.player)
             self.send_packet_to_members(query_details_packet)
-
-            # At this point, party is least 2 players, change leader group status.
-            if self.party_leader.group_status != WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY:
-                self.party_leader.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
-
-            if player_mgr != self.party_leader:
-                player_mgr.set_group_leader(False)
 
             if len(self.members) > 1:
                 self.send_update()
@@ -63,122 +82,164 @@ class GroupManager(object):
     def is_full(self):
         return len(self.members) == MAX_GROUP_SIZE
 
-    def set_leader(self, player_mgr):
-        self.party_leader.set_group_leader(False)
-        player_mgr.set_group_leader(True)
-        leader_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+    def set_leader(self, player_guid):
+        # First, demote previous leader.
+        GroupManager._remove_leader_flag(self.members[self.group.leader_guid])
+        # Second, promote new leader.
+        GroupManager._set_leader_flag(self.members[player_guid])
+        self.group.leader_guid = player_guid
+        RealmDatabaseManager.group_update(self.group)
+
+        leader_name_bytes = PacketWriter.string_to_bytes(self.members[player_guid].character.name)
         data = pack(f'<{len(leader_name_bytes)}s', leader_name_bytes)
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_SET_LEADER, data)
         self.send_packet_to_members(packet)
         self.send_update()
 
-    def set_loot_method(self, loot_method, master_looter=None):
-        self.loot_method = LootMethods(loot_method)
-        self.master_looter = master_looter if master_looter else None
+    def set_loot_method(self, loot_method, master_looter_guid=None):
+        self.group.loot_method = int(loot_method)
+        self.group.loot_master = master_looter_guid if master_looter_guid else 0
+        RealmDatabaseManager.group_update(self.group)
         self.send_update()
 
+    # TODO: Status flag (Online/Offline) is not working, we might have something wrong in the pkt structure.
     def send_update(self):
-        leader_name_bytes = PacketWriter.string_to_bytes(self.party_leader.player.name)
+        leader_name_bytes = PacketWriter.string_to_bytes(self.members[self.group.leader_guid].character.name)
+        leader = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)
 
         # Header
         data = pack(
             f'<I{len(leader_name_bytes)}sQB',
             len(self.members),
             leader_name_bytes,
-            self.party_leader.guid,
-            1  # If party leader is online or not
+            self.group.leader_guid,
+            1 if leader and leader.online else 0  # If party leader is online or not
         )
 
         # Fill all group members.
         for member in self.members.values():
-            if member == self.party_leader:
+            if member.guid == self.group.leader_guid:
                 continue
 
-            member_name_bytes = PacketWriter.string_to_bytes(member.player.name)
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
+            member_name_bytes = PacketWriter.string_to_bytes(member.character.name)
             data += pack(
                 f'<{len(member_name_bytes)}sQB',
                 member_name_bytes,
                 member.guid,
-                1  # If member is online or not
+                1 if player_mgr and player_mgr.online else 0,  # If member is online or not
             )
 
         data += pack(
             '<BQ',
-            self.loot_method,
-            0 if not self.master_looter else self.master_looter.guid)  # Master Looter guid
+            self.group.loot_method,
+            self.group.loot_master  # Master Looter guid
+        )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
         self.send_packet_to_members(packet)
         self.send_party_members_stats()
 
-    def leave_party(self, player_mgr, force_disband=False, is_kicked=False):
-        disband = player_mgr == self.party_leader or len(self.members) == 2 or force_disband
+    def send_party_members_stats(self):
         for member in self.members.values():
-            if disband or member == player_mgr:
-                # If this GroupManager is being destroyed due a canceled invitation, just let the leader know the target declined.
-                if self.is_party_formed():
-                    GroupManager.send_group_operation_result(member, PartyOperations.PARTY_OP_LEAVE, member.player.name, PartyResults.ERR_PARTY_RESULT_OK)
-                member.group_manager = None
-                member.set_group_leader(False)
-                member.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
+            self.send_party_member_stats(member)
 
-                if is_kicked and member == player_mgr:  # 'You have been removed from the group.' message
+    def send_party_member_stats(self, group_member):
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(group_member.guid)
+        if player_mgr and player_mgr.online:
+            data = pack('<Q2IB6I',
+                        player_mgr.guid,
+                        player_mgr.health,
+                        player_mgr.max_health,
+                        player_mgr.power_type,
+                        player_mgr.get_power_type_value(),
+                        player_mgr.get_max_power_value(),
+                        player_mgr.level,
+                        player_mgr.zone,
+                        player_mgr.map_,
+                        player_mgr.player.class_,
+                        )
+
+            packet = PacketWriter.get_packet(OpCode.SMSG_PARTY_MEMBER_STATS, data)
+            self.send_packet_to_members(packet)
+
+    def leave_party(self, player_guid, force_disband=False, is_kicked=False):
+        disband = player_guid == self.group.leader_guid or len(self.members) == 2 or force_disband
+        was_formed = self.is_party_formed()
+        for member in list(self.members.values()):  # Avoid mutability.
+            if disband or member.guid == player_guid:
+                member_plyr = WorldSessionStateHandler.find_player_by_guid(member.guid)
+                if member_plyr:
+                    member_plyr.group_manager = None
+                    member_plyr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
+
+                if member.guid == self.group.leader_guid:
+                    GroupManager._remove_leader_flag(member)
+
+                self._set_previous_looter(member.guid)
+                RealmDatabaseManager.group_remove_member(member)
+                self.members.pop(member.guid)
+
+                if member_plyr and disband and not is_kicked:
+                    disband_packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DESTROYED)
+                    member_plyr.session.enqueue_packet(disband_packet)
+                elif was_formed and member_plyr and not is_kicked:
+                    GroupManager.send_group_operation_result(member_plyr, PartyOperations.PARTY_OP_LEAVE, member_plyr.player.name,
+                                                             PartyResults.ERR_PARTY_RESULT_OK)
+
+                if member_plyr and is_kicked and member.guid == player_guid:  # 'You have been removed from the group.' message
                     packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_UNINVITE)
-                    player_mgr.session.enqueue_packet(packet)
+                    member_plyr.session.enqueue_packet(packet)
 
         if disband:
             self.flush()
-        elif player_mgr.guid in self.members:
-            self._set_previous_looter(player_mgr)
-            self.members.pop(player_mgr.guid)
+        else:
             self.send_update()
 
-    def un_invite_player(self, player_mgr, target_player_mgr):
-        if not target_player_mgr.group_manager or target_player_mgr.guid not in self.members:
+    def un_invite_player(self, player_guid, target_player_guid):
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
+        if not player_mgr:
+            return
+        if target_player_guid not in self.members:
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '', PartyResults.ERR_TARGET_NOT_IN_YOUR_GROUP_S)
             return
-        elif self.party_leader != player_mgr or self != target_player_mgr.group_manager:
+        elif self.group.leader_guid != player_guid:
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '', PartyResults.ERR_NOT_LEADER)
             return
 
-        self.leave_party(target_player_mgr, is_kicked=True)
+        self.leave_party(target_player_guid, is_kicked=True)
 
-    def set_party_leader(self, player_mgr, target_player_mgr):
-        if not target_player_mgr.group_manager or target_player_mgr.guid not in self.members:
+    def set_party_leader(self, player_guid, target_player_guid):
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
+        if not player_mgr:
+            return
+
+        if target_player_guid not in self.members:
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '', PartyResults.ERR_TARGET_NOT_IN_YOUR_GROUP_S)
             return
-        elif self.party_leader != player_mgr or self != target_player_mgr.group_manager:
+        elif self.group.leader_guid != player_guid:
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '', PartyResults.ERR_NOT_LEADER)
             return
 
-        self.party_leader.set_group_leader(False)
-        self.party_leader = target_player_mgr
-        self.party_leader.set_group_leader(True)
+        self.set_leader(target_player_guid)
 
-        name_bytes = PacketWriter.string_to_bytes(target_player_mgr.player.name)
-        data = pack(
-            f'<{len(name_bytes)}s',
-            name_bytes
-        )
+    def remove_invitation(self, player_guid):
+        if player_guid in self.invites:
+            self.invites.pop(player_guid, None)
+            GroupManager._remove_leader_flag(self.members[player_guid])
 
-        packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_SET_LEADER, data)
-        self.send_packet_to_members(packet)
-        self.send_update()
-
-    def remove_invitation(self, player_mgr):
-        if player_mgr.guid in self.invites:
-            self.invites.pop(player_mgr.guid, None)
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
+        if player_mgr:
             player_mgr.has_pending_group_invite = False
             player_mgr.group_manager = None
-            player_mgr.set_group_leader(False)
             player_mgr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
 
-            if len(self.members) <= 1:
-                self.leave_party(self.party_leader, force_disband=True)
+        if len(self.members) <= 1 and len(self.invites) == 0:
+            self.leave_party(self.group.leader_guid, force_disband=True)
 
-    def remove_member_invite(self, guid):
-        if guid in self.invites:
-            self.invites.pop(guid, None)
+    def remove_member_invite(self, player_guid):
+        if player_guid in self.invites:
+            self.invites.pop(player_guid, None)
 
     # Called once upon victim dead.
     def set_allowed_looters(self, victim):
@@ -196,43 +257,11 @@ class GroupManager(object):
         if victim.guid in self.allowed_looters:
             self.allowed_looters.pop(victim.guid)
 
-    def _fill_allowed_looters(self):
-        if self.loot_method == LootMethods.LOOT_METHOD_MASTERLOOTER:
-            return [self.master_looter]
-        elif self.loot_method == LootMethods.LOOT_METHOD_FREEFORALL:
-            return self.members.values()
-        elif self.loot_method == LootMethods.LOOT_METHOD_ROUNDROBIN:
-            if not self._last_looter:
-                self._last_looter = self.party_leader
-                return [self._last_looter]
-            return [self._get_next_looter(self._last_looter)]
-        return []
-
-    def _set_previous_looter(self, player_mgr):
-        _list = list(self.members.values())
-        _index = list.index(_list, player_mgr)
-
-        if _index - 1 >= 0:
-            self._last_looter = _list[_index - 1]
-        else:
-            self._last_looter = _list[-1]
-
-    def _get_next_looter(self, player_mgr):
-        _list = list(self.members.values())
-        _index = list.index(_list, player_mgr)
-
-        if _index + 1 < len(_list):
-            self._last_looter = _list[_index + 1]
-            return _list[_index + 1]
-        else:
-            self._last_looter = _list[0]
-            return _list[0]
-
-    def is_party_member(self, player):
-        return player in self.members.values()
+    def is_party_member(self, player_guid):
+        return player_guid in self.members
 
     def get_surrounding_members(self, player):
-        return [m for m in GridManager.get_surrounding_players(player).values() if m in self.members.values()]
+        return [m for m in GridManager.get_surrounding_players(player).values() if m.guid in self.members]
 
     def reward_group_money(self, looter, creature):
         surrounding_players = self.get_surrounding_members(looter)
@@ -265,45 +294,29 @@ class GroupManager(object):
         for member in surrounding:
             member.give_xp([base_xp * member.level / sum_levels], creature)
 
-    def send_party_members_stats(self):
-        for member in self.members.values():
-            self.send_party_member_stats(member)
-
-    def send_party_member_stats(self, player_mgr):
-        data = pack('<Q2IB6I',
-                    player_mgr.guid,
-                    player_mgr.health,
-                    player_mgr.max_health,
-                    player_mgr.power_type,
-                    player_mgr.get_power_type_value(),  # Todo Current power value
-                    player_mgr.get_power_type_value(),  # Todo Max power value
-                    player_mgr.level,
-                    player_mgr.zone,
-                    player_mgr.map_,
-                    player_mgr.player.class_,
-                    )
-
-        packet = PacketWriter.get_packet(OpCode.SMSG_PARTY_MEMBER_STATS, data)
-        self.send_packet_to_members(packet)
-
     def send_invite_decline(self, player_name):
-        name_bytes = PacketWriter.string_to_bytes(player_name)
-        data = pack(
-            f'<{len(name_bytes)}s',
-            name_bytes
-        )
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)
+        if player_mgr:
+            name_bytes = PacketWriter.string_to_bytes(player_name)
+            data = pack(
+                f'<{len(name_bytes)}s',
+                name_bytes
+            )
 
-        packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
-        self.party_leader.session.enqueue_packet(packet)
+            packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
+            player_mgr.session.enqueue_packet(packet)
 
     def send_packet_to_members(self, packet, ignore=None, source=None, use_ignore=False):
         for member in self.members.values():
-            if member == ignore:
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
+            if not player_mgr or not player_mgr.online:
                 continue
-            if use_ignore and source and member.friends_manager.has_ignore(source.guid):
+            if ignore and player_mgr.guid in ignore:
+                continue
+            if use_ignore and source and player_mgr.friends_manager.has_ignore(source.guid):
                 continue
 
-            member.session.enqueue_packet(packet)
+            player_mgr.session.enqueue_packet(packet)
 
     def send_minimap_ping(self, player_mgr, x, y):
         data = pack('<Q2f', player_mgr.guid, x, y)
@@ -311,12 +324,57 @@ class GroupManager(object):
         self.send_packet_to_members(packet)
 
     def flush(self):
+        if self.group.group_id in GroupManager.GROUPS:
+            GroupManager.GROUPS.pop(self.group.group_id)
+        RealmDatabaseManager.group_destroy(self.group)
         self.members.clear()
         self.allowed_looters.clear()
         self.invites.clear()
-        self.party_leader = None
-        self.master_looter = None
+        self.group = None
         self._last_looter = None
+
+    def _fill_allowed_looters(self):
+        if self.group.loot_method == LootMethods.LOOT_METHOD_MASTERLOOTER:
+            return [self.group.loot_master]
+        elif self.group.loot_method == LootMethods.LOOT_METHOD_FREEFORALL:
+            return self.members.values()
+        elif self.group.loot_method == LootMethods.LOOT_METHOD_ROUNDROBIN:
+            if not self._last_looter:
+                self._last_looter = self.group.leader_guid
+                return [self._last_looter]
+            return [self._get_next_looter(self._last_looter)]
+        return []
+
+    def _set_previous_looter(self, player_guid):
+        _list = list(self.members.keys())
+        _index = list.index(_list, player_guid)
+
+        if _index - 1 >= 0:
+            self._last_looter = _list[_index - 1]
+        else:
+            self._last_looter = _list[-1]
+
+    def _get_next_looter(self, player_guid):
+        _list = list(self.members.keys())
+        _index = list.index(_list, player_guid)
+
+        if _index + 1 < len(_list):
+            self._last_looter = _list[_index + 1]
+            return _list[_index + 1]
+        else:
+            self._last_looter = _list[0]
+            return _list[0]
+
+    @staticmethod
+    def load_group(raw_group):
+        GroupManager.GROUPS[raw_group.group_id] = GroupManager(raw_group)
+        GroupManager.GROUPS[raw_group.group_id].load_group_members()
+
+    @staticmethod
+    def set_character_group(player_mgr):
+        group_id = RealmDatabaseManager.character_get_group(player_mgr.player)
+        if group_id and group_id in GroupManager.GROUPS:
+            player_mgr.group_manager = GroupManager.GROUPS[group_id]
 
     @staticmethod
     def invite_player(player_mgr, target_player_mgr):
@@ -333,7 +391,7 @@ class GroupManager(object):
             return
 
         if player_mgr.group_manager:
-            if player_mgr.group_manager.party_leader != player_mgr:
+            if player_mgr.group_manager.group.leader_guid != player_mgr.guid:
                 GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_NOT_LEADER)
                 return
 
@@ -344,7 +402,8 @@ class GroupManager(object):
             if not player_mgr.group_manager.try_add_member(target_player_mgr, True):
                 return
         else:
-            player_mgr.group_manager = GroupManager(player_mgr)
+            new_group = GroupManager._create_group(player_mgr)
+            player_mgr.group_manager = GroupManager(new_group)
             if not player_mgr.group_manager.try_add_member(target_player_mgr, invite=True):
                 return
 
@@ -372,3 +431,36 @@ class GroupManager(object):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_PARTY_COMMAND_RESULT, data)
         player.session.enqueue_packet(packet)
+
+    @staticmethod
+    def _set_leader_flag(member):
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
+        if player_mgr:
+            player_mgr.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
+            player_mgr.player_bytes_2 = unpack('<I', pack('<4B', player_mgr.player.extra_flags, player_mgr.player.facialhair, player_mgr.player.bankslots, 0))[0]
+            player_mgr.set_uint32(PlayerFields.PLAYER_BYTES_2, player_mgr.player_bytes_2)
+            player_mgr.set_dirty()
+
+    @staticmethod
+    def _remove_leader_flag(member):
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
+        if player_mgr:
+            player_mgr.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
+            player_mgr.player_bytes_2 = unpack('<I', pack('<4B', player_mgr.player.extra_flags, player_mgr.player.facialhair, player_mgr.player.bankslots, 0))[0]
+            player_mgr.set_uint32(PlayerFields.PLAYER_BYTES_2, player_mgr.player_bytes_2)
+            player_mgr.set_dirty()
+
+    @staticmethod
+    def _create_group(player_mgr):
+        new_group = Group()
+        new_group.leader_guid = player_mgr.guid
+        new_group.loot_master = 0  # Guid
+        new_group.loot_method = 0  # FreeForAll
+        return new_group
+
+    @staticmethod
+    def _create_new_member(group, player_mgr):
+        new_member = GroupMember()
+        new_member.group_id = group.group_id
+        new_member.guid = player_mgr.guid
+        return new_member
