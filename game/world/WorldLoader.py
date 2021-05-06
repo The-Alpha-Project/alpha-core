@@ -3,6 +3,7 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.player.GroupManager import GroupManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
@@ -32,6 +33,7 @@ class WorldLoader:
         WorldLoader.load_skill_line_abilities()
         WorldLoader.load_taxi_nodes()
         WorldLoader.load_taxi_path_nodes()
+        WorldLoader.load_groups()
         WorldLoader.load_guilds()
 
     @staticmethod
@@ -114,6 +116,20 @@ class WorldLoader:
         return length
 
     @staticmethod
+    def load_groups():
+        groups = RealmDatabaseManager.group_get_all()
+        length = len(groups)
+        count = 0
+
+        for group in groups:
+            GroupManager.load_group(group)
+
+            count += 1
+            Logger.progress('Loading groups...', count, length)
+
+        return length
+
+    @staticmethod
     def load_guilds():
         guilds = RealmDatabaseManager.guild_get_all()
         length = len(guilds)
@@ -125,6 +141,8 @@ class WorldLoader:
 
                 count += 1
                 Logger.progress('Loading guilds...', count, length)
+
+        return length
 
     @staticmethod
     def load_spells():

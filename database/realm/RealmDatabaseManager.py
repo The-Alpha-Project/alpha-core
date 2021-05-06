@@ -300,6 +300,16 @@ class RealmDatabaseManager(object):
         return guild
 
     @staticmethod
+    def character_get_group(character):
+        realm_db_session = SessionHolder()
+        group_member = realm_db_session.query(GroupMember).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).first()
+        group = None
+        if group_member:
+            group = group_member.group_id
+        realm_db_session.close()
+        return group
+
+    @staticmethod
     def character_get_quests(guid):
         realm_db_session = SessionHolder()
         quests = realm_db_session.query(CharacterQuestState).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
@@ -375,6 +385,68 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
         return tickets if tickets else []
 
+    # Group
+
+    @staticmethod
+    def group_create(group):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(group)
+        realm_db_session.flush()
+        realm_db_session.refresh(group)
+        realm_db_session.close()
+        return group
+
+    @staticmethod
+    def group_add_member(group_member):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(group_member)
+        realm_db_session.flush()
+        realm_db_session.refresh(group_member)
+        realm_db_session.close()
+        return group_member
+
+    @staticmethod
+    def group_remove_member(group_member):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(group_member)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def group_get_all():
+        realm_db_session = SessionHolder()
+        groups = realm_db_session.query(Group).all()
+        realm_db_session.close()
+        return groups
+
+    @staticmethod
+    def group_get_members(group):
+        realm_db_session = SessionHolder()
+        group_members = realm_db_session.query(GroupMember).filter_by(group_id=group.group_id).all()
+        realm_db_session.close()
+        return group_members
+
+    @staticmethod
+    def group_update(group):
+        realm_db_session = SessionHolder()
+        realm_db_session.merge(group)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def group_update_player(group_member):
+        realm_db_session = SessionHolder()
+        realm_db_session.merge(group_member)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def group_destroy(group):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(group)
+        realm_db_session.flush()
+        realm_db_session.close()
+
     # Guild
 
     @staticmethod
@@ -387,13 +459,20 @@ class RealmDatabaseManager(object):
         return guild
 
     @staticmethod
-    def guild_create_player(guild_member):
+    def guild_add_member(guild_member):
         realm_db_session = SessionHolder()
         realm_db_session.add(guild_member)
         realm_db_session.flush()
         realm_db_session.refresh(guild_member)
         realm_db_session.close()
         return guild_member
+
+    @staticmethod
+    def guild_remove_member(guild_member):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(guild_member)
+        realm_db_session.flush()
+        realm_db_session.close()
 
     @staticmethod
     def guild_get_members(guild):
@@ -427,7 +506,7 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
 
     @staticmethod
-    def guild_update_player(guild_member):
+    def guild_update_member(guild_member):
         realm_db_session = SessionHolder()
         realm_db_session.merge(guild_member)
         realm_db_session.flush()
@@ -440,9 +519,4 @@ class RealmDatabaseManager(object):
         realm_db_session.flush()
         realm_db_session.close()
 
-    @staticmethod
-    def guild_remove_player(guild_member):
-        realm_db_session = SessionHolder()
-        realm_db_session.delete(guild_member)
-        realm_db_session.flush()
-        realm_db_session.close()
+

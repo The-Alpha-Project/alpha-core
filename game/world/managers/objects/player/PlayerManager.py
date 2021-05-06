@@ -153,6 +153,16 @@ class PlayerManager(UnitManager):
         else:
             return self.power_4
 
+    def get_max_power_value(self):
+        if self.power_type == PowerTypes.TYPE_MANA:
+            return self.max_power_1
+        elif self.power_type == PowerTypes.TYPE_RAGE:
+            return self.max_power_2
+        elif self.power_type == PowerTypes.TYPE_FOCUS:
+            return self.max_power_3
+        else:
+            return self.max_power_4
+
     def set_player_variables(self):
         race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
 
@@ -220,11 +230,11 @@ class PlayerManager(UnitManager):
         self.friends_manager.send_online_notification()  # Notify our friends
         if self.guild_manager:
             self.guild_manager.send_motd(player_mgr=self)
+        if self.group_manager:
+            self.group_manager.send_update()
 
     def logout(self):
-        # TODO: Temp hackfix until groups are saved in db
-        if self.group_manager:
-            self.group_manager.leave_party(self, force_disband=self.group_manager.party_leader == self)
+        self.online = False
 
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
@@ -232,7 +242,9 @@ class PlayerManager(UnitManager):
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
 
-        self.online = False
+        if self.group_manager:
+            self.group_manager.send_update()
+
         self.friends_manager.send_offline_notification()
         self.session.save_character()
         GridManager.remove_object(self)
@@ -649,16 +661,6 @@ class PlayerManager(UnitManager):
                 if is_required:
                     return True
         return False
-
-    def set_group_leader(self, flag=True):
-        if flag:
-            self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
-            self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
-        else:
-            self.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
-            self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
-
-        self.send_update_self(self.generate_proper_update_packet(is_self=True))
 
     def mod_money(self, amount, reload_items=False):
         if self.coinage + amount < 0:
