@@ -644,8 +644,8 @@ class PlayerManager(UnitManager):
             return self.quest_manager.is_quest_item_required(item_entry)
         else:
             for member in self.group_manager.members.values():
-                is_required = member.quest_manager.is_quest_item_required(item_entry)
-                if is_required:
+                player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
+                if player_mgr and player_mgr.quest_manager.is_quest_item_required(item_entry):
                     return True
         return False
 
