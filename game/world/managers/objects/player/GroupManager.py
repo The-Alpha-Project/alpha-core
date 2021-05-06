@@ -257,7 +257,8 @@ class GroupManager(object):
         return True
 
     def reward_group_xp(self, player, creature, is_elite):
-        surrounding = [m for m in self.members.values() if m in GridManager.get_surrounding_players(player).values()]
+        surrounding = GridManager.get_surrounding_players(player).values()
+        surrounding = [player for player in surrounding if player.guid in self.members]
         surrounding.sort(key=lambda players: players.level, reverse=True)  # Highest level on top
         sum_levels = sum(player.level for player in surrounding)
         base_xp = Formulas.CreatureFormulas.xp_reward(creature.level, surrounding[0].level, is_elite)
