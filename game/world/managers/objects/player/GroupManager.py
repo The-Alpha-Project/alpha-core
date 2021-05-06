@@ -186,7 +186,7 @@ class GroupManager(object):
                 RealmDatabaseManager.group_remove_member(member)
                 self.members.pop(member.guid)
 
-                if was_formed and member_plyr and disband and not is_kicked:
+                if was_formed and member_plyr and disband and not is_kicked and member.guid != player_guid:
                     disband_packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DESTROYED)
                     member_plyr.session.enqueue_packet(disband_packet)
                 elif was_formed and member_plyr and disband and member.guid != player_guid:
