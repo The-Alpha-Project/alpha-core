@@ -104,21 +104,35 @@ class GroupManager(object):
 
     # TODO: Status flag (Online/Offline) is not working, we might have something wrong in the pkt structure.
     def send_update(self):
+
+        for member in self.members.keys():
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(member)
+            if player_mgr:
+                player_mgr.session.enqueue_packet(self._build_group_list(player_mgr))
+
+        self.send_party_members_stats()
+
+    def _build_group_list(self, player_mgr):
         leader_name_bytes = PacketWriter.string_to_bytes(self.members[self.group.leader_guid].character.name)
         leader = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)
+        #  Members excluding self unless self == leader
+        member_count = len(self.members) if player_mgr.guid == self.group.leader_guid else len(self.members) - 1
 
         # Header
         data = pack(
             f'<I{len(leader_name_bytes)}sQB',
-            len(self.members),
+            member_count,
             leader_name_bytes,
-            self.group.leader_guid,
-            1 if leader and leader.online else 0  # If party leader is online or not
+            # Hackfix, in order for the client to automatically broadcast 'Player left the party' when player
+            # goes offline and set its portrait unusable. (Leader can skill use /kick player_name.
+            # There seem to be some type of flags hidden in this guid field.
+            self.group.leader_guid if leader and leader.online else 1,
+            1 if leader and leader.online else 0 # This flag seems to make no difference.
         )
 
-        # Fill all group members.
-        for member in self.members.values():
-            if member.guid == self.group.leader_guid:
+        # Fill all group members except self or leader.
+        for member in list(self.members.values()):
+            if member and member.guid == self.group.leader_guid or member.guid == player_mgr.guid:
                 continue
 
             player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
@@ -126,8 +140,8 @@ class GroupManager(object):
             data += pack(
                 f'<{len(member_name_bytes)}sQB',
                 member_name_bytes,
-                member.guid,
-                1 if player_mgr and player_mgr.online else 0,  # If member is online or not
+                member.guid if player_mgr and player_mgr.online else 1,
+                1 if player_mgr and player_mgr.online else 0,
             )
 
         data += pack(
@@ -136,9 +150,7 @@ class GroupManager(object):
             self.group.loot_master  # Master Looter guid
         )
 
-        packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
-        self.send_packet_to_members(packet)
-        self.send_party_members_stats()
+        return PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
 
     def send_party_members_stats(self):
         for member in self.members.values():
@@ -170,35 +182,44 @@ class GroupManager(object):
     def leave_party(self, player_guid, force_disband=False, is_kicked=False):
         disband = player_guid == self.group.leader_guid or len(self.members) == 2 or force_disband
         was_formed = self.is_party_formed()
-        for member in list(self.members.values()):  # Avoid mutability.
-            if disband or member.guid == player_guid:
-                member_plyr = WorldSessionStateHandler.find_player_by_guid(member.guid)
-                if member_plyr:
-                    member_plyr.group_manager = None
-                    member_plyr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
 
-                if member.guid == self.group.leader_guid:
-                    GroupManager._remove_leader_flag(member)
+        #  Group was disbanded before even existing.
+        if disband and player_guid == self.group.leader_guid and len(self.members) == 0:
+            leader_plyr = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)
+            if leader_plyr:
+                leader_plyr.group_manager = None
+                leader_plyr.has_pending_invite = False
+        else:
+            for member in list(self.members.values()):  # Avoid mutability.
+                if disband or member.guid == player_guid:
+                    member_plyr = WorldSessionStateHandler.find_player_by_guid(member.guid)
+                    if member_plyr:
+                        member_plyr.has_pending_group_invite = False
+                        member_plyr.group_manager = None
+                        member_plyr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
 
-                if not disband:
-                    self._set_previous_looter(member.guid)
+                    if member.guid == self.group.leader_guid:
+                        GroupManager._remove_leader_flag(member)
 
-                RealmDatabaseManager.group_remove_member(member)
-                self.members.pop(member.guid)
+                    if not disband:
+                        self._set_previous_looter(member.guid)
 
-                if was_formed and member_plyr and disband and not is_kicked and member.guid != player_guid:
-                    disband_packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DESTROYED)
-                    member_plyr.session.enqueue_packet(disband_packet)
-                elif was_formed and member_plyr and disband and member.guid != player_guid:
-                    disband_packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DESTROYED)
-                    member_plyr.session.enqueue_packet(disband_packet)
-                elif was_formed and member_plyr and not is_kicked:
-                    GroupManager.send_group_operation_result(member_plyr, PartyOperations.PARTY_OP_LEAVE, member_plyr.player.name,
-                                                             PartyResults.ERR_PARTY_RESULT_OK)
+                    RealmDatabaseManager.group_remove_member(member)
+                    self.members.pop(member.guid)
 
-                if member_plyr and is_kicked and member.guid == player_guid:  # 'You have been removed from the group.' message
-                    packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_UNINVITE)
-                    member_plyr.session.enqueue_packet(packet)
+                    if was_formed and member_plyr and disband and not is_kicked and member.guid != player_guid:
+                        disband_packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DESTROYED)
+                        member_plyr.session.enqueue_packet(disband_packet)
+                    elif was_formed and member_plyr and disband and member.guid != player_guid:
+                        disband_packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DESTROYED)
+                        member_plyr.session.enqueue_packet(disband_packet)
+                    elif was_formed and member_plyr and not is_kicked:
+                        GroupManager.send_group_operation_result(member_plyr, PartyOperations.PARTY_OP_LEAVE, member_plyr.player.name,
+                                                                 PartyResults.ERR_PARTY_RESULT_OK)
+
+                    if member_plyr and is_kicked and member.guid == player_guid:  # 'You have been removed from the group.' message
+                        packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_UNINVITE)
+                        member_plyr.session.enqueue_packet(packet)
 
         if disband:
             self.flush()
@@ -235,7 +256,6 @@ class GroupManager(object):
     def remove_invitation(self, player_guid):
         if player_guid in self.invites:
             self.invites.pop(player_guid, None)
-            GroupManager._remove_leader_flag(self.members[player_guid])
 
         player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
         if player_mgr:
@@ -243,6 +263,8 @@ class GroupManager(object):
             player_mgr.group_manager = None
             player_mgr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
 
+        print(len(self.members))
+        print(len(self.invites))
         if len(self.members) <= 1 and len(self.invites) == 0:
             self.leave_party(self.group.leader_guid, force_disband=True)
 
@@ -336,7 +358,7 @@ class GroupManager(object):
     def flush(self):
         if self.group.group_id in GroupManager.GROUPS:
             GroupManager.GROUPS.pop(self.group.group_id)
-        RealmDatabaseManager.group_destroy(self.group)
+            RealmDatabaseManager.group_destroy(self.group)
         self.members.clear()
         self.allowed_looters.clear()
         self.invites.clear()
