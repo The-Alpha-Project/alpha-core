@@ -1,3 +1,4 @@
+import os
 import socketserver
 import threading
 import socket
@@ -25,7 +26,8 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def serve_realm(sck):
         name_bytes = PacketWriter.string_to_bytes(config.Server.Connection.RealmServer.realm_name)
-        address_bytes = PacketWriter.string_to_bytes(f'{config.Server.Connection.RealmProxy.host}:{config.Server.Connection.RealmProxy.port}')
+        forward_address = os.getenv('FORWARD_ADDRESS_OVERRIDE', config.Server.Connection.RealmProxy.host)
+        address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{config.Server.Connection.RealmProxy.port}')
 
         # TODO: Should probably move realms to database at some point, instead of config.yml
         packet = pack(
@@ -70,7 +72,8 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def redirect_to_world(sck):
-        world_bytes = PacketWriter.string_to_bytes(f'{config.Server.Connection.WorldServer.host}:{config.Server.Connection.WorldServer.port}')
+        forward_address = os.getenv('FORWARD_ADDRESS_OVERRIDE', config.Server.Connection.WorldServer.host)
+        world_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{config.Server.Connection.WorldServer.port}')
         packet = pack(
             f'<{len(world_bytes)}s',
             world_bytes

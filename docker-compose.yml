@@ -8,6 +8,7 @@ services:
       - MYSQL_USERNAME=root
       - MYSQL_PASSWORD=pwd
       - CONSOLE_MODE=False
+      - FORWARD_ADDRESS_OVERRIDE=127.0.0.1
     ports:
       - "8100:8100"
       - "9090:9090"
