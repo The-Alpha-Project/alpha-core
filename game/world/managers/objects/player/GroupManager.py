@@ -103,8 +103,7 @@ class GroupManager(object):
         self.send_update()
 
     def send_update(self):
-
-        for member in self.members.keys():
+        for member in list(self.members.keys()):
             player_mgr = WorldSessionStateHandler.find_player_by_guid(member)
             if player_mgr:
                 player_mgr.session.enqueue_packet(self._build_group_list(player_mgr))
