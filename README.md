@@ -10,10 +10,6 @@ You will need a realm, a dbc and a world database, more info can be found in the
 
 Once you create the three databases, populate them using the corresponding sql files located inside `etc/databases`. If there are any sql updates, apply them in order.
 
-## Docker
-Ensure you have the `config.yml` file (see **Installation**).
-
-Run: `docker-compose up -d`
-
-
-(Remember that db initialization takes a bit of time, you might need to restart it with `docker-compose restart main` after it finishes).
+## Run in Docker
+1. Copy `etc/config/config.yml.dist` to `etc/config/config.yml` 
+2. Run: `docker-compose up -d`

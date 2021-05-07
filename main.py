@@ -2,6 +2,7 @@ import multiprocessing
 from time import sleep
 
 import colorama
+import os
 
 from sys import platform
 
@@ -47,12 +48,11 @@ if __name__ == '__main__':
     world_process.start()
 
     try:
-        if config.Server.Settings.console_mode:
+        if os.getenv('CONSOLE_MODE', config.Server.Settings.console_mode) in [True, 'True', 'true']:
             while input() != 'exit':
                 Logger.error('Invalid command.')
         else:
-            while True:
-                sleep(60)
+            world_process.join()
     except:
         Logger.info('Shutting down the core...')
 

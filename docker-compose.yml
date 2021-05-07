@@ -7,12 +7,14 @@ services:
       - MYSQL_HOST=sql
       - MYSQL_USERNAME=root
       - MYSQL_PASSWORD=pwd
+      - CONSOLE_MODE=False
     ports:
       - "8100:8100"
       - "9090:9090"
       - "9100:9100"
     volumes:
       - .:/var/wow/
+    restart: always
   sql:
     image: alpha-mariadb:latest
     build: etc/docker/sql
