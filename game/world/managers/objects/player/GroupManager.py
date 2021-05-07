@@ -263,8 +263,6 @@ class GroupManager(object):
             player_mgr.group_manager = None
             player_mgr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
 
-        print(len(self.members))
-        print(len(self.invites))
         if len(self.members) <= 1 and len(self.invites) == 0:
             self.leave_party(self.group.leader_guid, force_disband=True)
 
