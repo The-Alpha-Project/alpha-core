@@ -149,6 +149,9 @@ class MovementManager(object):
 
     def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
         random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
+        while(not Vector.validate_point(start_position, random_point)):
+            random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
+
         self.send_move_to([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
 

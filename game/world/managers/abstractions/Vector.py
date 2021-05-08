@@ -85,3 +85,7 @@ class Vector(object):
             z2 = MMapManager.calculate_z(map_id, x2, y2, self.z)
 
         return Vector(x2, y2, z2)
+
+    @staticmethod
+    def validate_point(vector1, vector2):
+        return True if math.fabs(vector1.z - vector2.z) <= 1.5 else False
