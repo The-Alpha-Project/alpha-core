@@ -527,6 +527,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_CHAIN_DAMAGE = 6
     TARGET_AREAEFFECT_CUSTOM = 8
     TARGET_INNKEEPER_COORDINATES = 9  # Used in teleport to innkeeper spells
+    TARGET_11 = 11  # Only used by "Word of Recall Other" (4)
     TARGET_ALL_ENEMY_IN_AREA = 15
     TARGET_ALL_ENEMY_IN_AREA_INSTANT = 16
     TARGET_TABLE_X_Y_Z_COORDINATES = 17  # Used in teleport spells and some other
@@ -546,7 +547,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_ALL_PARTY = 33
     TARGET_ALL_PARTY_AROUND_CASTER_2 = 34  # Used in Tranquility
     TARGET_SINGLE_PARTY = 35
-    # 36? Spell 100 TODO
+    TARGET_ALL_HOSTILE_UNITS_AROUND_CASTER = 36
     TARGET_AREAEFFECT_PARTY = 37  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
     TARGET_SCRIPT = 38
     TARGET_SELF_FISHING = 39  # Equip a fishing pole and find a body of water to fish.
