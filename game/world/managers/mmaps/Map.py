@@ -5,7 +5,7 @@ from utils.Logger import Logger
 
 class MapType(IntEnum):
     INSTANCE = 0,
-    COMMON = 1,
+    COMMON = 1
 
 
 class Map(object):
