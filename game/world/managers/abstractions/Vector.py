@@ -2,7 +2,7 @@ import math
 from random import random
 from struct import pack, unpack
 
-from game.world.managers.mmaps import MMapManager
+from game.world.managers.mmaps.MMapManager import MMapManager
 
 
 class Vector(object):
