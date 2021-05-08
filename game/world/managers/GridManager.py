@@ -1,6 +1,7 @@
 import math
 
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects.mmaps.MMapManager import MMapManager
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes
 
@@ -51,6 +52,7 @@ class GridManager(object):
             cell.remove(world_obj)
             cell.send_all_in_range(world_obj.get_destroy_packet(), source=world_obj, range_=CELL_SIZE)
 
+    # TODO: Should cleanup loaded tiles for deactivated cells.
     @staticmethod
     def deactivate_cells():
         for cell_key in list(GridManager.ACTIVE_CELL_KEYS):
@@ -199,14 +201,14 @@ class GridManager(object):
 
     @staticmethod
     def update_creatures():
-        for key in GridManager.ACTIVE_CELL_KEYS:
+        for key in list(GridManager.ACTIVE_CELL_KEYS):
             cell = CELLS[key]
             for guid, creature in list(cell.creatures.items()):
                 creature.update()
 
     @staticmethod
     def update_gameobjects():
-        for key in GridManager.ACTIVE_CELL_KEYS:
+        for key in list(GridManager.ACTIVE_CELL_KEYS):
             cell = CELLS[key]
             for guid, gameobject in list(cell.gameobjects.items()):
                 gameobject.update()
@@ -252,14 +254,26 @@ class Cell(object):
         if world_obj.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players[world_obj.guid] = world_obj
             # Set this Cell and surrounding ones as Active
-            for cell_key in GridManager.get_surrounding_cell_keys(world_obj):
+            for cell_key in list(GridManager.get_surrounding_cell_keys(world_obj)):
                 GridManager.ACTIVE_CELL_KEYS.add(cell_key)
+
+            # If needed or enabled, load corresponding mmap for active grid and adjacent.
+            self.load_mmaps_for_active_cells()
         elif world_obj.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures[world_obj.guid] = world_obj
         elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects[world_obj.guid] = world_obj
 
         world_obj.current_cell = self.key
+
+    def load_mmaps_for_active_cells(self):
+        if not MMapManager.ENABLED:
+            return
+
+        for key in list(GridManager.ACTIVE_CELL_KEYS):
+            cell = CELLS[key]
+            for guid, creature in list(cell.creatures.items()):
+                MMapManager.load_mmap(creature.map_, creature.location.x, creature.location.y)
 
     def remove(self, world_obj):
         if world_obj.get_type() == ObjectTypes.TYPE_PLAYER:

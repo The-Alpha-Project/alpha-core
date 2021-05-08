@@ -2,6 +2,8 @@ import math
 from random import random
 from struct import pack, unpack
 
+from game.world.managers.objects.mmaps.MMapManager import MMapManager
+
 
 class Vector(object):
     def __init__(self, x=0, y=0, z=0, o=0):
@@ -69,12 +71,17 @@ class Vector(object):
         return Vector((self.x + vector.x) / 2, (self.y + vector.y) / 2, (self.z + vector.z) / 2)
 
     # https://stackoverflow.com/a/50746409/4208583
-    def get_random_point_in_radius(self, radius):
+    def get_random_point_in_radius(self, radius, map_id=-1):
         r = radius * math.sqrt(random())
         theta = random() * 2 * math.pi
 
         x2 = self.x + (r * math.cos(theta))
         y2 = self.y + (r * math.sin(theta))
-        z2 = self.z  # No mmaps yet :)
+
+        if map_id == -1 or not MMapManager.ENABLED:
+            z2 = self.z
+        else:
+            # Calculate destination Z, set self.z if not possible.
+            z2 = MMapManager.calculate_z(map_id, x2, y2, self.z)
 
         return Vector(x2, y2, z2)

@@ -3,6 +3,7 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.mmaps.MMapManager import MMapManager
 from game.world.managers.objects.player.GroupManager import GroupManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
@@ -37,6 +38,12 @@ class WorldLoader:
         # Character related data
         WorldLoader.load_groups()
         WorldLoader.load_guilds()
+
+        # MMaps
+        if config.Server.Settings.use_mmaps:
+            MMapManager.initialize_maps()
+        else:
+            Logger.info('Skipped maps initialization.')
 
     # World data holders
 

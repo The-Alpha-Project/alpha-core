@@ -7,32 +7,34 @@ from game.world.managers.objects.mmaps.Map import Map
 from game.world.managers.objects.mmaps.MapTile import MapTile
 from utils.Logger import Logger
 
+
 MAPS = {}
-MAP_LIST = [0, 1]  # Both continents
+MAP_LIST = [0, 1]  # Azeroth and Kalimdor
 
 
 class MMapManager(object):
+    ENABLED = False
     @staticmethod
     def initialize_maps():
-        for map in MAP_LIST:
-            new_map = Map()
-            new_map.load(map)
-            MAPS[map] = new_map
+        for map_id in MAP_LIST:
+            MAPS[map_id] = Map(map_id)
+        MMapManager.ENABLED = True
 
     @staticmethod
-    def load_mmap(map, x, y):
+    def load_mmap(map_id, x, y):
         x = MMapManager.get_tile_x(x)
         y = MMapManager.get_tile_y(y)
 
-        if map not in MAP_LIST:
+        if map_id not in MAP_LIST:
             return
 
         for i in range(-1, 1):
             for j in range(-1, 1):
                 if -1 < x + i < 64 and -1 < y + j < 64:
-                    if not MAPS[map].tiles_used[x + i][y + j]:
-                        MAPS[map].tiles_used[x + i][y + j] = True
-                        MAPS[map].tiles[x + i][y + j] = MapTile(x + i, y + j, map)
+                    # Avoid loading tiles information if we already did.
+                    if not MAPS[map_id].tiles_used[x + i][y + j]:
+                        MAPS[map_id].tiles_used[x + i][y + j] = True
+                        MAPS[map_id].tiles[x + i][y + j] = MapTile(map_id, x + i, y + j)
 
     @staticmethod
     def get_tile(x, y):
@@ -67,7 +69,7 @@ class MMapManager(object):
         return tile_y
 
     @staticmethod
-    def get_z_coord(map_id, x, y):
+    def calculate_z(map_id, x, y, current_z=None):
         try:
             x = MMapManager.validate_map_coord(x)
             y = MMapManager.validate_map_coord(y)
@@ -80,7 +82,7 @@ class MMapManager(object):
 
             if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
                 Logger.warning(f'Tile [{map_tile_x},{map_tile_y}] information not found.')
-                return 0.0
+                return current_z if current_z else 0.0
             else:
                 try:
                     val_1 = MMapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x, map_tile_local_y)
@@ -94,7 +96,7 @@ class MMapManager(object):
                     return MAPS[map_id].tiles[map_tile_x][map_tile_y].z_coords[map_tile_local_x][map_tile_local_x]
         except Exception:
             Logger.error(traceback.format_exc())
-            return 0.0
+            return current_z if current_z else 0.0
 
     @staticmethod
     def get_water_level(map_id, x, y):
