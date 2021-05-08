@@ -124,8 +124,8 @@ class SpellEffect(object):
     dice_per_level: int
     real_points_per_level: int
     base_points: int
-    implicit_target_a: SpellTargetType
-    implicit_target_b: SpellTargetType
+    implicit_target_a: int
+    implicit_target_b: int
     radius_index: int
     aura_type: int
     aura_period: int
