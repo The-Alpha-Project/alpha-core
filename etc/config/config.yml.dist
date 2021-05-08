@@ -36,7 +36,7 @@ Server:
         cell_size: 164  # Shouldn't be much bigger than 200
         console_mode: True  # Set it to False if you intend to run the server on background
         use_mmaps: False  # If True, place 1.12 .map files inside 'etc/mmaps/'
-        z_resolution: 256  # The resolution used when extracting mmaps
+        z_resolution: 255  # The resolution used when extracting mmaps
 
     General:
         # Message of the day
