@@ -20,7 +20,7 @@ class AppliedAura:
         self.duration_entry = casting_spell.duration_entry
         self.duration = self.duration_entry.Duration
         self.spell_effect = spell_effect
-        self.effective_level = casting_spell.calculate_effective_level(caster.level)
+        self.effective_level = casting_spell.caster_effective_level
 
         self.harmful = self.caster.is_enemy_to(self.target)
         self.passive = casting_spell.is_passive() or spell_effect.effect_index != 1

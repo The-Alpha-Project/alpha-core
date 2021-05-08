@@ -32,6 +32,7 @@ class CastingSpell(object):
 
     cast_end_timestamp: float
     spell_delay_end_timestamp: float
+    caster_effective_level: int
 
     spell_attack_type: int
 
@@ -45,6 +46,7 @@ class CastingSpell(object):
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
+        self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
 
         self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged() else AttackTypes.BASE_ATTACK
 
@@ -110,7 +112,7 @@ class CastingSpell(object):
     def get_conjured_items(self):
         conjured_items = []
         for effect in self.get_effects():
-            item_count = abs(effect.get_effect_points(self.calculate_effective_level(self.spell_caster.level)))
+            item_count = abs(effect.get_effect_points(self.caster_effective_level))
             conjured_items.append([effect.item_type, item_count])
         return tuple(conjured_items)
 
@@ -221,19 +223,19 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
-        damage = effect.get_effect_points(casting_spell.calculate_effective_level(caster.level))
+        damage = effect.get_effect_points(casting_spell.caster_effective_level)
         caster.deal_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
 
     @staticmethod
     def handle_heal(casting_spell, effect, caster, target):
-        healing = effect.get_effect_points(casting_spell.calculate_effective_level(caster.level))
+        healing = effect.get_effect_points(casting_spell.caster_effective_level)
 
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):
         damage_info = caster.calculate_melee_damage(target, casting_spell.spell_attack_type)
         if not damage_info:
             return
-        damage = damage_info.total_damage + effect.get_effect_points(casting_spell.calculate_effective_level(caster.level))
+        damage = damage_info.total_damage + effect.get_effect_points(casting_spell.caster_effective_level)
         caster.deal_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
 
     @staticmethod
@@ -242,7 +244,7 @@ class SpellEffectHandler(object):
         if not damage_info:
             return
         damage = damage_info.total_damage
-        damage_bonus = effect.get_effect_points(casting_spell.calculate_effective_level(caster.level))
+        damage_bonus = effect.get_effect_points(casting_spell.caster_effective_level)
 
         if caster.get_type() == ObjectTypes.TYPE_PLAYER and \
                 casting_spell.requires_combo_points():
@@ -252,7 +254,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):
-        caster.add_combo_points_on_target(target, effect.get_effect_points(casting_spell.calculate_effective_level(caster.level)))
+        caster.add_combo_points_on_target(target, effect.get_effect_points(casting_spell.caster_effective_level))
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
@@ -276,7 +278,7 @@ class SpellEffectHandler(object):
         if power_type != target.power_type:
             return
 
-        new_power = target.get_power_type_value() + effect.get_effect_points(casting_spell.calculate_effective_level(caster.level))
+        new_power = target.get_power_type_value() + effect.get_effect_points(casting_spell.caster_effective_level)
         if power_type == PowerTypes.TYPE_MANA:
             target.set_mana(new_power)
         elif power_type == PowerTypes.TYPE_RAGE:
@@ -314,7 +316,7 @@ class SpellEffectHandler(object):
             return
 
         target.inventory.add_item(effect.item_type,
-                                  count=effect.get_effect_points(casting_spell.calculate_effective_level(caster.level)))
+                                  count=effect.get_effect_points(casting_spell.caster_effective_level))
 
 
 SPELL_EFFECTS = {

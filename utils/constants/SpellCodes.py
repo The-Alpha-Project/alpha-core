@@ -546,6 +546,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_ALL_PARTY = 33
     TARGET_ALL_PARTY_AROUND_CASTER_2 = 34  # Used in Tranquility
     TARGET_SINGLE_PARTY = 35
+    # 36? Spell 100 TODO
     TARGET_AREAEFFECT_PARTY = 37  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
     TARGET_SCRIPT = 38
     TARGET_SELF_FISHING = 39  # Equip a fishing pole and find a body of water to fish.
