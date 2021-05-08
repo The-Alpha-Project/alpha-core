@@ -1,8 +1,13 @@
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects.ObjectManager import ObjectManager
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes
-from utils.constants.SpellCodes import SpellImplicitTargets
+from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason
 
+class TargetMissInfo:
+    def __init__(self, target, result):
+        self.target = target
+        self.result = result
 
 class EffectTargets:
     def __init__(self, casting_spell, spell_effect):
@@ -24,7 +29,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_NOTHING: 0,
             SpellImplicitTargets.TARGET_SELF: self.caster,
             SpellImplicitTargets.TARGET_PET: 0,  # TODO
-            SpellImplicitTargets.TARGET_CHAIN_DAMAGE: self.initial_target,
+            SpellImplicitTargets.TARGET_CHAIN_DAMAGE: self.initial_target,  # TODO - resolve chain targets
             SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: self.caster.get_deathbind_coordinates() if is_player else 0,
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.casting_spell.initial_target_unit if is_friendly_target else 0,
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if is_gameobject else 0,
@@ -37,6 +42,15 @@ class EffectTargets:
 
     def resolve_implicit_target(self, implicit_target):
         return self.simple_targets[implicit_target] if implicit_target in self.simple_targets else self.TARGET_RESOLVERS[implicit_target](self.casting_spell)
+
+    def get_effect_target_results(self):
+        targets = [self.implicit_target_a]  # TODO Multiple targets
+
+        target_info = {}
+        for target in targets:
+            if isinstance(target, ObjectManager):
+                target_info[target.guid] = TargetMissInfo(target, SpellMissReason.MISS_REASON_NONE)  # TODO Misses etc.
+        return target_info
 
     @staticmethod
     def resolve_random_enemy_chain_in_area(casting_spell):

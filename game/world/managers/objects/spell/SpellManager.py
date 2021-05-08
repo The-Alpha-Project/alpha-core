@@ -24,7 +24,7 @@ class CastingSpell(object):
     cast_state: SpellState
     spell_caster = None
     initial_target_unit = None
-    target_results: dict
+    target_results: dict  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
     duration_entry: SpellDuration
@@ -36,11 +36,10 @@ class CastingSpell(object):
 
     spell_attack_type: int
 
-    def __init__(self, spell, caster_obj, initial_target_unit, target_results, target_mask):
+    def __init__(self, spell, caster_obj, initial_target_unit, target_mask):
         self.spell_entry = spell
         self.spell_caster = caster_obj
         self.initial_target_unit = initial_target_unit
-        self.target_results = target_results
         self.spell_target_mask = target_mask
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
@@ -318,6 +317,14 @@ class SpellEffectHandler(object):
         target.inventory.add_item(effect.item_type,
                                   count=effect.get_effect_points(casting_spell.caster_effective_level))
 
+    @staticmethod
+    def handle_teleport_units(casting_spell, effect, caster, target):
+        teleport_info = effect.targets.implicit_target_b
+        for target_guid, miss_info in casting_spell.target_results.items():
+            if miss_info.result != SpellMissReason.MISS_REASON_NONE:
+                continue
+            miss_info.target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
@@ -330,7 +337,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
     SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount,
     SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill,
-    SpellEffects.SPELL_EFFECT_CREATE_ITEM: SpellEffectHandler.handle_create_item
+    SpellEffects.SPELL_EFFECT_CREATE_ITEM: SpellEffectHandler.handle_create_item,
+    SpellEffects.SPELL_EFFECT_TELEPORT_UNITS: SpellEffectHandler.handle_teleport_units
 }
 
 
@@ -384,8 +392,7 @@ class SpellManager(object):
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 
     def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
-        targets = self.build_targets_for_spell(spell, spell_target, target_mask)
-        casting_spell = CastingSpell(spell, caster_obj, spell_target, targets, target_mask)  # Initializes dbc references
+        casting_spell = CastingSpell(spell, caster_obj, spell_target, target_mask)  # Initializes dbc references
 
         if not self.validate_cast(casting_spell):
             return
@@ -413,6 +420,8 @@ class SpellManager(object):
         if validate and not self.validate_cast(casting_spell):
             self.remove_cast(casting_spell)
             return
+
+        casting_spell.target_results = self.resolve_target_info_for_spell_effects(casting_spell)
 
         if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
@@ -442,6 +451,16 @@ class SpellManager(object):
         for effect in casting_spell.get_effects():
             SpellEffectHandler.apply_effect(casting_spell, effect)
         self.remove_cast(casting_spell)
+
+    def resolve_target_info_for_spell_effects(self, casting_spell):
+        info = {}
+        for effect in casting_spell.get_effects():
+            effect_info = effect.targets.get_effect_target_results()
+            for target, result in effect_info.items():  # Resolve targets for all effects, keep unique ones (though not sure if uniqueness is an issue)
+                if target in info:
+                    continue
+                info[target] = result
+        return info
 
     def cast_queued_melee_ability(self, attack_type):
         melee_ability = self.get_queued_melee_ability()
@@ -515,11 +534,6 @@ class SpellManager(object):
 
         return travel_distance / casting_spell.spell_entry.Speed
 
-    def build_targets_for_spell(self, spell, target, target_mask):
-        if target_mask == SpellTargetMask.SELF or target is None:
-            return {}
-        return {target.guid: SpellMissReason.MISS_REASON_NONE}
-
     def send_cast_start(self, casting_spell):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,
                 casting_spell.spell_entry.ID, 0, casting_spell.get_base_cast_time(),
@@ -546,9 +560,9 @@ class SpellManager(object):
         sign += 'B'
         data.append(hit_count)
 
-        for target, reason in casting_spell.target_results.items():
-            if reason == SpellMissReason.MISS_REASON_NONE:
-                data.append(target)
+        for target_guid, miss_info in casting_spell.target_results.items():
+            if miss_info.result == SpellMissReason.MISS_REASON_NONE:
+                data.append(target_guid)
                 sign += 'Q'
 
         data.append(0)  # miss count
