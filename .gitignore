@@ -9,3 +9,5 @@ etc/config/config.yml
 
 # virtualenv folder
 venv
+*.map
+*.dbc
