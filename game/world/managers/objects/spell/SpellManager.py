@@ -29,6 +29,7 @@ class CastingSpell(object):
     range_entry: SpellRange
     duration_entry: SpellDuration
     cast_time_entry: SpellCastTimes
+    effects: list
 
     cast_end_timestamp: float
     spell_delay_end_timestamp: float
@@ -48,8 +49,8 @@ class CastingSpell(object):
         self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
 
         self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged() else AttackTypes.BASE_ATTACK
-
         self.cast_state = SpellState.SPELL_STATE_PREPARING
+        self.effects = self.load_effects()
 
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0
@@ -92,7 +93,7 @@ class CastingSpell(object):
         # ManaCostPerLevel is not used by anything relevant (only 271/4513/7290)
         return self.spell_entry.ManaCost
 
-    def get_effects(self):
+    def load_effects(self):
         effects = []
         if self.spell_entry.Effect_1 != 0:
             effects.append(SpellEffect(self, 1))
@@ -110,7 +111,7 @@ class CastingSpell(object):
 
     def get_conjured_items(self):
         conjured_items = []
-        for effect in self.get_effects():
+        for effect in self.effects:
             item_count = abs(effect.get_effect_points(self.caster_effective_level))
             conjured_items.append([effect.item_type, item_count])
         return tuple(conjured_items)
@@ -325,6 +326,8 @@ class SpellEffectHandler(object):
                 continue
             miss_info.target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved
 
+        # TODO Die sides are assigned for at least Word of Recall (ID 1)
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
@@ -448,13 +451,14 @@ class SpellManager(object):
         # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Channeled spells
 
     def apply_spell_effects_and_remove(self, casting_spell):
-        for effect in casting_spell.get_effects():
+        for effect in casting_spell.effects:
             SpellEffectHandler.apply_effect(casting_spell, effect)
         self.remove_cast(casting_spell)
 
     def resolve_target_info_for_spell_effects(self, casting_spell):
         info = {}
-        for effect in casting_spell.get_effects():
+        for effect in casting_spell.effects:
+            effect.targets.resolve_targets()  # Inititalize references for implicit targets
             effect_info = effect.targets.get_effect_target_results()
             for target, result in effect_info.items():  # Resolve targets for all effects, keep unique ones (though not sure if uniqueness is an issue)
                 if target in info:
@@ -512,7 +516,7 @@ class SpellManager(object):
 
             elif casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
                     casting_spell.spell_delay_end_timestamp <= timestamp:  # Spell was cast already and impact delay is done
-                for effect in casting_spell.get_effects():
+                for effect in casting_spell.effects:
                     SpellEffectHandler.apply_effect(casting_spell, effect)
                 self.remove_cast(casting_spell)
 
