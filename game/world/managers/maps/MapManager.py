@@ -42,6 +42,13 @@ class MapManager(object):
                         MAPS[map_id].tiles[x + i][y + j] = MapTile(map_id, x + i, y + j)
 
     @staticmethod
+    def load_map_tiles_for_active_cells(grid_manager):
+        for key in list(grid_manager.active_cell_keys):
+            cell = grid_manager.cells[key]
+            for guid, creature in list(cell.creatures.items()):
+                MapManager.load_map_tiles(creature.map_, creature.location.x, creature.location.y)
+
+    @staticmethod
     def get_tile(x, y):
         tile_x = int(32.0 - MapManager.validate_map_coord(x) / SIZE)
         tile_y = int(32.0 - MapManager.validate_map_coord(y) / SIZE)
@@ -178,13 +185,6 @@ class MapManager(object):
         return value1 + (value2 - value1) * amount
 
     # Object methods (wrappers around GridManager methods)
-
-    @staticmethod
-    def load_map_tiles_for_active_cells(grid_manager):
-        for key in list(grid_manager.active_cell_keys):
-            cell = grid_manager.cells[key]
-            for guid, creature in list(cell.creatures.items()):
-                MapManager.load_map_tiles(creature.map_, creature.location.x, creature.location.y)
 
     @staticmethod
     def update_object(world_object):
