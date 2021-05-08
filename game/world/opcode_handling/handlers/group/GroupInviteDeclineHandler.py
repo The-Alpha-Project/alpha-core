@@ -6,9 +6,9 @@ class GroupInviteDeclineHandler(object):
         if not player.group_manager:
             return
 
-        if player != player.group_manager.party_leader:
+        if player.guid != player.group_manager.group.leader_guid:
             player.group_manager.send_invite_decline(player.player.name)
 
-        player.group_manager.remove_invitation(player)
+        player.group_manager.remove_invitation(player.guid)
 
         return 0

@@ -12,7 +12,7 @@ class RandomRollHandler(object):
         if len(reader.data) >= 8:  # Avoid handling empty random roll packet
             minimum, maximum = unpack('<2I', reader.data[:8])
             roll = randint(minimum, maximum)
-            player = world_session.player_mgr.group_manager
+            player = world_session.player_mgr
 
             roll_packet = PacketWriter.get_packet(OpCode.MSG_RANDOM_ROLL,
                                                   pack('<3IQ', minimum, maximum, roll, player.guid))

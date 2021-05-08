@@ -1,5 +1,4 @@
 import _queue
-import socketserver
 import threading
 import socket
 
@@ -159,7 +158,7 @@ class WorldServerSessionHandler(object):
     def receive_client_message(self, sck):
         header_bytes = self.receive_all(sck, 6)  # 6 = header size
         if not header_bytes:
-            return None
+            return b''
 
         reader = PacketReader(header_bytes)
         reader.data = self.receive_all(sck, int(reader.size))
@@ -169,7 +168,7 @@ class WorldServerSessionHandler(object):
         # Try to fill at once.
         received = sck.recv(expected_size)
         if not received:
-            return None
+            return b''
         # We got what we expect, return buffer.
         if received == expected_size:
             return received
@@ -179,7 +178,7 @@ class WorldServerSessionHandler(object):
             Logger.warning('Got incomplete data from client, requesting missing payload.')
             received = sck.recv(expected_size - len(buffer))
             if not received:
-                return None
+                return b''
             buffer.extend(received)  # Keep appending to our buffer until we're done.
         return buffer
 
@@ -231,13 +230,13 @@ class WorldServerSessionHandler(object):
         # Use SO_REUSEADDR if SO_REUSEPORT doesn't exist.
         except AttributeError:
             server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server_socket.bind((config.Server.Connection.RealmServer.host, config.Server.Connection.WorldServer.port))
+        server_socket.bind((config.Server.Connection.WorldServer.host, config.Server.Connection.WorldServer.port))
         server_socket.listen()
 
         WorldServerSessionHandler.schedule_background_tasks()
 
-        Logger.success('World server started.')
-
+        real_binding = server_socket.getsockname()
+        Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}')
         while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
             try:
                 (client_socket, client_address) = server_socket.accept()

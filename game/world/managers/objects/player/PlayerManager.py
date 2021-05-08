@@ -1,6 +1,7 @@
 import time
 from struct import unpack
 
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
@@ -152,6 +153,16 @@ class PlayerManager(UnitManager):
         else:
             return self.power_4
 
+    def get_max_power_value(self):
+        if self.power_type == PowerTypes.TYPE_MANA:
+            return self.max_power_1
+        elif self.power_type == PowerTypes.TYPE_RAGE:
+            return self.max_power_2
+        elif self.power_type == PowerTypes.TYPE_FOCUS:
+            return self.max_power_3
+        else:
+            return self.max_power_4
+
     def set_player_variables(self):
         race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
 
@@ -217,18 +228,13 @@ class PlayerManager(UnitManager):
         GridManager.update_object(self)
         ChannelManager.join_default_channels(self)  # Once in-world
         self.friends_manager.send_online_notification()  # Notify our friends
+        if self.guild_manager:
+            self.guild_manager.send_motd(player_mgr=self)
+        if self.group_manager:
+            self.group_manager.send_update()
 
     def logout(self):
-        # TODO: Temp hackfix until groups are saved in db
-        if self.group_manager:
-            self.group_manager.leave_party(self, force_disband=self.group_manager.party_leader == self)
-
-        # TODO: Temp hackfix until guilds are saved in db
-        if self.guild_manager:
-            if self.guild_manager.guild_master == self:
-                self.guild_manager.disband()
-            else:
-                self.guild_manager.leave(self)
+        self.online = False
 
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
@@ -236,10 +242,13 @@ class PlayerManager(UnitManager):
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
 
-        self.online = False
+        if self.group_manager:
+            self.group_manager.send_update()
+
         self.friends_manager.send_offline_notification()
         self.session.save_character()
         GridManager.remove_object(self)
+        WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
         self.session = None
 
@@ -542,6 +551,12 @@ class PlayerManager(UnitManager):
             # Slot should match real current_loot indexes.
             for loot in victim.loot_manager.current_loot:
                 if loot:
+                    # If this is a quest item and player does not need it, don't show it to this player.
+                    if loot.is_quest_item() and not self.player_or_group_require_quest_item(
+                            loot.get_item_entry(), only_self=True):
+                        slot += 1
+                        continue
+
                     # Send item query information
                     self.session.enqueue_packet(loot.item.query_details())
 
@@ -636,15 +651,15 @@ class PlayerManager(UnitManager):
 
                 self.set_dirty()
 
-    def set_group_leader(self, flag=True):
-        if flag:
-            self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
-            self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
+    def player_or_group_require_quest_item(self, item_entry, only_self=False):
+        if not self.group_manager or only_self:
+            return self.quest_manager.is_quest_item_required(item_entry)
         else:
-            self.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
-            self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
-
-        self.send_update_self(self.generate_proper_update_packet(is_self=True))
+            for member in self.group_manager.members.values():
+                player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
+                if player_mgr and player_mgr.quest_manager.is_quest_item_required(item_entry):
+                    return True
+        return False
 
     def mod_money(self, amount, reload_items=False):
         if self.coinage + amount < 0:

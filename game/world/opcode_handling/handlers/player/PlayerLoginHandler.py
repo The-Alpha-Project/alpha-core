@@ -2,6 +2,9 @@ import time
 
 from struct import unpack
 
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.managers.objects.player.GroupManager import GroupManager
+from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import *
 from database.realm.RealmDatabaseManager import *
 from database.dbc.DbcDatabaseManager import *
@@ -28,6 +31,8 @@ class PlayerLoginHandler(object):
         if not world_session.player_mgr.player:
             Logger.anticheat(f'Character with wrong guid ({guid}) tried to login.')
             return -1
+        else:
+            WorldSessionStateHandler.push_active_player_session(world_session)
 
         # Disabled race & class checks (only if not a GM)
         if not world_session.player_mgr.is_gm:
@@ -70,6 +75,8 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.stat_manager.apply_bonuses()
         world_session.player_mgr.skill_manager.load_skills()
         world_session.player_mgr.quest_manager.load_quests()
+        GuildManager.set_character_guild(world_session.player_mgr)
+        GroupManager.set_character_group(world_session.player_mgr)
 
         # First login
         if world_session.player_mgr.player.totaltime == 0:

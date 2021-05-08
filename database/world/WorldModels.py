@@ -255,8 +255,8 @@ class CreatureTemplate(Base):
     flags_extra = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     script_name = Column(CHAR(64), nullable=False, server_default=text("''"))
 
-    quest_involved = relationship('QuestTemplate', secondary='creature_involvedrelation')
-    quest_relation = relationship('QuestTemplate', secondary='creature_questrelation')
+    quest_involved = relationship('QuestTemplate', secondary='creature_quest_finisher')
+    quest_relation = relationship('QuestTemplate', secondary='creature_quest_starter')
 
 
 class GameobjectTemplate(Base):
@@ -722,8 +722,8 @@ class Worldports(Base):
     name = Column(String(255), nullable=False, server_default=text("''"))
 
 
-t_creature_involvedrelation = Table(
-    'creature_involvedrelation', metadata,
+t_creature_quest_finisher = Table(
+    'creature_quest_finisher', metadata,
     Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
     Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
 )
@@ -744,8 +744,8 @@ class CreatureLootTemplate(Base):
     item_template = relationship('ItemTemplate')
 
 
-t_creature_questrelation = Table(
-    'creature_questrelation', metadata,
+t_creature_quest_starter = Table(
+    'creature_quest_starter', metadata,
     Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
     Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
 )
