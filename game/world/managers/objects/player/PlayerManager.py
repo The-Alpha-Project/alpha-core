@@ -2,7 +2,7 @@ import time
 from struct import unpack
 
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.ChannelManager import ChannelManager
@@ -224,7 +224,7 @@ class PlayerManager(UnitManager):
         self.online = True
 
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
-        GridManager.update_object(self)
+        MapManager.update_object(self)
         ChannelManager.join_default_channels(self)  # Once in-world
         self.friends_manager.send_online_notification()  # Notify our friends
         if self.guild_manager:
@@ -246,7 +246,7 @@ class PlayerManager(UnitManager):
 
         self.friends_manager.send_offline_notification()
         self.session.save_character()
-        GridManager.remove_object(self)
+        MapManager.remove_object(self)
         WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
         self.session = None
@@ -279,9 +279,9 @@ class PlayerManager(UnitManager):
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
     def update_surrounding_on_me(self):
-        players, creatures, gobjects = GridManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER,
-                                                                                  ObjectTypes.TYPE_UNIT,
-                                                                                  ObjectTypes.TYPE_GAMEOBJECT])
+        players, creatures, gobjects = MapManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER,
+                                                                                 ObjectTypes.TYPE_UNIT,
+                                                                                 ObjectTypes.TYPE_GAMEOBJECT])
 
         # At this point, all objects aren't synced unless proven otherwise
         for guid, object_info in list(self.objects_in_range.items()):
@@ -397,7 +397,7 @@ class PlayerManager(UnitManager):
         # TODO: Send just move packet instead of object recreation if the teleport happens within the same Grid.
 
         # Remove ourselves from the old location.
-        for guid, player in list(GridManager.get_surrounding_players(self).items()):
+        for guid, player in list(MapManager.get_surrounding_players(self).items()):
             if self.guid == guid:
                 continue
 
@@ -415,7 +415,7 @@ class PlayerManager(UnitManager):
             create=True), include_self=False, create=True, force_inventory_update=True)
 
         # Get us in a new grid.
-        GridManager.update_object(self)
+        MapManager.update_object(self)
 
         self.reset_fields()
         self.update_lock = False
@@ -439,7 +439,7 @@ class PlayerManager(UnitManager):
         data = pack('<f', speed)
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
 
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                              self.get_movement_update_packet()), self)
 
     def change_swim_speed(self, swim_speed=0):
@@ -451,7 +451,7 @@ class PlayerManager(UnitManager):
         data = pack('<f', swim_speed)
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
 
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                              self.get_movement_update_packet()), self)
 
     def change_walk_speed(self, walk_speed=0):
@@ -463,7 +463,7 @@ class PlayerManager(UnitManager):
         data = pack('<f', walk_speed)
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
 
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                              self.get_movement_update_packet()), self)
 
     def change_turn_speed(self, turn_speed=0):
@@ -474,12 +474,12 @@ class PlayerManager(UnitManager):
         # TODO NOT WORKING
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                              self.get_movement_update_packet()), self)
 
     def loot_money(self):
         if self.current_selection > 0:
-            enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection)
+            enemy = MapManager.get_surrounding_unit_by_guid(self, self.current_selection)
             if enemy and enemy.loot_manager.has_money():
                 # If party is formed, try to split money.
                 if self.group_manager and self.group_manager.is_party_formed():
@@ -496,7 +496,7 @@ class PlayerManager(UnitManager):
 
     def loot_item(self, slot):
         if self.current_selection > 0:
-            enemy = GridManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=False)
+            enemy = MapManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=False)
             if enemy and enemy.loot_manager.has_loot():
                 loot = enemy.loot_manager.get_loot_in_slot(slot)
                 if loot and loot.item:
@@ -515,7 +515,7 @@ class PlayerManager(UnitManager):
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
         # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
-        enemy = GridManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
+        enemy = MapManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
         if enemy:
             if enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
                 enemy.killed_by = None
@@ -1135,7 +1135,7 @@ class PlayerManager(UnitManager):
         if self.dirty:
             self.send_update_self(reset_fields=False)
             self.send_update_surrounding(self.generate_proper_update_packet())
-            GridManager.update_object(self)
+            MapManager.update_object(self)
             self.reset_fields()
             self.set_dirty(is_dirty=False, dirty_inventory=False)
 
@@ -1159,9 +1159,9 @@ class PlayerManager(UnitManager):
             self.inventory.send_inventory_update(self.session, is_self=False)
             self.inventory.build_update()
 
-        GridManager.send_surrounding(update_packet, self, include_self=include_self)
+        MapManager.send_surrounding(update_packet, self, include_self=include_self)
         if create:
-            GridManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
+            MapManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
 
     def teleport_deathbind(self):
         self.teleport(self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,

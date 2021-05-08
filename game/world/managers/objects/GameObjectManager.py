@@ -3,7 +3,7 @@ from math import pi, cos, sin
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter
@@ -47,7 +47,7 @@ class GameObjectManager(ObjectManager):
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
 
     def load(self):
-        GridManager.add_or_get(self, True)
+        MapManager.update_object(self)
 
     def use(self, player):
         if self.gobject_template.type == GameObjectTypes.TYPE_DOOR or \
@@ -153,7 +153,7 @@ class GameObjectManager(ObjectManager):
         update_packet = UpdatePacketFactory.compress_if_needed(
             PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                     self.get_full_update_packet(is_self=False)))
-        GridManager.send_surrounding(update_packet, self, include_self=False)
+        MapManager.send_surrounding(update_packet, self, include_self=False)
 
     # override
     def on_cell_change(self):

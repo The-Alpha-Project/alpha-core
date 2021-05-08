@@ -12,7 +12,7 @@ class CreatureLootManager(LootManager):
 
     # override
     def generate_loot(self, requester):
-        money = randint(self.world_obj.creature_template.gold_min, self.world_obj.creature_template.gold_max)
+        money = randint(self.world_object.creature_template.gold_min, self.world_object.creature_template.gold_max)
         self.current_money = money
 
         for loot_item in self.loot_template:
@@ -36,7 +36,7 @@ class CreatureLootManager(LootManager):
     # override
     def populate_loot_template(self):
         return WorldDatabaseManager.CreatureLootTemplateHolder\
-            .creature_loot_template_get_by_creature(self.world_obj.entry)
+            .creature_loot_template_get_by_creature(self.world_object.entry)
 
     # override
     def get_loot_type(self, player, victim):

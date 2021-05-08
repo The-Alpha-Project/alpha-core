@@ -1,5 +1,5 @@
 from struct import unpack
-from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 
 
 class AttackSwingHandler(object):
@@ -9,7 +9,7 @@ class AttackSwingHandler(object):
         if len(reader.data) >= 8:  # Avoid handling empty attack swing packet
             # TODO: Finish implementing this
             enemy_guid = unpack('<Q', reader.data[:8])[0]
-            enemy = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, enemy_guid, include_players=True)
+            enemy = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, enemy_guid, include_players=True)
 
             if not enemy or not enemy.is_alive:
                 AttackSwingHandler.handle_stop(world_session, socket, reader)

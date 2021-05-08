@@ -1,7 +1,7 @@
 from struct import unpack
 from utils.constants.UpdateFields import *
 from utils.constants.UnitCodes import UnitFlags
-from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 
 
 class LootRequestHandler(object):
@@ -12,7 +12,7 @@ class LootRequestHandler(object):
             loot_target_guid = unpack('<Q', reader.data[:8])[0]
 
             player = world_session.player_mgr
-            enemy = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, loot_target_guid,
+            enemy = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, loot_target_guid,
                                                              include_players=False)
 
             if player and enemy:

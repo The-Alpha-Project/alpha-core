@@ -6,7 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange, SpellDuration
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.player.DuelManager import DuelManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
@@ -373,7 +373,7 @@ class SpellManager(object):
         if not spell:
             return
 
-        spell_target = GridManager.get_surrounding_unit_by_guid(caster, target_guid, include_players=True) if target_guid and target_guid != caster.guid else caster
+        spell_target = MapManager.get_surrounding_unit_by_guid(caster, target_guid, include_players=True) if target_guid and target_guid != caster.guid else caster
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 
     def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
@@ -524,7 +524,7 @@ class SpellManager(object):
             signature += 'Q'
 
         data = pack(signature, *data)
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
                                      include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
     def send_spell_go(self, casting_spell):
@@ -556,7 +556,7 @@ class SpellManager(object):
             data.append(casting_spell.initial_target_unit.guid)
 
         packed = pack(sign, *data)
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.unit_mgr,
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.unit_mgr,
                                      include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
     def set_on_cooldown(self, spell):

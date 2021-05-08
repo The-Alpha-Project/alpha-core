@@ -218,6 +218,13 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return res
 
+    @staticmethod
+    def map_get_all_ids():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(Map.ID).all()
+        dbc_db_session.close()
+        return [map_id[0] for map_id in res]
+
     # Taxi
 
     class TaxiNodesHolder:

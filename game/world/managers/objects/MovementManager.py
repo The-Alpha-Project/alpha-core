@@ -3,7 +3,7 @@ from struct import pack, unpack
 from typing import NamedTuple
 
 from game.world import WorldManager
-from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
@@ -62,7 +62,7 @@ class MovementManager(object):
                 self.unit.location.y = new_position.y
                 self.unit.location.z = new_position.z
 
-                GridManager.update_object(self.unit)
+                MapManager.update_object(self.unit)
         else:
             # Path finished
             if self.total_waypoint_timer > self.total_waypoint_time:
@@ -123,7 +123,7 @@ class MovementManager(object):
             waypoints_data
         )
 
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data), self.unit,
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data), self.unit,
                                      include_self=self.is_player)
 
         # Player shouldn't instantly dismount after reaching the taxi destination

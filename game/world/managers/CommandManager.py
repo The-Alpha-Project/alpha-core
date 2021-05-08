@@ -2,7 +2,7 @@ from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world import WorldManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.player.ChatManager import ChatManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -42,10 +42,10 @@ class CommandManager(object):
         if world_session.player_mgr.current_selection \
                 and world_session.player_mgr.current_selection != world_session.player_mgr.guid:
             if only_players:
-                unit = GridManager.get_surrounding_player_by_guid(world_session.player_mgr,
+                unit = MapManager.get_surrounding_player_by_guid(world_session.player_mgr,
                                                                   world_session.player_mgr.current_selection)
             else:
-                unit = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr,
+                unit = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
                                                                 world_session.player_mgr.current_selection,
                                                                 include_players=True)
             if unit:
@@ -361,7 +361,7 @@ class CommandManager(object):
 
     @staticmethod
     def creature_info(world_session, args):
-        creature = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr,
+        creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
                                                             world_session.player_mgr.current_selection)
 
         if creature:
@@ -394,7 +394,7 @@ class CommandManager(object):
             else:
                 max_distance = 10
             found_count = 0
-            for guid, gobject in list(GridManager.get_surrounding_gameobjects(world_session.player_mgr).items()):
+            for guid, gobject in list(MapManager.get_surrounding_gameobjects(world_session.player_mgr).items()):
                 distance = world_session.player_mgr.location.distance(gobject.location)
                 if distance <= max_distance:
                     found_count += 1

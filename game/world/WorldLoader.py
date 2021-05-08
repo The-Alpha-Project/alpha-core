@@ -14,11 +14,19 @@ class WorldLoader:
 
     @staticmethod
     def load_data():
+        # Map tiles
+        if config.Server.Settings.use_map_tiles:
+            MapManager.initialize_maps()
+        else:
+            Logger.info('Skipped maps initialization.')
+
+        # Gameobject spawns
         if config.Server.Settings.load_gameobjects:
             WorldLoader.load_gameobjects()
         else:
             Logger.info('Skipped game object loading.')
 
+        # Creature spawns
         if config.Server.Settings.load_creatures:
             WorldLoader.load_creature_loot_templates()
             WorldLoader.load_creatures()
@@ -38,12 +46,6 @@ class WorldLoader:
         # Character related data
         WorldLoader.load_groups()
         WorldLoader.load_guilds()
-
-        # Map tiles
-        if config.Server.Settings.use_map_tiles:
-            MapManager.initialize_maps()
-        else:
-            Logger.info('Skipped maps initialization.')
 
     # World data holders
 

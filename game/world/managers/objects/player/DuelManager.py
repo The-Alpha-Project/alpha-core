@@ -1,6 +1,6 @@
 from struct import pack
 from database.world.WorldModels import SpawnsGameobjects
-from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.GameObjectManager import GameObjectManager
@@ -103,7 +103,7 @@ class DuelManager(object):
 
         # Send either the duel ended by natural means or if it was canceled/interrupted
         packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_COMPLETE, pack('<B', duel_complete_flag))
-        GridManager.send_surrounding(packet, self.arbiter)
+        MapManager.send_surrounding(packet, self.arbiter)
 
         # Was not interrupted, broadcast duel result.
         if duel_complete_flag == DuelComplete.DUEL_FINISHED:
@@ -112,7 +112,7 @@ class DuelManager(object):
             data = pack(f'<B{len(winner_name_bytes)}s{len(loser_name_bytes)}s', duel_winner_flag, winner_name_bytes,
                         loser_name_bytes)
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_WINNER, data)
-            GridManager.send_surrounding(packet, self.arbiter)
+            MapManager.send_surrounding(packet, self.arbiter)
 
         packet = PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT)
         for entry in self.players.values():
@@ -122,7 +122,7 @@ class DuelManager(object):
             entry.player.set_dirty()
 
         # Clean up arbiter go and cleanup.
-        GridManager.remove_object(self.arbiter)
+        MapManager.remove_object(self.arbiter)
 
         # Finally, flush this DualManager instance.
         self.flush()

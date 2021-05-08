@@ -4,7 +4,7 @@ from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.AuraManager import AuraManager
@@ -251,14 +251,14 @@ class UnitManager(ObjectManager):
 
     def send_melee_attack_start(self, victim_guid):
         data = pack('<2Q', self.guid, victim_guid)
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTART, data), self)
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTART, data), self)
 
     def send_melee_attack_stop(self, victim_guid):
         # Last uint32 is "deceased"; can be either 1 (self is dead), or 0, (self is alive).
         # Forces the unit to face the corpse and disables clientside
         # turning (UnitFlags.DisableMovement) CGUnit_C::OnAttackStop
         data = pack('<2QI', self.guid, victim_guid, 0 if self.is_alive else 1)
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def update_melee_attacking_state(self):
         swing_error = AttackSwingError.NONE
@@ -413,7 +413,7 @@ class UnitManager(ObjectManager):
                     damage_info.resist,
                     0, 0,
                     damage_info.blocked_amount)
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATE, data), self,
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATE, data), self,
                                      include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
 
         # Damage effects
@@ -463,13 +463,13 @@ class UnitManager(ObjectManager):
             self.set_health(new_health)
 
         update_packet = self.generate_proper_update_packet(is_self=is_player)
-        GridManager.send_surrounding(update_packet, self, include_self=is_player)
+        MapManager.send_surrounding(update_packet, self, include_self=is_player)
 
     def deal_spell_damage(self, target, damage, school, spell_id):  # TODO Spell hit damage visual?
         data = pack('<IQQIIfiii', 1, self.guid, target.guid, spell_id,
                     damage, damage, school, damage, 0)
         packet = PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL, data)
-        GridManager.send_surrounding(packet, target, include_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
+        MapManager.send_surrounding(packet, target, include_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
         self.deal_damage(target, damage)
 
     def set_current_target(self, guid):
@@ -541,7 +541,7 @@ class UnitManager(ObjectManager):
     def play_emote(self, emote):
         if emote != 0:
             data = pack('<IQ', emote, self.guid)
-            GridManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data),
+            MapManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data),
                                                   self, config.World.Chat.ChatRange.emote_range)
 
     def summon_mount(self, creature_entry):

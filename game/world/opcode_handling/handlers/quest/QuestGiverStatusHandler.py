@@ -1,6 +1,6 @@
 from struct import unpack
 
-from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes, QuestGiverStatus, HighGuid
 
@@ -14,10 +14,10 @@ class QuestGiverStatusHandler(object):
             quest_giver = None
             # NPC
             if quest_giver_guid & HighGuid.HIGHGUID_UNIT:
-                quest_giver = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, quest_giver_guid)
+                quest_giver = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, quest_giver_guid)
             # Gameobject
             elif quest_giver_guid & HighGuid.HIGHGUID_GAMEOBJECT:
-                quest_giver = GridManager.get_surrounding_gameobject_by_guid(world_session.player_mgr, quest_giver_guid)
+                quest_giver = MapManager.get_surrounding_gameobject_by_guid(world_session.player_mgr, quest_giver_guid)
             if not quest_giver:
                 return 0
 

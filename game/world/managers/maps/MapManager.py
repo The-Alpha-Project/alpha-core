@@ -1,6 +1,7 @@
 import math
 import traceback
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_WATER, RESOLUTION_TERRAIN, \
     RESOLUTION_FLAGS
 from game.world.managers.maps.Map import Map
@@ -9,7 +10,7 @@ from utils.Logger import Logger
 
 
 MAPS = {}
-MAP_LIST = [0, 1]  # Azeroth and Kalimdor
+MAP_LIST = DbcDatabaseManager.map_get_all_ids()
 
 
 class MapManager(object):
@@ -164,5 +165,88 @@ class MapManager(object):
             return coord
 
     @staticmethod
+    def get_grid_manager_by_map_id(map_id):
+        if map_id in MAPS:
+            return MAPS[map_id].grid_manager
+        return None
+
+    @staticmethod
     def _lerp(value1, value2, amount):
         return value1 + (value2 - value1) * amount
+
+    # Object methods (wrappers around GridManager methods)
+
+    @staticmethod
+    def load_map_tiles_for_active_cells(grid_manager):
+        if not MapManager.ENABLED:
+            return
+
+        for key in list(grid_manager.active_cell_keys):
+            cell = grid_manager.cells[key]
+            for guid, creature in list(cell.creatures.items()):
+                MapManager.load_map_tiles(creature.map_, creature.location.x, creature.location.y)
+
+    @staticmethod
+    def update_object(world_object):
+        grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
+        grid_manager.update_object(world_object)
+        # If needed or enabled, load corresponding map tiles for active grid and adjacent.
+        MapManager.load_map_tiles_for_active_cells(grid_manager)
+
+    @staticmethod
+    def remove_object(world_object):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).remove_object(world_object)
+
+    @staticmethod
+    def send_surrounding(packet, world_object, include_self=True, exclude=None, use_ignore=False):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).send_surrounding(
+            packet, world_object, include_self, exclude, use_ignore)
+
+    @staticmethod
+    def send_surrounding_in_range(packet, world_object, include_self=True, exclude=None, use_ignore=False):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).send_surrounding_in_range(
+            packet, world_object, include_self, exclude, use_ignore)
+
+    @staticmethod
+    def get_surrounding_objects(world_object, object_types):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_objects(world_object, object_types)
+
+    @staticmethod
+    def get_surrounding_players(world_object):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_players(world_object)
+
+    @staticmethod
+    def get_surrounding_units(world_object, include_players=False):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_units(world_object, include_players)
+
+    @staticmethod
+    def get_surrounding_gameobjects(world_object):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_gameobjects(world_object)
+
+    @staticmethod
+    def get_surrounding_player_by_guid(world_object, guid):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_player_by_guid(world_object, guid)
+
+    @staticmethod
+    def get_surrounding_unit_by_guid(world_object, guid, include_players=False):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_unit_by_guid(world_object, guid, include_players)
+
+    @staticmethod
+    def get_surrounding_gameobject_by_guid(world_object, guid):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_gameobject_by_guid(world_object, guid)
+
+    @staticmethod
+    def update_creatures():
+        for map_id, map_ in MAPS.items():
+            map_.grid_manager.update_creatures()
+
+    @staticmethod
+    def update_gameobjects():
+        for map_id, map_ in MAPS.items():
+            map_.grid_manager.update_gameobjects()
+
+    @staticmethod
+    def deactivate_cells():
+        for map_id, map_ in MAPS.items():
+            map_.grid_manager.deactivate_cells()
+
