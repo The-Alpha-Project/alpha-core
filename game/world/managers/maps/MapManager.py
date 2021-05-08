@@ -203,9 +203,9 @@ class MapManager(object):
             packet, world_object, include_self, exclude, use_ignore)
 
     @staticmethod
-    def send_surrounding_in_range(packet, world_object, include_self=True, exclude=None, use_ignore=False):
+    def send_surrounding_in_range(packet, world_object, range_, include_self=True, exclude=None, use_ignore=False):
         MapManager.get_grid_manager_by_map_id(world_object.map_).send_surrounding_in_range(
-            packet, world_object, include_self, exclude, use_ignore)
+            packet, world_object, range_, include_self, exclude, use_ignore)
 
     @staticmethod
     def get_surrounding_objects(world_object, object_types):

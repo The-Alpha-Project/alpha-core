@@ -34,10 +34,8 @@ class ChatManager(object):
 
     @staticmethod
     def send_chat_message(world_session, guid, chat_flags, message, chat_type, lang, range_):
-        MapManager.send_surrounding_in_range(ChatManager._get_message_packet(guid,
-                                                                              chat_flags,
-                                                                              message, chat_type, lang),
-                                              world_session.player_mgr, range_, use_ignore=True)
+        MapManager.send_surrounding_in_range(ChatManager._get_message_packet(guid, chat_flags, message, chat_type, lang),
+                                             world_session.player_mgr, range_, use_ignore=True)
 
     @staticmethod
     def send_channel_message(sender, channel, message, lang):
