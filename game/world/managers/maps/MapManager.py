@@ -7,7 +7,7 @@ from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
 from utils.Logger import Logger
-
+from utils.constants.ObjectCodes import ObjectTypes
 
 MAPS = {}
 MAP_LIST = DbcDatabaseManager.map_get_all_ids()
@@ -24,6 +24,9 @@ class MapManager(object):
 
     @staticmethod
     def load_map_tiles(map_id, x, y):
+        if not MapManager.ENABLED:
+            return
+
         x = MapManager.get_tile_x(x)
         y = MapManager.get_tile_y(y)
 
@@ -178,9 +181,6 @@ class MapManager(object):
 
     @staticmethod
     def load_map_tiles_for_active_cells(grid_manager):
-        if not MapManager.ENABLED:
-            return
-
         for key in list(grid_manager.active_cell_keys):
             cell = grid_manager.cells[key]
             for guid, creature in list(cell.creatures.items()):
@@ -188,6 +188,10 @@ class MapManager(object):
 
     @staticmethod
     def update_object(world_object):
+        # If object is a player, preload the tiles (if they aren't loaded already) before adding to new Cell.
+        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
+            MapManager.load_map_tiles(world_object.map_, world_object.location.x, world_object.location.y)
+
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
         grid_manager.update_object(world_object)
         # If needed or enabled, load corresponding map tiles for active grid and adjacent.
