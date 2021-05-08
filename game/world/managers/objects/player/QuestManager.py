@@ -4,7 +4,7 @@ from utils.Logger import Logger
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from database.world.WorldModels import QuestTemplate
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode

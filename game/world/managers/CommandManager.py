@@ -2,7 +2,7 @@ from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world import WorldManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.player.ChatManager import ChatManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager

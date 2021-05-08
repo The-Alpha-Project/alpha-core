@@ -10,6 +10,7 @@ from game.realm import RealmManager
 from game.world import WorldManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
+from utils.PathManager import PathManager
 
 
 def release_process(process):
@@ -26,6 +27,8 @@ def release_process(process):
 if __name__ == '__main__':
     # Initialize colorama
     colorama.init()
+    # Initialize path
+    PathManager.set_root_path(os.path.realpath(__file__))
 
     # if platform != 'win32':
     #    from signal import signal, SIGPIPE, SIG_DFL

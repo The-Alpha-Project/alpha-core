@@ -1,8 +1,6 @@
-from struct import unpack, pack
+from struct import unpack
 
-from game.world.managers.GridManager import GridManager
-from utils.Logger import Logger
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetType, SpellTargetMask
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask
 
 
 class CastSpellHandler(object):

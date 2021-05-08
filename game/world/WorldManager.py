@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from game.world.WorldLoader import WorldLoader
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *

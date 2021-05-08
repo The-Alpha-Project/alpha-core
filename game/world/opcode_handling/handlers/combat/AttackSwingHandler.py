@@ -1,7 +1,5 @@
-from struct import pack, unpack
-from game.world.managers.GridManager import GridManager
-from network.packet.PacketWriter import *
-from utils.constants.UnitCodes import WeaponMode
+from struct import unpack
+from game.world.managers.maps.GridManager import GridManager
 
 
 class AttackSwingHandler(object):

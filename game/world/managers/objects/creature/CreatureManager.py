@@ -4,7 +4,7 @@ from struct import unpack, pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -14,7 +14,7 @@ from utils import Formulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 

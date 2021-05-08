@@ -1,9 +1,7 @@
-from struct import pack, unpack
-
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes
 from utils.constants.UnitCodes import StandState

@@ -2,9 +2,8 @@ import math
 from struct import pack, unpack
 from typing import NamedTuple
 
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world import WorldManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config

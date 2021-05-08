@@ -1,7 +1,7 @@
 import math
 
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.mmaps.MMapManager import MMapManager
+from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes
 
@@ -67,14 +67,14 @@ class GridManager(object):
                 GridManager.ACTIVE_CELL_KEYS.discard(cell_key)
 
     @staticmethod
-    def load_mmaps_for_active_cells():
-        if not MMapManager.ENABLED:
+    def load_map_tiles_for_active_cells():
+        if not MapManager.ENABLED:
             return
 
         for key in list(GridManager.ACTIVE_CELL_KEYS):
             cell = CELLS[key]
             for guid, creature in list(cell.creatures.items()):
-                MMapManager.load_mmap(creature.map_, creature.location.x, creature.location.y)
+                MapManager.load_map_tiles(creature.map_, creature.location.x, creature.location.y)
 
     @staticmethod
     def get_surrounding_cell_keys(world_obj, vector=None, x_s=-1, x_m=1, y_s=-1, y_m=1):
@@ -267,8 +267,8 @@ class Cell(object):
             for cell_key in list(GridManager.get_surrounding_cell_keys(world_obj)):
                 GridManager.ACTIVE_CELL_KEYS.add(cell_key)
 
-            # If needed or enabled, load corresponding mmap for active grid and adjacent.
-            GridManager.load_mmaps_for_active_cells()
+            # If needed or enabled, load corresponding map tiles for active grid and adjacent.
+            GridManager.load_map_tiles_for_active_cells()
         elif world_obj.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures[world_obj.guid] = world_obj
         elif world_obj.get_type() == ObjectTypes.TYPE_GAMEOBJECT:

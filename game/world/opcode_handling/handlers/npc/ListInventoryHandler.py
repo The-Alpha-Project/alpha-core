@@ -1,7 +1,6 @@
-from struct import pack, unpack
+from struct import unpack
 
-from game.world.managers.GridManager import GridManager
-from network.packet.PacketWriter import *
+from game.world.managers.maps.GridManager import GridManager
 
 
 class ListInventoryHandler(object):

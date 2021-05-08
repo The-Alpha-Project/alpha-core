@@ -1,10 +1,7 @@
-from struct import pack, unpack
+from struct import unpack
 
 from game.world.managers.abstractions.Vector import Vector
-from network.packet.PacketWriter import *
 from utils.Logger import Logger
-from game.world.managers.GridManager import GridManager
-from utils.constants.ObjectCodes import UpdateTypes
 
 
 class WorldTeleportHandler(object):

@@ -1,7 +1,7 @@
-from struct import unpack, pack
+from struct import unpack
 from utils.constants.UpdateFields import *
 from utils.constants.UnitCodes import UnitFlags
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 
 
 class LootRequestHandler(object):

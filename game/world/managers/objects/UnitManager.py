@@ -4,8 +4,7 @@ from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
-from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.AuraManager import AuraManager
@@ -16,7 +15,6 @@ from utils import Formulas
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes
-from utils.constants.SpellCodes import AuraTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags
 from utils.constants.UpdateFields import UnitFields
 

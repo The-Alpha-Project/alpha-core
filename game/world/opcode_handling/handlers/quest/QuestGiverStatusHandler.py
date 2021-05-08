@@ -1,11 +1,8 @@
-from struct import unpack, pack
+from struct import unpack
 
-from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes, QuestGiverStatus, HighGuid
-
-from network.packet.PacketWriter import PacketWriter, OpCode
 
 
 class QuestGiverStatusHandler(object):

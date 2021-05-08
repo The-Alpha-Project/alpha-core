@@ -2,7 +2,7 @@ import math
 from random import random
 from struct import pack, unpack
 
-from game.world.managers.mmaps.MMapManager import MMapManager
+from game.world.managers.maps.MapManager import MapManager
 
 
 class Vector(object):
@@ -78,10 +78,10 @@ class Vector(object):
         x2 = self.x + (r * math.cos(theta))
         y2 = self.y + (r * math.sin(theta))
 
-        if map_id == -1 or not MMapManager.ENABLED:
+        if map_id == -1 or not MapManager.ENABLED:
             z2 = self.z
         else:
             # Calculate destination Z, set self.z if not possible.
-            z2 = MMapManager.calculate_z(map_id, x2, y2, self.z)
+            z2 = MapManager.calculate_z(map_id, x2, y2, self.z)
 
         return Vector(x2, y2, z2)

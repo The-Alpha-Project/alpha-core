@@ -1,6 +1,6 @@
 from struct import unpack, error
 
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.objects import MovementManager
 from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import MoveFlags

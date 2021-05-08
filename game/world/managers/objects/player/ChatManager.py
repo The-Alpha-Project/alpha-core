@@ -1,5 +1,5 @@
 from struct import pack
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, GuildTypeCommand
 from game.world.managers.objects.player.guild.GuildManager import GuildManager

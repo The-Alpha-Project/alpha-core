@@ -1,10 +1,10 @@
 import math
 import traceback
 
-from game.world.managers.mmaps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_WATER, RESOLUTION_TERRAIN, \
+from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_WATER, RESOLUTION_TERRAIN, \
     RESOLUTION_FLAGS
-from game.world.managers.mmaps.Map import Map
-from game.world.managers.mmaps.MapTile import MapTile
+from game.world.managers.maps.Map import Map
+from game.world.managers.maps.MapTile import MapTile
 from utils.Logger import Logger
 
 
@@ -12,19 +12,19 @@ MAPS = {}
 MAP_LIST = [0, 1]  # Azeroth and Kalimdor
 
 
-class MMapManager(object):
+class MapManager(object):
     ENABLED = False
 
     @staticmethod
     def initialize_maps():
         for map_id in MAP_LIST:
             MAPS[map_id] = Map(map_id)
-        MMapManager.ENABLED = True
+        MapManager.ENABLED = True
 
     @staticmethod
-    def load_mmap(map_id, x, y):
-        x = MMapManager.get_tile_x(x)
-        y = MMapManager.get_tile_y(y)
+    def load_map_tiles(map_id, x, y):
+        x = MapManager.get_tile_x(x)
+        y = MapManager.get_tile_y(y)
 
         if map_id not in MAP_LIST:
             return
@@ -39,39 +39,39 @@ class MMapManager(object):
 
     @staticmethod
     def get_tile(x, y):
-        tile_x = int(32.0 - MMapManager.validate_map_coord(x) / SIZE)
-        tile_y = int(32.0 - MMapManager.validate_map_coord(y) / SIZE)
+        tile_x = int(32.0 - MapManager.validate_map_coord(x) / SIZE)
+        tile_y = int(32.0 - MapManager.validate_map_coord(y) / SIZE)
         return [tile_x, tile_y]
 
     @staticmethod
     def get_tile_x(x):
-        tile_x = int(32.0 - MMapManager.validate_map_coord(x) / SIZE)
+        tile_x = int(32.0 - MapManager.validate_map_coord(x) / SIZE)
         return tile_x
 
     @staticmethod
     def get_tile_y(y):
-        tile_y = int(32.0 - MMapManager.validate_map_coord(y) / SIZE)
+        tile_y = int(32.0 - MapManager.validate_map_coord(y) / SIZE)
         return tile_y
 
     @staticmethod
     def get_submap_tile_x(x):
         tile_x = int(RESOLUTION_ZMAP * (
-                32.0 - MMapManager.validate_map_coord(x) / SIZE - int(32.0 - MMapManager.validate_map_coord(x) / SIZE)))
+                32.0 - MapManager.validate_map_coord(x) / SIZE - int(32.0 - MapManager.validate_map_coord(x) / SIZE)))
 
         return tile_x
 
     @staticmethod
     def get_submap_tile_y(y):
         tile_y = int(RESOLUTION_ZMAP * (
-                32.0 - MMapManager.validate_map_coord(y) / SIZE - int(32.0 - MMapManager.validate_map_coord(y) / SIZE)))
+                32.0 - MapManager.validate_map_coord(y) / SIZE - int(32.0 - MapManager.validate_map_coord(y) / SIZE)))
 
         return tile_y
 
     @staticmethod
     def calculate_z(map_id, x, y, current_z=None):
         try:
-            x = MMapManager.validate_map_coord(x)
-            y = MMapManager.validate_map_coord(y)
+            x = MapManager.validate_map_coord(x)
+            y = MapManager.validate_map_coord(y)
             map_tile_x = int(32.0 - (x / SIZE))
             map_tile_y = int(32.0 - (y / SIZE))
             map_tile_local_x = math.floor(RESOLUTION_ZMAP * (32.0 - (x / SIZE) - map_tile_x))
@@ -84,13 +84,13 @@ class MMapManager(object):
                 return current_z if current_z else 0.0
             else:
                 try:
-                    val_1 = MMapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x, map_tile_local_y)
-                    val_2 = MMapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x + 1, map_tile_local_y)
-                    top_height = MMapManager._lerp(val_1, val_2, x_normalized)
-                    val_3 = MMapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x, map_tile_local_y + 1)
-                    val_4 = MMapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x + 1, map_tile_local_y + 1)
-                    bottom_height = MMapManager._lerp(val_3, val_4, x_normalized)
-                    return MMapManager._lerp(top_height, bottom_height, y_normalized)
+                    val_1 = MapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x, map_tile_local_y)
+                    val_2 = MapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x + 1, map_tile_local_y)
+                    top_height = MapManager._lerp(val_1, val_2, x_normalized)
+                    val_3 = MapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x, map_tile_local_y + 1)
+                    val_4 = MapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x + 1, map_tile_local_y + 1)
+                    bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
+                    return MapManager._lerp(top_height, bottom_height, y_normalized)
                 except:
                     return MAPS[map_id].tiles[map_tile_x][map_tile_y].z_coords[map_tile_local_x][map_tile_local_x]
         except:
@@ -99,8 +99,8 @@ class MMapManager(object):
 
     @staticmethod
     def get_water_level(map_id, x, y):
-        x = MMapManager.validate_map_coord(x)
-        y = MMapManager.validate_map_coord(y)
+        x = MapManager.validate_map_coord(x)
+        y = MapManager.validate_map_coord(y)
         map_tile_x = int(32.0 - (x / SIZE))
         map_tile_y = int(32.0 - (y / SIZE))
         tile_local_x = int(RESOLUTION_WATER * (32.0 - (x / SIZE) - map_tile_x))
@@ -112,8 +112,8 @@ class MMapManager(object):
 
     @staticmethod
     def get_terrain_type(map_id, x, y):
-        x = MMapManager.validate_map_coord(x)
-        y = MMapManager.validate_map_coord(y)
+        x = MapManager.validate_map_coord(x)
+        y = MapManager.validate_map_coord(y)
         map_tile_x = int(32.0 - (x / SIZE))
         map_tile_y = int(32.0 - (y / SIZE))
         tile_local_x = int(RESOLUTION_TERRAIN * (32.0 - (x / SIZE) - map_tile_x))
@@ -125,8 +125,8 @@ class MMapManager(object):
 
     @staticmethod
     def get_area_flag(map_id, x, y):
-        x = MMapManager.validate_map_coord(x)
-        y = MMapManager.validate_map_coord(y)
+        x = MapManager.validate_map_coord(x)
+        y = MapManager.validate_map_coord(y)
         map_tile_x = int(32.0 - (x / SIZE))
         map_tile_y = int(32.0 - (y / SIZE))
         tile_local_x = int(RESOLUTION_FLAGS * (32.0 - (x / SIZE) - map_tile_x))

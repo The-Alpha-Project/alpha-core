@@ -4,18 +4,17 @@ import json
 from os import path
 from collections import namedtuple
 
+from utils.PathManager import PathManager
 
-class ConfigManager(object):
+
+class ConfigManager:
 
     def __init__(self):
         self.config = None
 
     # noinspection PyArgumentList
     def load(self):
-        current_dir = path.dirname(__file__)
-        main_config = '../etc/config/config.yml'
-
-        with open(path.join(current_dir, main_config), 'r') as stream:
+        with open(PathManager.get_config_file_path(), 'r') as stream:
             data = yaml.load(stream, Loader=yaml.Loader)
             self.config = json.loads(
                 json.dumps(data), object_hook=lambda d: namedtuple('Configs', d.keys())(*d.values())

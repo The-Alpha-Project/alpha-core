@@ -6,7 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange, SpellDuration
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.objects.player.DuelManager import DuelManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger

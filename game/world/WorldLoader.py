@@ -1,7 +1,7 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.mmaps.MMapManager import MMapManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.player.GroupManager import GroupManager
@@ -39,9 +39,9 @@ class WorldLoader:
         WorldLoader.load_groups()
         WorldLoader.load_guilds()
 
-        # MMaps
-        if config.Server.Settings.use_mmaps:
-            MMapManager.initialize_maps()
+        # Map tiles
+        if config.Server.Settings.use_map_tiles:
+            MapManager.initialize_maps()
         else:
             Logger.info('Skipped maps initialization.')
 

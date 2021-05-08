@@ -1,6 +1,6 @@
 from struct import unpack
 
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from utils.Logger import Logger
 
 

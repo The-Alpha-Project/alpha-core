@@ -1,6 +1,6 @@
 from struct import unpack, pack
 
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 

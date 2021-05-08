@@ -1,12 +1,11 @@
 from struct import pack
 from database.world.WorldModels import SpawnsGameobjects
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.GridManager import GridManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.GameObjectManager import GameObjectManager
 from utils.constants.DuelCodes import *
-from utils.constants.SpellCodes import SpellCheckCastResult
-from utils.constants.UpdateFields import PlayerFields, UnitFields
+from utils.constants.UpdateFields import PlayerFields
 
 
 class PlayerDuelInformation(object):
