@@ -35,7 +35,7 @@ Server:
         realm_saving_interval_seconds: 60
         cell_size: 164  # Shouldn't be much bigger than 200
         console_mode: True  # Set it to False if you intend to run the server on background
-        use_map_tiles: False  # If True, place 1.12 .map files inside 'etc/maps/'
+        use_map_tiles: False  # If True, place 1.12 .map files extracted with https://github.com/mangosvb/serverZero/blob/master/Tools/ad.exe inside 'etc/maps/'
         z_resolution: 255  # The resolution used when extracting maps
 
     General:
