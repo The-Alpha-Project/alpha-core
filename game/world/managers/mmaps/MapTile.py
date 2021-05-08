@@ -2,8 +2,8 @@ from os import path
 from struct import unpack
 from network.packet.PacketReader import PacketReader
 from utils.Logger import Logger
-from game.world.managers.objects.mmaps.Constants import RESOLUTION_ZMAP, RESOLUTION_WATER, RESOLUTION_TERRAIN, \
-    RESOLUTION_FLAGS
+
+from game.world.managers.mmaps.Constants import RESOLUTION_ZMAP, RESOLUTION_WATER, RESOLUTION_TERRAIN, RESOLUTION_FLAGS
 
 
 class MapTile(object):

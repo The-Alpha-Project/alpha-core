@@ -1,10 +1,10 @@
 import math
 import traceback
 
-from game.world.managers.objects.mmaps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_WATER, RESOLUTION_TERRAIN, \
+from game.world.managers.mmaps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_WATER, RESOLUTION_TERRAIN, \
     RESOLUTION_FLAGS
-from game.world.managers.objects.mmaps.Map import Map
-from game.world.managers.objects.mmaps.MapTile import MapTile
+from game.world.managers.mmaps.Map import Map
+from game.world.managers.mmaps.MapTile import MapTile
 from utils.Logger import Logger
 
 
@@ -14,6 +14,7 @@ MAP_LIST = [0, 1]  # Azeroth and Kalimdor
 
 class MMapManager(object):
     ENABLED = False
+
     @staticmethod
     def initialize_maps():
         for map_id in MAP_LIST:
@@ -55,16 +56,14 @@ class MMapManager(object):
     @staticmethod
     def get_submap_tile_x(x):
         tile_x = int(RESOLUTION_ZMAP * (
-                32.0 - MMapManager.validate_map_coord(x) / SIZE - int(
-            32.0 - MMapManager.validate_map_coord(x) / SIZE)))
+                32.0 - MMapManager.validate_map_coord(x) / SIZE - int(32.0 - MMapManager.validate_map_coord(x) / SIZE)))
 
         return tile_x
 
     @staticmethod
     def get_submap_tile_y(y):
         tile_y = int(RESOLUTION_ZMAP * (
-                32.0 - MMapManager.validate_map_coord(y) / SIZE - int(
-            32.0 - MMapManager.validate_map_coord(y) / SIZE)))
+                32.0 - MMapManager.validate_map_coord(y) / SIZE - int(32.0 - MMapManager.validate_map_coord(y) / SIZE)))
 
         return tile_y
 
@@ -94,7 +93,7 @@ class MMapManager(object):
                     return MMapManager._lerp(top_height, bottom_height, y_normalized)
                 except:
                     return MAPS[map_id].tiles[map_tile_x][map_tile_y].z_coords[map_tile_local_x][map_tile_local_x]
-        except Exception:
+        except:
             Logger.error(traceback.format_exc())
             return current_z if current_z else 0.0
 
@@ -167,4 +166,3 @@ class MMapManager(object):
     @staticmethod
     def _lerp(value1, value2, amount):
         return value1 + (value2 - value1) * amount
-
