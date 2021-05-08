@@ -83,14 +83,14 @@ class GridManager(object):
 
     def get_surrounding_cells_by_object(self, world_object, x_s=-1, x_m=1, y_s=-1, y_m=1):
         vector = world_object.location
-        return self.get_surrounding_cells_by_location(vector, world_object.map_, x_s=x_s, x_m=x_m, y_s=y_s, y_m=y_m)
+        return self.get_surrounding_cells_by_location(vector.x, vector.y, world_object.map_, x_s=x_s, x_m=x_m, y_s=y_s, y_m=y_m)
 
-    def get_surrounding_cells_by_location(self, location, map_, x_s=-1, x_m=1, y_s=-1, y_m=1):
+    def get_surrounding_cells_by_location(self, x, y, map_, x_s=-1, x_m=1, y_s=-1, y_m=1):
         near_cells = set()
 
-        for x in range(x_s, x_m + 1):
-            for y in range(y_s, y_m + 1):
-                cell_coords = GridManager.get_cell_key(location.x + (x * CELL_SIZE), location.y + (y * CELL_SIZE), map_)
+        for x2 in range(x_s, x_m + 1):
+            for y2 in range(y_s, y_m + 1):
+                cell_coords = GridManager.get_cell_key(x + (x2 * CELL_SIZE), y + (y2 * CELL_SIZE), map_)
                 if cell_coords in self.cells:
                     near_cells.add(self.cells[cell_coords])
 
