@@ -8,6 +8,7 @@ from utils.PathManager import PathManager
 
 
 class MapTile(object):
+    EXPECTED_VERSION = 'MAP_1.00'
 
     def __init__(self, map_id, tile_x, tile_y):
         self.cell_x = tile_x
@@ -29,6 +30,9 @@ class MapTile(object):
         else:
             with open(maps_path, "rb") as map_tiles:
                 version = PacketReader.read_string(map_tiles.read(8), 0)
+                if version != MapTile.EXPECTED_VERSION:
+                    Logger.error(f'Unexpected map version. Expected "{MapTile.EXPECTED_VERSION}", received "{version}".')
+                    return
 
                 # AreaFlags
                 for x in range(0, RESOLUTION_FLAGS + 1):
