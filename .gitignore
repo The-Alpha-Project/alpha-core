@@ -11,5 +11,7 @@ etc/config/config.yml
 venv
 
 # Client data
-*.map
-*.dbc
+**.map
+**.mmap
+**.vmap
+**.dbc
