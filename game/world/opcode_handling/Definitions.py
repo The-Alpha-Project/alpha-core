@@ -120,8 +120,8 @@ from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import God
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from game.world.opcode_handling.handlers.unit.SetTargetHandler import SetTargetHandler
 from game.world.opcode_handling.handlers.player.DebugAIStateHandler import DebugAIStateHandler
-from game.world.opcode_handling.handlers.npc.BankerActiveHandler import BankerActiveHandler
-from game.world.opcode_handling.handlers.npc.BankBuySlotHandler import BankBuySlotHandler
+from game.world.opcode_handling.handlers.npc.BankerActivateHandler import BankerActivateHandler
+from game.world.opcode_handling.handlers.npc.BuyBankSlotHandler import BuyBankSlotHandler
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -255,8 +255,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_TRIGGER_CINEMATIC_CHEAT: TriggerCinematicCheatHandler.handle,
     OpCode.CMSG_GODMODE: GodModeHandler.handle,
     OpCode.CMSG_DEBUG_AISTATE: DebugAIStateHandler.handle,
-    OpCode.CMSG_BANKER_ACTIVATE: BankerActiveHandler.handle,
-    OpCode.CMSG_BUY_BANK_SLOT: BankBuySlotHandler.handle,
+    OpCode.CMSG_BANKER_ACTIVATE: BankerActivateHandler.handle,
+    OpCode.CMSG_BUY_BANK_SLOT: BuyBankSlotHandler.handle,
 
     # Movement packets
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
