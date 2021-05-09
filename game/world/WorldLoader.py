@@ -15,10 +15,7 @@ class WorldLoader:
     @staticmethod
     def load_data():
         # Map tiles
-        if config.Server.Settings.use_map_tiles:
-            MapManager.initialize_maps()
-        else:
-            Logger.info('Skipped maps initialization.')
+        MapManager.initialize_maps()
 
         # Gameobject spawns
         if config.Server.Settings.load_gameobjects:

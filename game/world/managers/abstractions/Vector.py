@@ -3,6 +3,7 @@ from random import random
 from struct import pack, unpack
 
 from game.world.managers.maps.MapManager import MapManager
+from utils.ConfigManager import config
 
 
 class Vector(object):
@@ -78,7 +79,7 @@ class Vector(object):
         x2 = self.x + (r * math.cos(theta))
         y2 = self.y + (r * math.sin(theta))
 
-        if map_id == -1 or not MapManager.ENABLED:
+        if map_id == -1 or not config.Server.Settings.use_map_tiles:
             z2 = self.z
         else:
             # Calculate destination Z, set self.z if not possible.

@@ -6,6 +6,7 @@ from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION
     RESOLUTION_FLAGS
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
+from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes
 
@@ -14,17 +15,14 @@ MAP_LIST = DbcDatabaseManager.map_get_all_ids()
 
 
 class MapManager(object):
-    ENABLED = False
-
     @staticmethod
     def initialize_maps():
         for map_id in MAP_LIST:
             MAPS[map_id] = Map(map_id)
-        MapManager.ENABLED = True
 
     @staticmethod
     def load_map_tiles(map_id, x, y):
-        if not MapManager.ENABLED:
+        if not config.Server.Settings.use_map_tiles:
             return
 
         x = MapManager.get_tile_x(x)
@@ -253,4 +251,3 @@ class MapManager(object):
     def deactivate_cells():
         for map_id, map_ in MAPS.items():
             map_.grid_manager.deactivate_cells()
-
