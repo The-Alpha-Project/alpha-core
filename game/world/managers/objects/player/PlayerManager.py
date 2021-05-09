@@ -660,6 +660,13 @@ class PlayerManager(UnitManager):
                     return True
         return False
 
+    def add_bank_slot(self):
+        self.player.bankslots += 1
+        self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
+        self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.player_bytes_2)
+        slot_cost = DbcDatabaseManager.get_bank_slot_cost(self.player.bankslots)
+        self.mod_money(-slot_cost, reload_items=True)
+
     def mod_money(self, amount, reload_items=False):
         if self.coinage + amount < 0:
             amount = -self.coinage
