@@ -1,11 +1,7 @@
-from struct import pack, unpack
+from struct import unpack
 
-from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
-from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.player.TradeManager import TradeManager
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import GameObjectTypes, TradeStatus
 
 
 class InspectHandler(object):
@@ -15,7 +11,7 @@ class InspectHandler(object):
         if len(reader.data) >= 8:  # Avoid handling empty inspect packet
             guid = unpack('<Q', reader.data[:8])[0]
             if guid > 0:
-                inspected_player = GridManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)
+                inspected_player = MapManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)
                 if not inspected_player or not inspected_player.is_alive:
                     return 0
 

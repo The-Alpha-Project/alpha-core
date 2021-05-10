@@ -2,16 +2,15 @@ from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.item.ContainerManager import ContainerManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
-from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError
 from utils.constants.ObjectCodes import BankSlots, ItemBondingTypes
-from utils.constants.UpdateFields import PlayerFields, ContainerFields, UnitFields
+from utils.constants.UpdateFields import PlayerFields
 
 MAX_3368_ITEM_DISPLAY_ID = 11802
 
@@ -702,8 +701,8 @@ class InventoryManager(object):
             world_session.enqueue_packet(update_packet)
             world_session.enqueue_packet(item.query_details())
         else:
-            GridManager.send_surrounding(update_packet, world_session.player_mgr, include_self=False)
-            GridManager.send_surrounding(item.query_details(), world_session.player_mgr,
+            MapManager.send_surrounding(update_packet, world_session.player_mgr, include_self=False)
+            MapManager.send_surrounding(item.query_details(), world_session.player_mgr,
                                          include_self=False)
 
     def send_inventory_update(self, world_session, is_self=True):

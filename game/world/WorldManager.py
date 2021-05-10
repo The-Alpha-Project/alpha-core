@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from game.world.WorldLoader import WorldLoader
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
@@ -202,21 +202,21 @@ class WorldServerSessionHandler(object):
         # Creature updates
         creature_update_scheduler = BackgroundScheduler()
         creature_update_scheduler._daemon = True
-        creature_update_scheduler.add_job(GridManager.update_creatures, 'interval', seconds=0.2,
+        creature_update_scheduler.add_job(MapManager.update_creatures, 'interval', seconds=0.2,
                                           max_instances=1)
         creature_update_scheduler.start()
 
         # Gameobject updates
         gameobject_update_scheduler = BackgroundScheduler()
         gameobject_update_scheduler._daemon = True
-        gameobject_update_scheduler.add_job(GridManager.update_gameobjects, 'interval', seconds=1.0,
+        gameobject_update_scheduler.add_job(MapManager.update_gameobjects, 'interval', seconds=1.0,
                                             max_instances=1)
         gameobject_update_scheduler.start()
 
         # Cell deactivation
         cell_unloading_scheduler = BackgroundScheduler()
         cell_unloading_scheduler._daemon = True
-        cell_unloading_scheduler.add_job(GridManager.deactivate_cells, 'interval', seconds=120.0,
+        cell_unloading_scheduler.add_job(MapManager.deactivate_cells, 'interval', seconds=120.0,
                                          max_instances=1)
         cell_unloading_scheduler.start()
 

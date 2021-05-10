@@ -1,7 +1,6 @@
-from struct import pack, unpack
+from struct import unpack
 
-from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import *
 
 
@@ -15,6 +14,6 @@ class PlayerMacroHandler(object):
                 voice_packet = PacketWriter.get_packet(OpCode.SMSG_PLAYER_MACRO,
                                                        pack('<QI', world_session.player_mgr.guid,
                                                             category))
-                GridManager.send_surrounding(voice_packet, world_session.player_mgr, include_self=True)
+                MapManager.send_surrounding(voice_packet, world_session.player_mgr, include_self=True)
 
         return 0

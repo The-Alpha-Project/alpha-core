@@ -9,3 +9,9 @@ etc/config/config.yml
 
 # virtualenv folder
 venv
+
+# Client data
+**.map
+**.mmap
+**.vmap
+**.dbc

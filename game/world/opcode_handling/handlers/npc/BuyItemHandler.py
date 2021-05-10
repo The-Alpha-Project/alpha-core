@@ -1,8 +1,7 @@
-from struct import pack, unpack
+from struct import unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
-from network.packet.PacketWriter import *
+from game.world.managers.maps.MapManager import MapManager
 from utils.constants.ObjectCodes import BuyResults
 
 
@@ -17,7 +16,7 @@ class BuyItemHandler(object):
                 if count <= 0:
                     count = 1
 
-                vendor_npc = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, vendor_guid)
+                vendor_npc = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, vendor_guid)
                 vendor_data, session = WorldDatabaseManager.creature_get_vendor_data_by_item(vendor_npc.entry, item)
 
                 if vendor_data:

@@ -4,7 +4,7 @@ from utils.Logger import Logger
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from database.world.WorldModels import QuestTemplate
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -37,12 +37,12 @@ class QuestManager(object):
             else:
                 Logger.error(f"Quest database (guid={quest_db_status.guid}, quest_id={quest_db_status.quest}) has state {quest_db_status.state}. No handling.")
 
-    def get_dialog_status(self, world_obj):
+    def get_dialog_status(self, world_object):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
         # Relations bounds, the quest giver; Involved relations bounds, the quest completer
-        relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(world_obj.entry)
-        involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(world_obj.entry)
-        if self.player_mgr.is_enemy_to(world_obj):
+        relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(world_object.entry)
+        involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(world_object.entry)
+        if self.player_mgr.is_enemy_to(world_object):
             return dialog_status
 
         # Quest finish
@@ -243,7 +243,7 @@ class QuestManager(object):
         return [quest.ObjectiveText1, quest.ObjectiveText2, quest.ObjectiveText3, quest.ObjectiveText4]
 
     def update_surrounding_quest_status(self):
-        for guid, unit in list(GridManager.get_surrounding_units(self.player_mgr).items()):
+        for guid, unit in list(MapManager.get_surrounding_units(self.player_mgr).items()):
             if WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(unit.entry):
                 quest_status = self.get_dialog_status(unit)
                 self.send_quest_giver_status(guid, quest_status)

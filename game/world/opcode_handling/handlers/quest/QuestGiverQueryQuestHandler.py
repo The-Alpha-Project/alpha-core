@@ -1,11 +1,9 @@
-from struct import unpack, pack
+from struct import unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
-from utils.constants import ObjectCodes
 
-from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import HighGuid
 
 
@@ -17,7 +15,7 @@ class QuestGiverQueryQuestHandler(object):
             guid, quest_entry = unpack('<QL', reader.data[:12])
             # NPC
             if guid & HighGuid.HIGHGUID_UNIT:
-                quest_giver = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
+                quest_giver = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
                 if not quest_giver:
                     return 0
 
@@ -27,7 +25,7 @@ class QuestGiverQueryQuestHandler(object):
                     return 0
             # Gameobject
             elif guid & HighGuid.HIGHGUID_GAMEOBJECT:
-                quest_giver = GridManager.get_surrounding_gameobject_by_guid(world_session, guid)
+                quest_giver = MapManager.get_surrounding_gameobject_by_guid(world_session, guid)
                 if not quest_giver:
                     return 0
             # Item

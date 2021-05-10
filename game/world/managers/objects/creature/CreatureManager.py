@@ -4,7 +4,7 @@ from struct import unpack, pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -14,7 +14,7 @@ from utils import Formulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -78,7 +78,7 @@ class CreatureManager(UnitManager):
             self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
     def load(self):
-        GridManager.add_or_get(self, True)
+        MapManager.update_object(self)
 
     def generate_display_id(self):
         display_id_list = list(filter((0).__ne__, [self.creature_template.display_id1,
@@ -277,12 +277,12 @@ class CreatureManager(UnitManager):
                 # Destroy body when creature is about to respawn
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
                     self.is_spawned = False
-                    GridManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
+                    MapManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
         self.last_tick = now
 
         if self.dirty:
-            GridManager.send_surrounding(self.generate_proper_update_packet(create=False), self, include_self=False)
-            GridManager.update_object(self)
+            MapManager.send_surrounding(self.generate_proper_update_packet(create=False), self, include_self=False)
+            MapManager.update_object(self)
             self.reset_fields()
 
             self.set_dirty(is_dirty=False)
@@ -305,7 +305,7 @@ class CreatureManager(UnitManager):
         self.respawn_timer = 0
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
-        GridManager.send_surrounding(self.generate_proper_update_packet(create=True), self, include_self=False)
+        MapManager.send_surrounding(self.generate_proper_update_packet(create=True), self, include_self=False)
 
     # override
     def die(self, killer=None):

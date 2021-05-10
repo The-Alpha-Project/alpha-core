@@ -1,9 +1,7 @@
-from struct import pack, unpack
-
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
 from utils.constants.ObjectCodes import ObjectTypes
 from utils.constants.UnitCodes import StandState
@@ -20,7 +18,7 @@ class TextEmoteHandler(object):
 
             if emote:
                 data = pack('<QI', world_session.player_mgr.guid, emote_text_id)
-                target = GridManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid, include_players=True)
+                target = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid, include_players=True)
 
                 if not target:
                     data += pack('<B', 0)
@@ -35,7 +33,7 @@ class TextEmoteHandler(object):
                 else:
                     data += pack('<B', 0)
 
-                GridManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_TEXT_EMOTE, data),
+                MapManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_TEXT_EMOTE, data),
                                                       world_session.player_mgr, config.World.Chat.ChatRange.emote_range)
 
                 # Perform visual emote action if needed

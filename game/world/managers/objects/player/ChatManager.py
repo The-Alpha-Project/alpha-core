@@ -1,5 +1,5 @@
 from struct import pack
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, GuildTypeCommand
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
@@ -34,10 +34,8 @@ class ChatManager(object):
 
     @staticmethod
     def send_chat_message(world_session, guid, chat_flags, message, chat_type, lang, range_):
-        GridManager.send_surrounding_in_range(ChatManager._get_message_packet(guid,
-                                                                              chat_flags,
-                                                                              message, chat_type, lang),
-                                              world_session.player_mgr, range_, use_ignore=True)
+        MapManager.send_surrounding_in_range(ChatManager._get_message_packet(guid, chat_flags, message, chat_type, lang),
+                                             world_session.player_mgr, range_, use_ignore=True)
 
     @staticmethod
     def send_channel_message(sender, channel, message, lang):

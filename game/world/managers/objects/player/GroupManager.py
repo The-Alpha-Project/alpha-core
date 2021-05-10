@@ -7,7 +7,7 @@ from utils import Formulas
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.ObjectCodes import WhoPartyStatus, LootMethods, PlayerFlags
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from utils.constants.UpdateFields import PlayerFields
 
@@ -287,7 +287,7 @@ class GroupManager(object):
         return player_guid in self.members
 
     def get_surrounding_members(self, player):
-        return [m for m in GridManager.get_surrounding_players(player).values() if m.guid in self.members]
+        return [m for m in MapManager.get_surrounding_players(player).values() if m.guid in self.members]
 
     def reward_group_money(self, looter, creature):
         surrounding_members = self.get_surrounding_members(looter)
@@ -312,7 +312,7 @@ class GroupManager(object):
         return True
 
     def reward_group_xp(self, player, creature, is_elite):
-        surrounding_players = GridManager.get_surrounding_players(player).values()
+        surrounding_players = MapManager.get_surrounding_players(player).values()
         surrounding_members = [player for player in surrounding_players if player.guid in self.members]
         surrounding_members.sort(key=lambda players: players.level, reverse=True)  # Highest level on top
         sum_levels = sum(player.level for player in surrounding_members)

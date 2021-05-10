@@ -1,7 +1,4 @@
-from struct import pack, unpack
-
-from game.world.managers.GridManager import GridManager
-from network.packet.PacketWriter import *
+from struct import unpack
 
 
 class ZoneUpdateHandler(object):

@@ -1,7 +1,6 @@
-from struct import pack, unpack, error, calcsize
+from struct import unpack, error
 
-from game.world.managers.GridManager import GridManager
-from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects import MovementManager
 from network.packet.PacketWriter import *
 from utils.constants.ObjectCodes import MoveFlags
@@ -57,9 +56,9 @@ class MovementHandler(object):
                                      world_session.player_mgr.guid,
                                      reader.data)
 
-                GridManager.send_surrounding(PacketWriter.get_packet(OpCode(reader.opcode), movement_data),
+                MapManager.send_surrounding(PacketWriter.get_packet(OpCode(reader.opcode), movement_data),
                                              world_session.player_mgr, include_self=False)
-                GridManager.update_object(world_session.player_mgr)
+                MapManager.update_object(world_session.player_mgr)
                 world_session.player_mgr.sync_player()
 
                 # Get up if you jump while not standing

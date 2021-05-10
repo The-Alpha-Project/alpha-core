@@ -1,11 +1,8 @@
-from struct import pack, unpack
+from struct import unpack
 
-from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.GridManager import GridManager
-from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.player.TradeManager import TradeManager
-from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import GameObjectTypes, TradeStatus
+from utils.constants.ObjectCodes import TradeStatus
 
 
 class InitiateTradeHandler(object):
@@ -15,7 +12,7 @@ class InitiateTradeHandler(object):
         if len(reader.data) >= 8:  # Avoid handling empty initiate trade packet
             guid = unpack('<Q', reader.data[:8])[0]
             if guid > 0:
-                trade_player = GridManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)
+                trade_player = MapManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)
                 trade_status = None
                 if not trade_player or not trade_player.is_alive:
                     trade_status = TradeStatus.TRADE_STATUS_PLAYER_NOT_FOUND

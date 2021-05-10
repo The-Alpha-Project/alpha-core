@@ -1,8 +1,6 @@
-from enum import IntEnum
 from struct import pack
 
-from database.world.WorldDatabaseManager import WorldDatabaseManager, config
-from game.world.managers.GridManager import GridManager
+from database.world.WorldDatabaseManager import config
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes, Factions

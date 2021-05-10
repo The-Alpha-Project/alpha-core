@@ -1,6 +1,7 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.player.GroupManager import GroupManager
@@ -13,11 +14,16 @@ class WorldLoader:
 
     @staticmethod
     def load_data():
+        # Map tiles
+        MapManager.initialize_maps()
+
+        # Gameobject spawns
         if config.Server.Settings.load_gameobjects:
             WorldLoader.load_gameobjects()
         else:
             Logger.info('Skipped game object loading.')
 
+        # Creature spawns
         if config.Server.Settings.load_creatures:
             WorldLoader.load_creature_loot_templates()
             WorldLoader.load_creatures()

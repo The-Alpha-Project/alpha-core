@@ -218,6 +218,22 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return res
 
+    @staticmethod
+    def map_get_all_ids():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(Map.ID).all()
+        dbc_db_session.close()
+        return [map_id[0] for map_id in res]
+
+    # Bank
+
+    @staticmethod
+    def bank_get_slot_cost(slot):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(BankBagSlotPrices).filter_by(ID=slot).first()
+        dbc_db_session.close()
+        return res.Cost
+
     # Taxi
 
     class TaxiNodesHolder:

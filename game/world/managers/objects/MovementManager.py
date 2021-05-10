@@ -2,9 +2,8 @@ import math
 from struct import pack, unpack
 from typing import NamedTuple
 
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world import WorldManager
-from game.world.managers.GridManager import GridManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
@@ -63,7 +62,7 @@ class MovementManager(object):
                 self.unit.location.y = new_position.y
                 self.unit.location.z = new_position.z
 
-                GridManager.update_object(self.unit)
+                MapManager.update_object(self.unit)
         else:
             # Path finished
             if self.total_waypoint_timer > self.total_waypoint_time:
@@ -124,7 +123,7 @@ class MovementManager(object):
             waypoints_data
         )
 
-        GridManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data), self.unit,
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data), self.unit,
                                      include_self=self.is_player)
 
         # Player shouldn't instantly dismount after reaching the taxi destination
@@ -148,7 +147,17 @@ class MovementManager(object):
         self.should_update_waypoints = True
 
     def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
-        random_point = start_position.get_random_point_in_radius(radius)
+        random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
+        # TODO: Below check might not be needed once better path finding is implemented
+        # Try to keep the unit random movement close to its original Z
+        retry_count = 0
+        while math.fabs(start_position.z - random_point.z) > 1.5:
+            random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
+            # Set a hard limit, just in case
+            if retry_count >= 20:
+                break
+            retry_count += 1
+
         self.send_move_to([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
 
