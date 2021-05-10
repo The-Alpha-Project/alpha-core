@@ -13,7 +13,7 @@ class TargetMissInfo:
 
 class EffectTargets:
     def __init__(self, casting_spell, spell_effect):
-        self.initial_target = casting_spell.initial_target_unit
+        self.initial_target = casting_spell.initial_target
         self.caster = casting_spell.spell_caster
         self.casting_spell = casting_spell
 
@@ -45,7 +45,7 @@ class EffectTargets:
         }
 
     def resolve_implicit_targets_reference(self, implicit_target):
-        target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else self.TARGET_RESOLVERS[implicit_target](self.casting_spell)
+        target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else TARGET_RESOLVERS[implicit_target](self.casting_spell)
         if type(target) is not list:
             return [target]
         return target
@@ -142,25 +142,26 @@ class EffectTargets:
     def resolve_gameobject_script_near_caster(casting_spell):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
-    TARGET_RESOLVERS = {
-        SpellImplicitTargets.TARGET_RANDOM_ENEMY_CHAIN_IN_AREA: resolve_random_enemy_chain_in_area,
-        SpellImplicitTargets.TARGET_UNIT_NEAR_CASTER: resolve_unit_near_caster,
-        SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM: resolve_area_effect_custom,
-        SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA: resolve_all_enemy_in_area,
-        SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT: resolve_all_enemy_in_area_instant,
-        SpellImplicitTargets.TARGET_TABLE_X_Y_Z_COORDINATES: resolve_table_coordinates,
-        SpellImplicitTargets.TARGET_EFFECT_SELECT: resolve_effect_select,
-        SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY: resolve_party_around_caster,
-        SpellImplicitTargets.TARGET_SELECTED_FRIEND: resolve_selected_friend,
-        SpellImplicitTargets.TARGET_AROUND_CASTER_ENEMY: resolve_enemy_around_caster,
-        SpellImplicitTargets.TARGET_INFRONT: resolve_infront,
-        SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL: resolve_aoe_enemy_channel,
-        SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER: resolve_all_friendly_around_caster,
-        SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA: resolve_all_friendly_in_area,
-        SpellImplicitTargets.TARGET_ALL_PARTY: resolve_all_party,
-        SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2: resolve_party_around_caster_2,
-        SpellImplicitTargets.TARGET_SINGLE_PARTY: resolve_single_party,
-        SpellImplicitTargets.TARGET_AREAEFFECT_PARTY: resolve_aoe_party,
-        SpellImplicitTargets.TARGET_SCRIPT: resolve_script,
-        SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: resolve_gameobject_script_near_caster
-    }
+
+TARGET_RESOLVERS = {
+    SpellImplicitTargets.TARGET_RANDOM_ENEMY_CHAIN_IN_AREA: EffectTargets.resolve_random_enemy_chain_in_area,
+    SpellImplicitTargets.TARGET_UNIT_NEAR_CASTER: EffectTargets.resolve_unit_near_caster,
+    SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM: EffectTargets.resolve_area_effect_custom,
+    SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA: EffectTargets.resolve_all_enemy_in_area,
+    SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT: EffectTargets.resolve_all_enemy_in_area_instant,
+    SpellImplicitTargets.TARGET_TABLE_X_Y_Z_COORDINATES: EffectTargets.resolve_table_coordinates,
+    SpellImplicitTargets.TARGET_EFFECT_SELECT: EffectTargets.resolve_effect_select,
+    SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY: EffectTargets.resolve_party_around_caster,
+    SpellImplicitTargets.TARGET_SELECTED_FRIEND: EffectTargets.resolve_selected_friend,
+    SpellImplicitTargets.TARGET_AROUND_CASTER_ENEMY: EffectTargets.resolve_enemy_around_caster,
+    SpellImplicitTargets.TARGET_INFRONT: EffectTargets.resolve_infront,
+    SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL: EffectTargets.resolve_aoe_enemy_channel,
+    SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER: EffectTargets.resolve_all_friendly_around_caster,
+    SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA: EffectTargets.resolve_all_friendly_in_area,
+    SpellImplicitTargets.TARGET_ALL_PARTY: EffectTargets.resolve_all_party,
+    SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2: EffectTargets.resolve_party_around_caster_2,
+    SpellImplicitTargets.TARGET_SINGLE_PARTY: EffectTargets.resolve_single_party,
+    SpellImplicitTargets.TARGET_AREAEFFECT_PARTY: EffectTargets.resolve_aoe_party,
+    SpellImplicitTargets.TARGET_SCRIPT: EffectTargets.resolve_script,
+    SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: EffectTargets.resolve_gameobject_script_near_caster
+}

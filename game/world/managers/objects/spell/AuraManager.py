@@ -11,7 +11,7 @@ from utils.constants.UpdateFields import UnitFields
 
 class AppliedAura:
     def __init__(self, caster, casting_spell, spell_effect):
-        self.target = casting_spell.initial_target_unit
+        self.target = casting_spell.initial_target
         self.caster = caster
         self.spell_id = casting_spell.spell_entry.ID
         self.spell_effect = spell_effect

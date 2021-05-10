@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange, SpellDuration
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
@@ -23,7 +24,7 @@ class CastingSpell(object):
     spell_entry: Spell
     cast_state: SpellState
     spell_caster = None
-    initial_target_unit = None
+    initial_target = None
     unit_target_results: dict  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
@@ -37,10 +38,10 @@ class CastingSpell(object):
 
     spell_attack_type: int
 
-    def __init__(self, spell, caster_obj, initial_target_unit, target_mask):
+    def __init__(self, spell, caster_obj, initial_target, target_mask):
         self.spell_entry = spell
         self.spell_caster = caster_obj
-        self.initial_target_unit = initial_target_unit
+        self.initial_target = initial_target
         self.spell_target_mask = target_mask
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
@@ -51,6 +52,19 @@ class CastingSpell(object):
         self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged() else AttackTypes.BASE_ATTACK
         self.cast_state = SpellState.SPELL_STATE_PREPARING
         self.effects = self.load_effects()
+
+    def initial_target_is_unit_or_player(self):
+        target_type = self.initial_target.get_type()
+        return target_type == ObjectTypes.TYPE_UNIT or target_type == ObjectTypes.TYPE_PLAYER
+
+    def initial_target_is_item(self):
+        return self.initial_target.get_type() == ObjectTypes.TYPE_ITEM
+
+    def initial_target_is_gameobject(self):
+        return self.initial_target.get_type() == ObjectTypes.TYPE_GAMEOBJECT
+
+    def initial_target_is_terrain(self):
+        return isinstance(self.initial_target, Vector)
 
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0
@@ -382,12 +396,11 @@ class SpellManager(object):
 
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 
-    def handle_cast_attempt(self, spell_id, caster, target_guid, target_mask):
+    def handle_cast_attempt(self, spell_id, caster, spell_target, target_mask):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
-        if not spell:
+        if not spell or not spell_target:
             return
 
-        spell_target = MapManager.get_surrounding_unit_by_guid(caster, target_guid, include_players=True) if target_guid and target_guid != caster.guid else caster
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 
     def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
@@ -528,7 +541,7 @@ class SpellManager(object):
 
         travel_distance = casting_spell.range_entry.RangeMax
         if casting_spell.spell_target_mask & SpellTargetMask.UNIT == SpellTargetMask.UNIT:
-            target_unit_location = casting_spell.initial_target_unit.location
+            target_unit_location = casting_spell.initial_target.location
             travel_distance = casting_spell.spell_caster.location.distance(target_unit_location)
 
         return travel_distance / casting_spell.spell_entry.Speed
@@ -539,8 +552,8 @@ class SpellManager(object):
                 casting_spell.spell_target_mask]
 
         signature = '<2QIHiH'  # TODO
-        if casting_spell.initial_target_unit and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written
-            data.append(casting_spell.initial_target_unit.guid)
+        if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written
+            data.append(casting_spell.initial_target.guid)
             signature += 'Q'
 
         data = pack(signature, *data)
@@ -551,6 +564,7 @@ class SpellManager(object):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,
                 casting_spell.spell_entry.ID, 0]  # TODO Flags
 
+        # TODO Properly handle spell targets
         sign = '<2QIH'
 
         hit_count = 0
@@ -573,7 +587,7 @@ class SpellManager(object):
         # write initial target
         if casting_spell.spell_target_mask & SpellTargetMask.UNIT == SpellTargetMask.UNIT:
             sign += 'Q'
-            data.append(casting_spell.initial_target_unit.guid)
+            data.append(casting_spell.initial_target.guid)
 
         packed = pack(sign, *data)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.unit_mgr,
@@ -616,11 +630,11 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_CASTER_DEAD)
             return False
 
-        if not casting_spell.initial_target_unit:
+        if not casting_spell.initial_target:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return False
 
-        if not casting_spell.initial_target_unit or not casting_spell.initial_target_unit.is_alive:
+        if not casting_spell.initial_target or not casting_spell.initial_target.is_alive:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 
@@ -642,7 +656,7 @@ class SpellManager(object):
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
             # Check if player has required combo points
             if casting_spell.requires_combo_points() and \
-                    (casting_spell.initial_target_unit.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points
+                    (casting_spell.initial_target.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
                 return False
 
