@@ -28,6 +28,7 @@ class EffectTargets:
         is_player = target_object_type == ObjectTypes.TYPE_PLAYER
         is_gameobject = target_object_type == ObjectTypes.TYPE_GAMEOBJECT
         is_item = target_object_type == ObjectTypes.TYPE_ITEM
+
         return {
             SpellImplicitTargets.TARGET_NOTHING: 0,
             SpellImplicitTargets.TARGET_SELF: self.caster,
