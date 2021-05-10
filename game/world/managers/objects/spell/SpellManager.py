@@ -215,11 +215,11 @@ class SpellEffect(object):
 
 class SpellEffectHandler(object):
     @staticmethod
-    def apply_effect(casting_spell, effect):
+    def apply_effect(casting_spell, effect, target):
         if effect.effect_type not in SPELL_EFFECTS:
             Logger.debug(f'Unimplemented effect called: {effect.effect_type}')
             return
-        SPELL_EFFECTS[effect.effect_type](casting_spell, effect, casting_spell.spell_caster, casting_spell.initial_target_unit)
+        SPELL_EFFECTS[effect.effect_type](casting_spell, effect, casting_spell.spell_caster, target)
 
     @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
@@ -321,11 +321,7 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
         teleport_info = effect.targets.implicit_target_b
-        for target_guid, miss_info in casting_spell.unit_target_results.items():
-            if miss_info.result != SpellMissReason.MISS_REASON_NONE:
-                continue
-            miss_info.target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved
-
+        target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved
         # TODO Die sides are assigned for at least Word of Recall (ID 1)
 
 
@@ -452,7 +448,8 @@ class SpellManager(object):
 
     def apply_spell_effects_and_remove(self, casting_spell):
         for effect in casting_spell.effects:
-            SpellEffectHandler.apply_effect(casting_spell, effect)
+            for target in effect.targets.resolved_targets_a:  # TODO B? targets.unit_targets?
+                SpellEffectHandler.apply_effect(casting_spell, effect, target)
         self.remove_cast(casting_spell)
 
     def resolve_target_info_for_spell_effects(self, casting_spell):
@@ -516,9 +513,7 @@ class SpellManager(object):
 
             elif casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
                     casting_spell.spell_delay_end_timestamp <= timestamp:  # Spell was cast already and impact delay is done
-                for effect in casting_spell.effects:
-                    SpellEffectHandler.apply_effect(casting_spell, effect)
-                self.remove_cast(casting_spell)
+                self.apply_spell_effects_and_remove(casting_spell)
 
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
         if casting_spell not in self.casting_spells:
