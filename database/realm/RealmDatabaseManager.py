@@ -519,4 +519,13 @@ class RealmDatabaseManager(object):
         realm_db_session.flush()
         realm_db_session.close()
 
+    @staticmethod
+    def guild_petition_create(petition):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(petition)
+        realm_db_session.flush()
+        realm_db_session.refresh(petition)
+        realm_db_session.close()
+        return petition
+
 
