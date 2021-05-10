@@ -761,7 +761,7 @@ class UnitManager(ObjectManager):
         if check_friendly:
             return ((own_faction.FriendGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.FriendGroup)) != 0
         else:
-            return own_faction.EnemyGroup & own_faction.FactionGroup != 0
+            return ((own_faction.EnemyGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.EnemyGroup)) != 0
 
     def is_friendly_to(self, target):
         return self._allegiance_status_checker(target, True)
