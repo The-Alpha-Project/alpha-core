@@ -4,10 +4,12 @@ from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason
 
+
 class TargetMissInfo:
     def __init__(self, target, result):
         self.target = target
         self.result = result
+
 
 class EffectTargets:
     def __init__(self, casting_spell, spell_effect):
@@ -19,8 +21,8 @@ class EffectTargets:
                                                       self.caster.is_friendly_to(casting_spell.initial_target_unit))
 
         self.target_effect = spell_effect
-        self.implicit_target_a = None
-        self.implicit_target_b = None
+        self.resolved_targets_a = None
+        self.resolved_targets_b = None
 
     def get_simple_targets(self, target_object_type, is_friendly_target):
         is_player = target_object_type == ObjectTypes.TYPE_PLAYER
@@ -41,22 +43,20 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_SELF_FISHING: self.caster,
         }
 
-    def resolve_implicit_target_reference(self, implicit_target):
-        return self.simple_targets[implicit_target] if implicit_target in self.simple_targets else self.TARGET_RESOLVERS[implicit_target](self.casting_spell)
+    def resolve_implicit_targets_reference(self, implicit_target):
+        target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else self.TARGET_RESOLVERS[implicit_target](self.casting_spell)
+        if type(target) is not list:
+            return [target]
+        return target
 
     def resolve_targets(self):
-        self.implicit_target_a = self.resolve_implicit_target_reference(self.target_effect.implicit_target_a)
-        self.implicit_target_b = self.resolve_implicit_target_reference(self.target_effect.implicit_target_b)
-        Logger.debug(f'Resolved targets: {self.implicit_target_a} {self.implicit_target_b}')
-
+        self.resolved_targets_a = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_a)
+        self.resolved_targets_b = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_b)
 
     def get_effect_target_results(self):
-        targets = [self.implicit_target_a]  # TODO Multiple targets
-
+        targets = self.resolved_targets_a  # TODO B?
         target_info = {}
         for target in targets:
-            Logger.debug(f'instance check: {isinstance(target, ObjectManager)}. {type(target)}')
-            Logger.debug(f'effect imp. target: {self.target_effect.implicit_target_a}')
             if isinstance(target, ObjectManager):
                 target_info[target.guid] = TargetMissInfo(target, SpellMissReason.MISS_REASON_NONE)  # TODO Misses etc.
         return target_info

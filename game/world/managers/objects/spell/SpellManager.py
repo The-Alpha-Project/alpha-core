@@ -24,7 +24,7 @@ class CastingSpell(object):
     cast_state: SpellState
     spell_caster = None
     initial_target_unit = None
-    target_results: dict  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
+    unit_target_results: dict  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
     duration_entry: SpellDuration
@@ -321,7 +321,7 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
         teleport_info = effect.targets.implicit_target_b
-        for target_guid, miss_info in casting_spell.target_results.items():
+        for target_guid, miss_info in casting_spell.unit_target_results.items():
             if miss_info.result != SpellMissReason.MISS_REASON_NONE:
                 continue
             miss_info.target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved
@@ -424,7 +424,7 @@ class SpellManager(object):
             self.remove_cast(casting_spell)
             return
 
-        casting_spell.target_results = self.resolve_target_info_for_spell_effects(casting_spell)
+        casting_spell.unit_target_results = self.resolve_target_info_for_spell_effects(casting_spell)
 
         if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
@@ -559,12 +559,12 @@ class SpellManager(object):
         sign = '<2QIH'
 
         hit_count = 0
-        if len(casting_spell.target_results.keys()) > 0:
+        if len(casting_spell.unit_target_results.keys()) > 0:
             hit_count += 1
         sign += 'B'
         data.append(hit_count)
 
-        for target_guid, miss_info in casting_spell.target_results.items():
+        for target_guid, miss_info in casting_spell.unit_target_results.items():
             if miss_info.result == SpellMissReason.MISS_REASON_NONE:
                 data.append(target_guid)
                 sign += 'Q'
