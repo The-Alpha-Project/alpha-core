@@ -34,9 +34,9 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_PET: 0,  # TODO
             SpellImplicitTargets.TARGET_CHAIN_DAMAGE: self.initial_target,  # TODO - resolve chain targets
             SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: self.caster.get_deathbind_coordinates() if is_player else 0,
-            SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.casting_spell.initial_target_unit if is_friendly_target else 0,
+            SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if is_friendly_target else 0,
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if is_gameobject else 0,
-            SpellImplicitTargets.TARGET_DUEL_VS_PLAYER: self.caster.duel_manager.target if self.caster.duel_manager else 0,
+            SpellImplicitTargets.TARGET_DUEL_VS_PLAYER: self.initial_target,  # Spells that can be cast on both hostile and friendly?
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if is_gameobject or is_item else 0,
             SpellImplicitTargets.TARGET_MASTER: None,  # TODO
             SpellImplicitTargets.TARGET_MINION: None,  # TODO

@@ -537,7 +537,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_AROUND_CASTER_ENEMY = 22  # Used only in TargetA target selection dependent from TargetB
     TARGET_SELECTED_GAMEOBJECT = 23
     TARGET_INFRONT = 24
-    TARGET_DUEL_VS_PLAYER = 25  # Used when part of spell is casted on another target
+    TARGET_DUEL_VS_PLAYER = 25  # Used when part of spell is casted on another target TODO rename?
     TARGET_GAMEOBJECT_AND_ITEM = 26
     TARGET_MASTER = 27  # not tested
     TARGET_AREA_EFFECT_ENEMY_CHANNEL = 28
