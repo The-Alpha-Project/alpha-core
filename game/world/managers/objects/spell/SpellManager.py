@@ -307,7 +307,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_insta_kill(casting_spell, effect, caster, target):
-        # No SMSG_SPELLINSTAKILLLOG in 0.5.3?
+        # No SMSG_SPELLINSTAKILLLOG in 0.5.3
         target.die(killer=caster)
 
     @staticmethod
@@ -545,7 +545,7 @@ class SpellManager(object):
 
         data = pack(signature, *data)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
-                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
+                                    include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
     def send_spell_go(self, casting_spell):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,
@@ -577,7 +577,7 @@ class SpellManager(object):
 
         packed = pack(sign, *data)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.unit_mgr,
-                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
+                                    include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
     def set_on_cooldown(self, spell):
         if spell.RecoveryTime == 0:

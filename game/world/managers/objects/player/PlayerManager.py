@@ -440,7 +440,7 @@ class PlayerManager(UnitManager):
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                             self.get_movement_update_packet()), self)
+                                                            self.get_movement_update_packet()), self)
 
     def change_swim_speed(self, swim_speed=0):
         if swim_speed <= 0:
@@ -452,7 +452,7 @@ class PlayerManager(UnitManager):
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                             self.get_movement_update_packet()), self)
+                                                            self.get_movement_update_packet()), self)
 
     def change_walk_speed(self, walk_speed=0):
         if walk_speed <= 0:
@@ -464,7 +464,7 @@ class PlayerManager(UnitManager):
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                             self.get_movement_update_packet()), self)
+                                                            self.get_movement_update_packet()), self)
 
     def change_turn_speed(self, turn_speed=0):
         if turn_speed <= 0:
@@ -475,7 +475,7 @@ class PlayerManager(UnitManager):
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                             self.get_movement_update_packet()), self)
+                                                            self.get_movement_update_packet()), self)
 
     def loot_money(self):
         if self.current_selection > 0:

@@ -34,7 +34,7 @@ class TextEmoteHandler(object):
                     data += pack('<B', 0)
 
                 MapManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_TEXT_EMOTE, data),
-                                                      world_session.player_mgr, config.World.Chat.ChatRange.emote_range)
+                                                     world_session.player_mgr, config.World.Chat.ChatRange.emote_range)
 
                 # Perform visual emote action if needed
 

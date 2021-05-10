@@ -43,11 +43,11 @@ class CommandManager(object):
                 and world_session.player_mgr.current_selection != world_session.player_mgr.guid:
             if only_players:
                 unit = MapManager.get_surrounding_player_by_guid(world_session.player_mgr,
-                                                                  world_session.player_mgr.current_selection)
+                                                                 world_session.player_mgr.current_selection)
             else:
                 unit = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                                world_session.player_mgr.current_selection,
-                                                                include_players=True)
+                                                               world_session.player_mgr.current_selection,
+                                                               include_players=True)
             if unit:
                 return unit
 
@@ -362,7 +362,7 @@ class CommandManager(object):
     @staticmethod
     def creature_info(world_session, args):
         creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                            world_session.player_mgr.current_selection)
+                                                           world_session.player_mgr.current_selection)
 
         if creature:
             return 0, f'[{creature.creature_template.name}] - Guid: {creature.guid & ~HighGuid.HIGHGUID_UNIT}, ' \

@@ -15,7 +15,7 @@ class DebugAIStateHandler(object):
         if len(reader.data) >= 8:  # Avoid handling empty debug AI state packet
             guid = unpack('<Q', reader.data[:8])[0]
             world_object = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid,
-                                                                    include_players=True)
+                                                                   include_players=True)
 
             # If no Unit or Player, try to get a Gameobject.
             if not world_object:
