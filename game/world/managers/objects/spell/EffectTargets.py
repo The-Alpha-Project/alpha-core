@@ -40,7 +40,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if is_gameobject or is_item else 0,
             SpellImplicitTargets.TARGET_MASTER: None,  # TODO
             SpellImplicitTargets.TARGET_MINION: None,  # TODO
-            SpellImplicitTargets.TARGET_SELF_FISHING: self.caster,
+            SpellImplicitTargets.TARGET_SELF_FISHING: self.caster
         }
 
     def resolve_implicit_targets_reference(self, implicit_target):
