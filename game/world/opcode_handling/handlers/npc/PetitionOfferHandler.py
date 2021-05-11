@@ -1,7 +1,6 @@
 from struct import unpack
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
-from network.packet.PacketWriter import *
 
 
 class PetitionOfferHandler(object):
@@ -15,6 +14,7 @@ class PetitionOfferHandler(object):
             lo_player_target_guid = unpack('<H', reader.data[8:10])[0]  # Same
 
             if lo_petition_guid > 0:
+                # TODO: Check if target is not enemy.
                 petition = PetitionManager.get_petition(lo_petition_guid)
                 target_plyr = WorldSessionStateHandler.find_player_by_guid(lo_player_target_guid)
                 if petition and target_plyr:

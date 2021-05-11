@@ -728,6 +728,13 @@ class GuildRank(IntEnum):
     GUILDRANK_LOWEST = 9
 
 
+class PetitionSignResult(IntEnum):
+    GERR_PETITION_SIGNED = 0
+    GERR_PETITION_ALREADY_SIGNED = 1
+    GERR_PETITION_IN_GUILD = 2
+    GERR_PETITION_CREATOR = 3
+
+
 class FriendResults(IntEnum):
     FRIEND_DB_ERROR = 0x0
     FRIEND_LIST_FULL = 0x1
