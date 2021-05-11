@@ -1,344 +1,18 @@
 import time
-import random
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import Spell, SpellCastTimes, SpellRange, SpellDuration
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.player.DuelManager import DuelManager
-from game.world.managers.objects.spell.EffectTargets import EffectTargets
+from game.world.managers.objects.spell.CastingSpell import CastingSpell
+from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.Logger import Logger
-from utils.constants.ItemCodes import InventoryError
-from utils.constants.ObjectCodes import ObjectTypes, AttackTypes
+from utils.constants.ItemCodes import InventoryError, InventoryTypes
+from utils.constants.ObjectCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
-    SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellTargetType, SpellAttributes, SpellAttributesEx, \
-    AuraTypes
-from utils.constants.UnitCodes import PowerTypes, UnitFlags
-
-
-class CastingSpell(object):
-    spell_entry: Spell
-    cast_state: SpellState
-    spell_caster = None
-    initial_target_unit = None
-    unit_target_results: dict  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
-    spell_target_mask: SpellTargetMask
-    range_entry: SpellRange
-    duration_entry: SpellDuration
-    cast_time_entry: SpellCastTimes
-    effects: list
-
-    cast_end_timestamp: float
-    spell_delay_end_timestamp: float
-    caster_effective_level: int
-
-    spell_attack_type: int
-
-    def __init__(self, spell, caster_obj, initial_target_unit, target_mask):
-        self.spell_entry = spell
-        self.spell_caster = caster_obj
-        self.initial_target_unit = initial_target_unit
-        self.spell_target_mask = target_mask
-        self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
-        self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
-        self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
-        self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
-        self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
-
-        self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged() else AttackTypes.BASE_ATTACK
-        self.cast_state = SpellState.SPELL_STATE_PREPARING
-        self.effects = self.load_effects()
-
-    def is_instant_cast(self):
-        return self.cast_time_entry.Base == 0
-
-    def is_ranged(self):
-        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_RANGED == SpellAttributes.SPELL_ATTR_RANGED
-
-    def is_passive(self):
-        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE == SpellAttributes.SPELL_ATTR_PASSIVE
-
-    def trigger_cooldown_on_remove(self):
-        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE == SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE
-
-    def casts_on_swing(self):
-        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 == SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1
-
-    def requires_combo_points(self):
-        cp_att = SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS
-        return self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and \
-            self.spell_entry.AttributesEx & cp_att != 0
-
-    def calculate_effective_level(self, level):
-        if level > self.spell_entry.MaxLevel > 0:
-            level = self.spell_entry.MaxLevel
-        elif level < self.spell_entry.BaseLevel:
-            level = self.spell_entry.BaseLevel
-        return level - self.spell_entry.SpellLevel
-
-    def get_base_cast_time(self):
-        skill = self.spell_caster.skill_manager.get_skill_for_spell_id(self.spell_entry.ID)
-        if not skill:
-            return self.cast_time_entry.Minimum
-
-        return int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill.value))
-
-    def get_resource_cost(self):
-        if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and self.spell_entry.ManaCostPct != 0:
-            return self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
-
-        # ManaCostPerLevel is not used by anything relevant (only 271/4513/7290)
-        return self.spell_entry.ManaCost
-
-    def load_effects(self):
-        effects = []
-        if self.spell_entry.Effect_1 != 0:
-            effects.append(SpellEffect(self, 1))
-        if self.spell_entry.Effect_2 != 0:
-            effects.append(SpellEffect(self, 2))
-        if self.spell_entry.Effect_3 != 0:
-            effects.append(SpellEffect(self, 3))
-        return effects
-    
-    def get_reagents(self):
-        return (self.spell_entry.Reagent_1, self.spell_entry.ReagentCount_1), (self.spell_entry.Reagent_2, self.spell_entry.ReagentCount_2), \
-               (self.spell_entry.Reagent_3, self.spell_entry.ReagentCount_3), (self.spell_entry.Reagent_4, self.spell_entry.ReagentCount_4), \
-               (self.spell_entry.Reagent_5, self.spell_entry.ReagentCount_5), (self.spell_entry.Reagent_6, self.spell_entry.ReagentCount_6), \
-               (self.spell_entry.Reagent_7, self.spell_entry.ReagentCount_7), (self.spell_entry.Reagent_8, self.spell_entry.ReagentCount_8)
-
-    def get_conjured_items(self):
-        conjured_items = []
-        for effect in self.effects:
-            item_count = abs(effect.get_effect_points(self.caster_effective_level))
-            conjured_items.append([effect.item_type, item_count])
-        return tuple(conjured_items)
-
-
-class SpellEffect(object):
-    effect_type: SpellEffects
-    die_sides: int
-    base_dice: int
-    dice_per_level: int
-    real_points_per_level: int
-    base_points: int
-    implicit_target_a: int
-    implicit_target_b: int
-    radius_index: int
-    aura_type: int
-    aura_period: int
-    amplitude: int
-    chain_targets: int
-    item_type: int
-    misc_value: int
-    trigger_spell: int
-
-    effect_index: int
-    targets: EffectTargets
-
-    def __init__(self, casting_spell, index):
-        if index == 1:
-            self.load_first(casting_spell.spell_entry)
-        elif index == 2:
-            self.load_second(casting_spell.spell_entry)
-        elif index == 3:
-            self.load_third(casting_spell.spell_entry)
-
-        self.targets = EffectTargets(casting_spell, self)
-
-    def get_effect_points(self, effective_level):
-        rolled_points = random.randint(1, self.die_sides + self.dice_per_level) if self.die_sides != 0 else 0
-        return self.base_points + int(self.real_points_per_level * effective_level) + rolled_points
-
-    def load_first(self, spell):
-        self.effect_type = spell.Effect_1
-        self.die_sides = spell.EffectDieSides_1
-        self.base_dice = spell.EffectBaseDice_1
-        self.dice_per_level = spell.EffectDicePerLevel_1
-        self.real_points_per_level = spell.EffectRealPointsPerLevel_1
-        self.base_points = spell.EffectBasePoints_1
-        self.implicit_target_a = spell.ImplicitTargetA_1
-        self.implicit_target_b = spell.ImplicitTargetB_1
-        self.radius_index = spell.EffectRadiusIndex_1
-        self.aura_type = spell.EffectAura_1
-        self.aura_period = spell.EffectAuraPeriod_1
-        self.amplitude = spell.EffectAmplitude_1
-        self.chain_targets = spell.EffectChainTargets_1
-        self.item_type = spell.EffectItemType_1
-        self.misc_value = spell.EffectMiscValue_1
-        self.trigger_spell = spell.EffectTriggerSpell_1
-
-        self.effect_index = 1
-        
-    def load_second(self, spell):
-        self.effect_type = spell.Effect_2
-        self.die_sides = spell.EffectDieSides_2
-        self.base_dice = spell.EffectBaseDice_2
-        self.dice_per_level = spell.EffectDicePerLevel_2
-        self.real_points_per_level = spell.EffectRealPointsPerLevel_2
-        self.base_points = spell.EffectBasePoints_2
-        self.implicit_target_a = spell.ImplicitTargetA_2
-        self.implicit_target_b = spell.ImplicitTargetB_2
-        self.radius_index = spell.EffectRadiusIndex_2
-        self.aura_type = spell.EffectAura_2
-        self.aura_period = spell.EffectAuraPeriod_2
-        self.amplitude = spell.EffectAmplitude_2
-        self.chain_targets = spell.EffectChainTargets_2
-        self.item_type = spell.EffectItemType_2
-        self.misc_value = spell.EffectMiscValue_2
-        self.trigger_spell = spell.EffectTriggerSpell_2
-
-        self.effect_index = 2
-
-    def load_third(self, spell):
-        self.effect_type = spell.Effect_3
-        self.die_sides = spell.EffectDieSides_3
-        self.base_dice = spell.EffectBaseDice_3
-        self.dice_per_level = spell.EffectDicePerLevel_3
-        self.real_points_per_level = spell.EffectRealPointsPerLevel_3
-        self.base_points = spell.EffectBasePoints_3
-        self.implicit_target_a = spell.ImplicitTargetA_3
-        self.implicit_target_b = spell.ImplicitTargetB_3
-        self.radius_index = spell.EffectRadiusIndex_3
-        self.aura_type = spell.EffectAura_3
-        self.aura_period = spell.EffectAuraPeriod_3
-        self.amplitude = spell.EffectAmplitude_3
-        self.chain_targets = spell.EffectChainTargets_3
-        self.item_type = spell.EffectItemType_3
-        self.misc_value = spell.EffectMiscValue_3
-        self.trigger_spell = spell.EffectTriggerSpell_3
-
-        self.effect_index = 3
-    
-
-class SpellEffectHandler(object):
-    @staticmethod
-    def apply_effect(casting_spell, effect, target):
-        if effect.effect_type not in SPELL_EFFECTS:
-            Logger.debug(f'Unimplemented effect called: {effect.effect_type}')
-            return
-        SPELL_EFFECTS[effect.effect_type](casting_spell, effect, casting_spell.spell_caster, target)
-
-    @staticmethod
-    def handle_school_damage(casting_spell, effect, caster, target):
-        damage = effect.get_effect_points(casting_spell.caster_effective_level)
-        caster.deal_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
-
-    @staticmethod
-    def handle_heal(casting_spell, effect, caster, target):
-        healing = effect.get_effect_points(casting_spell.caster_effective_level)
-
-    @staticmethod
-    def handle_weapon_damage(casting_spell, effect, caster, target):
-        damage_info = caster.calculate_melee_damage(target, casting_spell.spell_attack_type)
-        if not damage_info:
-            return
-        damage = damage_info.total_damage + effect.get_effect_points(casting_spell.caster_effective_level)
-        caster.deal_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
-
-    @staticmethod
-    def handle_weapon_damage_plus(casting_spell, effect, caster, target):
-        damage_info = caster.calculate_melee_damage(target, casting_spell.spell_attack_type)
-        if not damage_info:
-            return
-        damage = damage_info.total_damage
-        damage_bonus = effect.get_effect_points(casting_spell.caster_effective_level)
-
-        if caster.get_type() == ObjectTypes.TYPE_PLAYER and \
-                casting_spell.requires_combo_points():
-            damage_bonus *= caster.combo_points
-
-        caster.deal_spell_damage(target, damage + damage_bonus, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
-
-    @staticmethod
-    def handle_add_combo_points(casting_spell, effect, caster, target):
-        caster.add_combo_points_on_target(target, effect.get_effect_points(casting_spell.caster_effective_level))
-
-    @staticmethod
-    def handle_aura_application(casting_spell, effect, caster, target):
-        target.aura_manager.apply_spell_effect_aura(caster, casting_spell, effect)
-
-    @staticmethod
-    def handle_request_duel(casting_spell, effect, caster, target):
-        duel_result = DuelManager.request_duel(caster, target, effect.misc_value)
-        if duel_result == 1:
-            result = SpellCheckCastResult.SPELL_NO_ERROR
-        elif duel_result == 0:
-            result = SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING
-        else:
-            result = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
-        caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, result)
-
-    @staticmethod
-    def handle_energize(casting_spell, effect, caster, target):
-        power_type = effect.misc_value
-
-        if power_type != target.power_type:
-            return
-
-        new_power = target.get_power_type_value() + effect.get_effect_points(casting_spell.caster_effective_level)
-        if power_type == PowerTypes.TYPE_MANA:
-            target.set_mana(new_power)
-        elif power_type == PowerTypes.TYPE_RAGE:
-            target.set_rage(new_power)
-        elif power_type == PowerTypes.TYPE_FOCUS:
-            target.set_focus(new_power)
-        elif power_type == PowerTypes.TYPE_ENERGY:
-            target.set_energy(new_power)
-
-    @staticmethod
-    def handle_summon_mount(casting_spell, effect, caster, target):
-        already_mounted = target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED
-        if already_mounted:
-            # Remove any existing mount auras.
-            target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED)
-            target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED)
-            # Force dismount if target is still mounted (like a previous SPELL_EFFECT_SUMMON_MOUNT that doesn't
-            # leave any applied aura).
-            if target.mount_display_id > 0:
-                target.unmount()
-                target.set_dirty()
-        else:
-            creature_entry = effect.misc_value
-            if not target.summon_mount(creature_entry):
-                Logger.error(f'SPELL_EFFECT_SUMMON_MOUNT: Creature template ({creature_entry}) not found in database.')
-
-    @staticmethod
-    def handle_insta_kill(casting_spell, effect, caster, target):
-        # No SMSG_SPELLINSTAKILLLOG in 0.5.3
-        target.die(killer=caster)
-
-    @staticmethod
-    def handle_create_item(casting_spell, effect, caster, target):
-        if target.get_type() != ObjectTypes.TYPE_PLAYER:
-            return
-
-        target.inventory.add_item(effect.item_type,
-                                  count=effect.get_effect_points(casting_spell.caster_effective_level))
-
-    @staticmethod
-    def handle_teleport_units(casting_spell, effect, caster, target):
-        teleport_info = effect.targets.implicit_target_b
-        target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved
-        # TODO Die sides are assigned for at least Word of Recall (ID 1)
-
-
-SPELL_EFFECTS = {
-    SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
-    SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
-    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage,
-    SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
-    SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
-    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus,
-    SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
-    SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
-    SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount,
-    SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill,
-    SpellEffects.SPELL_EFFECT_CREATE_ITEM: SpellEffectHandler.handle_create_item,
-    SpellEffects.SPELL_EFFECT_TELEPORT_UNITS: SpellEffectHandler.handle_teleport_units
-}
+    SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellAttributes, SpellCastFlags
+from utils.constants.UnitCodes import PowerTypes
 
 
 class SpellManager(object):
@@ -382,12 +56,11 @@ class SpellManager(object):
 
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 
-    def handle_cast_attempt(self, spell_id, caster, target_guid, target_mask):
+    def handle_cast_attempt(self, spell_id, caster, spell_target, target_mask):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
-        if not spell:
+        if not spell or not spell_target:
             return
 
-        spell_target = MapManager.get_surrounding_unit_by_guid(caster, target_guid, include_players=True) if target_guid and target_guid != caster.guid else caster
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 
     def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
@@ -527,21 +200,29 @@ class SpellManager(object):
             return 0
 
         travel_distance = casting_spell.range_entry.RangeMax
-        if casting_spell.spell_target_mask & SpellTargetMask.UNIT == SpellTargetMask.UNIT:
-            target_unit_location = casting_spell.initial_target_unit.location
+        if casting_spell.initial_target_is_unit_or_player():
+            target_unit_location = casting_spell.initial_target.location
             travel_distance = casting_spell.spell_caster.location.distance(target_unit_location)
 
         return travel_distance / casting_spell.spell_entry.Speed
 
     def send_cast_start(self, casting_spell):
-        data = [self.unit_mgr.guid, self.unit_mgr.guid,
-                casting_spell.spell_entry.ID, 0, casting_spell.get_base_cast_time(),
+        data = [self.unit_mgr.guid, self.unit_mgr.guid,  # TODO Source (1st arg) can also be item
+                casting_spell.spell_entry.ID, casting_spell.cast_flags, casting_spell.get_base_cast_time(),
                 casting_spell.spell_target_mask]
 
-        signature = '<2QIHiH'  # TODO
-        if casting_spell.initial_target_unit and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written
-            data.append(casting_spell.initial_target_unit.guid)
-            signature += 'Q'
+        signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID/inventorytype)
+
+        if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written
+            target_info = casting_spell.get_target_info()  # ([values], signature)
+            data.extend(target_info[0])
+            signature += target_info[1]
+
+        if casting_spell.cast_flags & SpellCastFlags.CAST_FLAG_HAS_AMMO:
+            signature += '2I'
+            data.append(5996)  # TODO ammo display ID
+            data.append(InventoryTypes.AMMO)  # TODO ammo inventorytype (thrown too)
+
 
         data = pack(signature, *data)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
@@ -549,33 +230,50 @@ class SpellManager(object):
 
     def send_spell_go(self, casting_spell):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,
-                casting_spell.spell_entry.ID, 0]  # TODO Flags
+                casting_spell.spell_entry.ID, casting_spell.cast_flags]
 
-        sign = '<2QIH'
 
-        hit_count = 0
-        if len(casting_spell.unit_target_results.keys()) > 0:
-            hit_count += 1
-        sign += 'B'
-        data.append(hit_count)
+        signature = '<2QIH'  # source, caster, ID, flags .. (targets, ammo info)
 
+        # Prepare target data
+        results_by_type = {SpellMissReason.MISS_REASON_NONE: []}  # Hits need to be written first
         for target_guid, miss_info in casting_spell.unit_target_results.items():
-            if miss_info.result == SpellMissReason.MISS_REASON_NONE:
+            new_targets = results_by_type.get(miss_info.result, [])
+            new_targets.append(target_guid)
+            results_by_type[miss_info.result] = new_targets  # Sort targets by hit type for filling packet fields
+
+        hit_count = len(results_by_type[SpellMissReason.MISS_REASON_NONE])
+        miss_count = len(casting_spell.unit_target_results) - hit_count  # Subtract hits from all targets
+        # Write targets, hits first
+        for result, guids in results_by_type.items():
+            if result == SpellMissReason.MISS_REASON_NONE:  # Hit count is written separately
+                signature += 'B'
+                data.append(hit_count)
+                if len(guids) == 0:
+                    continue
+
+            if result != SpellMissReason.MISS_REASON_NONE:  # Write reason for miss
+                signature += 'B'
+                data.append(result)
+
+            if len(guids) > 0:  # Write targets if there are any
+                signature += f'{len(guids)}Q'
+            for target_guid in guids:
                 data.append(target_guid)
-                sign += 'Q'
 
-        data.append(0)  # miss count
-        sign += 'B'
+            if result == SpellMissReason.MISS_REASON_NONE:  # Write miss count at the end of hits since it needs to be written even if none happen
+                signature += 'B'
+                data.append(miss_count)
 
-        sign += 'H'  # SpellTargetMask
+        signature += 'H'  # SpellTargetMask
         data.append(casting_spell.spell_target_mask)
 
-        # write initial target
-        if casting_spell.spell_target_mask & SpellTargetMask.UNIT == SpellTargetMask.UNIT:
-            sign += 'Q'
-            data.append(casting_spell.initial_target_unit.guid)
+        if casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Write target info - same as cast start
+            target_info = casting_spell.get_target_info()  # ([values], signature)
+            data.extend(target_info[0])
+            signature += target_info[1]
 
-        packed = pack(sign, *data)
+        packed = pack(signature, *data)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.unit_mgr,
                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
@@ -616,11 +314,11 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_CASTER_DEAD)
             return False
 
-        if not casting_spell.initial_target_unit:
+        if not casting_spell.initial_target:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return False
 
-        if not casting_spell.initial_target_unit or not casting_spell.initial_target_unit.is_alive:
+        if casting_spell.initial_target_is_unit_or_player() and not casting_spell.initial_target.is_alive:  # TODO dead targets (resurrect)
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 
@@ -642,7 +340,7 @@ class SpellManager(object):
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
             # Check if player has required combo points
             if casting_spell.requires_combo_points() and \
-                    (casting_spell.initial_target_unit.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points
+                    (casting_spell.initial_target.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
                 return False
 

@@ -55,7 +55,13 @@ class MovementManager(object):
             # Guess current position based on speed and time
             else:
                 guessed_distance = self.speed * self.waypoint_timer
-                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location)
+                # If player is flying, don't take terrain Z into account to generate the position.
+                if self.is_player and self.unit.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
+                    map_id = -1
+                else:
+                    map_id = self.unit.map_
+                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location,
+                                                                       map_id=map_id)
 
             if new_position:
                 self.unit.location.x = new_position.x

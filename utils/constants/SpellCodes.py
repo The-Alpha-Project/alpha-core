@@ -572,3 +572,10 @@ class SpellDamageType(IntEnum):
     SPELL_TYPE_DOT = 1
     SPELL_TYPE_HEAL = 2
     SPELL_TYPE_HEALDOT = 3
+
+
+class SpellCastFlags(IntEnum):
+    CAST_FLAG_NONE = 0x0
+    CAST_FLAG_PROC = 0x1  # Hides cast from log
+    CAST_FLAG_IGNORE_AREA_EFFECT = 0x8  # ?
+    CAST_FLAG_HAS_AMMO = 0x10  # Written when ammo info is provided

@@ -77,7 +77,7 @@ class MapManager(object):
         return tile_y
 
     @staticmethod
-    def calculate_z(map_id, x, y, current_z=None):
+    def calculate_z(map_id, x, y, current_z=0.0):
         try:
             x = MapManager.validate_map_coord(x)
             y = MapManager.validate_map_coord(y)
