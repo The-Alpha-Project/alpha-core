@@ -24,7 +24,7 @@ class PetitionManager(object):
     def build_signatures_packet(petition_guid, lo_petition_guid, petition):
         data = pack('<2QIB', petition_guid, petition.owner_guid, lo_petition_guid, len(petition.characters))
         for signer in petition.characters:
-            data += pack('<QI', signer.guid, 0)  # Unknown flag.
+            data += pack('<Q', signer.guid)
         packet = PacketWriter.get_packet(OpCode.SMSG_PETITION_SHOW_SIGNATURES, data)
         return packet
 
