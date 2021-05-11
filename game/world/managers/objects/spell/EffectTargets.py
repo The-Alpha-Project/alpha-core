@@ -17,28 +17,29 @@ class EffectTargets:
         self.caster = casting_spell.spell_caster
         self.casting_spell = casting_spell
 
-        self.simple_targets = self.get_simple_targets(casting_spell.spell_caster.get_type(),
-                                                      self.caster.is_friendly_to(casting_spell.initial_target_unit))
+        self.simple_targets = self.get_simple_targets()
 
         self.target_effect = spell_effect
         self.resolved_targets_a = None
         self.resolved_targets_b = None
 
-    def get_simple_targets(self, target_object_type, is_friendly_target):
-        is_player = target_object_type == ObjectTypes.TYPE_PLAYER
-        is_gameobject = target_object_type == ObjectTypes.TYPE_GAMEOBJECT
-        is_item = target_object_type == ObjectTypes.TYPE_ITEM
+    def get_simple_targets(self):
+        target_is_player = self.casting_spell.initial_target_is_player()
+        target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
+        target_is_item = self.casting_spell.initial_target_is_item()
+        target_is_friendly = self.casting_spell.initial_target_is_unit_or_player() and \
+            self.caster.is_friendly_to(self.casting_spell.initial_target)
 
         return {
-            SpellImplicitTargets.TARGET_NOTHING: 0,
+            SpellImplicitTargets.TARGET_NOTHING: None,
             SpellImplicitTargets.TARGET_SELF: self.caster,
-            SpellImplicitTargets.TARGET_PET: 0,  # TODO
+            SpellImplicitTargets.TARGET_PET: None,  # TODO
             SpellImplicitTargets.TARGET_CHAIN_DAMAGE: self.initial_target,  # TODO - resolve chain targets
-            SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: self.caster.get_deathbind_coordinates() if is_player else 0,
-            SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if is_friendly_target else 0,
-            SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if is_gameobject else 0,
+            SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: self.caster.get_deathbind_coordinates() if target_is_player else None,
+            SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else None,
+            SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if target_is_gameobject else None,
             SpellImplicitTargets.TARGET_DUEL_VS_PLAYER: self.initial_target,  # Spells that can be cast on both hostile and friendly?
-            SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if is_gameobject or is_item else 0,
+            SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else None,
             SpellImplicitTargets.TARGET_MASTER: None,  # TODO
             SpellImplicitTargets.TARGET_MINION: None,  # TODO
             SpellImplicitTargets.TARGET_SELF_FISHING: self.caster
@@ -46,6 +47,11 @@ class EffectTargets:
 
     def resolve_implicit_targets_reference(self, implicit_target):
         target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else TARGET_RESOLVERS[implicit_target](self.casting_spell)
+
+        if target is None and implicit_target != 0:  # Avoid crash on unfinished implementation while target resolving isn't finished TODO
+            Logger.warning(f'Implicit target {implicit_target} resolved to None. Falling back to initial target or self.')
+            target = self.initial_target if self.casting_spell.target_is_object() else self.caster
+
         if type(target) is not list:
             return [target]
         return target

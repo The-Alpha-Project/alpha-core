@@ -8,22 +8,24 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterS
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventoryError
+from utils.constants.ItemCodes import InventoryError, InventoryTypes
 from utils.constants.ObjectCodes import ObjectTypes, AttackTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellTargetType, SpellAttributes, SpellAttributesEx, \
-    AuraTypes
+    AuraTypes, SpellCastFlags
 from utils.constants.UnitCodes import PowerTypes, UnitFlags
 
 
 class CastingSpell(object):
     spell_entry: Spell
     cast_state: SpellState
-    spell_caster = None
+    cast_flags: SpellCastFlags  # TODO Write proc flag when needed
+    spell_caster = None  # TODO Item caster (use item?)
     initial_target = None
     unit_target_results: dict  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
@@ -53,18 +55,43 @@ class CastingSpell(object):
         self.cast_state = SpellState.SPELL_STATE_PREPARING
         self.effects = self.load_effects()
 
+        self.cast_flags = SpellCastFlags.CAST_FLAG_NONE  # TODO Ammo/proc flag
+
+    def initial_target_is_object(self):
+        return isinstance(self.initial_target, ObjectManager)
+
     def initial_target_is_unit_or_player(self):
+        if not self.initial_target_is_object():
+            return False
+
         target_type = self.initial_target.get_type()
         return target_type == ObjectTypes.TYPE_UNIT or target_type == ObjectTypes.TYPE_PLAYER
 
+    def initial_target_is_player(self):
+        if not self.initial_target_is_object():
+            return False
+
+        return self.initial_target.get_type() == ObjectTypes.TYPE_PLAYER
+
     def initial_target_is_item(self):
+        if not self.initial_target_is_object():
+            return False
+
         return self.initial_target.get_type() == ObjectTypes.TYPE_ITEM
 
     def initial_target_is_gameobject(self):
+        if not self.initial_target_is_object():
+            return False
+
         return self.initial_target.get_type() == ObjectTypes.TYPE_GAMEOBJECT
 
     def initial_target_is_terrain(self):
         return isinstance(self.initial_target, Vector)
+
+    def get_target_info(self):  # ([values], len)
+        is_terrain = self.initial_target_is_terrain()
+        return ([self.initial_target.x, self.initial_target.y, self.initial_target.z] if is_terrain
+                else [self.initial_target.guid]), ('3f' if is_terrain else 'Q')
 
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0
@@ -540,21 +567,29 @@ class SpellManager(object):
             return 0
 
         travel_distance = casting_spell.range_entry.RangeMax
-        if casting_spell.spell_target_mask & SpellTargetMask.UNIT == SpellTargetMask.UNIT:
+        if casting_spell.initial_target_is_unit_or_player():
             target_unit_location = casting_spell.initial_target.location
             travel_distance = casting_spell.spell_caster.location.distance(target_unit_location)
 
         return travel_distance / casting_spell.spell_entry.Speed
 
     def send_cast_start(self, casting_spell):
-        data = [self.unit_mgr.guid, self.unit_mgr.guid,
-                casting_spell.spell_entry.ID, 0, casting_spell.get_base_cast_time(),
+        data = [self.unit_mgr.guid, self.unit_mgr.guid,  # TODO Source (1st arg) can also be item
+                casting_spell.spell_entry.ID, casting_spell.cast_flags, casting_spell.get_base_cast_time(),
                 casting_spell.spell_target_mask]
 
-        signature = '<2QIHiH'  # TODO
+        signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID/inventorytype)
+
         if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written
-            data.append(casting_spell.initial_target.guid)
-            signature += 'Q'
+            target_info = casting_spell.get_target_info()  # ([values], signature)
+            data.extend(target_info[0])
+            signature += target_info[1]
+
+        if casting_spell.cast_flags & SpellCastFlags.CAST_FLAG_HAS_AMMO:
+            signature += '2I'
+            data.append(5996)  # TODO ammo display ID
+            data.append(InventoryTypes.AMMO)  # TODO ammo inventorytype (thrown too)
+
 
         data = pack(signature, *data)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
@@ -562,34 +597,50 @@ class SpellManager(object):
 
     def send_spell_go(self, casting_spell):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,
-                casting_spell.spell_entry.ID, 0]  # TODO Flags
+                casting_spell.spell_entry.ID, casting_spell.cast_flags]
 
-        # TODO Properly handle spell targets
-        sign = '<2QIH'
 
-        hit_count = 0
-        if len(casting_spell.unit_target_results.keys()) > 0:
-            hit_count += 1
-        sign += 'B'
-        data.append(hit_count)
+        signature = '<2QIH'  # source, caster, ID, flags .. (targets, ammo info)
 
+        # Prepare target data
+        results_by_type = {SpellMissReason.MISS_REASON_NONE: []}  # Hits need to be written first
         for target_guid, miss_info in casting_spell.unit_target_results.items():
-            if miss_info.result == SpellMissReason.MISS_REASON_NONE:
+            new_targets = results_by_type.get(miss_info.result, [])
+            new_targets.append(target_guid)
+            results_by_type[miss_info.result] = new_targets  # Sort targets by hit type for filling packet fields
+
+        hit_count = len(results_by_type[SpellMissReason.MISS_REASON_NONE])
+        miss_count = len(casting_spell.unit_target_results) - hit_count  # Subtract hits from all targets
+        # Write targets, hits first
+        for result, guids in results_by_type.items():
+            if result == SpellMissReason.MISS_REASON_NONE:  # Hit count is written separately
+                signature += 'B'
+                data.append(hit_count)
+                if len(guids) == 0:
+                    continue
+
+            if result != SpellMissReason.MISS_REASON_NONE:  # Write reason for miss
+                signature += 'B'
+                data.append(result)
+
+            if len(guids) > 0:  # Write targets if there are any
+                signature += f'{len(guids)}Q'
+            for target_guid in guids:
                 data.append(target_guid)
-                sign += 'Q'
 
-        data.append(0)  # miss count
-        sign += 'B'
+            if result == SpellMissReason.MISS_REASON_NONE:  # Write miss count at the end of hits since it needs to be written even if none happen
+                signature += 'B'
+                data.append(miss_count)
 
-        sign += 'H'  # SpellTargetMask
+        signature += 'H'  # SpellTargetMask
         data.append(casting_spell.spell_target_mask)
 
-        # write initial target
-        if casting_spell.spell_target_mask & SpellTargetMask.UNIT == SpellTargetMask.UNIT:
-            sign += 'Q'
-            data.append(casting_spell.initial_target.guid)
+        if casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Write target info - same as cast start
+            target_info = casting_spell.get_target_info()  # ([values], signature)
+            data.extend(target_info[0])
+            signature += target_info[1]
 
-        packed = pack(sign, *data)
+        packed = pack(signature, *data)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.unit_mgr,
                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
@@ -634,7 +685,7 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return False
 
-        if not casting_spell.initial_target or not casting_spell.initial_target.is_alive:
+        if casting_spell.initial_target_is_unit_or_player() and not casting_spell.initial_target.is_alive:  # TODO dead targets (resurrect)
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 

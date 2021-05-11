@@ -22,7 +22,9 @@ class CastSpellHandler(object):
             else:
                 target_info = caster  # Self
 
-            if target_mask & SpellTargetMask.UNIT_TARGET_MASK and target_info != caster:
+            if target_mask & SpellTargetMask.CAN_TARGET_TERRAIN:
+                spell_target = target_info
+            elif target_mask & SpellTargetMask.UNIT_TARGET_MASK and target_info != caster:
                 spell_target = MapManager.get_surrounding_unit_by_guid(caster, target_info, include_players=True)
             elif target_mask & SpellTargetMask.ITEM_TARGET_MASK:
                 spell_target = caster.inventory.get_item_info_by_guid(target_info)[3]  # (container_slot, container, slot, item)
