@@ -38,6 +38,10 @@ from game.world.opcode_handling.handlers.npc.TabardVendorActivateHandler import 
 from game.world.opcode_handling.handlers.npc.BinderActivateHandler import BinderActivateHandler
 from game.world.opcode_handling.handlers.npc.PetitionShowlistHandler import PetitionShowlistHandler
 from game.world.opcode_handling.handlers.npc.PetitionBuyHandler import PetitionBuyHandler
+from game.world.opcode_handling.handlers.npc.PetitionShowSignaturesHandler import PetitionShowSignaturesHandler
+from game.world.opcode_handling.handlers.npc.PetitionQueryHandler import PetitionQueryHandler
+from game.world.opcode_handling.handlers.npc.PetitionOfferHandler import PetitionOfferHandler
+from game.world.opcode_handling.handlers.npc.PetitionSignHandler import PetitionSignHandler
 from game.world.opcode_handling.handlers.npc.ListInventoryHandler import ListInventoryHandler
 from game.world.opcode_handling.handlers.npc.BuyItemHandler import BuyItemHandler
 from game.world.opcode_handling.handlers.combat.AttackSwingHandler import AttackSwingHandler
@@ -170,6 +174,10 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_BINDER_ACTIVATE: BinderActivateHandler.handle,
     OpCode.CMSG_PETITION_SHOWLIST: PetitionShowlistHandler.handle,
     OpCode.CMSG_PETITION_BUY: PetitionBuyHandler.handle,
+    OpCode.CMSG_PETITION_SHOW_SIGNATURES: PetitionShowSignaturesHandler.handle,
+    OpCode.CMSG_PETITION_QUERY: PetitionQueryHandler.handle,
+    OpCode.CMSG_OFFER_PETITION: PetitionOfferHandler.handle,
+    OpCode.CMSG_PETITION_SIGN: PetitionSignHandler.handle,
     OpCode.CMSG_LIST_INVENTORY: ListInventoryHandler.handle,
     OpCode.CMSG_BUY_ITEM: BuyItemHandler.handle,
     OpCode.CMSG_BUY_ITEM_IN_SLOT: BuyItemInSlotHandler.handle,

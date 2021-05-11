@@ -36,9 +36,8 @@ class PetitionBuyHandler(object):
                     world_session.player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_NOT_ENOUGH_MONEY,
                                                                       CHARTER_ENTRY, npc_guid)
                 elif world_session.player_mgr.inventory.add_item(CHARTER_ENTRY, handle_error=False):
-                    petition_guid = world_session.player_mgr.inventory.get_first_item_by_entry(CHARTER_ENTRY).guid
-                    print(petition_guid)
-                    PetitionManager.create_petition(world_session.player_mgr.guid, guild_name, petition_guid)
-                    world_session.player_mgr.mod_money(-CHARTER_COST)
+                    petition_item = world_session.player_mgr.inventory.get_first_item_by_entry(CHARTER_ENTRY)
+                    PetitionManager.create_petition(world_session.player_mgr.guid, guild_name, petition_item.guid)
+                    world_session.player_mgr.mod_money(-CHARTER_COST, reload_items=True)
 
         return 0

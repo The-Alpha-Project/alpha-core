@@ -528,4 +528,20 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
         return petition
 
+    @staticmethod
+    def guild_petition_get(petition_guid):
+        realm_db_session = SessionHolder()
+        petition = realm_db_session.query(Petition).filter_by(petition_guid=petition_guid).first()
+        realm_db_session.close()
+        return petition
+
+    @staticmethod
+    def sign_petition(petition, character):
+        petition.characters.append(character)
+        realm_db_session = SessionHolder()
+        realm_db_session.merge(petition)
+        realm_db_session.flush()
+        realm_db_session.close()
+        return petition
+
 

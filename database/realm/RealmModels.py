@@ -219,9 +219,9 @@ class Petition(Base):
     petition_guid = Column(ForeignKey('character_inventory.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
     name = Column(String(255), nullable=False, server_default=text("''"))
 
-    character = relationship('Character')
-    character_inventory = relationship('CharacterInventory')
-    characters = relationship('Character', secondary='petition_sign')
+    character = relationship('Character', lazy='joined')
+    character_inventory = relationship('CharacterInventory', lazy='joined')
+    characters = relationship('Character', secondary='petition_sign', lazy='joined')
 
 
 t_petition_sign = Table(
@@ -229,6 +229,7 @@ t_petition_sign = Table(
     Column('petition_id', ForeignKey('petition.petition_id', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'")),
     Column('player_guid', ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
 )
+
 
 class Group(Base):
     __tablename__ = 'group'
