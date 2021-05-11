@@ -20,6 +20,12 @@ begin not atomic
         DELETE FROM `npc_vendor` WHERE `entry` = 5814;
         insert into applied_updates values ('110520211');
     end if;
+
+    -- 11/05/2021 2
+    if (select count(*) from applied_updates where id='110520212') = 0 then
+        delete from spawns_gameobjects where spawn_id = 49853;
+        insert into applied_updates values ('110520212');
+    end if;
 	
 end $
 delimiter ;
