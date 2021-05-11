@@ -57,7 +57,7 @@ class MovementHandler(object):
                                      reader.data)
 
                 MapManager.send_surrounding(PacketWriter.get_packet(OpCode(reader.opcode), movement_data),
-                                             world_session.player_mgr, include_self=False)
+                                            world_session.player_mgr, include_self=False)
                 MapManager.update_object(world_session.player_mgr)
                 world_session.player_mgr.sync_player()
 

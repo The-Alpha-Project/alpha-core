@@ -711,7 +711,7 @@ class InventoryManager(object):
         else:
             MapManager.send_surrounding(update_packet, world_session.player_mgr, include_self=False)
             MapManager.send_surrounding(item.query_details(), world_session.player_mgr,
-                                         include_self=False)
+                                        include_self=False)
 
     def send_inventory_update(self, world_session, is_self=True):
         for container_slot, container in list(self.containers.items()):

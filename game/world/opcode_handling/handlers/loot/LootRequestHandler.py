@@ -13,7 +13,7 @@ class LootRequestHandler(object):
 
             player = world_session.player_mgr
             enemy = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, loot_target_guid,
-                                                             include_players=False)
+                                                            include_players=False)
 
             if player and enemy:
                 # Only set flag if player was able to loot, else the player would be kneeling forever.

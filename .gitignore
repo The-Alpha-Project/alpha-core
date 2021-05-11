@@ -13,5 +13,8 @@ venv
 # Client data
 **.map
 **.mmap
+**.mmtile
 **.vmap
+**.vmtree
+**.vmtile
 **.dbc

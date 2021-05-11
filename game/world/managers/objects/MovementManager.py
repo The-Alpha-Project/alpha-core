@@ -124,7 +124,7 @@ class MovementManager(object):
         )
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data), self.unit,
-                                     include_self=self.is_player)
+                                    include_self=self.is_player)
 
         # Player shouldn't instantly dismount after reaching the taxi destination
         if self.is_player and spline_flag == SplineFlags.SPLINEFLAG_FLYING:
