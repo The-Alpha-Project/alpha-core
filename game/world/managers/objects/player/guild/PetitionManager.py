@@ -2,7 +2,7 @@ from struct import pack
 from database.realm.RealmModels import Petition
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ObjectCodes import PetitionSignResult
+from utils.constants.ObjectCodes import PetitionError
 
 
 class PetitionManager(object):
@@ -31,8 +31,8 @@ class PetitionManager(object):
     @staticmethod
     def sign_petition(petition, signer_player, petition_owner_player):
         RealmDatabaseManager.sign_petition(petition, signer_player.player)
-        PetitionManager.send_peition_sign_result(signer_player, PetitionSignResult.GERR_PETITION_SIGNED)
-        PetitionManager.send_peition_sign_result(petition_owner_player, PetitionSignResult.GERR_PETITION_SIGNED)
+        PetitionManager.send_peition_sign_result(signer_player, PetitionError.PETITION_SUCCESS)
+        PetitionManager.send_peition_sign_result(petition_owner_player, PetitionError.PETITION_SUCCESS)
 
     @staticmethod
     def send_peition_sign_result(player_mgr, result):
