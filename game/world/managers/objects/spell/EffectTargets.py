@@ -50,7 +50,7 @@ class EffectTargets:
 
         if target is None and implicit_target != 0:  # Avoid crash on unfinished implementation while target resolving isn't finished TODO
             Logger.warning(f'Implicit target {implicit_target} resolved to None. Falling back to initial target or self.')
-            target = self.initial_target if self.casting_spell.target_is_object() else self.caster
+            target = self.initial_target if self.casting_spell.initial_target_is_object() else self.caster
 
         if type(target) is not list:
             return [target]
