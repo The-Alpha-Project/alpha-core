@@ -16,8 +16,8 @@ begin not atomic
     -- 11/05/2021 1
     if (select count(*) from applied_updates where id='110520211') = 0 then
         UPDATE `creature_template` set `npc_flags` = 16388, `level_min` = 30, `level_max` = 30 WHERE `entry` = 5814;
-        INSERT INTO `npc_vendor_template` (`entry`, `item`) VALUES (5814, 2511);
         DELETE FROM `npc_vendor` WHERE `entry` = 5814;
+        INSERT INTO `npc_vendor` (`entry`, `item`) VALUES (5814, 2511);
         insert into applied_updates values ('110520211');
     end if;
 
