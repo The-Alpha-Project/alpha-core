@@ -446,7 +446,6 @@ class UnitManager(ObjectManager):
 
     # Implemented by PlayerManager
     def generate_rage(self, damage_info, is_player=False):
-        # TODO: Creatures that use rage should call this as well.
         return
 
     # Implemented by PlayerManager and CreatureManager
