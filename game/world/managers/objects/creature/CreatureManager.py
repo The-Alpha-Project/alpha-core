@@ -11,10 +11,11 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.creature.CreatureLootManager import CreatureLootManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
+from utils.Formulas import UnitFormulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -59,7 +60,7 @@ class CreatureManager(UnitManager):
 
             self.fully_loaded = False
             self.is_evading = False
-            self.has_offhand_weapon = False
+            self.wearing_offhand_weapon = False
             self.respawn_timer = 0
             self.is_spawned = True
             self.last_random_movement = 0
@@ -178,8 +179,8 @@ class CreatureManager(UnitManager):
 
             # Offhand
             if slot == 1:
-                self.has_offhand_weapon = (item_template.inventory_type == InventoryTypes.WEAPON or
-                                           item_template.inventory_type == InventoryTypes.WEAPONOFFHAND)
+                self.wearing_offhand_weapon = (item_template.inventory_type == InventoryTypes.WEAPON or
+                                               item_template.inventory_type == InventoryTypes.WEAPONOFFHAND)
         elif slot == 0:
             self.weapon_reach = 0.0
 
@@ -249,6 +250,34 @@ class CreatureManager(UnitManager):
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
 
+    def _perform_random_movement(self, now):
+        if not self.in_combat and self.creature_instance.movement_type == MovementTypes.WANDER:
+            if len(self.movement_manager.pending_waypoints) == 0:
+                if now > self.last_random_movement + self.random_movement_wait_time:
+                    self.movement_manager.move_random(self.spawn_position,
+                                                      self.creature_instance.wander_distance)
+                    self.random_movement_wait_time = randint(1, 12)
+                    self.last_random_movement = now
+
+    def _perform_combat_movement(self, now):
+        if self.combat_target:
+            current_distance = self.location.distance(self.combat_target.location)
+            interactable_distance = UnitFormulas.interactable_distance(self, self.combat_target)
+
+            # If target is within interactable distance, don't move yet.
+            if current_distance <= interactable_distance:
+                return
+
+            # TODO: Find better formula?
+            combat_position_distance = interactable_distance * 0.5
+            combat_location = self.combat_target.location.get_point_in_between(combat_position_distance, vector=self.location)
+
+            # If already going to the correct spot, don't do anything.
+            if len(self.movement_manager.pending_waypoints) > 0 and self.movement_manager.pending_waypoints[0].location == combat_location:
+                return
+
+            self.movement_manager.send_move_to([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+
     # override
     def update(self):
         now = time.time()
@@ -262,13 +291,12 @@ class CreatureManager(UnitManager):
                 # Movement Updates
                 self.movement_manager.update_pending_waypoints(elapsed)
                 # Random Movement
-                if not self.in_combat and self.creature_instance.movement_type == MovementTypes.WANDER:
-                    if len(self.movement_manager.pending_waypoints) == 0:
-                        if now > self.last_random_movement + self.random_movement_wait_time:
-                            self.movement_manager.move_random(self.spawn_position,
-                                                              self.creature_instance.wander_distance)
-                            self.random_movement_wait_time = randint(1, 12)
-                            self.last_random_movement = now
+                self._perform_random_movement(now)
+                # Combat movement
+                self._perform_combat_movement(now)
+                # Attack update
+                if self.combat_target and self.is_within_interactable_distance(self.combat_target):
+                    self.attack_update(elapsed)
             # Dead
             else:
                 self.respawn_timer += elapsed
@@ -349,7 +377,7 @@ class CreatureManager(UnitManager):
 
     # override
     def has_offhand_weapon(self):
-        return self.has_offhand_weapon
+        return self.wearing_offhand_weapon
 
     # override
     def set_weapon_mode(self, weapon_mode):

@@ -24,6 +24,9 @@ class Vector(object):
     def __str__(self):
         return f'{self.x}, {self.y}, {self.z}. {self.o}'
 
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y and self.z == other.z
+
     @staticmethod
     def from_bytes(vector_bytes):
         vector = Vector()
@@ -34,7 +37,7 @@ class Vector(object):
         return vector
 
     @staticmethod
-    def _calculate_z(x, y, map_id, default_z=0.0):
+    def calculate_z(x, y, map_id, default_z=0.0):
         if map_id == -1 or not config.Server.Settings.use_map_tiles:
             return default_z
         else:
@@ -75,14 +78,14 @@ class Vector(object):
         factor = offset / general_distance
         x3 = self.x + factor * (vector.x - self.x)
         y3 = self.y + factor * (vector.y - self.y)
-        z3 = Vector._calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z))
+        z3 = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z))
 
         return Vector(x3, y3, z3)
 
     def get_point_in_middle(self, vector, map_id=-1):
         x = (self.x + vector.x) / 2
         y = (self.y + vector.y) / 2
-        z = Vector._calculate_z(x, y, map_id, (self.z + vector.z) / 2)
+        z = Vector.calculate_z(x, y, map_id, (self.z + vector.z) / 2)
 
         return Vector(x, y, z)
 
@@ -93,6 +96,6 @@ class Vector(object):
 
         x = self.x + (r * math.cos(theta))
         y = self.y + (r * math.sin(theta))
-        z = Vector._calculate_z(x, y, map_id, self.z)
+        z = Vector.calculate_z(x, y, map_id, self.z)
 
         return Vector(x, y, z)
