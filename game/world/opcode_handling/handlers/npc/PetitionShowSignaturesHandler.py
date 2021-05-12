@@ -10,7 +10,6 @@ class PetitionShowSignaturesHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        # NPC needs 0x80 | 0x40 flag
         if len(reader.data) >= 8:  # Avoid handling empty petition show signatures packet
             peittion_guid = unpack('<Q', reader.data[:8])[0]
             lo_petition_guid = unpack('<H', reader.data[:2])[0]  # This represents charter item instance guid

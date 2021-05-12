@@ -6,7 +6,6 @@ class PetitionQueryHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        # NPC needs 0x80 | 0x40 flag
         if len(reader.data) >= 12:  # Avoid handling empty petition query packet
             lo_petition_guid = unpack('<H', reader.data[:2])[0]  # We just need the lo_guid
 
