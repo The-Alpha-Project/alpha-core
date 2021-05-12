@@ -29,11 +29,11 @@ class MapManager(object):
         if not config.Server.Settings.use_map_tiles:
             return
 
-        x = MapManager.get_tile_x(x)
-        y = MapManager.get_tile_y(y)
-
         if map_id not in MAP_LIST:
             return
+
+        x = MapManager.get_tile_x(x)
+        y = MapManager.get_tile_y(y)
 
         for i in range(-1, 1):
             for j in range(-1, 1):
@@ -42,13 +42,6 @@ class MapManager(object):
                     if not MAPS[map_id].tiles_used[x + i][y + j]:
                         MAPS[map_id].tiles_used[x + i][y + j] = True
                         MAPS[map_id].tiles[x + i][y + j] = MapTile(map_id, x + i, y + j)
-
-    @staticmethod
-    def load_map_tiles_for_active_cells(grid_manager):
-        for key in list(grid_manager.active_cell_keys):
-            cell = grid_manager.cells[key]
-            for guid, creature in list(cell.creatures.items()):
-                MapManager.load_map_tiles(creature.map_, creature.location.x, creature.location.y)
 
     @staticmethod
     def get_tile(x, y):
