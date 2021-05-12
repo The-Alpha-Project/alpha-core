@@ -223,8 +223,8 @@ class PlayerManager(UnitManager):
     def complete_login(self):
         self.online = True
 
-        self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
         MapManager.update_object(self)
+        self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
         ChannelManager.join_default_channels(self)  # Once in-world
         self.friends_manager.send_online_notification()  # Notify our friends
         if self.guild_manager:
