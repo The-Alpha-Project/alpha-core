@@ -18,7 +18,11 @@ class MapManager(object):
     @staticmethod
     def initialize_maps():
         for map_id in MAP_LIST:
-            MAPS[map_id] = Map(map_id)
+            MAPS[map_id] = Map(map_id, MapManager.on_cell_turn_active)
+
+    @staticmethod
+    def on_cell_turn_active(world_obj):
+        MapManager.load_map_tiles(world_obj.map_, world_obj.location.x, world_obj.location.y)
 
     @staticmethod
     def load_map_tiles(map_id, x, y):
@@ -186,14 +190,8 @@ class MapManager(object):
 
     @staticmethod
     def update_object(world_object):
-        # If object is a player, preload the tiles (if they aren't loaded already) before adding to new Cell.
-        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
-            MapManager.load_map_tiles(world_object.map_, world_object.location.x, world_object.location.y)
-
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
         grid_manager.update_object(world_object)
-        # If needed or enabled, load corresponding map tiles for active grid and adjacent.
-        MapManager.load_map_tiles_for_active_cells(grid_manager)
 
     @staticmethod
     def remove_object(world_object):
