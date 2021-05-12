@@ -13,6 +13,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.ConfigManager import config
+from utils.Formulas import UnitFormulas
 from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags
@@ -115,7 +116,7 @@ class UnitManager(ObjectManager):
                  dynamic_flags=0,
                  damage=0,  # current damage, max damage
                  bytes_2=0,  # combo points, 0, 0, 0
-                 current_target = 0, # guid
+                 current_target=0,  # guid
                  combat_target=None,  # victim
                  **kwargs):
         super().__init__(**kwargs)
@@ -202,6 +203,10 @@ class UnitManager(ObjectManager):
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
 
+    def is_within_interactable_distance(self, victim):
+        current_distance = self.location.distance(victim.location)
+        return current_distance <= UnitFormulas.interactable_distance(self, victim)
+
     def attack(self, victim, is_melee=True):
         if not victim or victim == self:
             return False
@@ -217,7 +222,7 @@ class UnitManager(ObjectManager):
         # In fight already
         if self.combat_target:
             if self.combat_target == victim:
-                if is_melee:
+                if is_melee and self.is_within_interactable_distance(self.combat_target):
                     self.send_melee_attack_start(victim.guid)
                     return True
                 return False
@@ -232,8 +237,8 @@ class UnitManager(ObjectManager):
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
-        if is_melee:
-            self.send_melee_attack_start(victim.guid)
+        if is_melee and self.is_within_interactable_distance(self.combat_target):
+            self.send_melee_attack_start(self.combat_target.guid)
 
         return True
 
@@ -260,6 +265,18 @@ class UnitManager(ObjectManager):
         data = pack('<2QI', self.guid, victim_guid, 0 if self.is_alive else 1)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
+    def attack_update(self, elapsed):
+        if self.combat_target and not self.combat_target.is_alive:
+            self.leave_combat()
+            self.set_dirty()
+            return
+
+        self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
+        if self.has_offhand_weapon():
+            self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
+
+        self.update_melee_attacking_state()
+
     def update_melee_attacking_state(self):
         swing_error = AttackSwingError.NONE
         combat_angle = math.pi
@@ -275,9 +292,7 @@ class UnitManager(ObjectManager):
 
         current_angle = self.location.angle(self.combat_target.location)
         # Out of reach
-        if self.location.distance(self.combat_target.location) > Formulas.UnitFormulas.interactable_distance(
-            self.weapon_reach, self.combat_reach, self.combat_target.weapon_reach, self.combat_target.combat_reach
-        ):
+        if not self.is_within_interactable_distance(self.combat_target):
             swing_error = AttackSwingError.NOTINRANGE
         # Not proper angle
         elif current_angle > combat_angle or current_angle < -combat_angle:
@@ -330,7 +345,7 @@ class UnitManager(ObjectManager):
                 self.send_melee_attack_stop(self.combat_target.guid)
 
         self.swing_error = swing_error
-        return swing_error == 0
+        return swing_error == AttackSwingError.NONE
 
     def attacker_state_update(self, victim, attack_type, extra):
         if attack_type == AttackTypes.BASE_ATTACK:
@@ -414,7 +429,7 @@ class UnitManager(ObjectManager):
                     0, 0,
                     damage_info.blocked_amount)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATE, data), self,
-                                     include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
+                                    include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
 
         # Damage effects
         self.deal_damage(damage_info.target, damage_info.total_damage)
@@ -447,7 +462,6 @@ class UnitManager(ObjectManager):
             self.set_dirty()
 
         if not target.in_combat:
-            target.combat_target = self
             target.enter_combat()
             target.set_dirty()
 
@@ -461,6 +475,9 @@ class UnitManager(ObjectManager):
             self.die(killer=source)
         else:
             self.set_health(new_health)
+
+        if not self.combat_target and not is_player and source and source.get_type() != ObjectTypes.TYPE_GAMEOBJECT:
+            self.combat_target = source
 
         update_packet = self.generate_proper_update_packet(is_self=is_player)
         MapManager.send_surrounding(update_packet, self, include_self=is_player)
@@ -505,8 +522,8 @@ class UnitManager(ObjectManager):
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
-    def leave_combat(self):
-        if not self.in_combat:
+    def leave_combat(self, force=False):
+        if not self.in_combat and not force:
             return
 
         self.attackers.clear()
@@ -542,7 +559,7 @@ class UnitManager(ObjectManager):
         if emote != 0:
             data = pack('<IQ', emote, self.guid)
             MapManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data),
-                                                  self, config.World.Chat.ChatRange.emote_range)
+                                                 self, config.World.Chat.ChatRange.emote_range)
 
     def summon_mount(self, creature_entry):
         creature_template = WorldDatabaseManager.creature_get_by_entry(creature_entry)
@@ -719,7 +736,8 @@ class UnitManager(ObjectManager):
         return True
 
     def respawn(self):
-        self.in_combat = False
+        # Force leave combat just in case.
+        self.leave_combat(force=True)
         self.is_alive = True
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD

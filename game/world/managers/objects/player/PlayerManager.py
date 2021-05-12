@@ -945,18 +945,6 @@ class PlayerManager(UnitManager):
                 self.set_dirty()
             self.last_regen = current_time
 
-    def attack_update(self, elapsed):
-        if self.combat_target and not self.combat_target.is_alive:
-            self.leave_combat()
-            self.set_dirty()
-            return
-
-        self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
-        if self.has_offhand_weapon():
-            self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
-
-        self.update_melee_attacking_state()
-
     # override
     def calculate_min_max_damage(self, attack_type=0):
         # TODO: Using Vanilla formula, AP was not present in Alpha
