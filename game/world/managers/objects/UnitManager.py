@@ -476,7 +476,9 @@ class UnitManager(ObjectManager):
         else:
             self.set_health(new_health)
 
+        # If unit is a creature and it's being attacked by another unit, automatically set combat target.
         if not self.combat_target and not is_player and source and source.get_type() != ObjectTypes.TYPE_GAMEOBJECT:
+            self.set_current_target(source.guid)
             self.combat_target = source
 
         update_packet = self.generate_proper_update_packet(is_self=is_player)
@@ -738,6 +740,7 @@ class UnitManager(ObjectManager):
     def respawn(self):
         # Force leave combat just in case.
         self.leave_combat(force=True)
+        self.set_current_target(self.guid)
         self.is_alive = True
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
