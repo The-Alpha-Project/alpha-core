@@ -21,7 +21,7 @@ class MapTile(object):
         self.load()
 
     def load(self):
-        filename = f'{self.cell_map}00{self.cell_x}{self.cell_y}.map'
+        filename = f'00{self.cell_map}{self.cell_x}{self.cell_y}.map'
         maps_path = PathManager.get_map_file_path(filename)
         Logger.debug(f'[Maps] Loading map file: {filename}')
 
