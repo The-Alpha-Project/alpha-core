@@ -22,6 +22,7 @@ class CharEnumHandler(object):
 
     @staticmethod
     def get_char_packet(world_session, character):
+        guild = RealmDatabaseManager.character_get_guild(character)
         name_bytes = PacketWriter.string_to_bytes(character.name)
         char_fmt = f'<Q{len(name_bytes)}s9B2I3f4I'
         char_packet = pack(
@@ -42,7 +43,7 @@ class CharEnumHandler(object):
             character.position_x,
             character.position_y,
             character.position_z,
-            0,  # TODO: Handle Guild GUID,
+            guild.guild_id if guild else 0,
             0,  # TODO: Handle PetDisplayInfo
             0,  # TODO: Handle PetLevel
             0  # TODO: Handle PetFamily,

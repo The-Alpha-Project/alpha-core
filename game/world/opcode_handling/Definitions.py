@@ -42,6 +42,7 @@ from game.world.opcode_handling.handlers.npc.PetitionShowSignaturesHandler impor
 from game.world.opcode_handling.handlers.npc.PetitionQueryHandler import PetitionQueryHandler
 from game.world.opcode_handling.handlers.npc.PetitionOfferHandler import PetitionOfferHandler
 from game.world.opcode_handling.handlers.npc.PetitionSignHandler import PetitionSignHandler
+from game.world.opcode_handling.handlers.npc. PetitionTurnInHandler import PetitionTurnInHandler
 from game.world.opcode_handling.handlers.npc.ListInventoryHandler import ListInventoryHandler
 from game.world.opcode_handling.handlers.npc.BuyItemHandler import BuyItemHandler
 from game.world.opcode_handling.handlers.combat.AttackSwingHandler import AttackSwingHandler
@@ -100,6 +101,7 @@ from game.world.opcode_handling.handlers.guild.GuildDemoteHandler import GuildDe
 from game.world.opcode_handling.handlers.guild.GuildLeaveHandler import GuildLeaveHandler
 from game.world.opcode_handling.handlers.guild.GuildLeaderHandler import GuildLeaderHandler
 from game.world.opcode_handling.handlers.guild.GuildDisbandHandler import GuildDisbandHandler
+from game.world.opcode_handling.handlers.guild.GuildSaveEmblemHandler import GuildSaveEmblemHandler
 from game.world.opcode_handling.handlers.friends.FriendsListHandler import FriendsListHandler
 from game.world.opcode_handling.handlers.friends.FriendAddHandler import FriendAddHandler
 from game.world.opcode_handling.handlers.friends.FriendIgnoreHandler import FriendIgnoreHandler
@@ -178,6 +180,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_PETITION_QUERY: PetitionQueryHandler.handle,
     OpCode.CMSG_OFFER_PETITION: PetitionOfferHandler.handle,
     OpCode.CMSG_PETITION_SIGN: PetitionSignHandler.handle,
+    OpCode.CMSG_TURN_IN_PETITION: PetitionTurnInHandler.handle,
     OpCode.CMSG_LIST_INVENTORY: ListInventoryHandler.handle,
     OpCode.CMSG_BUY_ITEM: BuyItemHandler.handle,
     OpCode.CMSG_BUY_ITEM_IN_SLOT: BuyItemInSlotHandler.handle,
@@ -236,6 +239,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GUILD_LEAVE: GuildLeaveHandler.handle,
     OpCode.CMSG_GUILD_LEADER: GuildLeaderHandler.handle,
     OpCode.CMSG_GUILD_DISBAND: GuildDisbandHandler.handle,
+    OpCode.MSG_SAVE_GUILD_EMBLEM: GuildSaveEmblemHandler.handle,
     OpCode.CMSG_FRIEND_LIST: FriendsListHandler.handle,
     OpCode.CMSG_ADD_FRIEND: FriendAddHandler.handle,
     OpCode.CMSG_ADD_IGNORE: FriendIgnoreHandler.handle,

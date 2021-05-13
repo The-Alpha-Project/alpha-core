@@ -1,5 +1,4 @@
 from network.packet.PacketReader import *
-from network.packet.PacketWriter import *
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 
 
@@ -12,19 +11,11 @@ class GuildQueryHandler(object):
             guild_id = unpack('<1I', reader.data[:4])[0]
             player = world_session.player_mgr
 
-            # TODO, Fix this, go back to guid key...
             for guild_manager in GuildManager.GUILDS.values():
                 if guild_manager.guild.guild_id == guild_id:
-                    guild = guild_manager.guild
-                    data = pack('<1I', guild_id)
-
-                    name_bytes = PacketWriter.string_to_bytes(guild.name)
-                    data += pack(
-                        f'<{len(name_bytes)}s',
-                        name_bytes
-                    )
-
-                    data += pack('<5i', guild.emblem_style, guild.emblem_color, guild.border_style, guild.border_color, guild.background_color)
-                    player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_QUERY_RESPONSE, data))
+                    if player and player.session:
+                        player.session.enqueue_packet(guild_manager.build_guild_query())
+                    else:  # This opcode is requested by char enum if there is no guild cache on client.
+                        world_session.enqueue_packet(guild_manager.build_guild_query())
 
         return 0

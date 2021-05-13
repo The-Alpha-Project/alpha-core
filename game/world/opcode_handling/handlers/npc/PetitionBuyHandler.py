@@ -26,7 +26,7 @@ class PetitionBuyHandler(object):
                 elif not TextChecker.valid_text(guild_name, is_guild=True):
                     GuildManager.send_guild_command_result(world_session.player_mgr, GuildTypeCommand.GUILD_CREATE_S, '',
                                                        GuildCommandResults.GUILD_NAME_INVALID)
-                elif guild_name in GuildManager.GUILDS:
+                elif guild_name in GuildManager.GUILDS or RealmDatabaseManager.guild_petition_get_by_name(guild_name):
                     GuildManager.send_guild_command_result(world_session.player_mgr, GuildTypeCommand.GUILD_CREATE_S, guild_name,
                                                            GuildCommandResults.GUILD_NAME_EXISTS)
                 elif world_session.player_mgr.inventory.get_item_count(CHARTER_ENTRY) > 0:
@@ -37,7 +37,11 @@ class PetitionBuyHandler(object):
                                                                       CHARTER_ENTRY, npc_guid)
                 elif world_session.player_mgr.inventory.add_item(CHARTER_ENTRY, handle_error=False):
                     petition_item = world_session.player_mgr.inventory.get_first_item_by_entry(CHARTER_ENTRY)
-                    PetitionManager.create_petition(world_session.player_mgr.guid, guild_name, petition_item.guid)
+                    # We use item_instance.guid, lo_guid.
+                    lo_guid = petition_item.item_instance.guid
+                    PetitionManager.create_petition(world_session.player_mgr.guid, guild_name, lo_guid)
+                    # We bind this petition to the charter guild item, else its just a dummy item for the client.
+                    petition_item.set_enchantment(0, lo_guid, 0, 0)
                     world_session.player_mgr.mod_money(-CHARTER_COST, reload_items=True)
 
         return 0

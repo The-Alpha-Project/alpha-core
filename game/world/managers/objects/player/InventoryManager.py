@@ -308,7 +308,7 @@ class InventoryManager(object):
                 continue
             for slot, item in list(container.sorted_slots.items()):
                 if item.item_template.entry == entry:
-                    return item.item_instance
+                    return item
 
     def remove_item(self, target_bag, target_slot, clear_slot=True):  # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
         target_container = self.get_container(target_bag)

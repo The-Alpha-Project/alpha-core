@@ -1,11 +1,10 @@
 from struct import pack
 from datetime import datetime
-
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, Guild, GuildMember
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import GuildRank, GuildCommandResults, GuildTypeCommand, GuildEvents, \
-    GuildChatMessageTypes, FriendResults
+    GuildChatMessageTypes, GuildEmblemResult
 from game.world.managers.objects.player.guild.GuildPendingInvite import GuildPendingInvite
 from utils.TextUtils import TextChecker
 from utils.constants.UpdateFields import PlayerFields
@@ -86,17 +85,18 @@ class GuildManager(object):
         else:
             self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
-    def _create_new_member(self, player_guid, rank):
-        member = GuildMember()
-        member.guild_id = self.guild.guild_id
-        member.rank = int(rank)
-        member.guid = player_guid
-        RealmDatabaseManager.guild_add_member(member)
+    def add_new_offline_member(self, character):
+        rank = GuildRank.GUILDRANK_INITIATE
+        guild_member = self._create_new_member(character.guid, rank)
+        self.members[character.guid] = guild_member
 
-        if rank == int(GuildRank.GUILDRANK_GUILD_MASTER):
-            self.guild_master = member
+        data = pack('<2B', GuildEvents.GUILD_EVENT_JOINED, 1)
+        name_bytes = PacketWriter.string_to_bytes(character.name)
+        data += pack(f'<{len(name_bytes)}s', name_bytes)
 
-        return member
+        packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
+        self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
+        RealmDatabaseManager.character_update(character)
 
     def add_new_member(self, player_mgr, is_guild_master=False):
         rank = GuildRank.GUILDRANK_GUILD_MASTER if is_guild_master else GuildRank.GUILDRANK_INITIATE
@@ -107,10 +107,7 @@ class GuildManager(object):
 
         data = pack('<2B', GuildEvents.GUILD_EVENT_JOINED, 1)
         name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
-        data += pack(
-            f'<{len(name_bytes)}s',
-            name_bytes
-        )
+        data += pack(f'<{len(name_bytes)}s', name_bytes)
 
         self.build_update(player_mgr)
         player_mgr.set_dirty()
@@ -302,29 +299,89 @@ class GuildManager(object):
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.members[player_mgr.guid].rank)
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, 0)  # Format creation_data
 
+    def modify_emblem(self, player_mgr, emblem_style, emblem_color, border_style, border_color, background_color):
+        self.guild.emblem_style = emblem_style
+        self.guild.emblem_color = emblem_color
+        self.guild.border_style = border_style
+        self.guild.border_color = border_color
+        self.guild.background_color = background_color
+        self.update_db_guild()
+
+        GuildManager.send_emblem_result(player_mgr, GuildEmblemResult.ERR_GUILDEMBLEM_SUCCESS)
+
+        # TODO: Tabard does not refresh until relog
+        query_packet = self.build_guild_query()
+        player_mgr.session.enqueue_packet(query_packet)
+        player_mgr.send_update_self()
+
+    def build_guild_query(self):
+        data = pack('<1I', self.guild.guild_id)
+
+        name_bytes = PacketWriter.string_to_bytes(self.guild.name)
+        data += pack(f'<{len(name_bytes)}s', name_bytes)
+
+        data += pack('<5i',
+                     self.guild.emblem_style,
+                     self.guild.emblem_color,
+                     self.guild.border_style,
+                     self.guild.border_color,
+                     self.guild.background_color)
+
+        return PacketWriter.get_packet(OpCode.SMSG_GUILD_QUERY_RESPONSE, data)
+
+    def _create_new_member(self, player_guid, rank):
+        member = GuildMember()
+        member.guild_id = self.guild.guild_id
+        member.rank = int(rank)
+        member.guid = player_guid
+        RealmDatabaseManager.guild_add_member(member)
+
+        if rank == int(GuildRank.GUILDRANK_GUILD_MASTER):
+            self.guild_master = member
+
+        return member
+
+    @staticmethod
+    def send_emblem_result(player_mgr, result):
+        data = pack('<I', result)
+        packet = PacketWriter.get_packet(OpCode.MSG_SAVE_GUILD_EMBLEM, data)
+        player_mgr.session.enqueue_packet(packet)
+
     @staticmethod
     def load_guild(raw_guild):
         GuildManager.GUILDS[raw_guild.name] = GuildManager(raw_guild)
         GuildManager.GUILDS[raw_guild.name].load_guild_members()
 
     @staticmethod
-    def create_guild(player_mgr, guild_name):
+    def create_guild(player_mgr, guild_name, petition=None):
         if not TextChecker.valid_text(guild_name, is_guild=True):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, '',
                                                    GuildCommandResults.GUILD_NAME_INVALID)
-            return
-        if guild_name in GuildManager.GUILDS:
+            return False
+        if guild_name in GuildManager.GUILDS or not petition and RealmDatabaseManager.guild_petition_get_by_name(guild_name):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, guild_name,
                                                    GuildCommandResults.GUILD_NAME_EXISTS)
-            return
+            return False
         if player_mgr.guild_manager:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, '',
                                                    GuildCommandResults.GUILD_ALREADY_IN_GUILD)
-            return
+            return False
 
-        guild = GuildManager._create_guild("", guild_name, 0, 0, 0, 0, 0, player_mgr.guid)
+        guild = GuildManager._create_guild("", guild_name, -1, -1, -1, -1, -1, player_mgr.guid)
         player_mgr.guild_manager = GuildManager(guild)
         player_mgr.guild_manager.add_new_member(player_mgr, is_guild_master=True)
+
+        if petition:
+            for member_signer in petition.characters:
+                member = WorldSessionStateHandler.find_player_by_guid(member_signer.guid)
+                if member:
+                    player_mgr.guild_manager.add_new_member(member, False)
+                else:
+                    offline_member = RealmDatabaseManager.character_get_by_guid(member_signer.guid)
+                    if offline_member:
+                        player_mgr.guild_manager.add_new_offline_member(offline_member)
+
+        return True
 
     @staticmethod
     def set_character_guild(player_mgr):
