@@ -169,6 +169,17 @@ class MapManager(object):
     # Object methods (wrappers around GridManager methods)
 
     @staticmethod
+    def should_relocate(destionation, destination_map):
+        grid_manager = MapManager.get_grid_manager_by_map_id(destination_map)
+        cells = grid_manager.get_surrounding_cells_by_location(destionation.x, destionation.y, destination_map)
+
+        for cell in cells:
+            if grid_manager.is_active_cell_key(cell.key):
+                return False
+
+        return True
+
+    @staticmethod
     def update_object(world_object):
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
         grid_manager.update_object(world_object)

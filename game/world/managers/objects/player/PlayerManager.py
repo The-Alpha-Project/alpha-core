@@ -361,9 +361,11 @@ class PlayerManager(UnitManager):
 
         # Same map and not inside instance
         if self.map_ == map_ and self.map_ <= 1:
-            if self.location.distance(vector=self.teleport_destination) < 100:
+            if MapManager.should_relocate(self.teleport_destination, map_):
                 self.teleport_is_relocate = True
 
+            # TODO: After teleport, popping happens because we are not using the real terrain Z, once we have
+            #  proper maps, we should validate destination Z.
             data = pack('<Q9fI',
                 self.transport_id,
                 self.transport.x,
@@ -372,13 +374,14 @@ class PlayerManager(UnitManager):
                 self.transport.o,
                 location.x,
                 location.y,
-                location.z - 0.03,
+                location.z,
                 location.o,
                 0,  # ?
-                0  # MovementFlags
+                MoveFlags.MOVEFLAG_NONE,
             )
 
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
+
         # Loading screen
         else:
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
@@ -411,8 +414,6 @@ class PlayerManager(UnitManager):
         # Update new coordinates and map.
         self.map_ = self.teleport_destination_map
         self.location = Vector(self.teleport_destination.x, self.teleport_destination.y, self.teleport_destination.z, self.teleport_destination.o)
-
-
 
         # Get us in world again.
         self.send_update_self(create=True if not relocate else False,
