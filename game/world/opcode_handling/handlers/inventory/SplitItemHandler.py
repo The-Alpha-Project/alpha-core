@@ -7,7 +7,7 @@ class SplitItemHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 5:  # Avoid handling empty split item packet
+        if len(reader.data) >= 5:  # Avoid handling empty split item packet.
             source_bag_slot, source_slot, dest_bag_slot, dest_slot, count = unpack('<5B', reader.data[:5])
             inventory = world_session.player_mgr.inventory
 

@@ -483,8 +483,7 @@ class CommandManager(object):
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help,
-    'suicide': CommandManager.suicide,
-    'guildcreate': CommandManager.guildcreate,
+    'suicide': CommandManager.suicide
 }
 
 GM_COMMAND_DEFINITIONS = {
@@ -517,5 +516,6 @@ GM_COMMAND_DEFINITIONS = {
     'money': CommandManager.money,
     'die': CommandManager.die,
     'kick': CommandManager.kick,
-    'worldoff': CommandManager.worldoff
+    'worldoff': CommandManager.worldoff,
+    'guildcreate': CommandManager.guildcreate
 }

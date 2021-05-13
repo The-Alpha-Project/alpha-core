@@ -8,7 +8,7 @@ class InspectHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty inspect packet
+        if len(reader.data) >= 8:  # Avoid handling empty inspect packet.
             guid = unpack('<Q', reader.data[:8])[0]
             if guid > 0:
                 inspected_player = MapManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)

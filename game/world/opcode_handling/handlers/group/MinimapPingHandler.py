@@ -5,7 +5,7 @@ class MinimapPingHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty minimap ping packet
+        if len(reader.data) >= 8:  # Avoid handling empty minimap ping packet.
             x, y = unpack('<2f', reader.data[:8])
 
             if world_session.player_mgr and world_session.player_mgr.group_manager:

@@ -11,7 +11,7 @@ class QuestGiverQueryQuestHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty quest giver query quest packet
+        if len(reader.data) >= 8:  # Avoid handling empty quest giver query quest packet.
             guid, quest_entry = unpack('<QL', reader.data[:12])
             # NPC
             if guid & HighGuid.HIGHGUID_UNIT:

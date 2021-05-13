@@ -8,7 +8,7 @@ class SellItemHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 17:  # Avoid handling empty sell item packet
+        if len(reader.data) >= 17:  # Avoid handling empty sell item packet.
             vendor_guid, item_guid, sell_amount = unpack('<QQB', reader.data[:17])
             container_slot, container, slot, item = world_session.player_mgr.inventory.get_item_info_by_guid(item_guid)
 

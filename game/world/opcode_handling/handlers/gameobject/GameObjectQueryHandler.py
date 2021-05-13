@@ -9,7 +9,7 @@ class GameObjectQueryHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 12:  # Avoid handling empty gameobject query packet
+        if len(reader.data) >= 12:  # Avoid handling empty gameobject query packet.
             entry, guid = unpack('<IQ', reader.data[:12])
             if guid > 0:
                 gobject_mgr = MapManager.get_surrounding_gameobject_by_guid(world_session.player_mgr, guid)

@@ -146,7 +146,7 @@ begin not atomic
 	
 	-- 09/05/2021 1
 	if (select count(*) from applied_updates where id='090520211') = 0 then
-		`DROP TABLE IF EXISTS `petition`;
+		DROP TABLE IF EXISTS `petition`;
 		CREATE TABLE `petition` (
 		  `petition_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
 		  `owner_guid` int(11) unsigned NOT NULL DEFAULT '0',

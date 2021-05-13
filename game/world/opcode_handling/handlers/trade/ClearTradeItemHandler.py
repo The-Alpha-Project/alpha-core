@@ -11,7 +11,7 @@ class ClearTradeItemHandler(object):
         if not world_session or not world_session.player_mgr or not world_session.player_mgr.trade_data:
             return 0
 
-        if len(reader.data) >= 1:  # Avoid handling empty clear trade item packet
+        if len(reader.data) >= 1:  # Avoid handling empty clear trade item packet.
             trade_slot = unpack('<B', reader.data[:1])[0]
             if trade_slot > TradeManager.TradeData.TRADE_SLOT_COUNT:
                 return 0

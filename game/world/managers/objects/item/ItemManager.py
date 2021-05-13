@@ -326,6 +326,7 @@ class ItemManager(ObjectManager):
             self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 4, self.item_instance.SpellCharges5)
 
             for key, enchantment in self.enchantments.items():
+                print('UPDATING')
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + key * 3 + 0, enchantment[0])  # Value/Id
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + key * 3 + 1, enchantment[1])  # Duration
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + key * 3 + 2, enchantment[2])  # Charges
@@ -338,7 +339,6 @@ class ItemManager(ObjectManager):
 
     def set_enchantment(self, slot, value, duration, charges):
         self.enchantments[slot] = (value, duration, charges)
-        self.set_dirty()
 
     def set_binding(self, bind=True):
         if bind:

@@ -10,7 +10,7 @@ class BinderActivateHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty binder activate packet
+        if len(reader.data) >= 8:  # Avoid handling empty binder activate packet.
             binder_guid = unpack('<Q', reader.data[:8])[0]
             if binder_guid > 0:
                 world_session.player_mgr.deathbind.creature_binder_guid = binder_guid & ~HighGuid.HIGHGUID_UNIT

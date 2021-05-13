@@ -8,7 +8,7 @@ class TaxiQueryNodesHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty taxi query nodes packet
+        if len(reader.data) >= 8:  # Avoid handling empty taxi query nodes packet.
             guid = unpack('<Q', reader.data[:8])[0]
             if guid <= 0:
                 return 0

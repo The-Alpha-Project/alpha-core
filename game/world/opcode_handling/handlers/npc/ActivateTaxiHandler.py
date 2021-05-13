@@ -16,7 +16,7 @@ class ActivateTaxiHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 16:  # Avoid handling empty activate taxi packet
+        if len(reader.data) >= 16:  # Avoid handling empty activate taxi packet.
             guid, start_node, dest_node = unpack('<Q2I', reader.data[:16])
             if guid <= 0:
                 return

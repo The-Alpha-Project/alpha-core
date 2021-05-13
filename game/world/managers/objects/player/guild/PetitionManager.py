@@ -8,6 +8,9 @@ from utils.constants.ItemCodes import PetitionError
 
 # TODO: TabardVendor wont allow you to  purchase a new emblem.
 class PetitionManager(object):
+    CHARTER_ENTRY = 5863
+    CHARTER_DISPLAY_ID = 9199
+    CHARTER_COST = 1000
 
     @staticmethod
     def create_petition(owner_guid, guild_name, petition_guid):
@@ -22,7 +25,7 @@ class PetitionManager(object):
     def load_petition(player_mgr):
         petition = RealmDatabaseManager.guild_petition_get_by_owner(player_mgr.guid)
         if petition:
-            petition_item = player_mgr.inventory.get_first_item_by_entry(5863)
+            petition_item = player_mgr.inventory.get_first_item_by_entry(PetitionManager.CHARTER_ENTRY)
             if petition_item:
                 petition_item.set_enchantment(0, petition.petition_guid, 0, 0)
 
@@ -61,7 +64,7 @@ class PetitionManager(object):
                     data = pack('<I', PetitionError.PETITION_SUCCESS)
                     packet = PacketWriter.get_packet(OpCode.SMSG_TURN_IN_PETITION_RESULTS, data)
                     player_mgr.session.enqueue_packet(packet)
-                    player_mgr.inventory.remove_item(5863, 1)
+                    player_mgr.inventory.remove_item(PetitionManager.CHARTER_ENTRY, 1)
                     RealmDatabaseManager.guild_petition_destroy(petition)
         else:
             PetitionManager.send_petition_sign_result(player_mgr, PetitionError.PETITION_UNKNOWN_ERROR)
@@ -76,11 +79,12 @@ class PetitionManager(object):
     def build_petition_query(lo_petition_guid, petition):
         guild_name_bytes = PacketWriter.string_to_bytes(petition.name)
 
-        data = pack(f'<IQ{len(guild_name_bytes)}s',
-                    lo_petition_guid,  # m_petitionID
-                    petition.owner_guid,  # m_petitioner
-                    guild_name_bytes,  # guild_name
-                    )
+        data = pack(
+            f'<IQ{len(guild_name_bytes)}s',
+            lo_petition_guid,  # m_petitionID
+            petition.owner_guid,  # m_petitioner
+            guild_name_bytes  # guild_name
+        )
 
         # m_bodyText?
         # m_flags?

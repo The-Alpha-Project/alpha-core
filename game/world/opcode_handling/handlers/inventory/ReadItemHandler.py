@@ -9,7 +9,7 @@ class ReadItemHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         # Seems CMSG_READ_ITEM is only called if the item is in the backpack, weird.
-        if len(reader.data) >= 2:  # Avoid handling empty read item packet
+        if len(reader.data) >= 2:  # Avoid handling empty read item packet.
             bag, slot = unpack('<2B', reader.data[:2])
             if bag == 0xFF:
                 bag = InventorySlots.SLOT_INBACKPACK.value

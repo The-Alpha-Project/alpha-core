@@ -8,7 +8,7 @@ class PlayerMacroHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 4:  # Avoid handling empty player macro packet
+        if len(reader.data) >= 4:  # Avoid handling empty player macro packet.
             category = unpack('<I', reader.data[:4])[0]
             if 0x0 <= category <= 0xD:
                 voice_packet = PacketWriter.get_packet(OpCode.SMSG_PLAYER_MACRO,

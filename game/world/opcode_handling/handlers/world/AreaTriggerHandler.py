@@ -9,7 +9,7 @@ class AreaTriggerHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 4:  # Avoid handling empty area trigger packet
+        if len(reader.data) >= 4:  # Avoid handling empty area trigger packet.
             trigger_id = unpack('<I', reader.data[:4])[0]
             location = WorldDatabaseManager.area_trigger_teleport_get_by_id(trigger_id)
             if location:

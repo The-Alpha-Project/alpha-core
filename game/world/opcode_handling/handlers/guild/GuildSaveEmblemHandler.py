@@ -9,10 +9,8 @@ class GuildSaveEmblemHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        # NPC needs 0x80 | 0x40 flag
-        if len(reader.data) >= 8:  # Avoid handling empty save emblem packet
+        if len(reader.data) >= 20:  # Avoid handling empty guild save emblem packet.
             style, color, border_style, border_color, background_color = unpack('<5I', reader.data[:20])
-            guid_vendor = unpack('<Q', reader.data[20:])[0]
 
             if not world_session.player_mgr.guild_manager:
                 GuildManager.send_emblem_result(world_session.player_mgr, GuildEmblemResult.ERR_GUILDEMBLEM_NOGUILD)

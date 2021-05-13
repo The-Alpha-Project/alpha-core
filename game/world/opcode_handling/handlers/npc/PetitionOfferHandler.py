@@ -10,7 +10,7 @@ class PetitionOfferHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 16:  # Avoid handling empty petition offer packet
+        if len(reader.data) >= 16:  # Avoid handling empty petition offer packet.
             petition_guid = unpack('<Q', reader.data[:8])[0]
             lo_petition_guid = unpack('<H', reader.data[:2])[0]  # We just need the lo_guid
             lo_player_target_guid = unpack('<H', reader.data[8:10])[0]  # Same

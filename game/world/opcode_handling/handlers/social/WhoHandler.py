@@ -8,7 +8,7 @@ class WhoHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) > 0:  # Avoid handling empty who packet
+        if len(reader.data) > 0:  # Avoid handling empty who packet.
             # TODO: Search for guild and faction handling
             level_min, level_max = unpack('<2I', reader.data[:8])
 

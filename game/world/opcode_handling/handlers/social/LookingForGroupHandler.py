@@ -15,7 +15,7 @@ class LookingForGroupHandler(object):
 
     @staticmethod
     def handle_set(world_session, socket, reader):
-        if len(reader.data) >= 4:  # Avoid handling empty LFG set packet
+        if len(reader.data) >= 4:  # Avoid handling empty LFG set packet.
             is_lfg = bool(unpack('<I', reader.data[:4])[0])
 
             if world_session.player_mgr.group_status != WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY:

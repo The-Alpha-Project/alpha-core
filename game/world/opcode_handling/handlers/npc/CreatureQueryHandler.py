@@ -9,7 +9,7 @@ class CreatureQueryHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 12:  # Avoid handling empty creature query packet
+        if len(reader.data) >= 12:  # Avoid handling empty creature query packet.
             entry, guid = unpack('<IQ', reader.data[:12])
             if guid > 0:
                 creature_mgr = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)

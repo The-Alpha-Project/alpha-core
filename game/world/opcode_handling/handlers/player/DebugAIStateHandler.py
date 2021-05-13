@@ -12,7 +12,7 @@ class DebugAIStateHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty debug AI state packet
+        if len(reader.data) >= 8:  # Avoid handling empty debug AI state packet.
             guid = unpack('<Q', reader.data[:8])[0]
             world_object = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid,
                                                                    include_players=True)

@@ -8,7 +8,7 @@ class GroupLootMethodHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 12:  # Avoid handling empty group loot method packet
+        if len(reader.data) >= 12:  # Avoid handling empty group loot method packet.
             loot_method, loot_master = unpack('<IQ', reader.data[:12])
             target_player_mgr=None
 

@@ -9,7 +9,7 @@ class PageTextQueryHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 4:  # Avoid handling empty page text query packet
+        if len(reader.data) >= 4:  # Avoid handling empty page text query packet.
             page_id = unpack('<I', reader.data[:4])[0]
             keep_looking = True
 

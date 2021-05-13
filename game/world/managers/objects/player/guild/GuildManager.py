@@ -2,6 +2,7 @@ from struct import pack
 from datetime import datetime
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, Guild, GuildMember
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ObjectCodes import GuildRank, GuildCommandResults, GuildTypeCommand, GuildEvents, \
     GuildChatMessageTypes, GuildEmblemResult
@@ -309,13 +310,12 @@ class GuildManager(object):
 
         GuildManager.send_emblem_result(player_mgr, GuildEmblemResult.ERR_GUILDEMBLEM_SUCCESS)
 
-        # TODO: Tabard does not refresh until relog
         query_packet = self.build_guild_query()
-        player_mgr.session.enqueue_packet(query_packet)
-        player_mgr.send_update_self()
+        MapManager.send_surrounding(query_packet, player_mgr, include_self=True)
+        player_mgr.set_dirty(dirty_inventory=True)
 
     def build_guild_query(self):
-        data = pack('<1I', self.guild.guild_id)
+        data = pack('<I', self.guild.guild_id)
 
         name_bytes = PacketWriter.string_to_bytes(self.guild.name)
         data += pack(f'<{len(name_bytes)}s', name_bytes)

@@ -7,7 +7,7 @@ class PetitionTurnInHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty petition turn in packet
+        if len(reader.data) >= 8:  # Avoid handling empty petition turn in packet.
             lo_petition_guid = unpack('<H', reader.data[:2])[0]  # We just need the lo_guid
 
             if lo_petition_guid > 0:

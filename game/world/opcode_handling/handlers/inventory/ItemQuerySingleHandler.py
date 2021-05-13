@@ -9,7 +9,7 @@ class ItemQuerySingleHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 4:  # Avoid handling empty item query packet
+        if len(reader.data) >= 4:  # Avoid handling empty item query packet.
             entry = unpack('<I', reader.data[:4])[0]
             if entry > 0:
                 item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)

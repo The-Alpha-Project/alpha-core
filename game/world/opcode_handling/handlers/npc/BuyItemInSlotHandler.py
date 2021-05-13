@@ -9,7 +9,7 @@ class BuyItemInSlotHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 22:  # Avoid handling empty buy item packet
+        if len(reader.data) >= 22:  # Avoid handling empty buy item packet.
             vendor_guid, item, bag_guid, slot, count = unpack('<QIQBB', reader.data[:22])
             if vendor_guid > 0:
                 if count <= 0:

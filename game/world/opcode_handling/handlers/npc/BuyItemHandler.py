@@ -9,7 +9,7 @@ class BuyItemHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 13:  # Avoid handling empty buy item packet
+        if len(reader.data) >= 13:  # Avoid handling empty buy item packet.
             vendor_guid, item, count = unpack('<QIB', reader.data[:13])
 
             if vendor_guid > 0:

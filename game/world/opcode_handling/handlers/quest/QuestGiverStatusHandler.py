@@ -9,7 +9,7 @@ class QuestGiverStatusHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 8:  # Avoid handling empty quest giver status packet
+        if len(reader.data) >= 8:  # Avoid handling empty quest giver status packet.
             quest_giver_guid = unpack('<Q', reader.data[:8])[0]
             quest_giver = None
             # NPC

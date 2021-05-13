@@ -10,7 +10,7 @@ class CastSpellHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 6:  # Avoid handling empty cast spell packet
+        if len(reader.data) >= 6:  # Avoid handling empty cast spell packet.
             spell_id, target_mask = unpack('<IH', reader.data[:6])
 
             caster = world_session.player_mgr

@@ -11,7 +11,7 @@ class SetTradeGoldHandler(object):
         if not world_session.player_mgr.trade_data:
             return 0
 
-        if len(reader.data) >= 4:  # Avoid handling empty set trade gold packet
+        if len(reader.data) >= 4:  # Avoid handling empty set trade gold packet.
             money = unpack('<I', reader.data[:4])[0]
             if money <= 0:
                 return 0

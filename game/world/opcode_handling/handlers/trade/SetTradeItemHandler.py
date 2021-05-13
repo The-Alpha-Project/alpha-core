@@ -12,7 +12,7 @@ class SetTradeItemHandler(object):
         if not world_session.player_mgr.trade_data:
             return 0
 
-        if len(reader.data) >= 3:  # Avoid handling empty set trade item packet
+        if len(reader.data) >= 3:  # Avoid handling empty set trade item packet.
             trade_slot, bag, slot = unpack('<3B', reader.data[:3])
             item = world_session.player_mgr.inventory.get_item(bag, slot)
             if not item:

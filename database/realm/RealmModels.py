@@ -214,7 +214,7 @@ class Petition(Base):
         Index('owner_guid', 'owner_guid', 'petition_guid', unique=True),
     )
 
-    petition_id = Column(INTEGER, primary_key=True)
+    petition_id = Column(INTEGER, primary_key=True, autoincrement=True)
     owner_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, server_default=text("'0'"))
     petition_guid = Column(ForeignKey('character_inventory.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
     name = Column(String(255), nullable=False, server_default=text("''"))

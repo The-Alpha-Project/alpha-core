@@ -6,7 +6,7 @@ class PetitionQueryHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 12:  # Avoid handling empty petition query packet
+        if len(reader.data) >= 12:  # Avoid handling empty petition query packet.
             lo_petition_guid = unpack('<H', reader.data[:2])[0]  # We just need the lo_guid
 
             petition = PetitionManager.get_petition(lo_petition_guid)

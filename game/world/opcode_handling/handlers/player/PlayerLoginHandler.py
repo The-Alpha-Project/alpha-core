@@ -21,7 +21,7 @@ class PlayerLoginHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) < 8:  # Avoid handling wrong player login packet
+        if len(reader.data) < 8:  # Avoid handling wrong player login packet.
             return -1
 
         guid = unpack('<Q', reader.data[:8])[0]
