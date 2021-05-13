@@ -300,6 +300,7 @@ class GuildManager(object):
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.members[player_mgr.guid].rank)
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, 0)  # Format creation_data
 
+    # TODO: If you have the tabard equipped, the design doesn't refresh until you relog or unequip / equip. Client limitation?
     def modify_emblem(self, player_mgr, emblem_style, emblem_color, border_style, border_color, background_color):
         self.guild.emblem_style = emblem_style
         self.guild.emblem_color = emblem_color
