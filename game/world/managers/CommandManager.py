@@ -55,16 +55,30 @@ class CommandManager(object):
 
     @staticmethod
     def help(world_session, args):
-        help_str = ''
+        total_number = 0
 
+        def _split_command_text(commands, n=8):
+            command_list = list(commands)
+            for i in range(0, len(command_list), n):
+                yield command_list[i:i + n]
+
+        # If player is GM, send GM commands first.
         if world_session.player_mgr.is_gm:
-            gm_commands = ', '.join([k for k in GM_COMMAND_DEFINITIONS.keys()])
-            help_str += f'[GM Commands]: \n{gm_commands}\n\n'
+            ChatManager.send_system_message(world_session, '[GM Commands]')
+            for commands_chunk in _split_command_text(GM_COMMAND_DEFINITIONS.keys()):
+                total_number += len(commands_chunk)
+                gm_commands = ' | '.join([k for k in commands_chunk])
+                ChatManager.send_system_message(world_session, gm_commands)
+            ChatManager.send_system_message(world_session, '\n')
 
-        player_commands = ', '.join([k for k in PLAYER_COMMAND_DEFINITIONS.keys()])
-        help_str += f'[Player Commands]: \n{player_commands}'
+        # Send Player commands.
+        ChatManager.send_system_message(world_session, '[Player Commands]')
+        for commands_chunk in _split_command_text(PLAYER_COMMAND_DEFINITIONS.keys()):
+            total_number += len(commands_chunk)
+            player_commands = ' | '.join([k for k in commands_chunk])
+            ChatManager.send_system_message(world_session, player_commands)
 
-        return 0, help_str
+        return 0, f'{total_number} commands found.'
 
     @staticmethod
     def speed(world_session, args):
