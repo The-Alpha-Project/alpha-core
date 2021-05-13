@@ -287,6 +287,7 @@ class PetitionError(IntEnum):
     PETITION_ALREADY_IN_GUILD = 2
     PETITION_CHARTER_CREATOR = 3
     PETITION_NOT_ENOUGH_SIGNATURES = 4
+    PETITION_UNKNOWN_ERROR = 5
 
 
 class ItemFlags(IntEnum):

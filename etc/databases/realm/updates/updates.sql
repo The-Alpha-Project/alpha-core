@@ -144,5 +144,30 @@ begin not atomic
         insert into applied_updates values ('060520211');
     end if;
 	
+	-- 09/05/2021 1
+	if (select count(*) from applied_updates where id='090520211') = 0 then
+		`DROP TABLE IF EXISTS `petition`;
+		CREATE TABLE `petition` (
+		  `petition_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+		  `owner_guid` int(11) unsigned NOT NULL DEFAULT '0',
+		  `petition_guid` int(11) unsigned NOT NULL DEFAULT '0',
+		  `name` varchar(255) NOT NULL DEFAULT '',
+		  PRIMARY KEY (`petition_id`),
+		  UNIQUE (`owner_guid`, `petition_guid`),
+		  CONSTRAINT `owner_guid_character_guid_fk` FOREIGN KEY (`owner_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+		  CONSTRAINT `petition_guid_item_guid_fk` FOREIGN KEY (`petition_guid`) REFERENCES `character_inventory` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+		DROP TABLE IF EXISTS `petition_sign`;
+		CREATE TABLE `petition_sign` (
+		  `petition_id` int(11) unsigned NOT NULL DEFAULT '0',
+		  `player_guid` int(11) unsigned NOT NULL DEFAULT '0',
+		  PRIMARY KEY (`petition_id`,`player_guid`),
+		  CONSTRAINT `petition_id_petition_fk` FOREIGN KEY (`petition_id`) REFERENCES `petition` (`petition_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+		  CONSTRAINT `player_guid_character_guid_fk` FOREIGN KEY (`player_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+		
+		insert into applied_updates values ('090520211');
+    end if;
 end $
 delimiter ;

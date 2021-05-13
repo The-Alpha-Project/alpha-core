@@ -18,18 +18,22 @@ class MapManager(object):
     @staticmethod
     def initialize_maps():
         for map_id in MAP_LIST:
-            MAPS[map_id] = Map(map_id)
+            MAPS[map_id] = Map(map_id, MapManager.on_cell_turn_active)
+
+    @staticmethod
+    def on_cell_turn_active(world_obj):
+        MapManager.load_map_tiles(world_obj.map_, world_obj.location.x, world_obj.location.y)
 
     @staticmethod
     def load_map_tiles(map_id, x, y):
         if not config.Server.Settings.use_map_tiles:
             return
 
-        x = MapManager.get_tile_x(x)
-        y = MapManager.get_tile_y(y)
-
         if map_id not in MAP_LIST:
             return
+
+        x = MapManager.get_tile_x(x)
+        y = MapManager.get_tile_y(y)
 
         for i in range(-1, 1):
             for j in range(-1, 1):
@@ -38,13 +42,6 @@ class MapManager(object):
                     if not MAPS[map_id].tiles_used[x + i][y + j]:
                         MAPS[map_id].tiles_used[x + i][y + j] = True
                         MAPS[map_id].tiles[x + i][y + j] = MapTile(map_id, x + i, y + j)
-
-    @staticmethod
-    def load_map_tiles_for_active_cells(grid_manager):
-        for key in list(grid_manager.active_cell_keys):
-            cell = grid_manager.cells[key]
-            for guid, creature in list(cell.creatures.items()):
-                MapManager.load_map_tiles(creature.map_, creature.location.x, creature.location.y)
 
     @staticmethod
     def get_tile(x, y):
@@ -79,71 +76,58 @@ class MapManager(object):
     @staticmethod
     def calculate_z(map_id, x, y, current_z=0.0):
         try:
-            x = MapManager.validate_map_coord(x)
-            y = MapManager.validate_map_coord(y)
-            map_tile_x = int(32.0 - (x / SIZE))
-            map_tile_y = int(32.0 - (y / SIZE))
-            map_tile_local_x = math.floor(RESOLUTION_ZMAP * (32.0 - (x / SIZE) - map_tile_x))
-            map_tile_local_y = math.floor(RESOLUTION_ZMAP * (32.0 - (y / SIZE) - map_tile_y))
-            x_normalized = RESOLUTION_ZMAP * (32.0 - (x / SIZE) - map_tile_x) - map_tile_local_x
-            y_normalized = RESOLUTION_ZMAP * (32.0 - (y / SIZE) - map_tile_y) - map_tile_local_y
+            map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_ZMAP)
+            x_normalized = RESOLUTION_ZMAP * (32.0 - (x / SIZE) - map_tile_x) - tile_local_x
+            y_normalized = RESOLUTION_ZMAP * (32.0 - (y / SIZE) - map_tile_y) - tile_local_y
 
             if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
                 Logger.warning(f'Tile [{map_tile_x},{map_tile_y}] information not found.')
                 return current_z if current_z else 0.0
             else:
                 try:
-                    val_1 = MapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x, map_tile_local_y)
-                    val_2 = MapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x + 1, map_tile_local_y)
+                    val_1 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x, tile_local_y)
+                    val_2 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x + 1, tile_local_y)
                     top_height = MapManager._lerp(val_1, val_2, x_normalized)
-                    val_3 = MapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x, map_tile_local_y + 1)
-                    val_4 = MapManager.get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x + 1, map_tile_local_y + 1)
+                    val_3 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x, tile_local_y + 1)
+                    val_4 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x + 1, tile_local_y + 1)
                     bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
-                    return MapManager._lerp(top_height, bottom_height, y_normalized)
+                    return MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
                 except:
-                    return MAPS[map_id].tiles[map_tile_x][map_tile_y].z_coords[map_tile_local_x][map_tile_local_x]
+                    return MAPS[map_id].tiles[map_tile_x][map_tile_y].z_coords[tile_local_x][tile_local_x]
         except:
             Logger.error(traceback.format_exc())
             return current_z if current_z else 0.0
 
     @staticmethod
     def get_water_level(map_id, x, y):
-        x = MapManager.validate_map_coord(x)
-        y = MapManager.validate_map_coord(y)
-        map_tile_x = int(32.0 - (x / SIZE))
-        map_tile_y = int(32.0 - (y / SIZE))
-        tile_local_x = int(RESOLUTION_WATER * (32.0 - (x / SIZE) - map_tile_x))
-        tile_local_y = int(RESOLUTION_WATER * (32.0 - (y / SIZE) - map_tile_y))
-
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_WATER)
         if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
             return 0.0
         return MAPS[map_id].tiles[map_tile_x][map_tile_y].water_level[tile_local_x][tile_local_y]
 
     @staticmethod
     def get_terrain_type(map_id, x, y):
-        x = MapManager.validate_map_coord(x)
-        y = MapManager.validate_map_coord(y)
-        map_tile_x = int(32.0 - (x / SIZE))
-        map_tile_y = int(32.0 - (y / SIZE))
-        tile_local_x = int(RESOLUTION_TERRAIN * (32.0 - (x / SIZE) - map_tile_x))
-        tile_local_y = int(RESOLUTION_TERRAIN * (32.0 - (y / SIZE) - map_tile_y))
-
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_TERRAIN)
         if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
             return 0.0
         return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_terrain[tile_local_x][tile_local_y]
 
     @staticmethod
     def get_area_flag(map_id, x, y):
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_FLAGS)
+        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
+            return 0.0
+        return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_terrain[tile_local_x][tile_local_y]
+
+    @staticmethod
+    def calculate_tile(x, y, resolution):
         x = MapManager.validate_map_coord(x)
         y = MapManager.validate_map_coord(y)
         map_tile_x = int(32.0 - (x / SIZE))
         map_tile_y = int(32.0 - (y / SIZE))
-        tile_local_x = int(RESOLUTION_FLAGS * (32.0 - (x / SIZE) - map_tile_x))
-        tile_local_y = int(RESOLUTION_FLAGS * (32.0 - (y / SIZE) - map_tile_y))
-
-        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
-            return 0.0
-        return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_terrain[tile_local_x][tile_local_y]
+        tile_local_x = int(resolution * (32.0 - (x / SIZE) - map_tile_x))
+        tile_local_y = int(resolution * (32.0 - (y / SIZE) - map_tile_y))
+        return map_tile_x, map_tile_y, tile_local_x, tile_local_y
 
     @staticmethod
     def get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x, map_tile_local_y):
@@ -186,14 +170,8 @@ class MapManager(object):
 
     @staticmethod
     def update_object(world_object):
-        # If object is a player, preload the tiles (if they aren't loaded already) before adding to new Cell.
-        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
-            MapManager.load_map_tiles(world_object.map_, world_object.location.x, world_object.location.y)
-
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
         grid_manager.update_object(world_object)
-        # If needed or enabled, load corresponding map tiles for active grid and adjacent.
-        MapManager.load_map_tiles_for_active_cells(grid_manager)
 
     @staticmethod
     def remove_object(world_object):

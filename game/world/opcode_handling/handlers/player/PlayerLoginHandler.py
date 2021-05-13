@@ -5,6 +5,7 @@ from struct import unpack
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.player.GroupManager import GroupManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
 from network.packet.PacketWriter import *
 from database.realm.RealmDatabaseManager import *
 from database.dbc.DbcDatabaseManager import *
@@ -77,6 +78,7 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.quest_manager.load_quests()
         GuildManager.set_character_guild(world_session.player_mgr)
         GroupManager.set_character_group(world_session.player_mgr)
+        PetitionManager.load_petition(world_session.player_mgr)
 
         # First login
         if world_session.player_mgr.player.totaltime == 0:

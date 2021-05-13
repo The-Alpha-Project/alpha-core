@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, Float, ForeignKey, String, TIMESTAMP, Text, text
+from sqlalchemy import Column, Float, ForeignKey, String, TIMESTAMP, Text, text, Index, Table
 from sqlalchemy.dialects.mysql import BIGINT, INTEGER, LONGTEXT, MEDIUMINT, SMALLINT, TINYINT
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -206,6 +206,29 @@ class GuildMember(Base):
 
     character = relationship('Character', lazy='joined')
     guild = relationship('Guild', lazy='joined')
+
+
+class Petition(Base):
+    __tablename__ = 'petition'
+    __table_args__ = (
+        Index('owner_guid', 'owner_guid', 'petition_guid', unique=True),
+    )
+
+    petition_id = Column(INTEGER, primary_key=True)
+    owner_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, server_default=text("'0'"))
+    petition_guid = Column(ForeignKey('character_inventory.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+    name = Column(String(255), nullable=False, server_default=text("''"))
+
+    character = relationship('Character', lazy='joined')
+    character_inventory = relationship('CharacterInventory', lazy='joined')
+    characters = relationship('Character', secondary='petition_sign', lazy='joined')
+
+
+t_petition_sign = Table(
+    'petition_sign', metadata,
+    Column('petition_id', ForeignKey('petition.petition_id', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'")),
+    Column('player_guid', ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+)
 
 
 class Group(Base):

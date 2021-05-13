@@ -8,11 +8,12 @@ CELL_SIZE = config.Server.Settings.cell_size
 
 
 class GridManager(object):
-    def __init__(self, map_id, instance_id=0):
+    def __init__(self, map_id, active_cell_callback, instance_id=0):
         self.map_id = map_id
         self.instance_id = instance_id
         self.active_cell_keys = set()
         self.cells = dict()
+        self.active_cell_callback = active_cell_callback
 
     def add_or_get(self, world_object, store=False):
         min_x, min_y, max_x, max_y = GridManager.generate_coord_data(world_object.location.x, world_object.location.y)
@@ -20,7 +21,7 @@ class GridManager(object):
         if cell_coords in self.cells:
             cell = self.cells[cell_coords]
         else:
-            cell = Cell(min_x, min_y, max_x, max_y, world_object.map_)
+            cell = Cell(self.active_cell_callback, min_x, min_y, max_x, max_y, world_object.map_)
             self.cells[cell.key] = cell
 
         if store:
@@ -192,8 +193,9 @@ class GridManager(object):
 
 
 class Cell(object):
-    def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, gameobjects=None,
+    def __init__(self, active_cell_callback, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, gameobjects=None,
                  creatures=None, players=None, key=''):
+        self.active_cell_callback = active_cell_callback
         self.min_x = min_x
         self.min_y = min_y
         self.max_x = max_x
@@ -230,9 +232,16 @@ class Cell(object):
     def add(self, grid_manager, world_object):
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players[world_object.guid] = world_object
+            self.active_cell_callback(world_object)
+
             # Set this Cell and surrounding ones as Active
             for cell_key in list(grid_manager.get_surrounding_cell_keys(world_object)):
+                # Load tile maps of adjacent cells based on 1 creature position for each cell.
+                for creature in grid_manager.cells[cell_key].creatures.values():
+                    self.active_cell_callback(creature)
+                    break
                 grid_manager.active_cell_keys.add(cell_key)
+
         elif world_object.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures[world_object.guid] = world_object
         elif world_object.get_type() == ObjectTypes.TYPE_GAMEOBJECT:

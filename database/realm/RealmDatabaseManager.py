@@ -519,4 +519,50 @@ class RealmDatabaseManager(object):
         realm_db_session.flush()
         realm_db_session.close()
 
+    @staticmethod
+    def guild_petition_create(petition):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(petition)
+        realm_db_session.flush()
+        realm_db_session.refresh(petition)
+        realm_db_session.close()
+        return petition
+
+    @staticmethod
+    def guild_petition_get(petition_guid):
+        realm_db_session = SessionHolder()
+        petition = realm_db_session.query(Petition).filter_by(petition_guid=petition_guid).first()
+        realm_db_session.close()
+        return petition
+
+    @staticmethod
+    def guild_petition_get_by_owner(player_guid):
+        realm_db_session = SessionHolder()
+        petition = realm_db_session.query(Petition).filter_by(owner_guid=player_guid).first()
+        realm_db_session.close()
+        return petition
+
+    @staticmethod
+    def guild_petition_get_by_name(guild_name):
+        realm_db_session = SessionHolder()
+        petition = realm_db_session.query(Petition).filter_by(name=guild_name).first()
+        realm_db_session.close()
+        return petition
+
+    @staticmethod
+    def sign_petition(petition, character):
+        petition.characters.append(character)
+        realm_db_session = SessionHolder()
+        realm_db_session.merge(petition)
+        realm_db_session.flush()
+        realm_db_session.close()
+        return petition
+
+    @staticmethod
+    def guild_petition_destroy(petition):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(petition)
+        realm_db_session.flush()
+        realm_db_session.close()
+
 
