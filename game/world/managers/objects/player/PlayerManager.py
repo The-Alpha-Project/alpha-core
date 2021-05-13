@@ -361,7 +361,8 @@ class PlayerManager(UnitManager):
 
         # Same map and not inside instance
         if self.map_ == map_ and self.map_ <= 1:
-            if MapManager.should_relocate(self.teleport_destination, map_):
+            if MapManager.should_relocate(self.location, self.map_, self.teleport_destination, map_):
+                print('relocate')
                 self.teleport_is_relocate = True
 
             # TODO: After teleport, popping happens because we are not using the real terrain Z, once we have
