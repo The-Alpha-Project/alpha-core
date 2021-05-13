@@ -223,7 +223,7 @@ class UnitManager(ObjectManager):
         if self.combat_target:
             if self.combat_target == victim:
                 if is_melee and self.is_within_interactable_distance(self.combat_target):
-                    self.send_melee_attack_start(victim.guid)
+                    self.send_attack_start(victim.guid)
                     return True
                 return False
 
@@ -237,8 +237,7 @@ class UnitManager(ObjectManager):
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
-        if is_melee and self.is_within_interactable_distance(self.combat_target):
-            self.send_melee_attack_start(self.combat_target.guid)
+        self.send_attack_start(self.combat_target.guid)
 
         return True
 
@@ -251,14 +250,14 @@ class UnitManager(ObjectManager):
         victim = self.combat_target
         self.combat_target = None
 
-        self.send_melee_attack_stop(victim.guid if victim else self.guid)
+        self.send_attack_stop(victim.guid if victim else self.guid)
         self.set_dirty()
 
-    def send_melee_attack_start(self, victim_guid):
+    def send_attack_start(self, victim_guid):
         data = pack('<2Q', self.guid, victim_guid)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTART, data), self)
 
-    def send_melee_attack_stop(self, victim_guid):
+    def send_attack_stop(self, victim_guid):
         # Last uint32 is "deceased"; can be either 1 (self is dead), or 0, (self is alive).
         # Forces the unit to face the corpse and disables clientside
         # turning (UnitFlags.DisableMovement) CGUnit_C::OnAttackStop
@@ -342,7 +341,7 @@ class UnitManager(ObjectManager):
                 elif swing_error == AttackSwingError.NOTSTANDING:
                     self.send_attack_swing_not_standing(self.combat_target)
 
-                self.send_melee_attack_stop(self.combat_target.guid)
+                self.send_attack_stop(self.combat_target.guid)
 
         self.swing_error = swing_error
         return swing_error == AttackSwingError.NONE
@@ -535,7 +534,7 @@ class UnitManager(ObjectManager):
                 victim.attackers.pop(self.guid)
         self.attackers.clear()
 
-        self.send_melee_attack_stop(self.combat_target.guid if self.combat_target else self.guid)
+        self.send_attack_stop(self.combat_target.guid if self.combat_target else self.guid)
         self.swing_error = 0
 
         self.combat_target = None
