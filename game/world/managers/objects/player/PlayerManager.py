@@ -1,5 +1,4 @@
 import time
-from random import randint, uniform
 from struct import unpack
 
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
@@ -376,7 +375,7 @@ class PlayerManager(UnitManager):
                 location.z - 0.03,
                 location.o,
                 0,  # ?
-                0,  # MovementFlags
+                0  # MovementFlags
             )
 
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
