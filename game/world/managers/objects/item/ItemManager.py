@@ -326,7 +326,6 @@ class ItemManager(ObjectManager):
             self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 4, self.item_instance.SpellCharges5)
 
             for key, enchantment in self.enchantments.items():
-                print('UPDATING')
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + key * 3 + 0, enchantment[0])  # Value/Id
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + key * 3 + 1, enchantment[1])  # Duration
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + key * 3 + 2, enchantment[2])  # Charges
