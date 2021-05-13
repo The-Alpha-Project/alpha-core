@@ -262,7 +262,7 @@ class UnitManager(ObjectManager):
         # Last uint32 is "deceased"; can be either 1 (self is dead), or 0, (self is alive).
         # Forces the unit to face the corpse and disables clientside
         # turning (UnitFlags.DisableMovement) CGUnit_C::OnAttackStop
-        data = pack('<2QI', self.guid, victim_guid, 0 if self.is_alive else 1)
+        data = pack('<2QI', self.guid, victim_guid, 1 if self.is_alive else 1)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def attack_update(self, elapsed):
@@ -531,7 +531,8 @@ class UnitManager(ObjectManager):
 
         # Remove self from attacker list of attackers
         for victim in list(self.attackers.values()):
-            victim.attackers.pop(self.guid)
+            if self.guid in victim.attackers:
+                victim.attackers.pop(self.guid)
         self.attackers.clear()
 
         self.send_melee_attack_stop(self.combat_target.guid if self.combat_target else self.guid)
