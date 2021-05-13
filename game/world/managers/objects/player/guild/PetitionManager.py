@@ -80,26 +80,24 @@ class PetitionManager(object):
         guild_name_bytes = PacketWriter.string_to_bytes(petition.name)
 
         data = pack(
-            f'<IQ{len(guild_name_bytes)}s',
-            lo_petition_guid,  # m_petitionID
-            petition.owner_guid,  # m_petitioner
-            guild_name_bytes  # guild_name
+            f'<IQ{len(guild_name_bytes)}sB8I1H4I',
+            lo_petition_guid,  # int m_petitionID;
+            petition.owner_guid,  # unsigned __int64 m_petitioner;
+            guild_name_bytes,  # char m_title[256];
+            0,  # char m_bodyText[4096];
+            1,  # int m_flags;
+            9,  # int m_minSignatures;
+            9,  # int m_maxSignatures;
+            0,  # int m_deadLine;
+            0,  # int m_issueDate;
+            0,  # int m_allowedGuildID;
+            0,  # int m_allowedClasses;
+            0,  # int m_allowedRaces;
+            0,  # __int16 m_allowedGender;
+            0,  # int m_allowedMinLevel;
+            0,  # int m_allowedMaxLevel;
+            0,  # char m_choicetext[10][64];
+            0  # int m_numChoices;
         )
-
-        # m_bodyText?
-        # m_flags?
-        # m_minSignatures
-        # m_maxSignatures
-        # m_deadLine?
-        # m_issueDate?
-        # m_allowedGuildID?
-        # m_allowedClasses?
-        # m_allowedRaces?
-        # m_allowedGender?
-        # m_allowedMinLevel?
-        # m_allowedMaxLevel?
-        # m_choice?
-        # m_numChoices?
-        data += pack('<1B8I1H4I', 0, 1, 9, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
         return PacketWriter.get_packet(OpCode.SMSG_PETITION_QUERY_RESPONSE, data)
