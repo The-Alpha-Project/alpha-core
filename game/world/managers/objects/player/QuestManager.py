@@ -357,7 +357,7 @@ class QuestManager(object):
     def send_quest_query_response(self, active_quest):
         quest = active_quest.quest
         data = pack(
-            f'<8I',
+            f'<3Ii4I',
             quest.entry,
             quest.Method,
             quest.QuestLevel,
