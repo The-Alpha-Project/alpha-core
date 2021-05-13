@@ -456,6 +456,9 @@ class UnitManager(ObjectManager):
         if not target or not target.is_alive or damage < 1:
             return
 
+        if self.guid not in target.attackers:
+            target.attackers[self.guid] = self
+
         if not self.in_combat:
             self.enter_combat()
             self.set_dirty()
@@ -477,8 +480,7 @@ class UnitManager(ObjectManager):
 
         # If unit is a creature and it's being attacked by another unit, automatically set combat target.
         if not self.combat_target and not is_player and source and source.get_type() != ObjectTypes.TYPE_GAMEOBJECT:
-            self.set_current_target(source.guid)
-            self.combat_target = source
+            self.attack(source)
 
         update_packet = self.generate_proper_update_packet(is_self=is_player)
         MapManager.send_surrounding(update_packet, self, include_self=is_player)
@@ -527,7 +529,11 @@ class UnitManager(ObjectManager):
         if not self.in_combat and not force:
             return
 
+        # Remove self from attacker list of attackers
+        for victim in list(self.attackers.values()):
+            victim.attackers.pop(self.guid)
         self.attackers.clear()
+
         self.send_melee_attack_stop(self.combat_target.guid if self.combat_target else self.guid)
         self.swing_error = 0
 

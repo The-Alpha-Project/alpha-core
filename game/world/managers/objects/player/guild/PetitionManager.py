@@ -51,8 +51,6 @@ class PetitionManager(object):
     def turn_in_petition(player_mgr, petition_owner, petition):
         if petition and petition_owner:
             if petition_owner != player_mgr.guid:
-                print(f'petition owner: {petition_owner}')
-                print(f'requester: {player_mgr.guid}')
                 PetitionManager.send_petition_sign_result(player_mgr, PetitionError.PETITION_CHARTER_CREATOR)
             elif len(petition.characters) < 9:
                 PetitionManager.send_petition_sign_result(player_mgr, PetitionError.PETITION_NOT_ENOUGH_SIGNATURES)
