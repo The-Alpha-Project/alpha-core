@@ -365,7 +365,7 @@ class QuestManager(object):
             quest.Type,
             quest.NextQuestInChain,
             quest.RewOrReqMoney,
-            quest.SrcItemId,
+            quest.SrcItemId
         )
 
         # Rew items
