@@ -238,8 +238,8 @@ class Cell(object):
             for cell_key in list(grid_manager.get_surrounding_cell_keys(world_object)):
                 # Load tile maps of adjacent cells if there's at least one creature on them.
                 creatures = list(grid_manager.cells[cell_key].creatures.values())
-                if len(creatures) > 0:
-                    self.active_cell_callback(creatures[0])
+                for creature in creatures:
+                    self.active_cell_callback(creature)
                 grid_manager.active_cell_keys.add(cell_key)
 
         elif world_object.get_type() == ObjectTypes.TYPE_UNIT:
