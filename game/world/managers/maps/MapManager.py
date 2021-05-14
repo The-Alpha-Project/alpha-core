@@ -23,8 +23,7 @@ class MapManager(object):
     @staticmethod
     def on_cell_turn_active(world_obj):
         MapManager.load_map_tiles(world_obj.map_, world_obj.location.x, world_obj.location.y)
-        return
-    
+
     @staticmethod
     def load_map_tiles(map_id, x, y):
         if not config.Server.Settings.use_map_tiles:
