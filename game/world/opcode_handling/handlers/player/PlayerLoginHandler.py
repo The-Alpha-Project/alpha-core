@@ -4,6 +4,7 @@ from struct import unpack
 
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.player.GroupManager import GroupManager
+from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
 from network.packet.PacketWriter import *
@@ -63,6 +64,7 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.friends_manager.load_from_db(RealmDatabaseManager.character_get_social(world_session.player_mgr.guid))
 
         world_session.enqueue_packet(world_session.player_mgr.get_deathbind_packet())
+        ReputationManager.send_player_reputations(world_session.player_mgr)
         # Tutorials aren't implemented in 0.5.3
         # world_session.enqueue_packet(world_session.player_mgr.get_tutorial_packet())
         world_session.enqueue_packet(world_session.player_mgr.spell_manager.get_initial_spells())

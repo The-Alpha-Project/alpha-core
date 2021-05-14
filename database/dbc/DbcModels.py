@@ -2,6 +2,7 @@
 from sqlalchemy import Column, Float, Text, text
 from sqlalchemy.dialects.mysql import INTEGER, TINYINT
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 metadata = Base.metadata
@@ -391,6 +392,14 @@ class Faction(Base):
     Name_zhCN = Column(Text)
     Name_enTW = Column(Text)
     Name_Mask = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+
+    faction_templates = relationship('FactionTemplate',
+                                     foreign_keys='FactionTemplate.Faction',
+                                     primaryjoin="Faction.ID == FactionTemplate.Faction",
+                                     uselist=True,
+                                     viewonly=True,
+                                     lazy='joined'
+                                     )
 
 
 class FactionGroup(Base):

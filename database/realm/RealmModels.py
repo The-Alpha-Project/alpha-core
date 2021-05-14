@@ -183,6 +183,18 @@ class CharacterQuestState(Base):
     character = relationship('Character')
 
 
+class CharacterReputation(Base):
+    __tablename__ = 'character_reputation'
+
+    character = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    faction = Column(INTEGER(11), primary_key=True, nullable=False, server_default=text("'0'"))
+    standing = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    flags = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
+    index = Column(INTEGER(5), nullable=False)
+
+    character1 = relationship('Character')
+
+
 class Guild(Base):
     __tablename__ = 'guild'
 

@@ -302,6 +302,13 @@ class DbcDatabaseManager(object):
     # Faction
 
     @staticmethod
+    def factions_get_all():
+        dbc_db_session = SessionHolder()
+        factions = dbc_db_session.query(Faction).all()
+        dbc_db_session.close()
+        return factions
+
+    @staticmethod
     def faction_template_get_by_id(faction_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(FactionTemplate).filter_by(ID=faction_id).first()

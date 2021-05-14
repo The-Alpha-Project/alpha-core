@@ -4,6 +4,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.player.FactionManager import FactionManager
 from game.world.managers.objects.player.GroupManager import GroupManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
@@ -18,19 +19,21 @@ class WorldLoader:
         MapManager.initialize_maps()
 
         # Gameobject spawns
-        if config.Server.Settings.load_gameobjects:
-            WorldLoader.load_gameobjects()
-        else:
-            Logger.info('Skipped game object loading.')
+        # if config.Server.Settings.load_gameobjects:
+        #     WorldLoader.load_gameobjects()
+        # else:
+        #     Logger.info('Skipped game object loading.')
+        #
+        # # Creature spawns
+        # if config.Server.Settings.load_creatures:
+        #     WorldLoader.load_creature_loot_templates()
+        #     WorldLoader.load_creatures()
+        #     WorldLoader.load_creature_quests()
+        #     WorldLoader.load_creature_involved_quests()
+        # else:
+        #     Logger.info('Skipped creature loading.')
 
-        # Creature spawns
-        if config.Server.Settings.load_creatures:
-            WorldLoader.load_creature_loot_templates()
-            WorldLoader.load_creatures()
-            WorldLoader.load_creature_quests()
-            WorldLoader.load_creature_involved_quests()
-        else:
-            Logger.info('Skipped creature loading.')
+        WorldLoader.load_factions()
 
         WorldLoader.load_item_templates()
         WorldLoader.load_quests()
@@ -108,6 +111,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading item templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_factions():
+        factions = DbcDatabaseManager.factions_get_all()
+        length = len(factions)
+        count = 0
+
+        for faction in factions:
+            FactionManager.load_faction(faction)
+
+            count += 1
+            Logger.progress('Loading factions...', count, length)
 
         return length
 
