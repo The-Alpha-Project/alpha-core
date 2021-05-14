@@ -1,8 +1,8 @@
 version: '3.0'
 services:
   main:
-    image: alpha-core:latest
-    build: .
+    build: 
+        context: .
     environment:
       - MYSQL_HOST=sql
       - MYSQL_USERNAME=root
