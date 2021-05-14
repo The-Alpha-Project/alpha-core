@@ -63,9 +63,6 @@ class GridManager(object):
             if not players_near:
                 self.active_cell_keys.discard(cell_key)
 
-    def is_active_cell_key(self, cell_key):
-        return cell_key in self.active_cell_keys
-
     def get_surrounding_cell_keys(self, world_object, vector=None, x_s=-1, x_m=1, y_s=-1, y_m=1):
         if not vector:
             vector = world_object.location

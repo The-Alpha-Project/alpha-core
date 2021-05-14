@@ -57,7 +57,7 @@ class PlayerManager(UnitManager):
         self.update_lock = False
         self.teleport_destination = None
         self.teleport_destination_map = None
-        self.teleport_is_relocate = False
+        self.is_relocating = False
         self.objects_in_range = dict()
 
         self.player = player
@@ -362,11 +362,12 @@ class PlayerManager(UnitManager):
         # Same map and not inside instance
         if self.map_ == map_ and self.map_ <= 1:
             if MapManager.should_relocate(self, self.teleport_destination, map_):
-                self.teleport_is_relocate = True
+                self.is_relocating = True
 
-            # TODO: After teleport, popping happens because we are not using the real terrain Z, once we have
-            #  proper maps, we should validate destination Z.
-            data = pack('<Q9fI',
+            # TODO: After teleport, popping happens because we are not using the real terrain Z, once we have proper
+            #  maps, we should validate destination Z.
+            data = pack(
+                '<Q9fI',
                 self.transport_id,
                 self.transport.x,
                 self.transport.y,
@@ -400,8 +401,7 @@ class PlayerManager(UnitManager):
         return True
 
     def spawn_player_from_teleport(self):
-        relocate = self.teleport_is_relocate
-        if not relocate:
+        if not self.is_relocating:
             # Remove ourselves from the old location.
             for guid, player in list(MapManager.get_surrounding_players(self).items()):
                 if self.guid == guid:
@@ -416,24 +416,24 @@ class PlayerManager(UnitManager):
         self.location = Vector(self.teleport_destination.x, self.teleport_destination.y, self.teleport_destination.z, self.teleport_destination.o)
 
         # Get us in world again.
-        self.send_update_self(create=True if not relocate else False,
-                              force_inventory_update=True if not relocate else False,
+        self.send_update_self(create=True if not self.is_relocating else False,
+                              force_inventory_update=True if not self.is_relocating else False,
                               reset_fields=False)
 
         # Get us in a new grid.
         MapManager.update_object(self)
 
         self.send_update_surrounding(self.generate_proper_update_packet(
-            create=True if not relocate else False),
+            create=True if not self.is_relocating else False),
             include_self=False,
-            create=True if not relocate else False,
-            force_inventory_update=True if not relocate else False)
+            create=True if not self.is_relocating else False,
+            force_inventory_update=True if not self.is_relocating else False)
 
         self.reset_fields()
         self.update_lock = False
         self.teleport_destination_map = None
         self.teleport_destination = None
-        self.teleport_is_relocate = False
+        self.is_relocating = False
 
         # Update managers.
         self.friends_manager.send_update_to_friends()
@@ -1177,8 +1177,8 @@ class PlayerManager(UnitManager):
 
     def get_deathbind_coordinates(self):
         return (self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,
-                                             self.deathbind.deathbind_position_y,
-                                             self.deathbind.deathbind_position_z))
+                                                     self.deathbind.deathbind_position_y,
+                                                     self.deathbind.deathbind_position_z))
 
     # override
     def die(self, killer=None):

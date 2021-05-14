@@ -169,10 +169,10 @@ class MapManager(object):
     # Object methods (wrappers around GridManager methods)
 
     @staticmethod
-    def should_relocate(player_mgr, destionation, destination_map):
+    def should_relocate(world_object, destination, destination_map):
         grid_manager = MapManager.get_grid_manager_by_map_id(destination_map)
-        destination_cells = grid_manager.get_surrounding_cells_by_location(destionation.x, destionation.y, destination_map)
-        current_cell = grid_manager.get_cells()[player_mgr.current_cell]
+        destination_cells = grid_manager.get_surrounding_cells_by_location(destination.x, destination.y, destination_map)
+        current_cell = grid_manager.get_cells()[world_object.current_cell]
         return current_cell in destination_cells
 
     @staticmethod
