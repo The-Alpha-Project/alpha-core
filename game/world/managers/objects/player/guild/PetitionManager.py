@@ -43,7 +43,8 @@ class PetitionManager(object):
 
     @staticmethod
     def sign_petition(petition, signer_player, petition_owner_player):
-        RealmDatabaseManager.sign_petition(petition, signer_player.player)
+        petition.characters.append(signer_player.player)
+        RealmDatabaseManager.guild_petition_update(petition)
         PetitionManager.send_petition_sign_result(signer_player, PetitionError.PETITION_SUCCESS)
         PetitionManager.send_petition_sign_result(petition_owner_player, PetitionError.PETITION_SUCCESS)
 

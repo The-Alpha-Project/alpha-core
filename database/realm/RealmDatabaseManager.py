@@ -550,8 +550,7 @@ class RealmDatabaseManager(object):
         return petition
 
     @staticmethod
-    def sign_petition(petition, character):
-        petition.characters.append(character)
+    def guild_petition_update(petition):
         realm_db_session = SessionHolder()
         realm_db_session.merge(petition)
         realm_db_session.flush()
