@@ -57,6 +57,7 @@ class PlayerManager(UnitManager):
         self.update_lock = False
         self.teleport_destination = None
         self.teleport_destination_map = None
+        self.teleport_is_relocate = False
         self.objects_in_range = dict()
 
         self.player = player
@@ -360,8 +361,12 @@ class PlayerManager(UnitManager):
 
         # Same map and not inside instance
         if self.map_ == map_ and self.map_ <= 1:
-            data = pack(
-                '<Q9fI',
+            if MapManager.should_relocate(self, self.teleport_destination, map_):
+                self.teleport_is_relocate = True
+
+            # TODO: After teleport, popping happens because we are not using the real terrain Z, once we have
+            #  proper maps, we should validate destination Z.
+            data = pack('<Q9fI',
                 self.transport_id,
                 self.transport.x,
                 self.transport.y,
@@ -372,10 +377,11 @@ class PlayerManager(UnitManager):
                 location.z,
                 location.o,
                 0,  # ?
-                0  # MovementFlags
+                MoveFlags.MOVEFLAG_NONE,
             )
 
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
+
         # Loading screen
         else:
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
@@ -394,33 +400,40 @@ class PlayerManager(UnitManager):
         return True
 
     def spawn_player_from_teleport(self):
-        # TODO: Send just move packet instead of object recreation if the teleport happens within the same Grid.
+        relocate = self.teleport_is_relocate
+        if not relocate:
+            # Remove ourselves from the old location.
+            for guid, player in list(MapManager.get_surrounding_players(self).items()):
+                if self.guid == guid:
+                    continue
 
-        # Remove ourselves from the old location.
-        for guid, player in list(MapManager.get_surrounding_players(self).items()):
-            if self.guid == guid:
-                continue
-
-            # Always make sure self is destroyed for others
-            if not player.destroy_near_object(self.guid):
-                player.session.enqueue_packet(self.get_destroy_packet())
+                # Always make sure self is destroyed for others
+                if not player.destroy_near_object(self.guid):
+                    player.session.enqueue_packet(self.get_destroy_packet())
 
         # Update new coordinates and map.
         self.map_ = self.teleport_destination_map
-        self.location = self.teleport_destination
+        self.location = Vector(self.teleport_destination.x, self.teleport_destination.y, self.teleport_destination.z, self.teleport_destination.o)
 
         # Get us in world again.
-        self.send_update_self(create=True, force_inventory_update=True, reset_fields=False)
-        self.send_update_surrounding(self.generate_proper_update_packet(
-            create=True), include_self=False, create=True, force_inventory_update=True)
+        self.send_update_self(create=True if not relocate else False,
+                              force_inventory_update=True if not relocate else False,
+                              reset_fields=False)
 
         # Get us in a new grid.
         MapManager.update_object(self)
+
+        self.send_update_surrounding(self.generate_proper_update_packet(
+            create=True if not relocate else False),
+            include_self=False,
+            create=True if not relocate else False,
+            force_inventory_update=True if not relocate else False)
 
         self.reset_fields()
         self.update_lock = False
         self.teleport_destination_map = None
         self.teleport_destination = None
+        self.teleport_is_relocate = False
 
         # Update managers.
         self.friends_manager.send_update_to_friends()

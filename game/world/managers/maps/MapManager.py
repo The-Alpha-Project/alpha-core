@@ -169,6 +169,13 @@ class MapManager(object):
     # Object methods (wrappers around GridManager methods)
 
     @staticmethod
+    def should_relocate(player_mgr, destionation, destination_map):
+        grid_manager = MapManager.get_grid_manager_by_map_id(destination_map)
+        destination_cells = grid_manager.get_surrounding_cells_by_location(destionation.x, destionation.y, destination_map)
+        current_cell = grid_manager.get_cells()[player_mgr.current_cell]
+        return current_cell in destination_cells
+
+    @staticmethod
     def update_object(world_object):
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
         grid_manager.update_object(world_object)

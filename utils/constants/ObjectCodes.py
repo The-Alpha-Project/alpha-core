@@ -526,6 +526,7 @@ class Languages(IntEnum):
 
 
 class MoveFlags(IntEnum):
+    MOVEFLAG_NONE = 0x0
     MOVEFLAG_FORWARD = 0x1
     MOVEFLAG_BACKWARD = 0x2
     MOVEFLAG_STRAFE_LEFT = 0x4
