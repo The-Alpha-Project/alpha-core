@@ -19,21 +19,19 @@ class WorldLoader:
         MapManager.initialize_maps()
 
         # Gameobject spawns
-        # if config.Server.Settings.load_gameobjects:
-        #     WorldLoader.load_gameobjects()
-        # else:
-        #     Logger.info('Skipped game object loading.')
-        #
-        # # Creature spawns
-        # if config.Server.Settings.load_creatures:
-        #     WorldLoader.load_creature_loot_templates()
-        #     WorldLoader.load_creatures()
-        #     WorldLoader.load_creature_quests()
-        #     WorldLoader.load_creature_involved_quests()
-        # else:
-        #     Logger.info('Skipped creature loading.')
+        if config.Server.Settings.load_gameobjects:
+            WorldLoader.load_gameobjects()
+        else:
+            Logger.info('Skipped game object loading.')
 
-        WorldLoader.load_factions()
+        # Creature spawns
+        if config.Server.Settings.load_creatures:
+            WorldLoader.load_creature_loot_templates()
+            WorldLoader.load_creatures()
+            WorldLoader.load_creature_quests()
+            WorldLoader.load_creature_involved_quests()
+        else:
+            Logger.info('Skipped creature loading.')
 
         WorldLoader.load_item_templates()
         WorldLoader.load_quests()
@@ -44,6 +42,7 @@ class WorldLoader:
         WorldLoader.load_taxi_path_nodes()
 
         # Character related data
+        WorldLoader.load_factions()
         WorldLoader.load_groups()
         WorldLoader.load_guilds()
 
