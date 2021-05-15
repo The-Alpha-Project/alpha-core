@@ -264,26 +264,11 @@ class LootTypes(IntEnum):
     LOOT_TYPE_FISHING = 3
 
 
-class FactionGroupType(IntEnum):
-    Default = 0
-    Player = 1
-    Alliance = 2
-    Horde = 4
-    Monster = 8
-
-class ReputationReacion(IntEnum):
-    HATED = 0
-    HOSTILE = 1
-    UNFRIENDLY = 2
-    NEUTRAL = 3
-    AMIABLE = 4
-    FRIENDLY = 5
-    REVERED = 6
-
 class ReputationFlag(IntEnum):
-    Hidden = 0
-    Visible = 1
-    AtWar = 2
+    HIDDEN = 0
+    VISIBLE = 1
+    ATWAR = 2
+
 
 class QuestState(IntEnum):
     QUEST_GREETING = 0

@@ -6,8 +6,11 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.player.proficiencies.proficiency import Proficiency
+from network.packet.PacketWriter import PacketWriter
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.ObjectCodes import SkillCategories, Languages
+from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import Classes
 from utils.constants.UpdateFields import PlayerFields
 
@@ -220,11 +223,30 @@ class SkillManager(object):
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.skills = {}
+        self.proficiencies = []
 
     def load_skills(self):
         for skill in RealmDatabaseManager.character_get_skills(self.player_mgr.guid):
             self.skills[skill.skill] = skill
         self.build_update()
+
+    def load_proficiencies(self):
+        proficiency = DbcDatabaseManager.char_get_proficiency(self.player_mgr.player.race, self.player_mgr.player.class_)
+        self.proficiencies = Proficiency.build_from_chr_proficiency(proficiency)
+
+    def get_proficiencies_packets(self):
+        packets = []
+        for proficiency in self.proficiencies:
+            # TODO: Should check skill rank against proficiency.min_level, not sure how to map itemsubclass to the skill
+            if proficiency.acquire_method == 0: # and player skill rank > proficiency.min_level
+                continue
+            if proficiency.acquire_method == 1 and self.player_mgr.level < proficiency.min_level:
+                continue
+            if proficiency.acquire_method < 0: #  Not sure what this means.
+                continue
+            data = pack('<bI', proficiency.item_class, proficiency.item_subclass_mask)
+            packets.append(PacketWriter.get_packet(OpCode.SMSG_SET_PROFICIENCY, data))
+        return packets
 
     def add_skill(self, skill_id):
         # Skill already learnt

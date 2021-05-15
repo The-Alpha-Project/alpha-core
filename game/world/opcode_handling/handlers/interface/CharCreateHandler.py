@@ -16,7 +16,7 @@ from utils.TextUtils import GameTextFormatter
 from utils.constants.CharCodes import *
 from utils.ConfigManager import config
 from utils.constants.ItemCodes import InventorySlots
-from utils.constants.ObjectCodes import SkillCategories, ReputationReacion, ReputationFlag
+from utils.constants.ObjectCodes import SkillCategories
 from utils.constants.SpellCodes import SpellEffects
 from utils.constants.UnitCodes import Teams, Classes
 
@@ -112,10 +112,10 @@ class CharCreateHandler(object):
             if faction.reputation_index > -1:
                 reputation_entry = CharacterReputation()
                 reputation_entry.character = guid
-                reputation_entry.faction = faction.id
+                reputation_entry.faction = faction.faction_id
                 reputation_entry.standing = faction.reputation_base_value
                 reputation_entry.index = faction.reputation_index
-                reputation_entry.flags = int(ReputationFlag.Visible)  # TODO
+                reputation_entry.flags = ReputationManager.get_reputation_flag(faction)
                 RealmDatabaseManager.character_add_reputation(reputation_entry)
 
     @staticmethod

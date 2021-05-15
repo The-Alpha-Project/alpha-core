@@ -58,6 +58,7 @@ class PlayerLoginHandler(object):
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
                                                              PlayerLoginHandler._get_login_timespeed()))
 
+        world_session.player_mgr.skill_manager.load_proficiencies()
         world_session.player_mgr.spell_manager.load_spells()
 
         world_session.player_mgr.deathbind = RealmDatabaseManager.character_get_deathbind(world_session.player_mgr.guid)
@@ -67,6 +68,8 @@ class PlayerLoginHandler(object):
         ReputationManager.send_player_reputations(world_session.player_mgr)
         # Tutorials aren't implemented in 0.5.3
         # world_session.enqueue_packet(world_session.player_mgr.get_tutorial_packet())
+        for proficiency_packet in world_session.player_mgr.skill_manager.get_proficiencies_packets():
+            world_session.enqueue_packet(proficiency_packet)
         world_session.enqueue_packet(world_session.player_mgr.spell_manager.get_initial_spells())
         world_session.enqueue_packet(world_session.player_mgr.get_action_buttons())
 
