@@ -4,9 +4,6 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ItemCodes import PetitionError
-
-
-# TODO: TabardVendor wont allow you to  purchase a new emblem.
 from utils.constants.ObjectCodes import HighGuid
 
 
