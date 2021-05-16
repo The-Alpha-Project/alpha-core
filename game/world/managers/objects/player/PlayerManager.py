@@ -226,13 +226,24 @@ class PlayerManager(UnitManager):
     def complete_login(self):
         self.online = True
 
+        # Place player in world and update surroundings.
         MapManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
-        ChannelManager.join_default_channels(self)  # Once in-world
+
+        # Join default channels.
+        ChannelManager.join_default_channels(self)
+
+        # Init faction status.
         self.reputation_manager.send_initialize_factions()
+
+        # Notify friends about player login.
         self.friends_manager.send_online_notification()  # Notify our friends
+
+        # If guild, send guild Message of the Day.
         if self.guild_manager:
             self.guild_manager.send_motd(player_mgr=self)
+
+        # If group, notify group members.
         if self.group_manager:
             self.group_manager.send_update()
 
