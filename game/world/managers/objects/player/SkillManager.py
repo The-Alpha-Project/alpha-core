@@ -238,11 +238,11 @@ class SkillManager(object):
         packets = []
         for proficiency in self.proficiencies:
             # TODO: Should check skill rank against proficiency.min_level, not sure how to map itemsubclass to the skill
-            if proficiency.acquire_method == 0: # and player skill rank > proficiency.min_level
+            if proficiency.acquire_method == 0:  # and player skill rank > proficiency.min_level
                 continue
             if proficiency.acquire_method == 1 and self.player_mgr.level < proficiency.min_level:
                 continue
-            if proficiency.acquire_method < 0: #  Not sure what this means.
+            if proficiency.acquire_method < 0:  # Not sure what this means '-1'.
                 continue
             data = pack('<bI', proficiency.item_class, proficiency.item_subclass_mask)
             packets.append(PacketWriter.get_packet(OpCode.SMSG_SET_PROFICIENCY, data))
