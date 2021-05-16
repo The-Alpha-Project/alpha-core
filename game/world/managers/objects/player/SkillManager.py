@@ -181,40 +181,9 @@ LANG_DESCRIPTION = {
 }
 
 
-class SpellSkillDesc(NamedTuple):
-    spell_id: int
-    skill_id: int
-
-
-EQUIPMENT_DESCRIPTION = {
-    ItemClasses.ITEM_CLASS_WEAPON: {
-        ItemSubClasses.ITEM_SUBCLASS_AXE: SpellSkillDesc(196, SkillTypes.AXES.value),
-        ItemSubClasses.ITEM_SUBCLASS_TWOHAND_AXE: SpellSkillDesc(197, SkillTypes.TWOHANDEDAXES.value),
-        ItemSubClasses.ITEM_SUBCLASS_BOW: SpellSkillDesc(264, SkillTypes.BOWS.value),
-        ItemSubClasses.ITEM_SUBCLASS_GUN: SpellSkillDesc(266, SkillTypes.GUNS.value),
-        ItemSubClasses.ITEM_SUBCLASS_MACE: SpellSkillDesc(198, SkillTypes.MACES.value),
-        ItemSubClasses.ITEM_SUBCLASS_TWOHAND_MACE: SpellSkillDesc(199, SkillTypes.TWOHANDEDMACES.value),
-        ItemSubClasses.ITEM_SUBCLASS_POLEARM: SpellSkillDesc(3386, SkillTypes.POLEARMS.value),
-        ItemSubClasses.ITEM_SUBCLASS_SWORD: SpellSkillDesc(201, SkillTypes.SWORDS.value),
-        ItemSubClasses.ITEM_SUBCLASS_TWOHAND_SWORD: SpellSkillDesc(202, SkillTypes.TWOHANDEDSWORDS.value),
-        ItemSubClasses.ITEM_SUBCLASS_STAFF: SpellSkillDesc(227, SkillTypes.STAVES.value),
-        ItemSubClasses.ITEM_SUBCLASS_DAGGER: SpellSkillDesc(1180, SkillTypes.DAGGERS.value),
-        ItemSubClasses.ITEM_SUBCLASS_THROWN: SpellSkillDesc(2567, SkillTypes.THROWN.value),
-        ItemSubClasses.ITEM_SUBCLASS_CROSSBOW: SpellSkillDesc(5011, SkillTypes.CROSSBOWS.value),
-        ItemSubClasses.ITEM_SUBCLASS_WAND: SpellSkillDesc(5009, SkillTypes.WANDS.value),
-        ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON: SpellSkillDesc(0, SkillTypes.UNARMED.value),
-        ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE: SpellSkillDesc(0, SkillTypes.NONE)
-    },
-    ItemClasses.ITEM_CLASS_ARMOR: {
-        ItemSubClasses.ITEM_SUBCLASS_PLATE: SpellSkillDesc(750, SkillTypes.PLATEMAIL.value),
-        ItemSubClasses.ITEM_SUBCLASS_CLOTH: SpellSkillDesc(0, -1),
-        ItemSubClasses.ITEM_SUBCLASS_LEATHER: SpellSkillDesc(0, -1),
-        ItemSubClasses.ITEM_SUBCLASS_MAIL: SpellSkillDesc(0, -1),
-        ItemSubClasses.ITEM_SUBCLASS_MISC: SpellSkillDesc(0, SkillTypes.NONE),
-        ItemSubClasses.ITEM_SUBCLASS_BUCKLER: SpellSkillDesc(107, SkillTypes.BLOCK),
-        ItemSubClasses.ITEM_SUBCLASS_SHIELD: SpellSkillDesc(107, SkillTypes.BLOCK)
-    }
-}
+class ProficiencyAcquireMethod(IntEnum):
+    PROFICIENCY_ACQUIRE_ON_TRAINER = 0
+    PROFICIENCY_ACQUIRE_ON_CREATE = 1
 
 
 class Proficiency(NamedTuple):
@@ -228,7 +197,7 @@ class SkillManager(object):
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.skills = {}
-        self.proficiencies = []
+        self.proficiencies = {}
 
     def load_skills(self):
         for skill in RealmDatabaseManager.character_get_skills(self.player_mgr.guid):
@@ -238,26 +207,25 @@ class SkillManager(object):
     def load_proficiencies(self):
         chr_proficiency = DbcDatabaseManager.chr_get_proficiency(self.player_mgr.player.race, self.player_mgr.player.class_)
         for x in range(1, 17):
-            min_level = eval(f'chr_proficiency.Proficiency_MinLevel_{x}')
-            if min_level == -1:
+            acquire_method = eval(f'chr_proficiency.Proficiency_AcquireMethod_{x}')
+            if acquire_method == -1:
                 break
-            self.proficiencies.append(
-                Proficiency(
-                    min_level,
-                    eval(f'chr_proficiency.Proficiency_AcquireMethod_{x}'),
-                    eval(f'chr_proficiency.Proficiency_ItemClass_{x}'),
+
+            # TODO: Only loading proficiencies acquired on char creation for now
+            if acquire_method != ProficiencyAcquireMethod.PROFICIENCY_ACQUIRE_ON_CREATE:
+                continue
+
+            item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
+            self.proficiencies[item_class] = Proficiency(
+                    eval(f'chr_proficiency.Proficiency_MinLevel_{x}'),
+                    acquire_method,
+                    item_class,
                     eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}'),
-                )
             )
 
     def get_proficiencies_packets(self):
         packets = []
-        for proficiency in self.proficiencies:
-            # TODO: Should check skill rank against proficiency.min_level, not sure how to map itemsubclass to the skill
-            if proficiency.acquire_method == 0:  # and player skill rank < proficiency.min_level
-                continue
-            if proficiency.acquire_method == 1 and self.player_mgr.level < proficiency.min_level:
-                continue
+        for proficiency in self.proficiencies.values():
             data = pack('<bI', proficiency.item_class, proficiency.item_subclass_mask)
             packets.append(PacketWriter.get_packet(OpCode.SMSG_SET_PROFICIENCY, data))
         return packets
@@ -306,49 +274,10 @@ class SkillManager(object):
 
             self.set_skill(skill_id, skill.value, new_max)
 
-    def _class_can_use_armor_type(self, armor_type):
-        player_class = self.player_mgr.player.class_
-        if armor_type == ItemSubClasses.ITEM_SUBCLASS_CLOTH:
-            return True
-
-        if armor_type == ItemSubClasses.ITEM_SUBCLASS_LEATHER:
-            return player_class != Classes.CLASS_MAGE and player_class != Classes.CLASS_PRIEST and player_class != Classes.CLASS_WARLOCK
-
-        if armor_type == ItemSubClasses.ITEM_SUBCLASS_MAIL:
-            if self.player_mgr.level >= 40 and (player_class == Classes.CLASS_HUNTER or player_class == Classes.CLASS_SHAMAN):
-                return True
-
-            if player_class == Classes.CLASS_WARRIOR or player_class == Classes.CLASS_PALADIN:
-                return True
-
-            return False
-
-        if armor_type == ItemSubClasses.ITEM_SUBCLASS_PLATE:
-            return SkillTypes.PLATEMAIL in self.skills
-
-        return False
-
-    # TODO: Use ChrProficiency.dbc
     def can_use_equipment(self, item_class, item_subclass):
-        # No Cloth, Leather or Mail spells / skill exist in 0.5.3, but according to Ziggurat armor restrictions existed.
-        if item_class == ItemClasses.ITEM_CLASS_ARMOR and \
-                (item_subclass == ItemSubClasses.ITEM_SUBCLASS_CLOTH or
-                 item_subclass == ItemSubClasses.ITEM_SUBCLASS_LEATHER or item_subclass == ItemSubClasses.ITEM_SUBCLASS_MAIL):
-            return self._class_can_use_armor_type(item_subclass)
-        # Special case, don't let Hunters and Rogues use shields even if they have the Block skill (just bucklers).
-        elif item_class == ItemClasses.ITEM_CLASS_ARMOR and item_subclass == ItemSubClasses.ITEM_SUBCLASS_SHIELD:
-            if self.player_mgr.player.class_ == Classes.CLASS_HUNTER or self.player_mgr.player.class_ == Classes.CLASS_ROGUE:
-                return False
-
-        skill = SkillManager.get_skill_by_item_class(item_class, item_subclass)
-        if skill == -1:
+        if item_class not in self.proficiencies:
             return False
-
-        # No skill requirement
-        if skill == SkillTypes.NONE:
-            return True
-
-        return skill in self.skills
+        return self.proficiencies[item_class].item_subclass_mask & (1 << item_subclass) > 0
 
     def get_skill_for_spell_id(self, spell_id):
         skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell_id)
@@ -369,15 +298,6 @@ class SkillManager(object):
         if language_id in LANG_DESCRIPTION:
             return LANG_DESCRIPTION[language_id].skill_id
         return -1
-
-    @staticmethod
-    def get_skill_by_item_class(item_class, item_subclass):
-        if item_class in EQUIPMENT_DESCRIPTION:
-            class_ = EQUIPMENT_DESCRIPTION[item_class]
-            if item_subclass in class_:
-                return class_[item_subclass].skill_id
-            return -1
-        return 0
 
     @staticmethod
     def get_max_rank(player_level, skill_id):
