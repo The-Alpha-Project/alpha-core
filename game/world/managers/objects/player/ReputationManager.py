@@ -40,12 +40,12 @@ class ReputationManager(object):
             return int(ReputationFlag.HIDDEN)
 
     @staticmethod
-    def get_stainding(faction):
+    def get_standing(faction):
         return faction.reputation_base_value
 
     @staticmethod
     def get_reaction(faction):
-        standing = ReputationManager.get_stainding(faction)
+        standing = ReputationManager.get_standing(faction)
 
         if standing >= 2100:
             return UnitReaction.UNIT_REACTION_REVERED
@@ -57,7 +57,7 @@ class ReputationManager(object):
             return UnitReaction.UNIT_REACTION_NEUTRAL
         elif standing >= -300:
             return UnitReaction.UNIT_REACTION_UNFRIENDLY
-        elif standing >- -600:
+        elif standing > - -600:
             return UnitReaction.UNIT_REACTION_HOSTILE
         else:
             return UnitReaction.UNIT_REACTION_HATED
