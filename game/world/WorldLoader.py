@@ -4,6 +4,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.player.FactionManager import FactionManager
 from game.world.managers.objects.player.GroupManager import GroupManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
@@ -41,6 +42,7 @@ class WorldLoader:
         WorldLoader.load_taxi_path_nodes()
 
         # Character related data
+        WorldLoader.load_factions()
         WorldLoader.load_groups()
         WorldLoader.load_guilds()
 
@@ -108,6 +110,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading item templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_factions():
+        factions = DbcDatabaseManager.factions_get_all()
+        length = len(factions)
+        count = 0
+
+        for faction in factions:
+            FactionManager.load_faction(faction)
+
+            count += 1
+            Logger.progress('Loading factions...', count, length)
 
         return length
 

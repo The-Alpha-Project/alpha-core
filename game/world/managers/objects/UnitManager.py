@@ -7,6 +7,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.player.FactionManager import FactionManager
 from game.world.managers.objects.spell.AuraManager import AuraManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -768,29 +769,8 @@ class UnitManager(ObjectManager):
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
 
-    def _allegiance_status_checker(self, target, check_friendly=True):
-        own_faction = DbcDatabaseManager.faction_template_get_by_id(self.faction)
-        target_faction = DbcDatabaseManager.faction_template_get_by_id(target.faction)
-        # Some units currently have a bugged faction, terminate the method if this is encountered
-        if not target_faction:
-            return False
-        own_enemies = [own_faction.Enemies_1, own_faction.Enemies_2, own_faction.Enemies_3, own_faction.Enemies_4]
-        own_friends = [own_faction.Friend_1, own_faction.Friend_2, own_faction.Friend_3, own_faction.Friend_4]
-        if target_faction.Faction > 0:
-            for enemy in own_enemies:
-                if enemy == target_faction.Faction:
-                    return not check_friendly
-            for friend in own_friends:
-                if friend == target_faction.Faction:
-                    return check_friendly
-
-        if check_friendly:
-            return ((own_faction.FriendGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.FriendGroup)) != 0
-        else:
-            return ((own_faction.EnemyGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.EnemyGroup)) != 0
-
     def is_friendly_to(self, target):
-        return self._allegiance_status_checker(target, True)
+        return FactionManager.allegiance_status_checker(self.faction, target.faction, True)
 
     def is_enemy_to(self, target):
-        return self._allegiance_status_checker(target, False)
+        return FactionManager.allegiance_status_checker(self.faction, target.faction, False)

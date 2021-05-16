@@ -264,6 +264,12 @@ class LootTypes(IntEnum):
     LOOT_TYPE_FISHING = 3
 
 
+class ReputationFlag(IntEnum):
+    HIDDEN = 0
+    VISIBLE = 1
+    ATWAR = 2
+
+
 class QuestState(IntEnum):
     QUEST_GREETING = 0
     QUEST_OFFER = 1

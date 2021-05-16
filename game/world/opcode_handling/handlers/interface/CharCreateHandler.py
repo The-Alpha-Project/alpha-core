@@ -3,7 +3,9 @@ from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.player.FactionManager import FactionManager
 from game.world.managers.objects.player.PlayerManager import PlayerManager
+from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager, SkillTypes
 from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
@@ -80,6 +82,7 @@ class CharCreateHandler(object):
                                   power4=100 if class_ == Classes.CLASS_ROGUE else 0,
                                   level=config.Unit.Player.Defaults.starting_level)
             RealmDatabaseManager.character_create(character)
+            CharCreateHandler.generate_starting_reputations(character.guid)
             CharCreateHandler.generate_starting_spells(character.guid, race, class_, character.level)
             CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
             default_deathbind = CharacterDeathbind(
@@ -102,6 +105,18 @@ class CharCreateHandler(object):
     def get_starting_location(race, class_):
         info = WorldDatabaseManager.player_create_info_get(race, class_)
         return info.map, info.zone, info.position_x, info.position_y, info.position_z, info.orientation
+
+    @staticmethod
+    def generate_starting_reputations(guid):
+        for faction in FactionManager.FACTIONS.values():
+            if faction.reputation_index > -1:
+                reputation_entry = CharacterReputation()
+                reputation_entry.character = guid
+                reputation_entry.faction = faction.faction_id
+                reputation_entry.standing = faction.reputation_base_value
+                reputation_entry.index = faction.reputation_index
+                reputation_entry.flags = ReputationManager.get_reputation_flag(faction)
+                RealmDatabaseManager.character_add_reputation(reputation_entry)
 
     @staticmethod
     def generate_starting_spells(guid, race, class_, level):

@@ -350,6 +350,21 @@ class RealmDatabaseManager(object):
             realm_db_session.merge(quest_status)
             realm_db_session.flush()
             realm_db_session.close()
+
+    @staticmethod
+    def charater_get_reputations(character):
+        realm_db_session = SessionHolder()
+        reputations = realm_db_session.query(CharacterReputation).filter_by(character=character.guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        realm_db_session.close()
+        return reputations
+
+    @staticmethod
+    def character_add_reputation(reputation):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(reputation)
+        realm_db_session.flush()
+        realm_db_session.refresh(reputation)
+        realm_db_session.close()
     
     # Ticket stuff
 

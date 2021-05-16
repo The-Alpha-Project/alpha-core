@@ -415,13 +415,13 @@ class PlayerManager(UnitManager):
         self.map_ = self.teleport_destination_map
         self.location = Vector(self.teleport_destination.x, self.teleport_destination.y, self.teleport_destination.z, self.teleport_destination.o)
 
+        # Get us in a new grid.
+        MapManager.update_object(self)
+
         # Get us in world again.
         self.send_update_self(create=True if not self.is_relocating else False,
                               force_inventory_update=True if not self.is_relocating else False,
                               reset_fields=False)
-
-        # Get us in a new grid.
-        MapManager.update_object(self)
 
         self.send_update_surrounding(self.generate_proper_update_packet(
             create=True if not self.is_relocating else False),
