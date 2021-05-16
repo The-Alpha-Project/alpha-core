@@ -12,7 +12,7 @@ class ReputationManager(object):
 
     @staticmethod
     def send_player_reputations(player_mgr):
-        # Let the client initialize its internet faction db.
+        # Let the client initialize its internal faction db.
         data = pack('<I', 64)  # Client always except 64 factions.
         for i in range(0, 64):
             data += pack('<Bi', 0, 0)
