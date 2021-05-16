@@ -14,5 +14,12 @@ begin not atomic
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8;	
 		insert into applied_updates values ('150520211');
     end if;
+
+    -- 17/05/2021 1
+	if (select count(*) from applied_updates where id='170520211') = 0 then
+		alter table petition change petition_guid item_guid int(11) unsigned not null default 0;
+
+		insert into applied_updates values ('170520211');
+    end if;
 end $
 delimiter ;

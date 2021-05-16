@@ -325,10 +325,10 @@ class ItemManager(ObjectManager):
             self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 3, self.item_instance.SpellCharges4)
             self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 4, self.item_instance.SpellCharges5)
 
-            for key, enchantment in self.enchantments.items():
-                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + key * 3 + 0, enchantment[0])  # Value/Id
-                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + key * 3 + 1, enchantment[1])  # Duration
-                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + key * 3 + 2, enchantment[2])  # Charges
+            for slot, enchantment in self.enchantments.items():
+                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, enchantment[0])  # Value/Id
+                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, enchantment[1])  # Duration
+                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, enchantment[2])  # Charges
 
             # Container fields
             if self.is_container() and isinstance(self, ContainerManager):
@@ -338,6 +338,9 @@ class ItemManager(ObjectManager):
 
     def set_enchantment(self, slot, value, duration, charges):
         self.enchantments[slot] = (value, duration, charges)
+        self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, value)
+        self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)
+        self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, charges)
 
     def set_binding(self, bind=True):
         if bind:

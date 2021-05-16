@@ -34,11 +34,9 @@ class PetitionBuyHandler(object):
                                                                       PetitionManager.CHARTER_ENTRY, npc_guid)
                 elif world_session.player_mgr.inventory.add_item(PetitionManager.CHARTER_ENTRY, handle_error=False):
                     petition_item = world_session.player_mgr.inventory.get_first_item_by_entry(PetitionManager.CHARTER_ENTRY)
-                    # We use item_instance.guid, lo_guid.
-                    lo_guid = petition_item.item_instance.guid
-                    PetitionManager.create_petition(world_session.player_mgr.guid, guild_name, lo_guid)
+                    petition = PetitionManager.create_petition(world_session.player_mgr.guid, guild_name, petition_item.guid)
                     # We bind this petition to the charter guild item, else its just a dummy item for the client.
-                    petition_item.set_enchantment(0, lo_guid, 0, 0)
+                    petition_item.set_enchantment(0, petition.petition_id, 0, 0)
                     world_session.player_mgr.mod_money(-PetitionManager.CHARTER_COST, reload_items=True)
 
         return 0

@@ -7,12 +7,11 @@ class PetitionShowSignaturesHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         if len(reader.data) >= 8:  # Avoid handling empty petition show signatures packet.
-            peittion_guid = unpack('<Q', reader.data[:8])[0]
-            lo_petition_guid = unpack('<H', reader.data[:2])[0]  # This represents charter item instance guid
-            petition = PetitionManager.get_petition(lo_petition_guid)
+            petition_item_guid = unpack('<Q', reader.data[:8])[0]
+            petition = PetitionManager.get_petition(petition_item_guid)
 
             if petition:
-                packet = PetitionManager.build_signatures_packet(peittion_guid, lo_petition_guid, petition)
+                packet = PetitionManager.build_signatures_packet(petition)
                 world_session.player_mgr.session.enqueue_packet(packet)
 
         return 0

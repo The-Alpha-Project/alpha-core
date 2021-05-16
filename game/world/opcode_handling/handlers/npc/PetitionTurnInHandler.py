@@ -8,10 +8,10 @@ class PetitionTurnInHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         if len(reader.data) >= 8:  # Avoid handling empty petition turn in packet.
-            lo_petition_guid = unpack('<H', reader.data[:2])[0]  # We just need the lo_guid
+            petition_item_guid = unpack('<Q', reader.data[:8])[0]
 
-            if lo_petition_guid > 0:
-                petition = PetitionManager.get_petition(lo_petition_guid)
+            if petition_item_guid > 0:
+                petition = PetitionManager.get_petition(petition_item_guid)
                 PetitionManager.turn_in_petition(world_session.player_mgr, petition.owner_guid, petition)
 
         return 0

@@ -7,19 +7,23 @@ from utils.constants.ItemCodes import PetitionError
 
 
 # TODO: TabardVendor wont allow you to  purchase a new emblem.
+from utils.constants.ObjectCodes import HighGuid
+
+
 class PetitionManager(object):
     CHARTER_ENTRY = 5863
     CHARTER_DISPLAY_ID = 9199
     CHARTER_COST = 1000
 
     @staticmethod
-    def create_petition(owner_guid, guild_name, petition_guid):
+    def create_petition(owner_guid, guild_name, item_guid):
         petition = Petition()
-        petition.petition_guid = petition_guid
+        petition.item_guid = item_guid & ~HighGuid.HIGHGUID_ITEM
         petition.owner_guid = owner_guid
         petition.name = guild_name
 
         RealmDatabaseManager.guild_petition_create(petition)
+        return petition
 
     @staticmethod
     def load_petition(player_mgr):
@@ -27,15 +31,15 @@ class PetitionManager(object):
         if petition:
             petition_item = player_mgr.inventory.get_first_item_by_entry(PetitionManager.CHARTER_ENTRY)
             if petition_item:
-                petition_item.set_enchantment(0, petition.petition_guid, 0, 0)
+                petition_item.set_enchantment(0, petition.petition_id, 0, 0)
 
     @staticmethod
-    def get_petition(petition_guid):
-        return RealmDatabaseManager.guild_petition_get(petition_guid)
+    def get_petition(petition_item_guid):
+        return RealmDatabaseManager.guild_petition_get(petition_item_guid)
 
     @staticmethod
-    def build_signatures_packet(petition_guid, lo_petition_guid, petition):
-        data = pack('<2QIB', petition_guid, petition.owner_guid, lo_petition_guid, len(petition.characters))
+    def build_signatures_packet(petition):
+        data = pack('<2QIB', petition.item_guid, petition.owner_guid, petition.petition_id, len(petition.characters))
         for signer in petition.characters:
             data += pack('<QI', signer.guid, 0)
         packet = PacketWriter.get_packet(OpCode.SMSG_PETITION_SHOW_SIGNATURES, data)
@@ -75,12 +79,12 @@ class PetitionManager(object):
         player_mgr.session.enqueue_packet(packet)
 
     @staticmethod
-    def build_petition_query(lo_petition_guid, petition):
+    def build_petition_query(petition):
         guild_name_bytes = PacketWriter.string_to_bytes(petition.name)
 
         data = pack(
             f'<IQ{len(guild_name_bytes)}sB8I1H4I',
-            lo_petition_guid,  # int m_petitionID;
+            petition.petition_id,  # int m_petitionID;
             petition.owner_guid,  # unsigned __int64 m_petitioner;
             guild_name_bytes,  # char m_title[256];
             0,  # char m_bodyText[4096];

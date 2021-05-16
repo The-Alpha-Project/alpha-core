@@ -552,9 +552,9 @@ class RealmDatabaseManager(object):
         return petition
 
     @staticmethod
-    def guild_petition_get(petition_guid):
+    def guild_petition_get(petition_item_guid):
         realm_db_session = SessionHolder()
-        petition = realm_db_session.query(Petition).filter_by(petition_guid=petition_guid).first()
+        petition = realm_db_session.query(Petition).filter_by(item_guid=petition_item_guid & ~HighGuid.HIGHGUID_ITEM).first()
         realm_db_session.close()
         return petition
 
