@@ -115,7 +115,7 @@ class WorldLoader:
 
     @staticmethod
     def load_factions():
-        factions = DbcDatabaseManager.factions_get_all()
+        factions = DbcDatabaseManager.faction_get_all()
         length = len(factions)
         count = 0
 
@@ -165,7 +165,7 @@ class WorldLoader:
             DbcDatabaseManager.SkillHolder.load_skill(skill)
 
             count += 1
-            Logger.progress('Loading skills...', count, length)
+            Logger.progress('Loading skill...', count, length)
 
         return length
 

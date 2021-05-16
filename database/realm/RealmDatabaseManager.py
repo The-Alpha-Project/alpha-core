@@ -352,11 +352,19 @@ class RealmDatabaseManager(object):
             realm_db_session.close()
 
     @staticmethod
-    def charater_get_reputations(character):
+    def character_get_reputations(character_guid):
         realm_db_session = SessionHolder()
-        reputations = realm_db_session.query(CharacterReputation).filter_by(character=character.guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        reputations = realm_db_session.query(CharacterReputation).filter_by(guid=character_guid & ~HighGuid.HIGHGUID_PLAYER).all()
         realm_db_session.close()
         return reputations
+
+    @staticmethod
+    def character_update_reputation(reputation):
+        if reputation:
+            realm_db_session = SessionHolder()
+            realm_db_session.merge(reputation)
+            realm_db_session.flush()
+            realm_db_session.close()
 
     @staticmethod
     def character_add_reputation(reputation):
@@ -578,5 +586,3 @@ class RealmDatabaseManager(object):
         realm_db_session.delete(petition)
         realm_db_session.flush()
         realm_db_session.close()
-
-

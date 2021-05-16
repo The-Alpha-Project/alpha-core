@@ -5,46 +5,66 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.ObjectCodes import ReputationFlag
 from utils.constants.OpCodes import OpCode
 
+CLIENT_MAX = 64
 
-# TODO: In the future, each player should have its own ReputatoinManager, taking care of individual states.
-#  Still, it looks like rep system was practically barebones, we need more information.
+
 class ReputationManager(object):
+    def __init__(self, player_mgr):
+        self.player_mgr = player_mgr
+        self.reputations = {}
 
-    @staticmethod
-    def send_player_reputations(player_mgr):
-        # Let the client initialize its internal faction db.
-        data = pack('<I', 64)  # Client always except 64 factions.
-        for i in range(0, 64):
-            data += pack('<Bi', 0, 0)
-
-        packet = PacketWriter.get_packet(OpCode.SMSG_INITIALIZE_FACTIONS, data)
-        player_mgr.session.enqueue_packet(packet)
-
-        # Send our current standings and make reputations visible.
-        reputations = RealmDatabaseManager.charater_get_reputations(player_mgr.player)
+    def load_reputations(self):
+        reputations = RealmDatabaseManager.character_get_reputations(self.player_mgr.player.guid)
         for reputation in reputations:
-            data = pack('<3i', 1, reputation.index, reputation.standing)
-            packet = PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_STANDING, data)
-            player_mgr.session.enqueue_packet(packet)  # Standing
-            packet = PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_VISIBLE, pack('<I', reputation.index))
-            player_mgr.session.enqueue_packet(packet)  # Visible
+            self.reputations[reputation.index] = reputation
+
+    def send_initialize_factions(self, set_visible=True):
+        data = pack('<I', CLIENT_MAX)
+        for x in range(0, CLIENT_MAX):
+            if x in self.reputations:
+                data += pack('<Bi', self.reputations[x].flags, self.reputations[x].standing)
+            else:
+                data += pack('<Bi', 0, 0)
+        packet = PacketWriter.get_packet(OpCode.SMSG_INITIALIZE_FACTIONS, data)
+        self.player_mgr.session.enqueue_packet(packet)
+
+        if set_visible:
+            for reputation in self.reputations.values():
+                self.send_set_faction_visible(reputation)
+
+    def send_set_faction_visible(self, faction):
+        packet = PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_VISIBLE, pack('<I', faction.index))
+        self.player_mgr.session.enqueue_packet(packet)
+
+    def modify_reputation(self, faction, amount):
+        if faction.index not in self.reputations:
+            return
+
+        self.reputations[faction.index].standing += amount
+        RealmDatabaseManager.character_update_reputation(self.reputations[faction.index])
+
+        # Notify the client
+        data = pack('<3i', 0x1, faction.index, self.reputations[faction.index].standing)
+        packet = PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_STANDING, data)
+        self.player_mgr.session.enqueue_packet(packet)
+
+    def get_reputation_flag(self, faction):
+        standing = -1
+        if faction.index in self.reputations:
+            standing = self.reputations[faction.index].standing
+        if standing > -1:
+            reaction = ReputationManager.reaction_by_standing(standing)
+            return ReputationManager.reputation_flag_by_reaction(reaction)
+        return ReputationFlag.HIDDEN.value
 
     @staticmethod
-    def get_reputation_flag(faction):
-        reaction = ReputationManager.get_reaction(faction)
+    def reputation_flag_by_reaction(reaction):
         if reaction < UnitReaction.UNIT_REACTION_UNFRIENDLY:
-            return int(ReputationFlag.ATWAR)
-        else:
-            return int(ReputationFlag.HIDDEN)
+            return ReputationFlag.ATWAR.value
+        return ReputationFlag.HIDDEN.value
 
     @staticmethod
-    def get_standing(faction):
-        return faction.reputation_base_value
-
-    @staticmethod
-    def get_reaction(faction):
-        standing = ReputationManager.get_standing(faction)
-
+    def reaction_by_standing(standing):
         if standing >= 2100:
             return UnitReaction.UNIT_REACTION_REVERED
         elif standing >= 900:
@@ -57,5 +77,4 @@ class ReputationManager(object):
             return UnitReaction.UNIT_REACTION_UNFRIENDLY
         elif standing >= -600:
             return UnitReaction.UNIT_REACTION_HOSTILE
-        else:
-            return UnitReaction.UNIT_REACTION_HATED
+        return UnitReaction.UNIT_REACTION_HATED

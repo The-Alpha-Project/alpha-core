@@ -65,7 +65,6 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.friends_manager.load_from_db(RealmDatabaseManager.character_get_social(world_session.player_mgr.guid))
 
         world_session.enqueue_packet(world_session.player_mgr.get_deathbind_packet())
-        ReputationManager.send_player_reputations(world_session.player_mgr)
         # Tutorials aren't implemented in 0.5.3
         # world_session.enqueue_packet(world_session.player_mgr.get_tutorial_packet())
         for proficiency_packet in world_session.player_mgr.skill_manager.get_proficiencies_packets():
@@ -81,6 +80,7 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.stat_manager.apply_bonuses()
         world_session.player_mgr.skill_manager.load_skills()
         world_session.player_mgr.quest_manager.load_quests()
+        world_session.player_mgr.reputation_manager.load_reputations()
         GuildManager.set_character_guild(world_session.player_mgr)
         GroupManager.set_character_group(world_session.player_mgr)
         PetitionManager.load_petition(world_session.player_mgr)

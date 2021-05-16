@@ -45,7 +45,7 @@ class SpellManager(object):
 
         data = pack('<H', spell_id)
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
-        # Teach skills required as well like in CharCreateHandler?
+        # Teach skill required as well like in CharCreateHandler?
         return True
 
     def get_initial_spells(self):

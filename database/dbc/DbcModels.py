@@ -393,13 +393,9 @@ class Faction(Base):
     Name_enTW = Column(Text)
     Name_Mask = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
 
-    faction_templates = relationship('FactionTemplate',
-                                     foreign_keys='FactionTemplate.Faction',
+    faction_templates = relationship('FactionTemplate', foreign_keys='FactionTemplate.Faction',
                                      primaryjoin="Faction.ID == FactionTemplate.Faction",
-                                     uselist=True,
-                                     viewonly=True,
-                                     lazy='joined'
-                                     )
+                                     uselist=True, viewonly=True, lazy='joined')
 
 
 class FactionGroup(Base):

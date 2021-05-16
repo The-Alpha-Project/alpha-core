@@ -6,6 +6,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.ChannelManager import ChannelManager
+from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
@@ -133,6 +134,7 @@ class PlayerManager(UnitManager):
             self.skill_manager = SkillManager(self)
             self.quest_manager = QuestManager(self)
             self.friends_manager = FriendsManager(self)
+            self.reputation_manager = ReputationManager(self)
             self.duel_manager = None
             self.guild_manager = None
             self.has_pending_group_invite = False
@@ -227,6 +229,7 @@ class PlayerManager(UnitManager):
         MapManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
         ChannelManager.join_default_channels(self)  # Once in-world
+        self.reputation_manager.send_initialize_factions()
         self.friends_manager.send_online_notification()  # Notify our friends
         if self.guild_manager:
             self.guild_manager.send_motd(player_mgr=self)

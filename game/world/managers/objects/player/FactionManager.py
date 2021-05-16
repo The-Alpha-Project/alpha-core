@@ -1,7 +1,7 @@
 from utils.Logger import Logger
 
 
-class Faction_(object):
+class FactionDefinition(object):
     def __init__(self, faction):
         self.faction_id = faction.ID
         self.faction = faction
@@ -15,15 +15,16 @@ class Faction_(object):
         self.reputation_index = faction.ReputationIndex
         self.reputation_base_value = faction.ReputationBase_1
 
-    def has_template(self, id):
-        return id in self.templates
+    def has_template(self, template_id):
+        return template_id in self.templates
+
 
 class FactionManager(object):
     FACTIONS = {}
 
     @staticmethod
     def load_faction(faction):
-        new_faction = Faction_(faction)
+        new_faction = FactionDefinition(faction)
 
         for template in faction.faction_templates:
             new_faction.templates[template.ID] = template
@@ -60,7 +61,7 @@ class FactionManager(object):
 
         # Some units currently have a bugged faction, terminate the method if this is encountered
         if not own_faction or not target_faction:
-            Logger.warning(f'Unable to compare factions. {source_faction_id} vs {target_faction_id}')
+            Logger.warning(f'Unable to compare factions. {source_faction_id} vs {target_faction_id}.')
             return False
 
         if own_faction.faction_id in target_faction.enemies:
@@ -81,9 +82,9 @@ class FactionManager(object):
         return None
 
     @staticmethod
-    def get_by_faction_id(id):
-        if id in FactionManager.FACTIONS:
-            return FactionManager.FACTIONS[id]
+    def get_by_faction_id(faction_id):
+        if faction_id in FactionManager.FACTIONS:
+            return FactionManager.FACTIONS[faction_id]
         return None
 
     @staticmethod

@@ -5,8 +5,6 @@ from typing import NamedTuple
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
-from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.player.proficiencies.proficiency import Proficiency
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.ObjectCodes import SkillCategories, Languages
@@ -219,6 +217,13 @@ EQUIPMENT_DESCRIPTION = {
 }
 
 
+class Proficiency(NamedTuple):
+    min_level: int
+    acquire_method: int
+    item_class: int
+    item_subclass_mask: int
+
+
 class SkillManager(object):
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
@@ -231,8 +236,19 @@ class SkillManager(object):
         self.build_update()
 
     def load_proficiencies(self):
-        proficiency = DbcDatabaseManager.char_get_proficiency(self.player_mgr.player.race, self.player_mgr.player.class_)
-        self.proficiencies = Proficiency.build_from_chr_proficiency(proficiency)
+        chr_proficiency = DbcDatabaseManager.chr_get_proficiency(self.player_mgr.player.race, self.player_mgr.player.class_)
+        for x in range(1, 17):
+            min_level = eval(f'chr_proficiency.Proficiency_MinLevel_{x}')
+            if min_level == -1:
+                break
+            self.proficiencies.append(
+                Proficiency(
+                    min_level,
+                    eval(f'chr_proficiency.Proficiency_AcquireMethod_{x}'),
+                    eval(f'chr_proficiency.Proficiency_ItemClass_{x}'),
+                    eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}'),
+                )
+            )
 
     def get_proficiencies_packets(self):
         packets = []
@@ -241,8 +257,6 @@ class SkillManager(object):
             if proficiency.acquire_method == 0:  # and player skill rank < proficiency.min_level
                 continue
             if proficiency.acquire_method == 1 and self.player_mgr.level < proficiency.min_level:
-                continue
-            if proficiency.acquire_method < 0:  # Not sure what this means '-1'.
                 continue
             data = pack('<bI', proficiency.item_class, proficiency.item_subclass_mask)
             packets.append(PacketWriter.get_packet(OpCode.SMSG_SET_PROFICIENCY, data))
@@ -316,7 +330,7 @@ class SkillManager(object):
 
     # TODO: Use ChrProficiency.dbc
     def can_use_equipment(self, item_class, item_subclass):
-        # No Cloth, Leather or Mail spells / skills exist in 0.5.3, but according to Ziggurat armor restrictions existed.
+        # No Cloth, Leather or Mail spells / skill exist in 0.5.3, but according to Ziggurat armor restrictions existed.
         if item_class == ItemClasses.ITEM_CLASS_ARMOR and \
                 (item_subclass == ItemSubClasses.ITEM_SUBCLASS_CLOTH or
                  item_subclass == ItemSubClasses.ITEM_SUBCLASS_LEATHER or item_subclass == ItemSubClasses.ITEM_SUBCLASS_MAIL):

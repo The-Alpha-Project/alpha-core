@@ -27,8 +27,11 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return res
 
+    # CharBaseInfo
+    # ChrProficiency
+
     @staticmethod
-    def char_get_proficiency(race, class_):
+    def chr_get_proficiency(race, class_):
         dbc_db_session = SessionHolder()
         base_info = dbc_db_session.query(CharBaseInfo).filter_by(RaceID=race, ClassID=class_).first()
         proficiency = dbc_db_session.query(ChrProficiency).filter_by(ID=base_info.Proficiency).first()
@@ -310,7 +313,7 @@ class DbcDatabaseManager(object):
     # Faction
 
     @staticmethod
-    def factions_get_all():
+    def faction_get_all():
         dbc_db_session = SessionHolder()
         factions = dbc_db_session.query(Faction).all()
         dbc_db_session.close()

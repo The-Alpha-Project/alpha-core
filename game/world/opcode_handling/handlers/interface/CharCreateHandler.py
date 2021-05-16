@@ -1,10 +1,6 @@
-from math import log
-from struct import pack, unpack
-
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.FactionManager import FactionManager
-from game.world.managers.objects.player.PlayerManager import PlayerManager
 from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager, SkillTypes
 from network.packet.PacketWriter import *
@@ -12,13 +8,12 @@ from network.packet.PacketReader import *
 from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import *
 from utils import TextUtils
-from utils.TextUtils import GameTextFormatter
 from utils.constants.CharCodes import *
 from utils.ConfigManager import config
 from utils.constants.ItemCodes import InventorySlots
 from utils.constants.ObjectCodes import SkillCategories
 from utils.constants.SpellCodes import SpellEffects
-from utils.constants.UnitCodes import Teams, Classes
+from utils.constants.UnitCodes import Classes
 
 
 class CharCreateHandler(object):
@@ -111,11 +106,13 @@ class CharCreateHandler(object):
         for faction in FactionManager.FACTIONS.values():
             if faction.reputation_index > -1:
                 reputation_entry = CharacterReputation()
-                reputation_entry.character = guid
+                reputation_entry.guid = guid
                 reputation_entry.faction = faction.faction_id
                 reputation_entry.standing = faction.reputation_base_value
                 reputation_entry.index = faction.reputation_index
-                reputation_entry.flags = ReputationManager.get_reputation_flag(faction)
+                reputation_entry.flags = ReputationManager.reputation_flag_by_reaction(
+                    ReputationManager.reaction_by_standing(faction.reputation_base_value))
+
                 RealmDatabaseManager.character_add_reputation(reputation_entry)
 
     @staticmethod
@@ -123,11 +120,11 @@ class CharCreateHandler(object):
         added_skills = []
         added_spells = []
 
-        def insert_skill(skill_id, override_rank_value=-1, override_max_rank_value=-1):
-            if skill_id in added_skills:
+        def insert_skill(skill_id_to_insert, override_rank_value=-1, override_max_rank_value=-1):
+            if skill_id_to_insert in added_skills:
                 return
 
-            skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
+            skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id_to_insert)
             if not skill:
                 return
 
@@ -140,13 +137,13 @@ class CharCreateHandler(object):
 
             skill_to_set = CharacterSkill()
             skill_to_set.guid = guid
-            skill_to_set.skill = skill_id
+            skill_to_set.skill = skill_id_to_insert
             skill_to_set.value = start_rank_value
-            skill_to_set.max = SkillManager.get_max_rank(level, skill_id) if override_max_rank_value == -1 else \
+            skill_to_set.max = SkillManager.get_max_rank(level, skill_id_to_insert) if override_max_rank_value == -1 else \
                 override_max_rank_value
 
             RealmDatabaseManager.character_add_skill(skill_to_set)
-            added_skills.append(skill_id)
+            added_skills.append(skill_id_to_insert)
 
         for spell in WorldDatabaseManager.player_create_spell_get(race, class_):
             spell_to_load = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
@@ -159,7 +156,7 @@ class CharCreateHandler(object):
                     RealmDatabaseManager.character_add_spell(spell_to_set)
                     added_spells.append(spell_to_load.ID)
 
-                    # Insert related skills
+                    # Insert related skill
                     skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell_to_load.ID)
                     if skill_line_ability:
                         skill_id = skill_line_ability.SkillLine
