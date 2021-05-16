@@ -690,7 +690,12 @@ class InventoryManager(object):
             '<Q2IBI',
             guid, not looted, show_in_chat, bag_slot, item_entry
         )
-        self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_PUSH_RESULT, data))
+
+        packet = PacketWriter.get_packet(OpCode.SMSG_ITEM_PUSH_RESULT, data)
+        if looted and self.owner.group_manager:
+            self.owner.group_manager.send_packet_to_members(packet, source=self.owner, surrounding_only=True)
+        else:
+            self.owner.session.enqueue_packet()
 
     def mark_as_removed(self, item):
         if item:
