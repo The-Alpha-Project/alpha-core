@@ -150,31 +150,37 @@ class GroupManager(object):
         return PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
 
     def send_party_members_stats(self):
-        for member in self.members.values():
-            self.send_party_member_stats(member)
+        for member in list(self.members.values()):
+            # Send this member stats to everyone except self.
+            self.send_packet_to_members(self._build_party_member_stats(member), exclude=member)
 
-    def send_party_member_stats(self, group_member):
+    def _build_party_member_stats(self, group_member):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(group_member.guid)
-        if player_mgr and player_mgr.online:
-            data = pack(
-                '<Q2IB6I3f',
-                player_mgr.guid,
-                player_mgr.health,
-                player_mgr.max_health,
-                player_mgr.power_type,
-                player_mgr.get_power_type_value(),
-                player_mgr.get_max_power_value(),
-                player_mgr.level,
-                player_mgr.zone,
-                player_mgr.map_,
-                player_mgr.player.class_,
-                player_mgr.location.x,
-                player_mgr.location.y,
-                player_mgr.location.z
+        character = None
+
+        # If player is offline, build stats based on db information.
+        if not player_mgr or not player_mgr.online:
+            player_mgr = None
+            character = RealmDatabaseManager.character_get_by_guid(group_member.guid)
+
+        data = pack(
+            '<Q2IB6I3f',
+            player_mgr.guid if player_mgr else character.guid,
+            player_mgr.health if player_mgr else 0,
+            player_mgr.max_health if player_mgr else 0,
+            player_mgr.power_type if player_mgr else 0,
+            player_mgr.get_power_type_value() if player_mgr else 0,
+            player_mgr.get_max_power_value() if player_mgr else 0,
+            player_mgr.level if player_mgr else character.level,
+            player_mgr.zone if player_mgr else character.zone,
+            player_mgr.map_ if player_mgr else character.map,
+            player_mgr.player.class_ if player_mgr else character.class_,
+            player_mgr.location.x if player_mgr else character.position_x,
+            player_mgr.location.y if player_mgr else character.position_y,
+            player_mgr.location.z if player_mgr else character.position_z,
             )
 
-            packet = PacketWriter.get_packet(OpCode.SMSG_PARTY_MEMBER_STATS, data)
-            self.send_packet_to_members(packet)
+        return PacketWriter.get_packet(OpCode.SMSG_PARTY_MEMBER_STATS, data)
 
     def leave_party(self, player_guid, force_disband=False, is_kicked=False):
         disband = player_guid == self.group.leader_guid or len(self.members) == 2 or force_disband
@@ -333,8 +339,17 @@ class GroupManager(object):
             packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
             player_mgr.session.enqueue_packet(packet)
 
-    def send_packet_to_members(self, packet, ignore=None, source=None, use_ignore=False):
-        for member in self.members.values():
+    def send_packet_to_members(self, packet, ignore=None, source=None, use_ignore=False, exclude=None, surrounding_only=False):
+        if surrounding_only and source:
+            surrounding_players = MapManager.get_surrounding_players(source).values()
+            members = [self.members[player.guid] for player in surrounding_players if player.guid in self.members]
+        else:
+            members = self.members.values()
+
+        for member in members:
+            if exclude and member.guid == exclude.guid:
+                continue
+
             player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
             if not player_mgr or not player_mgr.online:
                 continue
