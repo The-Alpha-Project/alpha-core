@@ -57,7 +57,7 @@ class ReputationManager(object):
             return UnitReaction.UNIT_REACTION_NEUTRAL
         elif standing >= -300:
             return UnitReaction.UNIT_REACTION_UNFRIENDLY
-        elif standing > - -600:
+        elif standing >= -600:
             return UnitReaction.UNIT_REACTION_HOSTILE
         else:
             return UnitReaction.UNIT_REACTION_HATED
