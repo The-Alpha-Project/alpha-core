@@ -12,24 +12,22 @@ class ReputationManager(object):
 
     @staticmethod
     def send_player_reputations(player_mgr):
-        reputations = RealmDatabaseManager.charater_get_reputations(player_mgr.player)
-        reputations_dict = {x.index: x for x in reputations}
-        visible_factions = []
-
+        # Let the client initialize its internet faction db.
         data = pack('<I', 64)  # Client always except 64 factions.
         for i in range(0, 64):
-            if i in reputations_dict:
-                data += pack('<Bi', reputations[i].flags, reputations[i].standing)
-                visible_factions.append(PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_VISIBLE, pack('<I', i)))
-            else:
-                data += pack('<Bi', 0, 0)
+            data += pack('<Bi', 0, 0)
 
         packet = PacketWriter.get_packet(OpCode.SMSG_INITIALIZE_FACTIONS, data)
         player_mgr.session.enqueue_packet(packet)
 
-        # Force those factions with index > -1 to be shown on the client.
-        for packet in visible_factions:
-            player_mgr.session.enqueue_packet(packet)
+        # Send our current standings and make reputations visible.
+        reputations = RealmDatabaseManager.charater_get_reputations(player_mgr.player)
+        for reputation in reputations:
+            data = pack('<3i', 1, reputation.index, reputation.standing)
+            packet = PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_STANDING, data)
+            player_mgr.session.enqueue_packet(packet)  # Standing
+            packet = PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_VISIBLE, pack('<I', reputation.index))
+            player_mgr.session.enqueue_packet(packet)  # Visible
 
     @staticmethod
     def get_reputation_flag(faction):
