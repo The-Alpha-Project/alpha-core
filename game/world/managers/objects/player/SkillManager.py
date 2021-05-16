@@ -223,12 +223,13 @@ class SkillManager(object):
                     eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}'),
             )
 
-    def get_proficiencies_packets(self):
-        packets = []
+    def send_set_proficiency(self, proficiency):
+        packet = PacketWriter.get_packet(OpCode.SMSG_SET_PROFICIENCY, pack('<bI', proficiency.item_class, proficiency.item_subclass_mask))
+        self.player_mgr.session.enqueue_packet(packet)
+
+    def init_proficiencies(self):
         for proficiency in self.proficiencies.values():
-            data = pack('<bI', proficiency.item_class, proficiency.item_subclass_mask)
-            packets.append(PacketWriter.get_packet(OpCode.SMSG_SET_PROFICIENCY, data))
-        return packets
+            self.send_set_proficiency(proficiency)
 
     def add_skill(self, skill_id):
         # Skill already learnt
