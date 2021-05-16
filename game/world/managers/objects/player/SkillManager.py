@@ -182,8 +182,8 @@ LANG_DESCRIPTION = {
 
 
 class ProficiencyAcquireMethod(IntEnum):
-    PROFICIENCY_ACQUIRE_ON_TRAINER = 0
-    PROFICIENCY_ACQUIRE_ON_CREATE = 1
+    ON_TRAINER = 0
+    ON_CREATE = 1
 
 
 class Proficiency(NamedTuple):
@@ -212,7 +212,7 @@ class SkillManager(object):
                 break
 
             # TODO: Only loading proficiencies acquired on char creation for now
-            if acquire_method != ProficiencyAcquireMethod.PROFICIENCY_ACQUIRE_ON_CREATE:
+            if acquire_method != ProficiencyAcquireMethod.ON_CREATE:
                 continue
 
             item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
