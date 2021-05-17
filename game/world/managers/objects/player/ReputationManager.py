@@ -1,4 +1,6 @@
 from struct import pack
+
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from utils.constants.UnitCodes import UnitReaction
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from network.packet.PacketWriter import PacketWriter
@@ -22,7 +24,8 @@ class ReputationManager(object):
         data = pack('<I', CLIENT_MAX)
         for x in range(0, CLIENT_MAX):
             if x in self.reputations:
-                data += pack('<Bi', self.reputations[x].flags, self.reputations[x].standing)
+                faction = DbcDatabaseManager.FactionHolder.faction_get_by_index(x)
+                data += pack('<Bi', self.reputations[x].flags, self.reputations[x].standing - faction.ReputationBase_1)
             else:
                 data += pack('<Bi', 0, 0)
         packet = PacketWriter.get_packet(OpCode.SMSG_INITIALIZE_FACTIONS, data)

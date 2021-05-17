@@ -336,7 +336,7 @@ class DbcDatabaseManager(object):
         @staticmethod
         def faction_get_by_index(index):
             for faction in DbcDatabaseManager.FactionHolder.FACTIONS.values():
-                if faction.reputation_index == index:
+                if faction.ReputationIndex == index:
                     return faction
             return None
 
