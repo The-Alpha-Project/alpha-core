@@ -312,9 +312,51 @@ class DbcDatabaseManager(object):
 
     # Faction
 
+    class FactionHolder:
+        FACTIONS = {}
+
+        @staticmethod
+        def load_faction(faction):
+            DbcDatabaseManager.FactionHolder.FACTIONS[faction.ID] = faction
+
+        @staticmethod
+        def faction_get_by_index(index):
+            for faction in DbcDatabaseManager.FactionHolder.FACTIONS.values():
+                if faction.reputation_index == index:
+                    return faction
+            return None
+
+        @staticmethod
+        def faction_get_by_id(faction_id):
+            if faction_id in DbcDatabaseManager.FactionHolder.FACTIONS:
+                return DbcDatabaseManager.FactionHolder.FACTIONS[faction_id]
+            return None
+
     @staticmethod
     def faction_get_all():
         dbc_db_session = SessionHolder()
-        factions = dbc_db_session.query(Faction).all()
+        res = dbc_db_session.query(Faction).all()
         dbc_db_session.close()
-        return factions
+        return res
+
+    # FactionTemplate
+
+    class FactionTemplateHolder:
+        FACTION_TEMPLATES = {}
+
+        @staticmethod
+        def load_faction_template(faction_template):
+            DbcDatabaseManager.FactionTemplateHolder.FACTION_TEMPLATES[faction_template.ID] = faction_template
+
+        @staticmethod
+        def faction_template_get_by_id(faction_template_id):
+            if faction_template_id in DbcDatabaseManager.FactionTemplateHolder.FACTION_TEMPLATES:
+                return DbcDatabaseManager.FactionTemplateHolder.FACTION_TEMPLATES[faction_template_id]
+            return None
+
+    @staticmethod
+    def faction_template_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(FactionTemplate).all()
+        dbc_db_session.close()
+        return res

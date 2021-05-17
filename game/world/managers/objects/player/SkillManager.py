@@ -278,7 +278,7 @@ class SkillManager(object):
     def can_use_equipment(self, item_class, item_subclass):
         if item_class not in self.proficiencies:
             return False
-        return self.proficiencies[item_class].item_subclass_mask & (1 << item_subclass) > 0
+        return self.proficiencies[item_class].item_subclass_mask & (1 << item_subclass) != 0
 
     def get_skill_for_spell_id(self, spell_id):
         skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell_id)

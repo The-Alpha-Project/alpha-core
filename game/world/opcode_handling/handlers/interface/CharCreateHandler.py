@@ -1,6 +1,5 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.player.FactionManager import FactionManager
 from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager, SkillTypes
 from network.packet.PacketWriter import *
@@ -103,15 +102,15 @@ class CharCreateHandler(object):
 
     @staticmethod
     def generate_starting_reputations(guid):
-        for faction in FactionManager.FACTIONS.values():
-            if faction.reputation_index > -1:
+        for faction in DbcDatabaseManager.FactionHolder.FACTIONS.values():
+            if faction.ReputationIndex > -1:
                 reputation_entry = CharacterReputation()
                 reputation_entry.guid = guid
-                reputation_entry.faction = faction.faction_id
-                reputation_entry.standing = faction.reputation_base_value
-                reputation_entry.index = faction.reputation_index
+                reputation_entry.faction = faction.ID
+                reputation_entry.standing = faction.ReputationBase_1
+                reputation_entry.index = faction.ReputationIndex
                 reputation_entry.flags = ReputationManager.reputation_flag_by_reaction(
-                    ReputationManager.reaction_by_standing(faction.reputation_base_value))
+                    ReputationManager.reaction_by_standing(faction.ReputationBase_1))
 
                 RealmDatabaseManager.character_add_reputation(reputation_entry)
 
