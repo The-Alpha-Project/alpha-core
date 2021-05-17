@@ -695,7 +695,7 @@ class InventoryManager(object):
         if looted and self.owner.group_manager:
             self.owner.group_manager.send_packet_to_members(packet, source=self.owner, surrounding_only=True)
         else:
-            self.owner.session.enqueue_packet()
+            self.owner.session.enqueue_packet(packet)
 
     def mark_as_removed(self, item):
         if item:
