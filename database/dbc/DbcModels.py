@@ -61,6 +61,9 @@ class CharBaseInfo(Base):
     ClassID = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     Proficiency = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
 
+    proficiency = relationship('ChrProficiency', foreign_keys='ChrProficiency.ID',
+                               primaryjoin="CharBaseInfo.Proficiency == ChrProficiency.ID", uselist=False, lazy='joined')
+
 
 class CharStartOutfit(Base):
     __tablename__ = 'CharStartOutfit'
@@ -392,10 +395,6 @@ class Faction(Base):
     Name_zhCN = Column(Text)
     Name_enTW = Column(Text)
     Name_Mask = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-
-    faction_templates = relationship('FactionTemplate', foreign_keys='FactionTemplate.Faction',
-                                     primaryjoin="Faction.ID == FactionTemplate.Faction",
-                                     uselist=True, viewonly=True, lazy='joined')
 
 
 class FactionGroup(Base):

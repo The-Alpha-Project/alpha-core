@@ -205,7 +205,11 @@ class SkillManager(object):
         self.build_update()
 
     def load_proficiencies(self):
-        chr_proficiency = DbcDatabaseManager.chr_get_proficiency(self.player_mgr.player.race, self.player_mgr.player.class_)
+        base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.player.race, self.player_mgr.player.class_)
+        if not base_info:
+            return
+
+        chr_proficiency = base_info.proficiency
         for x in range(1, 17):
             acquire_method = eval(f'chr_proficiency.Proficiency_AcquireMethod_{x}')
             if acquire_method == -1:

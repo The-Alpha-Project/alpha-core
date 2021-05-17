@@ -37,6 +37,7 @@ class WorldLoader:
         WorldLoader.load_spells()
         WorldLoader.load_skills()
         WorldLoader.load_skill_line_abilities()
+        WorldLoader.load_char_base_infos()
         WorldLoader.load_taxi_nodes()
         WorldLoader.load_taxi_path_nodes()
         WorldLoader.load_factions()
@@ -194,6 +195,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading skill line abilities...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_char_base_infos():
+        char_base_infos = DbcDatabaseManager.char_base_info_get_all()
+        length = len(char_base_infos)
+        count = 0
+
+        for char_base_info in char_base_infos:
+            DbcDatabaseManager.CharBaseInfoHolder.load_base_info(char_base_info)
+
+            count += 1
+            Logger.progress('Loading char base infos...', count, length)
 
         return length
 

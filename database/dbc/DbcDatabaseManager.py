@@ -1,4 +1,5 @@
 import os
+from typing import NamedTuple
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import StatementError
@@ -28,15 +29,30 @@ class DbcDatabaseManager(object):
         return res
 
     # CharBaseInfo
-    # ChrProficiency
+
+    class CharBaseInfoHolder:
+        BASE_INFOS = {}
+
+        @staticmethod
+        def load_base_info(base_info):
+            if base_info.RaceID not in DbcDatabaseManager.CharBaseInfoHolder.BASE_INFOS:
+                DbcDatabaseManager.CharBaseInfoHolder.BASE_INFOS[base_info.RaceID] = {}
+            DbcDatabaseManager.CharBaseInfoHolder.BASE_INFOS[base_info.RaceID][base_info.ClassID] = base_info
+
+        @staticmethod
+        def char_base_info_get(race, class_):
+            if race not in DbcDatabaseManager.CharBaseInfoHolder.BASE_INFOS:
+                return None
+            if class_ not in DbcDatabaseManager.CharBaseInfoHolder.BASE_INFOS[race]:
+                return None
+            return DbcDatabaseManager.CharBaseInfoHolder.BASE_INFOS[race][class_]
 
     @staticmethod
-    def chr_get_proficiency(race, class_):
+    def char_base_info_get_all():
         dbc_db_session = SessionHolder()
-        base_info = dbc_db_session.query(CharBaseInfo).filter_by(RaceID=race, ClassID=class_).first()
-        proficiency = dbc_db_session.query(ChrProficiency).filter_by(ID=base_info.Proficiency).first()
+        res = dbc_db_session.query(CharBaseInfo).all()
         dbc_db_session.close()
-        return proficiency
+        return res
 
     # AreaTrigger
 
