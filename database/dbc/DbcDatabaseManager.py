@@ -1,8 +1,6 @@
 import os
-from typing import NamedTuple
 
 from sqlalchemy import create_engine
-from sqlalchemy.exc import StatementError
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.dbc.DbcModels import *
