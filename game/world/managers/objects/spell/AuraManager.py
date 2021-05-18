@@ -1,3 +1,4 @@
+import time
 from struct import pack
 
 from database.world.WorldDatabaseManager import config
@@ -10,33 +11,77 @@ from utils.constants.UpdateFields import UnitFields
 
 
 class AppliedAura:
-    def __init__(self, caster, casting_spell, spell_effect):
-        self.target = casting_spell.initial_target
+    def __init__(self, caster, casting_spell, spell_effect, target):
+        self.target = target
+        self.source_spell = casting_spell
+
         self.caster = caster
         self.spell_id = casting_spell.spell_entry.ID
         self.spell_effect = spell_effect
         self.duration_entry = casting_spell.duration_entry
         self.duration = self.duration_entry.Duration
-        self.spell_effect = spell_effect
         self.effective_level = casting_spell.caster_effective_level
 
-        self.harmful = self.caster.is_enemy_to(self.target)
+        self.period = spell_effect.aura_period
+
         self.passive = casting_spell.is_passive() or spell_effect.effect_index != 1
 
+        self.aura_period_timestamps = []  # Set on application
         self.index = -1  # Set on application
 
     def has_duration(self):
         return self.duration != -1
 
     def is_passive(self):
-        return
+        return self.passive
+
+    def is_periodic(self):
+        return self.period != 0
+
+    def is_harmful(self):
+        if self.source_spell.initial_target_is_object():
+            return self.caster.is_enemy_to(self.target)  # TODO not always applicable, ie. arcane missiles
+
+        # Terrain-targeted aura
+        return not self.spell_effect.targets.can_target_friendly()
+
+    def is_past_next_period_timestamp(self):
+        if len(self.aura_period_timestamps) == 0:
+            return False
+        return time.time() > self.aura_period_timestamps[-1]
+
+    def pop_period_timestamp(self):
+        if len(self.aura_period_timestamps) == 0:
+            return
+        return self.aura_period_timestamps.pop()
+
+    def initialize_period_timestamps(self):
+        if self.period == 0 or len(self.aura_period_timestamps) > 0:  # Don't overwrite old timestamps
+            return
+        period = self.period
+        ticks = int(self.duration_entry.Duration / self.period)
+        period /= 1000  # Millis -> seconds
+        curr_time = time.time()
+
+        for i in range(ticks, 0, -1):  # timestamp stack for channel ticks, first element being last tick
+            self.aura_period_timestamps.append(curr_time + period * i)
+
+
+    def update(self, elapsed):
+        if self.has_duration():
+            self.duration -= int(elapsed * 1000)
+
+        if not self.target:  # Auras that are only tied to effects - ie. persistent area auras
+            return
+        if self.is_periodic():
+            AuraEffectHandler.handle_aura_effect_change(self)
 
 
 class AuraEffectHandler:
     @staticmethod
     def handle_aura_effect_change(aura, remove=False):
-        if aura.spell_effect.effect_type != SpellEffects.SPELL_EFFECT_APPLY_AURA:
-            return
+        # if aura.spell_effect.effect_type != SpellEffects.SPELL_EFFECT_APPLY_AURA:
+        #     return  # TODO check all effects that apply auras
         if aura.spell_effect.aura_type not in AURA_EFFECTS:
             Logger.debug(f'Unimplemented aura effect called: {aura.spell_effect.aura_type}')
             return
@@ -84,11 +129,46 @@ class AuraEffectHandler:
         speed_percentage = aura.spell_effect.get_effect_points(aura.effective_level) / 100.0
         aura.target.change_speed(default_speed + (default_speed * speed_percentage))
 
+    @staticmethod
+    def handle_periodic_trigger_spell(aura, remove):
+        if not aura.is_past_next_period_timestamp() or remove:
+            return
+        aura.pop_period_timestamp()
+
+        spell = aura.caster.spell_manager.try_initialize_spell(aura.source_spell.spell_entry, aura.caster,
+                                                               aura.source_spell.initial_target, aura.source_spell.spell_target_mask,
+                                                               validate=False)
+        aura.caster.spell_manager.perform_spell_cast(spell, validate=False)
+
+    @staticmethod
+    def handle_periodic_damage(aura, remove):
+        if not aura.is_past_next_period_timestamp() or remove:
+            return
+        aura.pop_period_timestamp()
+
+        spell = aura.source_spell
+        damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        aura.caster.deal_spell_damage(aura.target, damage, spell.spell_entry.School, spell.spell_entry.ID)
+
+    @staticmethod
+    def handle_periodic_leech(aura, remove):
+        if not aura.is_past_next_period_timestamp() or remove:
+            return
+        aura.pop_period_timestamp()
+
+        spell = aura.source_spell
+        damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        aura.caster.deal_spell_damage(aura.target, damage, spell.spell_entry.School, spell.spell_entry.ID)
+        # TODO Heal
+
 
 AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_mounted_speed
+    AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_mounted_speed,
+    AuraTypes.SPELL_AURA_PERIODIC_TRIGGER_SPELL: AuraEffectHandler.handle_periodic_trigger_spell,
+    AuraTypes.SPELL_AURA_PERIODIC_DAMAGE: AuraEffectHandler.handle_periodic_damage,
+    AuraTypes.SPELL_AURA_PERIODIC_LEECH: AuraEffectHandler.handle_periodic_leech
 }
 
 # Alliance / Default display_id, Horde display_id, Scale
@@ -107,7 +187,7 @@ class AuraManager:
         self.current_flags = 0x0
 
     def apply_spell_effect_aura(self, caster, casting_spell, spell_effect):
-        aura = AppliedAura(caster, casting_spell, spell_effect)
+        aura = AppliedAura(caster, casting_spell, spell_effect, self.unit_mgr)
         self.add_aura(aura)
 
     def add_aura(self, aura):
@@ -118,6 +198,8 @@ class AuraManager:
         if not can_apply:
             return
 
+        aura.initialize_period_timestamps()  # Initialize periodic spell timestamps on application
+
         AuraEffectHandler.handle_aura_effect_change(aura)
         aura.index = self.get_next_aura_index(aura)
         self.active_auras[aura.index] = aura
@@ -126,14 +208,16 @@ class AuraManager:
         self.write_aura_flag_to_unit(aura)
         self.send_aura_duration(aura)
 
+        # Aura application threat TODO handle threat elsewhere
+        if aura.is_harmful() and aura.source_spell.generates_threat():
+            self.unit_mgr.attack(aura.caster)
+
         self.unit_mgr.set_dirty()
 
     def update(self, elapsed):
         for aura in list(self.active_auras.values()):
-            if not aura.has_duration():
-                continue
-            aura.duration -= int(elapsed*1000)
-            if aura.duration <= 0:
+            aura.update(elapsed)  # Update duration and handle periodic effects
+            if aura.has_duration() and aura.duration <= 0:
                 self.remove_aura(aura)
 
     def can_apply_aura(self, aura):
@@ -208,7 +292,7 @@ class AuraManager:
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        data = pack('<Bi', aura.index, aura.duration_entry.Duration)
+        data = pack('<Bi', aura.index, aura.duration)
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))
 
     def write_aura_to_unit(self, aura, clear=False):
@@ -230,7 +314,7 @@ class AuraManager:
         if aura.passive:
             min_index = AuraSlots.AURA_SLOT_PASSIVE_AURA_START
             max_index = AuraSlots.AURA_SLOT_END
-        elif aura.harmful:
+        elif aura.is_harmful():
             min_index = AuraSlots.AURA_SLOT_HARMFUL_AURA_START
             max_index = AuraSlots.AURA_SLOT_PASSIVE_AURA_START
         else:
