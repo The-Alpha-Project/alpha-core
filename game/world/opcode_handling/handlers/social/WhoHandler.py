@@ -1,3 +1,4 @@
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketWriter import *
@@ -25,7 +26,12 @@ class WhoHandler(object):
             zones = []
             for x in range(0, zone_count):
                 zone = unpack('<I', reader.data[current_size:current_size + 4])[0]
-                zones.append(zone)
+                # Cases like z-'Stormwind' wont work because the client sends zone_id 0, so we lookup in the
+                # same area that the requester.
+                if zone == 0:
+                    zones.append(world_session.player_mgr.zone)
+                else:
+                    zones.append(zone)
                 current_size += 4
 
             user_strings_count = unpack('<I', reader.data[current_size:current_size + 4])[0]
@@ -59,15 +65,21 @@ class WhoHandler(object):
                     if race_mask != 0xFFFFFFFF and race_mask & session.player_mgr.race_mask != session.player_mgr.race_mask:
                         continue
                     if zone_count > 0:
-                        area = WorldDatabaseManager.area_get_by_id(session.player_mgr.zone)
-                        if area:
-                            skip = True
-                            for zone in zones:
-                                if zone == area.zone_id or area.zone_id == 0 and zone == area.entry:
-                                    skip = False
-                                    break
-                            if skip:
-                                continue
+                        area = session.player_mgr.zone
+                        area_table = DbcDatabaseManager.area_by_zone_id(session.player_mgr.zone)
+                        if area_table and area_table.ParentAreaNum > 0:
+                            area_table = DbcDatabaseManager.area_by_parent_area(area_table.ParentAreaNum, session.player_mgr.map_)
+                            if area_table:
+                                area = area_table.ID
+
+                        skip = True
+                        for zone in zones:
+                            if zone == area or zone == session.player_mgr.zone:
+                                skip = False
+
+                        if skip:
+                            continue
+
                     if user_strings_count > 0:
                         skip = True
                         for string in user_strings:
