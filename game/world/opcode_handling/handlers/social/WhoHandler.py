@@ -26,8 +26,8 @@ class WhoHandler(object):
             zones = []
             for x in range(0, zone_count):
                 zone = unpack('<I', reader.data[current_size:current_size + 4])[0]
-                # Cases like z-'Stormwind' wont work because the client sends zone_id 0, so we lookup in the
-                # same area that the requester.
+                # Cases like z-'Stormwind City' wont work because the client sends zone_id 0.
+                # In this cases, we use the current player zone_id and return players in that area or parent area.
                 if zone == 0:
                     zones.append(world_session.player_mgr.zone)
                 else:
