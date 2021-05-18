@@ -136,6 +136,13 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return res
 
+    @staticmethod
+    def spell_radius_get_by_id(radius_index):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellRadius).filter_by(ID=radius_index).first()
+        dbc_db_session.close()
+        return res
+
     # Skill
 
     class SkillHolder:
