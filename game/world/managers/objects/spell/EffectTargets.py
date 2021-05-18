@@ -1,8 +1,9 @@
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes
-from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason
+from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, AuraTypes
 
 
 class TargetMissInfo:
@@ -20,6 +21,10 @@ class EffectTargets:
         self.simple_targets = self.get_simple_targets()
 
         self.target_effect = spell_effect
+
+        self.previous_targets_a = None
+        self.previous_targets_b = None  # Used for non-persistent targets (aoe effects etc.)
+
         self.resolved_targets_a = None
         self.resolved_targets_b = None
 
@@ -34,7 +39,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_NOTHING: None,
             SpellImplicitTargets.TARGET_SELF: self.caster,
             SpellImplicitTargets.TARGET_PET: None,  # TODO
-            SpellImplicitTargets.TARGET_CHAIN_DAMAGE: self.initial_target,  # TODO - resolve chain targets
+            SpellImplicitTargets.TARGET_CHAIN_DAMAGE: self.initial_target if not target_is_friendly else None,  # TODO - resolve chain targets
             SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: self.caster.get_deathbind_coordinates() if target_is_player else None,
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else None,
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if target_is_gameobject else None,
@@ -46,7 +51,7 @@ class EffectTargets:
         }
 
     def resolve_implicit_targets_reference(self, implicit_target):
-        target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else TARGET_RESOLVERS[implicit_target](self.casting_spell)
+        target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else TARGET_RESOLVERS[implicit_target](self.casting_spell, self.target_effect)
 
         if target is None and implicit_target != 0:  # Avoid crash on unfinished implementation while target resolving isn't finished TODO
             Logger.warning(f'Implicit target {implicit_target} resolved to None. Falling back to initial target or self.')
@@ -56,7 +61,13 @@ class EffectTargets:
             return [target]
         return target
 
+    def can_target_friendly(self):
+        return self.target_effect.implicit_target_a in FRIENDLY_IMPLICIT_TARGETS or \
+               self.target_effect.implicit_target_b in FRIENDLY_IMPLICIT_TARGETS
+
     def resolve_targets(self):
+        self.previous_targets_a = self.resolved_targets_a
+        self.previous_targets_b = self.resolved_targets_b
         self.resolved_targets_a = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_a)
         self.resolved_targets_b = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_b)
 
@@ -69,83 +80,95 @@ class EffectTargets:
         return target_info
 
     @staticmethod
-    def resolve_random_enemy_chain_in_area(casting_spell):
+    def resolve_random_enemy_chain_in_area(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_area_effect_custom(casting_spell):
+    def resolve_area_effect_custom(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_unit_near_caster(casting_spell):
+    def resolve_unit_near_caster(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_all_enemy_in_area(casting_spell):
+    def resolve_all_enemy_in_area(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_all_enemy_in_area_instant(casting_spell):
+    def resolve_all_enemy_in_area_instant(casting_spell, target_effect):
+        target = casting_spell.initial_target
+        if not casting_spell.initial_target_is_terrain():
+            return []
+        map_ = casting_spell.spell_caster.map_
+        result = MapManager.get_surrounding_units_by_location(target, map_, target_effect.get_radius(), True)
+
+        merged = list(result[0].values()) + list(result[1].values())
+        enemies = []
+        for unit in merged:
+            if casting_spell.spell_caster.is_friendly_to(unit):
+                continue
+            enemies.append(unit)
+        return enemies
+
+    @staticmethod
+    def resolve_table_coordinates(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_table_coordinates(casting_spell):
+    def resolve_effect_select(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_effect_select(casting_spell):
+    def resolve_party_around_caster(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_party_around_caster(casting_spell):
+    def resolve_selected_friend(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_selected_friend(casting_spell):
+    def resolve_enemy_around_caster(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_enemy_around_caster(casting_spell):
+    def resolve_infront(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_infront(casting_spell):
+    def resolve_aoe_enemy_channel(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_aoe_enemy_channel(casting_spell):
+    def resolve_all_friendly_around_caster(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_all_friendly_around_caster(casting_spell):
+    def resolve_all_friendly_in_area(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_all_friendly_in_area(casting_spell):
+    def resolve_all_party(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_all_party(casting_spell):
+    def resolve_party_around_caster_2(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_party_around_caster_2(casting_spell):
+    def resolve_single_party(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_single_party(casting_spell):
+    def resolve_aoe_party(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_aoe_party(casting_spell):
+    def resolve_script(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_script(casting_spell):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
-
-    @staticmethod
-    def resolve_gameobject_script_near_caster(casting_spell):
+    def resolve_gameobject_script_near_caster(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
 
@@ -171,3 +194,21 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_SCRIPT: EffectTargets.resolve_script,
     SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: EffectTargets.resolve_gameobject_script_near_caster
 }
+
+FRIENDLY_IMPLICIT_TARGETS = [
+    SpellImplicitTargets.TARGET_PET,
+    # SpellImplicitTargets.TARGET_EFFECT_SELECT  # All self casts except one hostile aoe
+    SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY,
+    SpellImplicitTargets.TARGET_SELECTED_FRIEND,
+    # SpellImplicitTargets.TARGET_INFRONT,  # Only hostile
+    # SpellImplicitTargets.TARGET_DUEL_VS_PLAYER = 25  # Can target both - resolved by checking target hostility
+    SpellImplicitTargets.TARGET_MASTER,
+    SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER,
+    SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA,
+    SpellImplicitTargets.TARGET_MINION,
+    SpellImplicitTargets.TARGET_ALL_PARTY,
+    SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2,
+    SpellImplicitTargets.TARGET_SINGLE_PARTY,
+    SpellImplicitTargets.TARGET_AREAEFFECT_PARTY,  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
+    # SpellImplicitTargets.TARGET_SCRIPT = 38  # Resolved separately
+]
