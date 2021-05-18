@@ -65,16 +65,15 @@ class WhoHandler(object):
                     if race_mask != 0xFFFFFFFF and race_mask & session.player_mgr.race_mask != session.player_mgr.race_mask:
                         continue
                     if zone_count > 0:
-                        area = session.player_mgr.zone
-                        area_table = DbcDatabaseManager.area_by_zone_id(session.player_mgr.zone)
-                        if area_table and area_table.ParentAreaNum > 0:
-                            area_table = DbcDatabaseManager.area_by_parent_area(area_table.ParentAreaNum, session.player_mgr.map_)
-                            if area_table:
-                                area = area_table.ID
+                        current_areas = [DbcDatabaseManager.area_by_zone_id(session.player_mgr.zone, session.player_mgr.map_)]
+                        if current_areas[0] and current_areas[0].ParentAreaNum > 0:
+                            current_areas.append(DbcDatabaseManager.area_by_area_number(current_areas[0].ParentAreaNum, session.player_mgr.map_))
+
+                        area_ids = [area.ID for area in current_areas if area]
 
                         skip = True
                         for zone in zones:
-                            if zone == area or zone == session.player_mgr.zone:
+                            if zone in area_ids:
                                 skip = False
 
                         if skip:
