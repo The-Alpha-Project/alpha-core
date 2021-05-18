@@ -128,6 +128,19 @@ class GridManager(object):
         else:
             return res[1]
 
+    def get_surrounding_units_by_location(self, vector, target_map, range_, include_players=False):
+        units = [{}, {}]
+        for cell in self.get_surrounding_cells_by_location(vector.x, vector.y, target_map):
+            for guid, creature in cell.creatures.items():
+                if creature.location.distance(vector) <= range_:
+                    units[0][guid] = creature
+            if not include_players:
+                continue
+            for guid, player in cell.players.items():
+                if player.location.distance(vector) <= range_:
+                    units[1][guid] = player
+        return units
+
     def get_surrounding_gameobjects(self, world_object):
         return self.get_surrounding_objects(world_object, [ObjectTypes.TYPE_GAMEOBJECT])[2]
 
