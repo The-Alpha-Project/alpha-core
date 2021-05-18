@@ -201,11 +201,11 @@ class SpellAttributes(IntEnum):
 class SpellAttributesEx(IntEnum):
     SPELL_ATTR_EX_DISMISS_PET_FIRST = 0x00000001  # 0
     SPELL_ATTR_EX_DRAIN_ALL_POWER = 0x00000002  # 1 use all power (Only paladin Lay of Hands and Bunyanize)
-    SPELL_ATTR_EX_CHANNELED_1 = 0x00000004  # 2 channeled 1
+    SPELL_ATTR_EX_CHANNELED = 0x00000004  # 2 channeled 1
     SPELL_ATTR_EX_CANT_BE_REDIRECTED = 0x00000008  # 3
     SPELL_ATTR_EX_NO_SKILL_INCREASE = 0x00000010  # 4
     SPELL_ATTR_EX_NOT_BREAK_STEALTH = 0x00000020  # 5 Not break stealth
-    SPELL_ATTR_EX_CHANNELED_2 = 0x00000040  # 6 channeled 2
+    SPELL_ATTR_EX_CHANNELED_2 = 0x00000040  # 6 channeled 2 - 0.5.3 only 1066 (aquatic form)?
     SPELL_ATTR_EX_NEGATIVE = 0x00000080  # 7
     SPELL_ATTR_EX_NOT_IN_COMBAT_TARGET = 0x00000100  # 8 Spell req target not to be in combat state
     SPELL_ATTR_EX_MELEE_COMBAT_START = 0x00000200  # 9
@@ -261,6 +261,7 @@ class SpellState(IntEnum):
     SPELL_STATE_CASTING = 1  # channeled time period spell casting state
     SPELL_STATE_FINISHED = 2  # cast finished to success or fail
     SPELL_STATE_DELAYED = 3  # spell casted but need time to hit target(s)
+    SPELL_STATE_CHANNELING = 4  # Spell casted and is now channeling
 
 
 class CurrentSpellType(IntEnum):
@@ -525,7 +526,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_UNIT_NEAR_CASTER = 4
     TARGET_PET = 5
     TARGET_CHAIN_DAMAGE = 6
-    TARGET_AREAEFFECT_CUSTOM = 8
+    TARGET_AREAEFFECT_CUSTOM = 8  # Unused
     TARGET_INNKEEPER_COORDINATES = 9  # Used in teleport to innkeeper spells
     TARGET_11 = 11  # Only used by "Word of Recall Other" (4)
     TARGET_ALL_ENEMY_IN_AREA = 15
