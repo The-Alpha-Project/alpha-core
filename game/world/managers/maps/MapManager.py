@@ -210,7 +210,7 @@ class MapManager(object):
     def get_surrounding_units_by_location(vector, target_map, range_, include_players=False):
         grid_mgr = MapManager.get_grid_manager_by_map_id(target_map)
         if not grid_mgr:
-            return []
+            return [{}, {}]
         return grid_mgr.get_surrounding_units_by_location(vector, target_map, range_, include_players)
 
     @staticmethod
