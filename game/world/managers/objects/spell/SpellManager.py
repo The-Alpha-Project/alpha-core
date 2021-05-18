@@ -181,7 +181,6 @@ class SpellManager(object):
             cast_finished = casting_spell.cast_end_timestamp <= timestamp
             if casting_spell.cast_state == SpellState.SPELL_STATE_CHANNELING:  # Channel tick
                 if cast_finished or moved:
-                    print("channel end")
                     self.handle_channel_end(casting_spell, interrupted=moved)
                     reason = SpellCheckCastResult.SPELL_FAILED_MOVING if moved else SpellCheckCastResult.SPELL_NO_ERROR
                     self.remove_cast(casting_spell, reason)
