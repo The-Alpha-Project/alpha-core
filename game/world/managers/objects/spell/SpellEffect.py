@@ -1,5 +1,8 @@
 import random
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.dbc.DbcModels import SpellRadius
+from game.world.managers.objects.spell.AuraManager import AppliedAura
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from utils.constants.SpellCodes import SpellEffects
 
@@ -22,8 +25,12 @@ class SpellEffect(object):
     misc_value: int
     trigger_spell: int
 
+    caster_effective_level: int
     effect_index: int
     targets: EffectTargets
+    radius_entry: SpellRadius
+
+    effect_aura = None
 
     def __init__(self, casting_spell, index):
         if index == 1:
@@ -33,11 +40,19 @@ class SpellEffect(object):
         elif index == 3:
             self.load_third(casting_spell.spell_entry)
 
+        self.caster_effective_level = casting_spell.caster_effective_level
         self.targets = EffectTargets(casting_spell, self)
+        self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index)
+
+        if self.aura_type and casting_spell.initial_target_is_terrain():  # TODO only needed when terrain is target?
+            self.effect_aura = AppliedAura(casting_spell.spell_caster, casting_spell, self, None)  # Target as none as this effect shouldn't be tied to any unit
 
     def get_effect_points(self, effective_level):
         rolled_points = random.randint(1, self.die_sides + self.dice_per_level) if self.die_sides != 0 else 0
         return self.base_points + int(self.real_points_per_level * effective_level) + rolled_points
+
+    def get_radius(self):
+        return min(self.radius_entry.RadiusMax, self.radius_entry.Radius + self.radius_entry.RadiusPerLevel * self.caster_effective_level)
 
     def load_first(self, spell):
         self.effect_type = spell.Effect_1
