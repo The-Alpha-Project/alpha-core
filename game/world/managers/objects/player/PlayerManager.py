@@ -1137,7 +1137,7 @@ class PlayerManager(UnitManager):
             self.movement_manager.update_pending_waypoints(elapsed)
 
             # SpellManager tick
-            self.spell_manager.update(now)
+            self.spell_manager.update(now, elapsed)
             # AuraManager tick
             self.aura_manager.update(elapsed)
 

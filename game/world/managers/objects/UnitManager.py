@@ -702,6 +702,14 @@ class UnitManager(ObjectManager):
 
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
 
+    def set_channel_object(self, guid):
+        self.channel_object = guid
+        self.set_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, guid)
+
+    def set_channel_spell(self, spell_id):
+        self.channel_spell = spell_id
+        self.set_uint64(UnitFields.UNIT_CHANNEL_SPELL, spell_id)
+
     def generate_proper_update_packet(self, is_self=False, create=False):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,

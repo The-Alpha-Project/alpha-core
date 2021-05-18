@@ -207,6 +207,13 @@ class MapManager(object):
         return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_units(world_object, include_players)
 
     @staticmethod
+    def get_surrounding_units_by_location(vector, target_map, range_, include_players=False):
+        grid_mgr = MapManager.get_grid_manager_by_map_id(target_map)
+        if not grid_mgr:
+            return [{}, {}]
+        return grid_mgr.get_surrounding_units_by_location(vector, target_map, range_, include_players)
+
+    @staticmethod
     def get_surrounding_gameobjects(world_object):
         return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_gameobjects(world_object)
 

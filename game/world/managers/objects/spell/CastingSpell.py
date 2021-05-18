@@ -76,10 +76,21 @@ class CastingSpell(object):
     def initial_target_is_terrain(self):
         return isinstance(self.initial_target, Vector)
 
-    def get_target_info(self):  # ([values], len)
+    def get_initial_target_info(self):  # ([values], len)
         is_terrain = self.initial_target_is_terrain()
         return ([self.initial_target.x, self.initial_target.y, self.initial_target.z] if is_terrain
                 else [self.initial_target.guid]), ('3f' if is_terrain else 'Q')
+
+    def resolve_target_info_for_effects(self):
+        info = {}
+        for effect in self.effects:
+            effect.targets.resolve_targets()  # Inititalize references for implicit targets
+            effect_info = effect.targets.get_effect_target_results()
+            for target, result in effect_info.items():  # Resolve targets for all effects, keep unique ones (though not sure if uniqueness is an issue)
+                if target in info:
+                    continue
+                info[target] = result
+        return info
 
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0
@@ -89,6 +100,12 @@ class CastingSpell(object):
 
     def is_passive(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE == SpellAttributes.SPELL_ATTR_PASSIVE
+
+    def is_channeled(self):
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNELED
+
+    def generates_threat(self):
+        return not (self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT)
 
     def trigger_cooldown_on_remove(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE == SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE

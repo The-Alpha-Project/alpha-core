@@ -63,10 +63,16 @@ class SpellManager(object):
 
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 
-    def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
-        casting_spell = CastingSpell(spell, caster_obj, spell_target, target_mask)  # Initializes dbc references
+    def try_initialize_spell(self, spell, caster_obj, spell_target, target_mask, validate=True):
+        spell = CastingSpell(spell, caster_obj, spell_target, target_mask)
+        if not validate:
+            return spell
+        return spell if self.validate_cast(spell) else None
 
-        if not self.validate_cast(casting_spell):
+    def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
+        #  TODO Spell priority and interrupting on recast - spells can be cast on top of eachother (best reproduced by channels, for example life drain)
+        casting_spell = self.try_initialize_spell(spell, caster_obj, spell_target, target_mask)
+        if not casting_spell:
             return
 
         if casting_spell.casts_on_swing():  # Handle swing ability queue and state
@@ -93,7 +99,10 @@ class SpellManager(object):
             self.remove_cast(casting_spell)
             return
 
-        casting_spell.unit_target_results = self.resolve_target_info_for_spell_effects(casting_spell)
+        if not (casting_spell.initial_target_is_terrain() and casting_spell.is_channeled()):
+            casting_spell.unit_target_results = casting_spell.resolve_target_info_for_effects()
+        else:
+            casting_spell.unit_target_results = {}  # Channeled, terrain-targeted spells will generate results during the channel
 
         if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
@@ -109,32 +118,29 @@ class SpellManager(object):
             self.consume_resources_for_cast(casting_spell)  # Remove resources
             return
 
-        self.apply_spell_effects_and_remove(casting_spell)  # Apply effects
+        if casting_spell.is_channeled():
+            casting_spell.cast_state = SpellState.SPELL_STATE_CHANNELING
+            self.handle_channel_start(casting_spell)
+        else:
+            self.apply_spell_effects(casting_spell, remove=True)  # Apply effects
 
         if not casting_spell.trigger_cooldown_on_remove():
             self.set_on_cooldown(casting_spell.spell_entry)
-        else:
-            self.remove_cooldown(casting_spell.spell_entry)
 
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
-        # self.send_channel_start(casting_spell.cast_time_entry.Base) TODO Channeled spells
 
-    def apply_spell_effects_and_remove(self, casting_spell):
+    def apply_spell_effects(self, casting_spell, remove=False):
         for effect in casting_spell.effects:
-            for target in effect.targets.resolved_targets_a:  # TODO B? targets.unit_targets?
+            if casting_spell.initial_target_is_terrain():  # Terrain-targeted effect handlers apply to all targets in range
+                SpellEffectHandler.apply_effect(casting_spell, effect, None)
+                continue
+
+            for target in effect.targets.resolved_targets_a:
                 SpellEffectHandler.apply_effect(casting_spell, effect, target)
-        self.remove_cast(casting_spell)
 
-    def resolve_target_info_for_spell_effects(self, casting_spell):
-        info = {}
-        for effect in casting_spell.effects:
-            effect.targets.resolve_targets()  # Inititalize references for implicit targets
-            effect_info = effect.targets.get_effect_target_results()
-            for target, result in effect_info.items():  # Resolve targets for all effects, keep unique ones (though not sure if uniqueness is an issue)
-                if target in info:
-                    continue
-                info[target] = result
-        return info
+        if remove:
+            self.remove_cast(casting_spell)
+
 
     def cast_queued_melee_ability(self, attack_type):
         melee_ability = self.get_queued_melee_ability()
@@ -165,14 +171,27 @@ class SpellManager(object):
             return
         self.has_moved = True
 
-    def update(self, timestamp):
+    def update(self, timestamp, elapsed):
         moved = self.has_moved
         self.has_moved = False  # Reset has_moved on every update
+
         for casting_spell in list(self.casting_spells):
             if casting_spell.casts_on_swing():  # spells cast on swing will be updated on call from attack handling
                 continue
+            cast_finished = casting_spell.cast_end_timestamp <= timestamp
+            if casting_spell.cast_state == SpellState.SPELL_STATE_CHANNELING:  # Channel tick
+                if cast_finished or moved:
+                    print("channel end")
+                    self.handle_channel_end(casting_spell, interrupted=moved)
+                    reason = SpellCheckCastResult.SPELL_FAILED_MOVING if moved else SpellCheckCastResult.SPELL_NO_ERROR
+                    self.remove_cast(casting_spell, reason)
+                    self.has_moved = False
+                elif not moved:
+                    self.handle_channel_tick(casting_spell, elapsed)
+                continue
+
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
-                if casting_spell.cast_end_timestamp <= timestamp:
+                if cast_finished:
                     if not self.validate_cast(casting_spell):  # Spell finished casting, validate again
                         self.remove_cast(casting_spell)
                         return
@@ -184,9 +203,9 @@ class SpellManager(object):
                     self.has_moved = False
                     return
 
-            elif casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
-                    casting_spell.spell_delay_end_timestamp <= timestamp:  # Spell was cast already and impact delay is done
-                self.apply_spell_effects_and_remove(casting_spell)
+            if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
+                    cast_finished:  # Spell was cast already and impact delay is done
+                self.apply_spell_effects(casting_spell, remove=True)
 
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
         if casting_spell not in self.casting_spells:
@@ -214,7 +233,7 @@ class SpellManager(object):
         signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID/inventorytype)
 
         if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written
-            target_info = casting_spell.get_target_info()  # ([values], signature)
+            target_info = casting_spell.get_initial_target_info()  # ([values], signature)
             data.extend(target_info[0])
             signature += target_info[1]
 
@@ -228,10 +247,98 @@ class SpellManager(object):
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
+    def handle_channel_start(self, casting_spell):
+        if not casting_spell.is_channeled():
+            return
+
+        channel_end_timestamp = casting_spell.duration_entry.Duration/1000 + time.time()
+        casting_spell.cast_end_timestamp = channel_end_timestamp  # Set the new timestamp for cast finish
+
+        if casting_spell.initial_target_is_object():
+            self.unit_mgr.set_channel_object(casting_spell.initial_target.guid)
+            self.unit_mgr.set_channel_spell(casting_spell.spell_entry.ID)
+            self.unit_mgr.set_dirty()
+
+        has_aura_period = False
+        for effect in casting_spell.effects:
+            if not effect.effect_aura or not effect.aura_period:
+                continue
+            has_aura_period = True
+            # Initialize timestamps for effect aura
+            effect.effect_aura.initialize_period_timestamps()
+
+        if has_aura_period:
+            # There will not be a ticking update for targets, resolve now
+            casting_spell.resolve_target_info_for_effects()
+
+        self.apply_spell_effects(casting_spell)  # Apply effects
+
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        data = pack('<II', casting_spell.spell_entry.ID, casting_spell.duration_entry.Duration)  # No channeled spells with duration per level
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))  # SMSG?
+        # TODO Channeling animations do not play
+
+    def handle_channel_tick(self, casting_spell, elapsed):
+        if not casting_spell.is_channeled():
+            return
+
+        if not casting_spell.initial_target_is_terrain():
+            return
+
+        # Refresh non-persistent targets and terrain-targeted auras for relevant effects
+        for effect in casting_spell.effects:
+            if not effect.effect_aura:
+                continue
+
+            effect.effect_aura.update(elapsed)
+
+            if not effect.aura_period:
+                continue  # Effects that only activate don't need to be applied again
+
+            effect.targets.resolve_targets()  # Refresh targets
+
+            # If the effect interval is due, send another spell_go packet. Not good, but shows ticks TODO hackfix for missing channeling effect
+            if effect.effect_aura.is_past_next_period_timestamp():
+                self.send_spell_go(casting_spell)
+            self.apply_spell_effects(casting_spell)
+
+        # Seems like sending updates speeds up channel? Does not play channeling effect either
+        # remaining_time = casting_spell.cast_end_timestamp - time.time()
+        # if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        #     return
+        # data = pack('<I', int(remaining_time*1000))  # *1000 for milliseconds
+        # self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
+
+
+    def handle_channel_end(self, casting_spell, interrupted):
+        if not casting_spell.is_channeled():
+            return
+
+        # If channel is interrupted, all auras applied by the channel should be removed
+        # If the auras of finished casts are removed as well, last ticks of channels may not happen. Death event should handle removal instead
+        if interrupted:
+            for miss_info in casting_spell.unit_target_results.values():  # Get the last effect application results
+                miss_info.target.aura_manager.cancel_auras_by_spell_id(casting_spell.spell_entry.ID)  # Cancel effects from this aura
+
+            if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+                return
+
+        self.unit_mgr.set_channel_object(0)
+        self.unit_mgr.set_channel_spell(0)
+        self.unit_mgr.set_dirty()
+
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        data = pack('<I', 0)
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))  # SMSG?
+        self.send_spell_go(casting_spell)  # Play last tick animation TODO channeling effect hackfix
+
     def send_spell_go(self, casting_spell):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags]
-
 
         signature = '<2QIH'  # source, caster, ID, flags .. (targets, ammo info)
 
@@ -249,8 +356,6 @@ class SpellManager(object):
             if result == SpellMissReason.MISS_REASON_NONE:  # Hit count is written separately
                 signature += 'B'
                 data.append(hit_count)
-                if len(guids) == 0:
-                    continue
 
             if result != SpellMissReason.MISS_REASON_NONE:  # Write reason for miss
                 signature += 'B'
@@ -269,7 +374,7 @@ class SpellManager(object):
         data.append(casting_spell.spell_target_mask)
 
         if casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Write target info - same as cast start
-            target_info = casting_spell.get_target_info()  # ([values], signature)
+            target_info = casting_spell.get_initial_target_info()  # ([values], signature)
             data.extend(target_info[0])
             signature += target_info[1]
 

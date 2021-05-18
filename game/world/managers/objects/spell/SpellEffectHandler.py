@@ -1,4 +1,5 @@
 from game.world.managers.objects.player.DuelManager import DuelManager
+from game.world.managers.objects.spell.AuraManager import AppliedAura
 from utils.Logger import Logger
 from utils.constants.ObjectCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects
@@ -116,6 +117,30 @@ class SpellEffectHandler(object):
         target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved
         # TODO Die sides are assigned for at least Word of Recall (ID 1)
 
+    @staticmethod
+    def handle_persistent_area_aura(casting_spell, effect, caster, target):
+        if target is not None:
+            return
+
+        previous_targets = effect.targets.previous_targets_a if effect.targets.previous_targets_a else []
+        current_targets = effect.targets.resolved_targets_a
+        spell_id = effect.effect_aura.spell_id
+
+        new_targets = [unit for unit in current_targets if unit not in previous_targets]  # Targets that can't have the aura yet
+        missing_targets = [unit for unit in previous_targets if unit not in current_targets]  # Targets that moved out of the area
+
+        for target in new_targets:
+            new_aura = AppliedAura(caster, casting_spell, effect, target)
+            new_aura.aura_period_timestamps = effect.effect_aura.aura_period_timestamps.copy()  # Don't pass reference, AuraManager will manage timestamps
+            new_aura.duration = effect.effect_aura.duration
+            target.aura_manager.add_aura(new_aura)
+
+        if effect.effect_aura.is_past_next_period_timestamp():
+            effect.effect_aura.pop_period_timestamp()  # Update effect aura timestamps
+
+        for target in missing_targets:
+            target.aura_manager.cancel_auras_by_spell_id(spell_id)
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
@@ -129,5 +154,6 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount,
     SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill,
     SpellEffects.SPELL_EFFECT_CREATE_ITEM: SpellEffectHandler.handle_create_item,
-    SpellEffects.SPELL_EFFECT_TELEPORT_UNITS: SpellEffectHandler.handle_teleport_units
+    SpellEffects.SPELL_EFFECT_TELEPORT_UNITS: SpellEffectHandler.handle_teleport_units,
+    SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA: SpellEffectHandler.handle_persistent_area_aura
 }
