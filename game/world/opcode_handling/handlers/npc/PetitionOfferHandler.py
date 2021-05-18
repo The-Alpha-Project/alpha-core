@@ -3,7 +3,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
 from utils.constants.ItemCodes import PetitionError
-from utils.constants.ObjectCodes import GuildTypeCommand, GuildCommandResults
+from utils.constants.MiscCodes import GuildTypeCommand, GuildCommandResults
 
 
 class PetitionOfferHandler(object):

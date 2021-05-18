@@ -5,7 +5,7 @@ from database.dbc.DbcModels import Spell, SpellRange, SpellDuration, SpellCastTi
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
-from utils.constants.ObjectCodes import AttackTypes, ObjectTypes
+from utils.constants.MiscCodes import AttackTypes, ObjectTypes
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx
 
 

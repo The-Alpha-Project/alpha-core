@@ -6,7 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.ObjectCodes import SkillCategories, Languages
+from utils.constants.MiscCodes import SkillCategories, Languages
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields
 

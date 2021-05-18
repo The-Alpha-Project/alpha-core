@@ -2,7 +2,7 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.item.ItemManager import ItemManager
 from utils.constants.ItemCodes import InventorySlots, ItemClasses, ItemSubClasses, BagFamilies
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, HighGuid, ItemBondingTypes
+from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.UpdateFields import ContainerFields
 
 MAX_BAG_SLOTS = 20  # (ContainerFields.CONTAINER_END - ContainerFields.CONTAINER_FIELD_SLOT_1) / 2

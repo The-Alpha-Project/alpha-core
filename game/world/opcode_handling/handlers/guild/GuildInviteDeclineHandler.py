@@ -1,6 +1,6 @@
 from network.packet.PacketWriter import *
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
-from utils.constants.ObjectCodes import GuildCommandResults, GuildTypeCommand
+from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand
 
 
 class GuildInviteDeclineHandler(object):

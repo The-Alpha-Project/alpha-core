@@ -3,9 +3,9 @@ from network.packet.PacketReader import *
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.UnitCodes import StandState
-from utils.constants.ObjectCodes import Emotes
+from utils.constants.MiscCodes import Emotes
 
 
 class TextEmoteHandler(object):

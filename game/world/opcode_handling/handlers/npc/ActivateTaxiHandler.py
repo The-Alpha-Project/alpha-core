@@ -4,7 +4,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
-from utils.constants.ObjectCodes import ActivateTaxiReplies
+from utils.constants.MiscCodes import ActivateTaxiReplies
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, UnitFlags
 from utils.constants.UpdateFields import UnitFields

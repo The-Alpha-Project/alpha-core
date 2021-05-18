@@ -9,7 +9,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from utils.ConfigManager import config
 from utils.TextUtils import GameTextFormatter
-from utils.constants.ObjectCodes import HighGuid
+from utils.constants.MiscCodes import HighGuid
 from utils.constants.UpdateFields import PlayerFields
 
 

@@ -10,7 +10,7 @@ from utils import TextUtils
 from utils.constants.CharCodes import *
 from utils.ConfigManager import config
 from utils.constants.ItemCodes import InventorySlots
-from utils.constants.ObjectCodes import SkillCategories
+from utils.constants.MiscCodes import SkillCategories
 from utils.constants.SpellCodes import SpellEffects
 from utils.constants.UnitCodes import Classes
 

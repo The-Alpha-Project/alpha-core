@@ -2,7 +2,7 @@ from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.ObjectCodes import TradeStatus
+from utils.constants.MiscCodes import TradeStatus
 from utils.constants.OpCodes import OpCode
 
 

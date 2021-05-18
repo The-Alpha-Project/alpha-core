@@ -4,7 +4,7 @@ from struct import pack
 from database.world.WorldDatabaseManager import config
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants.ObjectCodes import ObjectTypes, Factions
+from utils.constants.MiscCodes import ObjectTypes, Factions
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, ShapeshiftForms, AuraSlots
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import UnitFields

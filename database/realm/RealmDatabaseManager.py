@@ -8,7 +8,7 @@ from database.realm.RealmModels import *
 from utils.ConfigManager import *
 from game.realm.AccountManager import AccountManager
 from utils.constants.ItemCodes import InventorySlots
-from utils.constants.ObjectCodes import HighGuid
+from utils.constants.MiscCodes import HighGuid
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
 DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)

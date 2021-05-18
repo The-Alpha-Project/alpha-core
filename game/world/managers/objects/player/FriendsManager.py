@@ -4,7 +4,7 @@ from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQuer
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSocial
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ObjectCodes import FriendResults
+from utils.constants.MiscCodes import FriendResults
 
 
 class FriendsManager(object):

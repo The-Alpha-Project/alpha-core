@@ -1,7 +1,7 @@
 from struct import pack, unpack
 
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import WhoPartyStatus
+from utils.constants.MiscCodes import WhoPartyStatus
 
 
 class LookingForGroupHandler(object):

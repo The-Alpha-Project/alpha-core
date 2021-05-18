@@ -1,7 +1,7 @@
 from struct import pack, unpack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from utils.constants.ObjectCodes import SellResults
+from utils.constants.MiscCodes import SellResults
 
 
 class SellItemHandler(object):

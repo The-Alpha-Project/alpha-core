@@ -8,7 +8,7 @@ from game.world.managers.maps.MapManager import MapManager
 from database.world.WorldModels import QuestTemplate
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ObjectCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes
+from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes
 from utils.constants.UpdateFields import PlayerFields
 from utils import Formulas
 

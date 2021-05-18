@@ -2,7 +2,7 @@ from struct import unpack
 
 from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
-from utils.constants.ObjectCodes import ObjectTypes, QuestGiverStatus, HighGuid
+from utils.constants.MiscCodes import ObjectTypes, QuestGiverStatus, HighGuid
 
 
 class QuestGiverStatusHandler(object):

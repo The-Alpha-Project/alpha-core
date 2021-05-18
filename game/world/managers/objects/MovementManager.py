@@ -7,7 +7,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.UnitCodes import UnitFlags, SplineFlags
 from utils.constants.UpdateFields import UnitFields
 

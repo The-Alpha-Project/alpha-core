@@ -1,7 +1,7 @@
 from struct import unpack
 
 from game.world.managers.maps.MapManager import MapManager
-from utils.constants.ObjectCodes import GameObjectTypes
+from utils.constants.MiscCodes import GameObjectTypes
 
 
 class GameobjUseHandler(object):

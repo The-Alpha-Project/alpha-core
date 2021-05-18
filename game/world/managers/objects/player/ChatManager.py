@@ -1,7 +1,7 @@
 from struct import pack
 from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ObjectCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, GuildTypeCommand
+from utils.constants.MiscCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, GuildTypeCommand
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.GroupManager import GroupManager
 from game.world.managers.objects.player.ChannelManager import ChannelManager

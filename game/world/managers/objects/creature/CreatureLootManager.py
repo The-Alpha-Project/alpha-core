@@ -3,7 +3,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.LootManager import LootManager, LootHolder
 from game.world.managers.objects.item.ItemManager import ItemManager
 from utils.constants.ItemCodes import ItemClasses
-from utils.constants.ObjectCodes import LootTypes
+from utils.constants.MiscCodes import LootTypes
 
 
 class CreatureLootManager(LootManager):

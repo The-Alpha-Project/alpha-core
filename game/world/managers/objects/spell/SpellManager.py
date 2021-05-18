@@ -9,7 +9,7 @@ from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ItemCodes import InventoryError, InventoryTypes
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellAttributes, SpellCastFlags
 from utils.constants.UnitCodes import PowerTypes

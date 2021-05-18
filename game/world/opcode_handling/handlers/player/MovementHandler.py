@@ -3,7 +3,7 @@ from struct import unpack, error
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects import MovementManager
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import MoveFlags
+from utils.constants.MiscCodes import MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
 from utils.constants.UnitCodes import StandState

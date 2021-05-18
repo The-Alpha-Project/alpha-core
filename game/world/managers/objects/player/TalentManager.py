@@ -2,7 +2,7 @@ from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ObjectCodes import TrainerServices, TrainerTypes
+from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 
 TALENT_SKILL_ID = 3
 # Weapon, Attribute, Slayer, Magic, Defensive

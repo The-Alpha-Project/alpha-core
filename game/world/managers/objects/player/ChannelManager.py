@@ -1,7 +1,7 @@
 from struct import pack
 
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ObjectCodes import ChannelNotifications, ChannelMemberFlags
+from utils.constants.MiscCodes import ChannelNotifications, ChannelMemberFlags
 from utils.constants.UnitCodes import Teams
 
 

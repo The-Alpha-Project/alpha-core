@@ -1,5 +1,5 @@
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
-from utils.constants.ObjectCodes import GuildCommandResults, GuildTypeCommand
+from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand
 
 
 class GuildInviteAcceptHandler(object):

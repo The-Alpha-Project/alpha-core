@@ -128,6 +128,8 @@ from game.world.opcode_handling.handlers.unit.SetTargetHandler import SetTargetH
 from game.world.opcode_handling.handlers.player.DebugAIStateHandler import DebugAIStateHandler
 from game.world.opcode_handling.handlers.npc.BankerActivateHandler import BankerActivateHandler
 from game.world.opcode_handling.handlers.npc.BuyBankSlotHandler import BuyBankSlotHandler
+from game.world.opcode_handling.handlers.player.PlayerLogoutHandler import PlayerLogoutHandler
+from game.world.opcode_handling.handlers.player.LogoutCancelHandler import LogoutCancelHandler
 
 HANDLER_DEFINITIONS = {
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
@@ -140,6 +142,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_NAME_QUERY: NameQueryHandler.handle,
     OpCode.CMSG_QUERY_TIME: TimeQueryHandler.handle,
     OpCode.CMSG_LOGOUT_REQUEST: LogoutRequestHandler.handle,
+    OpCode.CMSG_PLAYER_LOGOUT: PlayerLogoutHandler.handle,
+    OpCode.CMSG_LOGOUT_CANCEL: LogoutCancelHandler.handle,
     OpCode.CMSG_WORLD_TELEPORT: WorldTeleportHandler.handle,
     OpCode.MSG_MOVE_TELEPORT_CHEAT: WorldTeleportHandler.handle,
     OpCode.MSG_MOVE_TELEPORT_ACK: WorldTeleportHandler.handle_ack,
@@ -295,6 +299,9 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_START_FORWARD: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_COLLIDE_REDIRECT: MovementHandler.handle_movement_status,
     OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status,
+    OpCode.CMSG_FORCE_MOVE_ROOT_ACK: MovementHandler.handle_movement_status,
+    OpCode.CMSG_FORCE_MOVE_UNROOT_ACK: MovementHandler.handle_movement_status,
+    OpCode.CMSG_FORCE_SPEED_CHANGE_ACK: MovementHandler.handle_movement_status
 
     # Ignored packets (Use NullHandler)
 }

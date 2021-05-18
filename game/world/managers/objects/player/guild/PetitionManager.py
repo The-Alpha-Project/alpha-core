@@ -4,7 +4,7 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ItemCodes import PetitionError
-from utils.constants.ObjectCodes import HighGuid
+from utils.constants.MiscCodes import HighGuid
 
 
 class PetitionManager(object):

@@ -1,7 +1,7 @@
 import math
 
 from utils.ConfigManager import config
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.MiscCodes import ObjectTypes
 
 TOLERANCE = 0.00001
 CELL_SIZE = config.Server.Settings.cell_size

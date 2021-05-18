@@ -3,7 +3,7 @@ from struct import pack, unpack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from network.packet.PacketWriter import *
 from utils.constants.ItemCodes import InventorySlots, InventoryError
-from utils.constants.ObjectCodes import UpdateTypes
+from utils.constants.MiscCodes import UpdateTypes
 
 
 class DestroyItemHandler(object):

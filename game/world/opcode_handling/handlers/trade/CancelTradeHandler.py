@@ -1,5 +1,5 @@
 from game.world.managers.objects.player.TradeManager import TradeManager
-from utils.constants.ObjectCodes import TradeStatus
+from utils.constants.MiscCodes import TradeStatus
 
 
 class CancelTradeHandler(object):

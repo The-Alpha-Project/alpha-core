@@ -1,7 +1,7 @@
 from struct import pack, unpack
 
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import Emotes
+from utils.constants.MiscCodes import Emotes
 from utils.constants.UnitCodes import StandState
 
 

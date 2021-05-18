@@ -2,7 +2,7 @@ from struct import pack, unpack
 from math import pi
 
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid
+from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid
 from utils.ConfigManager import config
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter

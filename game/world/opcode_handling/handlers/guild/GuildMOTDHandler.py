@@ -1,6 +1,6 @@
 from network.packet.PacketReader import *
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
-from utils.constants.ObjectCodes import GuildCommandResults, GuildTypeCommand, GuildRank
+from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand, GuildRank
 
 
 class GuildMOTDHandler(object):
