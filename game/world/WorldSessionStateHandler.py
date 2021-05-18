@@ -82,7 +82,7 @@ class WorldSessionStateHandler(object):
 
     @staticmethod
     def get_session_by_character_name(character_name):
-        if character_name in SESSION_BY_NAME:
+        if character_name.lower() in SESSION_BY_NAME:
             return SESSION_BY_NAME[character_name.lower()]
         return None
 
@@ -94,7 +94,7 @@ class WorldSessionStateHandler(object):
 
     @staticmethod
     def find_player_by_name(name_to_search):
-        if name_to_search in PLAYER_BY_NAME:
+        if name_to_search.lower() in PLAYER_BY_NAME:
             return PLAYER_BY_NAME[name_to_search.lower()]
         return None
 
