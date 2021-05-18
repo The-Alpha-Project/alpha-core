@@ -253,6 +253,8 @@ class PlayerManager(UnitManager):
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
 
+        self.leave_combat(force=True)
+
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
 
