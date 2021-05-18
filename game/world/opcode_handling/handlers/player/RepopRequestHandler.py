@@ -1,8 +1,3 @@
-from struct import pack, unpack
-
-from network.packet.PacketWriter import *
-
-
 class RepopRequestHandler(object):
 
     @staticmethod

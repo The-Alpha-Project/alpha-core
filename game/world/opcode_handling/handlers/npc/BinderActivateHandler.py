@@ -1,7 +1,6 @@
 from struct import unpack, pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from database.realm.RealmModels import CharacterDeathbind
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import HighGuid
 

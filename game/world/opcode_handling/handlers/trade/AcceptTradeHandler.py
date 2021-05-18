@@ -1,7 +1,4 @@
-from struct import pack, unpack
-
 from game.world.managers.objects.player.TradeManager import TradeManager
-from network.packet.PacketWriter import *
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.MiscCodes import TradeStatus
 

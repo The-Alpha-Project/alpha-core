@@ -1,15 +1,10 @@
 import hashlib
 
-from struct import pack, unpack
-
-from game.world import WorldManager
-from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from network.packet.PacketWriter import *
-from network.packet.PacketReader import *
-from utils.ConfigManager import config
-from utils.constants.AuthCodes import *
 from database.realm.RealmDatabaseManager import *
-from game.realm.AccountManager import AccountManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from network.packet.PacketReader import *
+from network.packet.PacketWriter import *
+from utils.constants.AuthCodes import *
 
 
 class AuthSessionHandler(object):

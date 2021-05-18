@@ -1,7 +1,7 @@
-from network.packet.PacketReader import *
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.player.ChannelManager import ChannelManager
 from game.world.managers.objects.player.ChatManager import ChatManager
-from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from network.packet.PacketReader import *
 
 
 # Client does not route /kick properly for channels, need to use /script ChannelKick(channel "name" or index, "player")

@@ -3,8 +3,8 @@ from math import pi, cos, sin
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory

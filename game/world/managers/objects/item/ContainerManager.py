@@ -1,5 +1,4 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.item.ItemManager import ItemManager
 from utils.constants.ItemCodes import InventorySlots, ItemClasses, ItemSubClasses, BagFamilies
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, ItemBondingTypes

@@ -1,10 +1,9 @@
 import multiprocessing
+import os
+from sys import platform
 from time import sleep
 
 import colorama
-import os
-
-from sys import platform
 
 from game.realm import RealmManager
 from game.world import WorldManager

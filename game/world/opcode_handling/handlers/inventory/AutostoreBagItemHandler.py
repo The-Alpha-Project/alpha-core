@@ -1,5 +1,6 @@
 from struct import unpack
-from utils.constants.ItemCodes import InventorySlots, InventoryError
+
+from utils.constants.ItemCodes import InventoryError
 
 
 class AutostoreBagItemHandler(object):

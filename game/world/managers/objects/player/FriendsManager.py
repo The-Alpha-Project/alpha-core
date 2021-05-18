@@ -1,8 +1,9 @@
 from struct import pack
-from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
+
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSocial
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import FriendResults
 

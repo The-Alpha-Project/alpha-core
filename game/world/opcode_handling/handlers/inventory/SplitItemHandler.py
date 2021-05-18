@@ -1,6 +1,7 @@
 from struct import unpack
+
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from utils.constants.ItemCodes import InventorySlots, InventoryError
+from utils.constants.ItemCodes import InventoryError
 
 
 class SplitItemHandler(object):

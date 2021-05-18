@@ -1,4 +1,3 @@
-from struct import pack, unpack
 import time
 
 from network.packet.PacketWriter import *

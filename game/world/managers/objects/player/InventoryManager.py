@@ -3,8 +3,8 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.item.ContainerManager import ContainerManager
+from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.Logger import Logger

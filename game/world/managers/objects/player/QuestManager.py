@@ -1,16 +1,16 @@
 from struct import pack
 from typing import NamedTuple
-from utils.Logger import Logger
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from database.world.WorldModels import QuestTemplate
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode
+from utils import Formulas
+from utils.Logger import Logger
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes
 from utils.constants.UpdateFields import PlayerFields
-from utils import Formulas
 
 # Terminology:
 # - quest or quest template refer to the quest template (the db record)

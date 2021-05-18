@@ -1,6 +1,4 @@
-from struct import pack, unpack
-
-from network.packet.PacketWriter import *
+from struct import unpack
 
 
 class SetWeaponModeHandler(object):

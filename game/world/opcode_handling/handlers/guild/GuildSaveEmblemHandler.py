@@ -1,4 +1,5 @@
-from struct import pack, unpack
+from struct import unpack
+
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from utils.constants.MiscCodes import GuildEmblemResult, GuildRank
 

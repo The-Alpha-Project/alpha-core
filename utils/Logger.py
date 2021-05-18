@@ -1,7 +1,7 @@
+from enum import Enum
 from sys import platform
 
 from colorama import Fore, Style
-from enum import Enum
 
 from utils.ConfigManager import config
 

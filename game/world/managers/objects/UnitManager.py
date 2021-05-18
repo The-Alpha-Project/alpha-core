@@ -11,7 +11,6 @@ from game.world.managers.objects.spell.AuraManager import AuraManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
-from utils import Formulas
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \

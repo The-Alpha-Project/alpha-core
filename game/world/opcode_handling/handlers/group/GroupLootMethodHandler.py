@@ -1,7 +1,8 @@
-from struct import pack, unpack, error, calcsize
-from utils.constants.GroupCodes import PartyOperations, PartyResults
-from game.world.managers.objects.player.GroupManager import GroupManager
+from struct import unpack
+
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from game.world.managers.objects.player.GroupManager import GroupManager
+from utils.constants.GroupCodes import PartyOperations, PartyResults
 
 
 class GroupLootMethodHandler(object):

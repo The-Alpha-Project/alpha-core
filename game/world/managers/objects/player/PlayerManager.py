@@ -1,32 +1,31 @@
 import time
 from struct import unpack
 
+from database.dbc.DbcDatabaseManager import *
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.ChannelManager import ChannelManager
+from game.world.managers.objects.player.FriendsManager import FriendsManager
+from game.world.managers.objects.player.InventoryManager import InventoryManager
+from game.world.managers.objects.player.QuestManager import QuestManager
 from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
-from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
-from game.world.managers.objects.player.QuestManager import QuestManager
-from game.world.managers.objects.player.FriendsManager import FriendsManager
 from network.packet.PacketWriter import *
+from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.constants.DuelCodes import *
+from utils.constants.MiscCodes import ChatFlags, LootTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
-from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
-from database.dbc.DbcDatabaseManager import *
-from utils.constants.MiscCodes import ChatFlags, LootTypes
-
 
 MAX_ACTION_BUTTONS = 120
 

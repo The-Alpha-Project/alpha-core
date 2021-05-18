@@ -1,9 +1,9 @@
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.managers.objects.player.PlayerManager import PlayerManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.constants.MiscCodes import FriendResults
-from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.objects.player.PlayerManager import PlayerManager
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
 
 
 class FriendAddHandler(object):

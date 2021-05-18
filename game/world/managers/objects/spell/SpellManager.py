@@ -11,7 +11,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ItemCodes import InventoryError, InventoryTypes
 from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
-    SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellAttributes, SpellCastFlags
+    SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags
 from utils.constants.UnitCodes import PowerTypes
 
 

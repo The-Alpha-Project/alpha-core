@@ -1,6 +1,6 @@
 from struct import unpack
+
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from database.realm.RealmModels import Petition
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
 from network.packet.PacketReader import PacketReader

@@ -1,4 +1,5 @@
 from struct import unpack
+
 from game.world.managers.maps.MapManager import MapManager
 
 

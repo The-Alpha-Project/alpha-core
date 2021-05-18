@@ -1,4 +1,3 @@
-import math
 import traceback
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -8,7 +7,6 @@ from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes
 
 MAPS = {}
 MAP_LIST = DbcDatabaseManager.map_get_all_ids()

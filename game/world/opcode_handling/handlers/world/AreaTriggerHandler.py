@@ -1,8 +1,8 @@
 from struct import unpack
 
-from game.world.managers.objects.player.ChatManager import ChatManager
-from game.world.managers.abstractions.Vector import Vector
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects.player.ChatManager import ChatManager
 
 
 class AreaTriggerHandler(object):

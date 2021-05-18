@@ -3,8 +3,8 @@ from struct import pack, unpack
 from typing import NamedTuple
 
 from game.world import WorldManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypes

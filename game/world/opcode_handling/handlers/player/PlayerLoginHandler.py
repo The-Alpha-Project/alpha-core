@@ -1,19 +1,17 @@
 import time
-
 from struct import unpack
 
+from database.dbc.DbcDatabaseManager import *
+from database.realm.RealmDatabaseManager import *
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.managers.objects.player.ChatManager import ChatManager
 from game.world.managers.objects.player.GroupManager import GroupManager
-from game.world.managers.objects.player.ReputationManager import ReputationManager
+from game.world.managers.objects.player.PlayerManager import PlayerManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
 from network.packet.PacketWriter import *
-from database.realm.RealmDatabaseManager import *
-from database.dbc.DbcDatabaseManager import *
-from utils.Logger import Logger
-from game.world.managers.objects.player.PlayerManager import PlayerManager
 from utils.ConfigManager import config
-from game.world.managers.objects.player.ChatManager import ChatManager
+from utils.Logger import Logger
 from utils.constants.CharCodes import CharLogin
 from utils.constants.UnitCodes import PowerTypes
 

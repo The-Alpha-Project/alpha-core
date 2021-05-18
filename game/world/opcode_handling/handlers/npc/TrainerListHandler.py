@@ -1,7 +1,4 @@
-from struct import pack, unpack
-import time
-
-from network.packet.PacketWriter import *
+from struct import unpack
 
 
 class TrainerListHandler(object):

@@ -1,5 +1,5 @@
-from network.packet.PacketReader import *
 from game.world.managers.objects.player.ChannelManager import ChannelManager
+from network.packet.PacketReader import *
 
 
 class ChannelListHandler(object):

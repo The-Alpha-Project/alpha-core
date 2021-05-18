@@ -1,8 +1,8 @@
 from typing import NamedTuple
 
+from game.world.managers.objects.item.ItemManager import ItemManager
 from utils.constants.ItemCodes import ItemClasses
 from utils.constants.MiscCodes import LootTypes
-from game.world.managers.objects.item.ItemManager import ItemManager
 
 
 class LootHolder(NamedTuple):

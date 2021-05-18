@@ -1,8 +1,7 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
+from network.packet.PacketWriter import *
 
 
 class WhoHandler(object):

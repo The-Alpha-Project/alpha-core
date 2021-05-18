@@ -1,12 +1,11 @@
 import os
 
-from sqlalchemy import create_engine, func
-from sqlalchemy.exc import StatementError
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.realm.RealmModels import *
-from utils.ConfigManager import *
 from game.realm.AccountManager import AccountManager
+from utils.ConfigManager import *
 from utils.constants.ItemCodes import InventorySlots
 from utils.constants.MiscCodes import HighGuid
 

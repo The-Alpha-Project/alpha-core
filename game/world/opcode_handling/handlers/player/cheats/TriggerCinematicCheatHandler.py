@@ -1,4 +1,4 @@
-from struct import pack, unpack
+from struct import unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import *

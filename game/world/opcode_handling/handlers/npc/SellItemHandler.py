@@ -1,4 +1,4 @@
-from struct import pack, unpack
+from struct import unpack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from utils.constants.MiscCodes import SellResults

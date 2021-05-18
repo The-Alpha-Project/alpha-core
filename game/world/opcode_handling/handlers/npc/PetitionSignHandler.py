@@ -1,7 +1,7 @@
 from struct import unpack
+
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
-from utils.constants.MiscCodes import HighGuid
 
 
 class PetitionSignHandler(object):

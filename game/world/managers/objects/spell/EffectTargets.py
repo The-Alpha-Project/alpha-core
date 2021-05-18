@@ -1,9 +1,7 @@
-from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes
-from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, AuraTypes
+from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason
 
 
 class TargetMissInfo:

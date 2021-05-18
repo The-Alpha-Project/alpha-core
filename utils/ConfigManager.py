@@ -1,8 +1,7 @@
-import yaml
 import json
-
-from os import path
 from collections import namedtuple
+
+import yaml
 
 from utils.PathManager import PathManager
 

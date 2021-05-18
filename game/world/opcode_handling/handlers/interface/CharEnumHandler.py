@@ -1,9 +1,6 @@
-import time
-from struct import pack, unpack
-
+from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import *
-from database.realm.RealmDatabaseManager import *
 
 
 class CharEnumHandler(object):

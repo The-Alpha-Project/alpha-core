@@ -1,7 +1,5 @@
-from struct import pack, unpack
-
 from network.packet.PacketWriter import *
-from utils.constants.MiscCodes import LogoutResponseCodes, MoveFlags
+from utils.constants.MiscCodes import LogoutResponseCodes
 from utils.constants.UnitCodes import StandState
 
 

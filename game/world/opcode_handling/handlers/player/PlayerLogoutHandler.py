@@ -1,6 +1,3 @@
-from network.packet.PacketWriter import *
-
-
 class PlayerLogoutHandler(object):
 
     @staticmethod
