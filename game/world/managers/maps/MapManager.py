@@ -34,29 +34,22 @@ class MapManager(object):
         return zone_id
 
     @staticmethod
-    def find_real_zone_by_pos(current_zone, x, y, map_id):
-        new_zone_id = current_zone
+    def find_zone_by_location(x, y, map_id):
         explore_flags = MapManager.get_explore_flag(map_id, x, y)
         # If explore_flags were found from our 1.12 map files.
         if explore_flags:
-            # Try to locate the zone that correspond to given flags in the 1.12 AreaTable db
+            # Try to locate the zone that correspond to given flags in the 1.12 AreaTable db.
             new_zone = WorldDatabaseManager.area_get_by_explore_flags(explore_flags, map_id)
-            if new_zone and new_zone.entry in AREAS and new_zone.entry != current_zone:
-                # We found the zone, check if we really need to update and modify the field.
-                new_zone_id = new_zone.entry
-            # We did not find the zone, search in the 0.5.3 AreaTable db for the zone name
+            if new_zone and new_zone.entry in AREAS:
+                # We found the zone
+                return new_zone.entry
+            # We did not find the zone, search in the 0.5.3 AreaTable db for the zone name.
             elif len(new_zone.name) > 0:
                 new_zone = DbcDatabaseManager.area_by_name(new_zone.name)
-                if new_zone and new_zone.ID in AREAS and new_zone.ID != current_zone:
-                    # We found the zone in the 0.5.3 AreaTable by name, check if we really need to update and modify the field.
-                    new_zone_id = new_zone.ID
-
-        if current_zone != new_zone_id:
-            Logger.debug(
-                f'Modified zone from {current_zone} {AREAS[current_zone].AreaName_enUS} to {new_zone_id} {AREAS[new_zone_id].AreaName_enUS}')
-            return new_zone_id
-        else:
-            return current_zone
+                if new_zone and new_zone.ID in AREAS:
+                    # We found the zone in the 0.5.3 AreaTable by name.
+                    return new_zone.ID
+        return None
 
     @staticmethod
     def on_cell_turn_active(world_obj):

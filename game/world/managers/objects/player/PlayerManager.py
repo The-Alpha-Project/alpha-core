@@ -1254,7 +1254,9 @@ class PlayerManager(UnitManager):
 
     # override
     def on_cell_change(self):
-        self.zone = MapManager.find_real_zone_by_pos(self.zone, self.location.x, self.location.y, self.map_)
+        zone = MapManager.find_zone_by_location(self.location.x, self.location.y, self.map_)
+        if zone:
+            self.zone = zone
         self.update_surrounding_on_me()
         self.quest_manager.update_surrounding_quest_status()
 
