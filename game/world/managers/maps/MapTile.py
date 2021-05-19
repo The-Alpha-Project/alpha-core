@@ -14,7 +14,7 @@ class MapTile(object):
         self.cell_x = tile_x
         self.cell_y = tile_y
         self.cell_map = map_id
-        self.area_flags = [[0 for r in range(0, RESOLUTION_FLAGS + 1)] for c in range(0, RESOLUTION_FLAGS + 1)]
+        self.explore_flag = [[0 for r in range(0, RESOLUTION_FLAGS + 1)] for c in range(0, RESOLUTION_FLAGS + 1)]
         self.area_terrain = [[0 for r in range(0, RESOLUTION_TERRAIN + 1)] for c in range(0, RESOLUTION_TERRAIN + 1)]
         self.water_level = [[0 for r in range(0, RESOLUTION_WATER + 1)] for c in range(0, RESOLUTION_WATER + 1)]
         self.z_coords = [[0 for r in range(0, RESOLUTION_ZMAP + 1)] for c in range(0, RESOLUTION_ZMAP + 1)]
@@ -37,7 +37,7 @@ class MapTile(object):
                 # AreaFlags
                 for x in range(0, RESOLUTION_FLAGS + 1):
                     for y in range(0, RESOLUTION_FLAGS + 1):
-                        self.area_flags[x][y] = unpack('<H', map_tiles.read(2))[0]
+                        self.explore_flag[x][y] = unpack('<H', map_tiles.read(2))[0]
 
                 # AreaTerrain
                 for x in range(0, RESOLUTION_TERRAIN + 1):

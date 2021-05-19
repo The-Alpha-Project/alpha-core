@@ -1,5 +1,6 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 
@@ -64,7 +65,15 @@ class WhoHandler(object):
                     if race_mask != 0xFFFFFFFF and race_mask & session.player_mgr.race_mask != session.player_mgr.race_mask:
                         continue
                     if zone_count > 0:
-                        current_areas = [DbcDatabaseManager.area_by_zone_id(session.player_mgr.zone, session.player_mgr.map_)]
+                        # Update this player zone if needed.
+                        session.player_mgr.zone = MapManager.find_real_zone_by_pos(session.player_mgr.zone,
+                                                                                   session.player_mgr.location.x,
+                                                                                   session.player_mgr.location.y,
+                                                                                   session.player_mgr.map_)
+
+                        current_areas = [DbcDatabaseManager.area_by_id_and_map_id(session.player_mgr.zone, session.player_mgr.map_)]
+
+                        # If the current zone has a parent zone, look for it and add it.
                         if current_areas[0] and current_areas[0].ParentAreaNum > 0:
                             current_areas.append(DbcDatabaseManager.area_by_area_number(current_areas[0].ParentAreaNum, session.player_mgr.map_))
 
