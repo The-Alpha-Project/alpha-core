@@ -1,6 +1,7 @@
 import traceback
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_WATER, RESOLUTION_TERRAIN, \
     RESOLUTION_FLAGS
 from game.world.managers.maps.Map import Map
@@ -10,6 +11,8 @@ from utils.Logger import Logger
 
 MAPS = {}
 MAP_LIST = DbcDatabaseManager.map_get_all_ids()
+AREAS = {}
+AREA_LIST = DbcDatabaseManager.areas_get_all()
 
 
 class MapManager(object):
@@ -17,6 +20,18 @@ class MapManager(object):
     def initialize_maps():
         for map_id in MAP_LIST:
             MAPS[map_id] = Map(map_id, MapManager.on_cell_turn_active)
+
+    @staticmethod
+    def initialize_area_tables():
+        for area_id in AREA_LIST:
+            AREAS[area_id] = DbcDatabaseManager.area_by_id(area_id)
+            Logger.success(f'Initialized area {AREAS[area_id].AreaName_enUS}')
+
+    @staticmethod
+    def get_area_number_by_zone_id(zone_id):
+        if zone_id in AREAS:
+            return AREAS[zone_id].AreaNumber
+        return zone_id
 
     @staticmethod
     def on_cell_turn_active(world_obj):
@@ -111,11 +126,11 @@ class MapManager(object):
         return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_terrain[tile_local_x][tile_local_y]
 
     @staticmethod
-    def get_area_flag(map_id, x, y):
+    def get_explore_flag(map_id, x, y):
         map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_FLAGS)
         if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
             return 0.0
-        return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_terrain[tile_local_x][tile_local_y]
+        return MAPS[map_id].tiles[map_tile_x][map_tile_y].explore_flag[tile_local_x][tile_local_y]
 
     @staticmethod
     def calculate_tile(x, y, resolution):

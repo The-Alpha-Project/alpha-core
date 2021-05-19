@@ -62,9 +62,9 @@ class DbcDatabaseManager(object):
         return res
 
     @staticmethod
-    def area_by_zone_id(zone_id, map_id):
+    def area_by_id_and_map_id(id, map_id):
         dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(AreaTable).filter_by(ID=zone_id, ContinentID=map_id).first()
+        res = dbc_db_session.query(AreaTable).filter_by(ID=id, ContinentID=map_id).first()
         dbc_db_session.close()
         return res
 
@@ -74,6 +74,27 @@ class DbcDatabaseManager(object):
         res = dbc_db_session.query(AreaTable).filter_by(AreaNumber=area_number, ContinentID=map_id).first()
         dbc_db_session.close()
         return res
+
+    @staticmethod
+    def area_by_id(id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(AreaTable).filter_by(ID=id).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def area_by_name(area_name):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(AreaTable).filter_by(AreaName_enUS=area_name).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def areas_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(AreaTable.ID).all()
+        dbc_db_session.close()
+        return [area_id[0] for area_id in res]
 
     # EmoteText
 
