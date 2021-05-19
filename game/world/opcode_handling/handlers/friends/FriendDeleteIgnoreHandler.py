@@ -1,7 +1,6 @@
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import FriendResults
-from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from utils.constants.MiscCodes import FriendResults
 
 
 class FriendDeleteIgnoreHandler(object):

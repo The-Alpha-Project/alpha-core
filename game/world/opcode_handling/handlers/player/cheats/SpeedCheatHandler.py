@@ -1,5 +1,3 @@
-from struct import pack, unpack
-
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
 

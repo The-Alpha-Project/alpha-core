@@ -1,7 +1,7 @@
 from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from utils.Logger import Logger
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects
 from utils.constants.UnitCodes import PowerTypes, UnitFlags
 

@@ -1,7 +1,7 @@
-from struct import pack, unpack
+from struct import unpack
 
-from network.packet.PacketWriter import *
 from database.realm.RealmDatabaseManager import *
+from network.packet.PacketWriter import *
 from utils.Logger import Logger
 from utils.constants.CharCodes import *
 

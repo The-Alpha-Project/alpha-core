@@ -1,6 +1,7 @@
-from struct import pack, unpack
+from struct import unpack
+
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
-from utils.constants.ObjectCodes import GuildEmblemResult, GuildRank
+from utils.constants.MiscCodes import GuildEmblemResult, GuildRank
 
 EMBLEM_COST = 10000
 

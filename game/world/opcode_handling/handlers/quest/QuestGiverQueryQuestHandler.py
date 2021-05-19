@@ -3,8 +3,7 @@ from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
-
-from utils.constants.ObjectCodes import HighGuid
+from utils.constants.MiscCodes import HighGuid
 
 
 class QuestGiverQueryQuestHandler(object):

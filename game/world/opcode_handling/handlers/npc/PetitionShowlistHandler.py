@@ -1,4 +1,4 @@
-from struct import pack, unpack
+from struct import unpack
 
 from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
 from network.packet.PacketWriter import *

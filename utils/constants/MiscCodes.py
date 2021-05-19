@@ -802,3 +802,8 @@ class ActivateTaxiReplies(IntEnum):
     ERR_TAXIPLAYERMOVING = 10
     ERR_TAXISAMENODE = 11
     ERR_TAXINOTSTANDING = 12
+
+
+class LogoutResponseCodes(IntEnum):
+    LOGOUT_CANCEL = 0
+    LOGOUT_PROCEED = 1

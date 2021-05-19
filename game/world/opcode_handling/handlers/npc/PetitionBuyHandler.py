@@ -1,11 +1,11 @@
 from struct import unpack
+
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from database.realm.RealmModels import Petition
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
 from network.packet.PacketReader import PacketReader
 from utils.TextUtils import TextChecker
-from utils.constants.ObjectCodes import BuyResults, GuildTypeCommand, GuildCommandResults
+from utils.constants.MiscCodes import BuyResults, GuildTypeCommand, GuildCommandResults
 
 
 class PetitionBuyHandler(object):

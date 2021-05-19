@@ -1,5 +1,5 @@
-from struct import pack, calcsize
 import zlib
+from struct import pack
 
 from utils.constants.OpCodes import *
 

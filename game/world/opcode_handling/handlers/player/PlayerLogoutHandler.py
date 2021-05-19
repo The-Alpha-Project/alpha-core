@@ -1,7 +1,7 @@
-class RepopRequestHandler(object):
+class PlayerLogoutHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        world_session.player_mgr.repop()
+        world_session.player_mgr.logout()
 
         return 0

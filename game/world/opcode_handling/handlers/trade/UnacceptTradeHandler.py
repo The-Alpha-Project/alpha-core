@@ -1,7 +1,3 @@
-from game.world.managers.objects.player.TradeManager import TradeManager
-from utils.constants.ObjectCodes import TradeStatus
-
-
 class UnacceptTradeHandler(object):
 
     @staticmethod

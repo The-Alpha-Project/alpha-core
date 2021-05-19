@@ -1,5 +1,3 @@
-from struct import pack
-
 from bitarray import bitarray
 
 BLOCK_SIZE = 32

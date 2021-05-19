@@ -2,7 +2,7 @@ from struct import unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from utils.constants.ObjectCodes import BuyResults
+from utils.constants.MiscCodes import BuyResults
 
 
 class BuyItemInSlotHandler(object):

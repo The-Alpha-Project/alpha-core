@@ -1,7 +1,7 @@
-from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
+from network.packet.PacketWriter import *
 
 
 class WhoHandler(object):
@@ -25,7 +25,12 @@ class WhoHandler(object):
             zones = []
             for x in range(0, zone_count):
                 zone = unpack('<I', reader.data[current_size:current_size + 4])[0]
-                zones.append(zone)
+                # Cases like z-'Stormwind City' wont work because the client sends zone_id 0.
+                # In this cases, we use the current player zone_id and return players in that area or parent area.
+                if zone == 0:
+                    zones.append(world_session.player_mgr.zone)
+                else:
+                    zones.append(zone)
                 current_size += 4
 
             user_strings_count = unpack('<I', reader.data[current_size:current_size + 4])[0]
@@ -59,15 +64,20 @@ class WhoHandler(object):
                     if race_mask != 0xFFFFFFFF and race_mask & session.player_mgr.race_mask != session.player_mgr.race_mask:
                         continue
                     if zone_count > 0:
-                        area = WorldDatabaseManager.area_get_by_id(session.player_mgr.zone)
-                        if area:
-                            skip = True
-                            for zone in zones:
-                                if zone == area.zone_id or area.zone_id == 0 and zone == area.entry:
-                                    skip = False
-                                    break
-                            if skip:
-                                continue
+                        current_areas = [DbcDatabaseManager.area_by_zone_id(session.player_mgr.zone, session.player_mgr.map_)]
+                        if current_areas[0] and current_areas[0].ParentAreaNum > 0:
+                            current_areas.append(DbcDatabaseManager.area_by_area_number(current_areas[0].ParentAreaNum, session.player_mgr.map_))
+
+                        area_ids = [area.ID for area in current_areas if area]
+
+                        skip = True
+                        for zone in zones:
+                            if zone in area_ids:
+                                skip = False
+
+                        if skip:
+                            continue
+
                     if user_strings_count > 0:
                         skip = True
                         for string in user_strings:

@@ -1,8 +1,8 @@
 from struct import pack
 
+from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdateMask import UpdateMask
 from utils.constants.OpCodes import OpCode
-from network.packet.PacketWriter import PacketWriter
 
 
 class UpdatePacketFactory(object):

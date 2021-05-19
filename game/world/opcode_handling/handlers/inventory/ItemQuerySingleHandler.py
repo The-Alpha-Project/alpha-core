@@ -1,8 +1,7 @@
-from struct import pack, unpack
+from struct import unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from network.packet.PacketWriter import *
 
 
 class ItemQuerySingleHandler(object):

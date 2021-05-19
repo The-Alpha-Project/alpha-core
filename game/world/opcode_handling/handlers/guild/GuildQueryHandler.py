@@ -1,5 +1,5 @@
-from network.packet.PacketReader import *
 from game.world.managers.objects.player.guild.GuildManager import GuildManager
+from network.packet.PacketReader import *
 
 
 class GuildQueryHandler(object):

@@ -1,32 +1,31 @@
 import time
 from struct import unpack
 
+from database.dbc.DbcDatabaseManager import *
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.ChannelManager import ChannelManager
+from game.world.managers.objects.player.FriendsManager import FriendsManager
+from game.world.managers.objects.player.InventoryManager import InventoryManager
+from game.world.managers.objects.player.QuestManager import QuestManager
 from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
-from game.world.managers.objects.player.InventoryManager import InventoryManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
-from game.world.managers.objects.player.QuestManager import QuestManager
-from game.world.managers.objects.player.FriendsManager import FriendsManager
 from network.packet.PacketWriter import *
+from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.constants.DuelCodes import *
-from utils.constants.ObjectCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
+from utils.constants.MiscCodes import ChatFlags, LootTypes
+from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
-from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.UpdateFields import *
-from database.dbc.DbcDatabaseManager import *
-from utils.constants.ObjectCodes import ChatFlags, LootTypes
-
 
 MAX_ACTION_BUTTONS = 120
 
@@ -85,6 +84,7 @@ class PlayerManager(UnitManager):
         self.trade_data = None
         self.last_regen = 0
         self.spirit_release_timer = 0
+        self.logout_timer = -1
         self.dirty_inventory = False
         self.pending_taxi_destination = None
 
@@ -248,10 +248,14 @@ class PlayerManager(UnitManager):
             self.group_manager.send_update()
 
     def logout(self):
+        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
         self.online = False
+        self.logout_timer = -1
 
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
+
+        self.leave_combat(force=True)
 
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
@@ -455,6 +459,13 @@ class PlayerManager(UnitManager):
             self.group_manager.send_update()
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
+
+    def set_root(self, active):
+        if active:
+            opcode = OpCode.SMSG_FORCE_MOVE_ROOT
+        else:
+            opcode = OpCode.SMSG_FORCE_MOVE_UNROOT
+        MapManager.send_surrounding(PacketWriter.get_packet(opcode), self)
 
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
@@ -1151,6 +1162,13 @@ class PlayerManager(UnitManager):
                     self.spirit_release_timer += elapsed
                 else:
                     self.repop()
+
+            # Logout timer
+            if self.logout_timer > 0:
+                self.logout_timer -= elapsed
+                if self.logout_timer < 0:
+                    self.logout()
+
         self.last_tick = now
 
         if self.dirty:

@@ -1,9 +1,5 @@
-from struct import pack, unpack
-from time import time
-
-from network.packet.PacketWriter import *
-from network.packet.PacketReader import *
 from database.realm.RealmDatabaseManager import *
+from network.packet.PacketReader import *
 
 
 class BugHandler(object):

@@ -1,10 +1,11 @@
-from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from network.packet.PacketReader import *
 from struct import unpack
-from game.world.managers.objects.player.ChatManager import ChatManager
-from utils.constants.ObjectCodes import ChatMsgs, Languages
-from utils.ConfigManager import config
+
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.CommandManager import CommandManager
+from game.world.managers.objects.player.ChatManager import ChatManager
+from network.packet.PacketReader import *
+from utils.ConfigManager import config
+from utils.constants.MiscCodes import ChatMsgs, Languages
 
 
 class ChatHandler(object):

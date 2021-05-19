@@ -1,7 +1,6 @@
 from random import randint
-from struct import pack, unpack
+from struct import unpack
 
-from game.world.managers.objects.player.GroupManager import GroupManager
 from network.packet.PacketWriter import *
 
 

@@ -1,8 +1,8 @@
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
-from utils.constants.ObjectCodes import FriendResults
-from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from utils.constants.MiscCodes import FriendResults
 
 
 class FriendIgnoreHandler(object):

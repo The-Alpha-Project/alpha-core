@@ -1,4 +1,4 @@
-from enum import IntEnum, IntFlag
+from enum import IntEnum
 
 
 class Classes(IntEnum):

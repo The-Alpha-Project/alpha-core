@@ -1,7 +1,4 @@
-from struct import pack, unpack
-
-from network.packet.PacketWriter import *
-from utils.constants.ItemCodes import InventorySlots
+from struct import unpack
 
 
 class SwapItemHandler(object):

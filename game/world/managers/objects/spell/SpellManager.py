@@ -9,9 +9,9 @@ from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ItemCodes import InventoryError, InventoryTypes
-from utils.constants.ObjectCodes import ObjectTypes
+from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
-    SpellMissReason, SpellTargetMask, SpellState, SpellEffects, SpellAttributes, SpellCastFlags
+    SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags
 from utils.constants.UnitCodes import PowerTypes
 
 
@@ -181,7 +181,6 @@ class SpellManager(object):
             cast_finished = casting_spell.cast_end_timestamp <= timestamp
             if casting_spell.cast_state == SpellState.SPELL_STATE_CHANNELING:  # Channel tick
                 if cast_finished or moved:
-                    print("channel end")
                     self.handle_channel_end(casting_spell, interrupted=moved)
                     reason = SpellCheckCastResult.SPELL_FAILED_MOVING if moved else SpellCheckCastResult.SPELL_NO_ERROR
                     self.remove_cast(casting_spell, reason)

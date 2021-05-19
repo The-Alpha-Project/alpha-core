@@ -1,8 +1,8 @@
 # coding: utf-8
 from sqlalchemy import CHAR, Column, Float, ForeignKey, Index, String, Table, Text, text
 from sqlalchemy.dialects.mysql import INTEGER, LONGTEXT, MEDIUMINT, SMALLINT, TINYINT
-from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 metadata = Base.metadata

@@ -1,5 +1,5 @@
 from struct import unpack
-from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+
 from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
 
 

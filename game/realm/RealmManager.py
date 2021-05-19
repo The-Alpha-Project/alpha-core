@@ -1,14 +1,12 @@
 import os
+import socket
 import socketserver
 import threading
-import socket
-
-from struct import pack
 
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from network.packet.PacketWriter import *
 from utils.ConfigManager import config
 from utils.Logger import Logger
-from network.packet.PacketWriter import *
 
 
 class ThreadedLoginServer(socketserver.ThreadingMixIn, socketserver.TCPServer):

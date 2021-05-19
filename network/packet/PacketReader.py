@@ -1,7 +1,5 @@
 from struct import unpack
 
-from utils.constants.OpCodes import *
-
 
 class PacketReader(object):
     def __init__(self, data):

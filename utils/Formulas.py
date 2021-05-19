@@ -1,6 +1,6 @@
 import math
 
-from utils.constants.ObjectCodes import AttackTypes
+from utils.constants.MiscCodes import AttackTypes
 
 
 class CreatureFormulas(object):

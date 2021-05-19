@@ -2,8 +2,7 @@ from struct import unpack
 
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from utils.Logger import Logger
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask
+from utils.constants.SpellCodes import SpellTargetMask
 
 
 class CastSpellHandler(object):

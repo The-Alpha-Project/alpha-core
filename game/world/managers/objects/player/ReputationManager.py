@@ -1,11 +1,11 @@
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from utils.constants.UnitCodes import UnitReaction
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.ObjectCodes import ReputationFlag
+from utils.constants.MiscCodes import ReputationFlag
 from utils.constants.OpCodes import OpCode
+from utils.constants.UnitCodes import UnitReaction
 
 CLIENT_MAX = 64
 

@@ -1,4 +1,4 @@
-from struct import pack, unpack, error, calcsize
+from struct import unpack
 
 
 class MinimapPingHandler(object):

@@ -3,13 +3,13 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.item.ContainerManager import ContainerManager
+from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError
-from utils.constants.ObjectCodes import BankSlots, ItemBondingTypes
+from utils.constants.MiscCodes import BankSlots, ItemBondingTypes
 from utils.constants.UpdateFields import PlayerFields
 
 MAX_3368_ITEM_DISPLAY_ID = 11802
