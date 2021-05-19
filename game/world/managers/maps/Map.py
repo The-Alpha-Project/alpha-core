@@ -16,7 +16,6 @@ class Map(object):
         self.grid_manager = GridManager(map_id, active_cell_callback)
         self.tiles_used = [[False for r in range(0, 64)] for c in range(0, 64)]
         self.tiles = [[None for r in range(0, 64)] for c in range(0, 64)]
-        Logger.success(f'Initialized map {self.map_.MapName_enUS}')
 
     def is_dungeon(self):
         return self.map_.IsInMap == MapType.INSTANCE

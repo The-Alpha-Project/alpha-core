@@ -12,7 +12,7 @@ from utils.Logger import Logger
 MAPS = {}
 MAP_LIST = DbcDatabaseManager.map_get_all_ids()
 AREAS = {}
-AREA_LIST = DbcDatabaseManager.areas_get_all()
+AREA_LIST = DbcDatabaseManager.area_get_all_ids()
 
 
 class MapManager(object):
@@ -24,8 +24,7 @@ class MapManager(object):
     @staticmethod
     def initialize_area_tables():
         for area_id in AREA_LIST:
-            AREAS[area_id] = DbcDatabaseManager.area_by_id(area_id)
-            Logger.success(f'Initialized area {AREAS[area_id].AreaName_enUS}')
+            AREAS[area_id] = DbcDatabaseManager.area_get_by_id(area_id)
 
     @staticmethod
     def get_area_number_by_zone_id(zone_id):
