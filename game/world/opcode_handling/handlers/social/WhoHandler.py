@@ -66,10 +66,6 @@ class WhoHandler(object):
                     if race_mask != 0xFFFFFFFF and race_mask & player_mgr.race_mask != player_mgr.race_mask:
                         continue
                     if zone_count > 0:
-                        # Update this player zone if needed.
-                        zone = MapManager.find_zone_by_location(player_mgr.location.x, player_mgr.location.y, player_mgr.map_)
-                        if zone:
-                            player_mgr.zone = zone
                         current_areas = [DbcDatabaseManager.area_by_id_and_map_id(player_mgr.zone, player_mgr.map_)]
 
                         # If the current zone has a parent zone, look for it and add it.
