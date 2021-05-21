@@ -100,9 +100,7 @@ class SpellManager(object):
             return
 
         if not (casting_spell.initial_target_is_terrain() and casting_spell.is_channeled()):
-            casting_spell.unit_target_results = casting_spell.resolve_target_info_for_effects()
-        else:
-            casting_spell.unit_target_results = {}  # Channeled, terrain-targeted spells will generate results during the channel
+            casting_spell.resolve_target_info_for_effects()  # Channeled, terrain-targeted spells will generate results during the channel. Ignore them for now.
 
         if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
@@ -132,11 +130,16 @@ class SpellManager(object):
     def apply_spell_effects(self, casting_spell, remove=False):
         for effect in casting_spell.effects:
             if casting_spell.initial_target_is_terrain():  # Terrain-targeted effect handlers apply to all targets in range
-                SpellEffectHandler.apply_effect(casting_spell, effect, None)
+                SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
                 continue
 
-            for target in effect.targets.resolved_targets_a:
-                SpellEffectHandler.apply_effect(casting_spell, effect, target)
+            for target in effect.targets.get_final_effect_targets():
+                info = casting_spell.unit_target_results[target.guid]
+                # TODO deflection handling? Swap target/caster for now
+                if info.result == SpellMissReason.MISS_REASON_DEFLECTED:
+                    SpellEffectHandler.apply_effect(casting_spell, effect, info.target, casting_spell.spell_caster)
+                elif info.result == SpellMissReason.MISS_REASON_NONE:
+                    SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, info.target)
 
         if remove:
             self.remove_cast(casting_spell)

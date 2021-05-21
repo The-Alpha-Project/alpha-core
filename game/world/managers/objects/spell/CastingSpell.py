@@ -15,7 +15,7 @@ class CastingSpell(object):
     cast_flags: SpellCastFlags  # TODO Write proc flag when needed
     spell_caster = None  # TODO Item caster (use item?)
     initial_target = None
-    unit_target_results: dict  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
+    unit_target_results = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
     duration_entry: SpellDuration
@@ -34,7 +34,7 @@ class CastingSpell(object):
         self.initial_target = initial_target
         self.spell_target_mask = target_mask
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
-        self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
+        self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)  # TODO RangeMin is never used
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
         self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
@@ -90,7 +90,7 @@ class CastingSpell(object):
                 if target in info:
                     continue
                 info[target] = result
-        return info
+        self.unit_target_results = info
 
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0

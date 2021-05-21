@@ -70,12 +70,17 @@ class EffectTargets:
         self.resolved_targets_b = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_b)
 
     def get_effect_target_results(self):
-        targets = self.resolved_targets_a  # TODO B?
+        targets = self.get_final_effect_targets()
+        # At least some B targets act as specifying on A. No table for now for ImplicitTarget values that act as specifiers, so prefer B if values exist
+        # TODO if issues arise, add table for specifying ImplicitTargets
         target_info = {}
         for target in targets:
             if isinstance(target, ObjectManager):
                 target_info[target.guid] = TargetMissInfo(target, SpellMissReason.MISS_REASON_NONE)  # TODO Misses etc.
         return target_info
+
+    def get_final_effect_targets(self):
+        return self.resolved_targets_b if len(self.resolved_targets_b) > 0 else self.resolved_targets_a
 
     @staticmethod
     def resolve_random_enemy_chain_in_area(casting_spell, target_effect):
@@ -87,11 +92,40 @@ class EffectTargets:
 
     @staticmethod
     def resolve_unit_near_caster(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        result = MapManager.get_surrounding_units(casting_spell.spell_caster, True)
+        units = list(result[0].values()) + list(result[1].values())
 
+        closest_info = -1, None
+        caster = casting_spell.spell_caster
+        for unit in units:
+            if caster is unit:
+                continue
+            new_distance = caster.location.distance(unit.location)
+            if closest_info[0] == -1 or new_distance < closest_info[0]:
+                closest_info = new_distance, unit
+
+        if closest_info[0] > casting_spell.range_entry.RangeMax:
+            return None
+
+        return closest_info[1]
+
+    # Besides a couple test spells, this target seems to only be used in TargetB with TargetA
+    # TargetA resolves the units in the area, and this seems to act as a filter for enemies
+    # ie. war stomp - ImplicitTargetA_1 = TARGET_ALL_AROUND_CASTER, B_1 = TARGET_ALL_ENEMY_IN_AREA
+    # For the sake of completeness (test spells), we'll fall back to around caster if this is used in A
     @staticmethod
     def resolve_all_enemy_in_area(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        resolved_a = target_effect.targets.resolved_targets_a
+
+        if not target_effect.implicit_target_a:  # see notes
+            resolved_a = EffectTargets.resolve_all_around_caster(casting_spell, target_effect)
+
+        enemy_units = []
+        for unit in resolved_a:
+            if not casting_spell.spell_caster.is_friendly_to(unit):
+                enemy_units.append(unit)
+
+        return enemy_units
 
     @staticmethod
     def resolve_all_enemy_in_area_instant(casting_spell, target_effect):
@@ -125,9 +159,22 @@ class EffectTargets:
     def resolve_selected_friend(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
+    # Never used in B
     @staticmethod
-    def resolve_enemy_around_caster(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+    def resolve_all_around_caster(casting_spell, target_effect):
+        result = MapManager.get_surrounding_units(casting_spell.spell_caster, True)
+        units = list(result[0].values()) + list(result[1].values())
+
+        caster = casting_spell.spell_caster
+        units_in_range = []
+        for unit in units:
+            if caster is unit:
+                continue
+            distance = caster.location.distance(unit.location)
+            if distance <= target_effect.get_radius():
+                units_in_range.append(unit)
+
+        return units_in_range
 
     @staticmethod
     def resolve_infront(casting_spell, target_effect):
@@ -180,7 +227,7 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_EFFECT_SELECT: EffectTargets.resolve_effect_select,
     SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY: EffectTargets.resolve_party_around_caster,
     SpellImplicitTargets.TARGET_SELECTED_FRIEND: EffectTargets.resolve_selected_friend,
-    SpellImplicitTargets.TARGET_AROUND_CASTER_ENEMY: EffectTargets.resolve_enemy_around_caster,
+    SpellImplicitTargets.TARGET_ALL_AROUND_CASTER: EffectTargets.resolve_all_around_caster,
     SpellImplicitTargets.TARGET_INFRONT: EffectTargets.resolve_infront,
     SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL: EffectTargets.resolve_aoe_enemy_channel,
     SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER: EffectTargets.resolve_all_friendly_around_caster,
