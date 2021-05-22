@@ -542,7 +542,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_GAMEOBJECT_AND_ITEM = 26
     TARGET_MASTER = 27  # not tested
     TARGET_AREA_EFFECT_ENEMY_CHANNEL = 28
-    TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER = 30  # In TargetB used only with TARGET_ALL_AROUND_CASTER and in self casting range in TargetA
+    TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER = 30  # Only used in B with TARGET_ALL_AROUND_CASTER in A
     TARGET_ALL_FRIENDLY_UNITS_IN_AREA = 31
     TARGET_MINION = 32  # Summons your pet to you.
     TARGET_ALL_PARTY = 33
