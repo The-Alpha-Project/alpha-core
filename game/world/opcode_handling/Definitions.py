@@ -96,6 +96,9 @@ from game.world.opcode_handling.handlers.player.SetWeaponModeHandler import SetW
 from game.world.opcode_handling.handlers.player.StandStateChangeHandler import StandStateChangeHandler
 from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
 from game.world.opcode_handling.handlers.player.cheats.SpeedCheatHandler import SpeedCheatHandler
+from game.world.opcode_handling.handlers.player.cheats.MoneyCheatHandler import MoneyCheatHandler
+from game.world.opcode_handling.handlers.player.cheats.LevelCheatHandler import LevelCheatHandler
+from game.world.opcode_handling.handlers.player.cheats.LevelUpCheatHandler import LevelUpCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverAcceptQuestHandler import QuestGiverAcceptQuestHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverChooseRewardHandler import QuestGiverChooseRewardHandler
@@ -268,6 +271,9 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_DUEL_CANCELLED: DuelCanceledHandler.handle,
     OpCode.CMSG_TRIGGER_CINEMATIC_CHEAT: TriggerCinematicCheatHandler.handle,
     OpCode.CMSG_GODMODE: GodModeHandler.handle,
+    OpCode.CMSG_CHEAT_SETMONEY: MoneyCheatHandler.handle,
+    OpCode.CMSG_LEVEL_CHEAT: LevelCheatHandler.handle,
+    OpCode.CMSG_LEVELUP_CHEAT: LevelUpCheatHandler.handle,
     OpCode.CMSG_DEBUG_AISTATE: DebugAIStateHandler.handle,
     OpCode.CMSG_BANKER_ACTIVATE: BankerActivateHandler.handle,
     OpCode.CMSG_BUY_BANK_SLOT: BuyBankSlotHandler.handle,
