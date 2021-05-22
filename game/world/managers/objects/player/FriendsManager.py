@@ -101,7 +101,7 @@ class FriendsManager(object):
                              player_mgr.player.class_
                              )
             else:
-                data += pack('QB', entry.friend, False)  # 0 = Offline
+                data += pack('QB', entry.friend, False)  # Offline
 
         packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_LIST, data)
         self.owner.session.enqueue_packet(packet)
