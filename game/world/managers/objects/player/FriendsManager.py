@@ -29,12 +29,13 @@ class FriendsManager(object):
             data = pack('<BQ', status, player_guid)
 
             if player_mgr and player_mgr.online:  # Player is online.
-                data += pack('<B3I',
-                             True,  # Online
-                             MapManager.get_parent_zone_id(player_mgr.zone, player_mgr.map_),
-                             player_mgr.level,
-                             player_mgr.player.class_
-                             )
+                data += pack(
+                    '<B3I',
+                    1,  # Online
+                    MapManager.get_parent_zone_id(player_mgr.zone, player_mgr.map_),
+                    player_mgr.level,
+                    player_mgr.player.class_
+                )
             self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
             self.send_friends()
 
@@ -93,15 +94,16 @@ class FriendsManager(object):
             player_mgr = WorldSessionStateHandler.find_player_by_guid(entry.friend)
             if player_mgr and player_mgr.online:
                 self.owner.session.enqueue_packet(NameQueryHandler.get_query_details(player_mgr.player))
-                data += pack('<QB3I',
-                             player_mgr.guid,
-                             True,  # Online
-                             MapManager.get_parent_zone_id(player_mgr.zone, player_mgr.map_),
-                             player_mgr.level,
-                             player_mgr.player.class_
-                             )
+                data += pack(
+                    '<QB3I',
+                    player_mgr.guid,
+                    1,  # Online
+                    MapManager.get_parent_zone_id(player_mgr.zone, player_mgr.map_),
+                    player_mgr.level,
+                    player_mgr.player.class_
+                )
             else:
-                data += pack('QB', entry.friend, False)  # Offline
+                data += pack('QB', entry.friend, 0)  # Offline
 
         packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_LIST, data)
         self.owner.session.enqueue_packet(packet)
@@ -121,14 +123,15 @@ class FriendsManager(object):
         for friend in have_me_as_friend:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(friend.guid)
             if player_mgr and not player_mgr.friends_manager.has_ignore(self.owner.guid):
-                data = pack('<BQB3I',
-                            FriendResults.FRIEND_ONLINE,
-                            self.owner.guid,
-                            True,  # Online
-                            MapManager.get_parent_zone_id(self.owner.zone, self.owner.map_),
-                            self.owner.level,
-                            self.owner.player.class_
-                            )
+                data = pack(
+                    '<BQB3I',
+                    FriendResults.FRIEND_ONLINE,
+                    self.owner.guid,
+                    1,  # Online
+                    MapManager.get_parent_zone_id(self.owner.zone, self.owner.map_),
+                    self.owner.level,
+                    self.owner.player.class_
+                )
                 packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
                 player_mgr.session.enqueue_packet(packet)
                 player_mgr.friends_manager.send_friends()
