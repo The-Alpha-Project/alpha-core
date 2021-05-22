@@ -33,6 +33,14 @@ class MapManager(object):
         return zone_id
 
     @staticmethod
+    def get_parent_zone_id(zone_id, map_id):
+        if zone_id in AREAS and AREAS[zone_id].ParentAreaNum > 0:
+            parent = DbcDatabaseManager.area_get_by_area_number(AREAS[zone_id].ParentAreaNum, map_id)
+            if parent:
+                return parent.ID
+        return zone_id
+
+    @staticmethod
     def on_cell_turn_active(world_obj):
         MapManager.load_map_tiles(world_obj.map_, world_obj.location.x, world_obj.location.y)
 
