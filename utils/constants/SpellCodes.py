@@ -545,8 +545,8 @@ class SpellImplicitTargets(IntEnum):
     TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER = 30  # Only used in B with TARGET_ALL_AROUND_CASTER in A
     TARGET_ALL_FRIENDLY_UNITS_IN_AREA = 31
     TARGET_MINION = 32  # Summons your pet to you.
-    TARGET_ALL_PARTY = 33
-    TARGET_ALL_PARTY_AROUND_CASTER_2 = 34  # Used in Tranquility
+    TARGET_ALL_PARTY = 33  # Only used in B with TARGET_ALL_AROUND_CASTER in A
+    TARGET_ALL_PARTY_AROUND_CASTER_2 = 34  # Only used by group astral recall (966) in B with TARGET_EFFECT_SELECT in A
     TARGET_SINGLE_PARTY = 35
     TARGET_ALL_HOSTILE_UNITS_AROUND_CASTER = 36
     TARGET_AREAEFFECT_PARTY = 37  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
