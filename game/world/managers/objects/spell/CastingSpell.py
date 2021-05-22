@@ -82,15 +82,19 @@ class CastingSpell(object):
                 else [self.initial_target.guid]), ('3f' if is_terrain else 'Q')
 
     def resolve_target_info_for_effects(self):
-        info = {}
         for effect in self.effects:
-            effect.targets.resolve_targets()  # Inititalize references for implicit targets
-            effect_info = effect.targets.get_effect_target_results()
-            for target, result in effect_info.items():  # Resolve targets for all effects, keep unique ones (though not sure if uniqueness is an issue)
-                if target in info:
-                    continue
-                info[target] = result
-        self.unit_target_results = info
+            self.resolve_target_info_for_effect(effect.effect_index)
+
+    def resolve_target_info_for_effect(self, index):
+        if index < 0 or index > len(self.effects):
+            return
+        effect = self.effects[index-1]
+        if not effect:
+            return
+
+        effect.targets.resolve_targets()
+        effect_info = effect.targets.get_effect_target_results()
+        self.unit_target_results = {**self.unit_target_results, **effect_info}
 
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0
@@ -123,7 +127,7 @@ class CastingSpell(object):
             level = self.spell_entry.MaxLevel
         elif level < self.spell_entry.BaseLevel:
             level = self.spell_entry.BaseLevel
-        return level - self.spell_entry.SpellLevel
+        return max(level - self.spell_entry.SpellLevel, 0)
 
     def get_base_cast_time(self):
         skill = self.spell_caster.skill_manager.get_skill_for_spell_id(self.spell_entry.ID)
