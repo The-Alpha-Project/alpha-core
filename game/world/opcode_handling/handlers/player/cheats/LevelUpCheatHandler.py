@@ -1,8 +1,3 @@
-# OPCODE: CMSG_LEVELUP_CHEAT -- NOT THE SAME AS CMSG_LEVEL_CHEAT!
-from struct import unpack
-
-from network.packet.PacketWriter import *
-
 class LevelUpCheatHandler(object):
 
     @staticmethod

@@ -96,7 +96,7 @@ from game.world.opcode_handling.handlers.player.SetWeaponModeHandler import SetW
 from game.world.opcode_handling.handlers.player.StandStateChangeHandler import StandStateChangeHandler
 from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
 from game.world.opcode_handling.handlers.player.cheats.SpeedCheatHandler import SpeedCheatHandler
-from game.world.opcode_handling.handlers.player.cheats.MoneyCheatHandler import MoneyCheatHandler
+from game.world.opcode_handling.handlers.player.cheats.CheatSetMoneyHandler import CheatSetMoneyHandler
 from game.world.opcode_handling.handlers.player.cheats.LevelCheatHandler import LevelCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.LevelUpCheatHandler import LevelUpCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
@@ -271,7 +271,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_DUEL_CANCELLED: DuelCanceledHandler.handle,
     OpCode.CMSG_TRIGGER_CINEMATIC_CHEAT: TriggerCinematicCheatHandler.handle,
     OpCode.CMSG_GODMODE: GodModeHandler.handle,
-    OpCode.CMSG_CHEAT_SETMONEY: MoneyCheatHandler.handle,
+    OpCode.CMSG_CHEAT_SETMONEY: CheatSetMoneyHandler.handle,
     OpCode.CMSG_LEVEL_CHEAT: LevelCheatHandler.handle,
     OpCode.CMSG_LEVELUP_CHEAT: LevelUpCheatHandler.handle,
     OpCode.CMSG_DEBUG_AISTATE: DebugAIStateHandler.handle,
