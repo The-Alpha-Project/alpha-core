@@ -226,13 +226,7 @@ class EffectTargets:
     @staticmethod
     def resolve_all_friendly_around_caster(casting_spell, target_effect):
         resolved_a = target_effect.targets.resolved_targets_a
-
-        friendly_units = []
-        for unit in resolved_a:
-            if casting_spell.spell_caster.is_friendly_to(unit):
-                friendly_units.append(unit)
-
-        return friendly_units
+        return [target for target in resolved_a if casting_spell.spell_caster.is_friendly_to(target)]
 
     # Only 6758 (party grenade)
     @staticmethod
@@ -251,9 +245,24 @@ class EffectTargets:
             friendly_targets.append(unit)
         return friendly_targets
 
+
+    # Only used with TARGET_ALL_AROUND_CASTER in A
     @staticmethod
     def resolve_all_party(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        resolved_a = target_effect.targets.resolved_targets_a
+
+        caster = casting_spell.spell_caster
+
+        if not caster.group_manager:
+            return []
+
+        party_members = []
+        for unit in resolved_a:
+            if caster is unit or not caster.group_manager.is_party_member(unit.guid):
+                continue
+            party_members.append(unit)
+
+        return party_members
 
     @staticmethod
     def resolve_party_around_caster_2(casting_spell, target_effect):
