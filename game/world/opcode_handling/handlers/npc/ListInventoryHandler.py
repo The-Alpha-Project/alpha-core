@@ -13,6 +13,7 @@ class ListInventoryHandler(object):
             if npc_guid > 0:
                 vendor = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, npc_guid)
                 if vendor:
-                    vendor.send_inventory_list(world_session)
+                    if vendor.is_within_interactable_distance(world_session.player_mgr):
+                        vendor.send_inventory_list(world_session)
 
         return 0
