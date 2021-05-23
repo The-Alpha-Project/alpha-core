@@ -44,7 +44,7 @@ class MapTile(object):
                 #     for y in range(0, RESOLUTION_TERRAIN + 1):
                 #         self.area_terrain[x][y] = map_tiles.read(1)[0]
                 #
-                # TODO: AreaTerrain
+                # TODO: Liquids
                 # for x in range(0, RESOLUTION_WATER + 1):
                 #     for y in range(0, RESOLUTION_WATER + 1):
                 #         self.water_level[x][y] = unpack('<f', map_tiles.read(4))[0]
