@@ -1,11 +1,12 @@
 from network.packet.PacketWriter import *
+from network.packet.PacketReader import *
 from utils.Logger import Logger
 
 
 class SpeedCheatHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, socket: int, reader: PacketReader) -> int:
         if not world_session.player_mgr.is_gm:
             Logger.anticheat(f'Player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}) tried to use speed hacks.')
             if reader.opcode == OpCode.MSG_MOVE_SET_RUN_SPEED_CHEAT:

@@ -1,19 +1,23 @@
+from game.world.managers.objects.player.PlayerManager import PlayerManager
 from random import randint
 from struct import unpack
 
+from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 
 
 class RandomRollHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, socket: int, reader: PacketReader) -> int:
         if len(reader.data) >= 8:  # Avoid handling empty random roll packet.
-            minimum, maximum = unpack('<2I', reader.data[:8])
-            roll = randint(minimum, maximum)
-            player = world_session.player_mgr
+            minimum: int = unpack('<I', reader.data[:4])[0]
+            maximum: int = unpack('<I', reader.data[4:8])[0]
 
-            roll_packet = PacketWriter.get_packet(OpCode.MSG_RANDOM_ROLL,
+            roll: int = randint(minimum, maximum)
+            player: PlayerManager = world_session.player_mgr
+
+            roll_packet: bytes = PacketWriter.get_packet(OpCode.MSG_RANDOM_ROLL,
                                                   pack('<3IQ', minimum, maximum, roll, player.guid))
 
             if player.group_manager and player.group_manager.is_party_formed():

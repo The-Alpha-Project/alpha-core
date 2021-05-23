@@ -1,12 +1,13 @@
 from struct import unpack
 
+from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 
 
 class GodModeHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, socket: int, reader: PacketReader) -> int:
         if len(reader.data) >= 1:  # Avoid handling empty god mode packet.
             if not world_session.player_mgr.is_gm:
                 return 0
