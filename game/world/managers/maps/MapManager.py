@@ -94,6 +94,10 @@ class MapManager(object):
         return tile_y
 
     @staticmethod
+    def calculate_obj_z(world_obj):
+        return MapManager.calculate_z(world_obj.map_, world_obj.location.x, world_obj.location.y, world_obj.location.z)
+
+    @staticmethod
     def calculate_z(map_id, x, y, current_z=0.0):
         try:
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_ZMAP)

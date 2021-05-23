@@ -113,7 +113,7 @@ class CommandManager(object):
 
     @staticmethod
     def gps_z(world_session, args):
-        z = MapManager.calculate_z(world_session.player_mgr.map_, world_session.player_mgr.location.x, world_session.player_mgr.location.y)
+        z = MapManager.calculate_obj_z(world_session.player_mgr)
         return 0, f'Map: {world_session.player_mgr.map_}, ' \
                   f'Zone: {world_session.player_mgr.zone}, ' \
                   f'X: {world_session.player_mgr.location.x:.3f}, ' \
