@@ -1,5 +1,6 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 
@@ -49,24 +50,27 @@ class WhoHandler(object):
             player_data = b''
             for session in WorldSessionStateHandler.get_world_sessions():
                 if session.player_mgr and session.player_mgr.online:
+                    player_mgr = session.player_mgr
                     online_count += 1
                     if player_count == 49:
                         continue
 
-                    if session.player_mgr.level < level_min or session.player_mgr.level > level_max:
+                    if player_mgr.level < level_min or player_mgr.level > level_max:
                         continue
-                    if player_name and not player_name.lower() in session.player_mgr.player.name.lower:
+                    if player_name and not player_name.lower() in player_mgr.player.name.lower:
                         continue
-                    if session.player_mgr.guild_manager and guild_name and guild_name.lower() not in session.player_mgr.guild_manager.guild.name.lower():
+                    if player_mgr.guild_manager and guild_name and guild_name.lower() not in player_mgr.guild_manager.guild.name.lower():
                         continue
-                    if class_mask != 0xFFFFFFFF and class_mask & session.player_mgr.class_mask != session.player_mgr.class_mask:
+                    if class_mask != 0xFFFFFFFF and class_mask & player_mgr.class_mask != player_mgr.class_mask:
                         continue
-                    if race_mask != 0xFFFFFFFF and race_mask & session.player_mgr.race_mask != session.player_mgr.race_mask:
+                    if race_mask != 0xFFFFFFFF and race_mask & player_mgr.race_mask != player_mgr.race_mask:
                         continue
                     if zone_count > 0:
-                        current_areas = [DbcDatabaseManager.area_by_zone_id(session.player_mgr.zone, session.player_mgr.map_)]
+                        current_areas = [DbcDatabaseManager.area_get_by_id_and_map_id(player_mgr.zone, player_mgr.map_)]
+
+                        # If the current zone has a parent zone, look for it and add it.
                         if current_areas[0] and current_areas[0].ParentAreaNum > 0:
-                            current_areas.append(DbcDatabaseManager.area_by_area_number(current_areas[0].ParentAreaNum, session.player_mgr.map_))
+                            current_areas.append(DbcDatabaseManager.area_get_by_area_number(current_areas[0].ParentAreaNum, player_mgr.map_))
 
                         area_ids = [area.ID for area in current_areas if area]
 
@@ -81,25 +85,25 @@ class WhoHandler(object):
                     if user_strings_count > 0:
                         skip = True
                         for string in user_strings:
-                            if string.lower() in session.player_mgr.player.name.lower():
+                            if string.lower() in player_mgr.player.name.lower():
                                 skip = False
                                 break
                         if skip:
                             continue
 
-                    player_name_bytes = PacketWriter.string_to_bytes(session.player_mgr.player.name)
+                    player_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
 
-                    player_guild_name = session.player_mgr.guild_manager.guild.name if session.player_mgr.guild_manager else ''
+                    player_guild_name = player_mgr.guild_manager.guild.name if player_mgr.guild_manager else ''
                     guild_name_bytes = PacketWriter.string_to_bytes(player_guild_name)
                     player_data += pack(
                         f'<{len(player_name_bytes)}s{len(guild_name_bytes)}s5I',
                         player_name_bytes,
                         guild_name_bytes,
-                        session.player_mgr.level,
-                        session.player_mgr.player.class_,
-                        session.player_mgr.player.race,
-                        session.player_mgr.zone,
-                        session.player_mgr.group_status
+                        player_mgr.level,
+                        player_mgr.player.class_,
+                        player_mgr.player.race,
+                        player_mgr.zone,
+                        player_mgr.group_status
                     )
                     player_count += 1
 

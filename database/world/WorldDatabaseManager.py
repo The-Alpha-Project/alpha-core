@@ -74,6 +74,13 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    @staticmethod
+    def area_get_by_explore_flags(explore_flags, map_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(AreaTemplate).filter_by(explore_flag=explore_flags, map_id=map_id).first()
+        world_db_session.close()
+        return res
+
     # Worldport stuff
 
     @staticmethod

@@ -16,6 +16,7 @@ class WorldLoader:
     def load_data():
         # Map tiles
         MapManager.initialize_maps()
+        MapManager.initialize_area_tables()
 
         # Gameobject spawns
         if config.Server.Settings.load_gameobjects:
