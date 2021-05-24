@@ -13,7 +13,7 @@ from utils.constants.OpCodes import OpCode
 class DebugAIStateHandler(object):
 
     @staticmethod
-    def handle(world_session, socket: int, reader: PacketReader) -> int:
+    def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) >= 8:  # Avoid handling empty debug AI state packet.
             guid: int = unpack('<Q', reader.data[:8])[0]
             world_object: ObjectManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid,

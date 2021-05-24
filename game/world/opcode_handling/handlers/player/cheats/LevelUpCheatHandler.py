@@ -4,7 +4,7 @@ from network.packet.PacketReader import PacketReader
 class LevelUpCheatHandler(object):
 
     @staticmethod
-    def handle(world_session, socket: int, reader: PacketReader) -> int:
+    def handle(world_session, socket, reader: PacketReader) -> int:
         if not world_session.player_mgr.is_gm:
             return 0
 

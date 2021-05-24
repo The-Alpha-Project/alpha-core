@@ -7,7 +7,7 @@ from network.packet.PacketWriter import *
 class MountSpecialAnimHandler(object):
 
     @staticmethod
-    def handle(world_session, socket: int, reader: PacketReader) -> int:
+    def handle(world_session, socket, reader: PacketReader) -> int:
         # TODO Not working, wrong packet data, or animation not implemented client side?
         player_guid: bytes = pack('<Q', world_session.player_mgr.guid)
         mount_anim_packet: bytes = PacketWriter.get_packet(OpCode.SMSG_MOUNTSPECIAL_ANIM, player_guid)

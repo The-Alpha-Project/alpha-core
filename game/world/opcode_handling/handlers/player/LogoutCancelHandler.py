@@ -6,7 +6,7 @@ from utils.constants.UnitCodes import StandState
 class LogoutCancelHandler(object):
 
     @staticmethod
-    def handle(world_session, socket: int, reader: PacketReader) -> int:
+    def handle(world_session, socket, reader: PacketReader) -> int:
         world_session.player_mgr.set_stand_state(StandState.UNIT_STANDING)
         world_session.player_mgr.set_root(False)
         world_session.player_mgr.set_dirty()

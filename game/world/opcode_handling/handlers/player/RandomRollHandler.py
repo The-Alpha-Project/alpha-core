@@ -9,7 +9,7 @@ from network.packet.PacketWriter import *
 class RandomRollHandler(object):
 
     @staticmethod
-    def handle(world_session, socket: int, reader: PacketReader) -> int:
+    def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) >= 8:  # Avoid handling empty random roll packet.
             minimum: int = unpack('<I', reader.data[:4])[0]
             maximum: int = unpack('<I', reader.data[4:8])[0]

@@ -11,7 +11,7 @@ from utils.constants.OpCodes import OpCode
 class NameQueryHandler(object):
 
     @staticmethod
-    def handle(world_session, socket: int, reader: PacketReader) -> int:
+    def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) >= 8:  # Avoid handling empty name query packet.
             guid: int = unpack('<Q', reader.data[:8])[0]
             player_mgr = MapManager.get_surrounding_player_by_guid(world_session.player_mgr, guid) # Can't type hint due to circular import

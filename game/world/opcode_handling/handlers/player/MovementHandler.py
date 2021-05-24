@@ -14,7 +14,7 @@ from utils.constants.UnitCodes import StandState
 class MovementHandler(object):
 
     @staticmethod
-    def handle_movement_status(world_session, socket: int, reader: PacketReader) -> int:
+    def handle_movement_status(world_session, socket, reader: PacketReader) -> int:
         # Avoid handling malformed movement packets, or handling them while no player or player teleporting.
         if world_session.player_mgr and len(reader.data) >= 48:
             try: # TODO type hint these

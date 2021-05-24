@@ -10,7 +10,7 @@ from network.packet.PacketWriter import *
 class InspectHandler(object):
 
     @staticmethod
-    def handle(world_session, socket: int, reader: PacketReader) -> int:
+    def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) >= 8:  # Avoid handling empty inspect packet.
             guid: int = unpack('<Q', reader.data[:8])[0]
             if guid > 0:
