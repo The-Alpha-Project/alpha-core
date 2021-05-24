@@ -14,8 +14,11 @@ class SetActionButtonHandler(object):
 
             button = RealmDatabaseManager.character_get_button(world_session.player_mgr.player.guid, index)
             if button:
-                button.action = action
-                RealmDatabaseManager.character_update_button(button)
+                if action == 0:  # Delete
+                    RealmDatabaseManager.character_delete_button(button)
+                else:  # Update
+                    button.action = action
+                    RealmDatabaseManager.character_update_button(button)
             else:
                 button = CharacterButton()
                 button.owner = world_session.player_mgr.player.guid

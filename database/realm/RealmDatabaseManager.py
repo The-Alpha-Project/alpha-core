@@ -403,6 +403,13 @@ class RealmDatabaseManager(object):
         realm_db_session.flush()
         realm_db_session.refresh(character_button)
         realm_db_session.close()
+
+    @staticmethod
+    def character_delete_button(character_button):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(character_button)
+        realm_db_session.flush()
+        realm_db_session.close()
     
     # Ticket stuff
 
