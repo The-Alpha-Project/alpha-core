@@ -41,8 +41,8 @@ class MapManager(object):
         return zone_id
 
     @staticmethod
-    def on_cell_turn_active(world_obj):
-        MapManager.load_map_tiles(world_obj.map_, world_obj.location.x, world_obj.location.y)
+    def on_cell_turn_active(world_object):
+        MapManager.load_map_tiles(world_object.map_, world_object.location.x, world_object.location.y)
 
     @staticmethod
     def load_map_tiles(map_id, x, y):
@@ -92,6 +92,11 @@ class MapManager(object):
                 32.0 - MapManager.validate_map_coord(y) / SIZE - int(32.0 - MapManager.validate_map_coord(y) / SIZE)))
 
         return tile_y
+
+    @staticmethod
+    def calculate_z_for_object(world_object):
+        return MapManager.calculate_z(world_object.map_, world_object.location.x, world_object.location.y,
+                                      world_object.location.z)
 
     @staticmethod
     def calculate_z(map_id, x, y, current_z=0.0):
