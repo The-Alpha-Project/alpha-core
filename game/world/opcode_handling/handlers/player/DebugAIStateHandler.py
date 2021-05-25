@@ -15,7 +15,7 @@ class DebugAIStateHandler(object):
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) >= 8:  # Avoid handling empty debug AI state packet.
-            guid: int = unpack('<Q', reader.data[:8])[0]
+            guid = unpack('<Q', reader.data[:8])[0]
             world_object: ObjectManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid,
                                                                    include_players=True)
 
@@ -28,14 +28,14 @@ class DebugAIStateHandler(object):
                 return 0
 
             messages: list[str] = world_object.get_debug_messages()
-            data: bytes = pack(
+            data = pack(
                 '<QI',
                 guid,
                 len(messages)
             )
 
             for message in messages:
-                message_bytes: bytes = PacketWriter.string_to_bytes(message[:127])  # Max length is 128 (127 + null byte).
+                message_bytes = PacketWriter.string_to_bytes(message[:127])  # Max length is 128 (127 + null byte).
                 data += pack(
                     f'<{len(message_bytes)}s',
                     message_bytes

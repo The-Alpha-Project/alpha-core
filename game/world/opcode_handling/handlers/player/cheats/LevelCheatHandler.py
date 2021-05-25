@@ -10,7 +10,7 @@ class LevelCheatHandler(object):
             if not world_session.player_mgr.is_gm:
                 return 0
 
-            new_level: int = unpack('<I', reader.data[:4])[0]
+            new_level = unpack('<I', reader.data[:4])[0]
             world_session.player_mgr.mod_level(new_level)
 
         return 0

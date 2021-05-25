@@ -1,4 +1,3 @@
-from network.packet.PacketReader import PacketReader
 from struct import unpack, error
 
 from game.world.managers.maps.MapManager import MapManager
@@ -17,7 +16,7 @@ class MovementHandler(object):
     def handle_movement_status(world_session, socket, reader: PacketReader) -> int:
         # Avoid handling malformed movement packets, or handling them while no player or player teleporting.
         if world_session.player_mgr and len(reader.data) >= 48:
-            try: # TODO type hint these
+            try:
                 transport_guid, transport_x, transport_y, transport_z, transport_o, x, y, z, o, pitch, flags = \
                     unpack('<Q9fI', reader.data[:48])
 
@@ -54,7 +53,7 @@ class MovementHandler(object):
                     world_session.player_mgr.movement_spline = MovementManager.MovementSpline.from_bytes(
                         reader.data[48:])
 
-                movement_data: bytes = pack(f'<Q{len(reader.data)}s',
+                movement_data = pack(f'<Q{len(reader.data)}s',
                                      world_session.player_mgr.guid,
                                      reader.data)
 

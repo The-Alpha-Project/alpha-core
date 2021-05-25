@@ -1,4 +1,3 @@
-from network.packet.PacketReader import PacketReader
 from struct import pack, unpack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -13,7 +12,7 @@ class NameQueryHandler(object):
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) >= 8:  # Avoid handling empty name query packet.
-            guid: int = unpack('<Q', reader.data[:8])[0]
+            guid = unpack('<Q', reader.data[:8])[0]
             player_mgr = MapManager.get_surrounding_player_by_guid(world_session.player_mgr, guid) # Can't type hint due to circular import
 
             if player_mgr:
@@ -28,8 +27,8 @@ class NameQueryHandler(object):
 
     @staticmethod
     def get_query_details(player) -> bytes:
-        name_bytes: bytes = PacketWriter.string_to_bytes(player.name)
-        player_data: bytes = pack(
+        name_bytes = PacketWriter.string_to_bytes(player.name)
+        player_data = pack(
             f'<Q{len(name_bytes)}s3I',
             player.guid,
             name_bytes,

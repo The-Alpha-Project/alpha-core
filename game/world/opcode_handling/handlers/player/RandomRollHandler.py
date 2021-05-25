@@ -11,13 +11,12 @@ class RandomRollHandler(object):
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) >= 8:  # Avoid handling empty random roll packet.
-            minimum: int = unpack('<I', reader.data[:4])[0]
-            maximum: int = unpack('<I', reader.data[4:8])[0]
+            minimum, maximum = unpack('<II', reader.data[:8])
 
-            roll: int = randint(minimum, maximum)
+            roll = randint(minimum, maximum)
             player: PlayerManager = world_session.player_mgr
 
-            roll_packet: bytes = PacketWriter.get_packet(OpCode.MSG_RANDOM_ROLL,
+            roll_packet = PacketWriter.get_packet(OpCode.MSG_RANDOM_ROLL,
                                                   pack('<3IQ', minimum, maximum, roll, player.guid))
 
             if player.group_manager and player.group_manager.is_party_formed():

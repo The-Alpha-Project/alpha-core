@@ -9,7 +9,7 @@ class LogoutRequestHandler(object):
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
         if world_session.player_mgr.in_combat:
-            res: LogoutResponseCodes = LogoutResponseCodes.LOGOUT_CANCEL
+            res = LogoutResponseCodes.LOGOUT_CANCEL
         else:
             res = LogoutResponseCodes.LOGOUT_PROCEED
             world_session.player_mgr.set_stand_state(StandState.UNIT_SITTING)
