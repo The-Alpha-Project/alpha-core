@@ -11,7 +11,7 @@ class RandomRollHandler(object):
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) >= 8:  # Avoid handling empty random roll packet.
-            minimum, maximum = unpack('<II', reader.data[:8])
+            minimum, maximum = unpack('<2I', reader.data[:8])
 
             roll = randint(minimum, maximum)
             player: PlayerManager = world_session.player_mgr
