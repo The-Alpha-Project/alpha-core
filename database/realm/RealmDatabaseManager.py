@@ -378,8 +378,9 @@ class RealmDatabaseManager(object):
         buttons_dict = dict()
         realm_db_session = SessionHolder()
         buttons = realm_db_session.query(CharacterButton).filter_by(owner=character_guid & ~HighGuid.HIGHGUID_PLAYER).all()
-        for btn in buttons:
-            buttons_dict[btn.index] = btn.action
+        for button in buttons:
+            buttons_dict[button.index] = button.action
+        realm_db_session.close()
         return buttons_dict
 
     @staticmethod

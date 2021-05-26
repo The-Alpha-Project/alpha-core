@@ -3,14 +3,12 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterButton
 
 
-# Max 120 buttons according to client.
 class SetActionButtonHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        if len(reader.data) >= 5:  # Avoid handling set action button packet.
-            index = unpack('<B', reader.data[:1])[0]
-            action = unpack('<i', reader.data[1:5])[0]
+        if len(reader.data) >= 5:  # Avoid handling empty set action button packet.
+            index, action = unpack('<Bi', reader.data[:5])
 
             button = RealmDatabaseManager.character_get_button(world_session.player_mgr.player.guid, index)
             if button:
