@@ -10,7 +10,7 @@ from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.ChannelManager import ChannelManager
 from game.world.managers.objects.player.FriendsManager import FriendsManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
-from game.world.managers.objects.player.QuestManager import QuestManager
+from game.world.managers.objects.player.quest.QuestManager import QuestManager
 from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.StatManager import StatManager
@@ -544,6 +544,7 @@ class PlayerManager(UnitManager):
                         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
                         for looter in enemy.loot_manager.get_active_looters():
                             looter.session.enqueue_packet(packet)
+                        self.quest_manager.reward_item(loot.item.item_template.entry, loot.quantity)
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
@@ -690,11 +691,11 @@ class PlayerManager(UnitManager):
 
     def player_or_group_require_quest_item(self, item_entry, only_self=False):
         if not self.group_manager or only_self:
-            return self.quest_manager.is_quest_item_required(item_entry)
+            return self.quest_manager.item_is_required_by_quest(item_entry)
         else:
             for member in self.group_manager.members.values():
                 player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
-                if player_mgr and player_mgr.quest_manager.is_quest_item_required(item_entry):
+                if player_mgr and player_mgr.quest_manager.item_is_required_by_quest(item_entry):
                     return True
         return False
 
