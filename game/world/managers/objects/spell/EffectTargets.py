@@ -1,4 +1,7 @@
 import math
+from typing import List, Union, Dict, Optional
+
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from utils.Logger import Logger
@@ -27,7 +30,7 @@ class EffectTargets:
         self.resolved_targets_a = []
         self.resolved_targets_b = []
 
-    def get_simple_targets(self):
+    def get_simple_targets(self) -> Dict[SpellImplicitTargets, List[Union[ObjectManager, Vector]]]:
         target_is_player = self.casting_spell.initial_target_is_player()
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
         target_is_item = self.casting_spell.initial_target_is_item()
@@ -49,9 +52,9 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_SELF_FISHING: self.caster
         }
 
-    def resolve_implicit_targets_reference(self, implicit_target):
+    def resolve_implicit_targets_reference(self, implicit_target) -> Optional[List[Union[ObjectManager, Vector]]]:
         if implicit_target == 0:
-            return None
+            return []
 
         target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else TARGET_RESOLVERS[implicit_target](self.casting_spell, self.target_effect)
 
@@ -65,7 +68,7 @@ class EffectTargets:
             return [target]
         return target
 
-    def can_target_friendly(self):
+    def can_target_friendly(self) -> bool:
         return self.target_effect.implicit_target_a in FRIENDLY_IMPLICIT_TARGETS or \
                self.target_effect.implicit_target_b in FRIENDLY_IMPLICIT_TARGETS
 
@@ -75,7 +78,7 @@ class EffectTargets:
         self.resolved_targets_a = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_a)
         self.resolved_targets_b = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_b)
 
-    def get_effect_target_results(self):
+    def get_effect_target_results(self) -> Dict[int, TargetMissInfo]:
         targets = self.get_final_effect_targets()
         target_info = {}
         for target in targets:
@@ -83,7 +86,7 @@ class EffectTargets:
                 target_info[target.guid] = TargetMissInfo(target, SpellMissReason.MISS_REASON_NONE)  # TODO Misses etc.
         return target_info
 
-    def get_final_effect_targets(self):
+    def get_final_effect_targets(self) -> List[Union[ObjectManager, Vector]]:
         # At least some B targets act as specifying on A. No table for now for ImplicitTarget values that act as specifiers, so prefer B if values exist
         # TODO if issues arise, add table for specifying ImplicitTargets
         if not self.resolved_targets_b or len(self.resolved_targets_b) == 0:
