@@ -11,8 +11,7 @@ class ActiveQuest:
     def __init__(self, quest_db_state, player_mgr):
         self.owner = player_mgr
         self.db_state = quest_db_state
-        self.quest_id = quest_db_state.quest
-        self.quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(self.quest_id)
+        self.quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(self.db_state.quest)
 
     def is_quest_complete(self, quest_giver_guid):
         if self.db_state.state != QuestState.QUEST_REWARD:
@@ -51,7 +50,7 @@ class ActiveQuest:
         # Current < Required is already validate on requires_mob_kill()
         self._update_db_creature_go_count(creature_go_index, 1)  # Update db memento
         # Notify the current objective count to the player
-        data = pack('<4IQ', self.quest_id, creature.entry, current + value, required, creature.guid)
+        data = pack('<4IQ', self.db_state.quest, creature.entry, current + value, required, creature.guid)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_KILL, data)
         self.owner.session.enqueue_packet(packet)
 
@@ -73,7 +72,7 @@ class ActiveQuest:
         # Persist new item count
         self._update_db_item_count(req_item_index, quantity)  # Update db memento
         # Notify the current item count to the player
-        data = pack('<2I', item_entry, 0)  # TODO: Investigate.
+        data = pack('<2I', item_entry, quantity)  # TODO: Investigate, this counter is wrong.
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
         self.owner.session.enqueue_packet(packet)
 
@@ -93,17 +92,14 @@ class ActiveQuest:
         return self.db_state.state
 
     def update_quest_state(self, quest_state):
-        print('Update quest state')
         self.db_state.state = quest_state.value
         self.save()
 
     def update_quest_status(self, rewarded):
-        print('Update quest status')
         self.db_state.rewarded = 1 if rewarded else 0
         self.save()
 
     def save(self, is_new=False):
-        print('Save quest')
         if is_new:
             RealmDatabaseManager.character_add_quest_status(self.db_state)
         else:
@@ -170,7 +166,7 @@ class ActiveQuest:
         return False
 
     def get_progress(self):
-        requiredBits = [0, 0, 0, 0]
+        required_bits = [0, 0, 0, 0]
         count = [0, 0, 0, 0]
         req_creature_or_go = QuestHelpers.generate_req_creature_or_go_list(self.quest)
         req_creature_or_go_count = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
@@ -178,9 +174,20 @@ class ActiveQuest:
             if req_creature_or_go[index] > 0:
                 current_count = eval(f'self.db_state.mobcount{index + 1}')
                 count[index] = current_count
-                requiredBits[index] = req_creature_or_go_count[index].bit_length()
+                required_bits[index] = req_creature_or_go_count[index].bit_length()
             else:
-                requiredBits[index] = 8
+                required_bits[index] = 8
 
-        return (((1 << count[0]) - 1) | ((1 << count[1]) - 1) << sum(requiredBits[:2]) | ((1 << count[2]) - 1) << sum(requiredBits[:3]) | ((1 << count[3]) - 1) << sum(requiredBits))
+        req_items = QuestHelpers.generate_req_item_list(self.quest)
+        req_item_count = QuestHelpers.generate_req_item_count_list(self.quest)
+        for index, req_item in enumerate(req_items):
+            if req_items[index] > 0:
+                current_count = eval(f'self.db_state.itemcount{index + 1}')
+                count[index] = current_count
+                required_bits[index] = req_item_count[index].bit_length()
+            else:
+                required_bits[index] = 8
+
+        val = ((1 << count[0]) - 1) | ((1 << count[1]) - 1) << sum(required_bits[:2]) | ((1 << count[2]) - 1) << sum(required_bits[:3]) | ((1 << count[3]) - 1) << sum(required_bits)
+        return val
 

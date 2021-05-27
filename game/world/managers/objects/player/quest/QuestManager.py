@@ -108,15 +108,11 @@ class QuestManager(object):
             quest_entry = involved_relation[1]
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
-                print('No requeriments')
                 continue
             if quest_entry not in self.active_quests:
-                print('Not in active quests')
                 continue
             quest_state = self.active_quests[quest_entry].get_quest_state()
-            print(QuestState(quest_state).name)
             if quest_state < QuestState.QUEST_ACCEPTED:
-                print(f'< Skip due state {QuestState(quest_state).name}')
                 continue  # Quest accept is handled by relation_list
             quest_menu.add_menu_item(quest, quest_state)
 
@@ -127,10 +123,8 @@ class QuestManager(object):
             quest_entry = relation[1]
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
-                print('No requeriments')
                 continue
             if quest_entry in self.completed_quests:
-                print('Not in active quests')
                 continue
             quest_state = QuestState.QUEST_OFFER
             if quest_entry in self.active_quests:
@@ -446,7 +440,6 @@ class QuestManager(object):
             # Reward choices
             rew_choice_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_item_list(quest)))
             rew_choice_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_count_list(quest)))
-            print(f'Available choice items: {len(rew_choice_item_list)}')
             data += pack('<I', len(rew_choice_item_list))
             for index, item in enumerate(rew_choice_item_list):
                 data += self._gen_item_struct(item, rew_choice_count_list[index])
@@ -458,7 +451,6 @@ class QuestManager(object):
             # Required items
             rew_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_item_list(quest)))
             rew_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_count_list(quest)))
-            print(f'Available reward items: {len(rew_item_list)}')
             data += pack('<I', len(rew_item_list))
             for index, item in enumerate(rew_item_list):
                 data += self._gen_item_struct(item, rew_count_list[index])
@@ -508,7 +500,6 @@ class QuestManager(object):
 
         active_quest = self.active_quests[quest_id]
         if not active_quest.is_quest_complete(quest_giver_guid):
-            print('Return not complete')
             return
 
         # Remove required items from the player inventory.
@@ -516,14 +507,12 @@ class QuestManager(object):
         req_item_count = QuestHelpers.generate_req_creature_or_go_count_list(active_quest.quest)
         for index, req_item in enumerate(req_item_list):
             if req_item != 0:
-                print(f'Removing item {req_item_count}')
                 self.player_mgr.inventory.remove_item(req_item, req_item_count[index])
 
         # Add the chosen item, if any.
         if item_choice:
             rew_item_choice_list = QuestHelpers.generate_rew_choice_item_list(active_quest.quest)
             if item_choice < len(rew_item_choice_list):
-                print(f'Adding item {rew_item_choice_list[item_choice]}')
                 self.player_mgr.inventory.add_item(entry=rew_item_choice_list[item_choice])
 
         given_xp = active_quest.reward_xp()
@@ -553,7 +542,6 @@ class QuestManager(object):
             self.player_mgr.inventory.add_item(entry=rew_item_list[index], show_item_get=False)
 
         # TODO: Handle RewSpell and RewSpellCast upon completion.
-        print('Sent SMSG_QUESTGIVER_QUEST_COMPLETE')
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_COMPLETE, data))
 
         # Update surrounding, NextQuestInChain was not working properly.
@@ -577,9 +565,7 @@ class QuestManager(object):
                 self.player_mgr.send_update_self()
                 # If by this item we complete the quest, update surrounding so NPC can display new complete status.
                 if active_quest.can_complete_quest():
-                    print('Can complete!')
                     self.complete_quest(active_quest, update_surrounding=True)
-                    print(QuestState(active_quest.get_quest_state()).name)
 
     # TODO: Gameobjects
     def reward_creature_or_go(self, creature):
@@ -590,7 +576,6 @@ class QuestManager(object):
                 self.player_mgr.send_update_self()
                 # If by this kill we complete the quest, update surrounding so NPC can display new complete status.
                 if active_quest.can_complete_quest():
-                    print('Can complete!')
                     self.complete_quest(active_quest, update_surrounding=True)
 
     def complete_quest(self, active_quest, update_surrounding=False):
@@ -612,8 +597,8 @@ class QuestManager(object):
 
     def build_update(self):
         active_quests = list(self.active_quests.values())
-        for slot in range(0 , 16):
-            quest_id = active_quests[slot].quest_id if slot < len(active_quests) else 0
+        for slot in range(0, 16):
+            quest_id = active_quests[slot].db_state.quest if slot < len(active_quests) else 0
             progress = active_quests[slot].get_progress() if slot < len(active_quests) else 0
             self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6), quest_id)
             # TODO Finish / investigate below values
