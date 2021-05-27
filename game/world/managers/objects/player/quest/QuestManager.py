@@ -294,7 +294,7 @@ class QuestManager(object):
         for index, item in enumerate(req_item_list):
             data += self._gen_item_struct(item, req_count_list[index])
 
-        # Required kill / item count
+        # Required kill / go count
         req_creature_or_go_list = list(filter((0).__ne__, QuestHelpers.generate_req_creature_or_go_list(quest_template)))
         req_creature_or_go_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_creature_or_go_count_list(quest_template)))
         data += pack('<I', len(req_creature_or_go_list))
@@ -355,11 +355,12 @@ class QuestManager(object):
         req_items_count_list = QuestHelpers.generate_req_item_count_list(active_quest.quest)
         for index, creature_or_go in enumerate(req_creatures_or_gos):
             data += pack(
-                '<4I',
+                '<4IB',
                 creature_or_go if creature_or_go >= 0 else (creature_or_go * -1) | 0x80000000,
                 req_creatures_or_gos_count_list[index],
                 req_items[index],
                 req_items_count_list[index],
+                0  # Unknown, if missing, multiple objective quests will not display properly.
             )
 
         # Objective texts
@@ -389,24 +390,26 @@ class QuestManager(object):
             quest.entry,
             quest_title_bytes,
             dialog_text_bytes,
-            0,
-            0,
-            1 if close_on_cancel else 0,
+            0,  # Emote delay
+            0,  # Emote id
+            1 if close_on_cancel else 0,  # Close Window after cancel
             quest.RewOrReqMoney if quest.RewOrReqMoney >= 0 else -quest.RewOrReqMoney
         )
 
-        req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(quest)))
-        req_items_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(quest)))
-        data += pack('<I', len(dialog_text_bytes))
-        for index, item in enumerate(req_items):
-            data += self._gen_item_struct(item, req_items_count_list[index])
+        req_items = QuestHelpers.generate_req_item_list(quest)
+        req_items_count_list = QuestHelpers.generate_req_item_count_list(quest)
+        data += pack('<I', len(req_items))
+        for index in range(0, 4):
+            if req_items[index] == 0:
+                continue
+            data += self._gen_item_struct(req_items[index], req_items_count_list[index])
 
         data += pack(
             '<5I',
             2,
-            3 if is_complete else 0,
-            4,
-            8,
+            3 if is_complete else 0,  # Completable = flags1 && flags2 && flags3 && flags4
+            4,  # flags2
+            8,  # flags3
             10
         )
 
