@@ -47,11 +47,13 @@ class SpellEffect(object):
         if self.aura_type and casting_spell.initial_target_is_terrain():  # TODO only needed when terrain is target?
             self.effect_aura = AppliedAura(casting_spell.spell_caster, casting_spell, self, None)  # Target as none as this effect shouldn't be tied to any unit
 
-    def get_effect_points(self, effective_level):
+    def get_effect_points(self, effective_level) -> int:
         rolled_points = random.randint(1, self.die_sides + self.dice_per_level) if self.die_sides != 0 else 0
         return self.base_points + int(self.real_points_per_level * effective_level) + rolled_points
 
-    def get_radius(self):
+    def get_radius(self) -> float:
+        if not self.radius_entry:
+            return 0
         return min(self.radius_entry.RadiusMax, self.radius_entry.Radius + self.radius_entry.RadiusPerLevel * self.caster_effective_level)
 
     def load_first(self, spell):
