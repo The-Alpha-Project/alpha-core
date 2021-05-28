@@ -13,7 +13,7 @@ class NameQueryHandler(object):
     def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) >= 8:  # Avoid handling empty name query packet.
             guid = unpack('<Q', reader.data[:8])[0]
-            player_mgr = MapManager.get_surrounding_player_by_guid(world_session.player_mgr, guid) # Can't type hint due to circular import
+            player_mgr = MapManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)
 
             if player_mgr:
                 player = player_mgr.player
