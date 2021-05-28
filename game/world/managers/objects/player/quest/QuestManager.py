@@ -12,7 +12,7 @@ from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedR
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
-# - quest template refer to the quest template (the db record / read only)
+# - quest_template or plain quest refers to the quest template (the db record / read only)
 # - active_quest refers to quests in the player's quest log
 
 MAX_QUEST_LOG = 20
@@ -506,17 +506,17 @@ class QuestManager(object):
             return
 
         # Remove required items from the player inventory.
-        req_item_list = QuestHelpers.generate_req_item_count_list(active_quest.quest)
-        req_item_count = QuestHelpers.generate_req_creature_or_go_count_list(active_quest.quest)
+        req_item_list = QuestHelpers.generate_req_item_list(active_quest.quest)
+        req_item_count = QuestHelpers.generate_req_item_count_list(active_quest.quest)
         for index, req_item in enumerate(req_item_list):
             if req_item != 0:
-                self.player_mgr.inventory.remove_item(req_item, req_item_count[index])
+                self.player_mgr.inventory.remove_items(req_item, req_item_count[index])
 
         # Add the chosen item, if any.
         if item_choice:
             rew_item_choice_list = QuestHelpers.generate_rew_choice_item_list(active_quest.quest)
             if item_choice < len(rew_item_choice_list):
-                self.player_mgr.inventory.add_item(entry=rew_item_choice_list[item_choice])
+                self.player_mgr.inventory.add_item(entry=rew_item_choice_list[item_choice], show_item_get=False)
 
         given_xp = active_quest.reward_xp()
         given_gold = active_quest.reward_gold()
@@ -560,6 +560,7 @@ class QuestManager(object):
         self.build_update()
         self.player_mgr.send_update_self()
 
+    # TODO: Quest log counter display is wrong, but seems to be InventoryManager related.
     def reward_item(self, item_entry, item_count):
         for quest_id, active_quest in self.active_quests.items():
             if active_quest.requires_item(item_entry):
@@ -570,7 +571,8 @@ class QuestManager(object):
                 if active_quest.can_complete_quest():
                     self.complete_quest(active_quest, update_surrounding=True)
 
-    # TODO: Gameobjects
+    # TODO: Quest log counter display is wrong.
+    #  Handle Gameobjects
     def reward_creature_or_go(self, creature):
         for quest_id, active_quest in self.active_quests.items():
             if active_quest.requires_creature_or_go(creature.entry):

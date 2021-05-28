@@ -182,4 +182,3 @@ class ActiveQuest:
 
         val = ((1 << count[0]) - 1) | ((1 << count[1]) - 1) << sum(required_bits[:2]) | ((1 << count[2]) - 1) << sum(required_bits[:3]) | ((1 << count[3]) - 1) << sum(required_bits)
         return val
-
