@@ -2,6 +2,7 @@ import time
 from struct import unpack
 
 from database.dbc.DbcDatabaseManager import *
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
@@ -276,13 +277,12 @@ class PlayerManager(UnitManager):
 
     def get_action_buttons(self):
         data = b''
+        player_buttons = RealmDatabaseManager.character_get_buttons(self.player.guid)
         for x in range(0, MAX_ACTION_BUTTONS):
-            # TODO: Handle action buttons later
-            ##############
-            if x == 0:
-                data += pack('<I', 6603)
-            #############
-            data += pack('<I', 0)
+            if player_buttons and x in player_buttons:
+                data += pack('<i', player_buttons[x])
+            else:
+                data += pack('<i', 0)
         return PacketWriter.get_packet(OpCode.SMSG_ACTION_BUTTONS, data)
 
     def get_deathbind_packet(self):

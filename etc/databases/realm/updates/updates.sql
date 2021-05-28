@@ -23,5 +23,20 @@ begin not atomic
 
 		insert into applied_updates values ('170520211');
     end if;
+	
+	-- 23/05/2021 1
+	if (select count(*) from applied_updates where id='230520211') = 0 then
+        DROP TABLE IF EXISTS `character_buttons`;
+		CREATE TABLE `character_buttons` (
+		`guid` int(11) unsigned NOT NULL AUTO_INCREMENT,
+		`owner` int(11) unsigned NOT NULL DEFAULT 0,
+		`index` int(11) unsigned NOT NULL DEFAULT 0,
+		`action` int(11) signed NOT NULL DEFAULT 0,
+		PRIMARY KEY (`guid`),
+		KEY `idx_guid` (`owner`),
+		CONSTRAINT `owner_guid_button_fk` FOREIGN KEY (`owner`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+		insert into applied_updates values ('230520211');
+    end if;
 end $
 delimiter ;

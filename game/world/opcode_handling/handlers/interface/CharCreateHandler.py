@@ -79,6 +79,7 @@ class CharCreateHandler(object):
             CharCreateHandler.generate_starting_reputations(character.guid)
             CharCreateHandler.generate_starting_spells(character.guid, race, class_, character.level)
             CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
+            CharCreateHandler.generate_starting_buttons(character.guid)
             default_deathbind = CharacterDeathbind(
                 player_guid=character.guid,
                 creature_binder_guid=0,
@@ -99,6 +100,15 @@ class CharCreateHandler(object):
     def get_starting_location(race, class_):
         info = WorldDatabaseManager.player_create_info_get(race, class_)
         return info.map, info.zone, info.position_x, info.position_y, info.position_z, info.orientation
+
+    # TODO: Generate starting action buttons based on race/class.
+    @staticmethod
+    def generate_starting_buttons(guid):
+        button = CharacterButton()
+        button.owner = guid
+        button.index = 0
+        button.action = 6603
+        RealmDatabaseManager.character_add_button(button)
 
     @staticmethod
     def generate_starting_reputations(guid):

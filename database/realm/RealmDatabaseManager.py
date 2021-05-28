@@ -372,6 +372,45 @@ class RealmDatabaseManager(object):
         realm_db_session.flush()
         realm_db_session.refresh(reputation)
         realm_db_session.close()
+
+    @staticmethod
+    def character_get_buttons(character_guid):
+        buttons_dict = dict()
+        realm_db_session = SessionHolder()
+        buttons = realm_db_session.query(CharacterButton).filter_by(owner=character_guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        for button in buttons:
+            buttons_dict[button.index] = button.action
+        realm_db_session.close()
+        return buttons_dict
+
+    @staticmethod
+    def character_get_button(character_guid, index):
+        realm_db_session = SessionHolder()
+        button = realm_db_session.query(CharacterButton).filter_by(owner=character_guid & ~HighGuid.HIGHGUID_PLAYER, index=index).first()
+        realm_db_session.close()
+        return button
+
+    @staticmethod
+    def character_update_button(character_button):
+        realm_db_session = SessionHolder()
+        realm_db_session.merge(character_button)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def character_add_button(character_button):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(character_button)
+        realm_db_session.flush()
+        realm_db_session.refresh(character_button)
+        realm_db_session.close()
+
+    @staticmethod
+    def character_delete_button(character_button):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(character_button)
+        realm_db_session.flush()
+        realm_db_session.close()
     
     # Ticket stuff
 

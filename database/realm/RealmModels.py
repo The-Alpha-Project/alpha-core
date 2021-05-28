@@ -195,6 +195,17 @@ class CharacterReputation(Base):
     character = relationship('Character')
 
 
+class CharacterButton(Base):
+    __tablename__ = 'character_buttons'
+
+    guid = Column(INTEGER, primary_key=True)
+    owner = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+    index = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    action = Column(INTEGER(11), nullable=False, server_default=text("'1'"))
+
+    character = relationship('Character')
+
+
 class Guild(Base):
     __tablename__ = 'guild'
 

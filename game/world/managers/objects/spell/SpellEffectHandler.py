@@ -8,11 +8,11 @@ from utils.constants.UnitCodes import PowerTypes, UnitFlags
 
 class SpellEffectHandler(object):
     @staticmethod
-    def apply_effect(casting_spell, effect, target):
+    def apply_effect(casting_spell, effect, caster, target):
         if effect.effect_type not in SPELL_EFFECTS:
             Logger.debug(f'Unimplemented effect called: {effect.effect_type}')
             return
-        SPELL_EFFECTS[effect.effect_type](casting_spell, effect, casting_spell.spell_caster, target)
+        SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)
 
     @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):

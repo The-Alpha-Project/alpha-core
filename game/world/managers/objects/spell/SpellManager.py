@@ -100,9 +100,7 @@ class SpellManager(object):
             return
 
         if not (casting_spell.initial_target_is_terrain() and casting_spell.is_channeled()):
-            casting_spell.unit_target_results = casting_spell.resolve_target_info_for_effects()
-        else:
-            casting_spell.unit_target_results = {}  # Channeled, terrain-targeted spells will generate results during the channel
+            casting_spell.resolve_target_info_for_effects()  # Channeled, terrain-targeted spells will generate results during the channel. Ignore them for now.
 
         if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
@@ -129,14 +127,19 @@ class SpellManager(object):
 
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
-    def apply_spell_effects(self, casting_spell, remove=False):
+    def apply_spell_effects(self, casting_spell, targeted=True, remove=False):
         for effect in casting_spell.effects:
-            if casting_spell.initial_target_is_terrain():  # Terrain-targeted effect handlers apply to all targets in range
-                SpellEffectHandler.apply_effect(casting_spell, effect, None)
+            if not targeted:  # Effects that resolve targets in handler - ie. rain of fire, blizzard
+                SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
                 continue
 
-            for target in effect.targets.resolved_targets_a:
-                SpellEffectHandler.apply_effect(casting_spell, effect, target)
+            for target in effect.targets.get_final_effect_targets():
+                info = casting_spell.unit_target_results[target.guid]
+                # TODO deflection handling? Swap target/caster for now
+                if info.result == SpellMissReason.MISS_REASON_DEFLECTED:
+                    SpellEffectHandler.apply_effect(casting_spell, effect, info.target, casting_spell.spell_caster)
+                elif info.result == SpellMissReason.MISS_REASON_NONE:
+                    SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, info.target)
 
         if remove:
             self.remove_cast(casting_spell)
@@ -258,24 +261,19 @@ class SpellManager(object):
             self.unit_mgr.set_channel_spell(casting_spell.spell_entry.ID)
             self.unit_mgr.set_dirty()
 
-        has_aura_period = False
         for effect in casting_spell.effects:
-            if not effect.effect_aura or not effect.aura_period:
-                continue
-            has_aura_period = True
-            # Initialize timestamps for effect aura
-            effect.effect_aura.initialize_period_timestamps()
+            if not casting_spell.initial_target_is_terrain() or not effect.effect_aura or not effect.aura_period:  # Effects that will only resolve targets once
+                casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
-        if has_aura_period:
-            # There will not be a ticking update for targets, resolve now
-            casting_spell.resolve_target_info_for_effects()
+            if effect.effect_aura:
+                effect.effect_aura.initialize_period_timestamps()  # Initialize timestamps for effects with period
 
-        self.apply_spell_effects(casting_spell)  # Apply effects
+        self.apply_spell_effects(casting_spell)
 
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        data = pack('<II', casting_spell.spell_entry.ID, casting_spell.duration_entry.Duration)  # No channeled spells with duration per level
+        data = pack('<2I', casting_spell.spell_entry.ID, casting_spell.duration_entry.Duration)  # No channeled spells with duration per level
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))  # SMSG?
         # TODO Channeling animations do not play
 
@@ -294,14 +292,14 @@ class SpellManager(object):
             effect.effect_aura.update(elapsed)
 
             if not effect.aura_period:
-                continue  # Effects that only activate don't need to be applied again
+                continue  # Effects with no aura period will have persistent targets
 
             effect.targets.resolve_targets()  # Refresh targets
 
             # If the effect interval is due, send another spell_go packet. Not good, but shows ticks TODO hackfix for missing channeling effect
             if effect.effect_aura.is_past_next_period_timestamp():
                 self.send_spell_go(casting_spell)
-            self.apply_spell_effects(casting_spell)
+            self.apply_spell_effects(casting_spell, targeted=False)
 
         # Seems like sending updates speeds up channel? Does not play channeling effect either
         # remaining_time = casting_spell.cast_end_timestamp - time.time()
