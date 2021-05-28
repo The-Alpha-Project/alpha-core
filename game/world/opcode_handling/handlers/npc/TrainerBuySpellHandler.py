@@ -1,8 +1,3 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from game.world.WorldManager import WorldServerSessionHandler
-
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketReader import PacketReader
 from game.world.managers.objects.player.ChatManager import ChatManager
@@ -15,11 +10,11 @@ from struct import unpack
 
 from network.packet.PacketWriter import *
 
-class TrainerBuySpellHandler(object): # Teaches you the talent/spell when you click 'Train', but it doesn't show up in spellbook nor does it have any stat effect. If they are talents, they are passive, hidden auras, and will not do anything until auras affecting stats is implemented.
+class TrainerBuySpellHandler(object):
 
-    @staticmethod #REMOVE THE TYPE HINTING WORKAROUND BEFORE PULL REQUEST!
-    def handle(world_session: WorldServerSessionHandler, socket, reader: PacketReader) -> int: #TODO Clean this up and add another function to do condition checking so the spell learn code isnt repeated
-        if len(reader.data) >= 12: # Avoid empty packets
+    @staticmethod
+    def handle(world_session, socket, reader: PacketReader) -> int:
+        if len(reader.data) >= 12: # Avoid handling empty trainer buy spell packet.
 
             trainer_guid: int = unpack('<Q', reader.data[:8])[0]
             spell_id: int = unpack('<I', reader.data[8:12])[0]

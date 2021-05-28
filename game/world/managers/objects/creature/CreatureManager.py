@@ -1,20 +1,10 @@
-from __future__ import annotations
- #REMOVE THIS & TYPE HINTING BEFORE PR IN CreatureManager, TrainerSpellBuyHandler
-from typing import TYPE_CHECKING
-
-from sqlalchemy.sql.expression import true
-if TYPE_CHECKING:
-    from game.world.WorldManager import WorldServerSessionHandler
-
-
-from sqlalchemy.engine import interfaces
-from database.world.WorldModels import NpcTrainerAlpha, SpellChain
-from database.dbc.DbcModels import Spell
 import time
 from random import randint, choice
 from struct import unpack, pack
 from typing import Optional
 
+from database.world.WorldModels import NpcTrainerAlpha, SpellChain
+from database.dbc.DbcModels import Spell
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector

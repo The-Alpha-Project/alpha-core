@@ -1,9 +1,3 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from game.world.managers.objects.player.PlayerManager import PlayerManager
-
-
 from typing import Optional
 from database.dbc.DbcModels import SkillLineAbility
 from struct import pack
@@ -18,7 +12,7 @@ SKILL_LINE_TALENT_IDS: list[int] = [222, 230, 231, 233, 234]
 
 
 class TalentManager(object):
-    def __init__(self, player_mgr: PlayerManager):
+    def __init__(self, player_mgr):
         self.player_mgr = player_mgr
 
     def get_talent_cost_by_id(self, spell_id: int) -> int:
