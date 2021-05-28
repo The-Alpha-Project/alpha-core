@@ -1,8 +1,11 @@
 import os
+from typing import List, Optional
 from difflib import SequenceMatcher
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import query
+from sqlalchemy.orm.query import Query
 
 from database.world.WorldModels import *
 from utils.ConfigManager import *
@@ -305,3 +308,68 @@ class WorldDatabaseManager(object):
         res = world_db_session.query(QuestTemplate).filter_by(ignored=0).all()
         world_db_session.close()
         return res
+
+    # Trainer stuff
+
+    class TrainerSpellHolder:
+        TRAINER_SPELLS: dict[int, NpcTrainerAlpha] = {}
+
+        @staticmethod
+        def load_trainer_spell(trainer_spell: NpcTrainerAlpha):
+            WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[trainer_spell.spell] = trainer_spell
+        
+        @staticmethod
+        def trainer_spell_get_by_spell(spell_id: int):
+            if spell_id in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
+                return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[spell_id]
+            return None
+
+    @staticmethod
+    def trainer_spell_get_all() -> Optional[List[NpcTrainerAlpha]]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(NpcTrainerAlpha).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def trainer_spells_get_by_trainer(trainer_entry_id: int) -> Optional[list[NpcTrainerAlpha]]:
+        trainer_spells: list[NpcTrainerAlpha] = []
+
+        for trainer_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
+            if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[trainer_spell].entry == trainer_entry_id:
+                trainer_spells.append(WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[trainer_spell])
+
+        return trainer_spells if not trainer_spells.count == 0 else None
+
+    @staticmethod
+    def get_trainer_spell_by_id(spell_id: int) -> Optional[NpcTrainerAlpha]:
+        return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[spell_id] \
+                if spell_id in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS else None
+
+    @staticmethod
+    def get_trainer_spell_cost_by_id(spell_id: int) -> int:
+        return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[spell_id].spellcost \
+                if spell_id in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS else 2800 # placeholder val
+
+    # Spell chain / trainer stuff (for chaining together spell ranks)
+
+    class SpellChainHolder:
+        SPELL_CHAINS: dict[int, SpellChain] = {}
+
+        @staticmethod
+        def load_spell_chain(spell_chain: SpellChain):
+            WorldDatabaseManager.SpellChainHolder.SPELL_CHAINS[spell_chain.spell_id] = spell_chain
+        
+        @staticmethod
+        def spell_chain_get_by_spell(spell_id: int):
+            if spell_id in WorldDatabaseManager.SpellChainHolder.SPELL_CHAINS:
+                return WorldDatabaseManager.SpellChainHolder.SPELL_CHAINS[spell_id]
+            return None
+
+    @staticmethod
+    def spell_chain_get_all() -> Optional[list[SpellChain]]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(SpellChain).all()
+        world_db_session.close()
+        return res
+

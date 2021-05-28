@@ -3,6 +3,7 @@ from sqlalchemy import CHAR, Column, Float, ForeignKey, Index, String, Table, Te
 from sqlalchemy.dialects.mysql import INTEGER, LONGTEXT, MEDIUMINT, SMALLINT, TINYINT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.expression import true
 
 Base = declarative_base()
 metadata = Base.metadata
@@ -793,6 +794,25 @@ t_npc_trainer = Table(
     Index('entry_spell', 'entry', 'spell', unique=True)
 )
 
+class NpcTrainerAlpha(Base):
+    __tablename__ = 'npc_trainer_alpha'
+    
+    entry = Column(ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    spellcost = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    spellpointcost = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    reqskill = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    reqskillvalue = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    reqlevel = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+
+class SpellChain(Base):
+    __tablename__ = 'spell_chain'
+
+    spell_id = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    prev_spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    first_spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    rank = Column(TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
+    req_spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
 
 class NpcVendor(Base):
     __tablename__ = 'npc_vendor'

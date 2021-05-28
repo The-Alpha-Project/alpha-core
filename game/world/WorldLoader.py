@@ -1,3 +1,5 @@
+from database.world.WorldModels import SpellChain
+from database.dbc.DbcModels import Spell
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -36,6 +38,8 @@ class WorldLoader:
         WorldLoader.load_item_templates()
         WorldLoader.load_quests()
         WorldLoader.load_spells()
+        WorldLoader.load_spell_chains()
+        WorldLoader.load_trainer_spells()
         WorldLoader.load_skills()
         WorldLoader.load_skill_line_abilities()
         WorldLoader.load_char_base_infos()
@@ -159,7 +163,7 @@ class WorldLoader:
 
     @staticmethod
     def load_spells():
-        spells = DbcDatabaseManager.spell_get_all()
+        spells: list[Spell] = DbcDatabaseManager.spell_get_all()
         length = len(spells)
         count = 0
 
@@ -169,6 +173,34 @@ class WorldLoader:
             count += 1
             Logger.progress('Loading spells...', count, length)
 
+        return length
+
+    @staticmethod
+    def load_spell_chains():
+        spell_chains: list[SpellChain] = WorldDatabaseManager.spell_chain_get_all()
+        length = len(spell_chains)
+        count = 0
+
+        for spell_chain in spell_chains:
+            WorldDatabaseManager.SpellChainHolder.load_spell_chain(spell_chain)
+
+            count += 1
+            Logger.progress('Loading spell chains...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_trainer_spells():
+        trainer_spells = WorldDatabaseManager.trainer_spell_get_all()
+        length = len(trainer_spells)
+        count = 0
+
+        for trainer_spell in trainer_spells:
+            WorldDatabaseManager.TrainerSpellHolder.load_trainer_spell(trainer_spell)
+
+            count += 1
+            Logger.progress('Loading trainer spells...', count, length)
+        
         return length
 
     @staticmethod

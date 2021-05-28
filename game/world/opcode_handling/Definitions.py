@@ -77,6 +77,7 @@ from game.world.opcode_handling.handlers.npc.SellItemHandler import SellItemHand
 from game.world.opcode_handling.handlers.npc.TabardVendorActivateHandler import TabardVendorActivateHandler
 from game.world.opcode_handling.handlers.npc.TaxiQueryNodesHandler import TaxiQueryNodesHandler
 from game.world.opcode_handling.handlers.npc.TrainerListHandler import TrainerListHandler
+from game.world.opcode_handling.handlers.npc.TrainerBuySpellHandler import TrainerBuySpellHandler
 from game.world.opcode_handling.handlers.player.DebugAIStateHandler import DebugAIStateHandler
 from game.world.opcode_handling.handlers.player.DuelAcceptHandler import DuelAcceptHandler
 from game.world.opcode_handling.handlers.player.DuelCanceledHandler import DuelCanceledHandler
@@ -206,6 +207,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_ACCEPT_TRADE: AcceptTradeHandler.handle,
     OpCode.CMSG_INSPECT: InspectHandler.handle,
     OpCode.CMSG_TRAINER_LIST: TrainerListHandler.handle,
+    OpCode.CMSG_TRAINER_BUY_SPELL: TrainerBuySpellHandler.handle,
     OpCode.CMSG_TAXIQUERYAVAILABLENODES: TaxiQueryNodesHandler.handle,
     OpCode.CMSG_ACTIVATETAXI: ActivateTaxiHandler.handle,
     OpCode.CMSG_CAST_SPELL: CastSpellHandler.handle,

@@ -1,6 +1,19 @@
+from __future__ import annotations
+ #REMOVE THIS & TYPE HINTING BEFORE PR IN CreatureManager, TrainerSpellBuyHandler
+from typing import TYPE_CHECKING
+
+from sqlalchemy.sql.expression import true
+if TYPE_CHECKING:
+    from game.world.WorldManager import WorldServerSessionHandler
+
+
+from sqlalchemy.engine import interfaces
+from database.world.WorldModels import NpcTrainerAlpha, SpellChain
+from database.dbc.DbcModels import Spell
 import time
 from random import randint, choice
 from struct import unpack, pack
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -11,9 +24,10 @@ from game.world.managers.objects.creature.CreatureLootManager import CreatureLoo
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
+from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes
+from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes, TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
 from utils.constants.UpdateFields import ObjectFields, UnitFields
@@ -117,6 +131,68 @@ class CreatureManager(UnitManager):
         session.close()
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
 
+    def send_trainer_list(self, world_session): # Just for class trainers, professions later
+        trainspell_bytes: bytes = b''
+        trainspell_count: int = 0
+
+        trainer_ability_list: list[NpcTrainerAlpha] = WorldDatabaseManager.trainer_spells_get_by_trainer(self.entry)
+
+        if not self.is_trainer():
+            Logger.warning(f'send_trainer_list called from NPC {self.entry} by player with GUID {world_session.player_mgr.guid} but this unit is not a trainer. Possible cheating')
+            return
+
+        if not self.is_trainer_for_class(world_session.player_mgr.player.class_):
+            Logger.anticheat(f'send_trainer_list called from NPC {self.entry} by player with GUID {world_session.player_mgr.guid} but this unit does not train that player\'s class. Possible cheating')
+            return
+
+        if not trainer_ability_list or trainer_ability_list.count == 0:
+            Logger.warning(f'send_trainer_list called from NPC {self.entry} but no trainer spells found!')
+            return
+
+        for ability in trainer_ability_list:
+            # We only want the ones having an attached spell
+            if not ability.spell:
+                continue
+
+            ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(ability.spell)
+
+            spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(ability.spell)
+            spell_rank: int = ability_spell_chain.rank
+            prev_spell: int = ability_spell_chain.prev_spell
+            first_spell: int = ability_spell_chain.first_spell
+
+            spellIsTooHighLvl: bool = spell.BaseLevel > world_session.player_mgr.level
+
+            if ability.spell in world_session.player_mgr.spell_manager.spells:
+                status = TrainerServices.TRAINER_SERVICE_USED
+            else:
+                if prev_spell in world_session.player_mgr.spell_manager.spells and spell_rank > 1 and not spellIsTooHighLvl:
+                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE
+                elif spell_rank == 1 and not spellIsTooHighLvl:
+                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE
+                else:
+                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+
+            data: bytes = pack('<IBI3B6I',
+                        ability.spell,  # Spell id
+                        status,  # Status
+                        ability.spellcost,  # Cost
+                        0,  # Talent Point Cost
+                        0,  # Skill Point Cost
+                        spell.BaseLevel,  # Required Level
+                        0,  # Required Skill Line
+                        0,  # Required Skill Rank
+                        0,  # Required Skill Step
+                        prev_spell,  # Required Ability (1)
+                        0,  # Required Ability (2)
+                        0  # Required Ability (3)
+                        )
+            trainspell_bytes += data
+            trainspell_count += 1
+
+        data = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, trainspell_count) + trainspell_bytes
+        world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
+
     def finish_loading(self):
         if self.creature_template and self.creature_instance:
             if not self.fully_loaded:
@@ -183,6 +259,33 @@ class CreatureManager(UnitManager):
                                                item_template.inventory_type == InventoryTypes.WEAPONOFFHAND)
         elif slot == 0:
             self.weapon_reach = 0.0
+
+    def is_trainer(self) -> bool:
+        if self.npc_flags == self.npc_flags | NpcFlags.NPC_FLAG_TRAINER:
+            return True
+        else:
+            return False
+
+    def is_trainer_for_class(self, player_class: int) -> bool:
+        if not self.is_trainer():
+            return False
+
+        if self.creature_template.trainer_class == player_class:
+            return True
+        else:
+            return False
+
+    def trainer_has_spell(self, spell_id: int) -> bool:
+        if not self.is_trainer():
+            return False
+        
+        trainer_spells: list[NpcTrainerAlpha] = WorldDatabaseManager.trainer_spells_get_by_trainer(self.entry)
+
+        for trainer_spell in trainer_spells:
+            if trainer_spell.spell == spell_id:
+                return True
+
+        return False
 
     # override
     def get_full_update_packet(self, is_self=True):
