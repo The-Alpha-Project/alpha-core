@@ -165,6 +165,8 @@ class ActiveQuest:
             return current_items < required_items
         return False
 
+    # TODO: This is wrong, need to figure how to properly fill the int, how many bits per counter, etc.
+    #  1.12 implementations doesn't work here.
     def get_progress(self):
         required_bits = [0, 0, 0, 0]
         count = [0, 0, 0, 0]
@@ -175,16 +177,6 @@ class ActiveQuest:
                 current_count = eval(f'self.db_state.mobcount{index + 1}')
                 count[index] = current_count
                 required_bits[index] = req_creature_or_go_count[index].bit_length()
-            else:
-                required_bits[index] = 8
-
-        req_items = QuestHelpers.generate_req_item_list(self.quest)
-        req_item_count = QuestHelpers.generate_req_item_count_list(self.quest)
-        for index, req_item in enumerate(req_items):
-            if req_items[index] > 0:
-                current_count = eval(f'self.db_state.itemcount{index + 1}')
-                count[index] = current_count
-                required_bits[index] = req_item_count[index].bit_length()
             else:
                 required_bits[index] = 8
 
