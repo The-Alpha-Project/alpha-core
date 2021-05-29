@@ -1,3 +1,4 @@
+from network.packet.PacketReader import PacketReader
 import time
 from struct import unpack
 
@@ -19,7 +20,7 @@ from utils.constants.UnitCodes import PowerTypes
 class PlayerLoginHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) < 8:  # Avoid handling wrong player login packet.
             return -1
 
@@ -114,7 +115,7 @@ class PlayerLoginHandler(object):
             world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
 
     @staticmethod
-    def _get_login_timespeed():
+    def _get_login_timespeed() -> bytes:
         data = pack(
             '<If',
             PlayerLoginHandler._get_secs_to_time_bit_fields(),  # game time (secs) to bit
@@ -123,7 +124,7 @@ class PlayerLoginHandler(object):
         return data
 
     @staticmethod
-    def _get_secs_to_time_bit_fields():
+    def _get_secs_to_time_bit_fields() -> int:
         local = time.localtime()
 
         year = local.tm_year - 2000  # "Blizz Time" starts at year 2000
