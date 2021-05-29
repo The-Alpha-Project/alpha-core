@@ -544,7 +544,7 @@ class PlayerManager(UnitManager):
                         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
                         for looter in enemy.loot_manager.get_active_looters():
                             looter.session.enqueue_packet(packet)
-                        self.quest_manager.reward_item(loot.item.item_template.entry, loot.quantity)
+                        self.quest_manager.reward_item(loot.item.item_template.entry, item_count=loot.quantity)
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
