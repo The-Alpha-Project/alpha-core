@@ -165,20 +165,35 @@ class ActiveQuest:
             return current_items < required_items
         return False
 
-    # TODO: This is wrong, need to figure how to properly fill the int, how many bits per counter, etc.
-    #  1.12 implementations doesn't work here.
+    # Whats happening on get_progress() example:
+    # Required MobKills1 = 5
+    # Required MobKills2 = 12
+    # No Kills:					             Mob2                 Mob1
+    # 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 [0 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0]
+    # 1 kill on each
+    # 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 [0 0 0 0 0 0 0 0 0 0 0 1] [0 0 0 0 1]
+    # 3 kills on each
+    # 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 [0 0 0 0 0 0 0 0 0 1 1 1] [0 0 1 1 1]
     def get_progress(self):
-        required_bits = [0, 0, 0, 0]
-        count = [0, 0, 0, 0]
+        total_count = 0
         req_creature_or_go = QuestHelpers.generate_req_creature_or_go_list(self.quest)
         req_creature_or_go_count = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
         for index, creature_or_go in enumerate(req_creature_or_go):
             if req_creature_or_go[index] > 0:
                 current_count = eval(f'self.db_state.mobcount{index + 1}')
-                count[index] = current_count
-                required_bits[index] = req_creature_or_go_count[index].bit_length()
-            else:
-                required_bits[index] = 8
+                required = req_creature_or_go_count[index]
+                # Consider how many bits the previous creature required.
+                offset =  index * req_creature_or_go_count[index - 1] if index > 0 else 0
 
-        val = ((1 << count[0]) - 1) | ((1 << count[1]) - 1) << sum(required_bits[:2]) | ((1 << count[2]) - 1) << sum(required_bits[:3]) | ((1 << count[3]) - 1) << sum(required_bits)
-        return val
+                for i in range (0, required):
+                    if i < current_count: # Turn on actual kills
+                        total_count += (1 & 1) << (1 * i) + offset
+                    else: # Fill remaining 0s (Missing kills)
+                        total_count += 0 << (1 * i) + offset
+
+                # Debug, enable this to take a look whats happening at bit level.
+                # Logger.debug(f'{bin(mob_kills)[2:].zfill(32)}')
+
+        return total_count
+
+
