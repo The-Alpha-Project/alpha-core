@@ -116,16 +116,17 @@ class InventoryManager(object):
         items_added = (amount_left != count)
         if items_added:
             if show_item_get:
-                # Default to backpack so we can prefer highest slot ID to receive message (backpack ID is highest)
+                # Default to backpack so we can prefer highest slot ID to receive message (backpack ID is highest).
                 if target_bag_slot == -1:
                     target_bag_slot = InventorySlots.SLOT_INBACKPACK
                 self.send_item_receive_message(self.owner.guid, item_template.entry,
                                                target_bag_slot, looted, send_message)
 
-            # TODO: Using the commented code would mess up QuestLog counter upon first item looted, displaying 2/N
-            #  Also, adding items through '.additem' command would not display on QuestLog progress.
-            #self.owner.send_update_self(force_inventory_update=True)
-            self.owner.set_dirty(dirty_inventory=True)
+            # Update quest item count, if needed.
+            self.owner.quest_manager.reward_item(item_template.entry, item_count=count)
+            # Update own inventory.
+            self.owner.send_update_self(force_inventory_update=True)
+
         return items_added
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,

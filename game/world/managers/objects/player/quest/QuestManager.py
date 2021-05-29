@@ -15,7 +15,7 @@ from utils.constants.UpdateFields import PlayerFields
 # - quest_template or plain quest refers to the quest template (the db record / read only)
 # - active_quest refers to quests in the player's quest log
 
-MAX_QUEST_LOG = 20
+MAX_QUEST_LOG = 16
 QUEST_OBJECTIVES_COUNT = 4
 
 
@@ -563,22 +563,24 @@ class QuestManager(object):
         for quest_id, active_quest in self.active_quests.items():
             if active_quest.requires_item(item_entry):
                 active_quest.update_item_count(item_entry, item_count)
-                self.build_update()
-                self.player_mgr.send_update_self()
+                self.update_single_quest(quest_id)
                 # If by this item we complete the quest, update surrounding so NPC can display new complete status.
                 if active_quest.can_complete_quest():
                     self.complete_quest(active_quest, update_surrounding=True, notify=True)
+                return True
+        return False
 
     # TODO: Handle Gameobjects
     def reward_creature_or_go(self, creature):
         for quest_id, active_quest in self.active_quests.items():
             if active_quest.requires_creature_or_go(creature.entry):
                 active_quest.update_creature_go_count(creature, 1)
-                self.build_update()
-                self.player_mgr.send_update_self()
+                self.update_single_quest(quest_id)
                 # If by this kill we complete the quest, update surrounding so NPC can display new complete status.
                 if active_quest.can_complete_quest():
                     self.complete_quest(active_quest, update_surrounding=True, notify=True)
+                return True
+        return False
 
     def complete_quest(self, active_quest, update_surrounding=False, notify=False):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
@@ -603,18 +605,25 @@ class QuestManager(object):
                 return True
         return False
 
+    def update_single_quest(self, quest_id, slot=-1):
+        progress = 0
+        if quest_id in self.active_quests:
+            progress = self.active_quests[quest_id].get_progress()
+            if slot == -1:
+                slot = list(self.active_quests.keys()).index(quest_id)
+
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6), quest_id)
+        # TODO Finish / investigate below values
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 1, 0)  # quest giver ID ?
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 2, 0)  # quest rewarder ID ?
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 3, progress)  # quest progress
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 4, 0)  # quest failure time
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 5, 0)  # number of mobs to kill
+
     def build_update(self):
-        active_quests = list(self.active_quests.values())
-        for slot in range(0, 16):
-            quest_id = active_quests[slot].db_state.quest if slot < len(active_quests) else 0
-            progress = active_quests[slot].get_progress() if slot < len(active_quests) else 0
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6), quest_id)
-            # TODO Finish / investigate below values
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 1, 0)  # quest giver ID ?
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 2, 0)  # quest rewarder ID ?
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 3, progress)  # quest progress
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 4, 0)  # quest failure time
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 5, 0)  # number of mobs to kill
+        active_quest_list = list(self.active_quests.keys())
+        for slot in range(0, MAX_QUEST_LOG):
+            self.update_single_quest(active_quest_list[slot] if slot < len(active_quest_list) else 0, slot)
 
     def _create_db_quest_status(self, quest_id):
         db_quest_status = CharacterQuestState()
