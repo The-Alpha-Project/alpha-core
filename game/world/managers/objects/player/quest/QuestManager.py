@@ -560,7 +560,6 @@ class QuestManager(object):
         self.build_update()
         self.player_mgr.send_update_self()
 
-    # TODO: Quest log counter display is wrong, but it seems to be InventoryManager related.
     def reward_item(self, item_entry, item_count):
         for quest_id, active_quest in self.active_quests.items():
             if active_quest.requires_item(item_entry):
