@@ -343,6 +343,7 @@ class CreatureManager(UnitManager):
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
             self.killed_by = killer
+            self.killed_by.quest_manager.reward_creature_or_go(self)
             if self.killed_by.group_manager and self.loot_manager.has_loot():
                 self.killed_by.group_manager.set_allowed_looters(self)
 

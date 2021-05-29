@@ -17,5 +17,5 @@ class QuestGiverAcceptQuestHandler(object):
             if world_session.player_mgr.is_enemy_to(quest_giver):
                 return 0
 
-            world_session.player_mgr.quest_manager.handle_add_quest(quest_id, quest_giver_guid)
+            world_session.player_mgr.quest_manager.handle_accept_quest(quest_id, quest_giver_guid)
         return 0

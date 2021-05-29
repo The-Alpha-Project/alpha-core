@@ -121,7 +121,11 @@ class InventoryManager(object):
                     target_bag_slot = InventorySlots.SLOT_INBACKPACK
                 self.send_item_receive_message(self.owner.guid, item_template.entry,
                                                target_bag_slot, looted, send_message)
-            self.owner.send_update_self(force_inventory_update=True)
+
+            # TODO: Using the commented code would mess up QuestLog counter upon first item looted, displaying 2/N
+            #  Also, adding items through '.additem' command would not display on QuestLog progress. @Grender
+            # self.owner.send_update_self(force_inventory_update=True)
+            self.owner.set_dirty(dirty_inventory=True)
         return items_added
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,

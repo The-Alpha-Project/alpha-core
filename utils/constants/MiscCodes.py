@@ -270,6 +270,12 @@ class ReputationFlag(IntEnum):
     ATWAR = 2
 
 
+class QuestMethod(IntEnum):
+    QUEST_AUTOCOMPLETE = 0
+    QUEST_DISABLED = 1
+    QUEST_ENABLED = 2
+
+
 class QuestState(IntEnum):
     QUEST_GREETING = 0
     QUEST_OFFER = 1
@@ -278,23 +284,23 @@ class QuestState(IntEnum):
     QUEST_STATE_NUM_TYPES = 4
 
 
-class QuestFailedReasons(IntEnum):
-    INVALIDREASON_DONT_HAVE_REQ = 0
-    INVALIDREASON_QUEST_FAILED_LOW_LEVEL = 1  # You are not high enough level for that quest.
-    INVALIDREASON_QUEST_FAILED_WRONG_RACE = 6  # That quest is not available to your race.
-    INVALIDREASON_QUEST_ONLY_ONE_TIMED = 12  # You can only be on one timed quest at a time.
-    INVALIDREASON_QUEST_ALREADY_ON = 13  # You are already on that quest
-    INVALIDREASON_QUEST_FAILED_MISSING_ITEMS = 21  # You don't have the required items with you. Check storage.
-    INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY = 23  # You don't have enough money for that quest.
-
-
 class QuestGiverStatus(IntEnum):
     QUEST_GIVER_NONE = 0
     QUEST_GIVER_TRIVIAL = 1
     QUEST_GIVER_FUTURE = 2
     QUEST_GIVER_REWARD = 3
     QUEST_GIVER_QUEST = 4
-    QUEST_GIVER_NUMITEMS = 5
+    QUEST_GIVER_NUM_ITEMS = 5
+
+
+class QuestFailedReasons(IntEnum):
+    QUEST_MISSING_REQ = 0  # Missing requirements
+    QUEST_FAILED_LOW_LEVEL = 1  # You are not high enough level for that quest.
+    QUEST_FAILED_WRONG_RACE = 6  # That quest is not available to your race.
+    QUEST_ONLY_ONE_TIMED = 12  # You can only be on one timed quest at a time.
+    QUEST_ALREADY_ON = 13  # You are already on that quest
+    QUEST_FAILED_MISSING_ITEMS = 21  # You don't have the required items with you. Check storage.
+    QUEST_FAILED_NOT_ENOUGH_MONEY = 23  # You don't have enough money for that quest.
 
 
 class SkillCategories(IntEnum):
