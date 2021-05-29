@@ -33,6 +33,7 @@ class QuestManager(object):
             elif quest_db_state.state == QuestState.QUEST_ACCEPTED or quest_db_state.state == QuestState.QUEST_REWARD:
                 active_quest = ActiveQuest(quest_db_state, self.player_mgr)
                 self.active_quests[quest_db_state.quest] = active_quest
+                # Needed in case the WDB has been deleted, otherwise non cached quests won't appear in the log.
                 self.send_quest_query_response(active_quest)
             else:
                 Logger.error(
