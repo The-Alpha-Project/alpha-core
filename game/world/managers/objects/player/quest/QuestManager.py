@@ -512,10 +512,9 @@ class QuestManager(object):
                 self.player_mgr.inventory.remove_items(req_item, req_item_count[index])
 
         # Add the chosen item, if any.
-        if item_choice:
-            rew_item_choice_list = QuestHelpers.generate_rew_choice_item_list(active_quest.quest)
-            if item_choice < len(rew_item_choice_list) and rew_item_choice_list[item_choice] > 0:
-                self.player_mgr.inventory.add_item(entry=rew_item_choice_list[item_choice], show_item_get=False)
+        rew_item_choice_list = QuestHelpers.generate_rew_choice_item_list(active_quest.quest)
+        if item_choice < len(rew_item_choice_list) and rew_item_choice_list[item_choice] > 0:
+            self.player_mgr.inventory.add_item(entry=rew_item_choice_list[item_choice], show_item_get=False)
 
         given_xp = active_quest.reward_xp()
         given_gold = active_quest.reward_gold()
