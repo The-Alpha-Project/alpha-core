@@ -560,7 +560,7 @@ class QuestManager(object):
         self.build_update()
         self.player_mgr.send_update_self()
 
-    # TODO: Quest log counter display is wrong, but seems to be InventoryManager related.
+    # TODO: Quest log counter display is wrong, but it seems to be InventoryManager related.
     def reward_item(self, item_entry, item_count):
         for quest_id, active_quest in self.active_quests.items():
             if active_quest.requires_item(item_entry):
@@ -571,8 +571,7 @@ class QuestManager(object):
                 if active_quest.can_complete_quest():
                     self.complete_quest(active_quest, update_surrounding=True)
 
-    # TODO: Quest log counter display is wrong.
-    #  Handle Gameobjects
+    # TODO: Handle Gameobjects
     def reward_creature_or_go(self, creature):
         for quest_id, active_quest in self.active_quests.items():
             if active_quest.requires_creature_or_go(creature.entry):
