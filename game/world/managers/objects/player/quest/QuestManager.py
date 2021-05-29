@@ -405,7 +405,7 @@ class QuestManager(object):
             data += self._gen_item_struct(req_items[index], req_items_count_list[index])
 
         data += pack(
-            '<5I',
+            '<4I',
             0x02,
             0x03 if is_complete else 0x00,  # Completable = flags1 && flags2 && flags3 && flags4
             0x04,  # flags2

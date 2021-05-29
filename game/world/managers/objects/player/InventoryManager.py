@@ -123,8 +123,8 @@ class InventoryManager(object):
                                                target_bag_slot, looted, send_message)
 
             # TODO: Using the commented code would mess up QuestLog counter upon first item looted, displaying 2/N
-            #  Also, adding items through '.additem' command would not display on QuestLog progress. @Grender
-            # self.owner.send_update_self(force_inventory_update=True)
+            #  Also, adding items through '.additem' command would not display on QuestLog progress.
+            #self.owner.send_update_self(force_inventory_update=True)
             self.owner.set_dirty(dirty_inventory=True)
         return items_added
 
