@@ -290,7 +290,7 @@ class QuestGiverStatus(IntEnum):
     QUEST_GIVER_FUTURE = 2
     QUEST_GIVER_REWARD = 3
     QUEST_GIVER_QUEST = 4
-    QUEST_GIVER_NUM_ITEMS = 5
+    QUEST_GIVER_NUMITEMS = 5
 
 
 class QuestFailedReasons(IntEnum):

@@ -360,7 +360,7 @@ class QuestManager(object):
                 req_creatures_or_gos_count_list[index],
                 req_items[index],
                 req_items_count_list[index],
-                0  # Unknown, if missing, multiple objective quests will not display properly.
+                0x0  # Unknown, if missing, multiple objective quests will not display properly.
             )
 
         # Objective texts
@@ -406,11 +406,10 @@ class QuestManager(object):
 
         data += pack(
             '<5I',
-            2,
-            3 if is_complete else 0,  # Completable = flags1 && flags2 && flags3 && flags4
-            4,  # flags2
-            8,  # flags3
-            10
+            0x02,
+            0x03 if is_complete else 0x00,  # Completable = flags1 && flags2 && flags3 && flags4
+            0x04,  # flags2
+            0x08  # flags3
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_REQUEST_ITEMS, data)
