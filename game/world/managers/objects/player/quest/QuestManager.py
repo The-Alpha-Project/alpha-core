@@ -568,7 +568,7 @@ class QuestManager(object):
                 self.player_mgr.send_update_self()
                 # If by this item we complete the quest, update surrounding so NPC can display new complete status.
                 if active_quest.can_complete_quest():
-                    self.complete_quest(active_quest, update_surrounding=True)
+                    self.complete_quest(active_quest, update_surrounding=True, notify=True)
 
     # TODO: Handle Gameobjects
     def reward_creature_or_go(self, creature):
@@ -579,10 +579,16 @@ class QuestManager(object):
                 self.player_mgr.send_update_self()
                 # If by this kill we complete the quest, update surrounding so NPC can display new complete status.
                 if active_quest.can_complete_quest():
-                    self.complete_quest(active_quest, update_surrounding=True)
+                    self.complete_quest(active_quest, update_surrounding=True, notify=True)
 
-    def complete_quest(self, active_quest, update_surrounding=False):
+    def complete_quest(self, active_quest, update_surrounding=False, notify=False):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
+
+        if notify:
+            data = pack('<I', active_quest.quest.entry)
+            packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_COMPLETE, data)
+            self.player_mgr.session.enqueue_packet(packet)
+
         if update_surrounding:
             self.update_surrounding_quest_status()
 
