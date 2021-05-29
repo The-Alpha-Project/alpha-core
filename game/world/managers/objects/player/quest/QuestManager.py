@@ -31,7 +31,9 @@ class QuestManager(object):
             if quest_db_state.rewarded > 0:
                 self.completed_quests.add(quest_db_state.quest)
             elif quest_db_state.state == QuestState.QUEST_ACCEPTED or quest_db_state.state == QuestState.QUEST_REWARD:
-                self.active_quests[quest_db_state.quest] = ActiveQuest(quest_db_state, self.player_mgr)
+                active_quest = ActiveQuest(quest_db_state, self.player_mgr)
+                self.active_quests[quest_db_state.quest] = active_quest
+                self.send_quest_query_response(active_quest)
             else:
                 Logger.error(
                     f"Quest database (guid={quest_db_state.guid}, quest_id={quest_db_state.quest}) has state {quest_db_state.state}. No handling.")
