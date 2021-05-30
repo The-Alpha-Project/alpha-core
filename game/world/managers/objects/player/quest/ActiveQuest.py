@@ -185,6 +185,8 @@ class ActiveQuest:
             if current_count - count < req_item_count[index]:
                 self._update_db_item_count(index, -count)
                 self.update_quest_state(QuestState.QUEST_ACCEPTED)
+                return True
+        return False
 
     # Whats happening inside get_progress():
     # Required MobKills1 = 5

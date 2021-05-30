@@ -562,10 +562,14 @@ class QuestManager(object):
         self.player_mgr.send_update_self()
 
     def pop_item(self, item_entry, item_count):
+        should_update = False
         for active_quest in list(self.active_quests.values()):
             if active_quest.requires_item(item_entry):
-                active_quest.pop_item(item_entry, item_count)
-        self.update_surrounding_quest_status()
+                if active_quest.pop_item(item_entry, item_count):
+                    should_update = True
+
+        if should_update:
+            self.update_surrounding_quest_status()
 
     def reward_item(self, item_entry, item_count):
         for quest_id, active_quest in self.active_quests.items():
