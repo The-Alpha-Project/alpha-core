@@ -35,7 +35,8 @@ class TrainerBuySpellHandler(object):
                     world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_SUCCEEDED, data))
                     
             else: # Trainer
-                spell_cost = WorldDatabaseManager.get_trainer_spell_cost_by_id(spell_id)
+                trainer_spell = WorldDatabaseManager.get_trainer_spell_by_id(spell_id)
+                spell_cost = trainer_spell.spellcost
                 npc: CreatureManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, trainer_guid)
                 
                 if not npc.is_trainer(): # Not a trainer
@@ -50,12 +51,12 @@ class TrainerBuySpellHandler(object):
                 elif spell_cost > world_session.player_mgr.coinage:
                     ChatManager.send_system_message(world_session, 'Not enough money.')
                     return 0
-                elif spell_id in world_session.player_mgr.spell_manager.spells: # Until the 'spells already trained stay green until exiting trainer window' ... problem is fixed
+                elif spell_id in world_session.player_mgr.spell_manager.spells:
                     ChatManager.send_system_message(world_session, 'You already know that spell.')
                     return 0
                 else:
                     world_session.player_mgr.mod_money(-spell_cost)
-                    world_session.player_mgr.spell_manager.learn_spell(spell_id) # Spells 'should' be learned using learning spells (spells that the trainer casts on the player), but they don't work.
+                    world_session.player_mgr.spell_manager.learn_spell(spell_id) # "Learn" spells do not currently work. (The spells the trainer uses to teach the spell)
                     ChatManager.send_system_message(world_session, f'You learned SpellID {spell_id}')
                     
                     data = pack('<QI', trainer_guid, spell_id)
