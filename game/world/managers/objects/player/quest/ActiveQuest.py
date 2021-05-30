@@ -19,14 +19,14 @@ class ActiveQuest:
         # TODO: check that quest_giver_guid is turn-in for quest_id
         return True
 
-    # Can't be static.
+    # noinspection PyMethodMayBeStatic
     def has_item_reward(self):
         for index in range(1, 5):
             if eval(f'self.quest.RewItemId{index}') > 0:
                 return True
         return False
 
-    # Can't be static.
+    # noinspection PyMethodMayBeStatic
     def has_pick_reward(self):
         for index in range(1, 5):
             if eval(f'self.quest.RewChoiceItemId{index}') > 0:
@@ -46,7 +46,7 @@ class ActiveQuest:
     def update_creature_go_count(self, creature, value):
         creature_go_index = QuestHelpers.generate_req_creature_or_go_list(self.quest).index(creature.entry)
         required = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[creature_go_index]
-        current = eval(f'self.db_state.mobcount{creature_go_index + 1}')
+        current = self._get_db_mob_or_go_count(creature_go_index)
         # Current < Required is already validated on requires_creature_or_go()
         self._update_db_creature_go_count(creature_go_index, 1)  # Update db memento
         # Notify the current objective count to the player
@@ -86,6 +86,14 @@ class ActiveQuest:
         elif index == 3:
             self.db_state.itemcount4 += value
         self.save(is_new=False)
+
+    # noinspection PyMethodMayBeStatic
+    def _get_db_item_count(self, index):
+        return eval(f'self.db_state.itemcount{index + 1}')
+
+    # noinspection PyMethodMayBeStatic
+    def _get_db_mob_or_go_count(self, index):
+        return eval(f'self.db_state.mobcount{index + 1}')
 
     def get_quest_state(self):
         return self.db_state.state
@@ -154,22 +162,29 @@ class ActiveQuest:
             return current_kills < required_kills
         return False
 
-    def requires_item(self, item_entry):
+    def still_needs_item(self, item_entry):
         req_item = QuestHelpers.generate_req_item_list(self.quest)
         required = item_entry in req_item
         if required:
             index = req_item.index(item_entry)
             required_items = QuestHelpers.generate_req_item_count_list(self.quest)[index]
-            current_items = eval(f'self.db_state.itemcount{index + 1}')
+            current_items = self._get_db_item_count(index)
             return current_items < required_items
-        return False
+
+    def requires_item(self, item_entry):
+        req_item = QuestHelpers.generate_req_item_list(self.quest)
+        return item_entry in req_item
 
     def pop_item(self, item_entry, count):
         req_item = QuestHelpers.generate_req_item_list(self.quest)
         required = item_entry in req_item
         if required:
+            req_item_count = QuestHelpers.generate_req_item_count_list(self.quest)
             index = req_item.index(item_entry)
-            self._update_db_item_count(index, -count)
+            current_count = self.owner.inventory.get_item_count(item_entry)
+            if current_count - count < req_item_count[index]:
+                self._update_db_item_count(index, -count)
+                self.update_quest_state(QuestState.QUEST_ACCEPTED)
 
     # Whats happening inside get_progress():
     # Required MobKills1 = 5

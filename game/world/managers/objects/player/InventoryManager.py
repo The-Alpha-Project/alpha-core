@@ -328,15 +328,14 @@ class InventoryManager(object):
         if clear_slot:
             self.send_destroy_packet(target_slot, target_container.sorted_slots)
 
+        # Update the quest db state if needed.
+        self.owner.quest_manager.pop_item(target_item.item_template.entry, target_item.item_instance.stackcount)
+
         self.mark_as_removed(target_item)
         target_container.remove_item_in_slot(target_slot)
 
         if clear_slot:
             RealmDatabaseManager.character_inventory_delete(target_item.item_instance)
-
-        # If this was a required item for a quest, update the quest db state.
-        if self.owner.quest_manager.item_is_required_by_quest(target_item.item_template.entry):
-            self.owner.quest_manager.pop_item(target_item.item_template.entry, target_item.item_instance.stackcount)
 
         if target_container.is_backpack and \
                 self.is_bag_pos(target_slot) and self.get_container(target_slot):  # Equipped bags
