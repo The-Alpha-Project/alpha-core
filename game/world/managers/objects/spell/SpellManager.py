@@ -48,10 +48,13 @@ class SpellManager(object):
         # Teach skill required as well like in CharCreateHandler?
         return True
 
-    def get_initial_spells(self):
+    def get_initial_spells(self, character=None):
+        spell_buttons = RealmDatabaseManager.character_get_spell_buttons(character.guid) if character else dict()
+
         data = pack('<BH', 0, len(self.spells))
         for spell_id, spell in self.spells.items():
-            data += pack('<2H', spell.spell, 0)
+            index = spell_buttons[spell.spell] if spell.spell in spell_buttons else 0
+            data += pack('<2h', spell.spell, index)
         data += pack('<H', 0)
 
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
