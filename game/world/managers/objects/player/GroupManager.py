@@ -299,6 +299,14 @@ class GroupManager(object):
         for member in surrounding_members:
             member.give_xp([base_xp * member.level / sum_levels], creature)
 
+    def reward_group_creature_or_go(self, player, creature):
+        surrounding_players = MapManager.get_surrounding_players(player).values()
+        surrounding_members = [player for player in surrounding_players if player.guid in self.members]
+
+        for member in surrounding_members:
+            member.quest_manager.reward_creature_or_go(creature)
+            member.send_update_self()
+
     def send_invite_decline(self, player_name):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)
         if player_mgr:
