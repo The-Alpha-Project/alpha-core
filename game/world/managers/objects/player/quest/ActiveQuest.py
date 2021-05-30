@@ -12,6 +12,7 @@ class ActiveQuest:
         self.owner = player_mgr
         self.db_state = quest_db_state
         self.quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(self.db_state.quest)
+        self.failed = False
 
     def is_quest_complete(self, quest_giver_guid):
         if self.db_state.state != QuestState.QUEST_REWARD:
@@ -67,16 +68,23 @@ class ActiveQuest:
 
     def update_item_count(self, item_entry, quantity):
         req_items = QuestHelpers.generate_req_item_list(self.quest)
+        req_count = QuestHelpers.generate_req_item_count_list(self.quest)
         req_item_index = req_items.index(item_entry)
         # Persist new item count
-        self._update_db_item_count(req_item_index, quantity)  # Update db memento
+        self._update_db_item_count(req_item_index, quantity, req_count[req_item_index])  # Update db memento
         # Notify the current item count to the player
         data = pack('<2I', item_entry, quantity)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
         self.owner.session.enqueue_packet(packet)
 
-    def _update_db_item_count(self, index, value):
-        # Can't assign value with dynamic func eval. :/
+    def _update_db_item_count(self, index, value, required):
+        # Be sure we clamp between 0 and required.
+        current_count = self._get_db_item_count(index)
+        if current_count + value > required:
+            value = required
+        if current_count + value < 0:
+            value = 0
+
         if index == 0:
             self.db_state.itemcount1 += value
         elif index == 1:
@@ -171,9 +179,19 @@ class ActiveQuest:
             current_items = self._get_db_item_count(index)
             return current_items < required_items
 
+    def fill_existent_items(self):
+        req_item = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
+        req_count = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(self.quest)))
+        for index, item in enumerate(req_item):
+            current_count = self.owner.inventory.get_item_count(item)
+            if current_count:
+                self._update_db_item_count(index, current_count, req_count[index])
+
+    # Todo: What are ReqSource1/2/3/4, should we add columns to db? Consider upon deletion etc?
     def requires_item(self, item_entry):
         req_item = QuestHelpers.generate_req_item_list(self.quest)
-        return item_entry in req_item
+        req_src_item = QuestHelpers.generate_req_source_list(self.quest)
+        return item_entry in req_item or item_entry in req_src_item
 
     def pop_item(self, item_entry, count):
         req_item = QuestHelpers.generate_req_item_list(self.quest)
@@ -183,8 +201,8 @@ class ActiveQuest:
             index = req_item.index(item_entry)
             current_count = self.owner.inventory.get_item_count(item_entry)
             if current_count - count < req_item_count[index]:
-                self._update_db_item_count(index, -count)
-                self.update_quest_state(QuestState.QUEST_ACCEPTED)
+                self._update_db_item_count(index, -count, req_item_count[index])
+                self.failed = item_entry == self.quest.SrcItemId
                 return True
         return False
 

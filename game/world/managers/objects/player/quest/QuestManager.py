@@ -163,11 +163,12 @@ class QuestManager(object):
         if class_is_required and not (quest_template.RequiredClasses & self.player_mgr.class_mask):
             return False
 
-        # Does the character have the required source item
-        source_item_required = quest_template.SrcItemId > 0
-        does_not_have_source_item = self.player_mgr.inventory.get_item_count(quest_template.SrcItemId) == 0
-        if source_item_required and does_not_have_source_item:
-            return False
+        # Does the character have the required source items
+        source_item_required = list(filter((0).__ne__, QuestHelpers.generate_req_source_list(quest_template)))
+        source_item_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_source_count_list(quest_template)))
+        for index, item in enumerate(source_item_required):
+            if self.player_mgr.inventory.get_item_count(item) < source_item_count_list[index]:
+                return False
 
         # Has the character already started the next quest in the chain
         if quest_template.NextQuestInChain > 0 and quest_template.NextQuestInChain in self.completed_quests:
@@ -476,8 +477,15 @@ class QuestManager(object):
         active_quest = self._create_db_quest_status(quest_id)
         active_quest.save(is_new=True)
 
+        req_src_item = active_quest.quest.SrcItemId
+        req_src_item_count = active_quest.quest.SrcItemCount
+        if req_src_item != 0:
+            self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count)
+
         self.add_to_quest_log(quest_id, active_quest)
         self.send_quest_query_response(active_quest)
+        # Check if the player already have related items.
+        active_quest.fill_existent_items()
         if active_quest.can_complete_quest():
             self.complete_quest(active_quest, update_surrounding=False)
 
@@ -566,6 +574,8 @@ class QuestManager(object):
         for active_quest in list(self.active_quests.values()):
             if active_quest.requires_item(item_entry):
                 if active_quest.pop_item(item_entry, item_count):
+                    if active_quest.failed:
+                        self.quest_failed(active_quest)
                     should_update = True
 
         if should_update:
@@ -593,6 +603,12 @@ class QuestManager(object):
                     self.complete_quest(active_quest, update_surrounding=True, notify=True)
                 return True
         return False
+
+    def quest_failed(self, active_quest):
+        print('Quest failed')
+        data = pack('<I', active_quest.quest.entry)
+        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_FAILED, data)
+        self.player_mgr.session.enqueue_packet(packet)
 
     def complete_quest(self, active_quest, update_surrounding=False, notify=False):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
