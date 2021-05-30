@@ -809,10 +809,10 @@ class SpellChain(Base):
     __tablename__ = 'spell_chain'
 
     spell_id = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
-    prev_spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
-    first_spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
-    rank = Column(TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
-    req_spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    prev_spell = Column(MEDIUMINT(8), primary_key=False, nullable=False, server_default=text("'0'"))
+    first_spell = Column(MEDIUMINT(8), primary_key=False, nullable=False, server_default=text("'0'"))
+    rank = Column(TINYINT(3), primary_key=False, nullable=False, server_default=text("'0'"))
+    req_spell = Column(MEDIUMINT(8), primary_key=False, nullable=False, server_default=text("'0'"))
 
 class NpcVendor(Base):
     __tablename__ = 'npc_vendor'
