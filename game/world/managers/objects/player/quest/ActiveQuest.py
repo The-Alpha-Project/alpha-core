@@ -12,6 +12,7 @@ class ActiveQuest:
         self.owner = player_mgr
         self.db_state = quest_db_state
         self.quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(self.db_state.quest)
+        self.failed = False
 
     def is_quest_complete(self, quest_giver_guid):
         if self.db_state.state != QuestState.QUEST_REWARD:
@@ -186,9 +187,11 @@ class ActiveQuest:
             if current_count:
                 self._update_db_item_count(index, current_count, req_count[index])
 
+    # Todo: What are ReqSource1/2/3/4, should we add columns to db? Consider upon deletion etc?
     def requires_item(self, item_entry):
         req_item = QuestHelpers.generate_req_item_list(self.quest)
-        return item_entry in req_item
+        req_src_item = QuestHelpers.generate_req_source_list(self.quest)
+        return item_entry in req_item or item_entry in req_src_item
 
     def pop_item(self, item_entry, count):
         req_item = QuestHelpers.generate_req_item_list(self.quest)
@@ -199,7 +202,7 @@ class ActiveQuest:
             current_count = self.owner.inventory.get_item_count(item_entry)
             if current_count - count < req_item_count[index]:
                 self._update_db_item_count(index, -count, req_item_count[index])
-                self.update_quest_state(QuestState.QUEST_ACCEPTED)
+                self.failed = item_entry == self.quest.SrcItemId
                 return True
         return False
 
