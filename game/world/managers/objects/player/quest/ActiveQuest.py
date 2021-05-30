@@ -48,9 +48,9 @@ class ActiveQuest:
         creature_go_index = QuestHelpers.generate_req_creature_or_go_list(self.quest).index(creature.entry)
         required = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[creature_go_index]
         current = self._get_db_mob_or_go_count(creature_go_index)
-        # Current < Required is already validated on requires_creature_or_go()
+        # Current < Required is already validated on requires_creature_or_go().
         self._update_db_creature_go_count(creature_go_index, 1)  # Update db memento
-        # Notify the current objective count to the player
+        # Notify the current objective count to the player.
         data = pack('<4IQ', self.db_state.quest, creature.entry, current + value, required, creature.guid)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_KILL, data)
         self.owner.session.enqueue_packet(packet)
@@ -70,9 +70,9 @@ class ActiveQuest:
         req_items = QuestHelpers.generate_req_item_list(self.quest)
         req_count = QuestHelpers.generate_req_item_count_list(self.quest)
         req_item_index = req_items.index(item_entry)
-        # Persist new item count
+        # Persist new item count.
         self._update_db_item_count(req_item_index, quantity, req_count[req_item_index])  # Update db memento
-        # Notify the current item count to the player
+        # Notify the current item count to the player.
         data = pack('<2I', item_entry, quantity)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
         self.owner.session.enqueue_packet(packet)
@@ -146,14 +146,14 @@ class ActiveQuest:
         if self.is_instant_complete_quest():
             return True
 
-        # Check for required kills/go's
+        # Check for required kills / gameobjects.
         required_creature_go = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
         for i in range(0, 4):
             current_value = eval(f'self.db_state.mobcount{i + 1}')
             if current_value != required_creature_go[i]:
                 return False
 
-        # Check for required items
+        # Check for required items.
         required_items = QuestHelpers.generate_req_item_count_list(self.quest)
         for i in range(0, 4):
             current_value = eval(f'self.db_state.itemcount{i + 1}')
