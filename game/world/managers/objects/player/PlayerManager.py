@@ -92,7 +92,7 @@ class PlayerManager(UnitManager):
 
         if self.player:
             self.set_player_variables()
-            self.guid = self.player.guid | HighGuid.HIGHGUID_PLAYER
+            self.guid = self.generate_object_guid(self.player.guid)
             self.inventory = InventoryManager(self)
             self.level = self.player.level
             self.player_bytes = unpack('<I', pack('<4B', self.player.skin, self.player.face, self.player.hairstyle, self.player.haircolour))[0]
@@ -1272,6 +1272,10 @@ class PlayerManager(UnitManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_PLAYER
+
+    # override
+    def generate_object_guid(self, low_guid):
+        return low_guid | HighGuid.HIGHGUID_PLAYER
 
     @staticmethod
     def get_team_for_race(race):

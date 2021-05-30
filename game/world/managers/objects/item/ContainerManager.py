@@ -11,7 +11,7 @@ class ContainerManager(ItemManager):
     def __init__(self, owner, item_template=None, item_instance=None, is_backpack=False, **kwargs):
         super().__init__(item_template, item_instance, **kwargs)
 
-        self.guid = (item_instance.guid if item_instance else 0) | HighGuid.HIGHGUID_CONTAINER
+        self.guid = self.generate_object_guid(item_instance.guid if item_instance else 0)
         self.owner = owner
         self.is_backpack = is_backpack
         if self.is_backpack:
@@ -193,3 +193,7 @@ class ContainerManager(ItemManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_CONTAINER
+
+    # override
+    def generate_object_guid(self, low_guid):
+        return low_guid | HighGuid.HIGHGUID_CONTAINER

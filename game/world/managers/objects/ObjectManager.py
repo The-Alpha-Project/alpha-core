@@ -239,20 +239,20 @@ class ObjectManager(object):
 
     # override
     def get_debug_messages(self):
-        if self.get_type() == ObjectTypes.TYPE_UNIT:
-            guid = self.guid & ~HighGuid.HIGHGUID_UNIT
-        elif self.get_type() == ObjectTypes.TYPE_PLAYER:
-            guid = self.guid & ~HighGuid.HIGHGUID_PLAYER
-        elif self.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
-            guid = self.guid & ~HighGuid.HIGHGUID_GAMEOBJECT
-        else:
-            guid = self.guid
-
+        low_guid = self.guid & ~ObjectManager.extract_high_guid(self.guid)
         return [
-            f'Guid: {guid}, Entry: {self.entry}, Display ID: {self.current_display_id}',
+            f'Guid: {low_guid}, Entry: {self.entry}, Display ID: {self.current_display_id}',
             f'X: {self.location.x}, Y: {self.location.y}, Z: {self.location.z}, O: {self.location.o}'
         ]
+
+    # override
+    def generate_object_guid(self, low_guid):
+        pass
 
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)
         return PacketWriter.get_packet(OpCode.SMSG_DESTROY_OBJECT, data)
+
+    @staticmethod
+    def extract_high_guid(guid):
+        return HighGuid(guid & (0xFFFF << 48))

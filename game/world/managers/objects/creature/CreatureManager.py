@@ -31,7 +31,7 @@ class CreatureManager(UnitManager):
         self.creature_instance = creature_instance
         self.killed_by = None
 
-        self.guid = (creature_instance.spawn_id if creature_instance else 0) | HighGuid.HIGHGUID_UNIT
+        self.guid = self.generate_object_guid(creature_instance.spawn_id if creature_instance else 0)
 
         if self.creature_template:
             self.entry = self.creature_template.entry

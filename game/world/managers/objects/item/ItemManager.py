@@ -50,7 +50,7 @@ class ItemManager(ObjectManager):
 
         self.item_template = item_template
         self.item_instance = item_instance
-        self.guid = (item_instance.guid if item_instance else 0) | HighGuid.HIGHGUID_ITEM
+        self.guid = self.generate_object_guid(item_instance.guid if item_instance else 0)
         self.current_slot = item_instance.slot if item_instance else 0
         self.is_contained = item_instance.owner if item_instance else 0
         self.is_backpack = False
@@ -356,3 +356,7 @@ class ItemManager(ObjectManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_ITEM
+
+    # override
+    def generate_object_guid(self, low_guid):
+        return low_guid | HighGuid.HIGHGUID_ITEM
