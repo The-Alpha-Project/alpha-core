@@ -40,14 +40,14 @@ class ActiveQuest:
 
     def reward_xp(self):
         xp = Formulas.PlayerFormulas.quest_xp_reward(self.quest.QuestLevel, self.owner.level, self.quest.RewXP)
-        self.owner.give_xp([xp])
+        self.owner.give_xp([xp], notify=False)
         return xp
 
     def update_creature_go_count(self, creature, value):
         creature_go_index = QuestHelpers.generate_req_creature_or_go_list(self.quest).index(creature.entry)
         required = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[creature_go_index]
         current = eval(f'self.db_state.mobcount{creature_go_index + 1}')
-        # Current < Required is already validate on requires_mob_kill()
+        # Current < Required is already validated on requires_creature_or_go()
         self._update_db_creature_go_count(creature_go_index, 1)  # Update db memento
         # Notify the current objective count to the player
         data = pack('<4IQ', self.db_state.quest, creature.entry, current + value, required, creature.guid)
@@ -55,7 +55,6 @@ class ActiveQuest:
         self.owner.session.enqueue_packet(packet)
 
     def _update_db_creature_go_count(self, index, value):
-        # Can't assign value with dynamic func eval. :/
         if index == 0:
             self.db_state.mobcount1 += value
         elif index == 1:
@@ -72,7 +71,7 @@ class ActiveQuest:
         # Persist new item count
         self._update_db_item_count(req_item_index, quantity)  # Update db memento
         # Notify the current item count to the player
-        data = pack('<2I', item_entry, quantity)  # TODO: Investigate, this counter is wrong.
+        data = pack('<2I', item_entry, quantity)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
         self.owner.session.enqueue_packet(packet)
 
@@ -165,7 +164,14 @@ class ActiveQuest:
             return current_items < required_items
         return False
 
-    # Whats happening on get_progress() example:
+    def pop_item(self, item_entry, count):
+        req_item = QuestHelpers.generate_req_item_list(self.quest)
+        required = item_entry in req_item
+        if required:
+            index = req_item.index(item_entry)
+            self._update_db_item_count(index, -count)
+
+    # Whats happening inside get_progress():
     # Required MobKills1 = 5
     # Required MobKills2 = 12
     # No Kills:					             Mob2                 Mob1
@@ -183,17 +189,15 @@ class ActiveQuest:
                 current_count = eval(f'self.db_state.mobcount{index + 1}')
                 required = req_creature_or_go_count[index]
                 # Consider how many bits the previous creature required.
-                offset =  index * req_creature_or_go_count[index - 1] if index > 0 else 0
+                offset = index * req_creature_or_go_count[index - 1] if index > 0 else 0
 
-                for i in range (0, required):
-                    if i < current_count: # Turn on actual kills
+                for i in range(0, required):
+                    if i < current_count:  # Turn on actual kills
                         total_count += (1 & 1) << (1 * i) + offset
-                    else: # Fill remaining 0s (Missing kills)
+                    else:  # Fill remaining 0s (Missing kills)
                         total_count += 0 << (1 * i) + offset
 
-                # Debug, enable this to take a look whats happening at bit level.
+                # Debug, enable this to take a look on whats happening at bit level.
                 # Logger.debug(f'{bin(mob_kills)[2:].zfill(32)}')
 
         return total_count
-
-
