@@ -204,6 +204,7 @@ class ActiveQuest:
             current_count = self.owner.inventory.get_item_count(item_entry)
             if current_count - count < req_item_count[index]:
                 self._update_db_item_count(index, -count, req_item_count[index])
+                self.update_quest_state(QuestState.QUEST_ACCEPTED)
                 return True
         return False
 
