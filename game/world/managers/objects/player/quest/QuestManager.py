@@ -607,7 +607,7 @@ class QuestManager(object):
                 return True
         return False
 
-    def item_is_needed_by_any_quest(self, item_entry):
+    def item_is_still_needed_by_any_quest(self, item_entry):
         for active_quest in list(self.active_quests.values()):
             if active_quest.still_needs_item(item_entry):
                 return True
