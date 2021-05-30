@@ -30,7 +30,7 @@ class TaxiManager(object):
             self.available_taxi_nodes.setall(1)
 
             data = pack(
-                f'<IQIQQ',
+                f'<IQI2Q',
                 1,  # Show map
                 flight_master_guid,  # NPC taxi guid
                 node,  # Current node
