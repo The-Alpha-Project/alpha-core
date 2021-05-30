@@ -67,16 +67,23 @@ class ActiveQuest:
 
     def update_item_count(self, item_entry, quantity):
         req_items = QuestHelpers.generate_req_item_list(self.quest)
+        req_count = QuestHelpers.generate_req_item_count_list(self.quest)
         req_item_index = req_items.index(item_entry)
         # Persist new item count
-        self._update_db_item_count(req_item_index, quantity)  # Update db memento
+        self._update_db_item_count(req_item_index, quantity, req_count[req_item_index])  # Update db memento
         # Notify the current item count to the player
         data = pack('<2I', item_entry, quantity)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
         self.owner.session.enqueue_packet(packet)
 
-    def _update_db_item_count(self, index, value):
-        # Can't assign value with dynamic func eval. :/
+    def _update_db_item_count(self, index, value, required):
+        # Be sure we clamp between 0 and required.
+        current_count = self._get_db_item_count(index)
+        if current_count + value > required:
+            value = required
+        if current_count + value < 0:
+            value = 0
+
         if index == 0:
             self.db_state.itemcount1 += value
         elif index == 1:
@@ -171,6 +178,14 @@ class ActiveQuest:
             current_items = self._get_db_item_count(index)
             return current_items < required_items
 
+    def fill_existent_items(self):
+        req_item = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
+        req_count = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(self.quest)))
+        for index, item in enumerate(req_item):
+            current_count = self.owner.inventory.get_item_count(item)
+            if current_count:
+                self._update_db_item_count(index, current_count, req_count[index])
+
     def requires_item(self, item_entry):
         req_item = QuestHelpers.generate_req_item_list(self.quest)
         return item_entry in req_item
@@ -183,7 +198,7 @@ class ActiveQuest:
             index = req_item.index(item_entry)
             current_count = self.owner.inventory.get_item_count(item_entry)
             if current_count - count < req_item_count[index]:
-                self._update_db_item_count(index, -count)
+                self._update_db_item_count(index, -count, req_item_count[index])
                 self.update_quest_state(QuestState.QUEST_ACCEPTED)
                 return True
         return False

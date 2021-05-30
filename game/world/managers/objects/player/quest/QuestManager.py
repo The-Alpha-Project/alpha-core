@@ -475,9 +475,11 @@ class QuestManager(object):
     def handle_accept_quest(self, quest_id, quest_giver_guid):
         active_quest = self._create_db_quest_status(quest_id)
         active_quest.save(is_new=True)
-
+        
         self.add_to_quest_log(quest_id, active_quest)
         self.send_quest_query_response(active_quest)
+        # Check if the player already have related items.
+        active_quest.fill_existent_items()
         if active_quest.can_complete_quest():
             self.complete_quest(active_quest, update_surrounding=False)
 
