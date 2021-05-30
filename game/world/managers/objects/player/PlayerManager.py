@@ -10,6 +10,7 @@ from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.ChannelManager import ChannelManager
 from game.world.managers.objects.player.FriendsManager import FriendsManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
+from game.world.managers.objects.player.TaxiManager import TaxiManager
 from game.world.managers.objects.player.quest.QuestManager import QuestManager
 from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager
@@ -136,6 +137,7 @@ class PlayerManager(UnitManager):
             self.quest_manager = QuestManager(self)
             self.friends_manager = FriendsManager(self)
             self.reputation_manager = ReputationManager(self)
+            self.taxi_manager = TaxiManager(self)
             self.duel_manager = None
             self.guild_manager = None
             self.has_pending_group_invite = False

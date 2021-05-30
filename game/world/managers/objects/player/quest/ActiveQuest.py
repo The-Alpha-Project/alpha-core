@@ -183,17 +183,15 @@ class ActiveQuest:
                 current_count = eval(f'self.db_state.mobcount{index + 1}')
                 required = req_creature_or_go_count[index]
                 # Consider how many bits the previous creature required.
-                offset =  index * req_creature_or_go_count[index - 1] if index > 0 else 0
+                offset = index * req_creature_or_go_count[index - 1] if index > 0 else 0
 
-                for i in range (0, required):
-                    if i < current_count: # Turn on actual kills
+                for i in range(0, required):
+                    if i < current_count:  # Turn on actual kills
                         total_count += (1 & 1) << (1 * i) + offset
-                    else: # Fill remaining 0s (Missing kills)
+                    else:  # Fill remaining 0s (Missing kills)
                         total_count += 0 << (1 * i) + offset
 
                 # Debug, enable this to take a look whats happening at bit level.
                 # Logger.debug(f'{bin(mob_kills)[2:].zfill(32)}')
 
         return total_count
-
-
