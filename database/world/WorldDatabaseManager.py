@@ -346,11 +346,6 @@ class WorldDatabaseManager(object):
         return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[spell_id] \
                 if spell_id in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS else None
 
-    @staticmethod
-    def get_trainer_spell_cost_by_id(spell_id: int) -> int:
-        return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[spell_id].spellcost \
-                if spell_id in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS else 2800 # placeholder val
-
     # Spell chain / trainer stuff (for chaining together spell ranks)
 
     class SpellChainHolder:
