@@ -77,12 +77,15 @@ class ActiveQuest:
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
         self.owner.session.enqueue_packet(packet)
 
-    def _update_db_item_count(self, index, value, required):
+    def _update_db_item_count(self, index, value, required_count=None):
+        if not required_count:
+            required_count = QuestHelpers.generate_req_item_count_list(self.quest)[index]
+
         # Be sure we clamp between 0 and required.
-        current_count = self._get_db_item_count(index)
-        if current_count + value > required:
-            value = required
-        if current_count + value < 0:
+        current_db_count = self._get_db_item_count(index)
+        if current_db_count + value > required_count:
+            value = required_count
+        if current_db_count + value < 0:
             value = 0
 
         if index == 0:
@@ -187,7 +190,6 @@ class ActiveQuest:
             if current_count:
                 self._update_db_item_count(index, current_count, req_count[index])
 
-    # Todo: What are ReqSource1/2/3/4, should we add columns to db? Consider upon deletion etc?
     def requires_item(self, item_entry):
         req_item = QuestHelpers.generate_req_item_list(self.quest)
         req_src_item = QuestHelpers.generate_req_source_list(self.quest)
@@ -202,7 +204,6 @@ class ActiveQuest:
             current_count = self.owner.inventory.get_item_count(item_entry)
             if current_count - count < req_item_count[index]:
                 self._update_db_item_count(index, -count, req_item_count[index])
-                self.failed = item_entry == self.quest.SrcItemId
                 return True
         return False
 

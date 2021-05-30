@@ -484,7 +484,8 @@ class QuestManager(object):
 
         self.add_to_quest_log(quest_id, active_quest)
         self.send_quest_query_response(active_quest)
-        # Check if the player already have related items.
+
+        # Check if the player already has related items.
         active_quest.fill_existent_items()
         if active_quest.can_complete_quest():
             self.complete_quest(active_quest, update_surrounding=False)
@@ -574,8 +575,6 @@ class QuestManager(object):
         for active_quest in list(self.active_quests.values()):
             if active_quest.requires_item(item_entry):
                 if active_quest.pop_item(item_entry, item_count):
-                    if active_quest.failed:
-                        self.quest_failed(active_quest)
                     should_update = True
 
         if should_update:
@@ -605,7 +604,6 @@ class QuestManager(object):
         return False
 
     def quest_failed(self, active_quest):
-        print('Quest failed')
         data = pack('<I', active_quest.quest.entry)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_FAILED, data)
         self.player_mgr.session.enqueue_packet(packet)
