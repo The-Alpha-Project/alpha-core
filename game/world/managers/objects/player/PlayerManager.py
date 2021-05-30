@@ -613,7 +613,7 @@ class PlayerManager(UnitManager):
 
         return loot_type != LootTypes.LOOT_TYPE_NOTALLOWED
 
-    def give_xp(self, amounts, victim=None):
+    def give_xp(self, amounts, victim=None, notify=True):
         if self.level >= config.Unit.Player.Defaults.max_level or not self.is_alive:
             return
 
@@ -628,19 +628,21 @@ class PlayerManager(UnitManager):
             uint64_t guid,
             int32_t xp
         """
-        data = pack('<QI',
-                    victim.guid if victim else self.guid,
-                    len(amounts)
-                    )
 
-        for amount in amounts:
-            # Adjust XP gaining rates using config
-            amount = int(amount * config.Server.Settings.xp_rate)
+        if notify:
+            data = pack('<QI',
+                        victim.guid if victim else self.guid,
+                        len(amounts)
+                        )
 
-            new_xp += amount
-            data += pack('<QI', self.guid, amount)
+            for amount in amounts:
+                # Adjust XP gaining rates using config
+                amount = int(amount * config.Server.Settings.xp_rate)
 
-        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
+                new_xp += amount
+                data += pack('<QI', self.guid, amount)
+
+            self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
 
         if new_xp >= self.next_level_xp:  # Level up!
             self.xp = (new_xp - self.next_level_xp)  # Set the overload xp as current

@@ -343,8 +343,10 @@ class CreatureManager(UnitManager):
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
             self.killed_by = killer
-            # If the player has a quest where this creature needs to be killed, update the player.
-            if self.killed_by.quest_manager.reward_creature_or_go(self):
+            # If the player/group requires the kill, reward it to them.
+            if self.killed_by.group_manager:
+                self.killed_by.group_manager.reward_group_creature_or_go(self.killed_by, self)
+            elif self.killed_by.quest_manager.reward_creature_or_go(self):
                 self.killed_by.send_update_self()
             # If the player is in a group, set the group as allowed looters if needed.
             if self.killed_by.group_manager and self.loot_manager.has_loot():
