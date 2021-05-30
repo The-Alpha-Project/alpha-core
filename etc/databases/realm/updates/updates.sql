@@ -42,7 +42,7 @@ begin not atomic
 	-- 29/05/2021 1
 	if (select count(*) from applied_updates where id='290520211') = 0 then
 		DROP TABLE IF EXISTS `character_spell_book`;
-		CREATE TABLE `character_buttons` (
+		CREATE TABLE `character_spell_book` (
 		`guid` int(11) unsigned NOT NULL AUTO_INCREMENT,
 		`owner` int(11) unsigned NOT NULL DEFAULT 0,
 		`index` int(11) signed NOT NULL DEFAULT 0,
