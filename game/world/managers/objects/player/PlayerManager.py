@@ -524,6 +524,9 @@ class PlayerManager(UnitManager):
                     # Try to split money and finish on success.
                     if self.group_manager.reward_group_money(self, enemy):
                         return
+                    else:  # Not able to split, notify the whole amount to the sole player.
+                        data = pack('<I', enemy.loot_manager.current_money)
+                        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
 
                 # Not able to split money or no group, loot money to self only.
                 self.mod_money(enemy.loot_manager.current_money)
