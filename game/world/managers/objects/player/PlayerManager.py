@@ -561,7 +561,7 @@ class PlayerManager(UnitManager):
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-        
+
         high_guid: HighGuid = self.extract_high_guid(self.current_loot_selection)
         data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
@@ -588,7 +588,7 @@ class PlayerManager(UnitManager):
         elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
             game_object = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
             if game_object:
-                game_object.release()
+                game_object.set_ready()
         else:
             Logger.warning(f'Unhandled loot release for type {HighGuid(high_guid).name}')
 
