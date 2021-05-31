@@ -334,10 +334,13 @@ class WorldDatabaseManager(object):
     @staticmethod
     def trainer_spells_get_by_trainer(trainer_entry_id: int) -> Optional[list[NpcTrainerAlpha]]:
         trainer_spells: list[NpcTrainerAlpha] = []
+        
+        creature_template: CreatureTemplate = WorldDatabaseManager.creature_get_by_entry(trainer_entry_id)
+        trainer_template_id = creature_template.trainer_id
 
-        for trainer_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
-            if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[trainer_spell].entry == trainer_entry_id:
-                trainer_spells.append(WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[trainer_spell])
+        for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
+            if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == trainer_template_id:
+                trainer_spells.append(WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell])
 
         return trainer_spells if not trainer_spells.count == 0 else None
 

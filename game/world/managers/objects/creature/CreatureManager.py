@@ -121,14 +121,13 @@ class CreatureManager(UnitManager):
         session.close()
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
 
-    def send_trainer_list(self, world_session): # Just for class trainers, professions later
+    def send_trainer_list(self, world_session):
         trainspell_bytes: bytes = b''
         trainspell_count: int = 0
 
         trainer_ability_list: list[NpcTrainerAlpha] = WorldDatabaseManager.trainer_spells_get_by_trainer(self.entry)
 
         if not self.is_trainer():
-            Logger.warning(f'send_trainer_list called from NPC {self.entry} by player with GUID {world_session.player_mgr.guid} but this unit is not a trainer. Possible cheating')
             return
 
         if not self.is_trainer_for_class(world_session.player_mgr.player.class_):
@@ -149,7 +148,6 @@ class CreatureManager(UnitManager):
             spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(ability.spell)
             spell_rank: int = ability_spell_chain.rank
             prev_spell: int = ability_spell_chain.prev_spell
-            first_spell: int = ability_spell_chain.first_spell
 
             spellIsTooHighLvl: bool = spell.BaseLevel > world_session.player_mgr.level
 

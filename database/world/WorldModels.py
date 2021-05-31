@@ -797,7 +797,7 @@ t_npc_trainer = Table(
 class NpcTrainerAlpha(Base):
     __tablename__ = 'npc_trainer_alpha'
     
-    entry = Column(ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    template_entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
     spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
     spellcost = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     spellpointcost = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
