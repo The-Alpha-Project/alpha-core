@@ -170,6 +170,29 @@ class WorldDatabaseManager(object):
         res = world_db_session.query(GameobjectTemplate).filter_by(entry=entry).first()
         return res, world_db_session
 
+    @staticmethod
+    def gameobject_get_loot_template():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(GameobjectLootTemplate).all()
+        world_db_session.close()
+        return res
+
+    class GameObjectLootTemplateHolder:
+        GAMEOBJECTS_LOOT_TEMPLATES = {}
+
+        @staticmethod
+        def load_gameobjects_loot_template(gameobject_template):
+            if gameobject_template.entry not in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECTS_LOOT_TEMPLATES:
+                WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECTS_LOOT_TEMPLATES[gameobject_template.entry] = []
+
+            WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECTS_LOOT_TEMPLATES[gameobject_template.entry]\
+                .append(gameobject_template)
+
+        @staticmethod
+        def gameobject_loot_template_get_by_object(gameobject_entry):
+            return WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECTS_LOOT_TEMPLATES[gameobject_entry] \
+                if gameobject_entry in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECTS_LOOT_TEMPLATES else []
+
     # Creature stuff
 
     @staticmethod
@@ -305,3 +328,4 @@ class WorldDatabaseManager(object):
         res = world_db_session.query(QuestTemplate).filter_by(ignored=0).all()
         world_db_session.close()
         return res
+

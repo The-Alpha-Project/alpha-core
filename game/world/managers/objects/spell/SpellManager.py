@@ -128,6 +128,7 @@ class SpellManager(object):
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
     def apply_spell_effects(self, casting_spell, targeted=True, remove=False):
+
         for effect in casting_spell.effects:
             if not targeted:  # Effects that resolve targets in handler - ie. rain of fire, blizzard
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)

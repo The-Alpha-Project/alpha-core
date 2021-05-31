@@ -76,6 +76,7 @@ class PlayerManager(UnitManager):
         self.combo_target = combo_target
 
         self.current_selection = current_selection
+        self.current_loot_selection = current_selection
 
         self.chat_flags = chat_flags
         self.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
@@ -538,21 +539,28 @@ class PlayerManager(UnitManager):
                     looter.session.enqueue_packet(packet)
 
     def loot_item(self, slot):
-        if self.current_selection > 0:
-            enemy = MapManager.get_surrounding_unit_by_guid(self, self.current_selection, include_players=False)
-            if enemy and enemy.loot_manager.has_loot():
-                loot = enemy.loot_manager.get_loot_in_slot(slot)
+        if self.current_loot_selection > 0:
+            high_guid: HighGuid = self.extract_high_guid(self.current_loot_selection)
+            world_obj_target = None
+            if high_guid == HighGuid.HIGHGUID_UNIT:
+                world_obj_target = MapManager.get_surrounding_unit_by_guid(self, self.current_loot_selection, include_players=False)
+            elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
+                world_obj_target = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
+
+            if world_obj_target and world_obj_target.loot_manager.has_loot():
+                loot = world_obj_target.loot_manager.get_loot_in_slot(slot)
                 if loot and loot.item:
                     if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
-                        enemy.loot_manager.do_loot(slot)
+                        world_obj_target.loot_manager.do_loot(slot)
                         data = pack('<B', slot)
                         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
-                        for looter in enemy.loot_manager.get_active_looters():
+                        for looter in world_obj_target.loot_manager.get_active_looters():
                             looter.session.enqueue_packet(packet)
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        self.current_loot_selection = 0
 
         data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
@@ -578,20 +586,21 @@ class PlayerManager(UnitManager):
 
         self.set_dirty()
 
-    def send_loot(self, victim):
-        loot_type = victim.loot_manager.get_loot_type(self, victim)
+    def send_loot(self, world_obj):
+        self.current_loot_selection = world_obj.guid
+        loot_type = world_obj.loot_manager.get_loot_type(self, world_obj)
         data = pack('<QBIB',
-                    victim.guid,
+                    world_obj.guid,
                     loot_type,
-                    victim.loot_manager.current_money,
-                    len(victim.loot_manager.current_loot),
+                    world_obj.loot_manager.current_money,
+                    len(world_obj.loot_manager.current_loot),
                     )
 
         # Do not send loot if player has no permission.
         if loot_type != LootTypes.LOOT_TYPE_NOTALLOWED:
             slot = 0
             # Slot should match real current_loot indexes.
-            for loot in victim.loot_manager.current_loot:
+            for loot in world_obj.loot_manager.current_loot:
                 if loot:
                     # If this is a quest item and player does not need it, don't show it to this player.
                     if loot.is_quest_item() and not self.player_or_group_require_quest_item(
@@ -611,7 +620,7 @@ class PlayerManager(UnitManager):
                 slot += 1
 
             # At this point, this player have access to the loot window, add him to the active looters.
-            victim.loot_manager.add_active_looter(self)
+            world_obj.loot_manager.add_active_looter(self)
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
         self.session.enqueue_packet(packet)

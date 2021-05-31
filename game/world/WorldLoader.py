@@ -21,6 +21,7 @@ class WorldLoader:
         # Gameobject spawns
         if config.Server.Settings.load_gameobjects:
             WorldLoader.load_gameobjects()
+            WorldLoader.load_gameobject_loot_templates()
         else:
             Logger.info('Skipped game object loading.')
 
@@ -98,6 +99,19 @@ class WorldLoader:
             WorldDatabaseManager.CreatureLootTemplateHolder.load_creature_loot_template(loot_template)
             count += 1
             Logger.progress('Loading creature loot templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_gameobject_loot_templates():
+        gameobject_loot_templates = WorldDatabaseManager.gameobject_get_loot_template()
+        length = len(gameobject_loot_templates)
+        count = 0
+
+        for loot_template in gameobject_loot_templates:
+            WorldDatabaseManager.GameObjectLootTemplateHolder.load_gameobjects_loot_template(loot_template)
+            count += 1
+            Logger.progress('Loading gameobject loot templates...', count, length)
 
         return length
 

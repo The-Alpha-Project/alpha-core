@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, GameObjectTypes, \
@@ -42,6 +43,8 @@ class GameObjectManager(ObjectManager):
             self.location.z = self.gobject_instance.spawn_positionZ
             self.location.o = self.gobject_instance.spawn_orientation
             self.map_ = self.gobject_instance.spawn_map
+
+        self.loot_manager = GameObjectLootManager(self)
 
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
@@ -84,6 +87,10 @@ class GameObjectManager(ObjectManager):
                         y_lowest = y_i
                 player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
                 player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
+        elif self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            if not self.loot_manager.has_loot():
+                self.loot_manager.generate_loot(player)
+            player.send_loot(self)
 
     # override
     def set_display_id(self, display_id):

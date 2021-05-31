@@ -1,4 +1,4 @@
-from random import randint, uniform
+from random import randint, uniform, choices
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.LootManager import LootManager, LootHolder
@@ -7,19 +7,17 @@ from utils.constants.ItemCodes import ItemClasses
 from utils.constants.MiscCodes import LootTypes
 
 
-class CreatureLootManager(LootManager):
-    def __init__(self, creature_mgr):
-        super(CreatureLootManager, self).__init__(creature_mgr)
+class GameObjectLootManager(LootManager):
+    def __init__(self, object_mgr):
+        self.current_money = 0
+        super(GameObjectLootManager, self).__init__(object_mgr)
 
     # override
     def generate_loot(self, requester):
         if not self.loot_template:
             self.loot_template = self.populate_loot_template()
 
-        money = randint(self.world_object.creature_template.gold_min, self.world_object.creature_template.gold_max)
-        self.current_money = money
-
-        for loot_item in self.loot_template:
+        for loot_item in choices(self.loot_template, k=5):
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:
@@ -32,29 +30,18 @@ class CreatureLootManager(LootManager):
                 item_chance = loot_item.ChanceOrQuestChance
                 item_chance = item_chance if item_chance > 0 else item_chance * -1
 
-                if item_chance >= 100 or chance - item_chance < 0:
+                if item_chance >= 100 or chance - item_chance < 0 or loot_item.ChanceOrQuestChance == 0:
                     item = ItemManager.generate_item_from_entry(item_template.entry)
                     if item:
                         self.current_loot.append(LootHolder(item, randint(loot_item.mincountOrRef, loot_item.maxcount)))
 
     # override
     def populate_loot_template(self):
-        return WorldDatabaseManager.CreatureLootTemplateHolder\
-            .creature_loot_template_get_by_creature(self.world_object.entry)
+        return WorldDatabaseManager.GameObjectLootTemplateHolder\
+            .gameobject_loot_template_get_by_object(self.world_object.gobject_template.data1)
 
     # override
     def get_loot_type(self, player, world_obj):
-        loot_type = LootTypes.LOOT_TYPE_NOTALLOWED
+        # TODO: Proper checks, just usable by one active looter. Need to release active looters upon SPELL_CAST_CANCEL
+        return LootTypes.LOOT_TYPE_CORPSE
 
-        # Not tagged, anyone can loot.
-        if not world_obj.killed_by:
-            loot_type = LootTypes.LOOT_TYPE_CORPSE
-        # Killer has party and loot_method allows player to loot.
-        elif world_obj.killed_by and world_obj.killed_by.group_manager and world_obj.killed_by.group_manager.is_party_member(player.guid):
-            if player.guid in world_obj.killed_by.group_manager.get_allowed_looters(world_obj):
-                loot_type = LootTypes.LOOT_TYPE_CORPSE
-        # No party but looter is the actual killer.
-        elif world_obj.killed_by == player:
-            loot_type = LootTypes.LOOT_TYPE_CORPSE
-
-        return loot_type
