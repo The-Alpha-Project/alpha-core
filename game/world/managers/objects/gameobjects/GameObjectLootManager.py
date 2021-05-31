@@ -13,7 +13,7 @@ class GameObjectLootManager(LootManager):
 
     # override
     def generate_loot(self, requester):
-        # TODO: Even if called on parent, this is not properly est as CreatureLootManager.
+        # TODO: Even if called on parent, this is not properly set as with CreatureLootManager.
         if len(self.loot_template) == 0:
             self.loot_template = self.populate_loot_template()
 
