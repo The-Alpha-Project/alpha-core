@@ -46,7 +46,7 @@ class TaxiManager(object):
                 flight_master_guid,  # NPC taxi guid.
                 node,  # Current node.
                 known_nodes,  # Destination nodes.
-                known_nodes,  # Known nodes.
+                known_nodes  # Known nodes.
             )
 
             self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SHOWTAXINODES, data))
