@@ -21,6 +21,7 @@ from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQuer
 from network.packet.PacketWriter import *
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
+from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.MiscCodes import ChatFlags, LootTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
@@ -560,30 +561,38 @@ class PlayerManager(UnitManager):
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-        self.current_loot_selection = 0
-
+        
+        high_guid: HighGuid = self.extract_high_guid(self.current_loot_selection)
         data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
-        # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
-        enemy = MapManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
-        if enemy:
-            if enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
-                enemy.killed_by = None
-            # If in party, check if this player has rights to release the loot for FFA.
-            elif enemy.killed_by and enemy.killed_by.group_manager:
-                if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
-                    if not enemy.loot_manager.has_loot():  # Flush looters for this enemy.
-                        enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
+        if high_guid == HighGuid.HIGHGUID_UNIT:
+            # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
+            enemy = MapManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
+            if enemy:
+                if enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
                     enemy.killed_by = None
+                # If in party, check if this player has rights to release the loot for FFA.
+                elif enemy.killed_by and enemy.killed_by.group_manager:
+                    if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
+                        if not enemy.loot_manager.has_loot():  # Flush looters for this enemy.
+                            enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
+                        enemy.killed_by = None
 
-            if not enemy.loot_manager.has_loot():
-                enemy.set_lootable(False)
-                enemy.set_dirty()
-                enemy.loot_manager.clear()
+                if not enemy.loot_manager.has_loot():
+                    enemy.set_lootable(False)
+                    enemy.set_dirty()
+                    enemy.loot_manager.clear()
 
-            enemy.loot_manager.remove_active_looter(self)
+                enemy.loot_manager.remove_active_looter(self)
+        elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
+            game_object = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
+            if game_object:
+                game_object.release()
+        else:
+            Logger.warning(f'Unhandled loot release for type {HighGuid(high_guid).name}')
 
+        self.current_loot_selection = 0
         self.set_dirty()
 
     def send_loot(self, world_obj):

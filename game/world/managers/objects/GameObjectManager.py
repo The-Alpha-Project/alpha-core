@@ -88,11 +88,20 @@ class GameObjectManager(ObjectManager):
                 player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
                 player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
         elif self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            # Activate chest open animation, while active, it won't let any other player loot.
+            if self.state == GameObjectStates.GO_STATE_READY:
+                self.state = GameObjectStates.GO_STATE_ACTIVE
+            self.send_update_surrounding()
             if not self.loot_manager.has_loot():
                 self.loot_manager.generate_loot(player)
             player.send_loot(self)
 
-    # override
+    def release(self):
+        if self.state != GameObjectStates.GO_STATE_READY:
+            self.state = GameObjectStates.GO_STATE_READY
+            self.send_update_surrounding()
+
+            # override
     def set_display_id(self, display_id):
         super().set_display_id(display_id)
         if display_id <= 0 or not \

@@ -66,7 +66,8 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_open_lock(casting_spell, effect, caster, target):
-        target.use(caster)
+        if caster and target:
+            target.use(caster)
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
