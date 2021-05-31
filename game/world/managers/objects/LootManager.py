@@ -21,7 +21,7 @@ class LootManager(object):
         self.world_object = world_object
         self.current_money = 0
         self.current_loot = []
-        self.loot_template = None
+        self.loot_template = self.populate_loot_template()
         self.active_looters = []
 
     # Needs overriding

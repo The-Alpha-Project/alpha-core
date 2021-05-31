@@ -9,12 +9,12 @@ from utils.constants.MiscCodes import LootTypes
 
 class GameObjectLootManager(LootManager):
     def __init__(self, object_mgr):
-        self.current_money = 0
         super(GameObjectLootManager, self).__init__(object_mgr)
 
     # override
     def generate_loot(self, requester):
-        if not self.loot_template:
+        # TODO: Even if called on parent, this is not properly est as CreatureLootManager.
+        if len(self.loot_template) == 0:
             self.loot_template = self.populate_loot_template()
 
         for loot_item in choices(self.loot_template, k=5):
@@ -41,7 +41,7 @@ class GameObjectLootManager(LootManager):
             .gameobject_loot_template_get_by_object(self.world_object.gobject_template.data1)
 
     # override
-    def get_loot_type(self, player, world_obj):
+    def get_loot_type(self, player, gameobject):
         # TODO: Proper checks, just usable by one active looter. Need to release active looters upon SPELL_CAST_CANCEL
         return LootTypes.LOOT_TYPE_CORPSE
 
