@@ -4,17 +4,13 @@ from struct import unpack
 class PacketReader(object):
     def __init__(self, data):
         if len(data) > 5:
-            size, opcode = unpack(
-                '<HI', data[:6]
-            )
-
-            self.size = (size / 0x100) - 4
-            self.opcode = opcode
-            self.data = data[6:]
+            self.size = unpack('>H', data[:2])[0] - 4  # Big Endian
+            self.opcode = unpack('<I', data[2:6])[0]
+            self.data = bytearray(data[6:])
         else:
             self.size = 0
             self.opcode = 0
-            self.data = []
+            self.data = bytearray()
 
     @staticmethod
     def read_string(packet, start, terminator='\x00'):
