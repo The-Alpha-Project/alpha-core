@@ -602,7 +602,7 @@ class PlayerManager(UnitManager):
                     world_obj.guid,
                     loot_type,
                     world_obj.loot_manager.current_money,
-                    len(world_obj.loot_manager.current_loot),
+                    len(world_obj.loot_manager.current_loot)
                     )
 
         # Do not send loot if player has no permission.
