@@ -17,7 +17,8 @@ class GameObjectLootManager(LootManager):
         if len(self.loot_template) == 0:
             self.loot_template = self.populate_loot_template()
 
-        for loot_item in choices(self.loot_template, k=5):
+        # For now, randomly pick 1..7 items.
+        for loot_item in choices(self.loot_template, k=randint(1, 7)):
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:
@@ -30,6 +31,7 @@ class GameObjectLootManager(LootManager):
                 item_chance = loot_item.ChanceOrQuestChance
                 item_chance = item_chance if item_chance > 0 else item_chance * -1
 
+                # TODO: ChanceOrQuestChance = 0 on Gameobjects equals 100% chance?
                 if item_chance >= 100 or chance - item_chance < 0 or loot_item.ChanceOrQuestChance == 0:
                     item = ItemManager.generate_item_from_entry(item_template.entry)
                     if item:
@@ -42,6 +44,4 @@ class GameObjectLootManager(LootManager):
 
     # override
     def get_loot_type(self, player, gameobject):
-        # TODO: Proper checks, just usable by one active looter. Need to release active looters upon SPELL_CAST_CANCEL
         return LootTypes.LOOT_TYPE_CORPSE
-
