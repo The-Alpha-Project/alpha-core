@@ -3,8 +3,9 @@ from random import randint, uniform, choices
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.LootManager import LootManager, LootHolder
 from game.world.managers.objects.item.ItemManager import ItemManager
+from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses
-from utils.constants.MiscCodes import LootTypes
+from utils.constants.MiscCodes import LootTypes, GameObjectTypes
 
 
 class GameObjectLootManager(LootManager):
@@ -17,8 +18,8 @@ class GameObjectLootManager(LootManager):
         if len(self.loot_template) == 0:
             self.loot_template = self.populate_loot_template()
 
-        # For now, randomly pick 1..7 items.
-        for loot_item in choices(self.loot_template, k=randint(1, 7)):
+        # For now, randomly pick 3..7 items.
+        for loot_item in choices(self.loot_template, k=randint(min(3, len(self.loot_template)), min(7, len(self.loot_template)))):
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:
@@ -39,8 +40,14 @@ class GameObjectLootManager(LootManager):
 
     # override
     def populate_loot_template(self):
-        return WorldDatabaseManager.GameObjectLootTemplateHolder\
-            .gameobject_loot_template_get_by_object(self.world_object.gobject_template.data1)
+        # Handle Chest
+        # TODO: Investigate db fields 'data'[0/3/N] and 'groupid' so we can filter the loot table properly.
+        if self.world_object.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            loot_template_id = self.world_object.gobject_template.data1
+            return WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_object(loot_template_id)
+
+        Logger.warning(f'Unhandled loot generation for gameobject type {GameObjectTypes(self.world_object.gobject_template.type).name}')
+        return []
 
     # override
     def get_loot_type(self, player, gameobject):
