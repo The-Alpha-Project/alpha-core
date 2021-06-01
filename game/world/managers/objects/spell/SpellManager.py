@@ -103,11 +103,11 @@ class SpellManager(object):
         if not (casting_spell.initial_target_is_terrain() and casting_spell.is_channeled()):
             casting_spell.resolve_target_info_for_effects()  # Channeled, terrain-targeted spells will generate results during the channel. Ignore them for now.
 
-        if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
-            self.send_spell_go(casting_spell)
-        else:
+        if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
             return  # Spell is in delayed state, do nothing for now
+
+        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
+        self.send_spell_go(casting_spell)
 
         travel_time = self.calculate_time_to_impact(casting_spell)
 
@@ -133,6 +133,9 @@ class SpellManager(object):
             # Effects that resolve targets in handler - ie. rain of fire, blizzard
             # TODO some spells are ground-targeted (at least scorch breath 5010) but don't use the terrain as the actual spell target
             # Use table for terrain-targeted implicit targets instead, check for effect type for now
+            if effect.effect_aura:
+                effect.effect_aura.initialize_period_timestamps()  # Initialize timestamps for effects with period
+
             if not targeted and effect.effect_type == SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA:
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
                 continue
@@ -268,9 +271,6 @@ class SpellManager(object):
         for effect in casting_spell.effects:
             if not casting_spell.initial_target_is_terrain() or not effect.effect_aura or not effect.aura_period:  # Effects that will only resolve targets once
                 casting_spell.resolve_target_info_for_effect(effect.effect_index)
-
-            if effect.effect_aura:
-                effect.effect_aura.initialize_period_timestamps()  # Initialize timestamps for effects with period
 
         self.apply_spell_effects(casting_spell)
 

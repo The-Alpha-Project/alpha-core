@@ -1,7 +1,7 @@
 import random
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import SpellRadius
+from database.dbc.DbcModels import SpellRadius, Spell
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from utils.constants.SpellCodes import SpellEffects
@@ -23,26 +23,29 @@ class SpellEffect(object):
     chain_targets: int
     item_type: int
     misc_value: int
-    trigger_spell: int
+    trigger_spell_id: int
 
     caster_effective_level: int
     effect_index: int
     targets: EffectTargets
     radius_entry: SpellRadius
+    trigger_spell_entry: Spell
 
     effect_aura = None
 
+
     def __init__(self, casting_spell, index):
-        if index == 1:
+        if index == 0:
             self.load_first(casting_spell.spell_entry)
-        elif index == 2:
+        elif index == 1:
             self.load_second(casting_spell.spell_entry)
-        elif index == 3:
+        elif index == 2:
             self.load_third(casting_spell.spell_entry)
 
         self.caster_effective_level = casting_spell.caster_effective_level
         self.targets = EffectTargets(casting_spell, self)
-        self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index)
+        self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index) if self.radius_index else None
+        self.trigger_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(self.trigger_spell_id) if self.trigger_spell_id else None
 
         if self.aura_type and casting_spell.initial_target_is_terrain():  # TODO only needed when terrain is target?
             self.effect_aura = AppliedAura(casting_spell.spell_caster, casting_spell, self, None)  # Target as none as this effect shouldn't be tied to any unit
@@ -72,9 +75,9 @@ class SpellEffect(object):
         self.chain_targets = spell.EffectChainTargets_1
         self.item_type = spell.EffectItemType_1
         self.misc_value = spell.EffectMiscValue_1
-        self.trigger_spell = spell.EffectTriggerSpell_1
+        self.trigger_spell_id = spell.EffectTriggerSpell_1
 
-        self.effect_index = 1
+        self.effect_index = 0
 
     def load_second(self, spell):
         self.effect_type = spell.Effect_2
@@ -92,9 +95,9 @@ class SpellEffect(object):
         self.chain_targets = spell.EffectChainTargets_2
         self.item_type = spell.EffectItemType_2
         self.misc_value = spell.EffectMiscValue_2
-        self.trigger_spell = spell.EffectTriggerSpell_2
+        self.trigger_spell_id = spell.EffectTriggerSpell_2
 
-        self.effect_index = 2
+        self.effect_index = 1
 
     def load_third(self, spell):
         self.effect_type = spell.Effect_3
@@ -112,6 +115,6 @@ class SpellEffect(object):
         self.chain_targets = spell.EffectChainTargets_3
         self.item_type = spell.EffectItemType_3
         self.misc_value = spell.EffectMiscValue_3
-        self.trigger_spell = spell.EffectTriggerSpell_3
+        self.trigger_spell_id = spell.EffectTriggerSpell_3
 
-        self.effect_index = 3
+        self.effect_index = 2

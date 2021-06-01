@@ -67,10 +67,10 @@ class AppliedAura:
         self.aura_period_timestamps.pop()
 
     def initialize_period_timestamps(self):
-        if self.period == 0 or len(self.aura_period_timestamps) > 0:  # Don't overwrite old timestamps
+        if self.period == 0 or self.duration == -1 or len(self.aura_period_timestamps) > 0:  # Don't overwrite old timestamps
             return
         period = self.period
-        ticks = int(self.duration_entry.Duration / self.period)
+        ticks = int(self.duration / self.period)
         period /= 1000  # Millis -> seconds
         curr_time = time.time()
 
@@ -145,10 +145,9 @@ class AuraEffectHandler:
         if not aura.is_past_next_period_timestamp() or remove:
             return
         aura.pop_period_timestamp()
-
-        spell = aura.caster.spell_manager.try_initialize_spell(aura.source_spell.spell_entry, aura.caster,
-                                                               aura.source_spell.initial_target, aura.source_spell.spell_target_mask,
-                                                               validate=False)
+        new_spell_entry = aura.spell_effect.trigger_spell_entry
+        spell = aura.caster.spell_manager.try_initialize_spell(new_spell_entry, aura.caster, aura.source_spell.initial_target,
+                                                               aura.source_spell.spell_target_mask, validate=False)
         aura.caster.spell_manager.perform_spell_cast(spell, validate=False)
 
     @staticmethod

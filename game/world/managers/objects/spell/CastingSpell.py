@@ -87,9 +87,9 @@ class CastingSpell(object):
             self.resolve_target_info_for_effect(effect.effect_index)
 
     def resolve_target_info_for_effect(self, index):
-        if index < 0 or index > len(self.effects):
+        if index < 0 or index > len(self.effects)-1:
             return
-        effect = self.effects[index-1]
+        effect = self.effects[index]
         if not effect:
             return
 
@@ -147,11 +147,11 @@ class CastingSpell(object):
     def load_effects(self):
         self.effects = []
         if self.spell_entry.Effect_1 != 0:
-            self.effects.append(SpellEffect(self, 1))
+            self.effects.append(SpellEffect(self, len(self.effects)))
         if self.spell_entry.Effect_2 != 0:
-            self.effects.append(SpellEffect(self, 2))
+            self.effects.append(SpellEffect(self, len(self.effects)))
         if self.spell_entry.Effect_3 != 0:
-            self.effects.append(SpellEffect(self, 3))
+            self.effects.append(SpellEffect(self, len(self.effects)))  # Use effects length for index - some spells (by mistake?) have empty effect slots before an actual effect
 
     def get_reagents(self):
         return (self.spell_entry.Reagent_1, self.spell_entry.ReagentCount_1), (self.spell_entry.Reagent_2, self.spell_entry.ReagentCount_2), \
