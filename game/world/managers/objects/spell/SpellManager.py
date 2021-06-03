@@ -49,8 +49,8 @@ class SpellManager(object):
         # Teach skill required as well like in CharCreateHandler?
         return True
 
-    def get_initial_spells(self, character=None) -> bytes:
-        spell_buttons = RealmDatabaseManager.character_get_spell_buttons(character.guid) if character else dict()
+    def get_initial_spells(self) -> bytes:
+        spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.unit_mgr.guid)
         
         data = pack('<BH', 0, len(self.spells))
         for spell_id, spell in self.spells.items():

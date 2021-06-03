@@ -414,7 +414,7 @@ class RealmDatabaseManager(object):
         realm_db_session.flush()
         realm_db_session.close()
 
-    # Spell Book
+    # Spellbook
 
     @staticmethod
     def character_get_spell_buttons(character_guid):

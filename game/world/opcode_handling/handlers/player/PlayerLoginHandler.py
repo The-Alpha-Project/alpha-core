@@ -67,7 +67,7 @@ class PlayerLoginHandler(object):
         # Tutorials aren't implemented in 0.5.3
         # world_session.enqueue_packet(world_session.player_mgr.get_tutorial_packet())
         world_session.player_mgr.skill_manager.init_proficiencies()
-        world_session.enqueue_packet(world_session.player_mgr.spell_manager.get_initial_spells(character=world_session.player_mgr.player))
+        world_session.enqueue_packet(world_session.player_mgr.spell_manager.get_initial_spells())
         world_session.enqueue_packet(world_session.player_mgr.get_action_buttons())
 
         # MotD
