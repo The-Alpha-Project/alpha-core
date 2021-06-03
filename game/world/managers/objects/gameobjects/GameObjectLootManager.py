@@ -23,7 +23,6 @@ class GameObjectLootManager(LootManager):
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:
-
                 # Check if this is a quest item and if the player or group needs it.
                 if requester and item_template.class_ == ItemClasses.ITEM_CLASS_QUEST:  # Quest item
                     if not requester.player_or_group_require_quest_item(item_template.entry):
@@ -44,7 +43,7 @@ class GameObjectLootManager(LootManager):
         # TODO: Investigate db fields 'data'[0/3/N] and 'groupid' so we can filter the loot table properly.
         if self.world_object.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             loot_template_id = self.world_object.gobject_template.data1
-            return WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_object(loot_template_id)
+            return WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_entry(loot_template_id)
 
         Logger.warning(f'Unhandled loot generation for gameobject type {GameObjectTypes(self.world_object.gobject_template.type).name}')
         return []

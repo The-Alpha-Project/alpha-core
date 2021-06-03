@@ -595,21 +595,22 @@ class PlayerManager(UnitManager):
         self.current_loot_selection = 0
         self.set_dirty()
 
-    def send_loot(self, world_obj):
-        self.current_loot_selection = world_obj.guid
-        loot_type = world_obj.loot_manager.get_loot_type(self, world_obj)
-        data = pack('<QBIB',
-                    world_obj.guid,
-                    loot_type,
-                    world_obj.loot_manager.current_money,
-                    len(world_obj.loot_manager.current_loot)
-                    )
+    def send_loot(self, world_object):
+        self.current_loot_selection = world_object.guid
+        loot_type = world_object.loot_manager.get_loot_type(self, world_object)
+        data = pack(
+            '<QBIB',
+            world_object.guid,
+            loot_type,
+            world_object.loot_manager.current_money,
+            len(world_object.loot_manager.current_loot)
+         )
 
         # Do not send loot if player has no permission.
         if loot_type != LootTypes.LOOT_TYPE_NOTALLOWED:
             slot = 0
             # Slot should match real current_loot indexes.
-            for loot in world_obj.loot_manager.current_loot:
+            for loot in world_object.loot_manager.current_loot:
                 if loot:
                     # If this is a quest item and player does not need it, don't show it to this player.
                     if loot.is_quest_item() and not self.player_or_group_require_quest_item(
@@ -620,16 +621,17 @@ class PlayerManager(UnitManager):
                     # Send item query information
                     self.session.enqueue_packet(loot.item.query_details())
 
-                    data += pack('<B3I',
-                                 slot,
-                                 loot.item.item_template.entry,
-                                 loot.quantity,
-                                 loot.item.item_template.display_id
-                                 )
+                    data += pack(
+                        '<B3I',
+                        slot,
+                        loot.item.item_template.entry,
+                        loot.quantity,
+                        loot.item.item_template.display_id
+                    )
                 slot += 1
 
             # At this point, this player have access to the loot window, add him to the active looters.
-            world_obj.loot_manager.add_active_looter(self)
+            world_object.loot_manager.add_active_looter(self)
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
         self.session.enqueue_packet(packet)

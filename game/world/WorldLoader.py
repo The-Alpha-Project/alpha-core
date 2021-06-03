@@ -109,7 +109,7 @@ class WorldLoader:
         count = 0
 
         for loot_template in gameobject_loot_templates:
-            WorldDatabaseManager.GameObjectLootTemplateHolder.load_gameobjects_loot_template(loot_template)
+            WorldDatabaseManager.GameObjectLootTemplateHolder.load_gameobject_loot_template(loot_template)
             count += 1
             Logger.progress('Loading gameobject loot templates...', count, length)
 

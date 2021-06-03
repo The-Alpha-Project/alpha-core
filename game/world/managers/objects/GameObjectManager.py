@@ -44,10 +44,10 @@ class GameObjectManager(ObjectManager):
             self.location.o = self.gobject_instance.spawn_orientation
             self.map_ = self.gobject_instance.spawn_map
 
-        self.loot_manager = GameObjectLootManager(self)
-
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
+
+        self.loot_manager = GameObjectLootManager(self)
 
     def load(self):
         MapManager.update_object(self)

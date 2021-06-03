@@ -178,20 +178,20 @@ class WorldDatabaseManager(object):
         return res
 
     class GameObjectLootTemplateHolder:
-        GAMEOBJECTS_LOOT_TEMPLATES = {}
+        GAMEOBJECT_LOOT_TEMPLATES = {}
 
         @staticmethod
-        def load_gameobjects_loot_template(gameobject_template):
-            if gameobject_template.entry not in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECTS_LOOT_TEMPLATES:
-                WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECTS_LOOT_TEMPLATES[gameobject_template.entry] = []
+        def load_gameobject_loot_template(gameobject_template):
+            if gameobject_template.entry not in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES:
+                WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[gameobject_template.entry] = []
 
-            WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECTS_LOOT_TEMPLATES[gameobject_template.entry]\
+            WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[gameobject_template.entry]\
                 .append(gameobject_template)
 
         @staticmethod
-        def gameobject_loot_template_get_by_object(gameobject_entry):
-            return WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECTS_LOOT_TEMPLATES[gameobject_entry] \
-                if gameobject_entry in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECTS_LOOT_TEMPLATES else []
+        def gameobject_loot_template_get_by_entry(entry):
+            return WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[entry]\
+                if entry in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES else []
 
     # Creature stuff
 
