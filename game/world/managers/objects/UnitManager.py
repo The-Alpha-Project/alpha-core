@@ -14,7 +14,7 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
-    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes
+    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags
 from utils.constants.UpdateFields import UnitFields
 
@@ -774,6 +774,10 @@ class UnitManager(ObjectManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
+
+    # override
+    def generate_object_guid(self, low_guid):
+        return low_guid | HighGuid.HIGHGUID_UNIT
 
     def _allegiance_status_checker(self, target, check_friendly=True):
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)

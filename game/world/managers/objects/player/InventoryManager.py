@@ -316,7 +316,8 @@ class InventoryManager(object):
                     return item
         return None
 
-    def remove_item(self, target_bag, target_slot, clear_slot=True):  # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
+    # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
+    def remove_item(self, target_bag, target_slot, clear_slot=True):
         target_container = self.get_container(target_bag)
         if not target_container:
             return
@@ -326,6 +327,9 @@ class InventoryManager(object):
 
         if clear_slot:
             self.send_destroy_packet(target_slot, target_container.sorted_slots)
+
+        # Update the quest db state if needed.
+        self.owner.quest_manager.pop_item(target_item.item_template.entry, target_item.item_instance.stackcount)
 
         self.mark_as_removed(target_item)
         target_container.remove_item_in_slot(target_slot)

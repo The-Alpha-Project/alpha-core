@@ -12,8 +12,8 @@ from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedR
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
-# - quest_template or plain quest refers to the quest template (the db record / read only)
-# - active_quest refers to quests in the player's quest log
+# - quest_template or plain quest refers to the quest template (the db record / read only).
+# - active_quest refers to quests in the player's quest log.
 
 MAX_QUEST_LOG = 16
 QUEST_OBJECTIVES_COUNT = 4
@@ -46,7 +46,7 @@ class QuestManager(object):
         if self.player_mgr.is_enemy_to(world_object):
             return dialog_status
 
-        # Relations bounds, the quest giver; Involved relations bounds, the quest completer
+        # Relations bounds, the quest giver; Involved relations bounds, the quest completer.
         relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(world_object.entry)
         involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(world_object.entry)
 
@@ -92,7 +92,7 @@ class QuestManager(object):
 
     def handle_quest_giver_hello(self, quest_giver, quest_giver_guid):
         quest_menu = QuestMenu()
-        # Type is unit, but not player
+        # Type is unit, but not player.
         if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
             relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(quest_giver.entry)
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(
@@ -115,7 +115,7 @@ class QuestManager(object):
             if quest_entry not in self.active_quests:
                 continue
             quest_state = self.active_quests[quest_entry].get_quest_state()
-            if quest_state < QuestState.QUEST_ACCEPTED:
+            if quest_state <= QuestState.QUEST_ACCEPTED:
                 continue  # Quest accept is handled by relation_list
             quest_menu.add_menu_item(quest, quest_state)
 
@@ -153,27 +153,28 @@ class QuestManager(object):
         self.update_surrounding_quest_status()
 
     def check_quest_requirements(self, quest_template):
-        # Is the player character the required race
+        # Is the player character the required race.
         race_is_required = quest_template.RequiredRaces > 0
         if race_is_required and not (quest_template.RequiredRaces & self.player_mgr.race_mask):
             return False
 
-        # Is the character the required class
+        # Is the character the required class.
         class_is_required = quest_template.RequiredClasses > 0
         if class_is_required and not (quest_template.RequiredClasses & self.player_mgr.class_mask):
             return False
 
-        # Does the character have the required source item
-        source_item_required = quest_template.SrcItemId > 0
-        does_not_have_source_item = self.player_mgr.inventory.get_item_count(quest_template.SrcItemId) == 0
-        if source_item_required and does_not_have_source_item:
-            return False
+        # Does the character have the required source items.
+        source_item_required = list(filter((0).__ne__, QuestHelpers.generate_req_source_list(quest_template)))
+        source_item_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_source_count_list(quest_template)))
+        for index, item in enumerate(source_item_required):
+            if self.player_mgr.inventory.get_item_count(item) < source_item_count_list[index]:
+                return False
 
-        # Has the character already started the next quest in the chain
+        # Has the character already started the next quest in the chain.
         if quest_template.NextQuestInChain > 0 and quest_template.NextQuestInChain in self.completed_quests:
             return False
 
-        # Does the character have the previous quest
+        # Does the character have the previous quest.
         if quest_template.PrevQuestId > 0 and quest_template.PrevQuestId not in self.completed_quests:
             return False
 
@@ -323,13 +324,13 @@ class QuestManager(object):
             active_quest.quest.SrcItemId
         )
 
-        # Rewards given no matter what
+        # Rewards given no matter what.
         rew_item_list = QuestHelpers.generate_rew_item_list(active_quest.quest)
         rew_item_count_list = QuestHelpers.generate_rew_count_list(active_quest.quest)
         for index, item in enumerate(rew_item_list):
             data += pack('<2I', item, rew_item_count_list[index])
 
-        # Reward choices
+        # Reward choices.
         rew_choice_item_list = QuestHelpers.generate_rew_choice_item_list(active_quest.quest)
         rew_choice_count_list = QuestHelpers.generate_rew_choice_count_list(active_quest.quest)
         for index, item in enumerate(rew_choice_item_list):
@@ -351,7 +352,7 @@ class QuestManager(object):
             end_bytes,
         )
 
-        # Required kills / Required items count
+        # Required kills / Required items count.
         req_creatures_or_gos = QuestHelpers.generate_req_creature_or_go_list(active_quest.quest)
         req_creatures_or_gos_count_list = QuestHelpers.generate_req_creature_or_go_count_list(active_quest.quest)
         req_items = QuestHelpers.generate_req_item_list(active_quest.quest)
@@ -366,7 +367,7 @@ class QuestManager(object):
                 0x0  # Unknown, if missing, multiple objective quests will not display properly.
             )
 
-        # Objective texts
+        # Objective texts.
         req_objective_text_list = QuestHelpers.generate_objective_text_list(active_quest.quest)
         for index, objective_text in enumerate(req_objective_text_list):
             req_objective_text_bytes = PacketWriter.string_to_bytes(req_objective_text_list[index])
@@ -476,8 +477,16 @@ class QuestManager(object):
         active_quest = self._create_db_quest_status(quest_id)
         active_quest.save(is_new=True)
 
+        req_src_item = active_quest.quest.SrcItemId
+        req_src_item_count = active_quest.quest.SrcItemCount
+        if req_src_item != 0:
+            self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count)
+
         self.add_to_quest_log(quest_id, active_quest)
         self.send_quest_query_response(active_quest)
+
+        # Check if the player already has related items.
+        active_quest.fill_existent_items()
         if active_quest.can_complete_quest():
             self.complete_quest(active_quest, update_surrounding=False)
 
@@ -522,11 +531,11 @@ class QuestManager(object):
         given_xp = active_quest.reward_xp()
         given_gold = active_quest.reward_gold()
 
-        # Remove from log and mark as rewarded
+        # Remove from log and mark as rewarded.
         self.remove_from_quest_log(quest_id)
         self.completed_quests.add(quest_id)
 
-        # Update db quest status
+        # Update db quest status.
         active_quest.update_quest_status(rewarded=True)
 
         data = pack(
@@ -534,7 +543,7 @@ class QuestManager(object):
             quest_id,
             3,  # Investigate
             given_xp,
-            given_gold,
+            given_gold
         )
 
         # Give player reward items, if any. Client will announce them.
@@ -561,9 +570,19 @@ class QuestManager(object):
         self.build_update()
         self.player_mgr.send_update_self()
 
+    def pop_item(self, item_entry, item_count):
+        should_update = False
+        for active_quest in list(self.active_quests.values()):
+            if active_quest.requires_item(item_entry):
+                if active_quest.pop_item(item_entry, item_count):
+                    should_update = True
+
+        if should_update:
+            self.update_surrounding_quest_status()
+
     def reward_item(self, item_entry, item_count):
         for quest_id, active_quest in self.active_quests.items():
-            if active_quest.requires_item(item_entry):
+            if active_quest.still_needs_item(item_entry):
                 active_quest.update_item_count(item_entry, item_count)
                 self.update_single_quest(quest_id)
                 # If by this item we complete the quest, update surrounding so NPC can display new complete status.
@@ -584,6 +603,11 @@ class QuestManager(object):
                 return True
         return False
 
+    def quest_failed(self, active_quest):
+        data = pack('<I', active_quest.quest.entry)
+        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_FAILED, data)
+        self.player_mgr.session.enqueue_packet(packet)
+
     def complete_quest(self, active_quest, update_surrounding=False, notify=False):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
 
@@ -601,9 +625,9 @@ class QuestManager(object):
                 return True
         return False
 
-    def item_is_required_by_quest(self, item_entry):
+    def item_is_still_needed_by_any_quest(self, item_entry):
         for active_quest in list(self.active_quests.values()):
-            if active_quest.requires_item(item_entry):
+            if active_quest.still_needs_item(item_entry):
                 return True
         return False
 

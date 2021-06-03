@@ -273,15 +273,17 @@ class GroupManager(object):
             return False
 
         share = int(creature.loot_manager.current_money / len(surrounding_members))
+
+        # Notify the money looter 'You distribute <coinage> to your party'.
+        data = pack('<QI', looter.guid, int(creature.loot_manager.current_money))
+        split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
+        looter.session.enqueue_packet(split_packet)
+
         # Append div remainder to the player who killed the creature for now.
         remainder = int(creature.loot_manager.current_money % len(surrounding_members))
 
         for member in surrounding_members:
             player_share = share if member != creature.killed_by else share + remainder
-            # TODO: MSG_SPLIT_MONEY seems not to have any effect on the client.
-            # data = pack('<Q2I', creature.guid, creature.loot_manager.current_money, ply_share)
-            # split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
-            # member.session.enqueue_packet(split_packet)
             data = pack('<I', player_share)
             member.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
             member.mod_money(player_share)
@@ -298,6 +300,14 @@ class GroupManager(object):
 
         for member in surrounding_members:
             member.give_xp([base_xp * member.level / sum_levels], creature)
+
+    def reward_group_creature_or_go(self, player, creature):
+        surrounding_players = MapManager.get_surrounding_players(player).values()
+        surrounding_members = [player for player in surrounding_players if player.guid in self.members]
+
+        for member in surrounding_members:
+            member.quest_manager.reward_creature_or_go(creature)
+            member.send_update_self()
 
     def send_invite_decline(self, player_name):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)

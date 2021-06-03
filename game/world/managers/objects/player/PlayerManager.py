@@ -10,6 +10,7 @@ from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.ChannelManager import ChannelManager
 from game.world.managers.objects.player.FriendsManager import FriendsManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
+from game.world.managers.objects.player.TaxiManager import TaxiManager
 from game.world.managers.objects.player.quest.QuestManager import QuestManager
 from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager
@@ -91,7 +92,7 @@ class PlayerManager(UnitManager):
 
         if self.player:
             self.set_player_variables()
-            self.guid = self.player.guid | HighGuid.HIGHGUID_PLAYER
+            self.guid = self.generate_object_guid(self.player.guid)
             self.inventory = InventoryManager(self)
             self.level = self.player.level
             self.player_bytes = unpack('<I', pack('<4B', self.player.skin, self.player.face, self.player.hairstyle, self.player.haircolour))[0]
@@ -136,6 +137,7 @@ class PlayerManager(UnitManager):
             self.quest_manager = QuestManager(self)
             self.friends_manager = FriendsManager(self)
             self.reputation_manager = ReputationManager(self)
+            self.taxi_manager = TaxiManager(self)
             self.duel_manager = None
             self.guild_manager = None
             self.has_pending_group_invite = False
@@ -524,6 +526,9 @@ class PlayerManager(UnitManager):
                     # Try to split money and finish on success.
                     if self.group_manager.reward_group_money(self, enemy):
                         return
+                    else:  # Not able to split, notify the whole amount to the sole player.
+                        data = pack('<I', enemy.loot_manager.current_money)
+                        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
 
                 # Not able to split money or no group, loot money to self only.
                 self.mod_money(enemy.loot_manager.current_money)
@@ -613,7 +618,7 @@ class PlayerManager(UnitManager):
 
         return loot_type != LootTypes.LOOT_TYPE_NOTALLOWED
 
-    def give_xp(self, amounts, victim=None):
+    def give_xp(self, amounts, victim=None, notify=True):
         if self.level >= config.Unit.Player.Defaults.max_level or not self.is_alive:
             return
 
@@ -628,19 +633,22 @@ class PlayerManager(UnitManager):
             uint64_t guid,
             int32_t xp
         """
-        data = pack('<QI',
-                    victim.guid if victim else self.guid,
-                    len(amounts)
-                    )
 
+        amount_bytes = b''
         for amount in amounts:
             # Adjust XP gaining rates using config
             amount = int(amount * config.Server.Settings.xp_rate)
 
             new_xp += amount
-            data += pack('<QI', self.guid, amount)
+            amount_bytes += pack('<QI', self.guid, amount)
 
-        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
+        if notify:
+            data = pack('<QI',
+                        victim.guid if victim else self.guid,
+                        len(amounts)
+                        )
+            data += amount_bytes
+            self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
 
         if new_xp >= self.next_level_xp:  # Level up!
             self.xp = (new_xp - self.next_level_xp)  # Set the overload xp as current
@@ -690,11 +698,11 @@ class PlayerManager(UnitManager):
 
     def player_or_group_require_quest_item(self, item_entry, only_self=False):
         if not self.group_manager or only_self:
-            return self.quest_manager.item_is_required_by_quest(item_entry)
+            return self.quest_manager.item_is_still_needed_by_any_quest(item_entry)
         else:
             for member in self.group_manager.members.values():
                 player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
-                if player_mgr and player_mgr.quest_manager.item_is_required_by_quest(item_entry):
+                if player_mgr and player_mgr.quest_manager.item_is_still_needed_by_any_quest(item_entry):
                     return True
         return False
 
@@ -1264,6 +1272,10 @@ class PlayerManager(UnitManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_PLAYER
+
+    # override
+    def generate_object_guid(self, low_guid):
+        return low_guid | HighGuid.HIGHGUID_PLAYER
 
     @staticmethod
     def get_team_for_race(race):

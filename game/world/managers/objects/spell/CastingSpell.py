@@ -41,7 +41,8 @@ class CastingSpell(object):
 
         self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged() else AttackTypes.BASE_ATTACK
         self.cast_state = SpellState.SPELL_STATE_PREPARING
-        self.effects = self.load_effects()
+
+        self.load_effects()
 
         self.cast_flags = SpellCastFlags.CAST_FLAG_NONE  # TODO Ammo/proc flag
 
@@ -85,10 +86,11 @@ class CastingSpell(object):
         for effect in self.effects:
             self.resolve_target_info_for_effect(effect.effect_index)
 
+    # noinspection PyUnresolvedReferences
     def resolve_target_info_for_effect(self, index):
-        if index < 0 or index > len(self.effects):
+        if index < 0 or index > len(self.effects) - 1:
             return
-        effect = self.effects[index-1]
+        effect = self.effects[index]
         if not effect:
             return
 
@@ -144,14 +146,13 @@ class CastingSpell(object):
         return self.spell_entry.ManaCost
 
     def load_effects(self):
-        effects = []
+        self.effects = []
         if self.spell_entry.Effect_1 != 0:
-            effects.append(SpellEffect(self, 1))
+            self.effects.append(SpellEffect(self, len(self.effects)))
         if self.spell_entry.Effect_2 != 0:
-            effects.append(SpellEffect(self, 2))
+            self.effects.append(SpellEffect(self, len(self.effects)))
         if self.spell_entry.Effect_3 != 0:
-            effects.append(SpellEffect(self, 3))
-        return effects
+            self.effects.append(SpellEffect(self, len(self.effects)))  # Use effects length for index - some spells (by mistake?) have empty effect slots before an actual effect
 
     def get_reagents(self):
         return (self.spell_entry.Reagent_1, self.spell_entry.ReagentCount_1), (self.spell_entry.Reagent_2, self.spell_entry.ReagentCount_2), \

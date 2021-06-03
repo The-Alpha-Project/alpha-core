@@ -1,8 +1,11 @@
 import math
+from typing import Union, Optional
+
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from utils.Logger import Logger
-from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason
+from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects
 
 
 class TargetMissInfo:
@@ -27,7 +30,7 @@ class EffectTargets:
         self.resolved_targets_a = []
         self.resolved_targets_b = []
 
-    def get_simple_targets(self):
+    def get_simple_targets(self) -> dict[SpellImplicitTargets, list[Union[ObjectManager, Vector]]]:
         target_is_player = self.casting_spell.initial_target_is_player()
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
         target_is_item = self.casting_spell.initial_target_is_item()
@@ -49,9 +52,9 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_SELF_FISHING: self.caster
         }
 
-    def resolve_implicit_targets_reference(self, implicit_target):
+    def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
         if implicit_target == 0:
-            return None
+            return []
 
         target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else TARGET_RESOLVERS[implicit_target](self.casting_spell, self.target_effect)
 
@@ -65,7 +68,7 @@ class EffectTargets:
             return [target]
         return target
 
-    def can_target_friendly(self):
+    def can_target_friendly(self) -> bool:
         return self.target_effect.implicit_target_a in FRIENDLY_IMPLICIT_TARGETS or \
                self.target_effect.implicit_target_b in FRIENDLY_IMPLICIT_TARGETS
 
@@ -75,7 +78,7 @@ class EffectTargets:
         self.resolved_targets_a = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_a)
         self.resolved_targets_b = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_b)
 
-    def get_effect_target_results(self):
+    def get_effect_target_results(self) -> dict[int, TargetMissInfo]:
         targets = self.get_final_effect_targets()
         target_info = {}
         for target in targets:
@@ -83,12 +86,27 @@ class EffectTargets:
                 target_info[target.guid] = TargetMissInfo(target, SpellMissReason.MISS_REASON_NONE)  # TODO Misses etc.
         return target_info
 
-    def get_final_effect_targets(self):
+    def get_final_effect_targets(self) -> list[Union[ObjectManager, Vector]]:
         # At least some B targets act as specifying on A. No table for now for ImplicitTarget values that act as specifiers, so prefer B if values exist
         # TODO if issues arise, add table for specifying ImplicitTargets
         if not self.resolved_targets_b or len(self.resolved_targets_b) == 0:
             return self.resolved_targets_a
         return self.resolved_targets_b
+
+    @staticmethod
+    def get_enemies_from_unit_list(units: list[ObjectManager], caster):
+        return [unit for unit in units if not caster.is_friendly_to(unit)]
+
+    @staticmethod
+    def get_friends_from_unit_list(units: list[ObjectManager], caster):
+        return [unit for unit in units if caster.is_friendly_to(unit)]
+
+    @staticmethod
+    def get_party_members_from_unit_list(units: list[ObjectManager], caster):
+        if not caster.group_manager:
+            return []
+
+        return [unit for unit in units if caster.group_manager.is_party_member(unit.guid)]
 
     @staticmethod
     def resolve_random_enemy_chain_in_area(casting_spell, target_effect):
@@ -128,12 +146,7 @@ class EffectTargets:
         if not target_effect.implicit_target_a:  # see notes
             resolved_a = EffectTargets.resolve_all_around_caster(casting_spell, target_effect)
 
-        enemy_units = []
-        for unit in resolved_a:
-            if not casting_spell.spell_caster.is_friendly_to(unit):
-                enemy_units.append(unit)
-
-        return enemy_units
+        return EffectTargets.get_enemies_from_unit_list(resolved_a, casting_spell.spell_caster)
 
     @staticmethod
     def resolve_all_enemy_in_area_instant(casting_spell, target_effect):
@@ -144,12 +157,7 @@ class EffectTargets:
         result = MapManager.get_surrounding_units_by_location(target, map_, target_effect.get_radius(), True)
 
         merged = list(result[0].values()) + list(result[1].values())
-        enemies = []
-        for unit in merged:
-            if casting_spell.spell_caster.is_friendly_to(unit):
-                continue
-            enemies.append(unit)
-        return enemies
+        return EffectTargets.get_enemies_from_unit_list(merged, casting_spell.spell_caster)
 
     @staticmethod
     def resolve_table_coordinates(casting_spell, target_effect):
@@ -157,6 +165,10 @@ class EffectTargets:
 
     @staticmethod
     def resolve_effect_select(casting_spell, target_effect):
+        if target_effect.effect_type == SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE:  # Hellfire, aura of rot
+            units = EffectTargets.resolve_all_around_caster(casting_spell, target_effect)
+            return EffectTargets.get_enemies_from_unit_list(units, casting_spell.spell_caster)
+
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
@@ -212,7 +224,7 @@ class EffectTargets:
                 continue
 
             current_angle = caster.location.angle(unit.location)
-            infront_angle = math.pi/2  # Cone
+            infront_angle = math.pi / 2  # Cone
             if -infront_angle <= current_angle <= infront_angle:
                 units_in_range_front.append(unit)
 
@@ -226,7 +238,7 @@ class EffectTargets:
     @staticmethod
     def resolve_all_friendly_around_caster(casting_spell, target_effect):
         resolved_a = target_effect.targets.resolved_targets_a
-        return [target for target in resolved_a if casting_spell.spell_caster.is_friendly_to(target)]
+        return EffectTargets.get_friends_from_unit_list(resolved_a, casting_spell.spell_caster)
 
     # Only 6758 (party grenade)
     @staticmethod
@@ -238,31 +250,14 @@ class EffectTargets:
         result = MapManager.get_surrounding_units_by_location(target, map_, target_effect.get_radius(), True)
 
         merged = list(result[0].values()) + list(result[1].values())
-        friendly_targets = []
-        for unit in merged:
-            if not casting_spell.spell_caster.is_friendly_to(unit):
-                continue
-            friendly_targets.append(unit)
-        return friendly_targets
-
+        return EffectTargets.get_friends_from_unit_list(merged, casting_spell.spell_caster)
 
     # Only used with TARGET_ALL_AROUND_CASTER in A
     @staticmethod
     def resolve_all_party(casting_spell, target_effect):
         resolved_a = target_effect.targets.resolved_targets_a
 
-        caster = casting_spell.spell_caster
-
-        if not caster.group_manager:
-            return []
-
-        party_members = []
-        for unit in resolved_a:
-            if caster is unit or not caster.group_manager.is_party_member(unit.guid):
-                continue
-            party_members.append(unit)
-
-        return party_members
+        return EffectTargets.get_party_members_from_unit_list(resolved_a, casting_spell.spell_caster)
 
     @staticmethod
     def resolve_party_around_caster_2(casting_spell, target_effect):

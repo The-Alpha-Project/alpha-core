@@ -25,7 +25,7 @@ class GameObjectManager(ObjectManager):
         self.gobject_template = gobject_template
         self.gobject_instance = gobject_instance
 
-        self.guid = (gobject_instance.spawn_id if gobject_instance else 0) | HighGuid.HIGHGUID_GAMEOBJECT
+        self.guid = self.generate_object_guid(gobject_instance.spawn_id if gobject_instance else 0)
 
         if self.gobject_template:
             self.entry = self.gobject_template.entry
@@ -166,3 +166,7 @@ class GameObjectManager(ObjectManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_GAMEOBJECT
+
+    # override
+    def generate_object_guid(self, low_guid):
+        return low_guid | HighGuid.HIGHGUID_GAMEOBJECT

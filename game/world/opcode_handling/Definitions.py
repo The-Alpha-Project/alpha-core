@@ -59,6 +59,7 @@ from game.world.opcode_handling.handlers.loot.LootMoneyHandler import LootMoneyH
 from game.world.opcode_handling.handlers.loot.LootReleaseHandler import LootReleaseHandler
 from game.world.opcode_handling.handlers.loot.LootRequestHandler import LootRequestHandler
 from game.world.opcode_handling.handlers.npc.ActivateTaxiHandler import ActivateTaxiHandler
+from game.world.opcode_handling.handlers.npc.TaxiNodeStatusQueryHandler import TaxiNodeStatusQueryHandler
 from game.world.opcode_handling.handlers.npc.BankerActivateHandler import BankerActivateHandler
 from game.world.opcode_handling.handlers.npc.BinderActivateHandler import BinderActivateHandler
 from game.world.opcode_handling.handlers.npc.BuyBankSlotHandler import BuyBankSlotHandler
@@ -209,6 +210,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_INSPECT: InspectHandler.handle,
     OpCode.CMSG_TRAINER_LIST: TrainerListHandler.handle,
     OpCode.CMSG_TAXIQUERYAVAILABLENODES: TaxiQueryNodesHandler.handle,
+    OpCode.CMSG_TAXINODE_STATUS_QUERY: TaxiNodeStatusQueryHandler.handle,
     OpCode.CMSG_ACTIVATETAXI: ActivateTaxiHandler.handle,
     OpCode.CMSG_CAST_SPELL: CastSpellHandler.handle,
     OpCode.CMSG_CANCEL_AURA: CancelAuraHandler.handle,
