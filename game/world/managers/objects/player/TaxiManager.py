@@ -1,6 +1,7 @@
 from struct import pack, unpack
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 
 
@@ -9,33 +10,43 @@ class TaxiManager(object):
         self.owner = player_mgr
         self.available_taxi_nodes = bitarray(64, 'little')
         self.available_taxi_nodes.setall(0)
+        self.load()
+
+    def load(self):
+        if self.owner.player.taximask and len(self.owner.player.taximask) > 0:
+            self.available_taxi_nodes = bitarray(self.owner.player.taximask, 'little')
+
+    def save(self):
+        self.owner.player.taximask = self.available_taxi_nodes.to01()
+        RealmDatabaseManager.character_update(self.owner.player)
 
     def has_node(self, node):
-        return self.available_taxi_nodes[node]
+        # Apparently nodes start at bit 0, bit 0 = node 1.
+        return self.available_taxi_nodes[node - 1]
 
     def add_taxi(self, node):
-        self.available_taxi_nodes[node] = True
+        self.available_taxi_nodes[node - 1] = True
+        self.save()
 
     def handle_query_node(self, flight_master_guid, node):
         if not self.has_node(node):
             self.add_taxi(node)
-            # Notify new taxi path discovered
+            # Notify new taxi path discovered.
             self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NEW_TAXI_PATH))
-            # Update flight master status
+            # Update flight master status.
             data = pack('<QB', flight_master_guid, 1)
             self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TAXINODE_STATUS, data))
         else:
-            # TODO: Find out how 'flags' and 'known' field correlate,
-            #  for now we just display every available flightpath.
-            self.available_taxi_nodes.setall(1)
-
+            # TODO: Find out how 'Destination Nodes' and 'Known Nodes' fields correlate,
+            #  Client does an OR operation between the two, 'destNodesa = knownNodes | destNodes'
+            known_nodes = unpack('<Q', self.available_taxi_nodes.tobytes())[0]
             data = pack(
                 f'<IQI2Q',
                 1,  # Show map
-                flight_master_guid,  # NPC taxi guid
-                node,  # Current node
-                unpack('<Q', self.available_taxi_nodes.tobytes())[0],  # Flags, nodes to which you could fly to?
-                unpack('<Q', self.available_taxi_nodes.tobytes())[0],  # Known, current discovered nodes?
+                flight_master_guid,  # NPC taxi guid.
+                node,  # Current node.
+                known_nodes,  # Destination nodes.
+                known_nodes  # Known nodes.
             )
 
             self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SHOWTAXINODES, data))
