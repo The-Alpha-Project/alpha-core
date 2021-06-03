@@ -96,7 +96,8 @@ class GameObjectManager(ObjectManager):
             if self.state == GameObjectStates.GO_STATE_READY:
                 self.state = GameObjectStates.GO_STATE_ACTIVE
                 self.send_update_surrounding()
-            # Generate loot if its empty.
+
+            # Generate loot if it's empty.
             if not self.loot_manager.has_loot():
                 self.loot_manager.generate_loot(player)
 
@@ -107,7 +108,7 @@ class GameObjectManager(ObjectManager):
             self.state = GameObjectStates.GO_STATE_READY
             self.send_update_surrounding()
 
-            # override
+    # override
     def set_display_id(self, display_id):
         super().set_display_id(display_id)
         if display_id <= 0 or not \
