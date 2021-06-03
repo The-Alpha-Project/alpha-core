@@ -1,5 +1,6 @@
 import time
 from struct import pack
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
@@ -11,7 +12,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ItemCodes import InventoryError, InventoryTypes
 from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
-    SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags
+    SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, SpellEffects
 from utils.constants.UnitCodes import PowerTypes
 
 
@@ -26,7 +27,7 @@ class SpellManager(object):
         for spell in RealmDatabaseManager.character_get_spells(self.unit_mgr.guid):
             self.spells[spell.spell] = spell
 
-    def learn_spell(self, spell_id):
+    def learn_spell(self, spell_id) -> bool:
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return False
 
@@ -48,7 +49,7 @@ class SpellManager(object):
         # Teach skill required as well like in CharCreateHandler?
         return True
 
-    def get_initial_spells(self):
+    def get_initial_spells(self) -> bytes:
         data = pack('<BH', 0, len(self.spells))
         for spell_id, spell in self.spells.items():
             data += pack('<2H', spell.spell, 0)
@@ -63,7 +64,7 @@ class SpellManager(object):
 
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 
-    def try_initialize_spell(self, spell, caster_obj, spell_target, target_mask, validate=True):
+    def try_initialize_spell(self, spell, caster_obj, spell_target, target_mask, validate=True) -> Optional[CastingSpell]:
         spell = CastingSpell(spell, caster_obj, spell_target, target_mask)
         if not validate:
             return spell
@@ -102,11 +103,11 @@ class SpellManager(object):
         if not (casting_spell.initial_target_is_terrain() and casting_spell.is_channeled()):
             casting_spell.resolve_target_info_for_effects()  # Channeled, terrain-targeted spells will generate results during the channel. Ignore them for now.
 
-        if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
-            self.send_spell_go(casting_spell)
-        else:
+        if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
             return  # Spell is in delayed state, do nothing for now
+
+        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
+        self.send_spell_go(casting_spell)
 
         travel_time = self.calculate_time_to_impact(casting_spell)
 
@@ -129,7 +130,13 @@ class SpellManager(object):
 
     def apply_spell_effects(self, casting_spell, targeted=True, remove=False):
         for effect in casting_spell.effects:
-            if not targeted:  # Effects that resolve targets in handler - ie. rain of fire, blizzard
+            # Effects that resolve targets in handler - ie. rain of fire, blizzard
+            # TODO some spells are ground-targeted (at least scorch breath 5010) but don't use the terrain as the actual spell target
+            # Use table for terrain-targeted implicit targets instead, check for effect type for now
+            if effect.effect_aura:
+                effect.effect_aura.initialize_period_timestamps()  # Initialize timestamps for effects with period
+
+            if not targeted and effect.effect_type == SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA:
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
                 continue
 
@@ -145,7 +152,7 @@ class SpellManager(object):
             self.remove_cast(casting_spell)
 
 
-    def cast_queued_melee_ability(self, attack_type):
+    def cast_queued_melee_ability(self, attack_type) -> bool:
         melee_ability = self.get_queued_melee_ability()
 
         if not melee_ability or not self.validate_cast(melee_ability):
@@ -158,7 +165,7 @@ class SpellManager(object):
         self.perform_spell_cast(melee_ability, False)
         return True
 
-    def get_queued_melee_ability(self):
+    def get_queued_melee_ability(self) -> Optional[CastingSpell]:
         for casting_spell in self.casting_spells:
             if not casting_spell.casts_on_swing() or \
                     casting_spell.cast_state != SpellState.SPELL_STATE_DELAYED:
@@ -216,7 +223,7 @@ class SpellManager(object):
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
 
-    def calculate_time_to_impact(self, casting_spell):
+    def calculate_time_to_impact(self, casting_spell) -> float:
         if casting_spell.spell_entry.Speed == 0:
             return 0
 
@@ -264,9 +271,6 @@ class SpellManager(object):
         for effect in casting_spell.effects:
             if not casting_spell.initial_target_is_terrain() or not effect.effect_aura or not effect.aura_period:  # Effects that will only resolve targets once
                 casting_spell.resolve_target_info_for_effect(effect.effect_index)
-
-            if effect.effect_aura:
-                effect.effect_aura.initialize_period_timestamps()  # Initialize timestamps for effects with period
 
         self.apply_spell_effects(casting_spell)
 
@@ -399,10 +403,10 @@ class SpellManager(object):
         data = pack('<IQ', spell.ID, self.unit_mgr.guid)
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
 
-    def is_on_cooldown(self, spell_id):
+    def is_on_cooldown(self, spell_id) -> bool:
         return spell_id in self.cooldowns
 
-    def validate_cast(self, casting_spell):
+    def validate_cast(self, casting_spell) -> bool:
         if self.is_on_cooldown(casting_spell):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
@@ -429,7 +433,7 @@ class SpellManager(object):
 
         return True
 
-    def meets_casting_requisites(self, casting_spell):
+    def meets_casting_requisites(self, casting_spell) -> bool:
         if casting_spell.spell_entry.PowerType != self.unit_mgr.power_type and casting_spell.spell_entry.ManaCost != 0:  # Doesn't have the correct power type
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
