@@ -48,5 +48,6 @@ begin not atomic
 		CONSTRAINT `owner_guid_spell_book_fk` FOREIGN KEY (`owner`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 		insert into applied_updates values ('290520211');
+    end if;
 end $
 delimiter ;
