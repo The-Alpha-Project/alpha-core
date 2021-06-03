@@ -13,9 +13,9 @@ class NewSpellSlotHandler(object):
             # No zero, reserved for 'hidden' spells/abilities.
             spell, index = unpack('<Ii', reader.data[:8])
 
-            spell_button = RealmDatabaseManager.character_get_spell_button(world_session.player_mgr.player.guid, index)
+            spell_button = RealmDatabaseManager.character_get_spell_button(world_session.player_mgr.player.guid, spell)
             if spell_button:
-                spell_button.spell = spell
+                spell_button.index = index
                 RealmDatabaseManager.character_update_spell_button(spell_button)
             else:
                 button = CharacterSpellButton()

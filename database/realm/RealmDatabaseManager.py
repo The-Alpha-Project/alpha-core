@@ -427,9 +427,9 @@ class RealmDatabaseManager(object):
         return buttons_dict
 
     @staticmethod
-    def character_get_spell_button(character_guid, index):
+    def character_get_spell_button(character_guid, spell):
         realm_db_session = SessionHolder()
-        button = realm_db_session.query(CharacterSpellButton).filter_by(owner=character_guid & ~HighGuid.HIGHGUID_PLAYER, index=index).first()
+        button = realm_db_session.query(CharacterSpellButton).filter_by(owner=character_guid & ~HighGuid.HIGHGUID_PLAYER, spell=spell).first()
         realm_db_session.close()
         return button
 
