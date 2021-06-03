@@ -181,10 +181,13 @@ class WorldServerSessionHandler(object):
         current_buffer_size = len(buffer)
         while current_buffer_size < expected_size:
             received = sck.recv(expected_size - current_buffer_size)
-            if not received or current_buffer_size > MAX_PACKET_BYTES:
+            if not received:
                 return b''
             buffer.extend(received)  # Keep appending to our buffer until we're done.
             current_buffer_size = len(buffer)
+            # Avoid handling any packet that's above the maximum packet size.
+            if current_buffer_size > MAX_PACKET_BYTES:
+                return b''
         return buffer
 
     @staticmethod
