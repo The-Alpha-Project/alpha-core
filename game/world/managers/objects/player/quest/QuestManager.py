@@ -115,7 +115,7 @@ class QuestManager(object):
             if quest_entry not in self.active_quests:
                 continue
             quest_state = self.active_quests[quest_entry].get_quest_state()
-            if quest_state < QuestState.QUEST_ACCEPTED:
+            if quest_state <= QuestState.QUEST_ACCEPTED:
                 continue  # Quest accept is handled by relation_list
             quest_menu.add_menu_item(quest, quest_state)
 
