@@ -45,7 +45,6 @@ class GameObjectLootManager(LootManager):
             loot_template_id = self.world_object.gobject_template.data1
             return WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_entry(loot_template_id)
 
-        Logger.warning(f'Unhandled loot generation for gameobject type {GameObjectTypes(self.world_object.gobject_template.type).name}')
         return []
 
     # override

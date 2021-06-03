@@ -47,7 +47,11 @@ class GameObjectManager(ObjectManager):
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
 
-        self.loot_manager = GameObjectLootManager(self)
+        self.loot_manager = None
+
+        # Chest only initializations.
+        if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            self.loot_manager = GameObjectLootManager(self)
 
     def load(self):
         MapManager.update_object(self)
