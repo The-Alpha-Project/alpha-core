@@ -18,6 +18,8 @@ from utils.constants.AuthCodes import AuthCode
 STARTUP_TIME = time()
 WORLD_ON = True
 
+MAX_PACKET_BYTES = 4096
+
 
 def get_seconds_since_startup():
     return time() - STARTUP_TIME
@@ -169,17 +171,20 @@ class WorldServerSessionHandler(object):
         received = sck.recv(expected_size)
         if not received:
             return b''
+
         # We got what we expect, return buffer.
         if received == expected_size:
             return received
+
         # If we got incomplete data, request missing payload.
         buffer = bytearray(received)
-        while len(buffer) < expected_size:
-            Logger.warning('Got incomplete data from client, requesting missing payload.')
-            received = sck.recv(expected_size - len(buffer))
-            if not received:
+        current_buffer_size = len(buffer)
+        while current_buffer_size < expected_size:
+            received = sck.recv(expected_size - current_buffer_size)
+            if not received or current_buffer_size > MAX_PACKET_BYTES:
                 return b''
             buffer.extend(received)  # Keep appending to our buffer until we're done.
+            current_buffer_size = len(buffer)
         return buffer
 
     @staticmethod
