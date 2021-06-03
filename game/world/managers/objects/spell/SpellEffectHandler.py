@@ -65,6 +65,11 @@ class SpellEffectHandler(object):
         caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, result)
 
     @staticmethod
+    def handle_open_lock(casting_spell, effect, caster, target):
+        if caster and target:
+            target.use(caster)
+
+    @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
         power_type = effect.misc_value
 
@@ -155,5 +160,6 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill,
     SpellEffects.SPELL_EFFECT_CREATE_ITEM: SpellEffectHandler.handle_create_item,
     SpellEffects.SPELL_EFFECT_TELEPORT_UNITS: SpellEffectHandler.handle_teleport_units,
-    SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA: SpellEffectHandler.handle_persistent_area_aura
+    SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA: SpellEffectHandler.handle_persistent_area_aura,
+    SpellEffects.SPELL_EFFECT_OPEN_LOCK: SpellEffectHandler.handle_open_lock
 }

@@ -132,6 +132,7 @@ class SpellManager(object):
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
     def apply_spell_effects(self, casting_spell, targeted=True, remove=False):
+
         for effect in casting_spell.effects:
             # Effects that resolve targets in handler - ie. rain of fire, blizzard
             # TODO some spells are ground-targeted (at least scorch breath 5010) but don't use the terrain as the actual spell target

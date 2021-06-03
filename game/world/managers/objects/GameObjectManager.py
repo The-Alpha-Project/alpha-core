@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, GameObjectTypes, \
@@ -42,6 +43,8 @@ class GameObjectManager(ObjectManager):
             self.location.z = self.gobject_instance.spawn_positionZ
             self.location.o = self.gobject_instance.spawn_orientation
             self.map_ = self.gobject_instance.spawn_map
+
+        self.loot_manager = GameObjectLootManager(self)
 
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
@@ -84,8 +87,23 @@ class GameObjectManager(ObjectManager):
                         y_lowest = y_i
                 player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
                 player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
+        elif self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            # Activate chest open animation, while active, it won't let any other player loot.
+            if self.state == GameObjectStates.GO_STATE_READY:
+                self.state = GameObjectStates.GO_STATE_ACTIVE
+                self.send_update_surrounding()
+            # Generate loot if its empty.
+            if not self.loot_manager.has_loot():
+                self.loot_manager.generate_loot(player)
 
-    # override
+            player.send_loot(self)
+
+    def set_ready(self):
+        if self.state != GameObjectStates.GO_STATE_READY:
+            self.state = GameObjectStates.GO_STATE_READY
+            self.send_update_surrounding()
+
+            # override
     def set_display_id(self, display_id):
         super().set_display_id(display_id)
         if display_id <= 0 or not \

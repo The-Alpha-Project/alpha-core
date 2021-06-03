@@ -13,15 +13,21 @@ class CastSpellHandler(object):
             spell_id, target_mask = unpack('<IH', reader.data[:6])
 
             caster = world_session.player_mgr
+            game_object = None
 
             if target_mask & SpellTargetMask.CAN_TARGET_TERRAIN != 0 and len(reader.data) >= 18:
                 target_info = Vector.from_bytes(reader.data[-12:])  # Terrain, target is vector
             elif len(reader.data) == 14:
                 target_info = unpack('<Q', reader.data[-8:])[0]  # some object (read guid)
+                game_object = MapManager.get_surrounding_gameobject_by_guid(caster, target_info)
             else:
                 target_info = caster  # Self
 
-            if target_mask & SpellTargetMask.CAN_TARGET_TERRAIN:
+            # TODO: @Flug, gameobject is not resolving on 'elif target_mask & SpellTargetMask.CAN_TARGET_OBJECTS'
+            #  Not sure why, I had to force it.
+            if game_object:
+                spell_target = game_object
+            elif target_mask & SpellTargetMask.CAN_TARGET_TERRAIN:
                 spell_target = target_info
             elif target_mask & SpellTargetMask.UNIT_TARGET_MASK and target_info != caster:
                 spell_target = MapManager.get_surrounding_unit_by_guid(caster, target_info, include_players=True)
