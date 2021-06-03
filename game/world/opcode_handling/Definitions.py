@@ -102,6 +102,7 @@ from game.world.opcode_handling.handlers.player.cheats.LevelCheatHandler import 
 from game.world.opcode_handling.handlers.player.cheats.LevelUpCheatHandler import LevelUpCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from game.world.opcode_handling.handlers.player.SetActionButtonHandler import SetActionButtonHandler
+from game.world.opcode_handling.handlers.player.NewSpellSlotHandler import NewSpellSlotHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverAcceptQuestHandler import QuestGiverAcceptQuestHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverChooseRewardHandler import QuestGiverChooseRewardHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverCompleteQuestHandler import QuestGiverCompleteQuestHandler
@@ -281,6 +282,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_BANKER_ACTIVATE: BankerActivateHandler.handle,
     OpCode.CMSG_BUY_BANK_SLOT: BuyBankSlotHandler.handle,
     OpCode.CMSG_SET_ACTION_BUTTON: SetActionButtonHandler.handle,
+    OpCode.CMSG_NEW_SPELL_SLOT: NewSpellSlotHandler.handle,
 
     # Movement packets
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,

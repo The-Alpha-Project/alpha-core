@@ -206,6 +206,17 @@ class CharacterButton(Base):
     character = relationship('Character')
 
 
+class CharacterSpellButton(Base):
+    __tablename__ = 'character_spell_book'
+
+    guid = Column(INTEGER, primary_key=True)
+    owner = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+    index = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    spell = Column(INTEGER(11), nullable=False, server_default=text("'1'"))
+
+    character = relationship('Character')
+
+
 class Guild(Base):
     __tablename__ = 'guild'
 
