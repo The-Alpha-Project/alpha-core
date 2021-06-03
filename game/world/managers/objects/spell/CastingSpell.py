@@ -86,8 +86,9 @@ class CastingSpell(object):
         for effect in self.effects:
             self.resolve_target_info_for_effect(effect.effect_index)
 
+    # noinspection PyUnresolvedReferences
     def resolve_target_info_for_effect(self, index):
-        if index < 0 or index > len(self.effects)-1:
+        if index < 0 or index > len(self.effects) - 1:
             return
         effect = self.effects[index]
         if not effect:

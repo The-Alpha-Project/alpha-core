@@ -1,5 +1,5 @@
 import math
-from typing import List, Union, Dict, Optional
+from typing import Union, Optional
 
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
@@ -30,7 +30,7 @@ class EffectTargets:
         self.resolved_targets_a = []
         self.resolved_targets_b = []
 
-    def get_simple_targets(self) -> Dict[SpellImplicitTargets, List[Union[ObjectManager, Vector]]]:
+    def get_simple_targets(self) -> dict[SpellImplicitTargets, list[Union[ObjectManager, Vector]]]:
         target_is_player = self.casting_spell.initial_target_is_player()
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
         target_is_item = self.casting_spell.initial_target_is_item()
@@ -52,7 +52,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_SELF_FISHING: self.caster
         }
 
-    def resolve_implicit_targets_reference(self, implicit_target) -> Optional[List[Union[ObjectManager, Vector]]]:
+    def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
         if implicit_target == 0:
             return []
 
@@ -78,7 +78,7 @@ class EffectTargets:
         self.resolved_targets_a = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_a)
         self.resolved_targets_b = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_b)
 
-    def get_effect_target_results(self) -> Dict[int, TargetMissInfo]:
+    def get_effect_target_results(self) -> dict[int, TargetMissInfo]:
         targets = self.get_final_effect_targets()
         target_info = {}
         for target in targets:
@@ -86,7 +86,7 @@ class EffectTargets:
                 target_info[target.guid] = TargetMissInfo(target, SpellMissReason.MISS_REASON_NONE)  # TODO Misses etc.
         return target_info
 
-    def get_final_effect_targets(self) -> List[Union[ObjectManager, Vector]]:
+    def get_final_effect_targets(self) -> list[Union[ObjectManager, Vector]]:
         # At least some B targets act as specifying on A. No table for now for ImplicitTarget values that act as specifiers, so prefer B if values exist
         # TODO if issues arise, add table for specifying ImplicitTargets
         if not self.resolved_targets_b or len(self.resolved_targets_b) == 0:
@@ -94,15 +94,15 @@ class EffectTargets:
         return self.resolved_targets_b
 
     @staticmethod
-    def get_enemies_from_unit_list(units: List[ObjectManager], caster):
+    def get_enemies_from_unit_list(units: list[ObjectManager], caster):
         return [unit for unit in units if not caster.is_friendly_to(unit)]
 
     @staticmethod
-    def get_friends_from_unit_list(units: List[ObjectManager], caster):
+    def get_friends_from_unit_list(units: list[ObjectManager], caster):
         return [unit for unit in units if caster.is_friendly_to(unit)]
 
     @staticmethod
-    def get_party_members_from_unit_list(units: List[ObjectManager], caster):
+    def get_party_members_from_unit_list(units: list[ObjectManager], caster):
         if not caster.group_manager:
             return []
 
@@ -224,7 +224,7 @@ class EffectTargets:
                 continue
 
             current_angle = caster.location.angle(unit.location)
-            infront_angle = math.pi/2  # Cone
+            infront_angle = math.pi / 2  # Cone
             if -infront_angle <= current_angle <= infront_angle:
                 units_in_range_front.append(unit)
 
@@ -251,7 +251,6 @@ class EffectTargets:
 
         merged = list(result[0].values()) + list(result[1].values())
         return EffectTargets.get_friends_from_unit_list(merged, casting_spell.spell_caster)
-
 
     # Only used with TARGET_ALL_AROUND_CASTER in A
     @staticmethod

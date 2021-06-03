@@ -1,6 +1,5 @@
 import time
 from struct import pack
-from typing import List
 
 from database.world.WorldDatabaseManager import config
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -263,7 +262,7 @@ class AuraManager:
                 continue
             self.remove_aura(applied_aura)  # Remove identical auras the caster has applied
 
-    def get_auras_by_spell_id(self, spell_id) -> List[AppliedAura]:
+    def get_auras_by_spell_id(self, spell_id) -> list[AppliedAura]:
         auras = []
         for aura in self.active_auras.values():
             if aura.spell_id != spell_id:
@@ -271,7 +270,7 @@ class AuraManager:
             auras.append(aura)
         return auras
 
-    def get_auras_by_type(self, aura_type) -> List[AppliedAura]:
+    def get_auras_by_type(self, aura_type) -> list[AppliedAura]:
         auras = []
         for aura in list(self.active_auras.values()):
             if aura.spell_effect.aura_type != aura_type:
