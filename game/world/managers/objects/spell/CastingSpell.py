@@ -95,7 +95,7 @@ class CastingSpell(object):
             return
 
         effect.targets.resolve_targets()
-        effect_info = effect.targets.get_effect_target_results()
+        effect_info = effect.targets.get_effect_target_miss_results()
         self.unit_target_results = {**self.unit_target_results, **effect_info}
 
     def is_instant_cast(self):

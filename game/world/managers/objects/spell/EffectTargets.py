@@ -78,18 +78,20 @@ class EffectTargets:
         self.resolved_targets_a = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_a)
         self.resolved_targets_b = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_b)
 
-    def get_effect_target_results(self) -> dict[int, TargetMissInfo]:
-        targets = self.get_final_effect_targets()
+    def get_effect_target_miss_results(self) -> dict[int, TargetMissInfo]:
+        targets = self.get_resolved_effect_object_targets()
         target_info = {}
         for target in targets:
             if isinstance(target, ObjectManager):
                 target_info[target.guid] = TargetMissInfo(target, SpellMissReason.MISS_REASON_NONE)  # TODO Misses etc.
         return target_info
 
-    def get_final_effect_targets(self) -> list[Union[ObjectManager, Vector]]:
+    def get_resolved_effect_object_targets(self) -> list[ObjectManager]:
         # At least some B targets act as specifying on A. No table for now for ImplicitTarget values that act as specifiers, so prefer B if values exist
         # TODO if issues arise, add table for specifying ImplicitTargets
-        if not self.resolved_targets_b or len(self.resolved_targets_b) == 0:
+
+        if not self.resolved_targets_b or len(self.resolved_targets_b) == 0 or \
+                not isinstance(self.resolved_targets_b[0], ObjectManager):
             return self.resolved_targets_a
         return self.resolved_targets_b
 
