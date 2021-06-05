@@ -118,7 +118,11 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
-        teleport_info = effect.targets.implicit_target_b
+        resolved_targets = effect.targets.resolved_targets_b
+        if not resolved_targets or len(resolved_targets) == 0:
+            return
+        teleport_info = resolved_targets[0]
+
         target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved
         # TODO Die sides are assigned for at least Word of Recall (ID 1)
 

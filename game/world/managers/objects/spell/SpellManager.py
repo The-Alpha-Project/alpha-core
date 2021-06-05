@@ -132,7 +132,6 @@ class SpellManager(object):
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
     def apply_spell_effects(self, casting_spell, targeted=True, remove=False):
-
         for effect in casting_spell.effects:
             # Effects that resolve targets in handler - ie. rain of fire, blizzard
             # TODO some spells are ground-targeted (at least scorch breath 5010) but don't use the terrain as the actual spell target
@@ -144,7 +143,7 @@ class SpellManager(object):
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
                 continue
 
-            for target in effect.targets.get_final_effect_targets():
+            for target in effect.targets.get_resolved_effect_object_targets():
                 info = casting_spell.unit_target_results[target.guid]
                 # TODO deflection handling? Swap target/caster for now
                 if info.result == SpellMissReason.MISS_REASON_DEFLECTED:
