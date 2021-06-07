@@ -43,6 +43,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_PET: [],  # TODO
             SpellImplicitTargets.TARGET_CHAIN_DAMAGE: self.initial_target if not target_is_friendly else [],  # TODO - resolve chain targets
             SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: self.caster.get_deathbind_coordinates() if target_is_player else [],
+            SpellImplicitTargets.TARGET_11: [],  # Word of Recall Other - seems deprecated so return nothing
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else [],
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if target_is_gameobject else [],
             SpellImplicitTargets.TARGET_DUEL_VS_PLAYER: self.initial_target,  # Spells that can be cast on both hostile and friendly?
