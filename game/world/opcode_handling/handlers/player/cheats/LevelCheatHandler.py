@@ -1,11 +1,10 @@
-from network.packet.PacketReader import PacketReader
 from struct import unpack
 
 
 class LevelCheatHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader: PacketReader) -> int:
+    def handle(world_session, socket, reader):
         if len(reader.data) >= 4:  # Avoid empty packet level cheat packet.
             if not world_session.player_mgr.is_gm:
                 return 0

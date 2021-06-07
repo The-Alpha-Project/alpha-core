@@ -2,7 +2,6 @@ from struct import unpack, error
 
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects import MovementManager
-from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveFlags
@@ -13,7 +12,7 @@ from utils.constants.UnitCodes import StandState
 class MovementHandler(object):
 
     @staticmethod
-    def handle_movement_status(world_session, socket, reader: PacketReader) -> int:
+    def handle_movement_status(world_session, socket, reader):
         # Avoid handling malformed movement packets, or handling them while no player or player teleporting.
         if world_session.player_mgr and len(reader.data) >= 48:
             try:

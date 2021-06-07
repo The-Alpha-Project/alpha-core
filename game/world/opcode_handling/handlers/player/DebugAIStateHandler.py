@@ -2,7 +2,6 @@ from struct import unpack, pack
 
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 
@@ -13,7 +12,7 @@ from utils.constants.OpCodes import OpCode
 class DebugAIStateHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader: PacketReader) -> int:
+    def handle(world_session, socket, reader):
         if len(reader.data) >= 8:  # Avoid handling empty debug AI state packet.
             guid = unpack('<Q', reader.data[:8])[0]
             world_object: ObjectManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid,

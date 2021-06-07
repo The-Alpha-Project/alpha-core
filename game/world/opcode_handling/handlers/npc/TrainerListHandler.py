@@ -4,12 +4,10 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from struct import unpack
 
-from network.packet.PacketReader import PacketReader
-
 class TrainerListHandler(object):
 
     @staticmethod
-    def handle(world_session, socket: int, reader: PacketReader) -> int:
+    def handle(world_session, socket, reader):
         if len(reader.data) >= 8:  # Avoid handling empty trainer list packet.
             guid: int = unpack('<Q', reader.data[:8])[0]
 
