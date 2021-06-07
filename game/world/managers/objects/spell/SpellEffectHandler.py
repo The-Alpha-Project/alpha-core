@@ -150,6 +150,11 @@ class SpellEffectHandler(object):
         for target in missing_targets:
             target.aura_manager.cancel_auras_by_spell_id(spell_id)
 
+    @staticmethod
+    def handle_learn_spell(casting_spell, effect, caster, target):
+        target_spell_id = effect.trigger_spell_id
+        target.spell_manager.learn_spell(target_spell_id)
+
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
@@ -165,5 +170,6 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_CREATE_ITEM: SpellEffectHandler.handle_create_item,
     SpellEffects.SPELL_EFFECT_TELEPORT_UNITS: SpellEffectHandler.handle_teleport_units,
     SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA: SpellEffectHandler.handle_persistent_area_aura,
-    SpellEffects.SPELL_EFFECT_OPEN_LOCK: SpellEffectHandler.handle_open_lock
+    SpellEffects.SPELL_EFFECT_OPEN_LOCK: SpellEffectHandler.handle_open_lock,
+    SpellEffects.SPELL_EFFECT_LEARN_SPELL: SpellEffectHandler.handle_learn_spell
 }
