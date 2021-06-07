@@ -312,10 +312,10 @@ class WorldDatabaseManager(object):
     # Trainer stuff
 
     class TrainerSpellHolder:
-        TRAINER_SPELLS: dict[int, NpcTrainerAlpha] = {}
+        TRAINER_SPELLS: dict[int, NpcTrainer] = {}
 
         @staticmethod
-        def load_trainer_spell(trainer_spell: NpcTrainerAlpha):
+        def load_trainer_spell(trainer_spell: NpcTrainer):
             WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[trainer_spell.spell] = trainer_spell
         
         @staticmethod
@@ -325,15 +325,15 @@ class WorldDatabaseManager(object):
             return None
 
     @staticmethod
-    def trainer_spell_get_all() -> Optional[List[NpcTrainerAlpha]]:
+    def trainer_spell_get_all() -> Optional[List[NpcTrainer]]:
         world_db_session: scoped_session = SessionHolder()
-        res = world_db_session.query(NpcTrainerAlpha).all()
+        res = world_db_session.query(NpcTrainer).all()
         world_db_session.close()
         return res
 
     @staticmethod
-    def trainer_spells_get_by_trainer(trainer_entry_id: int) -> Optional[list[NpcTrainerAlpha]]:
-        trainer_spells: list[NpcTrainerAlpha] = []
+    def trainer_spells_get_by_trainer(trainer_entry_id: int) -> Optional[list[NpcTrainer]]:
+        trainer_spells: list[NpcTrainer] = []
         
         creature_template: CreatureTemplate = WorldDatabaseManager.creature_get_by_entry(trainer_entry_id)
         trainer_template_id = creature_template.trainer_id
@@ -345,7 +345,7 @@ class WorldDatabaseManager(object):
         return trainer_spells if not trainer_spells.count == 0 else None
 
     @staticmethod
-    def get_trainer_spell_by_id(spell_id: int) -> Optional[NpcTrainerAlpha]:
+    def get_trainer_spell_by_id(spell_id: int) -> Optional[NpcTrainer]:
         return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[spell_id] \
                 if spell_id in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS else None
 

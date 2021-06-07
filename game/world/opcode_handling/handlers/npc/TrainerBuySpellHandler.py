@@ -29,7 +29,6 @@ class TrainerBuySpellHandler(object):
                 else:
                     world_session.player_mgr.remove_talent_points(talent_cost)
                     world_session.player_mgr.spell_manager.learn_spell(spell_id)
-                    ChatManager.send_system_message(world_session, f'You learned SpellID {spell_id}')
                     
                     data = pack('<QI', trainer_guid, spell_id)
                     world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_SUCCEEDED, data))
@@ -57,9 +56,10 @@ class TrainerBuySpellHandler(object):
                 else:
                     world_session.player_mgr.mod_money(-spell_cost)
                     world_session.player_mgr.spell_manager.learn_spell(spell_id) # "Learn" spells do not currently work. (The spells the trainer uses to teach the spell)
-                    ChatManager.send_system_message(world_session, f'You learned SpellID {spell_id}')
                     
                     data = pack('<QI', trainer_guid, spell_id)
                     world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_SUCCEEDED, data))
+
+                    npc.send_trainer_list(world_session)
 
         return 0
