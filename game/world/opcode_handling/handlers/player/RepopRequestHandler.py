@@ -1,5 +1,3 @@
-
-
 class RepopRequestHandler(object):
 
     @staticmethod

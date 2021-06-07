@@ -1,5 +1,3 @@
-
-
 class DuelAcceptHandler(object):
 
     @staticmethod

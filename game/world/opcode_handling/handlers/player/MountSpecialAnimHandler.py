@@ -1,5 +1,4 @@
 from game.world.managers.maps.MapManager import MapManager
-from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 
 

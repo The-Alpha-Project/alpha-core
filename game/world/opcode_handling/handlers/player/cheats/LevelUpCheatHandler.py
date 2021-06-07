@@ -1,5 +1,3 @@
-
-
 class LevelUpCheatHandler(object):
 
     @staticmethod

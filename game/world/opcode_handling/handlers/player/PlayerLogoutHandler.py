@@ -1,5 +1,3 @@
-
-
 class PlayerLogoutHandler(object):
 
     @staticmethod

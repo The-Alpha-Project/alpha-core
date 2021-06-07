@@ -1,5 +1,3 @@
-
-
 class DuelCanceledHandler(object):
 
     @staticmethod

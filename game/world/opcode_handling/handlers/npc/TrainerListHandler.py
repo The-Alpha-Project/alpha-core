@@ -9,11 +9,11 @@ class TrainerListHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         if len(reader.data) >= 8:  # Avoid handling empty trainer list packet.
-            guid: int = unpack('<Q', reader.data[:8])[0]
+            guid = unpack('<Q', reader.data[:8])[0]
 
             # Player talents
             if guid == world_session.player_mgr.guid:
-                world_session.player_mgr.talent_manager.send_talent_list()                
+                world_session.player_mgr.talent_manager.send_talent_list()
             # NPC offering
             else:
                 trainer: CreatureManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
