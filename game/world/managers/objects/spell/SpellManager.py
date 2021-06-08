@@ -437,12 +437,18 @@ class SpellManager(object):
         return True
 
     def meets_casting_requisites(self, casting_spell) -> bool:
-        if casting_spell.spell_entry.PowerType != self.unit_mgr.power_type and casting_spell.spell_entry.ManaCost != 0:  # Doesn't have the correct power type
+        has_health_cost = casting_spell.spell_entry.PowerType == PowerTypes.TYPE_HEALTH
+        if not has_health_cost and casting_spell.spell_entry.PowerType != self.unit_mgr.power_type and \
+                casting_spell.spell_entry.ManaCost != 0:  # Doesn't have the correct power type
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 
-        if casting_spell.get_resource_cost() > self.unit_mgr.get_power_type_value():  # Doesn't have enough power
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
+        current_power = self.unit_mgr.health if has_health_cost else self.unit_mgr.get_power_type_value()
+        if casting_spell.get_resource_cost() > current_power:  # Doesn't have enough power
+            if not has_health_cost:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
+            else:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)  # Health cost fail displays on client before server response
             return False
 
         # Player only checks
@@ -479,7 +485,8 @@ class SpellManager(object):
     def consume_resources_for_cast(self, casting_spell):  # This method assumes that the reagents exist (meets_casting_requisites was run)
         power_type = casting_spell.spell_entry.PowerType
         cost = casting_spell.spell_entry.ManaCost
-        new_power = self.unit_mgr.get_power_type_value() - cost
+        current_power = self.unit_mgr.health if power_type == PowerTypes.TYPE_HEALTH else self.unit_mgr.get_power_type_value()
+        new_power = current_power - cost
         if power_type == PowerTypes.TYPE_MANA:
             self.unit_mgr.set_mana(new_power)
         elif power_type == PowerTypes.TYPE_RAGE:
@@ -488,6 +495,8 @@ class SpellManager(object):
             self.unit_mgr.set_focus(new_power)
         elif power_type == PowerTypes.TYPE_ENERGY:
             self.unit_mgr.set_energy(new_power)
+        elif power_type == PowerTypes.TYPE_HEALTH:
+            self.unit_mgr.set_health(new_power)
 
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
                 casting_spell.requires_combo_points():
