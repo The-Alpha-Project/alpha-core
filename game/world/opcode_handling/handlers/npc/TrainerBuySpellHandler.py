@@ -6,6 +6,7 @@ from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.creature.CreatureManager import CreatureManager
 from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
+from utils.constants.MiscCodes import TrainingFailReasons
 from struct import unpack
 
 from network.packet.PacketWriter import *
@@ -24,7 +25,15 @@ class TrainerBuySpellHandler(object):
                 talent_cost = talent_mgr.get_talent_cost_by_id(spell_id)
 
                 if talent_cost > world_session.player_mgr.talent_points:
-                    ChatManager.send_system_message(world_session, 'Not enough talent points.')
+                    
+                    data = pack('<QII', trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_SKILL) # buy failed - not enough points
+                    world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_FAILED, data))
+
+                    return 0
+                elif spell_id in world_session.player_mgr.spell_manager.spells:
+                    data = pack('<QII', trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE) # buy failed - unavailable
+                    world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_FAILED, data))
+
                     return 0
                 else:
                     world_session.player_mgr.remove_talent_points(talent_cost)
@@ -35,31 +44,59 @@ class TrainerBuySpellHandler(object):
                     
             else: # Trainer
                 trainer_spell = WorldDatabaseManager.get_trainer_spell_by_id(spell_id)
-                spell_cost = trainer_spell.spellcost
+                spell_money_cost = trainer_spell.spellcost
+                spell_skill_cost = trainer_spell.skillpointcost
                 npc: CreatureManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, trainer_guid)
                 
                 if not npc.is_trainer(): # Not a trainer
                     Logger.anticheat(f'Player with GUID {world_session.player_mgr.guid} tried to train spell {spell_id} from NPC {npc.entry} but that NPC is not a trainer. Possible cheating.')
+
+                    data = pack('<QII', trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE) # buy failed - unavailable
+                    world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_FAILED, data))
+
                     return 0
                 elif not npc.is_trainer_for_class(world_session.player_mgr.player.class_): # Trains a different class
                     Logger.anticheat(f'Player with GUID {world_session.player_mgr.guid} tried to train spell {spell_id} from NPC {npc.entry} but that NPC does not train that player\'s class. Possible cheating.')
+                    
+                    data = pack('<QII', trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE) # buy failed - unavailable
+                    world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_FAILED, data))
+                    
                     return 0
                 elif not npc.trainer_has_spell(spell_id): # Doesn't have that spell in its train list
                     Logger.anticheat(f'Player with GUID {world_session.player_mgr.guid} tried to train spell {spell_id} from NPC {npc.entry} but that NPC does not train that spell. Possible cheating.')
+                    
+                    data = pack('<QII', trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE) # buy failed - unavailable
+                    world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_FAILED, data))
+
                     return 0
-                elif spell_cost > world_session.player_mgr.coinage:
-                    ChatManager.send_system_message(world_session, 'Not enough money.')
+                elif spell_money_cost > 0 and spell_money_cost > world_session.player_mgr.coinage:
+                    data = pack('<QII', trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_MONEY) # buy failed - not enough money
+                    world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_FAILED, data))
+
+                    return 0
+                elif spell_skill_cost > 0 and spell_skill_cost > world_session.player_mgr.skill_points:
+                    data = pack('<QII', trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_SKILL) # buy failed - not enough money
+                    world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_FAILED, data))
+
                     return 0
                 elif spell_id in world_session.player_mgr.spell_manager.spells:
-                    ChatManager.send_system_message(world_session, 'You already know that spell.')
+                    data = pack('<QII', trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE) # buy failed - unavailable
+                    world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_FAILED, data))
+
                     return 0
                 else:
-                    world_session.player_mgr.mod_money(-spell_cost)
+
+                    if spell_money_cost > 0:
+                        world_session.player_mgr.mod_money(-spell_money_cost)
+
+                    if spell_skill_cost > 0: # some trainer spells cost skill points in alpha - class trainers trained weapon skills, which cost skill points
+                        world_session.player_mgr.remove_skill_points(spell_skill_cost)
+
                     world_session.player_mgr.spell_manager.learn_spell(spell_id) # "Learn" spells do not currently work. (The spells the trainer uses to teach the spell)
                     
                     data = pack('<QI', trainer_guid, spell_id)
                     world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_SUCCEEDED, data))
 
-                    npc.send_trainer_list(world_session)
+                    npc.send_trainer_list(world_session) # Revisist later - re-sending the list is (probably) not the way it should be done, as it resets the selected spell & spell filters (avail, unavail etc.)
 
         return 0
