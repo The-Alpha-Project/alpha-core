@@ -14,10 +14,11 @@ class MapTile(object):
         self.cell_x = tile_x
         self.cell_y = tile_y
         self.cell_map = map_id
-        self.explore_flag = [[0 for r in range(0, RESOLUTION_FLAGS + 1)] for c in range(0, RESOLUTION_FLAGS + 1)]
-        self.area_terrain = [[0 for r in range(0, RESOLUTION_TERRAIN + 1)] for c in range(0, RESOLUTION_TERRAIN + 1)]
-        self.water_level = [[0 for r in range(0, RESOLUTION_WATER + 1)] for c in range(0, RESOLUTION_WATER + 1)]
-        self.z_coords = [[0 for r in range(0, RESOLUTION_ZMAP + 1)] for c in range(0, RESOLUTION_ZMAP + 1)]
+        self.explore_flag = [[0] * (RESOLUTION_FLAGS + 1)] * (RESOLUTION_FLAGS + 1)
+        self.area_terrain = [[0] * (RESOLUTION_TERRAIN + 1)] * (RESOLUTION_TERRAIN + 1)
+        self.water_level = [[0] * (RESOLUTION_WATER + 1)] * (RESOLUTION_WATER + 1)
+        self.z_coords = [[0] * (RESOLUTION_ZMAP + 1)] * (RESOLUTION_ZMAP + 1)
+        
         self.load()
 
     def load(self):
@@ -31,7 +32,8 @@ class MapTile(object):
             with open(maps_path, "rb") as map_tiles:
                 version = PacketReader.read_string(map_tiles.read(10), 0)
                 if version != MapTile.EXPECTED_VERSION:
-                    Logger.error(f'Unexpected map version. Expected "{MapTile.EXPECTED_VERSION}", received "{version}".')
+                    Logger.error(
+                        f'Unexpected map version. Expected "{MapTile.EXPECTED_VERSION}", received "{version}".')
                     return
 
                 # TODO: AreaFlags
@@ -52,4 +54,5 @@ class MapTile(object):
                 # Height Map
                 for x in range(0, RESOLUTION_ZMAP + 1):
                     for y in range(0, RESOLUTION_ZMAP + 1):
-                        self.z_coords[x][y] = unpack('<f', map_tiles.read(4))[0]
+                        self.z_coords[x][y] = unpack(
+                            '<f', map_tiles.read(4))[0]
