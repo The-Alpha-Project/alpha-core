@@ -118,6 +118,7 @@ from game.world.opcode_handling.handlers.social.TextEmoteHandler import TextEmot
 from game.world.opcode_handling.handlers.social.WhoHandler import WhoHandler
 from game.world.opcode_handling.handlers.spell.CancelAuraHandler import CancelAuraHandler
 from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpellHandler
+from game.world.opcode_handling.handlers.spell.UseItemHandler import UseItemHandler
 from game.world.opcode_handling.handlers.trade.AcceptTradeHandler import AcceptTradeHandler
 from game.world.opcode_handling.handlers.trade.BeginTradeHandler import BeginTradeHandler
 from game.world.opcode_handling.handlers.trade.CancelTradeHandler import CancelTradeHandler
@@ -214,6 +215,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_ACTIVATETAXI: ActivateTaxiHandler.handle,
     OpCode.CMSG_CAST_SPELL: CastSpellHandler.handle,
     OpCode.CMSG_CANCEL_AURA: CancelAuraHandler.handle,
+    OpCode.CMSG_USE_ITEM: UseItemHandler.handle,
     OpCode.CMSG_LOOT: LootRequestHandler.handle,
     OpCode.CMSG_LOOT_RELEASE: LootReleaseHandler.handle,
     OpCode.CMSG_LOOT_MONEY: LootMoneyHandler.handle,
