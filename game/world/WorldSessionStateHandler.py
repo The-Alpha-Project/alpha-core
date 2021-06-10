@@ -77,7 +77,7 @@ class WorldSessionStateHandler(object):
 
     @staticmethod
     def get_session_by_character_guid(character_guid):
-        return SESSION_BY_GUID.get(character_guid) # returns "None" by default, if the key doesn't exist
+        return SESSION_BY_GUID.get(character_guid)
 
     @staticmethod
     def get_session_by_character_name(character_name):
