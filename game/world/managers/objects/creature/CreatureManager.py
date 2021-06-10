@@ -246,7 +246,7 @@ class CreatureManager(UnitManager):
             self.weapon_reach = 0.0
 
     def is_trainer(self) -> bool:
-        if self.npc_flags == self.npc_flags | NpcFlags.NPC_FLAG_TRAINER:
+        if self.npc_flags & NpcFlags.NPC_FLAG_TRAINER:
             return True
         else:
             return False

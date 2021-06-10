@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import Optional
 from difflib import SequenceMatcher
 
 from sqlalchemy import create_engine
@@ -325,7 +325,7 @@ class WorldDatabaseManager(object):
             return None
 
     @staticmethod
-    def trainer_spell_get_all() -> Optional[List[NpcTrainer]]:
+    def trainer_spell_get_all() -> Optional[list[NpcTrainer]]:
         world_db_session: scoped_session = SessionHolder()
         res = world_db_session.query(NpcTrainer).all()
         world_db_session.close()
