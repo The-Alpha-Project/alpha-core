@@ -109,6 +109,9 @@ class AuraManager:
         # TODO check if aura can be removed (by player)
         AuraEffectHandler.handle_aura_effect_change(aura, True)
         self.active_auras.pop(aura.index)
+        # Some area effects (paladin auras etc.) are applied to spell effects. Cancel cast on aura cancel.
+        self.unit_mgr.spell_manager.remove_cast_by_spell_id(aura.spell_id)
+
         if aura.passive:
             return  # Passive auras aren't written to unit
 

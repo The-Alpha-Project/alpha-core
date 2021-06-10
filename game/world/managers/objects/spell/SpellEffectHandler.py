@@ -2,7 +2,7 @@ from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypes
-from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects
+from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellImplicitTargets
 from utils.constants.UnitCodes import PowerTypes, UnitFlags
 
 
@@ -127,13 +127,29 @@ class SpellEffectHandler(object):
         # TODO Die sides are assigned for at least Word of Recall (ID 1)
 
     @staticmethod
-    def handle_persistent_area_aura(casting_spell, effect, caster, target):
+    def handle_persistent_area_aura(casting_spell, effect, caster, target):  # Ground-targeted aoe
         if target is not None:
             return
 
+        SpellEffectHandler.handle_apply_area_aura(casting_spell, effect, caster, target)
+        return
+
+    @staticmethod
+    def handle_apply_area_aura(casting_spell, effect, caster, target):  # Paladin auras, healing stream totem etc.
+        casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
+        # TODO Aura spell targeting hackfix
+        # These spells target group members, but implicit target is set to self
+        # Overwrite the implicit target here
+        if effect.implicit_target_a == SpellImplicitTargets.TARGET_SELF:
+            effect.implicit_target_a = SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY
+            # Clear old (self) targets and resolve again with proper implicit target
+            effect.targets.resolved_targets_a = []
+            effect.targets.resolved_targets_b = []
+            effect.targets.resolve_targets()
+
+
         previous_targets = effect.targets.previous_targets_a if effect.targets.previous_targets_a else []
         current_targets = effect.targets.resolved_targets_a
-        spell_id = effect.effect_aura.spell_id
 
         new_targets = [unit for unit in current_targets if unit not in previous_targets]  # Targets that can't have the aura yet
         missing_targets = [unit for unit in previous_targets if unit not in current_targets]  # Targets that moved out of the area
@@ -148,12 +164,17 @@ class SpellEffectHandler(object):
             effect.effect_aura.pop_period_timestamp()  # Update effect aura timestamps
 
         for target in missing_targets:
-            target.aura_manager.cancel_auras_by_spell_id(spell_id)
+            target.aura_manager.cancel_auras_by_spell_id(casting_spell.spell_entry.ID)
 
     @staticmethod
     def handle_learn_spell(casting_spell, effect, caster, target):
         target_spell_id = effect.trigger_spell_id
         target.spell_manager.learn_spell(target_spell_id)
+
+    AREA_SPELL_EFFECTS = [
+        SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA,
+        SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA
+    ]
 
 
 SPELL_EFFECTS = {
@@ -171,5 +192,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_TELEPORT_UNITS: SpellEffectHandler.handle_teleport_units,
     SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA: SpellEffectHandler.handle_persistent_area_aura,
     SpellEffects.SPELL_EFFECT_OPEN_LOCK: SpellEffectHandler.handle_open_lock,
-    SpellEffects.SPELL_EFFECT_LEARN_SPELL: SpellEffectHandler.handle_learn_spell
+    SpellEffects.SPELL_EFFECT_LEARN_SPELL: SpellEffectHandler.handle_learn_spell,
+    SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA: SpellEffectHandler.handle_apply_area_aura
 }
+

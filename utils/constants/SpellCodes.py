@@ -261,7 +261,7 @@ class SpellState(IntEnum):
     SPELL_STATE_CASTING = 1  # channeled time period spell casting state
     SPELL_STATE_FINISHED = 2  # cast finished to success or fail
     SPELL_STATE_DELAYED = 3  # spell casted but need time to hit target(s)
-    SPELL_STATE_CHANNELING = 4  # Spell casted and is now channeling
+    SPELL_STATE_ACTIVE = 4  # Spell has been cast successfully and effects should be applied on update (channels, range-limited auras)
 
 
 class CurrentSpellType(IntEnum):
@@ -526,7 +526,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_UNIT_NEAR_CASTER = 4
     TARGET_PET = 5
     TARGET_CHAIN_DAMAGE = 6
-    TARGET_AREAEFFECT_CUSTOM = 8  # Unused
+    TARGET_AREAEFFECT_CUSTOM = 7  # vmangos: "TARGET_ENUM_UNITS_SCRIPT_AOE_AT_SRC_LOC" Most likely correct definition - includes cozy fire effect etc. TODO
     TARGET_INNKEEPER_COORDINATES = 9  # Used in teleport to innkeeper spells
     TARGET_11 = 11  # Only used by "Word of Recall Other" (4)
     TARGET_ALL_ENEMY_IN_AREA = 15

@@ -121,17 +121,19 @@ class SpellManager(object):
             return
 
         if casting_spell.is_channeled():
-            casting_spell.cast_state = SpellState.SPELL_STATE_CHANNELING
             self.handle_channel_start(casting_spell)
         else:
-            self.apply_spell_effects(casting_spell, remove=True)  # Apply effects
+            self.apply_spell_effects(casting_spell)  # Apply effects
+            # Some spell effect handlers will set the spell state to active as the handler needs to be called on updates
+            if casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
+                self.remove_cast(casting_spell)
 
         if not casting_spell.trigger_cooldown_on_remove():
             self.set_on_cooldown(casting_spell.spell_entry)
 
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
-    def apply_spell_effects(self, casting_spell, targeted=True, remove=False):
+    def apply_spell_effects(self, casting_spell, remove=False):
         for effect in casting_spell.effects:
             # Effects that resolve targets in handler - ie. rain of fire, blizzard
             # TODO some spells are ground-targeted (at least scorch breath 5010) but don't use the terrain as the actual spell target
@@ -139,7 +141,7 @@ class SpellManager(object):
             if effect.effect_aura:
                 effect.effect_aura.initialize_period_timestamps()  # Initialize timestamps for effects with period
 
-            if not targeted and effect.effect_type == SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA:
+            if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
                 continue
 
@@ -191,14 +193,15 @@ class SpellManager(object):
             if casting_spell.casts_on_swing():  # spells cast on swing will be updated on call from attack handling
                 continue
             cast_finished = casting_spell.cast_end_timestamp <= timestamp
-            if casting_spell.cast_state == SpellState.SPELL_STATE_CHANNELING:  # Channel tick
-                if cast_finished or moved:
+            if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:  # Channel tick/spells that need updates
+                if casting_spell.is_channeled() and (cast_finished or moved):
                     self.handle_channel_end(casting_spell, interrupted=moved)
                     reason = SpellCheckCastResult.SPELL_FAILED_MOVING if moved else SpellCheckCastResult.SPELL_NO_ERROR
                     self.remove_cast(casting_spell, reason)
                     self.has_moved = False
-                elif not moved:
-                    self.handle_channel_tick(casting_spell, elapsed)
+                    continue
+
+                self.handle_spell_effect_update(casting_spell, elapsed)
                 continue
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
@@ -224,6 +227,16 @@ class SpellManager(object):
         self.casting_spells.remove(casting_spell)
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
+
+    def remove_cast_by_spell_id(self, spell_id, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
+        spell = None
+        for casting_spell in self.casting_spells:
+            if casting_spell.spell_entry.ID == spell_id:
+                spell = casting_spell
+                break
+        if not spell:
+            return False
+        self.remove_cast(spell, cast_result)
 
     def calculate_time_to_impact(self, casting_spell) -> float:
         if casting_spell.spell_entry.Speed == 0:
@@ -282,29 +295,29 @@ class SpellManager(object):
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))  # SMSG?
         # TODO Channeling animations do not play
 
-    def handle_channel_tick(self, casting_spell, elapsed):
-        if not casting_spell.is_channeled():
-            return
+    def handle_spell_effect_update(self, casting_spell, elapsed):
+        #if not casting_spell.is_channeled():
+        #    return
 
-        if not casting_spell.initial_target_is_terrain():
-            return
+        #if not casting_spell.initial_target_is_terrain():
+        #    return
 
-        # Refresh non-persistent targets and terrain-targeted auras for relevant effects
+        # Refresh non-persistent targets, terrain-targeted/player auras for relevant effects
         for effect in casting_spell.effects:
             if not effect.effect_aura:
                 continue
 
             effect.effect_aura.update(elapsed)
 
-            if not effect.aura_period:
-                continue  # Effects with no aura period will have persistent targets
+            #if not effect.aura_period:
+            #    continue  # Effects with no aura period will have persistent targets
 
             effect.targets.resolve_targets()  # Refresh targets
 
             # If the effect interval is due, send another spell_go packet. Not good, but shows ticks TODO hackfix for missing channeling effect
-            if effect.effect_aura.is_past_next_period_timestamp():
+            if casting_spell.is_channeled and effect.effect_aura.is_past_next_period_timestamp():
                 self.send_spell_go(casting_spell)
-            self.apply_spell_effects(casting_spell, targeted=False)
+            self.apply_spell_effects(casting_spell)
 
         # Seems like sending updates speeds up channel? Does not play channeling effect either
         # remaining_time = casting_spell.cast_end_timestamp - time.time()

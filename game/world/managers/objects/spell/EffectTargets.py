@@ -180,7 +180,7 @@ class EffectTargets:
         units = list(result[0].values()) + list(result[1].values())
 
         caster = casting_spell.spell_caster
-        units_in_range = [caster]  # These spells should most include self (battle shout, prayer of healing etc.)
+        units_in_range = [caster]  # These spells should most likely include self (battle shout, prayer of healing etc.)
 
         if not caster.group_manager:
             return units_in_range  # TODO pets etc. should probably be targeted
