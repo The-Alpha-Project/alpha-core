@@ -224,6 +224,9 @@ class SpellManager(object):
         if casting_spell not in self.casting_spells:
             return
         self.casting_spells.remove(casting_spell)
+        if casting_spell.is_channeled():
+            self.handle_channel_end(casting_spell, cast_result != SpellCheckCastResult.SPELL_NO_ERROR)
+
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
 
