@@ -154,7 +154,6 @@ class SpellManager(object):
         if remove:
             self.remove_cast(casting_spell)
 
-
     def cast_queued_melee_ability(self, attack_type) -> bool:
         melee_ability = self.get_queued_melee_ability()
 
@@ -254,7 +253,6 @@ class SpellManager(object):
             data.append(5996)  # TODO ammo display ID
             data.append(InventoryTypes.AMMO)  # TODO ammo inventorytype (thrown too)
 
-
         data = pack(signature, *data)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
@@ -314,7 +312,6 @@ class SpellManager(object):
         #     return
         # data = pack('<I', int(remaining_time*1000))  # *1000 for milliseconds
         # self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
-
 
     def handle_channel_end(self, casting_spell, interrupted):
         if not casting_spell.is_channeled():
