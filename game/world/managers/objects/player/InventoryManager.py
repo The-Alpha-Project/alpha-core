@@ -263,7 +263,7 @@ class InventoryManager(object):
             RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
         dest_container.set_item(source_item, dest_slot)
-        source_item.item_instance.bag = dest_bag    # TODO These fields serve little purpose?
+        source_item.item_instance.bag = dest_bag
         source_item.item_instance.slot = dest_slot
 
         if dest_item:
