@@ -103,8 +103,7 @@ class SpellManager(object):
             self.remove_cast(casting_spell)
             return
 
-        if not (casting_spell.initial_target_is_terrain() and casting_spell.is_channeled()):
-            casting_spell.resolve_target_info_for_effects()  # Channeled, terrain-targeted spells will generate results during the channel. Ignore them for now.
+        casting_spell.resolve_target_info_for_effects()
 
         if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
             return  # Spell is in delayed state, do nothing for now
@@ -121,7 +120,7 @@ class SpellManager(object):
             return
 
         if casting_spell.is_channeled():
-            self.handle_channel_start(casting_spell)
+            self.handle_channel_start(casting_spell)  # Channeled spells require more setup before effect application
         else:
             self.apply_spell_effects(casting_spell)  # Apply effects
             # Some spell effect handlers will set the spell state to active as the handler needs to be called on updates
@@ -281,10 +280,6 @@ class SpellManager(object):
             self.unit_mgr.set_channel_object(casting_spell.initial_target.guid)
             self.unit_mgr.set_channel_spell(casting_spell.spell_entry.ID)
             self.unit_mgr.set_dirty()
-
-        for effect in casting_spell.effects:
-            if not casting_spell.initial_target_is_terrain() or not effect.effect_aura or not effect.aura_period:  # Effects that will only resolve targets once
-                casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
         self.apply_spell_effects(casting_spell)
 
