@@ -155,7 +155,7 @@ class ItemManager(ObjectManager):
             player_mgr = WorldSessionStateHandler.find_player_by_guid(self.item_instance.owner)
             if player_mgr:
                 return player_mgr.inventory.get_container(self.item_instance.bag).guid
-            return 0
+        return 0
 
     @staticmethod
     def get_inv_slot_by_type(inventory_type):
