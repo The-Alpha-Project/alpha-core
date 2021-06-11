@@ -1,5 +1,6 @@
 from struct import unpack, pack
 from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpellHandler
+from utils.constants.ItemCodes import InventorySlots
 from utils.constants.SpellCodes import SpellTargetMask
 
 
@@ -8,10 +9,10 @@ class UseItemHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         if len(reader.data) >= 2:  # Avoid handling empty use item packet.
-            bag, slot = unpack('<2B', reader.data[:5])
+            bag, slot = unpack('<2B', reader.data[:2])
 
-            if bag == 255:
-                bag = 23
+            if bag == 0xFF:
+                bag = InventorySlots.SLOT_INBACKPACK.value
 
             item = world_session.player_mgr.inventory.get_item(bag, slot)
 

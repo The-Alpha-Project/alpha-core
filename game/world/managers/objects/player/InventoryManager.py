@@ -707,11 +707,8 @@ class InventoryManager(object):
             self.owner.session.enqueue_packet(packet)
 
     def mark_as_removed(self, item):
-        if item:
-            if item.item_instance.bag == InventorySlots.SLOT_INBACKPACK:
-                self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, 0)
-            #else:
-                #self.owner.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + item.current_slot * 2, 0)
+        if item and item.item_instance.bag == InventorySlots.SLOT_INBACKPACK:
+            self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, 0)
 
     def build_update(self):
         for slot, item in self.get_backpack().sorted_slots.items():
