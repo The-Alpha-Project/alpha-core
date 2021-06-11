@@ -4,6 +4,7 @@ from typing import Union, Optional
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from utils.Logger import Logger
 from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects
 
@@ -29,6 +30,10 @@ class EffectTargets:
 
         self.resolved_targets_a = []
         self.resolved_targets_b = []
+
+        if self.target_effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS and \
+                self.target_effect.implicit_target_a == SpellImplicitTargets.TARGET_SELF:  # some area auras have self-target, but party target is required instead
+            self.target_effect.implicit_target_a = SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY
 
     def get_simple_targets(self) -> dict[SpellImplicitTargets, list[Union[ObjectManager, Vector]]]:
         target_is_player = self.casting_spell.initial_target_is_player()

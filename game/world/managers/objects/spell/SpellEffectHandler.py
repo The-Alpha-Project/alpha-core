@@ -137,16 +137,6 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_apply_area_aura(casting_spell, effect, caster, target):  # Paladin auras, healing stream totem etc.
         casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
-        # TODO Aura spell targeting hackfix
-        # These spells target group members, but implicit target is set to self
-        # Overwrite the implicit target here
-        if effect.implicit_target_a == SpellImplicitTargets.TARGET_SELF:
-            effect.implicit_target_a = SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY
-            # Clear old (self) targets and resolve again with proper implicit target
-            effect.targets.resolved_targets_a = []
-            effect.targets.resolved_targets_b = []
-            effect.targets.resolve_targets()
-
 
         previous_targets = effect.targets.previous_targets_a if effect.targets.previous_targets_a else []
         current_targets = effect.targets.resolved_targets_a
