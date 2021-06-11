@@ -16,15 +16,12 @@ class GridManager(object):
         self.active_cell_callback = active_cell_callback
 
     def add_or_get(self, world_object, store=False):
-        min_x, min_y, max_x, max_y = GridManager.generate_coord_data(
-            world_object.location.x, world_object.location.y)
-        cell_coords = GridManager.get_cell_key(
-            world_object.location.x, world_object.location.y, world_object.map_)
+        min_x, min_y, max_x, max_y = GridManager.generate_coord_data(world_object.location.x, world_object.location.y)
+        cell_coords = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
         
-        cell = self.cells.get(cell_coords)  # if doesn't exist returns None
+        cell = self.cells.get(cell_coords)
         if not cell:
-            cell = Cell(self.active_cell_callback, min_x,
-                        min_y, max_x, max_y, world_object.map_)
+            cell = Cell(self.active_cell_callback, min_x, min_y, max_x, max_y, world_object.map_)
             self.cells[cell.key] = cell
 
         if store:
@@ -97,8 +94,7 @@ class GridManager(object):
 
         for x2 in range(x_s, x_m + 1):
             for y2 in range(y_s, y_m + 1):
-                cell_coords = GridManager.get_cell_key(
-                    x + (x2 * CELL_SIZE), y + (y2 * CELL_SIZE), map_)
+                cell_coords = GridManager.get_cell_key(x + (x2 * CELL_SIZE), y + (y2 * CELL_SIZE), map_)
                 if cell_coords in self.cells:
                     near_cells.add(self.cells[cell_coords])
 
@@ -106,8 +102,7 @@ class GridManager(object):
 
     def send_surrounding(self, packet, world_object, include_self=True, exclude=None, use_ignore=False):
         for cell in self.get_surrounding_cells_by_object(world_object):
-            cell.send_all(packet, source=None if include_self else world_object,
-                          exclude=exclude, use_ignore=use_ignore)
+            cell.send_all(packet, source=None if include_self else world_object, exclude=exclude, use_ignore=use_ignore)
 
     def send_surrounding_in_range(self, packet, world_object, range_, include_self=True, exclude=None, use_ignore=False):
         for cell in self.get_surrounding_cells_by_object(world_object):
@@ -118,14 +113,11 @@ class GridManager(object):
         surrounding_objects = [{}, {}, {}]
         for cell in self.get_surrounding_cells_by_object(world_object):
             if ObjectTypes.TYPE_PLAYER in object_types:
-                surrounding_objects[0] = {
-                    **surrounding_objects[0], **cell.players}
+                surrounding_objects[0] = { **surrounding_objects[0], **cell.players}
             if ObjectTypes.TYPE_UNIT in object_types:
-                surrounding_objects[1] = {
-                    **surrounding_objects[1], **cell.creatures}
+                surrounding_objects[1] = {**surrounding_objects[1], **cell.creatures}
             if ObjectTypes.TYPE_GAMEOBJECT in object_types:
-                surrounding_objects[2] = {
-                    **surrounding_objects[2], **cell.gameobjects}
+                surrounding_objects[2] = {**surrounding_objects[2], **cell.gameobjects}
 
         return surrounding_objects
 
@@ -133,8 +125,7 @@ class GridManager(object):
         return self.get_surrounding_objects(world_object, [ObjectTypes.TYPE_PLAYER])[0]
 
     def get_surrounding_units(self, world_object, include_players=False):
-        object_types = [ObjectTypes.TYPE_PLAYER, ObjectTypes.TYPE_UNIT] if include_players else [
-            ObjectTypes.TYPE_UNIT]
+        object_types = [ObjectTypes.TYPE_PLAYER, ObjectTypes.TYPE_UNIT] if include_players else [ObjectTypes.TYPE_UNIT]
         res = self.get_surrounding_objects(world_object, object_types)
         if include_players:
             return res[0], res[1]
@@ -164,8 +155,7 @@ class GridManager(object):
         return None
 
     def get_surrounding_unit_by_guid(self, world_object, guid, include_players=False):
-        surrounding_units = self.get_surrounding_units(
-            world_object, include_players)
+        surrounding_units = self.get_surrounding_units(world_object, include_players)
         if include_players:
             for p_guid, player in list(surrounding_units[0].items()):
                 if p_guid == guid:
@@ -264,8 +254,7 @@ class Cell(object):
             # Set this Cell and surrounding ones as Active
             for cell_key in list(grid_manager.get_surrounding_cell_keys(world_object)):
                 # Load tile maps of adjacent cells if there's at least one creature on them.
-                creatures = list(
-                    grid_manager.cells[cell_key].creatures.values())
+                creatures = list(grid_manager.cells[cell_key].creatures.values())
                 for creature in creatures:
                     self.active_cell_callback(creature)
                 grid_manager.active_cell_keys.add(cell_key)
