@@ -497,9 +497,9 @@ class QuestManager(object):
         self.add_to_quest_log(quest_id, active_quest)
         self.send_quest_query_response(active_quest)
 
-        # Try to share if we are on a party, skip if we got this quest from another party member.
-        if self.player_mgr.group_manager and not shared:
-            self.share_quest(active_quest)
+        # TODO: If this is an escort quest, try to share it with party members.
+        # if self.player_mgr.group_manager and not shared:
+        #    self.share_quest_event(active_quest)
 
         # Check if the player already has related items.
         active_quest.fill_existent_items()
@@ -508,7 +508,8 @@ class QuestManager(object):
 
         self.update_surrounding_quest_status()
 
-    def share_quest(self, active_quest):
+    # TODO: Share escorts quests with group members.
+    def share_quest_event(self, active_quest):
         title_bytes = PacketWriter.string_to_bytes(active_quest.quest.Title)
         data = pack(f'<I{len(title_bytes)}sQ', active_quest.quest.entry, title_bytes, self.player_mgr.guid)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUEST_CONFIRM_ACCEPT, data)
