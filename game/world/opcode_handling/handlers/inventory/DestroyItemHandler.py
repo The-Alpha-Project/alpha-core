@@ -11,7 +11,7 @@ class DestroyItemHandler(object):
             bag, source_slot, count = unpack('<3B', reader.data[:3])
 
             if bag == 0xFF:
-                source_slot = InventorySlots.SLOT_INBACKPACK.value
+                bag = InventorySlots.SLOT_INBACKPACK.value
 
             item = world_session.player_mgr.inventory.get_item(bag, source_slot)
             if not item:
