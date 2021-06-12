@@ -196,6 +196,7 @@ class SpellEffectHandler(object):
         creature_manager.respawn()
 
         # TODO This should be handled in creature AI instead
+        # TODO Totems are not connected to player (pet etc. handling)
         for spell_id in [creature_template.spell_id1, creature_template.spell_id2, creature_template.spell_id3, creature_template.spell_id4]:
             if spell_id == 0:
                 break
