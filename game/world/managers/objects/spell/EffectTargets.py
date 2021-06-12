@@ -6,7 +6,8 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from utils.Logger import Logger
-from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects
+from utils.constants.MiscCodes import ObjectTypes
+from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects, TotemSlots
 
 
 class TargetMissInfo:
@@ -54,7 +55,6 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_DUEL_VS_PLAYER: self.initial_target,  # Spells that can be cast on both hostile and friendly?
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
             SpellImplicitTargets.TARGET_MASTER: [],  # TODO
-            SpellImplicitTargets.TARGET_MINION: [],  # TODO
             SpellImplicitTargets.TARGET_SELF_FISHING: self.caster
         }
 
@@ -85,21 +85,25 @@ class EffectTargets:
         self.resolved_targets_b = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_b)
 
     def get_effect_target_miss_results(self) -> dict[int, TargetMissInfo]:
-        targets = self.get_resolved_effect_object_targets()
+        targets = self.get_resolved_effect_targets_by_type(ObjectManager)
         target_info = {}
         for target in targets:
             if isinstance(target, ObjectManager):
                 target_info[target.guid] = TargetMissInfo(target, SpellMissReason.MISS_REASON_NONE)  # TODO Misses etc.
         return target_info
 
-    def get_resolved_effect_object_targets(self) -> list[ObjectManager]:
-        # At least some B targets act as specifying on A. No table for now for ImplicitTarget values that act as specifiers, so prefer B if values exist
-        # TODO if issues arise, add table for specifying ImplicitTargets
+    def get_resolved_effect_targets_by_type(self, _type) -> list[Union[ObjectManager, Vector]]:
+        b_matches_type = False
 
-        if not self.resolved_targets_b or len(self.resolved_targets_b) == 0 or \
-                not isinstance(self.resolved_targets_b[0], ObjectManager):
-            return self.resolved_targets_a
-        return self.resolved_targets_b
+        # If both A and B are the same type, we should prefer B as it can act as specifying
+        # TODO if issues arise, add table for specifying ImplicitTargets
+        if self.resolved_targets_b and len(self.resolved_targets_b) > 0 and isinstance(self.resolved_targets_b[0], _type):
+            b_matches_type = True
+        if self.resolved_targets_a and len(self.resolved_targets_a) > 0 and isinstance(self.resolved_targets_a[0], _type):
+            if not b_matches_type:
+                return self.resolved_targets_a  # If B is not the correct type but A is, return A targets
+
+        return self.resolved_targets_b if b_matches_type else []  # A is not the correct type - return B if that is
 
     @staticmethod
     def get_enemies_from_unit_list(units: list[ObjectManager], caster):
@@ -111,7 +115,7 @@ class EffectTargets:
 
     @staticmethod
     def get_party_members_from_unit_list(units: list[ObjectManager], caster):
-        if not caster.group_manager:
+        if caster.get_type() != ObjectTypes.TYPE_PLAYER or not caster.group_manager:
             return []
 
         return [unit for unit in units if caster.group_manager.is_party_member(unit.guid)]
@@ -187,7 +191,7 @@ class EffectTargets:
         caster = casting_spell.spell_caster
         units_in_range = [caster]  # These spells should most likely include self (battle shout, prayer of healing etc.)
 
-        if not caster.group_manager:
+        if caster.get_type() != ObjectTypes.TYPE_PLAYER or not caster.group_manager:
             return units_in_range  # TODO pets etc. should probably be targeted
 
         for unit in units:
@@ -260,6 +264,27 @@ class EffectTargets:
         merged = list(result[0].values()) + list(result[1].values())
         return EffectTargets.get_friends_from_unit_list(merged, casting_spell.spell_caster)
 
+    # Totems, duel flag etc.
+    # Positioning depends on effect
+    @staticmethod
+    def resolve_minion(casting_spell, target_effect):
+        if target_effect.effect_type == SpellEffects.SPELL_EFFECT_DUEL:
+            target_player = target_effect.targets.resolved_targets_a[0]
+            position = casting_spell.spell_caster.location.get_point_in_middle(target_player.location)
+            return [position]  # TODO flag is spawned by DuelManager for now
+
+        elif target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_TOTEM:
+            totem_slot = TOTEM_INDICES_BY_TOOL[casting_spell.get_required_tools()[0]]
+            totem_angle = math.pi / float(TotemSlots.MAX_TOTEM_SLOT) - (
+                        totem_slot * 2 * math.pi / float(TotemSlots.MAX_TOTEM_SLOT))
+
+            totem_angle += casting_spell.spell_caster.location.o  # Orientation
+            position = Vector(2 * math.cos(totem_angle), 2 * math.sin(totem_angle)) + casting_spell.spell_caster.location
+            position.o = casting_spell.spell_caster.location.o
+            return [position]
+
+        return []
+
     # Only used with TARGET_ALL_AROUND_CASTER in A
     @staticmethod
     def resolve_all_party(casting_spell, target_effect):
@@ -302,6 +327,7 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL: EffectTargets.resolve_aoe_enemy_channel,
     SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER: EffectTargets.resolve_all_friendly_around_caster,
     SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA: EffectTargets.resolve_all_friendly_in_area,
+    SpellImplicitTargets.TARGET_MINION: EffectTargets.resolve_minion,
     SpellImplicitTargets.TARGET_ALL_PARTY: EffectTargets.resolve_all_party,
     SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2: EffectTargets.resolve_party_around_caster_2,
     SpellImplicitTargets.TARGET_SINGLE_PARTY: EffectTargets.resolve_single_party,
@@ -327,3 +353,13 @@ FRIENDLY_IMPLICIT_TARGETS = [
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY,  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
     # SpellImplicitTargets.TARGET_SCRIPT = 38  # Resolved separately
 ]
+
+# Vanilla has separate spell effects for different totem positions
+# Shamans were still a work-in-progress in 0.5.3
+#
+TOTEM_INDICES_BY_TOOL = {
+    5176: TotemSlots.TOTEM_SLOT_FIRE,
+    5175: TotemSlots.TOTEM_SLOT_EARTH,
+    5177: TotemSlots.TOTEM_SLOT_WATER,
+    5178: TotemSlots.TOTEM_SLOT_AIR,
+}

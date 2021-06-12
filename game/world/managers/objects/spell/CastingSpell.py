@@ -132,6 +132,8 @@ class CastingSpell(object):
         return max(level - self.spell_entry.SpellLevel, 0)
 
     def get_base_cast_time(self):
+        if self.is_instant_cast():
+            return 0
         skill = self.spell_caster.skill_manager.get_skill_for_spell_id(self.spell_entry.ID)
         if not skill:
             return self.cast_time_entry.Minimum
@@ -142,7 +144,7 @@ class CastingSpell(object):
         if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and self.spell_entry.ManaCostPct != 0:
             return self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
 
-        # ManaCostPerLevel is not used by anything relevant (only 271/4513/7290)
+        # ManaCostPerLevel is not used by anything relevant, ignore for now (only 271/4513/7290) TODO
         return self.spell_entry.ManaCost
 
     def load_effects(self):
@@ -159,6 +161,9 @@ class CastingSpell(object):
                (self.spell_entry.Reagent_3, self.spell_entry.ReagentCount_3), (self.spell_entry.Reagent_4, self.spell_entry.ReagentCount_4), \
                (self.spell_entry.Reagent_5, self.spell_entry.ReagentCount_5), (self.spell_entry.Reagent_6, self.spell_entry.ReagentCount_6), \
                (self.spell_entry.Reagent_7, self.spell_entry.ReagentCount_7), (self.spell_entry.Reagent_8, self.spell_entry.ReagentCount_8)
+
+    def get_required_tools(self):
+        return [self.spell_entry.Totem_1, self.spell_entry.Totem_2]
 
     def get_conjured_items(self):
         conjured_items = []

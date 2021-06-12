@@ -5,7 +5,9 @@ from typing import Optional
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -144,13 +146,18 @@ class SpellManager(object):
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
                 continue
 
-            for target in effect.targets.get_resolved_effect_object_targets():
+            for target in effect.targets.get_resolved_effect_targets_by_type(ObjectManager):
                 info = casting_spell.unit_target_results[target.guid]
                 # TODO deflection handling? Swap target/caster for now
                 if info.result == SpellMissReason.MISS_REASON_DEFLECTED:
                     SpellEffectHandler.apply_effect(casting_spell, effect, info.target, casting_spell.spell_caster)
                 elif info.result == SpellMissReason.MISS_REASON_NONE:
                     SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, info.target)
+
+                continue  # Prefer unit target for handling (don't attempt to resolve other target types for one effect if unit targets aren't empty)
+
+            for target in effect.targets.get_resolved_effect_targets_by_type(Vector):
+                SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, target)
 
         if remove:
             self.remove_cast(casting_spell)
@@ -203,7 +210,7 @@ class SpellManager(object):
                 self.handle_spell_effect_update(casting_spell, elapsed)
                 continue
 
-            if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING:
+            if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING and not casting_spell.is_instant_cast():
                 if cast_finished:
                     if not self.validate_cast(casting_spell):  # Spell finished casting, validate again
                         self.remove_cast(casting_spell)
@@ -294,26 +301,16 @@ class SpellManager(object):
         # TODO Channeling animations do not play
 
     def handle_spell_effect_update(self, casting_spell, elapsed):
-        #if not casting_spell.is_channeled():
-        #    return
-
-        #if not casting_spell.initial_target_is_terrain():
-        #    return
-
         # Refresh non-persistent targets, terrain-targeted/player auras for relevant effects
         for effect in casting_spell.effects:
             if not effect.effect_aura:
                 continue
 
             effect.effect_aura.update(elapsed)
-
-            #if not effect.aura_period:
-            #    continue  # Effects with no aura period will have persistent targets
-
             effect.targets.resolve_targets()  # Refresh targets
 
             # If the effect interval is due, send another spell_go packet. Not good, but shows ticks TODO hackfix for missing channeling effect
-            if casting_spell.is_channeled and effect.effect_aura.is_past_next_period_timestamp():
+            if casting_spell.is_channeled() and effect.effect_aura.is_past_next_period_timestamp():
                 self.send_spell_go(casting_spell)
             self.apply_spell_effects(casting_spell)
 
@@ -422,7 +419,8 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
 
-        if not casting_spell.spell_entry or casting_spell.spell_entry.ID not in self.spells:
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
+                (not casting_spell.spell_entry or casting_spell.spell_entry.ID not in self.spells):  # TODO item spells
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
             return False
 
@@ -474,6 +472,13 @@ class SpellManager(object):
 
                 if self.unit_mgr.inventory.get_item_count(reagent_info) < count:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_REAGENTS)
+                    return False
+
+            for tool in casting_spell.get_required_tools():
+                if not tool:
+                    break
+                if not self.unit_mgr.inventory.get_first_item_by_entry(tool):
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOTEMS)
                     return False
 
             # Check if player inventory has space left

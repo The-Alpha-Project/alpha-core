@@ -150,26 +150,6 @@ class PlayerManager(UnitManager):
             race_data = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
         return race_data.MaleDisplayId if is_male else race_data.FemaleDisplayId
 
-    def get_power_type_value(self):
-        if self.power_type == PowerTypes.TYPE_MANA:
-            return self.power_1
-        elif self.power_type == PowerTypes.TYPE_RAGE:
-            return self.power_2
-        elif self.power_type == PowerTypes.TYPE_FOCUS:
-            return self.power_3
-        else:
-            return self.power_4
-
-    def get_max_power_value(self):
-        if self.power_type == PowerTypes.TYPE_MANA:
-            return self.max_power_1
-        elif self.power_type == PowerTypes.TYPE_RAGE:
-            return self.max_power_2
-        elif self.power_type == PowerTypes.TYPE_FOCUS:
-            return self.max_power_3
-        else:
-            return self.max_power_4
-
     def set_player_variables(self):
         race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
 

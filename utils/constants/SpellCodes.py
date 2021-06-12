@@ -580,3 +580,11 @@ class SpellCastFlags(IntEnum):
     CAST_FLAG_PROC = 0x1  # Hides cast from log
     CAST_FLAG_IGNORE_AREA_EFFECT = 0x8  # ?
     CAST_FLAG_HAS_AMMO = 0x10  # Written when ammo info is provided
+
+
+class TotemSlots(IntEnum):
+    TOTEM_SLOT_FIRE = 0
+    TOTEM_SLOT_EARTH = 1
+    TOTEM_SLOT_WATER = 2
+    TOTEM_SLOT_AIR = 3
+    MAX_TOTEM_SLOT = 4
