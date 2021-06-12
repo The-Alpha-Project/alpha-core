@@ -10,7 +10,7 @@ class AutoequipItemHandler(object):
             source_bag_slot, source_slot = unpack('<2B', reader.data[:3])
 
             if source_bag_slot == 0xFF:
-                source_slot = InventorySlots.SLOT_INBACKPACK.value
+                source_bag_slot = InventorySlots.SLOT_INBACKPACK.value
 
             inventory = world_session.player_mgr.inventory
             source_container = inventory.get_container(source_bag_slot)
