@@ -28,7 +28,15 @@ class GroupManager(object):
     def load_group_members(self):
         members = RealmDatabaseManager.group_get_members(self.group)
         for member in members:
-            self.members[member.guid] = member
+            # If this member is no longer available on the database, remove it.
+            if not RealmDatabaseManager.character_get_by_guid(member.guid):
+                RealmDatabaseManager.group_remove_member(member)
+            else:
+                self.members[member.guid] = member
+
+        # If this group is no longer valid, destroy it.
+        if len(self.members) < 2:
+            RealmDatabaseManager.group_destroy(self.group)
 
     # When player sends an invite, a GroupManager is created, that doesnt mean the party actually exists until
     # the other player accepts the invitation.

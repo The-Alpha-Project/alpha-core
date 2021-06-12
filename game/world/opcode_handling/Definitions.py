@@ -110,6 +110,7 @@ from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import Que
 from game.world.opcode_handling.handlers.quest.QuestGiverQueryQuestHandler import QuestGiverQueryQuestHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverRemoveQuestHandler import QuestGiverRemoveQuestHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverStatusHandler import QuestGiverStatusHandler
+from game.world.opcode_handling.handlers.quest.QuestConfirmAcceptHandler import QuestConfirmAcceptHandler
 from game.world.opcode_handling.handlers.social.BugHandler import BugHandler
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from game.world.opcode_handling.handlers.social.LookingForGroupHandler import LookingForGroupHandler
@@ -227,6 +228,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_QUESTGIVER_COMPLETE_QUEST: QuestGiverCompleteQuestHandler.handle,
     OpCode.CMSG_QUESTGIVER_CHOOSE_REWARD: QuestGiverChooseRewardHandler.handle,
     OpCode.CMSG_QUESTLOG_REMOVE_QUEST: QuestGiverRemoveQuestHandler.handle,
+    OpCode.CMSG_QUEST_CONFIRM_ACCEPT: QuestConfirmAcceptHandler.handle,
     OpCode.CMSG_GROUP_INVITE: GroupInviteHandler.handle,
     OpCode.CMSG_GROUP_ACCEPT: GroupInviteAcceptHandler.handle,
     OpCode.CMSG_GROUP_DISBAND: GroupDisbandHandler.handle,
