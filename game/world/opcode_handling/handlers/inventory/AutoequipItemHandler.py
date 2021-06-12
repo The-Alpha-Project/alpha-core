@@ -9,6 +9,9 @@ class AutoequipItemHandler(object):
         if len(reader.data) >= 2:  # Avoid handling empty autoequip item packet.
             source_bag_slot, source_slot = unpack('<2B', reader.data[:3])
 
+            if source_bag_slot == 0xFF:
+                source_slot = InventorySlots.SLOT_INBACKPACK.value
+
             inventory = world_session.player_mgr.inventory
             source_container = inventory.get_container(source_bag_slot)
             source_item = inventory.get_item(source_bag_slot, source_slot)
