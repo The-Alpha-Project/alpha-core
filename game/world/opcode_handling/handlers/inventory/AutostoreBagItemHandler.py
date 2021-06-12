@@ -10,7 +10,7 @@ class AutostoreBagItemHandler(object):
             source_bag_slot, source_slot, dest_bag_slot = unpack('<3B', reader.data[:3])
 
             if source_bag_slot == 0xFF:
-                source_slot = InventorySlots.SLOT_INBACKPACK.value
+                source_bag_slot = InventorySlots.SLOT_INBACKPACK.value
             if dest_bag_slot == 0xFF:
                 dest_bag_slot = InventorySlots.SLOT_INBACKPACK.value
 
