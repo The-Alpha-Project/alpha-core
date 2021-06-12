@@ -1,6 +1,7 @@
 from struct import unpack
 
 from game.world.managers.objects.player.TradeManager import TradeManager
+from utils.constants.ItemCodes import InventorySlots
 from utils.constants.MiscCodes import TradeStatus
 
 
@@ -13,6 +14,10 @@ class SetTradeItemHandler(object):
 
         if len(reader.data) >= 3:  # Avoid handling empty set trade item packet.
             trade_slot, bag, slot = unpack('<3B', reader.data[:3])
+
+            if bag == 0xFF:
+                bag = InventorySlots.SLOT_INBACKPACK.value
+
             item = world_session.player_mgr.inventory.get_item(bag, slot)
             if not item:
                 return 0
