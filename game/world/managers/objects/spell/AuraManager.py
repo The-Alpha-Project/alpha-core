@@ -73,7 +73,7 @@ class AuraManager:
             return False
         return True
 
-    def check_aura_interrupts(self, has_moved=False, negative_aura_applied=False, received_damage=False):
+    def check_aura_interrupts(self, has_moved=False, negative_aura_applied=False, cast_spell=False, received_damage=False):
         for aura in list(self.active_auras.values()):
             if aura.interrupt_flags & SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT and \
                     self.unit_mgr.in_combat:
@@ -88,7 +88,7 @@ class AuraManager:
                 self.remove_aura(aura)
 
             if aura.interrupt_flags & SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST and \
-                    self.unit_mgr.spell_manager.is_casting():
+                    (self.unit_mgr.spell_manager.is_casting() or cast_spell):
                 self.remove_aura(aura)
 
             if aura.interrupt_flags & SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL and \

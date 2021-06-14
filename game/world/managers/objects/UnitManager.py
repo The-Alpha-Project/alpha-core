@@ -454,23 +454,26 @@ class UnitManager(ObjectManager):
         if not target or not target.is_alive or damage < 1:
             return
 
-        if self.guid not in target.attackers:
-            target.attackers[self.guid] = self
+        if target is not self:
+            if self.guid not in target.attackers:
+                target.attackers[self.guid] = self
 
-        if not self.in_combat:
-            self.enter_combat()
-            self.set_dirty()
+            if not self.in_combat:
+                self.enter_combat()
+                self.set_dirty()
 
-        if not target.in_combat:
-            target.enter_combat()
-            target.set_dirty()
+            if not target.in_combat:
+                target.enter_combat()
+                target.set_dirty()
 
         target.receive_damage(damage, source=self)
 
     def receive_damage(self, amount, source=None):
         is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
 
-        self.aura_manager.check_aura_interrupts(received_damage=True)
+        if source is not self:
+            self.aura_manager.check_aura_interrupts(received_damage=True)
+
         new_health = self.health - amount
         if new_health <= 0:
             self.die(killer=source)

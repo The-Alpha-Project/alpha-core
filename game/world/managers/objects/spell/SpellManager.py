@@ -9,6 +9,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
+from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
@@ -23,7 +24,7 @@ class SpellManager(object):
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
         self.spells = {}
-        self.cooldowns = {}
+        self.cooldowns = []
         self.casting_spells = []
 
     def load_spells(self):
@@ -130,6 +131,8 @@ class SpellManager(object):
 
         self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
         self.send_spell_go(casting_spell)
+        self.unit_mgr.aura_manager.check_aura_interrupts(cast_spell=True)
+
         travel_time = self.calculate_time_to_impact(casting_spell)
 
         if travel_time != 0:
@@ -213,7 +216,7 @@ class SpellManager(object):
     def update(self, timestamp, elapsed):
         moved = self.has_moved
         self.has_moved = False  # Reset has_moved on every update
-
+        self.check_spell_cooldowns()
         for casting_spell in list(self.casting_spells):
             if casting_spell.casts_on_swing():  # spells cast on swing will be updated on call from attack handling
                 continue
@@ -403,27 +406,33 @@ class SpellManager(object):
                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
     def set_on_cooldown(self, spell):
-        if spell.RecoveryTime == 0:
+        if spell.RecoveryTime == 0 and spell.CategoryRecoveryTime == 0:
             return
-        self.cooldowns[spell.ID] = spell.RecoveryTime + time.time()
+        cooldown_entry = CooldownEntry(spell, time.time())
+        self.cooldowns.append(cooldown_entry)
 
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        data = pack('<IQI', spell.ID, self.unit_mgr.guid, spell.RecoveryTime)
+        data = pack('<IQI', spell.ID, self.unit_mgr.guid, cooldown_entry.cooldown_length)
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
-    def remove_cooldown(self, spell):
-        self.cooldowns.pop(spell.ID, None)
+    def check_spell_cooldowns(self):
+        for cooldown_entry in list(self.cooldowns):
+            if cooldown_entry.is_valid():
+                continue
 
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
-            return
+            self.cooldowns.remove(cooldown_entry)
+            if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+                continue
+            data = pack('<IQ', cooldown_entry.spell_id, self.unit_mgr.guid)
+            self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
 
-        data = pack('<IQ', spell.ID, self.unit_mgr.guid)
-        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
-
-    def is_on_cooldown(self, spell_id) -> bool:
-        return spell_id in self.cooldowns
+    def is_on_cooldown(self, spell_entry) -> bool:
+        for cooldown_entry in list(self.cooldowns):
+            if cooldown_entry.is_valid() and cooldown_entry.matches_spell(spell_entry):
+                return True
+        return False
 
     def is_casting(self):
         for spell in list(self.casting_spells):
@@ -432,7 +441,7 @@ class SpellManager(object):
         return False
 
     def validate_cast(self, casting_spell) -> bool:
-        if self.is_on_cooldown(casting_spell):
+        if self.is_on_cooldown(casting_spell.spell_entry):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
 
