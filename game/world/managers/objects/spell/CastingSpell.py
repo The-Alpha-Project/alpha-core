@@ -1,12 +1,15 @@
 import time
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell, SpellRange, SpellDuration, SpellCastTimes
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
 from utils.constants.MiscCodes import AttackTypes, ObjectTypes
-from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx
+from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
+    AuraTypes
 
 
 class CastingSpell(object):
@@ -14,6 +17,7 @@ class CastingSpell(object):
     cast_state: SpellState
     cast_flags: SpellCastFlags  # TODO Write proc flag when needed
     spell_caster = None  # TODO Item caster (use item?)
+    source_item = None
     initial_target = None
     unit_target_results = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
@@ -28,9 +32,10 @@ class CastingSpell(object):
 
     spell_attack_type: int
 
-    def __init__(self, spell, caster_obj, initial_target, target_mask):
+    def __init__(self, spell, caster_obj, initial_target, target_mask, source_item=None):
         self.spell_entry = spell
         self.spell_caster = caster_obj
+        self.source_item = source_item
         self.initial_target = initial_target
         self.spell_target_mask = target_mask
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
@@ -113,7 +118,17 @@ class CastingSpell(object):
     def generates_threat(self):
         return not (self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT)
 
-    def trigger_cooldown_on_remove(self):
+    def is_refreshment_spell(self):
+        if len(self.effects) == 0:
+            return False
+        spell_effect = self.effects[0]  # Food/drink effect should be first
+        has_sitting_attribute = self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_SITTING
+        is_regen_buff = spell_effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_HEAL or \
+            spell_effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE
+
+        return has_sitting_attribute and is_regen_buff
+
+    def trigger_cooldown_on_aura_remove(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE == SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE
 
     def casts_on_swing(self):
@@ -161,6 +176,14 @@ class CastingSpell(object):
                (self.spell_entry.Reagent_3, self.spell_entry.ReagentCount_3), (self.spell_entry.Reagent_4, self.spell_entry.ReagentCount_4), \
                (self.spell_entry.Reagent_5, self.spell_entry.ReagentCount_5), (self.spell_entry.Reagent_6, self.spell_entry.ReagentCount_6), \
                (self.spell_entry.Reagent_7, self.spell_entry.ReagentCount_7), (self.spell_entry.Reagent_8, self.spell_entry.ReagentCount_8)
+
+    def get_item_spell_stats(self) -> Optional[ItemManager.SpellStat]:
+        if not self.source_item:
+            return None
+        for spell_info in self.source_item.spell_stats:
+            if spell_info.spell_id == self.spell_entry.ID:
+                return spell_info
+        return None
 
     def get_required_tools(self):
         return [self.spell_entry.Totem_1, self.spell_entry.Totem_2]

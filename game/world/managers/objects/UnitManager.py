@@ -470,6 +470,7 @@ class UnitManager(ObjectManager):
     def receive_damage(self, amount, source=None):
         is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
 
+        self.aura_manager.check_aura_interrupts(received_damage=True)
         new_health = self.health - amount
         if new_health <= 0:
             self.die(killer=source)
