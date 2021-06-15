@@ -5,7 +5,7 @@ from game.world.managers.objects.spell.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import ObjectTypes
-from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellEffects
+from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellEffects, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import UnitFields
 
@@ -109,6 +109,9 @@ class AuraManager:
         # TODO check if aura can be removed (by player)
         AuraEffectHandler.handle_aura_effect_change(aura, True)
         self.active_auras.pop(aura.index)
+        # Some area effect auras (paladin auras, tranq etc.) are tied to spell effects. Cancel cast on aura cancel, canceling the auras as well.
+        self.unit_mgr.spell_manager.remove_cast_by_spell_id(aura.spell_id, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
+
         if aura.passive:
             return  # Passive auras aren't written to unit
 

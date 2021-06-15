@@ -15,7 +15,7 @@ from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -587,6 +587,26 @@ class UnitManager(ObjectManager):
         self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+    def get_power_type_value(self):
+        if self.power_type == PowerTypes.TYPE_MANA:
+            return self.power_1
+        elif self.power_type == PowerTypes.TYPE_RAGE:
+            return self.power_2
+        elif self.power_type == PowerTypes.TYPE_FOCUS:
+            return self.power_3
+        else:
+            return self.power_4
+
+    def get_max_power_value(self):
+        if self.power_type == PowerTypes.TYPE_MANA:
+            return self.max_power_1
+        elif self.power_type == PowerTypes.TYPE_RAGE:
+            return self.max_power_2
+        elif self.power_type == PowerTypes.TYPE_FOCUS:
+            return self.max_power_3
+        else:
+            return self.max_power_4
 
     def set_health(self, health):
         if health < 0:

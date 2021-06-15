@@ -47,7 +47,7 @@ class SpellEffect(object):
         self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index) if self.radius_index else None
         self.trigger_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(self.trigger_spell_id) if self.trigger_spell_id else None
 
-        if self.aura_type and casting_spell.initial_target_is_terrain():  # TODO only needed when terrain is target?
+        if self.aura_type:  # If this effect has an aura type provided, generate it here. It (might ?) be needed by effect handlers
             self.effect_aura = AppliedAura(casting_spell.spell_caster, casting_spell, self, None)  # Target as none as this effect shouldn't be tied to any unit
 
     def get_effect_points(self, effective_level) -> int:

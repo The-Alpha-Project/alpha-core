@@ -1,9 +1,10 @@
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes
-from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects
-from utils.constants.UnitCodes import PowerTypes, UnitFlags
+from utils.constants.MiscCodes import ObjectTypes, HighGuid
+from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState
+from utils.constants.UnitCodes import PowerTypes, UnitFlags, MovementTypes
 
 
 class SpellEffectHandler(object):
@@ -127,13 +128,19 @@ class SpellEffectHandler(object):
         # TODO Die sides are assigned for at least Word of Recall (ID 1)
 
     @staticmethod
-    def handle_persistent_area_aura(casting_spell, effect, caster, target):
+    def handle_persistent_area_aura(casting_spell, effect, caster, target):  # Ground-targeted aoe
         if target is not None:
             return
 
+        SpellEffectHandler.handle_apply_area_aura(casting_spell, effect, caster, target)
+        return
+
+    @staticmethod
+    def handle_apply_area_aura(casting_spell, effect, caster, target):  # Paladin auras, healing stream totem etc.
+        casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
+
         previous_targets = effect.targets.previous_targets_a if effect.targets.previous_targets_a else []
         current_targets = effect.targets.resolved_targets_a
-        spell_id = effect.effect_aura.spell_id
 
         new_targets = [unit for unit in current_targets if unit not in previous_targets]  # Targets that can't have the aura yet
         missing_targets = [unit for unit in previous_targets if unit not in current_targets]  # Targets that moved out of the area
@@ -148,12 +155,58 @@ class SpellEffectHandler(object):
             effect.effect_aura.pop_period_timestamp()  # Update effect aura timestamps
 
         for target in missing_targets:
-            target.aura_manager.cancel_auras_by_spell_id(spell_id)
+            target.aura_manager.cancel_auras_by_spell_id(casting_spell.spell_entry.ID)
 
     @staticmethod
     def handle_learn_spell(casting_spell, effect, caster, target):
         target_spell_id = effect.trigger_spell_id
         target.spell_manager.learn_spell(target_spell_id)
+
+    @staticmethod
+    def handle_summon_totem(casting_spell, effect, caster, target):
+        totem_entry = effect.misc_value
+
+        # TODO Temporary way to spawn creature
+        creature_template = WorldDatabaseManager.creature_get_by_entry(totem_entry)
+        from database.world.WorldModels import SpawnsCreatures
+        instance = SpawnsCreatures()
+        instance.spawn_id = HighGuid.HIGHGUID_UNIT + 1000  # TODO Placeholder GUID
+        instance.map = caster.map_
+        instance.orientation = target.o
+        instance.position_x = target.x
+        instance.position_y = target.y
+        instance.position_z = target.z
+        instance.spawntimesecsmin = 0
+        instance.spawntimesecsmax = 0
+        instance.health_percent = 100
+        instance.mana_percent = 100
+        instance.movement_type = MovementTypes.IDLE
+        instance.spawn_flags = 0
+        instance.visibility_mod = 0
+
+        from game.world.managers.objects.creature.CreatureManager import CreatureManager
+        creature_manager = CreatureManager(
+            creature_template=creature_template,
+            creature_instance=instance
+        )
+        creature_manager.faction = caster.faction
+
+        creature_manager.load()
+        creature_manager.set_dirty()
+        creature_manager.respawn()
+
+        # TODO This should be handled in creature AI instead
+        # TODO Totems are not connected to player (pet etc. handling)
+        for spell_id in [creature_template.spell_id1, creature_template.spell_id2, creature_template.spell_id3, creature_template.spell_id4]:
+            if spell_id == 0:
+                break
+            creature_manager.spell_manager.handle_cast_attempt(spell_id, creature_manager, creature_manager, 0)
+
+
+    AREA_SPELL_EFFECTS = [
+        SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA,
+        SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA
+    ]
 
 
 SPELL_EFFECTS = {
@@ -171,5 +224,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_TELEPORT_UNITS: SpellEffectHandler.handle_teleport_units,
     SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA: SpellEffectHandler.handle_persistent_area_aura,
     SpellEffects.SPELL_EFFECT_OPEN_LOCK: SpellEffectHandler.handle_open_lock,
-    SpellEffects.SPELL_EFFECT_LEARN_SPELL: SpellEffectHandler.handle_learn_spell
+    SpellEffects.SPELL_EFFECT_LEARN_SPELL: SpellEffectHandler.handle_learn_spell,
+    SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA: SpellEffectHandler.handle_apply_area_aura,
+    SpellEffects.SPELL_EFFECT_SUMMON_TOTEM: SpellEffectHandler.handle_summon_totem
 }
+
