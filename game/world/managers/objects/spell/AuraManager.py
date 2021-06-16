@@ -56,7 +56,8 @@ class AuraManager:
             if aura.has_duration() and aura.duration <= 0:
                 self.remove_aura(aura)
 
-        self.check_aura_interrupts(has_moved=self.has_moved)
+        if len(self.active_auras) > 0:
+            self.check_aura_interrupts(has_moved=self.has_moved)
         self.has_moved = False
 
     def can_apply_aura(self, aura) -> bool:
@@ -74,40 +75,27 @@ class AuraManager:
         return True
 
     def check_aura_interrupts(self, has_moved=False, negative_aura_applied=False, cast_spell=False, received_damage=False):
+        # TODO turning and water-related checks
+        # Add once movement information is passed to update
+        flag_cases = {
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: self.unit_mgr.in_combat,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED: self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE: has_moved,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST: self.unit_mgr.spell_manager.is_casting() or cast_spell,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL: negative_aura_applied,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage
+        }
         for aura in list(self.active_auras.values()):
-            if aura.interrupt_flags & SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT and \
-                    self.unit_mgr.in_combat:
-                self.remove_aura(aura)
+            for flag, condition in flag_cases.items():
+                if aura.interrupt_flags & flag and condition:
+                    self.remove_aura(aura)
+                    continue
 
-            if aura.interrupt_flags & SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED and \
-                    self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
-                self.remove_aura(aura)
-
-            if aura.interrupt_flags & SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE and \
-                    has_moved:
-                self.remove_aura(aura)
-
-            if aura.interrupt_flags & SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST and \
-                    (self.unit_mgr.spell_manager.is_casting() or cast_spell):
-                self.remove_aura(aura)
-
-            if aura.interrupt_flags & SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL and \
-                    negative_aura_applied:
-                self.remove_aura(aura)
-
-            if aura.interrupt_flags & SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE and \
-                    received_damage:
-                self.remove_aura(aura)
-
-            # TODO turning and water-related checks
-            # Add once movement information is passed to update
-
-            # Food buffs are not labeled and an interrupt for sitting does not exist
-            # Check sitting attribute and aura effect type to find eating/drinking effects
-            # Food/drink spells do claim that the player must remain seated
-            # In later versions an aurainterrupt exists for this purpose
-            if aura.source_spell.is_refreshment_spell() and self.unit_mgr.stand_state != StandState.UNIT_SITTING:
-                self.remove_aura(aura)
+                # Food buffs are not labeled and an interrupt for sitting does not exist
+                # Food/drink spells do claim that the player must remain seated
+                # In later versions an aurainterrupt exists for this purpose
+                if aura.source_spell.is_refreshment_spell() and self.unit_mgr.stand_state != StandState.UNIT_SITTING:
+                    self.remove_aura(aura)
 
     def remove_colliding_effects(self, aura):
         # Special case with SpellEffect mounting and mounting by aura
