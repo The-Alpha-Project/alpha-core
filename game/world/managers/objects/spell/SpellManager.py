@@ -119,7 +119,7 @@ class SpellManager(object):
         # Spell is instant, perform cast
         self.perform_spell_cast(casting_spell, False)
 
-    def perform_spell_cast(self, casting_spell, validate=True):
+    def perform_spell_cast(self, casting_spell, validate=True, is_trigger=False):
         if validate and not self.validate_cast(casting_spell):
             self.remove_cast(casting_spell)
             return
@@ -131,7 +131,9 @@ class SpellManager(object):
 
         self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
         self.send_spell_go(casting_spell)
-        self.unit_mgr.aura_manager.check_aura_interrupts(cast_spell=True)
+
+        if not is_trigger:  # Triggered spells (ie. channel ticks) shouldn't interrupt other casts
+            self.unit_mgr.aura_manager.check_aura_interrupts(cast_spell=True)
 
         travel_time = self.calculate_time_to_impact(casting_spell)
 
