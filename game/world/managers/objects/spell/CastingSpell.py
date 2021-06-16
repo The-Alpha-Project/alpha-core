@@ -16,7 +16,7 @@ class CastingSpell(object):
     spell_entry: Spell
     cast_state: SpellState
     cast_flags: SpellCastFlags  # TODO Write proc flag when needed
-    spell_caster = None  # TODO Item caster (use item?)
+    spell_caster = None
     source_item = None
     initial_target = None
     unit_target_results = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
