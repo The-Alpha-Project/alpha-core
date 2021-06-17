@@ -157,19 +157,21 @@ class SpellManager(object):
 
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
-    def apply_spell_effects(self, casting_spell, remove=False):
+    def apply_spell_effects(self, casting_spell, remove=False, update=False):
         for effect in casting_spell.effects:
             # Effects that resolve targets in handler - ie. rain of fire, blizzard
             # TODO some spells are ground-targeted (at least scorch breath 5010) but don't use the terrain as the actual spell target
             # Use table for terrain-targeted implicit targets instead, check for effect type for now
-            if effect.effect_aura:
+            if effect.effect_aura and not update:
                 effect.effect_aura.initialize_period_timestamps()  # Initialize timestamps for effects with period
 
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
                 continue
 
-            for target in effect.targets.get_resolved_effect_targets_by_type(ObjectManager):
+            object_targets = effect.targets.get_resolved_effect_targets_by_type(ObjectManager)
+
+            for target in object_targets:
                 info = casting_spell.unit_target_results[target.guid]
                 # TODO deflection handling? Swap target/caster for now
                 if info.result == SpellMissReason.MISS_REASON_DEFLECTED:
@@ -177,6 +179,7 @@ class SpellManager(object):
                 elif info.result == SpellMissReason.MISS_REASON_NONE:
                     SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, info.target)
 
+            if len(object_targets) > 0:
                 continue  # Prefer unit target for handling (don't attempt to resolve other target types for one effect if unit targets aren't empty)
 
             for target in effect.targets.get_resolved_effect_targets_by_type(Vector):
@@ -224,14 +227,14 @@ class SpellManager(object):
                 continue
             cast_finished = casting_spell.cast_end_timestamp <= timestamp
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:  # Channel tick/spells that need updates
+                if not casting_spell.is_channeled() or (casting_spell.is_channeled() and not moved):
+                    self.handle_spell_effect_update(casting_spell, elapsed)  # Update effects if the cast wasn't interrupted
+
                 if casting_spell.is_channeled() and (cast_finished or moved):
-                    self.handle_channel_end(casting_spell, interrupted=moved)
                     reason = SpellCheckCastResult.SPELL_FAILED_MOVING if moved else SpellCheckCastResult.SPELL_NO_ERROR
                     self.remove_cast(casting_spell, reason)
                     self.has_moved = False
                     continue
-
-                self.handle_spell_effect_update(casting_spell, elapsed)
                 continue
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING and not casting_spell.is_instant_cast():
@@ -254,9 +257,16 @@ class SpellManager(object):
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
         if casting_spell not in self.casting_spells:
             return
+
         self.casting_spells.remove(casting_spell)
+
+        # Cancel auras applied by an active spell if the spell was interrupted
+        if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
+            for miss_info in casting_spell.unit_target_results.values():  # Get the last effect application results
+                miss_info.target.aura_manager.cancel_auras_by_spell_id(casting_spell.spell_entry.ID)  # Cancel effects from this aura
+
         if casting_spell.is_channeled():
-            self.handle_channel_end(casting_spell, cast_result != SpellCheckCastResult.SPELL_NO_ERROR)
+            self.handle_channel_end(casting_spell)
 
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
@@ -296,7 +306,7 @@ class SpellManager(object):
     def handle_channel_start(self, casting_spell):
         if not casting_spell.is_channeled():
             return
-
+        casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
         channel_end_timestamp = casting_spell.duration_entry.Duration/1000 + time.time()
         casting_spell.cast_end_timestamp = channel_end_timestamp  # Set the new timestamp for cast finish
 
@@ -328,7 +338,7 @@ class SpellManager(object):
             # If the effect interval is due, send another spell_go packet. Not good, but shows ticks TODO hackfix for missing channeling effect
             if casting_spell.is_channeled() and effect.effect_aura.is_past_next_period_timestamp():
                 self.send_spell_go(casting_spell)
-            self.apply_spell_effects(casting_spell)
+            self.apply_spell_effects(casting_spell, update=True)
 
         # Seems like sending updates speeds up channel? Does not play channeling effect either
         # remaining_time = casting_spell.cast_end_timestamp - time.time()
@@ -337,18 +347,12 @@ class SpellManager(object):
         # data = pack('<I', int(remaining_time*1000))  # *1000 for milliseconds
         # self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
 
-    def handle_channel_end(self, casting_spell, interrupted):
+    def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():
             return
 
-        # If channel is interrupted, all auras applied by the channel should be removed
-        # If the auras of finished casts are removed as well, last ticks of channels may not happen. Death event should handle removal instead
-        if interrupted:
-            for miss_info in casting_spell.unit_target_results.values():  # Get the last effect application results
-                miss_info.target.aura_manager.cancel_auras_by_spell_id(casting_spell.spell_entry.ID)  # Cancel effects from this aura
-
-            if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
-                return
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
 
         self.unit_mgr.set_channel_object(0)
         self.unit_mgr.set_channel_spell(0)

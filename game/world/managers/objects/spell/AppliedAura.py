@@ -58,7 +58,7 @@ class AppliedAura:
     def is_past_next_period_timestamp(self) -> bool:
         if len(self.aura_period_timestamps) == 0:
             return False
-        return time.time() > self.aura_period_timestamps[-1]
+        return time.time() >= self.aura_period_timestamps[-1]
 
     def pop_period_timestamp(self):
         if len(self.aura_period_timestamps) == 0:
