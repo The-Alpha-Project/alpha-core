@@ -50,6 +50,7 @@ class Character(Base):
     map = Column(INTEGER(11), nullable=False, server_default=text("0"), comment='Map Identifier')
     orientation = Column(Float, nullable=False, server_default=text("0"))
     taximask = Column(LONGTEXT)
+    explored_areas = Column(LONGTEXT)
     online = Column(TINYINT(3), nullable=False, index=True, server_default=text("0"))
     totaltime = Column(INTEGER(11), nullable=False, server_default=text("0"))
     leveltime = Column(INTEGER(11), nullable=False, server_default=text("0"))

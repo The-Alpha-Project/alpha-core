@@ -266,6 +266,14 @@ class CinematicCamera(Base):
     OriginFacing = Column(Float, nullable=False, server_default=text("'0'"))
 
 
+class Exploration(Base):
+    __tablename__ = 'exploration'
+
+    ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
+    Explore_ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
+    ExplorationLevel = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+
+
 class CinematicSequence(Base):
     __tablename__ = 'CinematicSequences'
 
