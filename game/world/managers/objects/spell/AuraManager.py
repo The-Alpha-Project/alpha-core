@@ -6,7 +6,7 @@ from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandle
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellEffects, SpellCheckCastResult, \
-    SpellAuraInterruptFlags, SpellAttributes
+    SpellAuraInterruptFlags, SpellAttributes, SpellAttributesEx
 from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
 
@@ -109,11 +109,18 @@ class AuraManager:
         caster_guid = aura.caster.guid
 
         for applied_aura in list(self.active_auras.values()):
-            if applied_aura.caster.guid != caster_guid or \
-                    applied_aura.spell_effect.effect_index != aura_effect_index or \
-                    applied_aura.source_spell.spell_entry != aura_spell_template:
+            is_similar = applied_aura.source_spell.spell_entry == aura_spell_template and \
+                         applied_aura.spell_effect.effect_index != aura_effect_index  # Spell and effect are the same
+            # Source doesn't matter for unique auras
+            is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE
+
+            if is_similar and (is_unique or applied_aura.caster.guid != caster_guid):
+                self.remove_aura(applied_aura)
+
+            if applied_aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
+                    aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT:
+                self.remove_aura(applied_aura)  # Player can only be in one shapeshift form
                 continue
-            self.remove_aura(applied_aura)  # Remove identical auras the caster has applied
 
     def get_auras_by_spell_id(self, spell_id) -> list[AppliedAura]:
         auras = []
