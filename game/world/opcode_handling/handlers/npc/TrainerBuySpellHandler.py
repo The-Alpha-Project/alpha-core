@@ -66,9 +66,13 @@ class TrainerBuySpellHandler(object):
                     return 0
                 elif spell_id in world_session.player_mgr.spell_manager.spells:
                     TrainerBuySpellHandler.send_buy_fail(world_session, trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE)
+                    
+                    return 0
+                elif not world_session.player_mgr.is_gm and not npc.is_within_interactable_distance(world_session.player_mgr): # buyspell console command
+                    TrainerBuySpellHandler.send_buy_fail(world_session, trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE)
+                    
                     return 0
                 else:
-
                     if spell_money_cost > 0:
                         world_session.player_mgr.mod_money(-spell_money_cost)
 
@@ -78,7 +82,7 @@ class TrainerBuySpellHandler(object):
                     world_session.player_mgr.spell_manager.learn_spell(spell_id) # "Learn" spells do not currently work. (The spells the trainer uses to teach the spell)
                     TrainerBuySpellHandler.send_buy_succeeded(world_session, trainer_guid, spell_id)
 
-                    npc.send_trainer_list(world_session) # Revisist later - re-sending the list is (probably) not the way it should be done, as it resets the selected spell & spell filters (avail, unavail etc.)
+                    npc.send_trainer_list(world_session) # Revisit later - re-sending the list is (probably) not the way it should be done, as it resets the selected spell & spell filters (avail, unavail etc.)
 
         return 0
 

@@ -245,6 +245,12 @@ class CreatureManager(UnitManager):
         elif slot == 0:
             self.weapon_reach = 0.0
 
+    def is_questgiver(self) -> bool:
+        if self.npc_flags & NpcFlags.NPC_FLAG_QUESTGIVER:
+            return True
+        else:
+            return False
+
     def is_trainer(self) -> bool:
         if self.npc_flags & NpcFlags.NPC_FLAG_TRAINER:
             return True
