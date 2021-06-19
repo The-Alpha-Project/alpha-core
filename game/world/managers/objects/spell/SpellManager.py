@@ -16,7 +16,7 @@ from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, InventoryTypes
 from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
-    SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, SpellEffects
+    SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, SpellEffects, SpellSchools
 from utils.constants.UnitCodes import PowerTypes, StandState
 
 
@@ -100,11 +100,9 @@ class SpellManager(object):
         if not casting_spell:
             return
 
-        if casting_spell.casts_on_swing():  # Handle swing ability queue and state
-            queued_melee_ability = self.get_queued_melee_ability()
-            if queued_melee_ability:
-                self.remove_cast(queued_melee_ability, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)  # Only one melee ability can be queued
+        self.remove_colliding_casts(casting_spell)
 
+        if casting_spell.casts_on_swing():  # Handle swing ability queue and state
             casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED  # Wait for next swing
             self.casting_spells.append(casting_spell)
             return
@@ -282,6 +280,19 @@ class SpellManager(object):
             if spell.initial_target.guid == target_guid:
                 self.remove_cast(spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED)
 
+    def remove_colliding_casts(self, current_cast):
+        for casting_spell in self.casting_spells:
+            if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING or casting_spell.is_channeled():
+                self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED)
+                continue
+            if casting_spell.is_paladin_aura() and current_cast.is_paladin_aura():  # Paladin aura exclusivity
+                self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_NO_ERROR)
+                continue
+            if casting_spell.casts_on_swing() and casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
+                self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
+                continue
+
+
     def calculate_time_to_impact(self, casting_spell) -> float:
         if casting_spell.spell_entry.Speed == 0:
             return 0
@@ -344,7 +355,8 @@ class SpellManager(object):
                 continue
 
             effect.effect_aura.update(elapsed)
-            effect.targets.resolve_targets()  # Refresh targets
+            # Refresh targets
+            casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
             # If the effect interval is due, send another spell_go packet. Not good, but shows ticks TODO hackfix for missing channeling effect
             if casting_spell.is_channeled() and effect.effect_aura.is_past_next_period_timestamp():
