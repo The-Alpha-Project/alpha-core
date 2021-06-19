@@ -13,6 +13,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
+from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
@@ -825,6 +826,21 @@ class UnitManager(ObjectManager):
             return ((own_faction.FriendGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.FriendGroup)) != 0
         else:
             return ((own_faction.EnemyGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.EnemyGroup)) != 0
+
+    # noinspection PyUnresolvedReferences
+    def can_attack_target(self, target):
+        if target is self:
+            return False
+
+        is_enemy = self.is_enemy_to(target)
+        if is_enemy or self.get_type() != ObjectTypes.TYPE_PLAYER or target.get_type() != ObjectTypes.TYPE_PLAYER:
+            return is_enemy
+
+        if not self.duel_manager:
+            return is_enemy
+
+        # Return true if the players are friendly but dueling
+        return self.duel_manager.player_involved(target) and self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
 
     def is_friendly_to(self, target):
         return self._allegiance_status_checker(target, True)

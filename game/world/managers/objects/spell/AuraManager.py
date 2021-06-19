@@ -41,7 +41,7 @@ class AuraManager:
             self.send_aura_duration(aura)
 
         # Aura application threat TODO handle threat elsewhere
-        if aura.is_harmful():
+        if aura.harmful:
             if aura.source_spell.generates_threat():
                 self.unit_mgr.attack(aura.caster)
             self.check_aura_interrupts(negative_aura_applied=True)
@@ -137,12 +137,16 @@ class AuraManager:
                 continue
             self.remove_aura(aura)
 
+    def remove_harmful_auras_by_caster(self, caster_guid):
+        for aura in list(self.active_auras.values()):
+            if aura.harmful and aura.caster.guid == caster_guid:
+                self.remove_aura(aura)
+
     def remove_aura(self, aura):
-        if aura.index not in self.active_auras:
-            return
         # TODO check if aura can be removed (by player)
         AuraEffectHandler.handle_aura_effect_change(aura, True)
-        self.active_auras.pop(aura.index)
+        if not self.active_auras.pop(aura.index, None):
+            return
         # Some area effect auras (paladin auras, tranq etc.) are tied to spell effects. Cancel cast on aura cancel, canceling the auras as well.
         self.unit_mgr.spell_manager.remove_cast(aura.source_spell, SpellCheckCastResult.SPELL_NO_ERROR)
 
@@ -156,6 +160,10 @@ class AuraManager:
         self.write_aura_to_unit(aura, clear=True)
         self.write_aura_flag_to_unit(aura, clear=True)
         self.unit_mgr.set_dirty()
+
+    def remove_all_auras(self):
+        for aura in list(self.active_auras.values()):
+            self.remove_aura(aura)
 
     def cancel_auras_by_spell_id(self, spell_id):
         auras = self.get_auras_by_spell_id(spell_id)
@@ -189,7 +197,7 @@ class AuraManager:
         if aura.passive:
             min_index = AuraSlots.AURA_SLOT_PASSIVE_AURA_START
             max_index = AuraSlots.AURA_SLOT_END
-        elif aura.is_harmful():
+        elif aura.harmful:
             min_index = AuraSlots.AURA_SLOT_HARMFUL_AURA_START
             max_index = AuraSlots.AURA_SLOT_PASSIVE_AURA_START
         else:

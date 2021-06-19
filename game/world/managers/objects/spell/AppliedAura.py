@@ -25,6 +25,8 @@ class AppliedAura:
         self.period = spell_effect.aura_period
 
         self.passive = casting_spell.is_passive()
+        self.harmful = self.resolve_harmful() if target else False
+
         for effect in casting_spell.effects:
             if effect.effect_index >= spell_effect.effect_index:
                 break
@@ -48,9 +50,9 @@ class AppliedAura:
     def is_periodic(self) -> bool:
         return self.period != 0
 
-    def is_harmful(self) -> bool:
+    def resolve_harmful(self) -> bool:
         if self.source_spell.initial_target_is_object():
-            return self.caster.is_enemy_to(self.target)  # TODO not always applicable, ie. arcane missiles
+            return self.caster.can_attack_target(self.target)  # TODO not always applicable, ie. arcane missiles
 
         # Terrain-targeted aura
         return not self.spell_effect.targets.can_target_friendly()

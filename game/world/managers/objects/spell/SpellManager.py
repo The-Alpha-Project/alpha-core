@@ -271,6 +271,17 @@ class SpellManager(object):
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
 
+    def remove_all_casts(self, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
+        for casting_spell in list(self.casting_spells):
+            self.remove_cast(casting_spell)
+
+    def remove_all_casts_directed_at_unit(self, target_guid):
+        for spell in list(self.casting_spells):
+            if not spell.initial_target_is_unit_or_player():
+                continue
+            if spell.initial_target.guid == target_guid:
+                self.remove_cast(spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED)
+
     def calculate_time_to_impact(self, casting_spell) -> float:
         if casting_spell.spell_entry.Speed == 0:
             return 0

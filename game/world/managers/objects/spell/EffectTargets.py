@@ -40,8 +40,8 @@ class EffectTargets:
         target_is_player = self.casting_spell.initial_target_is_player()
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
         target_is_item = self.casting_spell.initial_target_is_item()
-        target_is_friendly = self.casting_spell.initial_target_is_unit_or_player() and \
-            self.caster.is_friendly_to(self.casting_spell.initial_target)
+        target_is_friendly = self.casting_spell.initial_target_is_unit_or_player() and not \
+            self.caster.can_attack_target(self.casting_spell.initial_target)
 
         return {
             SpellImplicitTargets.TARGET_NOTHING: [],
@@ -107,18 +107,19 @@ class EffectTargets:
 
     @staticmethod
     def get_enemies_from_unit_list(units: list[ObjectManager], caster):
-        return [unit for unit in units if not caster.is_friendly_to(unit)]
+        return [unit for unit in units if caster.can_attack_target(unit)]
 
     @staticmethod
     def get_friends_from_unit_list(units: list[ObjectManager], caster):
-        return [unit for unit in units if caster.is_friendly_to(unit)]
+        return [unit for unit in units if not caster.can_attack_target(unit)]
 
     @staticmethod
     def get_party_members_from_unit_list(units: list[ObjectManager], caster):
         if caster.get_type() != ObjectTypes.TYPE_PLAYER or not caster.group_manager:
             return []
 
-        return [unit for unit in units if caster.group_manager.is_party_member(unit.guid)]
+        friendly_units = EffectTargets.get_friends_from_unit_list(units, caster)  # Party members can be hostile while dueling
+        return [unit for unit in friendly_units if caster.group_manager.is_party_member(unit.guid)]
 
     @staticmethod
     def resolve_random_enemy_chain_in_area(casting_spell, target_effect):
@@ -195,7 +196,8 @@ class EffectTargets:
             return units_in_range  # TODO pets etc. should probably be targeted
 
         for unit in units:
-            if caster is unit or not caster.group_manager.is_party_member(unit.guid):
+            if caster is unit or not caster.group_manager.is_party_member(unit.guid) or \
+                    caster.can_attack_target(unit):  # Dueling party members
                 continue
             distance = caster.location.distance(unit.location)
             if distance <= target_effect.get_radius():
@@ -228,7 +230,7 @@ class EffectTargets:
         caster = casting_spell.spell_caster
         units_in_range_front = []
         for unit in units:
-            if caster is unit or caster.is_friendly_to(unit):
+            if not caster.can_attack_target(unit):
                 continue
 
             distance = caster.location.distance(unit.location)
