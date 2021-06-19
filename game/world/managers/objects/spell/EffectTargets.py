@@ -303,6 +303,10 @@ class EffectTargets:
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
+    def resolve_all_hostile_around_caster(casting_spell, target_effect):  # TODO Charge effects only?
+        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+
+    @staticmethod
     def resolve_aoe_party(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
@@ -333,6 +337,7 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_ALL_PARTY: EffectTargets.resolve_all_party,
     SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2: EffectTargets.resolve_party_around_caster_2,
     SpellImplicitTargets.TARGET_SINGLE_PARTY: EffectTargets.resolve_single_party,
+    SpellImplicitTargets.TARGET_ALL_HOSTILE_UNITS_AROUND_CASTER: EffectTargets.resolve_all_hostile_around_caster,
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY: EffectTargets.resolve_aoe_party,
     SpellImplicitTargets.TARGET_SCRIPT: EffectTargets.resolve_script,
     SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: EffectTargets.resolve_gameobject_script_near_caster
