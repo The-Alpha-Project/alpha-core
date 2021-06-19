@@ -6,7 +6,7 @@ from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandle
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellEffects, SpellCheckCastResult, \
-    SpellAuraInterruptFlags
+    SpellAuraInterruptFlags, SpellAttributes
 from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
 
@@ -134,6 +134,13 @@ class AuraManager:
     def remove_auras_by_type(self, aura_type):
         for aura in list(self.active_auras.values()):
             if aura.spell_effect.aura_type != aura_type:
+                continue
+            self.remove_aura(aura)
+
+    def handle_death(self):
+        persistent_flags = SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD | SpellAttributes.SPELL_ATTR_PASSIVE
+        for aura in list(self.active_auras.values()):
+            if aura.source_spell.spell_entry.Attributes & persistent_flags:
                 continue
             self.remove_aura(aura)
 

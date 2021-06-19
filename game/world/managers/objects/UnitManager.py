@@ -16,6 +16,7 @@ from utils.Formulas import UnitFormulas
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
+from utils.constants.SpellCodes import SpellAttributes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -770,6 +771,11 @@ class UnitManager(ObjectManager):
 
         # Clear all pending waypoint movement
         self.movement_manager.reset()
+
+        if killer:
+            killer.spell_manager.remove_all_casts_directed_at_unit(self.guid)  # Interrupt casting on target death
+        self.spell_manager.remove_all_casts()
+        self.aura_manager.handle_death()
 
         self.leave_combat()
         return True
