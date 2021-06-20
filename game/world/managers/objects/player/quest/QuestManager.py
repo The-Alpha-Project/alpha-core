@@ -8,7 +8,8 @@ from game.world.managers.objects.player.quest.QuestHelpers import QuestHelpers
 from game.world.managers.objects.player.quest.QuestMenu import QuestMenu
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes, QuestMethod
+from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes, QuestMethod, \
+    QuestFlags
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -497,9 +498,11 @@ class QuestManager(object):
         self.add_to_quest_log(quest_id, active_quest)
         self.send_quest_query_response(active_quest)
 
-        # TODO: If this is an escort quest, try to share it with party members.
-        # if self.player_mgr.group_manager and not shared:
-        #    self.share_quest_event(active_quest)
+        # If player is in a group and quest has QUEST_FLAGS_PARTY_ACCEPT flag, let other members accept it too.
+        if self.player_mgr.group_manager and not shared:
+            quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
+            if quest_template and quest_template.QuestFlags & QuestFlags.QUEST_FLAGS_PARTY_ACCEPT:
+                self.share_quest_event(active_quest)
 
         # Check if the player already has related items.
         active_quest.fill_existent_items()
@@ -508,7 +511,6 @@ class QuestManager(object):
 
         self.update_surrounding_quest_status()
 
-    # TODO: Share escorts quests with group members.
     def share_quest_event(self, active_quest):
         title_bytes = PacketWriter.string_to_bytes(active_quest.quest.Title)
         data = pack(f'<I{len(title_bytes)}sQ', active_quest.quest.entry, title_bytes, self.player_mgr.guid)

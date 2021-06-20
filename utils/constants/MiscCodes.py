@@ -293,6 +293,18 @@ class QuestGiverStatus(IntEnum):
     QUEST_GIVER_NUMITEMS = 5
 
 
+class QuestFlags(IntEnum):
+    QUEST_FLAGS_NONE = 0x00000000
+    QUEST_FLAGS_STAY_ALIVE = 0x00000001  # Not used currently
+    QUEST_FLAGS_PARTY_ACCEPT = 0x00000002  # If player in party, all players that can accept this quest will receive confirmation box to accept quest CMSG_QUEST_CONFIRM_ACCEPT/SMSG_QUEST_CONFIRM_ACCEPT
+    QUEST_FLAGS_EXPLORATION = 0x00000004  # Not used currently
+    QUEST_FLAGS_SHARABLE = 0x00000008  # Can be shared: Player::CanShareQuest()
+    QUEST_FLAGS_EPIC = 0x00000020  # Not used currently: Unsure of content
+    QUEST_FLAGS_RAID = 0x00000040  # Not used currently
+    QUEST_FLAGS_HIDDEN_REWARDS = 0x00000200  # Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
+    QUEST_FLAGS_AUTO_REWARDED = 0x00000400  # These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
+
+
 class QuestFailedReasons(IntEnum):
     QUEST_MISSING_REQ = 0  # Missing requirements
     QUEST_FAILED_LOW_LEVEL = 1  # You are not high enough level for that quest.
