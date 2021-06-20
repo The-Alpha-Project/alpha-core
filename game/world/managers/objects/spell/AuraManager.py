@@ -5,8 +5,9 @@ from game.world.managers.objects.spell.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import ObjectTypes
-from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellEffects, SpellCheckCastResult
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellEffects, SpellCheckCastResult, \
+    SpellAuraInterruptFlags
+from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -40,16 +41,24 @@ class AuraManager:
             self.send_aura_duration(aura)
 
         # Aura application threat TODO handle threat elsewhere
-        if aura.is_harmful() and aura.source_spell.generates_threat():
-            self.unit_mgr.attack(aura.caster)
+        if aura.is_harmful():
+            if aura.source_spell.generates_threat():
+                self.unit_mgr.attack(aura.caster)
+            self.check_aura_interrupts(negative_aura_applied=True)
 
         self.unit_mgr.set_dirty()
+
+    has_moved = False  # Set from SpellManager - TODO pass movement info from unit update instead
 
     def update(self, elapsed):
         for aura in list(self.active_auras.values()):
             aura.update(elapsed)  # Update duration and handle periodic effects
             if aura.has_duration() and aura.duration <= 0:
                 self.remove_aura(aura)
+
+        if len(self.active_auras) > 0:
+            self.check_aura_interrupts(has_moved=self.has_moved)
+        self.has_moved = False
 
     def can_apply_aura(self, aura) -> bool:
         if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
@@ -64,6 +73,29 @@ class AuraManager:
                 aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED == 0:
             return False
         return True
+
+    def check_aura_interrupts(self, has_moved=False, negative_aura_applied=False, cast_spell=False, received_damage=False):
+        # TODO turning and water-related checks
+        # Add once movement information is passed to update
+        flag_cases = {
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: self.unit_mgr.in_combat,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED: self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE: has_moved,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST: self.unit_mgr.spell_manager.is_casting() or cast_spell,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL: negative_aura_applied,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage
+        }
+        for aura in list(self.active_auras.values()):
+            for flag, condition in flag_cases.items():
+                if aura.interrupt_flags & flag and condition:
+                    self.remove_aura(aura)
+                    continue
+
+                # Food buffs are not labeled and an interrupt for sitting does not exist
+                # Food/drink spells do claim that the player must remain seated
+                # In later versions an aurainterrupt exists for this purpose
+                if aura.source_spell.is_refreshment_spell() and self.unit_mgr.stand_state != StandState.UNIT_SITTING:
+                    self.remove_aura(aura)
 
     def remove_colliding_effects(self, aura):
         # Special case with SpellEffect mounting and mounting by aura
@@ -106,11 +138,17 @@ class AuraManager:
             self.remove_aura(aura)
 
     def remove_aura(self, aura):
+        if aura.index not in self.active_auras:
+            return
         # TODO check if aura can be removed (by player)
         AuraEffectHandler.handle_aura_effect_change(aura, True)
         self.active_auras.pop(aura.index)
         # Some area effect auras (paladin auras, tranq etc.) are tied to spell effects. Cancel cast on aura cancel, canceling the auras as well.
-        self.unit_mgr.spell_manager.remove_cast_by_spell_id(aura.spell_id, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
+        self.unit_mgr.spell_manager.remove_cast(aura.source_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
+
+        # Some spells start cooldown on aura remove, handle that case here
+        if aura.source_spell.trigger_cooldown_on_aura_remove():
+            self.unit_mgr.spell_manager.set_on_cooldown(aura.source_spell.spell_entry)
 
         if aura.passive:
             return  # Passive auras aren't written to unit

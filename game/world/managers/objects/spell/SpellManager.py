@@ -9,20 +9,22 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
+from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
+from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, InventoryTypes
 from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, SpellEffects
-from utils.constants.UnitCodes import PowerTypes
+from utils.constants.UnitCodes import PowerTypes, StandState
 
 
 class SpellManager(object):
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
         self.spells = {}
-        self.cooldowns = {}
+        self.cooldowns = []
         self.casting_spells = []
 
     def load_spells(self):
@@ -62,6 +64,23 @@ class SpellManager(object):
 
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 
+    def handle_item_cast_attempt(self, item, caster):
+        for spell_info in item.spell_stats:
+            if spell_info.spell_id == 0:
+                break
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_info.spell_id)
+            if not spell:
+                Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} ({item.item_template.name}) could not be found in the spell database.')
+                continue
+
+            casting_spell = self.try_initialize_spell(spell, caster, caster, SpellTargetMask.SELF, item)  # TODO item spells targeting others?
+            if not casting_spell:
+                continue
+            if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here
+                caster.set_stand_state(StandState.UNIT_SITTING)
+
+            self.start_spell_cast(spell, caster, caster, SpellTargetMask.SELF, item)
+
     def handle_cast_attempt(self, spell_id, caster, spell_target, target_mask):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not spell or not spell_target:
@@ -69,15 +88,15 @@ class SpellManager(object):
 
         self.start_spell_cast(spell, caster, spell_target, target_mask)
 
-    def try_initialize_spell(self, spell, caster_obj, spell_target, target_mask, validate=True) -> Optional[CastingSpell]:
-        spell = CastingSpell(spell, caster_obj, spell_target, target_mask)
+    def try_initialize_spell(self, spell, caster_obj, spell_target, target_mask, source_item=None, validate=True) -> Optional[CastingSpell]:
+        spell = CastingSpell(spell, caster_obj, spell_target, target_mask, source_item)
         if not validate:
             return spell
         return spell if self.validate_cast(spell) else None
 
-    def start_spell_cast(self, spell, caster_obj, spell_target, target_mask):
+    def start_spell_cast(self, spell, caster_obj, spell_target, target_mask, source_item=None, initialized_spell=None):
         #  TODO Spell priority and interrupting on recast - spells can be cast on top of eachother (best reproduced by channels, for example life drain)
-        casting_spell = self.try_initialize_spell(spell, caster_obj, spell_target, target_mask)
+        casting_spell = self.try_initialize_spell(spell, caster_obj, spell_target, target_mask, source_item) if not initialized_spell else initialized_spell
         if not casting_spell:
             return
 
@@ -100,7 +119,7 @@ class SpellManager(object):
         # Spell is instant, perform cast
         self.perform_spell_cast(casting_spell, False)
 
-    def perform_spell_cast(self, casting_spell, validate=True):
+    def perform_spell_cast(self, casting_spell, validate=True, is_trigger=False):
         if validate and not self.validate_cast(casting_spell):
             self.remove_cast(casting_spell)
             return
@@ -113,6 +132,9 @@ class SpellManager(object):
         self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
         self.send_spell_go(casting_spell)
 
+        if not is_trigger:  # Triggered spells (ie. channel ticks) shouldn't interrupt other casts
+            self.unit_mgr.aura_manager.check_aura_interrupts(cast_spell=True)
+
         travel_time = self.calculate_time_to_impact(casting_spell)
 
         if travel_time != 0:
@@ -121,6 +143,7 @@ class SpellManager(object):
             self.consume_resources_for_cast(casting_spell)  # Remove resources
             return
 
+        casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
         if casting_spell.is_channeled():
             self.handle_channel_start(casting_spell)  # Channeled spells require more setup before effect application
         else:
@@ -129,7 +152,7 @@ class SpellManager(object):
             if casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
                 self.remove_cast(casting_spell)
 
-        if not casting_spell.trigger_cooldown_on_remove():
+        if not casting_spell.trigger_cooldown_on_aura_remove():
             self.set_on_cooldown(casting_spell.spell_entry)
 
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
@@ -187,6 +210,7 @@ class SpellManager(object):
 
     def flag_as_moved(self):
         # TODO temporary way of handling this until movement data can be passed to update()
+        self.unit_mgr.aura_manager.has_moved = True
         if len(self.casting_spells) == 0:
             return
         self.has_moved = True
@@ -194,7 +218,7 @@ class SpellManager(object):
     def update(self, timestamp, elapsed):
         moved = self.has_moved
         self.has_moved = False  # Reset has_moved on every update
-
+        self.check_spell_cooldowns()
         for casting_spell in list(self.casting_spells):
             if casting_spell.casts_on_swing():  # spells cast on swing will be updated on call from attack handling
                 continue
@@ -236,16 +260,6 @@ class SpellManager(object):
 
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
-
-    def remove_cast_by_spell_id(self, spell_id, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
-        spell = None
-        for casting_spell in self.casting_spells:
-            if casting_spell.spell_entry.ID == spell_id:
-                spell = casting_spell
-                break
-        if not spell:
-            return False
-        self.remove_cast(spell, cast_result)
 
     def calculate_time_to_impact(self, casting_spell) -> float:
         if casting_spell.spell_entry.Speed == 0:
@@ -304,6 +318,8 @@ class SpellManager(object):
         # Refresh non-persistent targets, terrain-targeted/player auras for relevant effects
         for effect in casting_spell.effects:
             if not effect.effect_aura:
+                continue
+            if effect.effect_type not in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 continue
 
             effect.effect_aura.update(elapsed)
@@ -392,35 +408,47 @@ class SpellManager(object):
                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
     def set_on_cooldown(self, spell):
-        if spell.RecoveryTime == 0:
+        if spell.RecoveryTime == 0 and spell.CategoryRecoveryTime == 0:
             return
-        self.cooldowns[spell.ID] = spell.RecoveryTime + time.time()
+        cooldown_entry = CooldownEntry(spell, time.time())
+        self.cooldowns.append(cooldown_entry)
 
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        data = pack('<IQI', spell.ID, self.unit_mgr.guid, spell.RecoveryTime)
+        data = pack('<IQI', spell.ID, self.unit_mgr.guid, cooldown_entry.cooldown_length)
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
-    def remove_cooldown(self, spell):
-        self.cooldowns.pop(spell.ID, None)
+    def check_spell_cooldowns(self):
+        for cooldown_entry in list(self.cooldowns):
+            if cooldown_entry.is_valid():
+                continue
 
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
-            return
+            self.cooldowns.remove(cooldown_entry)
+            if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+                continue
+            data = pack('<IQ', cooldown_entry.spell_id, self.unit_mgr.guid)
+            self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
 
-        data = pack('<IQ', spell.ID, self.unit_mgr.guid)
-        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
+    def is_on_cooldown(self, spell_entry) -> bool:
+        for cooldown_entry in list(self.cooldowns):
+            if cooldown_entry.is_valid() and cooldown_entry.matches_spell(spell_entry):
+                return True
+        return False
 
-    def is_on_cooldown(self, spell_id) -> bool:
-        return spell_id in self.cooldowns
+    def is_casting(self):
+        for spell in list(self.casting_spells):
+            if spell.cast_state == SpellState.SPELL_STATE_CASTING:
+                return True
+        return False
 
     def validate_cast(self, casting_spell) -> bool:
-        if self.is_on_cooldown(casting_spell):
+        if self.is_on_cooldown(casting_spell.spell_entry):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
 
-        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
-                (not casting_spell.spell_entry or casting_spell.spell_entry.ID not in self.spells):  # TODO item spells
+        if not casting_spell.source_item and self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
+                (not casting_spell.spell_entry or casting_spell.spell_entry.ID not in self.spells):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
             return False
 
@@ -436,6 +464,10 @@ class SpellManager(object):
         if casting_spell.initial_target_is_unit_or_player() and not casting_spell.initial_target.is_alive:  # TODO dead targets (resurrect)
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
+
+        if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_SITTING and \
+                self.unit_mgr.stand_state != StandState.UNIT_STANDING:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
 
         if not self.meets_casting_requisites(casting_spell):
             return False
@@ -472,6 +504,19 @@ class SpellManager(object):
 
                 if self.unit_mgr.inventory.get_item_count(reagent_info) < count:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_REAGENTS)
+                    return False
+
+            # Spells cast with consumables
+            if casting_spell.source_item:
+                spell_stats = casting_spell.get_item_spell_stats()
+                charges = spell_stats.charges
+                if charges == 0:  # no charges left
+                    self.send_cast_result(casting_spell.spell_entry.ID,
+                                          SpellCheckCastResult.SPELL_FAILED_NO_CHARGES_REMAIN)
+                    return False
+                if charges < 0 and self.unit_mgr.inventory.get_item_count(casting_spell.source_item.item_template.entry) < 1:  # Consumables have negative charges
+                    self.send_cast_result(casting_spell.spell_entry.ID,
+                                          SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)  # Should never really happen but catch this case
                     return False
 
             for tool in casting_spell.get_required_tools():
@@ -520,6 +565,17 @@ class SpellManager(object):
             if reagent_info[0] == 0:
                 break
             self.unit_mgr.inventory.remove_items(reagent_info[0], reagent_info[1])
+
+        # Spells cast with consumables
+        if casting_spell.source_item:
+            spell_stats = casting_spell.get_item_spell_stats()
+            charges = spell_stats.charges
+            if charges < 0:  # Negative charges remove items
+                self.unit_mgr.inventory.remove_items(casting_spell.source_item.item_template.entry, 1)
+
+            if charges != 0 and charges != -1:  # don't modify if no charges remain or this item is a consumable
+                new_charges = charges-1 if charges > 0 else charges+1
+                spell_stats.charges = new_charges
 
         self.unit_mgr.set_dirty()
 

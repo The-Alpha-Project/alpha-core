@@ -20,6 +20,7 @@ class AppliedAura:
         self.duration_entry = casting_spell.duration_entry
         self.duration = self.duration_entry.Duration if self.duration_entry else -1
         self.effective_level = casting_spell.caster_effective_level
+        self.interrupt_flags = casting_spell.spell_entry.AuraInterruptFlags
 
         self.period = spell_effect.aura_period
 
