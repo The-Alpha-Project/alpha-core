@@ -49,5 +49,18 @@ begin not atomic
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 		insert into applied_updates values ('290520211');
     end if;
+
+	-- 20/06/2021 1
+	if (select count(*) from applied_updates where id='200620211') = 0 then
+        DROP TABLE IF EXISTS `character_buttons`;
+		CREATE TABLE `character_buttons` (
+		`owner` int(11) unsigned NOT NULL DEFAULT 0,
+		`index` int(11) unsigned NOT NULL DEFAULT 0,
+		`action` int(11) signed NOT NULL DEFAULT 0,
+		PRIMARY KEY (`owner`, `index`, `action`),
+		CONSTRAINT `owner_guid_button_fk` FOREIGN KEY (`owner`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+		insert into applied_updates values ('200620211');
+    end if;
 end $
 delimiter ;
