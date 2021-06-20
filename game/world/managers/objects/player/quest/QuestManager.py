@@ -39,6 +39,9 @@ class QuestManager(object):
                 Logger.error(
                     f"Quest database (guid={quest_db_state.guid}, quest_id={quest_db_state.quest}) has state {quest_db_state.state}. No handling.")
 
+    def is_quest_log_full(self):
+        return len(self.active_quests) >= MAX_QUEST_LOG
+
     def get_dialog_status(self, world_object):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
         new_dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
@@ -164,6 +167,7 @@ class QuestManager(object):
             return False
 
         # Does the character have the required source items.
+        # TODO: Should we have this check.
         source_item_required = list(filter((0).__ne__, QuestHelpers.generate_req_source_list(quest_template)))
         source_item_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_source_count_list(quest_template)))
         for index, item in enumerate(source_item_required):
@@ -473,7 +477,15 @@ class QuestManager(object):
 
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_OFFER_REWARD, data))
 
-    def handle_accept_quest(self, quest_id, quest_giver_guid):
+    def handle_accept_quest(self, quest_id, quest_giver_guid, shared=False):
+        if quest_id in self.active_quests:
+            self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ALREADY_ON)
+            return
+
+        if quest_id in self.completed_quests:
+            self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ONLY_ONE_TIMED)
+            return
+
         active_quest = self._create_db_quest_status(quest_id)
         active_quest.save(is_new=True)
 
@@ -485,12 +497,38 @@ class QuestManager(object):
         self.add_to_quest_log(quest_id, active_quest)
         self.send_quest_query_response(active_quest)
 
+        # TODO: If this is an escort quest, try to share it with party members.
+        # if self.player_mgr.group_manager and not shared:
+        #    self.share_quest_event(active_quest)
+
         # Check if the player already has related items.
         active_quest.fill_existent_items()
         if active_quest.can_complete_quest():
             self.complete_quest(active_quest, update_surrounding=False)
 
         self.update_surrounding_quest_status()
+
+    # TODO: Share escorts quests with group members.
+    def share_quest_event(self, active_quest):
+        title_bytes = PacketWriter.string_to_bytes(active_quest.quest.Title)
+        data = pack(f'<I{len(title_bytes)}sQ', active_quest.quest.entry, title_bytes, self.player_mgr.guid)
+        packet = PacketWriter.get_packet(OpCode.SMSG_QUEST_CONFIRM_ACCEPT, data)
+
+        surrounding_party_players = self.player_mgr.group_manager.get_surrounding_members(self.player_mgr)
+        for player_mgr in surrounding_party_players:
+            if player_mgr.guid == self.player_mgr.guid:
+                continue
+            # Check which party member fulfills all requirements
+            if not player_mgr.quest_manager.check_quest_requirements(active_quest.quest):
+                continue
+            if not player_mgr.quest_manager.check_quest_level(active_quest.quest, False):
+                continue
+            if active_quest.quest.entry in player_mgr.quest_manager.active_quests:
+                continue
+            if active_quest.quest.entry in player_mgr.quest_manager.completed_quests:
+                continue
+
+            player_mgr.session.enqueue_packet(packet)
 
     def handle_remove_quest(self, slot):
         quest_id = self.player_mgr.get_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6))
