@@ -15,11 +15,8 @@ class UseItemHandler(object):
                 bag = InventorySlots.SLOT_INBACKPACK.value
 
             item = world_session.player_mgr.inventory.get_item(bag, slot)
-
-            # TODO: This simply redirects item spell to CastSpellHandler forcing self mask.
-            #  Handle SpellTrigger, SpellCharges, Item stack pop, checks for races/class, spell_id 2/3/4, etc..
-            #  Players do not have Food and Drink spells as default.
             if not item:
                 return 0
+
             world_session.player_mgr.spell_manager.handle_item_cast_attempt(item, world_session.player_mgr)
         return 0
