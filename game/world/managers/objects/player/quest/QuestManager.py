@@ -167,7 +167,7 @@ class QuestManager(object):
             return False
 
         # Does the character have the required source items.
-        # TODO: Should we have this check.
+        # TODO: Should we have this check?
         source_item_required = list(filter((0).__ne__, QuestHelpers.generate_req_source_list(quest_template)))
         source_item_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_source_count_list(quest_template)))
         for index, item in enumerate(source_item_required):
@@ -518,6 +518,7 @@ class QuestManager(object):
         for player_mgr in surrounding_party_players:
             if player_mgr.guid == self.player_mgr.guid:
                 continue
+
             # Check which party member fulfills all requirements
             if not player_mgr.quest_manager.check_quest_requirements(active_quest.quest):
                 continue

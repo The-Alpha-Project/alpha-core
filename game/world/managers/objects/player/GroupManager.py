@@ -38,8 +38,7 @@ class GroupManager(object):
         if len(self.members) < 2:
             RealmDatabaseManager.group_destroy(self.group)
             return False
-        else:
-            return True
+        return True
 
     # When player sends an invite, a GroupManager is created, that doesnt mean the party actually exists until
     # the other player accepts the invitation.
