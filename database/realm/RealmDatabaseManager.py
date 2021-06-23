@@ -373,6 +373,8 @@ class RealmDatabaseManager(object):
         realm_db_session.refresh(reputation)
         realm_db_session.close()
 
+    # Action Buttons
+
     @staticmethod
     def character_get_buttons(character_guid):
         buttons_dict = dict()
@@ -411,7 +413,48 @@ class RealmDatabaseManager(object):
         realm_db_session.delete(character_button)
         realm_db_session.flush()
         realm_db_session.close()
-    
+
+    # Spellbook
+
+    @staticmethod
+    def character_get_spell_buttons(character_guid):
+        buttons_dict = dict()
+        realm_db_session = SessionHolder()
+        buttons = realm_db_session.query(CharacterSpellButton).filter_by(owner=character_guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        for button in buttons:
+            buttons_dict[button.spell] = button.index
+        realm_db_session.close()
+        return buttons_dict
+
+    @staticmethod
+    def character_get_spell_button(character_guid, spell):
+        realm_db_session = SessionHolder()
+        button = realm_db_session.query(CharacterSpellButton).filter_by(owner=character_guid & ~HighGuid.HIGHGUID_PLAYER, spell=spell).first()
+        realm_db_session.close()
+        return button
+
+    @staticmethod
+    def character_update_spell_button(character_spell_button):
+        realm_db_session = SessionHolder()
+        realm_db_session.merge(character_spell_button)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def character_add_spell_button(character_spell_button):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(character_spell_button)
+        realm_db_session.flush()
+        realm_db_session.refresh(character_spell_button)
+        realm_db_session.close()
+
+    @staticmethod
+    def character_delete_spell_button(character_spell_button):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(character_spell_button)
+        realm_db_session.flush()
+        realm_db_session.close()
+
     # Ticket stuff
 
     @staticmethod

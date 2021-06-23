@@ -4,7 +4,7 @@
 0.5.3 experimental emulator written in Python.
 
 ## Installation
-You need Python 3.7+ and a MariaDB server. For project requirements, install them with `pip3 install -r requirements.txt`.
+You need Python 3.9+ and a MariaDB server. For project requirements, install them with `pip3 install -r requirements.txt`.
 
 You will need a realm, a dbc and a world database, more info can be found in the `config.yml` file you will find inside `etc/config/`. Also, you will need to rename the `.dist` config file to match the correct config name.
 

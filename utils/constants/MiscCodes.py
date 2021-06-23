@@ -49,19 +49,19 @@ class UpdateTypes(IntEnum):
 
 # Some might be unused on Alpha
 class HighGuid(IntEnum):
-    HIGHGUID_PLAYER = 0x00000000
-    HIGHGUID_ITEM = 0x40000000
-    HIGHGUID_CONTAINER = 0x40000000
-    HIGHGUID_GAMEOBJECT = 0xF1100000
-    HIGHGUID_TRANSPORT = 0xF1200000
-    HIGHGUID_UNIT = 0xF1300000
-    HIGHGUID_PET = 0xF1400000
-    HIGHGUID_VEHICLE = 0xF1500000
-    HIGHGUID_DYNAMICOBJECT = 0xF1000000
-    HIGHGUID_CORPSE = 0xF1010000
-    HIGHGUID_MO_TRANSPORT = 0x1FC00000
-    HIGHGUID_GROUP = 0x1F500000
-    HIGHGUID_GUILD = 0x1FF60000
+    HIGHGUID_PLAYER = 0x0000 << 48
+    HIGHGUID_ITEM = 0x4000 << 48
+    HIGHGUID_CONTAINER = 0x4000 << 48
+    HIGHGUID_GAMEOBJECT = 0xF110 << 48
+    HIGHGUID_TRANSPORT = 0xF120 << 48
+    HIGHGUID_UNIT = 0xF130 << 48
+    HIGHGUID_PET = 0xF140 << 48
+    HIGHGUID_VEHICLE = 0xF150 << 48
+    HIGHGUID_DYNAMICOBJECT = 0xF100 << 48
+    HIGHGUID_CORPSE = 0xF101 << 48
+    HIGHGUID_MO_TRANSPORT = 0x1FC0 << 48
+    HIGHGUID_GROUP = 0x1F50 << 48
+    HIGHGUID_GUILD = 0x1FF6 << 48
 
 
 class Factions(IntEnum):
@@ -275,22 +275,18 @@ class ReputationFlag(IntEnum):
     ATWAR = 2
 
 
+class QuestMethod(IntEnum):
+    QUEST_AUTOCOMPLETE = 0
+    QUEST_DISABLED = 1
+    QUEST_ENABLED = 2
+
+
 class QuestState(IntEnum):
     QUEST_GREETING = 0
     QUEST_OFFER = 1
     QUEST_ACCEPTED = 2
     QUEST_REWARD = 3
     QUEST_STATE_NUM_TYPES = 4
-
-
-class QuestFailedReasons(IntEnum):
-    INVALIDREASON_DONT_HAVE_REQ = 0
-    INVALIDREASON_QUEST_FAILED_LOW_LEVEL = 1  # You are not high enough level for that quest.
-    INVALIDREASON_QUEST_FAILED_WRONG_RACE = 6  # That quest is not available to your race.
-    INVALIDREASON_QUEST_ONLY_ONE_TIMED = 12  # You can only be on one timed quest at a time.
-    INVALIDREASON_QUEST_ALREADY_ON = 13  # You are already on that quest
-    INVALIDREASON_QUEST_FAILED_MISSING_ITEMS = 21  # You don't have the required items with you. Check storage.
-    INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY = 23  # You don't have enough money for that quest.
 
 
 class QuestGiverStatus(IntEnum):
@@ -300,6 +296,28 @@ class QuestGiverStatus(IntEnum):
     QUEST_GIVER_REWARD = 3
     QUEST_GIVER_QUEST = 4
     QUEST_GIVER_NUMITEMS = 5
+
+
+class QuestFlags(IntEnum):
+    QUEST_FLAGS_NONE = 0x00000000
+    QUEST_FLAGS_STAY_ALIVE = 0x00000001  # Not used currently
+    QUEST_FLAGS_PARTY_ACCEPT = 0x00000002  # If player in party, all players that can accept this quest will receive confirmation box to accept quest CMSG_QUEST_CONFIRM_ACCEPT/SMSG_QUEST_CONFIRM_ACCEPT
+    QUEST_FLAGS_EXPLORATION = 0x00000004  # Not used currently
+    QUEST_FLAGS_SHARABLE = 0x00000008  # Can be shared: Player::CanShareQuest()
+    QUEST_FLAGS_EPIC = 0x00000020  # Not used currently: Unsure of content
+    QUEST_FLAGS_RAID = 0x00000040  # Not used currently
+    QUEST_FLAGS_HIDDEN_REWARDS = 0x00000200  # Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
+    QUEST_FLAGS_AUTO_REWARDED = 0x00000400  # These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
+
+
+class QuestFailedReasons(IntEnum):
+    QUEST_MISSING_REQ = 0  # Missing requirements
+    QUEST_FAILED_LOW_LEVEL = 1  # You are not high enough level for that quest.
+    QUEST_FAILED_WRONG_RACE = 6  # That quest is not available to your race.
+    QUEST_ONLY_ONE_TIMED = 12  # You can only be on one timed quest at a time.
+    QUEST_ALREADY_ON = 13  # You are already on that quest
+    QUEST_FAILED_MISSING_ITEMS = 21  # You don't have the required items with you. Check storage.
+    QUEST_FAILED_NOT_ENOUGH_MONEY = 23  # You don't have enough money for that quest.
 
 
 class SkillCategories(IntEnum):

@@ -14,8 +14,8 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
-    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags
+    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -454,21 +454,25 @@ class UnitManager(ObjectManager):
         if not target or not target.is_alive or damage < 1:
             return
 
-        if self.guid not in target.attackers:
-            target.attackers[self.guid] = self
+        if target is not self:
+            if self.guid not in target.attackers:
+                target.attackers[self.guid] = self
 
-        if not self.in_combat:
-            self.enter_combat()
-            self.set_dirty()
+            if not self.in_combat:
+                self.enter_combat()
+                self.set_dirty()
 
-        if not target.in_combat:
-            target.enter_combat()
-            target.set_dirty()
+            if not target.in_combat:
+                target.enter_combat()
+                target.set_dirty()
 
         target.receive_damage(damage, source=self)
 
     def receive_damage(self, amount, source=None):
         is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
+
+        if source is not self:
+            self.aura_manager.check_aura_interrupts(received_damage=True)
 
         new_health = self.health - amount
         if new_health <= 0:
@@ -587,6 +591,26 @@ class UnitManager(ObjectManager):
         self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+    def get_power_type_value(self):
+        if self.power_type == PowerTypes.TYPE_MANA:
+            return self.power_1
+        elif self.power_type == PowerTypes.TYPE_RAGE:
+            return self.power_2
+        elif self.power_type == PowerTypes.TYPE_FOCUS:
+            return self.power_3
+        else:
+            return self.power_4
+
+    def get_max_power_value(self):
+        if self.power_type == PowerTypes.TYPE_MANA:
+            return self.max_power_1
+        elif self.power_type == PowerTypes.TYPE_RAGE:
+            return self.max_power_2
+        elif self.power_type == PowerTypes.TYPE_FOCUS:
+            return self.max_power_3
+        else:
+            return self.max_power_4
 
     def set_health(self, health):
         if health < 0:
@@ -774,6 +798,10 @@ class UnitManager(ObjectManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
+
+    # override
+    def generate_object_guid(self, low_guid):
+        return low_guid | HighGuid.HIGHGUID_UNIT
 
     def _allegiance_status_checker(self, target, check_friendly=True):
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)

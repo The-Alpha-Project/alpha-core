@@ -198,10 +198,19 @@ class CharacterReputation(Base):
 class CharacterButton(Base):
     __tablename__ = 'character_buttons'
 
-    guid = Column(INTEGER, primary_key=True)
-    owner = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+    owner = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, primary_key=True, server_default=text("'0'"))
     index = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    action = Column(INTEGER(11), nullable=False, server_default=text("'1'"))
+    action = Column(INTEGER(11), nullable=False, primary_key=True, server_default=text("'1'"))
+
+    character = relationship('Character')
+
+
+class CharacterSpellButton(Base):
+    __tablename__ = 'character_spell_book'
+
+    owner = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, primary_key=True, server_default=text("'0'"))
+    index = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    spell = Column(INTEGER(11), nullable=False, primary_key=True, server_default=text("'1'"))
 
     character = relationship('Character')
 

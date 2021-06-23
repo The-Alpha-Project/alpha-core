@@ -77,27 +77,19 @@ class WorldSessionStateHandler(object):
 
     @staticmethod
     def get_session_by_character_guid(character_guid):
-        if character_guid in SESSION_BY_GUID:
-            return SESSION_BY_GUID[character_guid]
-        return None
+        return SESSION_BY_GUID.get(character_guid)
 
     @staticmethod
     def get_session_by_character_name(character_name):
-        if character_name.lower() in SESSION_BY_NAME:
-            return SESSION_BY_NAME[character_name.lower()]
-        return None
-
+        return SESSION_BY_NAME.get(character_name.lower())
+    
     @staticmethod
     def find_player_by_guid(guid_to_search):
-        if guid_to_search in PLAYERS_BY_GUID:
-            return PLAYERS_BY_GUID[guid_to_search]
-        return None
+        return PLAYERS_BY_GUID.get(guid_to_search)
 
     @staticmethod
     def find_player_by_name(name_to_search):
-        if name_to_search.lower() in PLAYER_BY_NAME:
-            return PLAYER_BY_NAME[name_to_search.lower()]
-        return None
+        return PLAYER_BY_NAME.get(name_to_search.lower())
 
     @staticmethod
     def update_players():

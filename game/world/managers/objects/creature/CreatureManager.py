@@ -35,7 +35,7 @@ class CreatureManager(UnitManager):
         self.creature_instance = creature_instance
         self.killed_by = None
 
-        self.guid = (creature_instance.spawn_id if creature_instance else 0) | HighGuid.HIGHGUID_UNIT
+        self.guid = self.generate_object_guid(creature_instance.spawn_id if creature_instance else 0)
 
         if self.creature_template:
             self.entry = self.creature_template.entry
@@ -437,6 +437,12 @@ class CreatureManager(UnitManager):
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             self.reward_kill_xp(killer)
             self.killed_by = killer
+            # If the player/group requires the kill, reward it to them.
+            if self.killed_by.group_manager:
+                self.killed_by.group_manager.reward_group_creature_or_go(self.killed_by, self)
+            elif self.killed_by.quest_manager.reward_creature_or_go(self):
+                self.killed_by.send_update_self()
+            # If the player is in a group, set the group as allowed looters if needed.
             if self.killed_by.group_manager and self.loot_manager.has_loot():
                 self.killed_by.group_manager.set_allowed_looters(self)
 

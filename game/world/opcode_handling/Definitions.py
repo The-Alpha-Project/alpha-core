@@ -59,6 +59,7 @@ from game.world.opcode_handling.handlers.loot.LootMoneyHandler import LootMoneyH
 from game.world.opcode_handling.handlers.loot.LootReleaseHandler import LootReleaseHandler
 from game.world.opcode_handling.handlers.loot.LootRequestHandler import LootRequestHandler
 from game.world.opcode_handling.handlers.npc.ActivateTaxiHandler import ActivateTaxiHandler
+from game.world.opcode_handling.handlers.npc.TaxiNodeStatusQueryHandler import TaxiNodeStatusQueryHandler
 from game.world.opcode_handling.handlers.npc.BankerActivateHandler import BankerActivateHandler
 from game.world.opcode_handling.handlers.npc.BinderActivateHandler import BinderActivateHandler
 from game.world.opcode_handling.handlers.npc.BuyBankSlotHandler import BuyBankSlotHandler
@@ -103,6 +104,7 @@ from game.world.opcode_handling.handlers.player.cheats.LevelUpCheatHandler impor
 from game.world.opcode_handling.handlers.player.cheats.LearnSpellCheatHandler import LearnSpellCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from game.world.opcode_handling.handlers.player.SetActionButtonHandler import SetActionButtonHandler
+from game.world.opcode_handling.handlers.player.NewSpellSlotHandler import NewSpellSlotHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverAcceptQuestHandler import QuestGiverAcceptQuestHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverChooseRewardHandler import QuestGiverChooseRewardHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverCompleteQuestHandler import QuestGiverCompleteQuestHandler
@@ -110,6 +112,7 @@ from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import Que
 from game.world.opcode_handling.handlers.quest.QuestGiverQueryQuestHandler import QuestGiverQueryQuestHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverRemoveQuestHandler import QuestGiverRemoveQuestHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverStatusHandler import QuestGiverStatusHandler
+from game.world.opcode_handling.handlers.quest.QuestConfirmAcceptHandler import QuestConfirmAcceptHandler
 from game.world.opcode_handling.handlers.social.BugHandler import BugHandler
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from game.world.opcode_handling.handlers.social.LookingForGroupHandler import LookingForGroupHandler
@@ -118,6 +121,7 @@ from game.world.opcode_handling.handlers.social.TextEmoteHandler import TextEmot
 from game.world.opcode_handling.handlers.social.WhoHandler import WhoHandler
 from game.world.opcode_handling.handlers.spell.CancelAuraHandler import CancelAuraHandler
 from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpellHandler
+from game.world.opcode_handling.handlers.spell.UseItemHandler import UseItemHandler
 from game.world.opcode_handling.handlers.trade.AcceptTradeHandler import AcceptTradeHandler
 from game.world.opcode_handling.handlers.trade.BeginTradeHandler import BeginTradeHandler
 from game.world.opcode_handling.handlers.trade.CancelTradeHandler import CancelTradeHandler
@@ -211,9 +215,11 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_TRAINER_LIST: TrainerListHandler.handle,
     OpCode.CMSG_TRAINER_BUY_SPELL: TrainerBuySpellHandler.handle,
     OpCode.CMSG_TAXIQUERYAVAILABLENODES: TaxiQueryNodesHandler.handle,
+    OpCode.CMSG_TAXINODE_STATUS_QUERY: TaxiNodeStatusQueryHandler.handle,
     OpCode.CMSG_ACTIVATETAXI: ActivateTaxiHandler.handle,
     OpCode.CMSG_CAST_SPELL: CastSpellHandler.handle,
     OpCode.CMSG_CANCEL_AURA: CancelAuraHandler.handle,
+    OpCode.CMSG_USE_ITEM: UseItemHandler.handle,
     OpCode.CMSG_LOOT: LootRequestHandler.handle,
     OpCode.CMSG_LOOT_RELEASE: LootReleaseHandler.handle,
     OpCode.CMSG_LOOT_MONEY: LootMoneyHandler.handle,
@@ -225,6 +231,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_QUESTGIVER_COMPLETE_QUEST: QuestGiverCompleteQuestHandler.handle,
     OpCode.CMSG_QUESTGIVER_CHOOSE_REWARD: QuestGiverChooseRewardHandler.handle,
     OpCode.CMSG_QUESTLOG_REMOVE_QUEST: QuestGiverRemoveQuestHandler.handle,
+    OpCode.CMSG_QUEST_CONFIRM_ACCEPT: QuestConfirmAcceptHandler.handle,
     OpCode.CMSG_GROUP_INVITE: GroupInviteHandler.handle,
     OpCode.CMSG_GROUP_ACCEPT: GroupInviteAcceptHandler.handle,
     OpCode.CMSG_GROUP_DISBAND: GroupDisbandHandler.handle,
@@ -283,6 +290,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_BANKER_ACTIVATE: BankerActivateHandler.handle,
     OpCode.CMSG_BUY_BANK_SLOT: BuyBankSlotHandler.handle,
     OpCode.CMSG_SET_ACTION_BUTTON: SetActionButtonHandler.handle,
+    OpCode.CMSG_NEW_SPELL_SLOT: NewSpellSlotHandler.handle,
 
     # Movement packets
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,

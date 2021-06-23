@@ -116,12 +116,17 @@ class InventoryManager(object):
         items_added = (amount_left != count)
         if items_added:
             if show_item_get:
-                # Default to backpack so we can prefer highest slot ID to receive message (backpack ID is highest)
+                # Default to backpack so we can prefer highest slot ID to receive message (backpack ID is highest).
                 if target_bag_slot == -1:
                     target_bag_slot = InventorySlots.SLOT_INBACKPACK
                 self.send_item_receive_message(self.owner.guid, item_template.entry,
                                                target_bag_slot, looted, send_message)
+
+            # Update quest item count, if needed.
+            self.owner.quest_manager.reward_item(item_template.entry, item_count=count)
+            # Update own inventory.
             self.owner.send_update_self(force_inventory_update=True)
+
         return items_added
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
@@ -258,7 +263,7 @@ class InventoryManager(object):
             RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
         dest_container.set_item(source_item, dest_slot)
-        source_item.item_instance.bag = dest_bag    # TODO These fields serve little purpose?
+        source_item.item_instance.bag = dest_bag
         source_item.item_instance.slot = dest_slot
 
         if dest_item:
@@ -311,7 +316,8 @@ class InventoryManager(object):
                     return item
         return None
 
-    def remove_item(self, target_bag, target_slot, clear_slot=True):  # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
+    # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
+    def remove_item(self, target_bag, target_slot, clear_slot=True):
         target_container = self.get_container(target_bag)
         if not target_container:
             return
@@ -321,6 +327,9 @@ class InventoryManager(object):
 
         if clear_slot:
             self.send_destroy_packet(target_slot, target_container.sorted_slots)
+
+        # Update the quest db state if needed.
+        self.owner.quest_manager.pop_item(target_item.item_template.entry, target_item.item_instance.stackcount)
 
         self.mark_as_removed(target_item)
         target_container.remove_item_in_slot(target_slot)
@@ -698,11 +707,8 @@ class InventoryManager(object):
             self.owner.session.enqueue_packet(packet)
 
     def mark_as_removed(self, item):
-        if item:
-            if item.item_instance.bag == InventorySlots.SLOT_INBACKPACK:
-                self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, 0)
-            #else:
-                #self.owner.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + item.current_slot * 2, 0)
+        if item and item.item_instance.bag == InventorySlots.SLOT_INBACKPACK:
+            self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, 0)
 
     def build_update(self):
         for slot, item in self.get_backpack().sorted_slots.items():

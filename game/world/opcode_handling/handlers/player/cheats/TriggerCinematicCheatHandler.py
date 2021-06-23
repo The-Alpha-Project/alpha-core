@@ -1,13 +1,14 @@
 from struct import unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import *
 
 
 class TriggerCinematicCheatHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) >= 4:  # Avoid handling empty trigger cinematic cheat packet.
             if not world_session.player_mgr.is_gm:
                 return 0

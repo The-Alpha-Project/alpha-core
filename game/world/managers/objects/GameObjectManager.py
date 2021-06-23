@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, GameObjectTypes, \
@@ -25,7 +26,7 @@ class GameObjectManager(ObjectManager):
         self.gobject_template = gobject_template
         self.gobject_instance = gobject_instance
 
-        self.guid = (gobject_instance.spawn_id if gobject_instance else 0) | HighGuid.HIGHGUID_GAMEOBJECT
+        self.guid = self.generate_object_guid(gobject_instance.spawn_id if gobject_instance else 0)
 
         if self.gobject_template:
             self.entry = self.gobject_template.entry
@@ -45,6 +46,12 @@ class GameObjectManager(ObjectManager):
 
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
+
+        self.loot_manager = None
+
+        # Chest only initializations.
+        if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            self.loot_manager = GameObjectLootManager(self)
 
     def load(self):
         MapManager.update_object(self)
@@ -84,6 +91,22 @@ class GameObjectManager(ObjectManager):
                         y_lowest = y_i
                 player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
                 player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
+        elif self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            # Activate chest open animation, while active, it won't let any other player loot.
+            if self.state == GameObjectStates.GO_STATE_READY:
+                self.state = GameObjectStates.GO_STATE_ACTIVE
+                self.send_update_surrounding()
+
+            # Generate loot if it's empty.
+            if not self.loot_manager.has_loot():
+                self.loot_manager.generate_loot(player)
+
+            player.send_loot(self)
+
+    def set_ready(self):
+        if self.state != GameObjectStates.GO_STATE_READY:
+            self.state = GameObjectStates.GO_STATE_READY
+            self.send_update_surrounding()
 
     # override
     def set_display_id(self, display_id):
@@ -166,3 +189,7 @@ class GameObjectManager(ObjectManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_GAMEOBJECT
+
+    # override
+    def generate_object_guid(self, low_guid):
+        return low_guid | HighGuid.HIGHGUID_GAMEOBJECT

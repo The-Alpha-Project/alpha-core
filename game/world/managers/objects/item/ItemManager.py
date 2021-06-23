@@ -3,6 +3,7 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterInventory
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses
@@ -50,9 +51,8 @@ class ItemManager(ObjectManager):
 
         self.item_template = item_template
         self.item_instance = item_instance
-        self.guid = (item_instance.guid if item_instance else 0) | HighGuid.HIGHGUID_ITEM
+        self.guid = self.generate_object_guid(item_instance.guid if item_instance else 0)
         self.current_slot = item_instance.slot if item_instance else 0
-        self.is_contained = item_instance.owner if item_instance else 0
         self.is_backpack = False
         self.enchantments = {}
 
@@ -144,6 +144,18 @@ class ItemManager(ObjectManager):
             return True
 
         return self.dynamic_flags & ItemDynFlags.ITEM_DYNFLAG_UNK16 == ItemDynFlags.ITEM_DYNFLAG_UNK16
+
+    def get_contained(self):
+        if not self.item_instance:
+            return 0
+
+        if self.item_instance.bag == InventorySlots.SLOT_INBACKPACK:
+            return self.item_instance.owner
+        else:
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(self.item_instance.owner)
+            if player_mgr:
+                return player_mgr.inventory.get_container(self.item_instance.bag).guid
+        return 0
 
     @staticmethod
     def get_inv_slot_by_type(inventory_type):
@@ -315,7 +327,7 @@ class ItemManager(ObjectManager):
             # Item fields
             self.set_uint64(ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner)
             self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)
-            self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.is_contained)
+            self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
             self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self.item_instance.item_flags)
 
@@ -356,3 +368,7 @@ class ItemManager(ObjectManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_ITEM
+
+    # override
+    def generate_object_guid(self, low_guid):
+        return low_guid | HighGuid.HIGHGUID_ITEM

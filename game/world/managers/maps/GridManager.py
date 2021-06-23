@@ -18,9 +18,9 @@ class GridManager(object):
     def add_or_get(self, world_object, store=False):
         min_x, min_y, max_x, max_y = GridManager.generate_coord_data(world_object.location.x, world_object.location.y)
         cell_coords = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
-        if cell_coords in self.cells:
-            cell = self.cells[cell_coords]
-        else:
+        
+        cell = self.cells.get(cell_coords)
+        if not cell:
             cell = Cell(self.active_cell_callback, min_x, min_y, max_x, max_y, world_object.map_)
             self.cells[cell.key] = cell
 
@@ -30,25 +30,28 @@ class GridManager(object):
         return cell
 
     def update_object(self, world_object):
-        cell_coords = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
+        cell_coords = GridManager.get_cell_key(
+            world_object.location.x, world_object.location.y, world_object.map_)
 
         if cell_coords != world_object.current_cell:
-            if world_object.current_cell in self.cells:
-                cell = self.cells[world_object.current_cell]
+            cell = self.cells.get(world_object.current_cell)
+            if cell:
                 cell.remove(world_object)
 
-            if cell_coords in self.cells:
-                self.cells[cell_coords].add(self, world_object)
+            cell = self.cells.get(cell_coords)
+            if cell:
+                cell.add(self, world_object)
             else:
                 self.add_or_get(world_object, store=True)
 
             world_object.on_cell_change()
 
     def remove_object(self, world_object):
-        if world_object.current_cell in self.cells:
-            cell = self.cells[world_object.current_cell]
+        cell = self.cells.get(world_object.current_cell)
+        if cell:
             cell.remove(world_object)
-            cell.send_all_in_range(world_object.get_destroy_packet(), source=world_object, range_=CELL_SIZE)
+            cell.send_all_in_range(
+                world_object.get_destroy_packet(), source=world_object, range_=CELL_SIZE)
 
     # TODO: Should cleanup loaded tiles for deactivated cells.
     def deactivate_cells(self):
@@ -103,13 +106,14 @@ class GridManager(object):
 
     def send_surrounding_in_range(self, packet, world_object, range_, include_self=True, exclude=None, use_ignore=False):
         for cell in self.get_surrounding_cells_by_object(world_object):
-            cell.send_all_in_range(packet, range_, world_object, include_self, exclude, use_ignore)
+            cell.send_all_in_range(
+                packet, range_, world_object, include_self, exclude, use_ignore)
 
     def get_surrounding_objects(self, world_object, object_types):
         surrounding_objects = [{}, {}, {}]
         for cell in self.get_surrounding_cells_by_object(world_object):
             if ObjectTypes.TYPE_PLAYER in object_types:
-                surrounding_objects[0] = {**surrounding_objects[0], **cell.players}
+                surrounding_objects[0] = { **surrounding_objects[0], **cell.players}
             if ObjectTypes.TYPE_UNIT in object_types:
                 surrounding_objects[1] = {**surrounding_objects[1], **cell.creatures}
             if ObjectTypes.TYPE_GAMEOBJECT in object_types:
@@ -239,7 +243,7 @@ class Cell(object):
 
         if vector and map_:
             return self.min_x <= round(vector.x, 5) <= self.max_x and self.min_y <= round(vector.y, 5) <= self.max_y \
-                   and map_ == self.map_
+                and map_ == self.map_
         return False
 
     def add(self, grid_manager, world_object):

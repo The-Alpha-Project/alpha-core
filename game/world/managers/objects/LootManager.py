@@ -53,7 +53,7 @@ class LootManager(object):
     def has_loot(self):
         return self.has_money() or self.has_items()
 
-    def get_loot_type(self, player, victim):
+    def get_loot_type(self, player, world_object):
         return LootTypes.LOOT_TYPE_NOTALLOWED
 
     def add_active_looter(self, player_mgr):
