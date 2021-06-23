@@ -249,7 +249,7 @@ class SpellManager(object):
                     return
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
-                    cast_finished:  # Spell was cast already and impact delay is done
+                    casting_spell.spell_delay_end_timestamp <= timestamp:  # Spell was cast already and impact delay is done
                 self.apply_spell_effects(casting_spell, remove=True)
 
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
