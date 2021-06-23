@@ -269,6 +269,12 @@ class SpellManager(object):
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
 
+    def remove_cast_by_id(self, spell_id):
+        for casting_spell in list(self.casting_spells):
+            if spell_id != casting_spell.spell_entry.ID:
+                continue
+            self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED)
+
     def remove_all_casts(self, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
         for casting_spell in list(self.casting_spells):
             self.remove_cast(casting_spell)

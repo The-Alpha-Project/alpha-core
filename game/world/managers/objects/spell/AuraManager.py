@@ -157,7 +157,6 @@ class AuraManager:
                 self.remove_aura(aura)
 
     def remove_aura(self, aura):
-        # TODO check if aura can be removed (by player)
         AuraEffectHandler.handle_aura_effect_change(aura, True)
         if not self.active_auras.pop(aura.index, None):
             return
@@ -184,6 +183,23 @@ class AuraManager:
 
         for aura in auras:
             self.remove_aura(aura)
+
+    def handle_player_cancel_aura_request(self, spell_id):
+        auras = self.get_auras_by_spell_id(spell_id)
+        can_remove = True
+        is_passive = True  # Player shouldn't be able to remove auras with only a passive part
+        for aura in auras:
+            if not aura.passive:
+                is_passive = False
+                continue
+            if aura.harmful or aura.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CANT_CANCEL:
+                can_remove = False  # Can't remove harmful auras
+                break
+
+        if is_passive or not can_remove:
+            return
+
+        self.cancel_auras_by_spell_id(spell_id)
 
     def send_aura_duration(self, aura):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
