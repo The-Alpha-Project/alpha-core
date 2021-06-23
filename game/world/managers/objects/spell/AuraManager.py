@@ -110,11 +110,11 @@ class AuraManager:
 
         for applied_aura in list(self.active_auras.values()):
             is_similar = applied_aura.source_spell.spell_entry == aura_spell_template and \
-                         applied_aura.spell_effect.effect_index != aura_effect_index  # Spell and effect are the same
+                         applied_aura.spell_effect.effect_index == aura_effect_index  # Spell and effect are the same
             # Source doesn't matter for unique auras
             is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE
 
-            if is_similar and (is_unique or applied_aura.caster.guid != caster_guid):
+            if is_similar and (is_unique or applied_aura.caster.guid == caster_guid):
                 self.remove_aura(applied_aura)
 
             if applied_aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
