@@ -18,7 +18,7 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
         damage = effect.get_effect_points(casting_spell.caster_effective_level)
-        caster.apply_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
+        caster.deal_spell_damage(target, damage, casting_spell)
 
     @staticmethod
     def handle_heal(casting_spell, effect, caster, target):
@@ -31,7 +31,7 @@ class SpellEffectHandler(object):
         if not damage_info:
             return
         damage = damage_info.total_damage + effect.get_effect_points(casting_spell.caster_effective_level)
-        caster.apply_spell_damage(target, damage, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
+        caster.deal_spell_damage(target, damage, casting_spell)
 
     @staticmethod
     def handle_weapon_damage_plus(casting_spell, effect, caster, target):
@@ -45,7 +45,7 @@ class SpellEffectHandler(object):
                 casting_spell.requires_combo_points():
             damage_bonus *= caster.combo_points
 
-        caster.apply_spell_damage(target, damage + damage_bonus, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
+        caster.deal_spell_damage(target, damage + damage_bonus, casting_spell)
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):

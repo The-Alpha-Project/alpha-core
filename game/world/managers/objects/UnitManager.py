@@ -16,7 +16,7 @@ from utils.Formulas import UnitFormulas
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
-from utils.constants.SpellCodes import SpellAttributes, SpellHitFlags
+from utils.constants.SpellCodes import SpellAttributes, SpellMissReason, SpellHitFlags
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -488,6 +488,62 @@ class UnitManager(ObjectManager):
 
         update_packet = self.generate_proper_update_packet(is_self=is_player)
         MapManager.send_surrounding(update_packet, self, include_self=is_player)
+
+    def receive_healing(self, amount, source=None):
+        is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
+
+        new_health = self.health + amount
+        if new_health > self.max_health:
+            self.set_health(self.max_health)
+        else:
+            self.set_health(new_health)
+
+        update_packet = self.generate_proper_update_packet(is_self=is_player)
+        MapManager.send_surrounding(update_packet, self, include_self=is_player)
+
+    def get_spell_cast_damage_info(self, victim, casting_spell, damage, absorb):
+        damage_info = DamageInfoHolder()
+
+        if not victim:
+            return None
+
+        damage_info.attacker = self
+        damage_info.target = victim
+        damage_info.damage += damage
+        damage_info.damage_school_mask = casting_spell.spell_entry.School
+        # Not taking "subdamages" into account
+        damage_info.total_damage = max(0, damage - absorb)
+        damage_info.absorb = absorb
+        damage_info.hit_info = HitInfo.DAMAGE
+
+        return damage_info
+
+    def send_spell_damage_done(self, damage_info, miss_reason, spell_id):
+        if miss_reason != SpellMissReason.MISS_REASON_NONE:
+            combat_log_data = pack('<i2Qi', HitInfo.MISS, damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
+            combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
+        else:
+            combat_log_data = pack('<I2Q2If3I', damage_info.hit_info, damage_info.attacker.guid, damage_info.target.guid, spell_id,
+                                   damage_info.total_damage, damage_info.damage, damage_info.damage_school_mask,
+                                   damage_info.damage, damage_info.absorb)
+            combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL
+
+        damage_data = pack('<Q2i2IQ', damage_info.target.guid, damage_info.total_damage, damage_info.damage,
+                           miss_reason, spell_id, damage_info.attacker.guid)
+
+        MapManager.send_surrounding(PacketWriter.get_packet(combat_log_opcode, combat_log_data), self,
+                                    include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
+
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
+                                    include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
+
+
+
+    def deal_spell_damage(self, target, damage, casting_spell):
+        miss_info = casting_spell.unit_target_results[target.guid].result
+        damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)
+        # TODO Roll crit, handle absorb
+        self.send_spell_damage_done(damage_info, miss_info, casting_spell.spell_entry.ID)
 
     def receive_healing(self, amount, source=None):
         is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
