@@ -534,7 +534,7 @@ class SpellManager(object):
                     return False
 
             # Spells cast with consumables
-            if casting_spell.source_item:
+            if casting_spell.source_item and casting_spell.source_item.has_charges():
                 spell_stats = casting_spell.get_item_spell_stats()
                 charges = spell_stats.charges
                 if charges == 0:  # no charges left
@@ -594,7 +594,7 @@ class SpellManager(object):
             self.unit_mgr.inventory.remove_items(reagent_info[0], reagent_info[1])
 
         # Spells cast with consumables
-        if casting_spell.source_item:
+        if casting_spell.source_item and casting_spell.source_item.has_charges():
             spell_stats = casting_spell.get_item_spell_stats()
             charges = spell_stats.charges
             if charges < 0:  # Negative charges remove items
