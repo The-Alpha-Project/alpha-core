@@ -4,8 +4,6 @@ from difflib import SequenceMatcher
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.orm import query
-from sqlalchemy.orm.query import Query
 
 from database.world.WorldModels import *
 from utils.ConfigManager import *
