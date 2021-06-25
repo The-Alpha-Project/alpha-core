@@ -1,6 +1,6 @@
+from struct import pack
 from typing import Optional
 from database.dbc.DbcModels import SkillLineAbility
-from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode

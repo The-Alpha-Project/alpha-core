@@ -1,10 +1,8 @@
 import time
 from random import randint, choice
 from struct import unpack, pack
-from typing import Optional
 
 from database.world.WorldModels import NpcTrainer, SpellChain
-from database.dbc.DbcModels import SkillLineAbility, Spell
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
@@ -17,7 +15,7 @@ from utils import Formulas
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, HighGuid, UnitDynamicTypes, TrainerServices, TrainerTypes
+from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
 from utils.constants.UpdateFields import ObjectFields, UnitFields
