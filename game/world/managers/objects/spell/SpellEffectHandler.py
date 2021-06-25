@@ -23,6 +23,7 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_heal(casting_spell, effect, caster, target):
         healing = effect.get_effect_points(casting_spell.caster_effective_level)
+        caster.deal_spell_healing(target, healing, casting_spell.spell_entry.School, casting_spell.spell_entry.ID)
 
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):

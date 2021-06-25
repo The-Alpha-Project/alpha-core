@@ -1127,6 +1127,13 @@ class PlayerManager(UnitManager):
 
         super().receive_damage(amount, source)
 
+    # override
+    def receive_healing(self, amount, source=None):
+        super().receive_healing(amount, source)
+
+        data = pack('<IQ', amount, source.guid)
+        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
+
     def set_dirty(self, is_dirty=True, dirty_inventory=False):
         self.dirty = is_dirty
         self.dirty_inventory = dirty_inventory

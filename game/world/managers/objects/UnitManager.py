@@ -487,12 +487,32 @@ class UnitManager(ObjectManager):
         update_packet = self.generate_proper_update_packet(is_self=is_player)
         MapManager.send_surrounding(update_packet, self, include_self=is_player)
 
+    def receive_healing(self, amount, source=None):
+        is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
+
+        new_health = self.health + amount
+        if new_health > self.max_health:
+            self.set_health(self.max_health)
+        else:
+            self.set_health(new_health)
+
+        update_packet = self.generate_proper_update_packet(is_self=is_player)
+        MapManager.send_surrounding(update_packet, self, include_self=is_player)
+
     def deal_spell_damage(self, target, damage, school, spell_id):  # TODO Spell hit damage visual?
         data = pack('<IQQIIfiii', 1, self.guid, target.guid, spell_id,
                     damage, damage, school, damage, 0)
         packet = PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL, data)
         MapManager.send_surrounding(packet, target, include_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
         self.deal_damage(target, damage)
+
+    # TODO This makes healing appear as if it is damage in the combat log, ex. "Your Heal hit wolf for 30"
+    def deal_spell_healing(self, target, healing, school, spell_id):
+        data = pack('<IQQIIfiii', 0, self.guid, target.guid, spell_id,
+                    healing, healing, school, healing, 0)
+        packet = PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL, data)
+        MapManager.send_surrounding(packet, target, include_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
+        target.receive_healing(healing, self)
 
     def set_current_target(self, guid):
         self.current_target = guid
