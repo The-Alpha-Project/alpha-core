@@ -4,7 +4,7 @@ from struct import unpack, pack
 from typing import Optional
 
 from database.world.WorldModels import NpcTrainer, SpellChain
-from database.dbc.DbcModels import Spell
+from database.dbc.DbcModels import SkillLineAbility, Spell
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
