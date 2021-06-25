@@ -1,5 +1,6 @@
-from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketReader import PacketReader
+from database.world.WorldModels import CreatureTemplate
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.player.ChatManager import ChatManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
 from game.world.managers.objects.player.TalentManager import TalentManager
@@ -36,10 +37,11 @@ class TrainerBuySpellHandler(object):
                     TrainerBuySpellHandler.send_buy_succeeded(world_session, trainer_guid, spell_id)
                     
             else: # Trainer
-                trainer_spell = WorldDatabaseManager.get_trainer_spell_by_id(spell_id)
+                npc: CreatureManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, trainer_guid)
+                trainer_creature_template: CreatureTemplate = WorldDatabaseManager.creature_get_by_entry(npc.entry);
+                trainer_spell = WorldDatabaseManager.get_trainer_spell_by_trainer_id_and_spell(trainer_creature_template.trainer_id, spell_id)
                 spell_money_cost = trainer_spell.spellcost
                 spell_skill_cost = trainer_spell.skillpointcost
-                npc: CreatureManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, trainer_guid)
                 
                 if not npc.is_trainer(): # Not a trainer
                     Logger.anticheat(f'Player with GUID {world_session.player_mgr.guid} tried to train spell {spell_id} from NPC {npc.entry} but that NPC is not a trainer. Possible cheating.')
