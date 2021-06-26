@@ -156,7 +156,7 @@ class QuestManager(object):
 
         self.update_surrounding_quest_status()
 
-    def get_active_quest_num_from_questgiver(self, quest_giver): #sloppy, 
+    def get_active_quest_num_from_questgiver(self, quest_giver): # TODO sloppy and probably slow, just copied from handle_quest_giver_hello. Can't think of a quicker way to check atm, all that is needed is the number of active quests so this seems overkill.
         questNum: int = 0
 
         # Type is unit, but not player.

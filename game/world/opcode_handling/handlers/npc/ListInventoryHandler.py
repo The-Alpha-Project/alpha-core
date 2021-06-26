@@ -1,7 +1,9 @@
+from game.world.managers.objects.creature.CreatureManager import CreatureManager
 from struct import unpack
 
 from game.world.managers.maps.MapManager import MapManager
-
+from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import CreatureTemplate
 
 class ListInventoryHandler(object):
 
@@ -11,8 +13,15 @@ class ListInventoryHandler(object):
             npc_guid = unpack('<Q', reader.data[:8])[0]
 
             if npc_guid > 0:
-                vendor = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, npc_guid)
-                if vendor and vendor.is_within_interactable_distance(world_session.player_mgr):
-                    vendor.send_inventory_list(world_session)
+                vendor: CreatureManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, npc_guid)
+                vendor_template: CreatureTemplate = WorldDatabaseManager.creature_get_by_entry(vendor.entry)
 
+                if vendor and vendor.is_within_interactable_distance(world_session.player_mgr):
+                    if vendor_template:
+                        quests: int = world_session.player_mgr.quest_manager.get_active_quest_num_from_questgiver(vendor)
+                        if quests > 0:
+                            from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import QuestGiverHelloHandler
+                            QuestGiverHelloHandler.handle(world_session, socket, reader)
+                            return 0
+                    vendor.send_inventory_list(world_session)
         return 0
