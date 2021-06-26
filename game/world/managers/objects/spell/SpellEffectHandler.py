@@ -148,12 +148,7 @@ class SpellEffectHandler(object):
 
         for target in new_targets:
             new_aura = AppliedAura(caster, casting_spell, effect, target)
-            new_aura.aura_period_timestamps = effect.effect_aura.aura_period_timestamps.copy()  # Don't pass reference, AuraManager will manage timestamps
-            new_aura.duration = effect.effect_aura.duration
             target.aura_manager.add_aura(new_aura)
-
-        if effect.effect_aura.is_past_next_period_timestamp():
-            effect.effect_aura.pop_period_timestamp()  # Update effect aura timestamps
 
         for target in missing_targets:
             target.aura_manager.cancel_auras_by_spell_id(casting_spell.spell_entry.ID)

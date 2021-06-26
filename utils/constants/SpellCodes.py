@@ -261,7 +261,7 @@ class SpellState(IntEnum):
     SPELL_STATE_CASTING = 1  # channeled time period spell casting state
     SPELL_STATE_FINISHED = 2  # cast finished to success or fail
     SPELL_STATE_DELAYED = 3  # spell casted but need time to hit target(s)
-    SPELL_STATE_ACTIVE = 4  # Spell has been cast successfully and effects should be applied on update (channels, range-limited auras)
+    SPELL_STATE_ACTIVE = 4  # Spell has been cast successfully. Effects should be applied on update (channels, range-limited auras) and InterruptFlags should be checked.
 
 
 class CurrentSpellType(IntEnum):
@@ -364,16 +364,14 @@ class SpellInterruptFlags(IntEnum):
     SPELL_INTERRUPT_FLAG_DAMAGE = 0x02
     SPELL_INTERRUPT_FLAG_INTERRUPT = 0x04
     SPELL_INTERRUPT_FLAG_AUTOATTACK = 0x08
-    SPELL_INTERRUPT_FLAG_ABORT_ON_DMG = 0x10  # _complete_ interrupt on direct damage
-    # SPELL_INTERRUPT_UNK             = 0x20               # unk 564 of 727 spells having this spell start with "Glyph"
+    SPELL_INTERRUPT_FLAG_PARTIAL = 0x10  # Casting is pushed back instead of fully interrupting
 
 
 class SpellChannelInterruptFlags(IntEnum):
-    CHANNEL_FLAG_DAMAGE = 0x0002
-    CHANNEL_FLAG_MOVEMENT = 0x0008
-    CHANNEL_FLAG_TURNING = 0x0010
-    CHANNEL_FLAG_DAMAGE2 = 0x0080
-    CHANNEL_FLAG_DELAY = 0x4000
+    CHANNEL_INTERRUPT_FLAG_DAMAGE = 0x04  # Set for all non-zero values
+    CHANNEL_INTERRUPT_FLAG_MOVEMENT = 0x08  # Set for all non-zero values
+    CHANNEL_INTERRUPT_FLAG_TURNING = 0x10
+    CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT = 0x20  # Set for some - aoe abilites, seduction, fishing etc. Vmangos defines partial interrupt with 0x4000 (CHANNEL_FLAG_DELAY) which doesn't exist in 0.5.3.
 
 
 class SpellAuraInterruptFlags(IntEnum):

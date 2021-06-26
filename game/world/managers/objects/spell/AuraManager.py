@@ -29,8 +29,6 @@ class AuraManager:
         if not can_apply:
             return
 
-        aura.initialize_period_timestamps()  # Initialize periodic spell timestamps on application
-
         AuraEffectHandler.handle_aura_effect_change(aura)
         aura.index = self.get_next_aura_index(aura)
         self.active_auras[aura.index] = aura
@@ -53,7 +51,7 @@ class AuraManager:
     def update(self, elapsed):
         for aura in list(self.active_auras.values()):
             aura.update(elapsed)  # Update duration and handle periodic effects
-            if aura.has_duration() and aura.duration <= 0:
+            if aura.has_duration() and aura.get_duration() <= 0:
                 self.remove_aura(aura)
 
         if len(self.active_auras) > 0:
@@ -205,7 +203,7 @@ class AuraManager:
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        data = pack('<Bi', aura.index, aura.duration)
+        data = pack('<Bi', aura.index, aura.get_duration())
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))
 
     def write_aura_to_unit(self, aura, clear=False):

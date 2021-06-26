@@ -1,15 +1,19 @@
 import time
+from struct import pack
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell, SpellRange, SpellDuration, SpellCastTimes
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
+from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import AttackTypes, ObjectTypes
+from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
-    AuraTypes, SpellSchools, SpellEffects
+    AuraTypes, SpellSchools, SpellEffects, SpellInterruptFlags
 
 
 class CastingSpell(object):
@@ -19,13 +23,14 @@ class CastingSpell(object):
     spell_caster = None
     source_item = None
     initial_target = None
-    unit_target_results = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
+    object_target_results = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
     duration_entry: SpellDuration
     cast_time_entry: SpellCastTimes
     effects: list
 
+    cast_start_timestamp: float
     cast_end_timestamp: float
     spell_delay_end_timestamp: float
     caster_effective_level: int
@@ -101,7 +106,7 @@ class CastingSpell(object):
 
         effect.targets.resolve_targets()
         effect_info = effect.targets.get_effect_target_miss_results()
-        self.unit_target_results = {**self.unit_target_results, **effect_info}
+        self.object_target_results = {**self.object_target_results, **effect_info}
 
     def is_instant_cast(self):
         return self.cast_time_entry.Base == 0
@@ -199,3 +204,40 @@ class CastingSpell(object):
             item_count = abs(effect.get_effect_points(self.caster_effective_level))
             conjured_items.append([effect.item_type, item_count])
         return tuple(conjured_items)
+
+    def handle_partial_interrupt(self):
+        if not self.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL:
+            return
+
+        # Did pushback resistance exist? TODO
+        curr_time = time.time()
+        remaining_cast_before_pushback = self.cast_end_timestamp - curr_time
+
+        if self.is_channeled() and self.cast_state == SpellState.SPELL_STATE_ACTIVE:
+            channel_length = self.duration_entry.Duration/1000  # /1000 for seconds
+            final_opcode = OpCode.MSG_CHANNEL_UPDATE
+            pushback_length_sec = min(remaining_cast_before_pushback, channel_length * 0.25)
+            for effect in self.effects:
+                if remaining_cast_before_pushback <= pushback_length_sec:
+                    # Applied aura duration is not timestamp based so it's stored in milliseconds
+                    # To avoid rounding issues, set to zero instead of subtracting if pushback leads to channel stop
+                    effect.applied_aura_duration = 0
+                else:
+                    effect.applied_aura_duration -= pushback_length_sec * 1000  # aura duration is stored as millis
+                effect.remove_old_periodic_effect_ticks()
+
+            self.cast_end_timestamp -= pushback_length_sec
+            data = pack('<I', int((remaining_cast_before_pushback - pushback_length_sec)*1000))  # *1000 for millis
+
+        elif self.cast_state == SpellState.SPELL_STATE_CASTING:
+            final_opcode = OpCode.SMSG_SPELL_DELAYED
+            cast_progress_seconds = self.get_base_cast_time()/1000 - remaining_cast_before_pushback  # base cast time in seconds
+            pushback_length_sec = min(cast_progress_seconds, 0.5)  # Push back 0.5s or to beginning of cast
+
+            self.cast_end_timestamp += pushback_length_sec
+            data = pack('<QI', self.spell_caster.guid, int(pushback_length_sec * 1000))  # *1000 for millis
+        else:
+            return
+
+        MapManager.send_surrounding(PacketWriter.get_packet(final_opcode, data), self.spell_caster,
+                                    include_self=self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER)

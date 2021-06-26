@@ -58,9 +58,8 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_trigger_spell(aura, remove):
-        if not aura.is_past_next_period_timestamp():  # Note: period timestamp is checked on remove as well
+        if not aura.is_past_next_period() or remove:
             return
-        aura.pop_period_timestamp()
         new_spell_entry = aura.spell_effect.trigger_spell_entry
         spell = aura.caster.spell_manager.try_initialize_spell(new_spell_entry, aura.caster, aura.source_spell.initial_target,
                                                                aura.source_spell.spell_target_mask, validate=False)
@@ -78,23 +77,19 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_damage(aura, remove):
-        if not aura.is_past_next_period_timestamp():
+        if not aura.is_past_next_period() or remove:
             return
-        aura.pop_period_timestamp()
-
         spell = aura.source_spell
         damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.caster.deal_spell_damage(aura.target, damage, spell)
+        aura.caster.deal_spell_damage(aura.target, damage, spell, is_periodic=True)
 
     @staticmethod
     def handle_periodic_leech(aura, remove):
-        if not aura.is_past_next_period_timestamp():
+        if not aura.is_past_next_period() or remove:
             return
-        aura.pop_period_timestamp()
-
         spell = aura.source_spell
         damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.caster.deal_spell_damage(aura.target, damage, spell)
+        aura.caster.deal_spell_damage(aura.target, damage, spell, is_periodic=True)
         # TODO Heal
 
 
