@@ -68,8 +68,10 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_open_lock(casting_spell, effect, caster, target):
-        if caster and target:
+        # TODO Skill checks etc.
+        if caster and target and target.get_type() == ObjectTypes.TYPE_GAMEOBJECT:  # TODO other object types, ie. lockboxes
             target.use(caster)
+            casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE  # keep checking movement interrupt
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
