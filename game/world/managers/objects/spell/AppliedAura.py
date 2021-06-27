@@ -20,10 +20,13 @@ class AppliedAura:
         self.duration_entry = casting_spell.duration_entry
         self.duration = self.duration_entry.Duration if self.duration_entry else -1
         self.effective_level = casting_spell.caster_effective_level
+        self.interrupt_flags = casting_spell.spell_entry.AuraInterruptFlags
 
         self.period = spell_effect.aura_period
 
         self.passive = casting_spell.is_passive()
+        self.harmful = self.resolve_harmful() if target else False
+
         for effect in casting_spell.effects:
             if effect.effect_index >= spell_effect.effect_index:
                 break
@@ -47,9 +50,9 @@ class AppliedAura:
     def is_periodic(self) -> bool:
         return self.period != 0
 
-    def is_harmful(self) -> bool:
+    def resolve_harmful(self) -> bool:
         if self.source_spell.initial_target_is_object():
-            return self.caster.is_enemy_to(self.target)  # TODO not always applicable, ie. arcane missiles
+            return self.caster.can_attack_target(self.target)  # TODO not always applicable, ie. arcane missiles
 
         # Terrain-targeted aura
         return not self.spell_effect.targets.can_target_friendly()
@@ -57,7 +60,7 @@ class AppliedAura:
     def is_past_next_period_timestamp(self) -> bool:
         if len(self.aura_period_timestamps) == 0:
             return False
-        return time.time() > self.aura_period_timestamps[-1]
+        return time.time() >= self.aura_period_timestamps[-1]
 
     def pop_period_timestamp(self):
         if len(self.aura_period_timestamps) == 0:

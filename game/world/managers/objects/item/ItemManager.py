@@ -145,6 +145,13 @@ class ItemManager(ObjectManager):
 
         return self.dynamic_flags & ItemDynFlags.ITEM_DYNFLAG_UNK16 == ItemDynFlags.ITEM_DYNFLAG_UNK16
 
+    def has_charges(self):
+        charges = [self.item_template.spellcharges_1, self.item_template.spellcharges_2,
+                   self.item_template.spellcharges_3, self.item_template.spellcharges_4,
+                   self.item_template.spellcharges_5]
+
+        return any(charge != 0 for charge in charges)
+
     def get_contained(self):
         if not self.item_instance:
             return 0

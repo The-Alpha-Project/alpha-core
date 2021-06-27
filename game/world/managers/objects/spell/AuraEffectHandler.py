@@ -58,17 +58,17 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_trigger_spell(aura, remove):
-        if not aura.is_past_next_period_timestamp() or remove:
+        if not aura.is_past_next_period_timestamp():  # Note: period timestamp is checked on remove as well
             return
         aura.pop_period_timestamp()
         new_spell_entry = aura.spell_effect.trigger_spell_entry
         spell = aura.caster.spell_manager.try_initialize_spell(new_spell_entry, aura.caster, aura.source_spell.initial_target,
                                                                aura.source_spell.spell_target_mask, validate=False)
-        aura.caster.spell_manager.perform_spell_cast(spell, validate=False)
+        aura.caster.spell_manager.perform_spell_cast(spell, validate=False, is_trigger=True)
 
     @staticmethod
     def handle_periodic_damage(aura, remove):
-        if not aura.is_past_next_period_timestamp() or remove:
+        if not aura.is_past_next_period_timestamp():
             return
         aura.pop_period_timestamp()
 
@@ -78,7 +78,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_leech(aura, remove):
-        if not aura.is_past_next_period_timestamp() or remove:
+        if not aura.is_past_next_period_timestamp():
             return
         aura.pop_period_timestamp()
 

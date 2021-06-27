@@ -13,8 +13,10 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
+from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
+from utils.constants.SpellCodes import SpellAttributes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -454,21 +456,25 @@ class UnitManager(ObjectManager):
         if not target or not target.is_alive or damage < 1:
             return
 
-        if self.guid not in target.attackers:
-            target.attackers[self.guid] = self
+        if target is not self:
+            if self.guid not in target.attackers:
+                target.attackers[self.guid] = self
 
-        if not self.in_combat:
-            self.enter_combat()
-            self.set_dirty()
+            if not self.in_combat:
+                self.enter_combat()
+                self.set_dirty()
 
-        if not target.in_combat:
-            target.enter_combat()
-            target.set_dirty()
+            if not target.in_combat:
+                target.enter_combat()
+                target.set_dirty()
 
         target.receive_damage(damage, source=self)
 
     def receive_damage(self, amount, source=None):
         is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
+
+        if source is not self:
+            self.aura_manager.check_aura_interrupts(received_damage=True)
 
         new_health = self.health - amount
         if new_health <= 0:
@@ -766,6 +772,11 @@ class UnitManager(ObjectManager):
         # Clear all pending waypoint movement
         self.movement_manager.reset()
 
+        if killer:
+            killer.spell_manager.remove_all_casts_directed_at_unit(self.guid)  # Interrupt casting on target death
+        self.spell_manager.remove_all_casts()
+        self.aura_manager.handle_death()
+
         self.leave_combat()
         return True
 
@@ -821,6 +832,21 @@ class UnitManager(ObjectManager):
             return ((own_faction.FriendGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.FriendGroup)) != 0
         else:
             return ((own_faction.EnemyGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.EnemyGroup)) != 0
+
+    # noinspection PyUnresolvedReferences
+    def can_attack_target(self, target):
+        if target is self:
+            return False
+
+        is_enemy = self.is_enemy_to(target)
+        if is_enemy or self.get_type() != ObjectTypes.TYPE_PLAYER or target.get_type() != ObjectTypes.TYPE_PLAYER:
+            return is_enemy
+
+        if not self.duel_manager:
+            return is_enemy
+
+        # Return true if the players are friendly but dueling
+        return self.duel_manager.player_involved(target) and self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
 
     def is_friendly_to(self, target):
         return self._allegiance_status_checker(target, True)

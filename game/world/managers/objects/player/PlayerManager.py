@@ -246,6 +246,8 @@ class PlayerManager(UnitManager):
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
 
+        self.spell_manager.remove_all_casts()
+        self.aura_manager.remove_all_auras()
         self.leave_combat(force=True)
 
         # Channels weren't saved on logout until Patch 0.5.5
