@@ -1,6 +1,7 @@
 from struct import unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.constants.UnitCodes import SplineFlags
 
 
@@ -17,9 +18,9 @@ class ZoneUpdateHandler(object):
                 # Exploration check.
                 area = DbcDatabaseManager.area_get_by_id_and_map_id(world_session.player_mgr.zone, world_session.player_mgr.map_)
                 if area:
-                    explore_area = DbcDatabaseManager.get_explore_area(area.ID)
-                    if explore_area and not player_mgr.has_area_explored(explore_area):
-                        player_mgr.set_area_explored(explore_area)
+                    area_template = WorldDatabaseManager.get_explore_area(area.AreaName_enUS)
+                    if area_template and not player_mgr.has_area_explored(area_template):
+                        player_mgr.set_area_explored(area_template)
 
             player_mgr.friends_manager.send_update_to_friends()
             if player_mgr.group_manager:

@@ -98,15 +98,6 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return [area_id[0] for area_id in res]
 
-    # Exploration
-
-    @staticmethod
-    def get_explore_area(area_id):
-        dbc_db_session = SessionHolder()
-        entry = dbc_db_session.query(Exploration).filter_by(ID=area_id).first()
-        dbc_db_session.close()
-        return entry
-
     # EmoteText
 
     @staticmethod

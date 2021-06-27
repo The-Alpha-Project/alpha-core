@@ -92,7 +92,7 @@ class PlayerManager(UnitManager):
         self.logout_timer = -1
         self.dirty_inventory = False
         self.pending_taxi_destination = None
-        self.explored_areas = bitarray(488, 'little')
+        self.explored_areas = bitarray(618, 'little')
         self.explored_areas.setall(0)
 
         if self.player:
@@ -733,19 +733,20 @@ class PlayerManager(UnitManager):
 
         self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=reload_items)
 
-    def has_area_explored(self, explore_area):
-        return self.explored_areas[explore_area.Explore_ID]
+    def has_area_explored(self, area_template):
+        return self.explored_areas[area_template.entry]
 
-    # TODO: Research XP for exploration, some xp needs to be in the packet, else client wont announce discovery.
+    # TODO: Research XP for exploration.
     #  Trigger quest explore requeriments checks.
-    def set_area_explored(self, explore_area):
-        xp_gain = explore_area.ExplorationLevel * 10 if explore_area.ExplorationLevel > 0 else self.level * 30
-        self.give_xp([xp_gain])
-        # Notify client new discovered zone + xp gain.
-        data = pack('<2I', explore_area.ID, xp_gain)
-        packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
-        self.session.enqueue_packet(packet)
-        self.explored_areas[explore_area.Explore_ID] = True
+    def set_area_explored(self, area_template):
+        self.explored_areas[area_template.entry] = True
+        if area_template.area_level > 0:
+            xp_gain = area_template.area_level * 10
+            self.give_xp([xp_gain])
+            # Notify client new discovered zone + xp gain.
+            data = pack('<2I', area_template.entry, xp_gain)
+            packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
+            self.session.enqueue_packet(packet)
 
     # override
     def get_full_update_packet(self, is_self=True):
