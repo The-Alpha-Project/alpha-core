@@ -16,7 +16,7 @@ from utils.Formulas import UnitFormulas
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
-from utils.constants.SpellCodes import SpellAttributes
+from utils.constants.SpellCodes import SpellAttributes, SpellHitFlags
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -501,19 +501,19 @@ class UnitManager(ObjectManager):
         update_packet = self.generate_proper_update_packet(is_self=is_player)
         MapManager.send_surrounding(update_packet, self, include_self=is_player)
 
-    def deal_spell_damage(self, target, damage, school, spell_id):  # TODO Spell hit damage visual?
-        data = pack('<IQQIIfiii', 1, self.guid, target.guid, spell_id,
-                    damage, damage, school, damage, 0)
+    def send_debug_info_spell(self, flags, spell_id, victim, damage, school, absorbed):
+        data = pack('<I2Q2If3i', flags, self.guid, victim.guid, spell_id, damage, damage, school, damage, absorbed)
         packet = PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL, data)
-        MapManager.send_surrounding(packet, target, include_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
+        MapManager.send_surrounding(packet, victim, include_self=victim.get_type() == ObjectTypes.TYPE_PLAYER)
+
+    # TODO Spell hit damage visual?
+    def apply_spell_damage(self, target, damage, school, spell_id, flags=SpellHitFlags.HIT_FLAG_DAMAGE):
+        self.send_debug_info_spell(flags, spell_id, target, damage, school, 0)
         self.deal_damage(target, damage)
 
-    # TODO This makes healing appear as if it is damage in the combat log, ex. "Your Heal hit wolf for 30"
-    def deal_spell_healing(self, target, healing, school, spell_id):
-        data = pack('<IQQIIfiii', 0, self.guid, target.guid, spell_id,
-                    healing, healing, school, healing, 0)
-        packet = PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL, data)
-        MapManager.send_surrounding(packet, target, include_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
+    # TODO Spell healing visual?
+    def apply_spell_healing(self, target, healing, school, spell_id, flags=SpellHitFlags.HIT_FLAG_HEALED):
+        self.send_debug_info_spell(flags, spell_id, target, healing, school, 0)
         target.receive_healing(healing, self)
 
     def set_current_target(self, guid):
