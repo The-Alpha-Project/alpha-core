@@ -14,14 +14,15 @@ class ZoneUpdateHandler(object):
             player_mgr = world_session.player_mgr
             player_mgr.zone = zone
 
+            # Exploration handling (only if player is not flying).
             if not player_mgr.movement_spline or player_mgr.movement_spline.flags != SplineFlags.SPLINEFLAG_FLYING:
-                # Exploration check.
                 area = DbcDatabaseManager.area_get_by_id_and_map_id(world_session.player_mgr.zone, world_session.player_mgr.map_)
                 if area:
                     area_template = WorldDatabaseManager.get_explore_area(area.AreaName_enUS)
                     if area_template and not player_mgr.has_area_explored(area_template):
                         player_mgr.set_area_explored(area_template)
 
+            # Update friends and group.
             player_mgr.friends_manager.send_update_to_friends()
             if player_mgr.group_manager:
                 player_mgr.group_manager.send_update()

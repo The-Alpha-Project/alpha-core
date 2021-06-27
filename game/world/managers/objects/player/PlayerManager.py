@@ -32,6 +32,7 @@ from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitF
 from utils.constants.UpdateFields import *
 
 MAX_ACTION_BUTTONS = 120
+MAX_EXPLORED_AREAS = 618
 
 
 class PlayerManager(UnitManager):
@@ -92,7 +93,7 @@ class PlayerManager(UnitManager):
         self.logout_timer = -1
         self.dirty_inventory = False
         self.pending_taxi_destination = None
-        self.explored_areas = bitarray(618, 'little')
+        self.explored_areas = bitarray(MAX_EXPLORED_AREAS, 'little')
         self.explored_areas.setall(0)
 
         if self.player:
@@ -124,17 +125,21 @@ class PlayerManager(UnitManager):
             self.coinage = self.player.money
             self.online = self.player.online
 
+            # GM checks
             self.is_god = False
             self.is_gm = self.session.account_mgr.account.gmlevel > 0
-
             if self.is_gm:
                 self.set_gm()
 
-            self.object_type.append(ObjectTypes.TYPE_PLAYER)
-            self.update_packet_factory.init_values(PlayerFields.PLAYER_END)
+            # Update exploration data.
+            if self.player.explored_areas and len(self.player.explored_areas) > 0:
+                self.explored_areas = bitarray(self.player.explored_areas, 'little')
 
             self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
             self.is_alive = self.health > 0
+
+            self.object_type.append(ObjectTypes.TYPE_PLAYER)
+            self.update_packet_factory.init_values(PlayerFields.PLAYER_END)
 
             self.stat_manager = StatManager(self)
             self.talent_manager = TalentManager(self)
@@ -206,9 +211,6 @@ class PlayerManager(UnitManager):
         self.race_mask = 1 << self.player.race - 1
         self.class_mask = 1 << self.player.class_ - 1
         self.team = PlayerManager.get_team_for_race(self.player.race)
-
-        if self.player.explored_areas and len(self.player.explored_areas) > 0:
-            self.explored_areas = bitarray(self.player.explored_areas, 'little')
 
     def set_gm(self, on=True):
         self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
@@ -739,7 +741,7 @@ class PlayerManager(UnitManager):
         return self.explored_areas[area_template.entry]
 
     # TODO: Research XP for exploration.
-    #  Trigger quest explore requeriments checks.
+    #  Trigger quest explore requirement checks.
     def set_area_explored(self, area_template):
         self.explored_areas[area_template.entry] = True
         if area_template.area_level > 0:
