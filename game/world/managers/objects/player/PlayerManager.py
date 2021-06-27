@@ -1,6 +1,7 @@
 import time
 from struct import unpack
 
+from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
@@ -91,6 +92,8 @@ class PlayerManager(UnitManager):
         self.logout_timer = -1
         self.dirty_inventory = False
         self.pending_taxi_destination = None
+        self.explored_areas = bitarray(618, 'little')
+        self.explored_areas.setall(0)
 
         if self.player:
             self.set_player_variables()
@@ -203,6 +206,9 @@ class PlayerManager(UnitManager):
         self.race_mask = 1 << self.player.race - 1
         self.class_mask = 1 << self.player.class_ - 1
         self.team = PlayerManager.get_team_for_race(self.player.race)
+
+        if self.player.explored_areas and len(self.player.explored_areas) > 0:
+            self.explored_areas = bitarray(self.player.explored_areas, 'little')
 
     def set_gm(self, on=True):
         self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
@@ -342,6 +348,7 @@ class PlayerManager(UnitManager):
             self.player.map = self.map_
             self.player.orientation = self.location.o
             self.player.zone = self.zone
+            self.player.explored_areas = self.explored_areas.to01()
             self.player.health = self.health
             self.player.power1 = self.power_1
             self.player.power2 = self.power_2
@@ -727,6 +734,21 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
 
         self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=reload_items)
+
+    def has_area_explored(self, area_template):
+        return self.explored_areas[area_template.entry]
+
+    # TODO: Research XP for exploration.
+    #  Trigger quest explore requeriments checks.
+    def set_area_explored(self, area_template):
+        self.explored_areas[area_template.entry] = True
+        if area_template.area_level > 0:
+            xp_gain = area_template.area_level * 10
+            self.give_xp([xp_gain])
+            # Notify client new discovered zone + xp gain.
+            data = pack('<2I', area_template.entry, xp_gain)
+            packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
+            self.session.enqueue_packet(packet)
 
     # override
     def get_full_update_packet(self, is_self=True):

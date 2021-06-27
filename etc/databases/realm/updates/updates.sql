@@ -49,6 +49,13 @@ begin not atomic
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 		insert into applied_updates values ('290520211');
     end if;
+	
+	-- 17/06/2021 1
+	if (select count(*) from applied_updates where id='170620211') = 0 then
+		ALTER TABLE `alpha_realm`.`characters` 
+		ADD COLUMN `explored_areas` LONGTEXT NULL DEFAULT NULL AFTER `taximask`;
+		insert into applied_updates values ('170620211');
+	end if;
 
 	-- 20/06/2021 1
 	if (select count(*) from applied_updates where id='200620211') = 0 then
@@ -62,5 +69,6 @@ begin not atomic
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 		insert into applied_updates values ('200620211');
     end if;
+
 end $
 delimiter ;
