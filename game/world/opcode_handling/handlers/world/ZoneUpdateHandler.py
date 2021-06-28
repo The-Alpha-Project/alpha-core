@@ -18,7 +18,7 @@ class ZoneUpdateHandler(object):
             if not player_mgr.movement_spline or player_mgr.movement_spline.flags != SplineFlags.SPLINEFLAG_FLYING:
                 area = DbcDatabaseManager.area_get_by_id_and_map_id(world_session.player_mgr.zone, world_session.player_mgr.map_)
                 if area:
-                    area_template = WorldDatabaseManager.get_explore_area(area.AreaName_enUS)
+                    area_template = WorldDatabaseManager.area_get_by_name(area.AreaName_enUS)
                     if area_template and not player_mgr.has_area_explored(area_template):
                         player_mgr.set_area_explored(area_template)
 
