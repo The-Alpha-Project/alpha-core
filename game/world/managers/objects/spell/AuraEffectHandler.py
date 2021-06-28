@@ -88,7 +88,7 @@ class AuraEffectHandler:
         spell = aura.source_spell
         damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
         aura.caster.apply_spell_damage(aura.target, damage, spell, is_periodic=True)
-        aura.caster.apply_spell_healing(aura.caster, damage, spell, is_periodic=True)
+        aura.caster.receive_healing(damage, aura.caster)
 
 
 AURA_EFFECTS = {
