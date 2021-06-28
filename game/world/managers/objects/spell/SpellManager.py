@@ -237,7 +237,7 @@ class SpellManager(object):
                 continue
             cast_finished = casting_spell.cast_end_timestamp <= timestamp
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:  # Channel tick/spells that need updates
-                self.handle_spell_effect_update(casting_spell, timestamp, elapsed)  # Update effects if the cast wasn't interrupted
+                self.handle_spell_effect_update(casting_spell, timestamp)  # Update effects if the cast wasn't interrupted
 
                 if casting_spell.is_channeled() and cast_finished:
                     self.remove_cast(casting_spell)
@@ -420,22 +420,19 @@ class SpellManager(object):
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))  # SMSG?
         # TODO Channeling animations do not play
 
-    def handle_spell_effect_update(self, casting_spell, timestamp, elapsed):
+    def handle_spell_effect_update(self, casting_spell, timestamp):
         for effect in casting_spell.effects:
             # Refresh targets
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
+            effect.remove_old_periodic_effect_ticks()
+
             # Update periodic effects
-            # Note: arcane missiles is a slight exception to periodic effect handling.
-            # The dummy aura applied by the spell is not a periodic effect, but the duration will need to be managed by SpellManager as the spell is active.
-            effect.update_effect_aura(timestamp, elapsed)
+            effect.update_effect_aura(timestamp)
 
             # Area spell effect update
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 self.apply_spell_effects(casting_spell, update=True)
-                # If the effect interval is due, send another spell_go packet. Not good, but shows ticks TODO hackfix for missing channeling effect
-                #if effect.is_past_next_period():
-                #    self.send_spell_go(casting_spell)
 
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():

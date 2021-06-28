@@ -1,4 +1,5 @@
 import random
+import time
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import SpellRadius, Spell, SpellDuration
@@ -50,11 +51,11 @@ class SpellEffect(object):
         self.trigger_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(self.trigger_spell_id) if self.trigger_spell_id else None
         self.duration_entry = casting_spell.duration_entry
 
-    def update_effect_aura(self, timestamp, elapsed):
-        if self.last_update_timestamp == timestamp or self.applied_aura_duration == -1:
-            return  # Applied auras will call update - only do once per tick
-        self.remove_old_periodic_effect_ticks()
-        self.applied_aura_duration -= elapsed * 1000
+    def update_effect_aura(self, timestamp):
+        if self.applied_aura_duration == -1:
+            return
+
+        self.applied_aura_duration -= (timestamp - self.last_update_timestamp) * 1000
         self.last_update_timestamp = timestamp
 
     def remove_old_periodic_effect_ticks(self):
@@ -81,6 +82,7 @@ class SpellEffect(object):
         if not self.duration_entry or len(self.periodic_effect_ticks) > 0:
             return
         self.applied_aura_duration = self.duration_entry.Duration
+        self.last_update_timestamp = time.time()
         if self.is_periodic():
             self.periodic_effect_ticks = self.generate_periodic_effect_ticks()
 

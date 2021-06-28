@@ -53,9 +53,9 @@ class AppliedAura:
     def is_past_next_period(self) -> bool:
         return self.spell_effect.is_past_next_period()
 
-    def update(self, timestamp, elapsed):
+    def update(self, timestamp):
         if self.has_duration():
-            self.spell_effect.update_effect_aura(timestamp, elapsed)
+            self.spell_effect.update_effect_aura(timestamp)
 
         if self.is_periodic():
             AuraEffectHandler.handle_aura_effect_change(self)

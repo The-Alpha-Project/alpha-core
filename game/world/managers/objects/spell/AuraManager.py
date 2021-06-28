@@ -48,9 +48,9 @@ class AuraManager:
 
     has_moved = False  # Set from SpellManager - TODO pass movement info from unit update instead
 
-    def update(self, timestamp, elapsed):
+    def update(self, timestamp):
         for aura in list(self.active_auras.values()):
-            aura.update(timestamp, elapsed)  # Update duration and handle periodic effects
+            aura.update(timestamp)  # Update duration and handle periodic effects
             if aura.has_duration() and aura.get_duration() <= 0:
                 self.remove_aura(aura)
 
