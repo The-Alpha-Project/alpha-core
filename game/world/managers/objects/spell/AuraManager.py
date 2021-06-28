@@ -154,12 +154,12 @@ class AuraManager:
             if aura.harmful and aura.caster.guid == caster_guid:
                 self.remove_aura(aura)
 
-    def remove_aura(self, aura):
+    def remove_aura(self, aura, canceled=False):
         AuraEffectHandler.handle_aura_effect_change(aura, True)
         if not self.active_auras.pop(aura.index, None):
             return
         # Some area effect auras (paladin auras, tranq etc.) are tied to spell effects. Cancel cast on aura cancel, canceling the auras as well.
-        self.unit_mgr.spell_manager.remove_cast(aura.source_spell, SpellCheckCastResult.SPELL_NO_ERROR)
+        self.unit_mgr.spell_manager.remove_cast(aura.source_spell, interrupted=canceled)
 
         # Some spells start cooldown on aura remove, handle that case here
         if aura.source_spell.trigger_cooldown_on_aura_remove():
@@ -180,7 +180,7 @@ class AuraManager:
         auras = self.get_auras_by_spell_id(spell_id)
 
         for aura in auras:
-            self.remove_aura(aura)
+            self.remove_aura(aura, canceled=True)
 
     def handle_player_cancel_aura_request(self, spell_id):
         auras = self.get_auras_by_spell_id(spell_id)
