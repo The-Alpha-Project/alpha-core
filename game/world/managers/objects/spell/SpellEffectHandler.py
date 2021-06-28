@@ -1,4 +1,5 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from utils.Logger import Logger
@@ -209,7 +210,7 @@ class SpellEffectHandler(object):
             # Arcane missiles initial cast is self-targeted, so we need to switch the mask here
             casting_spell.spell_target_mask = SpellTargetMask.UNIT
         elif casting_spell.spell_entry.ID == group_astral_recall:
-            for target in effect.targets:
+            for target in effect.targets.get_resolved_effect_targets_by_type(ObjectManager):
                 if target.get_type() != ObjectTypes.TYPE_PLAYER:
                     continue
                 recall_coordinates = target.get_deathbind_coordinates()
