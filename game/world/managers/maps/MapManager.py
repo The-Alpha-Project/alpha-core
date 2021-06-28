@@ -2,8 +2,7 @@ import traceback
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_WATER, RESOLUTION_TERRAIN, \
-    RESOLUTION_FLAGS
+from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_WATER, RESOLUTION_16
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config
@@ -94,6 +93,19 @@ class MapManager(object):
         return tile_y
 
     @staticmethod
+    def print_area_information(mapid, x, y):
+        area_num = MapManager.get_area_number(mapid, x, y)
+        Logger.debug(f'AreaNumber {area_num}')
+        area_flags = MapManager.get_area_flags(mapid, x, y)
+        Logger.debug(f'AreaFlags {area_flags}')
+        area_level = MapManager.get_area_level(mapid, x, y)
+        Logger.debug(f'AreaLevel {area_level}')
+        area_explore_bit = MapManager.get_area_explore_flag(mapid, x, y)
+        Logger.debug(f'AreaExploreBit {area_explore_bit}')
+        area_faction_mask = MapManager.get_area_faction_mask(mapid, x, y)
+        Logger.debug(f'AreaFactionMask {area_faction_mask}')
+
+    @staticmethod
     def calculate_z_for_object(world_object):
         return MapManager.calculate_z(world_object.map_, world_object.location.x, world_object.location.y,
                                       world_object.location.z)
@@ -124,25 +136,47 @@ class MapManager(object):
             return current_z if current_z else 0.0
 
     @staticmethod
+    def get_area_number(map_id, x, y):
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_16)
+        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
+            return 0x00
+        return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_number[tile_local_x][tile_local_y]
+
+    @staticmethod
+    def get_area_flags(map_id, x, y):
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_16)
+        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
+            return 0xFF
+        return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_flags[tile_local_x][tile_local_y]
+
+    @staticmethod
+    def get_area_level(map_id, x, y):
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_16)
+        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
+            return 0x00
+        return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_level[tile_local_x][tile_local_y]
+
+    @staticmethod
+    def get_area_explore_flag(map_id, x, y):
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_16)
+        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
+            return 0x00
+        return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_explore_flag[tile_local_x][tile_local_y]
+
+    @staticmethod
+    def get_area_faction_mask(map_id, x, y):
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_16)
+        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
+            return 0x00
+        return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_faction_mask[tile_local_x][tile_local_y]
+
+    @staticmethod
     def get_water_level(map_id, x, y):
-        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_WATER)
-        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
-            return 0.0
-        return MAPS[map_id].tiles[map_tile_x][map_tile_y].water_level[tile_local_x][tile_local_y]
-
-    @staticmethod
-    def get_terrain_type(map_id, x, y):
-        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_TERRAIN)
-        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
-            return 0.0
-        return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_terrain[tile_local_x][tile_local_y]
-
-    @staticmethod
-    def get_explore_flag(map_id, x, y):
-        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_FLAGS)
-        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
-            return 0.0
-        return MAPS[map_id].tiles[map_tile_x][map_tile_y].explore_flag[tile_local_x][tile_local_y]
+        return 0.0  # TODO
+        # map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_WATER)
+        # if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
+        #     return 0.0
+        # return MAPS[map_id].tiles[map_tile_x][map_tile_y].water_level[tile_local_x][tile_local_y]
 
     @staticmethod
     def calculate_tile(x, y, resolution):

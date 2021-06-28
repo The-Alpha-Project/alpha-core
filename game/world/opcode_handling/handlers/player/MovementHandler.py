@@ -57,6 +57,9 @@ class MovementHandler(object):
                                      world_session.player_mgr.guid,
                                      reader.data)
 
+                # Debug map files area information for current player position.
+                # MapManager.print_area_information(world_session.player_mgr.map_, x, y)
+
                 MapManager.send_surrounding(PacketWriter.get_packet(OpCode(reader.opcode), movement_data),
                                             world_session.player_mgr, include_self=False)
                 MapManager.update_object(world_session.player_mgr)
