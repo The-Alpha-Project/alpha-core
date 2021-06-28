@@ -134,6 +134,8 @@ from game.world.opcode_handling.handlers.world.AreaTriggerHandler import AreaTri
 from game.world.opcode_handling.handlers.world.TimeQueryHandler import TimeQueryHandler
 from game.world.opcode_handling.handlers.world.WorldTeleportHandler import WorldTeleportHandler
 from game.world.opcode_handling.handlers.world.ZoneUpdateHandler import ZoneUpdateHandler
+from game.world.opcode_handling.handlers.NullHandler import NullHandler
+
 from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
 
@@ -315,9 +317,10 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_COLLIDE_STUCK: MovementHandler.handle_movement_status,
     OpCode.CMSG_FORCE_MOVE_ROOT_ACK: MovementHandler.handle_movement_status,
     OpCode.CMSG_FORCE_MOVE_UNROOT_ACK: MovementHandler.handle_movement_status,
-    OpCode.CMSG_FORCE_SPEED_CHANGE_ACK: MovementHandler.handle_movement_status
+    OpCode.CMSG_FORCE_SPEED_CHANGE_ACK: MovementHandler.handle_movement_status,
 
     # Ignored packets (Use NullHandler)
+    OpCode.CMSG_TUTORIAL_CLEAR: NullHandler.handle
 }
 
 
