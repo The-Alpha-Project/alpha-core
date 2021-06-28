@@ -34,6 +34,7 @@ class SpellEffect(object):
     # Duration and periodic timing info for auras applied by this effect
     applied_aura_duration = -1
     periodic_effect_ticks = []
+    last_update_timestamp = -1
 
     def __init__(self, casting_spell, index):
         if index == 0:
@@ -49,9 +50,12 @@ class SpellEffect(object):
         self.trigger_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(self.trigger_spell_id) if self.trigger_spell_id else None
         self.duration_entry = casting_spell.duration_entry
 
-    def update_periodic_effect(self, elapsed):
+    def update_effect_aura(self, timestamp, elapsed):
+        if self.last_update_timestamp == timestamp or self.applied_aura_duration == -1:
+            return  # Applied auras will call update - only do once per tick
         self.remove_old_periodic_effect_ticks()
         self.applied_aura_duration -= elapsed * 1000
+        self.last_update_timestamp = timestamp
 
     def remove_old_periodic_effect_ticks(self):
         while self.is_past_next_period():
@@ -74,7 +78,7 @@ class SpellEffect(object):
         return ticks
 
     def handle_application(self):
-        if not self.duration_entry:
+        if not self.duration_entry or len(self.periodic_effect_ticks) > 0:
             return
         self.applied_aura_duration = self.duration_entry.Duration
         if self.is_periodic():

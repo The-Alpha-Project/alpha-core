@@ -53,10 +53,9 @@ class AppliedAura:
     def is_past_next_period(self) -> bool:
         return self.spell_effect.is_past_next_period()
 
-    def update(self, elapsed):
+    def update(self, timestamp, elapsed):
         if self.has_duration():
-            if self.source_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:  # Active spells manage duration and ticks through SpellManager updates
-                self.spell_effect.applied_aura_duration -= elapsed * 1000
+            self.spell_effect.update_effect_aura(timestamp, elapsed)
 
         if self.is_periodic():
             AuraEffectHandler.handle_aura_effect_change(self)

@@ -23,6 +23,8 @@ class CastingSpell(object):
     spell_caster = None
     source_item = None
     initial_target = None
+    targeted_unit_on_cast_start = None
+
     object_target_results = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
@@ -32,7 +34,7 @@ class CastingSpell(object):
 
     cast_start_timestamp: float
     cast_end_timestamp: float
-    spell_delay_end_timestamp: float
+    spell_impact_timestamps: dict[int, float]
     caster_effective_level: int
 
     spell_attack_type: int
@@ -51,6 +53,9 @@ class CastingSpell(object):
 
         self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged() else AttackTypes.BASE_ATTACK
         self.cast_state = SpellState.SPELL_STATE_PREPARING
+
+        if ObjectTypes.TYPE_PLAYER in caster_obj.object_type:
+            self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(self.spell_caster, self.spell_caster.current_selection, include_players=True)
 
         self.load_effects()
 
@@ -148,6 +153,12 @@ class CastingSpell(object):
         cp_att = SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS
         return self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and \
             self.spell_entry.AttributesEx & cp_att != 0
+
+    def requires_hostile_target(self):
+        for effect in self.effects:
+            if not effect.targets.can_target_friendly():
+                return True
+        return False
 
     def calculate_effective_level(self, level):
         if level > self.spell_entry.MaxLevel > 0:

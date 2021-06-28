@@ -3,7 +3,7 @@ from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypes, HighGuid
-from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState
+from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
 from utils.constants.UnitCodes import PowerTypes, UnitFlags, MovementTypes
 
 
@@ -200,6 +200,20 @@ class SpellEffectHandler(object):
                 break
             creature_manager.spell_manager.handle_cast_attempt(spell_id, creature_manager, creature_manager, 0)
 
+    @staticmethod
+    def handle_script_effect(casting_spell, effect, caster, target):
+        arcane_missiles = [5143, 5144, 5145, 6125]  # Only arcane missiles and group astral recall
+        group_astral_recall = 966
+        if casting_spell.spell_entry.ID in arcane_missiles:
+            # Periodic trigger spell aura uses the original target mask.
+            # Arcane missiles initial cast is self-targeted, so we need to switch the mask here
+            casting_spell.spell_target_mask = SpellTargetMask.UNIT
+        elif casting_spell.spell_entry.ID == group_astral_recall:
+            for target in effect.targets:
+                if target.get_type() != ObjectTypes.TYPE_PLAYER:
+                    continue
+                recall_coordinates = target.get_deathbind_coordinates()
+                target.teleport(recall_coordinates[0], recall_coordinates[1])
 
     AREA_SPELL_EFFECTS = [
         SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA,
@@ -224,6 +238,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_OPEN_LOCK: SpellEffectHandler.handle_open_lock,
     SpellEffects.SPELL_EFFECT_LEARN_SPELL: SpellEffectHandler.handle_learn_spell,
     SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA: SpellEffectHandler.handle_apply_area_aura,
-    SpellEffects.SPELL_EFFECT_SUMMON_TOTEM: SpellEffectHandler.handle_summon_totem
+    SpellEffects.SPELL_EFFECT_SUMMON_TOTEM: SpellEffectHandler.handle_summon_totem,
+    SpellEffects.SPELL_EFFECT_SCRIPT_EFFECT: SpellEffectHandler.handle_script_effect
 }
 

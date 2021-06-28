@@ -22,7 +22,8 @@ class EffectTargets:
         self.caster = casting_spell.spell_caster
         self.casting_spell = casting_spell
 
-        self.simple_targets = self.get_simple_targets()
+        self.simple_targets = []
+        self.resolve_simple_targets()
 
         self.target_effect = spell_effect
 
@@ -36,6 +37,9 @@ class EffectTargets:
                 self.target_effect.implicit_target_a == SpellImplicitTargets.TARGET_SELF:  # some area auras have self-target, but party target is required instead
             self.target_effect.implicit_target_a = SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY
 
+    def resolve_simple_targets(self):
+        self.simple_targets = self.get_simple_targets()
+
     def get_simple_targets(self) -> dict[SpellImplicitTargets, list[Union[ObjectManager, Vector]]]:
         target_is_player = self.casting_spell.initial_target_is_player()
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
@@ -47,7 +51,6 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_NOTHING: [],
             SpellImplicitTargets.TARGET_SELF: self.caster,
             SpellImplicitTargets.TARGET_PET: [],  # TODO
-            SpellImplicitTargets.TARGET_CHAIN_DAMAGE: self.initial_target if not target_is_friendly else [],  # TODO - resolve chain targets
             SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: self.caster.get_deathbind_coordinates() if target_is_player else [],
             SpellImplicitTargets.TARGET_11: [],  # Word of Recall Other - seems deprecated so return nothing
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else [],
@@ -128,6 +131,16 @@ class EffectTargets:
     @staticmethod
     def resolve_area_effect_custom(casting_spell, target_effect):
         Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+
+    @staticmethod
+    def resolve_chain_damage(casting_spell, target_effect):
+        target_is_friendly = casting_spell.initial_target_is_unit_or_player() and not \
+            casting_spell.spell_caster.can_attack_target(casting_spell.initial_target)
+        if not target_is_friendly:
+            return [casting_spell.initial_target]
+
+        target_on_cast = casting_spell.targeted_unit_on_cast_start
+        return [target_on_cast] if target_on_cast and casting_spell.spell_caster.can_attack_target(target_on_cast) else []
 
     @staticmethod
     def resolve_unit_near_caster(casting_spell, target_effect):
@@ -323,6 +336,7 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_RANDOM_ENEMY_CHAIN_IN_AREA: EffectTargets.resolve_random_enemy_chain_in_area,
     SpellImplicitTargets.TARGET_UNIT_NEAR_CASTER: EffectTargets.resolve_unit_near_caster,
     SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM: EffectTargets.resolve_area_effect_custom,
+    SpellImplicitTargets.TARGET_CHAIN_DAMAGE: EffectTargets.resolve_chain_damage,
     SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA: EffectTargets.resolve_all_enemy_in_area,
     SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT: EffectTargets.resolve_all_enemy_in_area_instant,
     SpellImplicitTargets.TARGET_TABLE_X_Y_Z_COORDINATES: EffectTargets.resolve_table_coordinates,
@@ -344,6 +358,7 @@ TARGET_RESOLVERS = {
 }
 
 FRIENDLY_IMPLICIT_TARGETS = [
+    SpellImplicitTargets.TARGET_SELF,
     SpellImplicitTargets.TARGET_PET,
     # SpellImplicitTargets.TARGET_EFFECT_SELECT  # All self casts except one hostile aoe
     SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY,

@@ -17,7 +17,7 @@ from utils.constants.ItemCodes import InventoryError, InventoryTypes
 from utils.constants.MiscCodes import ObjectTypes, HitInfo
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, SpellEffects, SpellSchools, \
-    SpellInterruptFlags, SpellChannelInterruptFlags
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx
 from utils.constants.UnitCodes import PowerTypes, StandState
 
 
@@ -95,13 +95,18 @@ class SpellManager(object):
             return spell
         return spell if self.validate_cast(spell) else None
 
-    def start_spell_cast(self, spell, caster_obj, spell_target, target_mask, source_item=None, initialized_spell=None):
+    def start_spell_cast(self, spell, caster_obj, spell_target, target_mask, source_item=None,
+                         initialized_spell=None, is_trigger=False):
         #  TODO Spell priority and interrupting on recast - spells can be cast on top of eachother (best reproduced by channels, for example life drain)
         casting_spell = self.try_initialize_spell(spell, caster_obj, spell_target, target_mask, source_item) if not initialized_spell else initialized_spell
         if not casting_spell:
             return
 
-        self.remove_colliding_casts(casting_spell)
+        if not is_trigger:
+            self.remove_colliding_casts(casting_spell)
+        else:
+            casting_spell.cast_flags |= SpellCastFlags.CAST_FLAG_PROC
+
         casting_spell.cast_start_timestamp = time.time()
 
         if casting_spell.casts_on_swing():  # Handle swing ability queue and state
@@ -117,7 +122,7 @@ class SpellManager(object):
             return
 
         # Spell is instant, perform cast
-        self.perform_spell_cast(casting_spell, False)
+        self.perform_spell_cast(casting_spell, validate=False, is_trigger=is_trigger)
 
     def perform_spell_cast(self, casting_spell, validate=True, is_trigger=False):
         if validate and not self.validate_cast(casting_spell):
@@ -135,11 +140,16 @@ class SpellManager(object):
         if not is_trigger:  # Triggered spells (ie. channel ticks) shouldn't interrupt other casts
             self.unit_mgr.aura_manager.check_aura_interrupts(cast_spell=True)
 
-        travel_time = self.calculate_time_to_impact(casting_spell)
+        travel_times = self.calculate_impact_delays(casting_spell)
 
-        if travel_time != 0:
+        if len(travel_times) != 0:
+            casting_spell.spell_impact_timestamps = {}
+            curr_time = time.time()
+
+            for guid, delay in travel_times.items():
+                casting_spell.spell_impact_timestamps[guid] = curr_time + delay
+
             casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED
-            casting_spell.spell_delay_end_timestamp = time.time() + travel_time
             self.consume_resources_for_cast(casting_spell)  # Remove resources
             return
 
@@ -157,7 +167,7 @@ class SpellManager(object):
 
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
-    def apply_spell_effects(self, casting_spell, remove=False, update=False):
+    def apply_spell_effects(self, casting_spell, remove=False, update=False, partial_targets=None):
         for effect in casting_spell.effects:
             if not update:
                 effect.handle_application()
@@ -169,6 +179,8 @@ class SpellManager(object):
             object_targets = effect.targets.get_resolved_effect_targets_by_type(ObjectManager)
 
             for target in object_targets:
+                if partial_targets and target.guid not in partial_targets:
+                    continue
                 info = casting_spell.object_target_results[target.guid]
                 # TODO deflection handling? Swap target/caster for now
                 if info.result == SpellMissReason.MISS_REASON_DEFLECTED:
@@ -225,7 +237,7 @@ class SpellManager(object):
                 continue
             cast_finished = casting_spell.cast_end_timestamp <= timestamp
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:  # Channel tick/spells that need updates
-                self.handle_spell_effect_update(casting_spell, elapsed)  # Update effects if the cast wasn't interrupted
+                self.handle_spell_effect_update(casting_spell, timestamp, elapsed)  # Update effects if the cast wasn't interrupted
 
                 if casting_spell.is_channeled() and cast_finished:
                     self.remove_cast(casting_spell)
@@ -233,16 +245,24 @@ class SpellManager(object):
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING and not casting_spell.is_instant_cast():
                 if cast_finished:
-                    if not self.validate_cast(casting_spell):  # Spell finished casting, validate again
-                        self.remove_cast(casting_spell)
-                        return
                     self.perform_spell_cast(casting_spell)
                     if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED:  # Spell finished after perform (no impact delay)
                         self.remove_cast(casting_spell)
 
-            if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
-                    casting_spell.spell_delay_end_timestamp <= timestamp:  # Spell was cast already and impact delay is done
-                self.apply_spell_effects(casting_spell, remove=True)
+            if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:  # Waiting for impact delay
+                targets_due = [guid for guid, stamp in casting_spell.spell_impact_timestamps.items() if stamp <= timestamp]
+                if not targets_due:
+                    continue
+
+                for target in targets_due:
+                    casting_spell.spell_impact_timestamps.pop(target)
+
+                if len(casting_spell.spell_impact_timestamps) == 0:  # All targets finished impact delay
+                    self.apply_spell_effects(casting_spell, remove=True)
+                    continue
+
+                # Only some targets finished delay
+                self.apply_spell_effects(casting_spell, remove=True, partial_targets=targets_due)
 
     def check_spell_interrupts(self, moved=False, turned=False, received_damage=False, hit_info=HitInfo.DAMAGE,
                                interrupted=False, received_auto_attack=False):  # TODO provide interrupted, turned
@@ -270,7 +290,8 @@ class SpellManager(object):
                         continue
 
                     # TODO Do crushing blows interrupt channeling too?
-                    if not (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT) and hit_info != HitInfo.CRUSHING:
+                    if not (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT) and hit_info != HitInfo.CRUSHING and \
+                            flag != SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT:
                         casting_spell.handle_partial_interrupt()
                     else:
                         self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
@@ -323,7 +344,7 @@ class SpellManager(object):
         for spell in list(self.casting_spells):
             if not spell.initial_target_is_unit_or_player():
                 continue
-            if spell.initial_target.guid == target_guid:
+            if target_guid in spell.object_target_results:
                 self.remove_cast(spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
 
     def remove_colliding_casts(self, current_cast):
@@ -338,17 +359,23 @@ class SpellManager(object):
                 self.remove_cast(casting_spell, interrupted=True)
                 continue
 
-
-    def calculate_time_to_impact(self, casting_spell) -> float:
+#      def calculate_time_to_impact(self, casting_spell) -> float:
+    def calculate_impact_delays(self, casting_spell) -> dict[int, float]:
+        impact_delays = {}
         if casting_spell.spell_entry.Speed == 0:
-            return 0
+            return impact_delays
 
-        travel_distance = casting_spell.range_entry.RangeMax
-        if casting_spell.initial_target_is_unit_or_player():
-            target_unit_location = casting_spell.initial_target.location
+        target_results = casting_spell.object_target_results
+        for target_guid, miss_info in target_results.items():
+            target_unit_location = miss_info.target.location
             travel_distance = casting_spell.spell_caster.location.distance(target_unit_location)
+            delay = travel_distance / casting_spell.spell_entry.Speed
 
-        return travel_distance / casting_spell.spell_entry.Speed
+            if delay == 0:
+                continue
+            impact_delays[target_guid] = delay
+
+        return impact_delays
 
     def send_cast_start(self, casting_spell):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,  # TODO Source (1st arg) can also be item
@@ -381,8 +408,8 @@ class SpellManager(object):
 
         if casting_spell.initial_target_is_object():
             self.unit_mgr.set_channel_object(casting_spell.initial_target.guid)
-            self.unit_mgr.set_channel_spell(casting_spell.spell_entry.ID)
-            self.unit_mgr.set_dirty()
+        self.unit_mgr.set_channel_spell(casting_spell.spell_entry.ID)
+        self.unit_mgr.set_dirty()
 
         self.apply_spell_effects(casting_spell)
 
@@ -393,21 +420,22 @@ class SpellManager(object):
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))  # SMSG?
         # TODO Channeling animations do not play
 
-    def handle_spell_effect_update(self, casting_spell, elapsed):
+    def handle_spell_effect_update(self, casting_spell, timestamp, elapsed):
         for effect in casting_spell.effects:
             # Refresh targets
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
             # Update periodic effects
-            if effect.is_periodic():
-                effect.update_periodic_effect(elapsed)
+            # Note: arcane missiles is a slight exception to periodic effect handling.
+            # The dummy aura applied by the spell is not a periodic effect, but the duration will need to be managed by SpellManager as the spell is active.
+            effect.update_effect_aura(timestamp, elapsed)
 
             # Area spell effect update
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 self.apply_spell_effects(casting_spell, update=True)
                 # If the effect interval is due, send another spell_go packet. Not good, but shows ticks TODO hackfix for missing channeling effect
-                if effect.is_past_next_period():
-                    self.send_spell_go(casting_spell)
+                #if effect.is_past_next_period():
+                #    self.send_spell_go(casting_spell)
 
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():
@@ -526,6 +554,15 @@ class SpellManager(object):
         if not casting_spell.initial_target:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return False
+
+        # Channeled spells that require persistent targets
+        if casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNEL_TRACK_TARGET:
+            if not casting_spell.targeted_unit_on_cast_start:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)  # Arcane missiles cast only sends self as target but expects an unit target to track
+                return False
+            if not casting_spell.spell_caster.can_attack_target(casting_spell.targeted_unit_on_cast_start) and casting_spell.requires_hostile_target():
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
+                return False
 
         if casting_spell.initial_target_is_unit_or_player() and not casting_spell.initial_target.is_alive:  # TODO dead targets (resurrect)
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
