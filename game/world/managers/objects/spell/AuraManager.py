@@ -189,7 +189,6 @@ class AuraManager:
         for aura in auras:
             if not aura.passive:
                 is_passive = False
-                continue
             if aura.harmful or aura.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CANT_CANCEL:
                 can_remove = False  # Can't remove harmful auras
                 break
