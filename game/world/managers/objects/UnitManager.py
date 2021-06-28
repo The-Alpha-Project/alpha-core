@@ -503,6 +503,19 @@ class UnitManager(ObjectManager):
         update_packet = self.generate_proper_update_packet(is_self=is_player)
         MapManager.send_surrounding(update_packet, self, include_self=is_player)
 
+    def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
+        miss_info = casting_spell.object_target_results[target.guid].result
+        damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)
+        # TODO Roll crit, handle absorb
+        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, is_periodic=is_periodic)
+        self.deal_damage(target, damage, is_periodic)
+
+    def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
+        miss_info = casting_spell.object_target_results[target.guid].result
+        damage_info = self.get_spell_cast_damage_info(target, casting_spell, healing, 0)
+        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True, is_periodic=is_periodic)
+        target.receive_healing(healing, self)
+
     def get_spell_cast_damage_info(self, victim, casting_spell, damage, absorb):
         damage_info = DamageInfoHolder()
 
@@ -520,60 +533,30 @@ class UnitManager(ObjectManager):
 
         return damage_info
 
-    def send_spell_damage_done(self, damage_info, miss_reason, spell_id):
+    def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False, is_periodic=False):
+        flags = SpellHitFlags.HIT_FLAG_HEALED if healing else SpellHitFlags.HIT_FLAG_DAMAGE
+        if is_periodic:  # Periodic damage/healing does not show in combat log - only on character frame.
+            flags |= SpellHitFlags.HIT_FLAG_PERIODIC
+
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
-            combat_log_data = pack('<i2Qi', HitInfo.MISS, damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
+            combat_log_data = pack('<i2Qi', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
-            combat_log_data = pack('<I2Q2If3I', damage_info.hit_info, damage_info.attacker.guid, damage_info.target.guid, spell_id,
+
+            combat_log_data = pack('<I2Q2If3I', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id,
                                    damage_info.total_damage, damage_info.damage, damage_info.damage_school_mask,
                                    damage_info.damage, damage_info.absorb)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL
 
-        damage_data = pack('<Q2i2IQ', damage_info.target.guid, damage_info.total_damage, damage_info.damage,
-                           miss_reason, spell_id, damage_info.attacker.guid)
-
         MapManager.send_surrounding(PacketWriter.get_packet(combat_log_opcode, combat_log_data), self,
                                     include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
 
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
-                                    include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
+        if not healing:
+            damage_data = pack('<Q2i2IQ', damage_info.target.guid, damage_info.total_damage, damage_info.damage,
+                               miss_reason, spell_id, damage_info.attacker.guid)
+            MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
+                                        include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
 
-
-
-    def deal_spell_damage(self, target, damage, casting_spell, is_periodic=False):
-        miss_info = casting_spell.object_target_results[target.guid].result
-        damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)
-        # TODO Roll crit, handle absorb
-        self.send_spell_damage_done(damage_info, miss_info, casting_spell.spell_entry.ID)
-        self.deal_damage(target, damage, is_periodic)
-
-    def receive_healing(self, amount, source=None):
-        is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
-
-        new_health = self.health + amount
-        if new_health > self.max_health:
-            self.set_health(self.max_health)
-        else:
-            self.set_health(new_health)
-
-        update_packet = self.generate_proper_update_packet(is_self=is_player)
-        MapManager.send_surrounding(update_packet, self, include_self=is_player)
-
-    def send_debug_info_spell(self, flags, spell_id, victim, damage, school, absorbed):
-        data = pack('<I2Q2If3i', flags, self.guid, victim.guid, spell_id, damage, damage, school, damage, absorbed)
-        packet = PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL, data)
-        MapManager.send_surrounding(packet, victim, include_self=victim.get_type() == ObjectTypes.TYPE_PLAYER)
-
-    # TODO Spell hit damage visual?
-    def apply_spell_damage(self, target, damage, school, spell_id, flags=SpellHitFlags.HIT_FLAG_DAMAGE):
-        self.send_debug_info_spell(flags, spell_id, target, damage, school, 0)
-        self.deal_damage(target, damage)
-
-    # TODO Spell healing visual?
-    def apply_spell_healing(self, target, healing, school, spell_id, flags=SpellHitFlags.HIT_FLAG_HEALED):
-        self.send_debug_info_spell(flags, spell_id, target, healing, school, 0)
-        target.receive_healing(healing, self)
 
     def set_current_target(self, guid):
         self.current_target = guid

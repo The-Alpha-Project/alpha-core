@@ -67,13 +67,11 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_healing(aura, remove):
-        if not aura.is_past_next_period_timestamp() or remove:
+        if not aura.is_past_next_period() or remove:
             return
-        aura.pop_period_timestamp()
-
         spell = aura.source_spell
         healing = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.caster.apply_spell_healing(aura.target, healing, spell.spell_entry.School, spell.spell_entry.ID)
+        aura.caster.apply_spell_healing(aura.target, healing, spell, is_periodic=True)
 
     @staticmethod
     def handle_periodic_damage(aura, remove):
@@ -81,7 +79,7 @@ class AuraEffectHandler:
             return
         spell = aura.source_spell
         damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.caster.deal_spell_damage(aura.target, damage, spell, is_periodic=True)
+        aura.caster.apply_spell_damage(aura.target, damage, spell, is_periodic=True)
 
     @staticmethod
     def handle_periodic_leech(aura, remove):
@@ -89,8 +87,8 @@ class AuraEffectHandler:
             return
         spell = aura.source_spell
         damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.caster.deal_spell_damage(aura.target, damage, spell, is_periodic=True)
-        # TODO Heal
+        aura.caster.apply_spell_damage(aura.target, damage, spell, is_periodic=True)
+        aura.caster.apply_spell_healing(aura.caster, damage, spell, is_periodic=True)
 
 
 AURA_EFFECTS = {
