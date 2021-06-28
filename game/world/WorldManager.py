@@ -150,10 +150,7 @@ class WorldServerSessionHandler(object):
             else:
                 return -1
             return 0
-        except socket.timeout:
-            self.disconnect()
-            return -1
-        except OSError:
+        except (socket.timeout, OSError, ConnectionResetError, ValueError):
             self.disconnect()
             return -1
 
@@ -167,6 +164,10 @@ class WorldServerSessionHandler(object):
         return reader
 
     def receive_all(self, sck, expected_size):
+        # Prevent wrong size because of malformed packets.
+        if expected_size <= 0:
+            return b''
+
         # Try to fill at once.
         received = sck.recv(expected_size)
         if not received:
