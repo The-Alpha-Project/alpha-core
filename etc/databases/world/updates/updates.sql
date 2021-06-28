@@ -13,6 +13,8 @@ begin not atomic
     if (select count(*) from applied_updates where id='280620211') = 0 then
         -- Teebu's Blazing Longsword
         UPDATE item_template SET display_id = 4908 WHERE entry = 1728;
+        -- Bishop's Miter
+        UPDATE item_template SET display_id = 8879 WHERE entry = 7720;
 
         insert into applied_updates values ('280620211');
     end if;
