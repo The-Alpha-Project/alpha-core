@@ -17,11 +17,10 @@ class TrainerListHandler(object):
             # NPC offering
             else:
                 trainer: CreatureManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
-                trainer_template: CreatureTemplate = WorldDatabaseManager.creature_get_by_entry(trainer.entry)
 
                 if trainer and trainer.is_within_interactable_distance(world_session.player_mgr):
                     if trainer.is_trainer() and trainer.is_questgiver():
-                        if trainer_template and trainer_template.trainer_class == world_session.player_mgr.player.class_:
+                        if trainer.is_trainer_for_class(world_session.player_mgr.player.class_):
                             quests: int = world_session.player_mgr.quest_manager.get_active_quest_num_from_questgiver(trainer)
                             if quests > 0:
                                 from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import QuestGiverHelloHandler
@@ -35,7 +34,7 @@ class TrainerListHandler(object):
                             QuestGiverHelloHandler.handle(world_session, socket, reader)
                             return 0
                     elif trainer.is_trainer() and not trainer.is_questgiver():
-                        if trainer_template and trainer_template.trainer_class == world_session.player_mgr.player.class_:
+                        if trainer.is_trainer_for_class(world_session.player_mgr.player.class_):
                             trainer.send_trainer_list(world_session)
                             return 0
                         else:
