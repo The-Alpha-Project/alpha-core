@@ -1377,7 +1377,7 @@ begin not atomic
 
 		insert into applied_updates values ('270520211');
     end if;
-    
+
     -- 28/06/2021 1
     if (select count(*) from applied_updates where id='280620211') = 0 then
         -- Teebu's Blazing Longsword
