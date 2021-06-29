@@ -1,3 +1,6 @@
+Version:
+    required: 1
+
 Database:
     Connection:
         host: 127.0.0.1
