@@ -32,7 +32,7 @@ from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitF
 from utils.constants.UpdateFields import *
 
 MAX_ACTION_BUTTONS = 120
-MAX_EXPLORED_AREAS = 618
+MAX_EXPLORED_AREAS = 488
 
 
 class PlayerManager(UnitManager):
@@ -737,18 +737,18 @@ class PlayerManager(UnitManager):
 
         self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=reload_items)
 
-    def has_area_explored(self, area_template):
-        return self.explored_areas[area_template.entry]
+    def has_area_explored(self, area_explore_bit):
+        return self.explored_areas[area_explore_bit]
 
     # TODO: Research XP for exploration.
     #  Trigger quest explore requirement checks.
-    def set_area_explored(self, area_template):
-        self.explored_areas[area_template.entry] = True
-        if area_template.area_level > 0:
-            xp_gain = area_template.area_level * 10
+    def set_area_explored(self, area_id, area_explore_bit, area_level):
+        self.explored_areas[area_explore_bit] = True
+        if area_level > 0:
+            xp_gain = area_level * 10
             self.give_xp([xp_gain])
             # Notify client new discovered zone + xp gain.
-            data = pack('<2I', area_template.entry, xp_gain)
+            data = pack('<2I', area_id, xp_gain)
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
             self.session.enqueue_packet(packet)
 

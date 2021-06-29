@@ -2,6 +2,7 @@ from struct import unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.maps.MapManager import MapManager
 from utils.constants.UnitCodes import SplineFlags
 
 
@@ -16,11 +17,12 @@ class ZoneUpdateHandler(object):
 
             # Exploration handling (only if player is not flying).
             if not player_mgr.movement_spline or player_mgr.movement_spline.flags != SplineFlags.SPLINEFLAG_FLYING:
-                area = DbcDatabaseManager.area_get_by_id_and_map_id(world_session.player_mgr.zone, world_session.player_mgr.map_)
-                if area:
-                    area_template = WorldDatabaseManager.area_get_by_name(area.AreaName_enUS)
-                    if area_template and not player_mgr.has_area_explored(area_template):
-                        player_mgr.set_area_explored(area_template)
+                area_number = MapManager.get_area_number(player_mgr.map_, player_mgr.location.x, player_mgr.location.y)
+                area_table = DbcDatabaseManager.area_get_by_area_number(area_number, player_mgr.map_)
+                area_explore_bit = MapManager.get_area_explore_flag(player_mgr.map_, player_mgr.location.x, player_mgr.location.y)
+                area_level = MapManager.get_area_level(player_mgr.map_, player_mgr.location.x, player_mgr.location.y)
+                if not player_mgr.has_area_explored(area_explore_bit):
+                    player_mgr.set_area_explored(area_table.ID, area_explore_bit, area_level)
 
             # Update friends and group.
             player_mgr.friends_manager.send_update_to_friends()
