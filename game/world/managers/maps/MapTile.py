@@ -14,11 +14,11 @@ class MapTile(object):
         self.cell_x = tile_x
         self.cell_y = tile_y
         self.cell_map = map_id
-        self.area_number = [[0 for r in range(0, RESOLUTION_16 + 1)] for c in range(0, RESOLUTION_16 + 1)]
-        self.area_flags = [[0 for r in range(0, RESOLUTION_16 + 1)] for c in range(0, RESOLUTION_16 + 1)]
-        self.area_level = [[0 for r in range(0, RESOLUTION_16 + 1)] for c in range(0, RESOLUTION_16 + 1)]
-        self.area_explore_flag = [[0 for r in range(0, RESOLUTION_16 + 1)] for c in range(0, RESOLUTION_16 + 1)]
-        self.area_faction_mask = [[0 for r in range(0, RESOLUTION_16 + 1)] for c in range(0, RESOLUTION_16 + 1)]
+        self.area_number = [[0 for r in range(0, RESOLUTION_16)] for c in range(0, RESOLUTION_16)]
+        self.area_flags = [[0 for r in range(0, RESOLUTION_16)] for c in range(0, RESOLUTION_16)]
+        self.area_level = [[0 for r in range(0, RESOLUTION_16)] for c in range(0, RESOLUTION_16)]
+        self.area_explore_flag = [[0 for r in range(0, RESOLUTION_16)] for c in range(0, RESOLUTION_16)]
+        self.area_faction_mask = [[0 for r in range(0, RESOLUTION_16)] for c in range(0, RESOLUTION_16)]
         self.water_level = [[0 for r in range(0, RESOLUTION_WATER + 1)] for c in range(0, RESOLUTION_WATER + 1)]
         self.z_coords = [[0 for r in range(0, RESOLUTION_ZMAP + 1)] for c in range(0, RESOLUTION_ZMAP + 1)]
 
@@ -44,8 +44,8 @@ class MapTile(object):
                         self.z_coords[x][y] = unpack('<f', map_tiles.read(4))[0]
 
                 # AreaNumber, AreaFlags, AreaLevel, AreaExploreFlag(Bit), AreaFactionMask
-                for x in range(0, RESOLUTION_16 + 1):
-                    for y in range(0, RESOLUTION_16 + 1):
+                for x in range(0, RESOLUTION_16):
+                    for y in range(0, RESOLUTION_16):
                         self.area_number[x][y] = unpack('<I', map_tiles.read(4))[0]
                         self.area_flags[x][y] = unpack('<B', map_tiles.read(1))[0]
                         self.area_level[x][y] = unpack('<B', map_tiles.read(1))[0]
