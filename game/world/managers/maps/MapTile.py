@@ -20,7 +20,7 @@ class MapTile(object):
         self.area_explore_flag = [[0 for r in range(0, RESOLUTION_16)] for c in range(0, RESOLUTION_16)]
         self.area_faction_mask = [[0 for r in range(0, RESOLUTION_16)] for c in range(0, RESOLUTION_16)]
         self.water_level = [[0 for r in range(0, RESOLUTION_WATER + 1)] for c in range(0, RESOLUTION_WATER + 1)]
-        self.z_coords = [[0 for r in range(0, RESOLUTION_ZMAP + 1)] for c in range(0, RESOLUTION_ZMAP + 1)]
+        self.z_coords = [[0 for r in range(0, RESOLUTION_ZMAP)] for c in range(0, RESOLUTION_ZMAP)]
 
         self.load()
 
@@ -39,8 +39,8 @@ class MapTile(object):
                     return
 
                 # Height Map
-                for x in range(0, RESOLUTION_ZMAP + 1):
-                    for y in range(0, RESOLUTION_ZMAP + 1):
+                for x in range(0, RESOLUTION_ZMAP):
+                    for y in range(0, RESOLUTION_ZMAP):
                         self.z_coords[x][y] = unpack('<f', map_tiles.read(4))[0]
 
                 # AreaNumber, AreaFlags, AreaLevel, AreaExploreFlag(Bit), AreaFactionMask
