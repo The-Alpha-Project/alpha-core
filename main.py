@@ -31,8 +31,8 @@ if __name__ == '__main__':
 
     # Validate configuration file version.
     try:
-        if config.Version.required != ConfigManager.EXPECTED_VERSION:
-            Logger.error(f'Invalid config.yml version, expected {ConfigManager.EXPECTED_VERSION} found {config.Version.required}')
+        if config.Version.current != ConfigManager.EXPECTED_VERSION:
+            Logger.error(f'Invalid config.yml version, expected {ConfigManager.EXPECTED_VERSION} found {config.Version.current}')
             exit()
     except:
         Logger.error(f'Invalid config.yml version, expected {ConfigManager.EXPECTED_VERSION}')
