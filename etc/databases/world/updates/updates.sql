@@ -24,8 +24,7 @@ begin not atomic
             UNIQUE INDEX `template_entry_spell` (`template_entry`, `spell`) USING BTREE
         )
         COLLATE='utf8mb4_general_ci'
-        ENGINE=InnoDB
-        ;
+        ENGINE=InnoDB;
 
         DROP TABLE IF EXISTS `spell_chain`;
         CREATE TABLE IF NOT EXISTS `spell_chain` (
@@ -1377,6 +1376,16 @@ begin not atomic
         UPDATE `creature_template` SET `trainer_id` = 1001 WHERE `entry` = 7953;
 
 		insert into applied_updates values ('270520211');
+    end if;
+    
+    -- 28/06/2021 1
+    if (select count(*) from applied_updates where id='280620211') = 0 then
+        -- Teebu's Blazing Longsword
+        UPDATE item_template SET display_id = 4908 WHERE entry = 1728;
+        -- Bishop's Miter
+        UPDATE item_template SET display_id = 8879 WHERE entry = 7720;
+
+        insert into applied_updates values ('280620211');
     end if;
 	
 end $
