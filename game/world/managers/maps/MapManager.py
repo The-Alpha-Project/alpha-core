@@ -1,6 +1,7 @@
 import traceback
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from game.world.managers.maps.AreaInformation import AreaInformation
 from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
@@ -93,16 +94,14 @@ class MapManager(object):
 
     @staticmethod
     def print_area_information(map_id, x, y):
-        area_num = MapManager.get_area_number(map_id, x, y)
-        Logger.debug(f'AreaNumber {area_num}')
-        area_flags = MapManager.get_area_flags(map_id, x, y)
-        Logger.debug(f'AreaFlags {area_flags}')
-        area_level = MapManager.get_area_level(map_id, x, y)
-        Logger.debug(f'AreaLevel {area_level}')
-        area_explore_bit = MapManager.get_area_explore_flag(map_id, x, y)
-        Logger.debug(f'AreaExploreBit {area_explore_bit}')
-        area_faction_mask = MapManager.get_area_faction_mask(map_id, x, y)
-        Logger.debug(f'AreaFactionMask {area_faction_mask}')
+        area_information = MapManager.get_area_information(map_id, x, y)
+        Logger.debug(f'AreaName {area_information.area_name}')
+        Logger.debug(f'AreaID {area_information.area_id}')
+        Logger.debug(f'AreaNumber {area_information.area_number}')
+        Logger.debug(f'AreaFlags {area_information.area_flags}')
+        Logger.debug(f'AreaLevel {area_information.area_level}')
+        Logger.debug(f'AreaExploreBit {area_information.area_explore_bit}')
+        Logger.debug(f'AreaFactionMask {area_information.area_faction_mask}')
 
     @staticmethod
     def calculate_z_for_object(world_object):
@@ -133,6 +132,17 @@ class MapManager(object):
         except:
             Logger.error(traceback.format_exc())
             return current_z if current_z else 0.0
+
+    @staticmethod
+    def get_area_information(map_id, x, y):
+        area_number = MapManager.get_area_number(map_id, x, y)
+        area_table = DbcDatabaseManager.area_get_by_area_number(area_number, map_id)
+        area_name = area_table.AreaName_enUS
+        area_flags = MapManager.get_area_flags(map_id, x, y)
+        area_level = MapManager.get_area_level(map_id, x, y)
+        area_explore_bit = MapManager.get_area_explore_flag(map_id, x, y)
+        area_faction_mask = MapManager.get_area_faction_mask(map_id, x, y)
+        return AreaInformation(area_table.ID, area_number, area_name, area_flags, area_level, area_explore_bit, area_faction_mask)
 
     @staticmethod
     def get_area_number(map_id, x, y):

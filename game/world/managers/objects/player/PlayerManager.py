@@ -737,18 +737,18 @@ class PlayerManager(UnitManager):
 
         self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=reload_items)
 
-    def has_area_explored(self, area_explore_bit):
-        return self.explored_areas[area_explore_bit]
+    def has_area_explored(self, area_information):
+        return self.explored_areas[area_information.area_explore_bit]
 
     # TODO: Research XP for exploration.
     #  Trigger quest explore requirement checks.
-    def set_area_explored(self, area_id, area_explore_bit, area_level):
-        self.explored_areas[area_explore_bit] = True
-        if area_level > 0:
-            xp_gain = area_level * 10
+    def set_area_explored(self, area_information):
+        self.explored_areas[area_information.area_explore_bit] = True
+        if area_information.area_level > 0:
+            xp_gain = area_information.area_level * 10
             self.give_xp([xp_gain])
             # Notify client new discovered zone + xp gain.
-            data = pack('<2I', area_id, xp_gain)
+            data = pack('<2I', area_information.area_id, xp_gain)
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
             self.session.enqueue_packet(packet)
 
