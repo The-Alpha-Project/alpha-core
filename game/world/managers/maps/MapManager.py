@@ -192,14 +192,14 @@ class MapManager(object):
     def get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x, map_tile_local_y):
         if map_tile_local_x > RESOLUTION_ZMAP:
             map_tile_x = int(map_tile_x + 1)
-            map_tile_local_x = int(map_tile_local_x - (RESOLUTION_ZMAP + 1))
+            map_tile_local_x = int(map_tile_local_x - (RESOLUTION_ZMAP))
         elif map_tile_local_x < 0:
             map_tile_x = int(map_tile_x - 1)
             map_tile_local_x = int(-map_tile_local_x - 1)
 
         if map_tile_local_y > RESOLUTION_ZMAP:
             map_tile_y = int(map_tile_y + 1)
-            map_tile_local_y = int(map_tile_local_y - (RESOLUTION_ZMAP + 1))
+            map_tile_local_y = int(map_tile_local_y - (RESOLUTION_ZMAP))
         elif map_tile_local_y < 0:
             map_tile_y = int(map_tile_y - 1)
             map_tile_local_y = int(-map_tile_local_y - 1)
