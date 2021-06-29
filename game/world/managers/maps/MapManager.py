@@ -1,8 +1,7 @@
 import traceback
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_WATER, RESOLUTION_AREA_INFO
+from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config
@@ -80,29 +79,29 @@ class MapManager(object):
 
     @staticmethod
     def get_submap_tile_x(x):
-        tile_x = int(RESOLUTION_ZMAP * (
+        tile_x = int((RESOLUTION_ZMAP - 1) * (
                 32.0 - MapManager.validate_map_coord(x) / SIZE - int(32.0 - MapManager.validate_map_coord(x) / SIZE)))
 
         return tile_x
 
     @staticmethod
     def get_submap_tile_y(y):
-        tile_y = int(RESOLUTION_ZMAP * (
+        tile_y = int((RESOLUTION_ZMAP - 1) * (
                 32.0 - MapManager.validate_map_coord(y) / SIZE - int(32.0 - MapManager.validate_map_coord(y) / SIZE)))
 
         return tile_y
 
     @staticmethod
-    def print_area_information(mapid, x, y):
-        area_num = MapManager.get_area_number(mapid, x, y)
+    def print_area_information(map_id, x, y):
+        area_num = MapManager.get_area_number(map_id, x, y)
         Logger.debug(f'AreaNumber {area_num}')
-        area_flags = MapManager.get_area_flags(mapid, x, y)
+        area_flags = MapManager.get_area_flags(map_id, x, y)
         Logger.debug(f'AreaFlags {area_flags}')
-        area_level = MapManager.get_area_level(mapid, x, y)
+        area_level = MapManager.get_area_level(map_id, x, y)
         Logger.debug(f'AreaLevel {area_level}')
-        area_explore_bit = MapManager.get_area_explore_flag(mapid, x, y)
+        area_explore_bit = MapManager.get_area_explore_flag(map_id, x, y)
         Logger.debug(f'AreaExploreBit {area_explore_bit}')
-        area_faction_mask = MapManager.get_area_faction_mask(mapid, x, y)
+        area_faction_mask = MapManager.get_area_faction_mask(map_id, x, y)
         Logger.debug(f'AreaFactionMask {area_faction_mask}')
 
     @staticmethod
@@ -113,9 +112,9 @@ class MapManager(object):
     @staticmethod
     def calculate_z(map_id, x, y, current_z=0.0):
         try:
-            map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_ZMAP)
-            x_normalized = RESOLUTION_ZMAP * (32.0 - (x / SIZE) - map_tile_x) - tile_local_x
-            y_normalized = RESOLUTION_ZMAP * (32.0 - (y / SIZE) - map_tile_y) - tile_local_y
+            map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, (RESOLUTION_ZMAP - 1))
+            x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / SIZE) - map_tile_x) - tile_local_x
+            y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / SIZE) - map_tile_y) - tile_local_y
 
             if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
                 Logger.warning(f'Tile [{map_tile_x},{map_tile_y}] information not found.')
@@ -137,35 +136,35 @@ class MapManager(object):
 
     @staticmethod
     def get_area_number(map_id, x, y):
-        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO)
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
         if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
             return 0x00
         return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_number[tile_local_x][tile_local_y]
 
     @staticmethod
     def get_area_flags(map_id, x, y):
-        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO)
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
         if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
             return 0xFF
         return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_flags[tile_local_x][tile_local_y]
 
     @staticmethod
     def get_area_level(map_id, x, y):
-        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO)
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
         if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
             return 0x00
         return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_level[tile_local_x][tile_local_y]
 
     @staticmethod
     def get_area_explore_flag(map_id, x, y):
-        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO)
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
         if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
             return 0x00
         return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_explore_flag[tile_local_x][tile_local_y]
 
     @staticmethod
     def get_area_faction_mask(map_id, x, y):
-        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO)
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
         if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
             return 0x00
         return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_faction_mask[tile_local_x][tile_local_y]
@@ -192,14 +191,14 @@ class MapManager(object):
     def get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x, map_tile_local_y):
         if map_tile_local_x > RESOLUTION_ZMAP:
             map_tile_x = int(map_tile_x + 1)
-            map_tile_local_x = int(map_tile_local_x - (RESOLUTION_ZMAP + 1))
+            map_tile_local_x = int(map_tile_local_x - RESOLUTION_ZMAP)
         elif map_tile_local_x < 0:
             map_tile_x = int(map_tile_x - 1)
             map_tile_local_x = int(-map_tile_local_x - 1)
 
         if map_tile_local_y > RESOLUTION_ZMAP:
             map_tile_y = int(map_tile_y + 1)
-            map_tile_local_y = int(map_tile_local_y - (RESOLUTION_ZMAP + 1))
+            map_tile_local_y = int(map_tile_local_y - RESOLUTION_ZMAP)
         elif map_tile_local_y < 0:
             map_tile_y = int(map_tile_y - 1)
             map_tile_local_y = int(-map_tile_local_y - 1)
@@ -230,7 +229,8 @@ class MapManager(object):
     @staticmethod
     def should_relocate(world_object, destination, destination_map):
         grid_manager = MapManager.get_grid_manager_by_map_id(destination_map)
-        destination_cells = grid_manager.get_surrounding_cells_by_location(destination.x, destination.y, destination_map)
+        destination_cells = grid_manager.get_surrounding_cells_by_location(destination.x, destination.y,
+                                                                           destination_map)
         current_cell = grid_manager.get_cells()[world_object.current_cell]
         return current_cell in destination_cells
 
@@ -255,7 +255,8 @@ class MapManager(object):
 
     @staticmethod
     def get_surrounding_objects(world_object, object_types):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_objects(world_object, object_types)
+        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_objects(world_object,
+                                                                                                object_types)
 
     @staticmethod
     def get_surrounding_players(world_object):
@@ -263,7 +264,8 @@ class MapManager(object):
 
     @staticmethod
     def get_surrounding_units(world_object, include_players=False):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_units(world_object, include_players)
+        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_units(world_object,
+                                                                                              include_players)
 
     @staticmethod
     def get_surrounding_units_by_location(vector, target_map, range_, include_players=False):
@@ -278,15 +280,18 @@ class MapManager(object):
 
     @staticmethod
     def get_surrounding_player_by_guid(world_object, guid):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_player_by_guid(world_object, guid)
+        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_player_by_guid(world_object,
+                                                                                                       guid)
 
     @staticmethod
     def get_surrounding_unit_by_guid(world_object, guid, include_players=False):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_unit_by_guid(world_object, guid, include_players)
+        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_unit_by_guid(world_object, guid,
+                                                                                                     include_players)
 
     @staticmethod
     def get_surrounding_gameobject_by_guid(world_object, guid):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_gameobject_by_guid(world_object, guid)
+        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_gameobject_by_guid(world_object,
+                                                                                                           guid)
 
     @staticmethod
     def update_creatures():

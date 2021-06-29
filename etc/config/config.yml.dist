@@ -36,7 +36,7 @@ Server:
         cell_size: 164  # Shouldn't be much bigger than 200
         console_mode: True  # Set it to False if you intend to run the server on background
         use_map_tiles: False  # If True, place 0.5.3 .map files extracted with https://github.com/The-Alpha-Project/MapTools inside 'etc/maps/'
-        z_resolution: 255  # The resolution used when extracting maps
+        z_resolution: 256  # The resolution used when extracting maps
 
     General:
         # Message of the day
