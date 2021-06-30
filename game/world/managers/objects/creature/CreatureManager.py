@@ -119,7 +119,7 @@ class CreatureManager(UnitManager):
         session.close()
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
 
-    def send_trainer_list(self, world_session):
+    def send_trainer_list(self, world_session): # TODO Add skills (Two-Handed Swords etc.) to trainers for skill points https://i.imgur.com/tzyDDqL.jpg
         trainspell_bytes: bytes = b''
         trainspell_count: int = 0
 
@@ -172,8 +172,15 @@ class CreatureManager(UnitManager):
                         )
             trainspell_bytes += data
             trainspell_count += 1
+        
+        greeting: str = "Hello! Ready for some training?"
+        greeting_bytes = PacketWriter.string_to_bytes(greeting)
+        greeting_bytes = pack(
+                    f'<{len(greeting_bytes)}s', 
+                    greeting_bytes
+                    )
 
-        data = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, trainspell_count) + trainspell_bytes
+        data = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, trainspell_count) + trainspell_bytes + greeting_bytes
         world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
 
     def finish_loading(self):
