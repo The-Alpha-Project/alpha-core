@@ -51,6 +51,10 @@ class SpellManager(object):
 
         data = pack('<H', spell_id)
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
+
+        if spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
+            self.start_spell_cast(spell, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF)
+
         # Teach skill required as well like in CharCreateHandler?
         return True
 
@@ -95,10 +99,9 @@ class SpellManager(object):
             return spell
         return spell if self.validate_cast(spell) else None
 
-    def start_spell_cast(self, spell, caster_obj, spell_target, target_mask, source_item=None,
+    def start_spell_cast(self, spell, caster, spell_target, target_mask, source_item=None,
                          initialized_spell=None, is_trigger=False):
-        #  TODO Spell priority and interrupting on recast - spells can be cast on top of eachother (best reproduced by channels, for example life drain)
-        casting_spell = self.try_initialize_spell(spell, caster_obj, spell_target, target_mask, source_item) if not initialized_spell else initialized_spell
+        casting_spell = self.try_initialize_spell(spell, caster, spell_target, target_mask, source_item) if not initialized_spell else initialized_spell
         if not casting_spell:
             return
 
@@ -342,7 +345,7 @@ class SpellManager(object):
 
     def remove_all_casts_directed_at_unit(self, target_guid):
         for spell in list(self.casting_spells):
-            if not spell.initial_target_is_unit_or_player():
+            if not spell.initial_target_is_unit_or_player() or (spell.is_instant_cast() and not spell.is_channeled()):
                 continue
             if target_guid in spell.object_target_results:
                 self.remove_cast(spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
@@ -355,7 +358,7 @@ class SpellManager(object):
             if casting_spell.is_paladin_aura() and current_cast.is_paladin_aura():  # Paladin aura exclusivity
                 self.remove_cast(casting_spell, interrupted=True)
                 continue
-            if casting_spell.casts_on_swing() and casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
+            if current_cast.casts_on_swing() and casting_spell.casts_on_swing() and casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
                 self.remove_cast(casting_spell, interrupted=True)
                 continue
 
