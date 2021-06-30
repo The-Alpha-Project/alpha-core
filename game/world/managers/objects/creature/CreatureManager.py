@@ -173,7 +173,7 @@ class CreatureManager(UnitManager):
             trainspell_bytes += data
             trainspell_count += 1
         
-        greeting: str = "Hello! Ready for some training?"
+        greeting: str = f'Hello, {world_session.player_mgr.player.name}! Ready for some training?' # Cannot use '$N' (name) or '$c' (class); the client doesn't seem to parse trainer greetings for that.
         greeting_bytes = PacketWriter.string_to_bytes(greeting)
         greeting_bytes = pack(
                     f'<{len(greeting_bytes)}s', 
