@@ -918,12 +918,10 @@ class PlayerManager(UnitManager):
     def remove_talent_points(self, talent_points):
         self.talent_points -= talent_points
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS1, self.talent_points)
-        self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=False)
     
     def remove_skill_points(self, skill_points):
         self.skill_points -= skill_points
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
-        self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=False)
 
     def regenerate(self, current_time):
         if not self.is_alive or self.health == 0:

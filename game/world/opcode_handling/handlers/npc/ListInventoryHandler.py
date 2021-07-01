@@ -4,6 +4,8 @@ from struct import unpack
 from game.world.managers.maps.MapManager import MapManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
+from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import QuestGiverHelloHandler
+
 
 class ListInventoryHandler(object):
 
@@ -18,10 +20,12 @@ class ListInventoryHandler(object):
 
                 if vendor and vendor.is_within_interactable_distance(world_session.player_mgr):
                     if vendor_template:
-                        quests: int = world_session.player_mgr.quest_manager.get_active_quest_num_from_questgiver(vendor)
+                        quests: int = world_session.player_mgr.quest_manager.get_active_quest_num_from_quest_giver(vendor)
                         if quests > 0:
-                            from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import QuestGiverHelloHandler
+                            # TODO Find another approach instead of calling the packet handler (maybe refactor
+                            #  QuestGiverHelloHandler?)
                             QuestGiverHelloHandler.handle(world_session, socket, reader)
                             return 0
+
                     vendor.send_inventory_list(world_session)
         return 0

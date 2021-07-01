@@ -123,7 +123,7 @@ class CreatureManager(UnitManager):
         trainspell_bytes: bytes = b''
         trainspell_count: int = 0
 
-        trainer_ability_list: list[NpcTrainer] = WorldDatabaseManager.trainer_spells_get_by_trainer(self.entry)
+        trainer_ability_list: list[NpcTrainer] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
 
         if not self.is_trainer():
             return
@@ -139,46 +139,48 @@ class CreatureManager(UnitManager):
         for ability in trainer_ability_list:
             ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(ability.spell)
 
-            spell_level: int = ability.reqlevel # Use this & not spell data, as there are differences between data source (2003 Game Guide) and what is in spell table
+            spell_level: int = ability.reqlevel  # Use this and not spell data, as there are differences between data source (2003 Game Guide) and what is in spell table.
             spell_rank: int = ability_spell_chain.rank
             prev_spell: int = ability_spell_chain.prev_spell
             req_spell: int = ability_spell_chain.req_spell
 
-            spellIsTooHighLvl: bool = spell_level > world_session.player_mgr.level
+            spell_is_too_high_level: bool = spell_level > world_session.player_mgr.level
 
             if ability.spell in world_session.player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
             else:
-                if prev_spell in world_session.player_mgr.spell_manager.spells and spell_rank > 1 and not spellIsTooHighLvl:
+                if prev_spell in world_session.player_mgr.spell_manager.spells and spell_rank > 1 and not spell_is_too_high_level:
                     status = TrainerServices.TRAINER_SERVICE_AVAILABLE
-                elif spell_rank == 1 and not spellIsTooHighLvl:
+                elif spell_rank == 1 and not spell_is_too_high_level:
                     status = TrainerServices.TRAINER_SERVICE_AVAILABLE
                 else:
                     status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
-            data: bytes = pack('<IBI3B6I',
-                        ability.spell,  # Spell id
-                        status,  # Status
-                        ability.spellcost,  # Cost
-                        ability.talentpointcost,  # Talent Point Cost
-                        ability.skillpointcost,  # Skill Point Cost
-                        spell_level,  # Required Level
-                        ability.reqskill,  # Required Skill Line
-                        ability.reqskillvalue,  # Required Skill Rank
-                        0,  # Required Skill Step
-                        prev_spell,  # Required Ability (1)
-                        0,  # Required Ability (2)
-                        0  # Required Ability (3)
-                        )
+            data: bytes = pack(
+                '<IBI3B6I',
+                ability.spell,  # Spell id
+                status,  # Status
+                ability.spellcost,  # Cost
+                ability.talentpointcost,  # Talent Point Cost
+                ability.skillpointcost,  # Skill Point Cost
+                spell_level,  # Required Level
+                ability.reqskill,  # Required Skill Line
+                ability.reqskillvalue,  # Required Skill Rank
+                0,  # Required Skill Step
+                prev_spell,  # Required Ability (1)
+                0,  # Required Ability (2)
+                0  # Required Ability (3)
+            )
             trainspell_bytes += data
             trainspell_count += 1
-        
-        greeting: str = f'Hello, {world_session.player_mgr.player.name}! Ready for some training?' # Cannot use '$N' (name) or '$c' (class); the client doesn't seem to parse trainer greetings for that.
+
+        # TODO: Temp placeholder.
+        greeting: str = f'Hello, {world_session.player_mgr.player.name}! Ready for some training?'
         greeting_bytes = PacketWriter.string_to_bytes(greeting)
         greeting_bytes = pack(
                     f'<{len(greeting_bytes)}s', 
                     greeting_bytes
-                    )
+        )
 
         data = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, trainspell_count) + trainspell_bytes + greeting_bytes
         world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
@@ -250,17 +252,11 @@ class CreatureManager(UnitManager):
         elif slot == 0:
             self.weapon_reach = 0.0
 
-    def is_questgiver(self) -> bool:
-        if self.npc_flags & NpcFlags.NPC_FLAG_QUESTGIVER:
-            return True
-        else:
-            return False
+    def is_quest_giver(self) -> bool:
+        return self.npc_flags & NpcFlags.NPC_FLAG_QUESTGIVER
 
     def is_trainer(self) -> bool:
-        if self.npc_flags & NpcFlags.NPC_FLAG_TRAINER:
-            return True
-        else:
-            return False
+        return self.npc_flags & NpcFlags.NPC_FLAG_TRAINER
 
     def is_trainer_for_class(self, player_class: int) -> bool:
         if not self.is_trainer():
@@ -268,14 +264,13 @@ class CreatureManager(UnitManager):
 
         if self.creature_template.trainer_class == player_class:
             return True
-        else:
-            return False
+        return False
 
     def trainer_has_spell(self, spell_id: int) -> bool:
         if not self.is_trainer():
             return False
         
-        trainer_spells: list[NpcTrainer] = WorldDatabaseManager.trainer_spells_get_by_trainer(self.entry)
+        trainer_spells: list[NpcTrainer] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
 
         for trainer_spell in trainer_spells:
             if trainer_spell.spell == spell_id:

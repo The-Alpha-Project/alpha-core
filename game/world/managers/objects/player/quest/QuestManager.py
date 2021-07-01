@@ -108,7 +108,7 @@ class QuestManager(object):
         else:
             return
 
-        # Quest finish
+        # Quest finish.
         for involved_relation in involved_relations_list:
             if len(involved_relation) == 0:
                 continue
@@ -123,7 +123,7 @@ class QuestManager(object):
                 continue  # Quest accept is handled by relation_list
             quest_menu.add_menu_item(quest, quest_state)
 
-        # Quest start
+        # Quest start.
         for relation in relations_list:
             if len(relation) == 0:
                 continue
@@ -137,7 +137,7 @@ class QuestManager(object):
             if quest_entry in self.active_quests:
                 quest_state = self.active_quests[quest_entry].get_quest_state()
             if quest_state >= QuestState.QUEST_ACCEPTED:
-                continue  # Quest turn-in is handled by involved_relations_list
+                continue  # Quest turn-in is handled by involved_relations_list.
             quest_menu.add_menu_item(quest, quest_state)
 
         if len(quest_menu.items) == 1:
@@ -156,8 +156,10 @@ class QuestManager(object):
 
         self.update_surrounding_quest_status()
 
-    def get_active_quest_num_from_questgiver(self, quest_giver): # TODO sloppy and probably slow, just copied from handle_quest_giver_hello. Can't think of a quicker way to check atm, all that is needed is the number of active quests so this seems overkill.
-        questNum: int = 0
+    # TODO sloppy and probably slow, just copied from handle_quest_giver_hello. Can't think of a quicker way to check
+    #  atm, all that is needed is the number of active quests so this seems overkill.
+    def get_active_quest_num_from_quest_giver(self, quest_giver):
+        quest_num: int = 0
 
         # Type is unit, but not player.
         if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
@@ -167,7 +169,7 @@ class QuestManager(object):
         else:
             return
 
-        # Quest finish
+        # Quest finish.
         for involved_relation in involved_relations_list:
             if len(involved_relation) == 0:
                 continue
@@ -179,10 +181,10 @@ class QuestManager(object):
                 continue
             quest_state = self.active_quests[quest_entry].get_quest_state()
             if quest_state <= QuestState.QUEST_ACCEPTED:
-                continue  # Quest accept is handled by relation_list
-            questNum += 1
+                continue  # Quest accept is handled by relation_list.
+            quest_num += 1
 
-        # Quest start
+        # Quest start.
         for relation in relations_list:
             if len(relation) == 0:
                 continue
@@ -196,10 +198,10 @@ class QuestManager(object):
             if quest_entry in self.active_quests:
                 quest_state = self.active_quests[quest_entry].get_quest_state()
             if quest_state >= QuestState.QUEST_ACCEPTED:
-                continue  # Quest turn-in is handled by involved_relations_list
-            questNum +=1
+                continue  # Quest turn-in is handled by involved_relations_list.
+            quest_num += 1
 
-        return questNum
+        return quest_num
 
     def check_quest_requirements(self, quest_template):
         # Is the player character the required race.

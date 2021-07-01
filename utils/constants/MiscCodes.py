@@ -246,10 +246,11 @@ class TrainerTypes(IntEnum):
     TRAINER_TYPE_TRADESKILLS = 0x2
     TRAINER_TYPE_PET = 0x3
 
+
 class TrainingFailReasons(IntEnum):
     TRAIN_FAIL_UNAVAILABLE = 0x0
     TRAIN_FAIL_NOT_ENOUGH_MONEY = 0x1
-    TRAIN_FAIL_NOT_ENOUGH_SKILL = 0x2 # taken from vmangos, assuming 'skill' means talents in this case. unknown what num skill points vs talent points would be (if any)
+    TRAIN_FAIL_NOT_ENOUGH_SKILL = 0x2
 
 
 class UnitDynamicTypes(IntEnum):

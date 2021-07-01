@@ -3,7 +3,6 @@ from sqlalchemy import CHAR, Column, Float, ForeignKey, Index, String, Table, Te
 from sqlalchemy.dialects.mysql import INTEGER, LONGTEXT, MEDIUMINT, SMALLINT, TINYINT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.expression import true
 
 Base = declarative_base()
 metadata = Base.metadata

@@ -12,7 +12,6 @@ class BinderActivateHandler(object):
     def handle(world_session, socket, reader):
         if len(reader.data) >= 8:  # Avoid handling empty binder activate packet.
             binder_guid = unpack('<Q', reader.data[:8])[0]
-
             binder = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, binder_guid)
 
             if binder and binder.is_within_interactable_distance(world_session.player_mgr) and binder_guid > 0:
