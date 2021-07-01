@@ -35,7 +35,7 @@ class QuestManager(object):
                 active_quest = ActiveQuest(quest_db_state, self.player_mgr)
                 self.active_quests[quest_db_state.quest] = active_quest
                 # Needed in case the WDB has been deleted, otherwise non cached quests won't appear in the log.
-                self.send_quest_query_response(active_quest)
+                self.send_quest_query_response(active_quest.quest)
             else:
                 Logger.error(
                     f"Quest database (guid={quest_db_state.guid}, quest_id={quest_db_state.quest}) has state {quest_db_state.state}. No handling.")
@@ -363,41 +363,41 @@ class QuestManager(object):
 
         self.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
 
-    def send_quest_query_response(self, active_quest):
+    def send_quest_query_response(self, quest):
         data = pack(
             f'<3Ii4I',
-            active_quest.quest.entry,
-            active_quest.quest.Method,
-            active_quest.quest.QuestLevel,
-            active_quest.quest.ZoneOrSort,
-            active_quest.quest.Type,
-            active_quest.quest.NextQuestInChain,
-            active_quest.quest.RewOrReqMoney,
-            active_quest.quest.SrcItemId
+            quest.entry,
+            quest.Method,
+            quest.QuestLevel,
+            quest.ZoneOrSort,
+            quest.Type,
+            quest.NextQuestInChain,
+            quest.RewOrReqMoney,
+            quest.SrcItemId
         )
 
         # Rewards given no matter what.
-        rew_item_list = QuestHelpers.generate_rew_item_list(active_quest.quest)
-        rew_item_count_list = QuestHelpers.generate_rew_count_list(active_quest.quest)
+        rew_item_list = QuestHelpers.generate_rew_item_list(quest)
+        rew_item_count_list = QuestHelpers.generate_rew_count_list(quest)
         for index, item in enumerate(rew_item_list):
             data += pack('<2I', item, rew_item_count_list[index])
 
         # Reward choices.
-        rew_choice_item_list = QuestHelpers.generate_rew_choice_item_list(active_quest.quest)
-        rew_choice_count_list = QuestHelpers.generate_rew_choice_count_list(active_quest.quest)
+        rew_choice_item_list = QuestHelpers.generate_rew_choice_item_list(quest)
+        rew_choice_count_list = QuestHelpers.generate_rew_choice_count_list(quest)
         for index, item in enumerate(rew_choice_item_list):
             data += pack('<2I', item, rew_choice_count_list[index])
 
-        title_bytes = PacketWriter.string_to_bytes(active_quest.quest.Title)
-        details_bytes = PacketWriter.string_to_bytes(active_quest.quest.Details)
-        objectives_bytes = PacketWriter.string_to_bytes(active_quest.quest.Objectives)
-        end_bytes = PacketWriter.string_to_bytes(active_quest.quest.EndText)
+        title_bytes = PacketWriter.string_to_bytes(quest.Title)
+        details_bytes = PacketWriter.string_to_bytes(quest.Details)
+        objectives_bytes = PacketWriter.string_to_bytes(quest.Objectives)
+        end_bytes = PacketWriter.string_to_bytes(quest.EndText)
         data += pack(
             f'<I2fI{len(title_bytes)}s{len(details_bytes)}s{len(objectives_bytes)}s{len(end_bytes)}s',
-            active_quest.quest.PointMapId,
-            active_quest.quest.PointX,
-            active_quest.quest.PointY,
-            active_quest.quest.PointOpt,
+            quest.PointMapId,
+            quest.PointX,
+            quest.PointY,
+            quest.PointOpt,
             title_bytes,
             details_bytes,
             objectives_bytes,
@@ -405,10 +405,10 @@ class QuestManager(object):
         )
 
         # Required kills / Required items count.
-        req_creatures_or_gos = QuestHelpers.generate_req_creature_or_go_list(active_quest.quest)
-        req_creatures_or_gos_count_list = QuestHelpers.generate_req_creature_or_go_count_list(active_quest.quest)
-        req_items = QuestHelpers.generate_req_item_list(active_quest.quest)
-        req_items_count_list = QuestHelpers.generate_req_item_count_list(active_quest.quest)
+        req_creatures_or_gos = QuestHelpers.generate_req_creature_or_go_list(quest)
+        req_creatures_or_gos_count_list = QuestHelpers.generate_req_creature_or_go_count_list(quest)
+        req_items = QuestHelpers.generate_req_item_list(quest)
+        req_items_count_list = QuestHelpers.generate_req_item_count_list(quest)
         for index, creature_or_go in enumerate(req_creatures_or_gos):
             data += pack(
                 '<4IB',
@@ -420,7 +420,7 @@ class QuestManager(object):
             )
 
         # Objective texts.
-        req_objective_text_list = QuestHelpers.generate_objective_text_list(active_quest.quest)
+        req_objective_text_list = QuestHelpers.generate_objective_text_list(quest)
         for index, objective_text in enumerate(req_objective_text_list):
             req_objective_text_bytes = PacketWriter.string_to_bytes(req_objective_text_list[index])
             data += pack(
@@ -543,7 +543,7 @@ class QuestManager(object):
             self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count)
 
         self.add_to_quest_log(quest_id, active_quest)
-        self.send_quest_query_response(active_quest)
+        self.send_quest_query_response(active_quest.quest)
 
         # If player is in a group and quest has QUEST_FLAGS_PARTY_ACCEPT flag, let other members accept it too.
         if self.player_mgr.group_manager and not shared:
