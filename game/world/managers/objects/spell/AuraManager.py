@@ -29,8 +29,6 @@ class AuraManager:
         if not can_apply:
             return
 
-        aura.initialize_period_timestamps()  # Initialize periodic spell timestamps on application
-
         AuraEffectHandler.handle_aura_effect_change(aura)
         aura.index = self.get_next_aura_index(aura)
         self.active_auras[aura.index] = aura
@@ -50,10 +48,10 @@ class AuraManager:
 
     has_moved = False  # Set from SpellManager - TODO pass movement info from unit update instead
 
-    def update(self, elapsed):
+    def update(self, timestamp):
         for aura in list(self.active_auras.values()):
-            aura.update(elapsed)  # Update duration and handle periodic effects
-            if aura.has_duration() and aura.duration <= 0:
+            aura.update(timestamp)  # Update duration and handle periodic effects
+            if aura.has_duration() and aura.get_duration() <= 0:
                 self.remove_aura(aura)
 
         if len(self.active_auras) > 0:
@@ -156,13 +154,12 @@ class AuraManager:
             if aura.harmful and aura.caster.guid == caster_guid:
                 self.remove_aura(aura)
 
-    def remove_aura(self, aura):
-        # TODO check if aura can be removed (by player)
+    def remove_aura(self, aura, canceled=False):
         AuraEffectHandler.handle_aura_effect_change(aura, True)
         if not self.active_auras.pop(aura.index, None):
             return
         # Some area effect auras (paladin auras, tranq etc.) are tied to spell effects. Cancel cast on aura cancel, canceling the auras as well.
-        self.unit_mgr.spell_manager.remove_cast(aura.source_spell, SpellCheckCastResult.SPELL_NO_ERROR)
+        self.unit_mgr.spell_manager.remove_cast(aura.source_spell, interrupted=canceled)
 
         # Some spells start cooldown on aura remove, handle that case here
         if aura.source_spell.trigger_cooldown_on_aura_remove():
@@ -183,13 +180,29 @@ class AuraManager:
         auras = self.get_auras_by_spell_id(spell_id)
 
         for aura in auras:
-            self.remove_aura(aura)
+            self.remove_aura(aura, canceled=True)
+
+    def handle_player_cancel_aura_request(self, spell_id):
+        auras = self.get_auras_by_spell_id(spell_id)
+        can_remove = True
+        is_passive = True  # Player shouldn't be able to remove auras with only a passive part
+        for aura in auras:
+            if not aura.passive:
+                is_passive = False
+            if aura.harmful or aura.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CANT_CANCEL:
+                can_remove = False  # Can't remove harmful auras
+                break
+
+        if is_passive or not can_remove:
+            return
+
+        self.cancel_auras_by_spell_id(spell_id)
 
     def send_aura_duration(self, aura):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        data = pack('<Bi', aura.index, aura.duration)
+        data = pack('<Bi', aura.index, aura.get_duration())
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))
 
     def write_aura_to_unit(self, aura, clear=False):

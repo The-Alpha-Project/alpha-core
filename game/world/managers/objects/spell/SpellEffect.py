@@ -1,8 +1,8 @@
 import random
+import time
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import SpellRadius, Spell
-from game.world.managers.objects.spell.AuraManager import AppliedAura
+from database.dbc.DbcModels import SpellRadius, Spell, SpellDuration
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from utils.constants.SpellCodes import SpellEffects
 
@@ -29,10 +29,13 @@ class SpellEffect(object):
     effect_index: int
     targets: EffectTargets
     radius_entry: SpellRadius
+    duration_entry: SpellDuration
     trigger_spell_entry: Spell
 
-    effect_aura = None
-
+    # Duration and periodic timing info for auras applied by this effect
+    applied_aura_duration = -1
+    periodic_effect_ticks = []
+    last_update_timestamp = -1
 
     def __init__(self, casting_spell, index):
         if index == 0:
@@ -46,9 +49,45 @@ class SpellEffect(object):
         self.targets = EffectTargets(casting_spell, self)
         self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index) if self.radius_index else None
         self.trigger_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(self.trigger_spell_id) if self.trigger_spell_id else None
+        self.duration_entry = casting_spell.duration_entry
 
-        if self.aura_type:  # If this effect has an aura type provided, generate it here. It (might ?) be needed by effect handlers
-            self.effect_aura = AppliedAura(casting_spell.spell_caster, casting_spell, self, None)  # Target as none as this effect shouldn't be tied to any unit
+    def update_effect_aura(self, timestamp):
+        if self.applied_aura_duration == -1:
+            return
+
+        self.applied_aura_duration -= (timestamp - self.last_update_timestamp) * 1000
+        self.last_update_timestamp = timestamp
+
+    def remove_old_periodic_effect_ticks(self):
+        while self.is_past_next_period():
+            self.periodic_effect_ticks.pop()
+
+    def is_past_next_period(self):
+        # Also accept equal duration to properly handle last tick
+        return len(self.periodic_effect_ticks) > 0 and self.periodic_effect_ticks[-1] >= self.applied_aura_duration
+
+    def generate_periodic_effect_ticks(self) -> list[int]:
+        duration = self.duration_entry.Duration
+        if self.aura_period == 0:
+            return []
+        period = self.aura_period
+        tick_count = int(duration / self.aura_period)
+
+        ticks = []
+        for i in range(0, tick_count):
+            ticks.append(period * i)
+        return ticks
+
+    def handle_application(self):
+        if not self.duration_entry or len(self.periodic_effect_ticks) > 0:
+            return
+        self.applied_aura_duration = self.duration_entry.Duration
+        self.last_update_timestamp = time.time()
+        if self.is_periodic():
+            self.periodic_effect_ticks = self.generate_periodic_effect_ticks()
+
+    def is_periodic(self):
+        return self.aura_period != 0
 
     def get_effect_points(self, effective_level) -> int:
         rolled_points = random.randint(1, self.die_sides + self.dice_per_level) if self.die_sides != 0 else 0

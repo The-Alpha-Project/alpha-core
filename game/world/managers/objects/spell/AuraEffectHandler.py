@@ -58,44 +58,37 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_trigger_spell(aura, remove):
-        if not aura.is_past_next_period_timestamp():  # Note: period timestamp is checked on remove as well
+        if not aura.is_past_next_period() or remove:
             return
-        aura.pop_period_timestamp()
         new_spell_entry = aura.spell_effect.trigger_spell_entry
         spell = aura.caster.spell_manager.try_initialize_spell(new_spell_entry, aura.caster, aura.source_spell.initial_target,
                                                                aura.source_spell.spell_target_mask, validate=False)
-        aura.caster.spell_manager.perform_spell_cast(spell, validate=False, is_trigger=True)
+        aura.caster.spell_manager.start_spell_cast(None, None, None, None, initialized_spell=spell, is_trigger=True)
 
     @staticmethod
     def handle_periodic_healing(aura, remove):
-        if not aura.is_past_next_period_timestamp() or remove:
+        if not aura.is_past_next_period() or remove:
             return
-        aura.pop_period_timestamp()
-
         spell = aura.source_spell
         healing = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.caster.apply_spell_healing(aura.target, healing, spell.spell_entry.School, spell.spell_entry.ID)
+        aura.caster.apply_spell_healing(aura.target, healing, spell, is_periodic=True)
 
     @staticmethod
     def handle_periodic_damage(aura, remove):
-        if not aura.is_past_next_period_timestamp():
+        if not aura.is_past_next_period() or remove:
             return
-        aura.pop_period_timestamp()
-
         spell = aura.source_spell
         damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.caster.apply_spell_damage(aura.target, damage, spell.spell_entry.School, spell.spell_entry.ID)
+        aura.caster.apply_spell_damage(aura.target, damage, spell, is_periodic=True)
 
     @staticmethod
     def handle_periodic_leech(aura, remove):
-        if not aura.is_past_next_period_timestamp():
+        if not aura.is_past_next_period() or remove:
             return
-        aura.pop_period_timestamp()
-
         spell = aura.source_spell
         damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.caster.apply_spell_damage(aura.target, damage, spell.spell_entry.School, spell.spell_entry.ID)
-        # TODO Heal
+        aura.caster.apply_spell_damage(aura.target, damage, spell, is_periodic=True)
+        aura.caster.receive_healing(damage, aura.caster)
 
 
 AURA_EFFECTS = {
