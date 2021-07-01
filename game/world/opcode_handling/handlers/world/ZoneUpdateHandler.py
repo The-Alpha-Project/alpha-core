@@ -10,9 +10,6 @@ class ZoneUpdateHandler(object):
         #  every X seconds if the zone has changed.
         if len(reader.data) >= 4:  # Avoid handling empty zone update packet.
             zone = unpack('<I', reader.data[:4])[0]
-            player_mgr = world_session.player_mgr
-            player_mgr.zone = zone
-
-            world_session.player_mgr.on_zone_change()
+            world_session.player_mgr.on_zone_change(zone)
 
         return 0
