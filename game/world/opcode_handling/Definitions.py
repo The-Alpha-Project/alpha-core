@@ -78,6 +78,7 @@ from game.world.opcode_handling.handlers.npc.SellItemHandler import SellItemHand
 from game.world.opcode_handling.handlers.npc.TabardVendorActivateHandler import TabardVendorActivateHandler
 from game.world.opcode_handling.handlers.npc.TaxiQueryNodesHandler import TaxiQueryNodesHandler
 from game.world.opcode_handling.handlers.npc.TrainerListHandler import TrainerListHandler
+from game.world.opcode_handling.handlers.npc.TrainerBuySpellHandler import TrainerBuySpellHandler
 from game.world.opcode_handling.handlers.player.DebugAIStateHandler import DebugAIStateHandler
 from game.world.opcode_handling.handlers.player.DuelAcceptHandler import DuelAcceptHandler
 from game.world.opcode_handling.handlers.player.DuelCanceledHandler import DuelCanceledHandler
@@ -100,6 +101,7 @@ from game.world.opcode_handling.handlers.player.cheats.SpeedCheatHandler import 
 from game.world.opcode_handling.handlers.player.cheats.CheatSetMoneyHandler import CheatSetMoneyHandler
 from game.world.opcode_handling.handlers.player.cheats.LevelCheatHandler import LevelCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.LevelUpCheatHandler import LevelUpCheatHandler
+from game.world.opcode_handling.handlers.player.cheats.LearnSpellCheatHandler import LearnSpellCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from game.world.opcode_handling.handlers.player.SetActionButtonHandler import SetActionButtonHandler
 from game.world.opcode_handling.handlers.player.NewSpellSlotHandler import NewSpellSlotHandler
@@ -213,6 +215,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_ACCEPT_TRADE: AcceptTradeHandler.handle,
     OpCode.CMSG_INSPECT: InspectHandler.handle,
     OpCode.CMSG_TRAINER_LIST: TrainerListHandler.handle,
+    OpCode.CMSG_TRAINER_BUY_SPELL: TrainerBuySpellHandler.handle,
     OpCode.CMSG_TAXIQUERYAVAILABLENODES: TaxiQueryNodesHandler.handle,
     OpCode.CMSG_TAXINODE_STATUS_QUERY: TaxiNodeStatusQueryHandler.handle,
     OpCode.CMSG_ACTIVATETAXI: ActivateTaxiHandler.handle,
@@ -284,6 +287,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_CHEAT_SETMONEY: CheatSetMoneyHandler.handle,
     OpCode.CMSG_LEVEL_CHEAT: LevelCheatHandler.handle,
     OpCode.CMSG_LEVELUP_CHEAT: LevelUpCheatHandler.handle,
+    OpCode.CMSG_LEARN_SPELL: LearnSpellCheatHandler.handle,
     OpCode.CMSG_DEBUG_AISTATE: DebugAIStateHandler.handle,
     OpCode.CMSG_BANKER_ACTIVATE: BankerActivateHandler.handle,
     OpCode.CMSG_BUY_BANK_SLOT: BuyBankSlotHandler.handle,

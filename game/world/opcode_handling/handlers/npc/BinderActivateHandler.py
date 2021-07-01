@@ -1,5 +1,6 @@
 from struct import unpack, pack
 
+from game.world.managers.maps.MapManager import MapManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import HighGuid
@@ -11,7 +12,10 @@ class BinderActivateHandler(object):
     def handle(world_session, socket, reader):
         if len(reader.data) >= 8:  # Avoid handling empty binder activate packet.
             binder_guid = unpack('<Q', reader.data[:8])[0]
-            if binder_guid > 0:
+
+            binder = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, binder_guid)
+
+            if binder and binder.is_within_interactable_distance(world_session.player_mgr) and binder_guid > 0:
                 world_session.player_mgr.deathbind.creature_binder_guid = binder_guid & ~HighGuid.HIGHGUID_UNIT
                 world_session.player_mgr.deathbind.deathbind_map = world_session.player_mgr.map_
                 world_session.player_mgr.deathbind.deathbind_zone = world_session.player_mgr.zone

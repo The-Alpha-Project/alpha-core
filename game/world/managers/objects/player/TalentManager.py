@@ -1,4 +1,6 @@
 from struct import pack
+from typing import Optional
+from database.dbc.DbcModels import SkillLineAbility
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -6,27 +8,35 @@ from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 
 TALENT_SKILL_ID = 3
 # Weapon, Attribute, Slayer, Magic, Defensive
-SKILL_LINE_TALENT_IDS = [222, 230, 231, 233, 234]
+SKILL_LINE_TALENT_IDS: list[int] = [222, 230, 231, 233, 234]
 
 
 class TalentManager(object):
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
 
-    def send_talent_list(self):
-        next_talent = []
-        talent_bytes = b''
-        talent_count = 0
+    def get_talent_cost_by_id(self, spell_id: int) -> int:
+        spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_id(spell_id)
 
-        skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_by_skill_lines(SKILL_LINE_TALENT_IDS)
+        # We do know that Rank 1 cost 10 TP and Rank 2 cost 15 TP (https://i.imgur.com/eFi3cf4.jpg),
+        # so we assume each rank cost 5 TP more.
+        talent_points_cost: int = 10 + ((spell_rank - 1) * 5)
+        return talent_points_cost
+
+    def send_talent_list(self):
+        next_talent: list[int] = []
+        talent_bytes: bytes = b''
+        talent_count: int = 0
+
+        skill_line_abilities: list[SkillLineAbility] = DbcDatabaseManager.skill_line_ability_get_by_skill_lines(SKILL_LINE_TALENT_IDS)
 
         for ability in skill_line_abilities:
             # We only want the ones having an attached spell
             if not ability.Spell:
                 continue
 
-            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(ability.Spell)
-            spell_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
+            spell: Optional[SkillLineAbility] = DbcDatabaseManager.SpellHolder.spell_get_by_id(ability.Spell)
+            spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
 
             if ability.Spell in self.player_mgr.spell_manager.spells:
                 if ability.SupercededBySpell > 0:
@@ -40,9 +50,8 @@ class TalentManager(object):
                 else:
                     status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
-            # We do know that Rank 1 cost 10 TP and Rank 2 cost 15 TP (https://i.imgur.com/eFi3cf4.jpg),
-            # so we assume each rank cost 5 TP more.
-            talent_points_cost = 10 + ((spell_rank - 1) * 5)
+            
+            talent_points_cost = self.get_talent_cost_by_id(ability.Spell)
             data = pack('<IBI3B6I',
                         ability.Spell,  # Spell id
                         status,  # Status

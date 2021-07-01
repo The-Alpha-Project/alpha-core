@@ -20,6 +20,7 @@ class QuestGiverHelloHandler(object):
             # TODO: Stop the npc if it's moving
             # TODO: Remove feign death from player (if it even exists in 0.5.3)
             # TODO: If the gossip menu is already open, do nothing
-            world_session.player_mgr.quest_manager.handle_quest_giver_hello(quest_giver, guid)
+            if quest_giver.is_within_interactable_distance(world_session.player_mgr):
+                world_session.player_mgr.quest_manager.handle_quest_giver_hello(quest_giver, guid)
 
         return 0

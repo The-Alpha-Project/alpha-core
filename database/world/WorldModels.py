@@ -3,6 +3,7 @@ from sqlalchemy import CHAR, Column, Float, ForeignKey, Index, String, Table, Te
 from sqlalchemy.dialects.mysql import INTEGER, LONGTEXT, MEDIUMINT, SMALLINT, TINYINT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.expression import true
 
 Base = declarative_base()
 metadata = Base.metadata
@@ -780,19 +781,26 @@ class ItemLootTemplate(Base):
     item_template = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.entry == ItemTemplate.entry')
     item_template1 = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.item == ItemTemplate.entry')
 
+class NpcTrainer(Base):
+    __tablename__ = 'npc_trainer'
+    
+    template_entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    spellcost = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    talentpointcost = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    skillpointcost = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    reqskill = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    reqskillvalue = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    reqlevel = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
 
-t_npc_trainer = Table(
-    'npc_trainer', metadata,
-    Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, server_default=text("'0'")),
-    Column('spell', MEDIUMINT(8), nullable=False, server_default=text("'0'")),
-    Column('spellcost', INTEGER(10), nullable=False, server_default=text("'0'")),
-    Column('spellpointcost', INTEGER(10), nullable=False, server_default=text("'0'")),
-    Column('reqskill', SMALLINT(5), nullable=False, server_default=text("'0'")),
-    Column('reqskillvalue', SMALLINT(5), nullable=False, server_default=text("'0'")),
-    Column('reqlevel', TINYINT(3), nullable=False, server_default=text("'0'")),
-    Index('entry_spell', 'entry', 'spell', unique=True)
-)
+class SpellChain(Base):
+    __tablename__ = 'spell_chain'
 
+    spell_id = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    prev_spell = Column(MEDIUMINT(8), primary_key=False, nullable=False, server_default=text("'0'"))
+    first_spell = Column(MEDIUMINT(8), primary_key=False, nullable=False, server_default=text("'0'"))
+    rank = Column(TINYINT(3), primary_key=False, nullable=False, server_default=text("'0'"))
+    req_spell = Column(MEDIUMINT(8), primary_key=False, nullable=False, server_default=text("'0'"))
 
 class NpcVendor(Base):
     __tablename__ = 'npc_vendor'
