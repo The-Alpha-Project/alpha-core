@@ -37,6 +37,8 @@ class TrainerBuySpellHandler(object):
                         world_session.player_mgr.generate_proper_update_packet(is_self=True),
                         force_inventory_update=False)
                     TrainerBuySpellHandler.send_trainer_buy_succeeded(world_session, trainer_guid, spell_id)
+                    # Send talent list again to refresh it.
+                    world_session.talent_manager.send_trainer_list(world_session)
 
             # Otherwise, using a trainer NPC.
             else:
