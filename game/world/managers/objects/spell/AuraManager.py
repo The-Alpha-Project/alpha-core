@@ -185,12 +185,12 @@ class AuraManager:
     def handle_player_cancel_aura_request(self, spell_id):
         auras = self.get_auras_by_spell_id(spell_id)
         can_remove = True
-        is_passive = True  # Player shouldn't be able to remove auras with only a passive part
+        is_passive = True  # Player shouldn't be able to remove auras with only a passive part.
         for aura in auras:
             if not aura.passive:
                 is_passive = False
             if aura.harmful or aura.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CANT_CANCEL:
-                can_remove = False  # Can't remove harmful auras
+                can_remove = False  # Can't remove harmful auras.
                 break
 
         if is_passive or not can_remove:

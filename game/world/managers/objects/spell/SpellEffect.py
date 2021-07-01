@@ -63,7 +63,7 @@ class SpellEffect(object):
             self.periodic_effect_ticks.pop()
 
     def is_past_next_period(self):
-        # Also accept equal duration to properly handle last tick
+        # Also accept equal duration to properly handle last tick.
         return len(self.periodic_effect_ticks) > 0 and self.periodic_effect_ticks[-1] >= self.applied_aura_duration
 
     def generate_periodic_effect_ticks(self) -> list[int]:

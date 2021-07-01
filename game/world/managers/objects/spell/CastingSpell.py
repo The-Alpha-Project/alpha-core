@@ -220,33 +220,33 @@ class CastingSpell(object):
         if not self.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL:
             return
 
-        # Did pushback resistance exist? TODO
+        # TODO Did pushback resistance exist?
         curr_time = time.time()
         remaining_cast_before_pushback = self.cast_end_timestamp - curr_time
 
         if self.is_channeled() and self.cast_state == SpellState.SPELL_STATE_ACTIVE:
-            channel_length = self.duration_entry.Duration/1000  # /1000 for seconds
+            channel_length = self.duration_entry.Duration/1000  # /1000 for seconds.
             final_opcode = OpCode.MSG_CHANNEL_UPDATE
             pushback_length_sec = min(remaining_cast_before_pushback, channel_length * 0.25)
             for effect in self.effects:
                 if remaining_cast_before_pushback <= pushback_length_sec:
-                    # Applied aura duration is not timestamp based so it's stored in milliseconds
-                    # To avoid rounding issues, set to zero instead of subtracting if pushback leads to channel stop
+                    # Applied aura duration is not timestamp based so it's stored in milliseconds.
+                    # To avoid rounding issues, set to zero instead of subtracting if pushback leads to channel stop.
                     effect.applied_aura_duration = 0
                 else:
-                    effect.applied_aura_duration -= pushback_length_sec * 1000  # aura duration is stored as millis
+                    effect.applied_aura_duration -= pushback_length_sec * 1000  # aura duration is stored as millis.
                 effect.remove_old_periodic_effect_ticks()
 
             self.cast_end_timestamp -= pushback_length_sec
-            data = pack('<I', int((remaining_cast_before_pushback - pushback_length_sec)*1000))  # *1000 for millis
+            data = pack('<I', int((remaining_cast_before_pushback - pushback_length_sec)*1000))  # *1000 for millis.
 
         elif self.cast_state == SpellState.SPELL_STATE_CASTING:
             final_opcode = OpCode.SMSG_SPELL_DELAYED
-            cast_progress_seconds = self.get_base_cast_time()/1000 - remaining_cast_before_pushback  # base cast time in seconds
-            pushback_length_sec = min(cast_progress_seconds, 0.5)  # Push back 0.5s or to beginning of cast
+            cast_progress_seconds = self.get_base_cast_time()/1000 - remaining_cast_before_pushback  # base cast time in seconds.
+            pushback_length_sec = min(cast_progress_seconds, 0.5)  # Push back 0.5s or to beginning of cast.
 
             self.cast_end_timestamp += pushback_length_sec
-            data = pack('<QI', self.spell_caster.guid, int(pushback_length_sec * 1000))  # *1000 for millis
+            data = pack('<QI', self.spell_caster.guid, int(pushback_length_sec * 1000))  # *1000 for millis.
         else:
             return
 

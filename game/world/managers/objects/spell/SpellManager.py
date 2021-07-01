@@ -260,7 +260,7 @@ class SpellManager(object):
                 for target in targets_due:
                     casting_spell.spell_impact_timestamps.pop(target)
 
-                if len(casting_spell.spell_impact_timestamps) == 0:  # All targets finished impact delay
+                if len(casting_spell.spell_impact_timestamps) == 0:  # All targets finished impact delay.
                     self.apply_spell_effects(casting_spell, remove=True)
                     continue
 
@@ -305,7 +305,7 @@ class SpellManager(object):
                 if not (spell_flags & flag) or not condition:
                     continue
 
-                # - Creatures dealing enough damage (crushing blow) will now fully interrupt casting. (0.5.3 notes)
+                # - Creatures dealing enough damage (crushing blow) will now fully interrupt casting. (0.5.3 notes).
                 if spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL and hit_info != HitInfo.CRUSHING and \
                         flag != SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT:
                     casting_spell.handle_partial_interrupt()
@@ -318,14 +318,14 @@ class SpellManager(object):
 
         self.casting_spells.remove(casting_spell)
 
-        # Cancel auras applied by an active spell if the spell was interrupted
-        # If the cast finished normally, auras should wear off because of duration
-        # Since spell update happens before aura update, last ticks will be skipped if auras are cancelled on cast finish
+        # Cancel auras applied by an active spell if the spell was interrupted.
+        # If the cast finished normally, auras should wear off because of duration.
+        # Since spell update happens before aura update, last ticks will be skipped if auras are cancelled on cast finish.
         if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE and interrupted:
-            for miss_info in casting_spell.object_target_results.values():  # Get the last effect application results
+            for miss_info in casting_spell.object_target_results.values():  # Get the last effect application results.
                 if ObjectTypes.TYPE_UNIT not in miss_info.target.object_type:
                     continue
-                miss_info.target.aura_manager.cancel_auras_by_spell_id(casting_spell.spell_entry.ID)  # Cancel effects from this aura
+                miss_info.target.aura_manager.cancel_auras_by_spell_id(casting_spell.spell_entry.ID)  # Cancel effects from this aura.
 
         if casting_spell.is_channeled():
             self.handle_channel_end(casting_spell)
@@ -355,14 +355,13 @@ class SpellManager(object):
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING or casting_spell.is_channeled():
                 self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
                 continue
-            if casting_spell.is_paladin_aura() and current_cast.is_paladin_aura():  # Paladin aura exclusivity
+            if casting_spell.is_paladin_aura() and current_cast.is_paladin_aura():  # Paladin aura exclusivity.
                 self.remove_cast(casting_spell, interrupted=True)
                 continue
             if current_cast.casts_on_swing() and casting_spell.casts_on_swing() and casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
                 self.remove_cast(casting_spell, interrupted=True)
                 continue
 
-#      def calculate_time_to_impact(self, casting_spell) -> float:
     def calculate_impact_delays(self, casting_spell) -> dict[int, float]:
         impact_delays = {}
         if casting_spell.spell_entry.Speed == 0:
@@ -385,9 +384,9 @@ class SpellManager(object):
                 casting_spell.spell_entry.ID, casting_spell.cast_flags, casting_spell.get_base_cast_time(),
                 casting_spell.spell_target_mask]
 
-        signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID/inventorytype)
+        signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventorytype).
 
-        if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written
+        if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written.
             target_info = casting_spell.get_initial_target_info()  # ([values], signature)
             data.extend(target_info[0])
             signature += target_info[1]
@@ -407,7 +406,7 @@ class SpellManager(object):
         casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
         channel_end_timestamp = casting_spell.duration_entry.Duration/1000 + time.time()
         casting_spell.cast_start_timestamp = time.time()
-        casting_spell.cast_end_timestamp = channel_end_timestamp  # Set the new timestamp for cast finish
+        casting_spell.cast_end_timestamp = channel_end_timestamp  # Set the new timestamp for cast finish.
 
         if casting_spell.initial_target_is_object():
             self.unit_mgr.set_channel_object(casting_spell.initial_target.guid)
@@ -419,21 +418,21 @@ class SpellManager(object):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        data = pack('<2I', casting_spell.spell_entry.ID, casting_spell.duration_entry.Duration)  # No channeled spells with duration per level
-        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))  # SMSG?
+        data = pack('<2I', casting_spell.spell_entry.ID, casting_spell.duration_entry.Duration)  # No channeled spells with duration per level.
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
         # TODO Channeling animations do not play
 
     def handle_spell_effect_update(self, casting_spell, timestamp):
         for effect in casting_spell.effects:
-            # Refresh targets
+            # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
             effect.remove_old_periodic_effect_ticks()
 
-            # Update periodic effects
+            # Update periodic effects.
             effect.update_effect_aura(timestamp)
 
-            # Area spell effect update
+            # Area spell effect update.
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 self.apply_spell_effects(casting_spell, update=True)
 
@@ -452,30 +451,30 @@ class SpellManager(object):
             return
 
         data = pack('<I', 0)
-        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))  # SMSG?
+        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
 
     def send_spell_go(self, casting_spell):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags]
 
-        signature = '<2QIH'  # source, caster, ID, flags .. (targets, ammo info)
+        signature = '<2QIH'  # source, caster, ID, flags .. (targets, ammo info).
 
         # Prepare target data
-        results_by_type = {SpellMissReason.MISS_REASON_NONE: []}  # Hits need to be written first
+        results_by_type = {SpellMissReason.MISS_REASON_NONE: []}  # Hits need to be written first.
         for target_guid, miss_info in casting_spell.object_target_results.items():
             new_targets = results_by_type.get(miss_info.result, [])
             new_targets.append(target_guid)
-            results_by_type[miss_info.result] = new_targets  # Sort targets by hit type for filling packet fields
+            results_by_type[miss_info.result] = new_targets  # Sort targets by hit type for filling packet fields.
 
         hit_count = len(results_by_type[SpellMissReason.MISS_REASON_NONE])
-        miss_count = len(casting_spell.object_target_results) - hit_count  # Subtract hits from all targets
+        miss_count = len(casting_spell.object_target_results) - hit_count  # Subtract hits from all targets.
         # Write targets, hits first
         for result, guids in results_by_type.items():
-            if result == SpellMissReason.MISS_REASON_NONE:  # Hit count is written separately
+            if result == SpellMissReason.MISS_REASON_NONE:  # Hit count is written separately.
                 signature += 'B'
                 data.append(hit_count)
 
-            if result != SpellMissReason.MISS_REASON_NONE:  # Write reason for miss
+            if result != SpellMissReason.MISS_REASON_NONE:  # Write reason for miss.
                 signature += 'B'
                 data.append(result)
 
@@ -484,14 +483,14 @@ class SpellManager(object):
             for target_guid in guids:
                 data.append(target_guid)
 
-            if result == SpellMissReason.MISS_REASON_NONE:  # Write miss count at the end of hits since it needs to be written even if none happen
+            if result == SpellMissReason.MISS_REASON_NONE:  # Write miss count at the end of hits since it needs to be written even if none happen.
                 signature += 'B'
                 data.append(miss_count)
 
         signature += 'H'  # SpellTargetMask
         data.append(casting_spell.spell_target_mask)
 
-        if casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Write target info - same as cast start
+        if casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Write target info - same as cast start.
             target_info = casting_spell.get_initial_target_info()  # ([values], signature)
             data.extend(target_info[0])
             signature += target_info[1]
@@ -555,7 +554,7 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return False
 
-        # Channeled spells that require persistent targets
+        # Channeled spells that require persistent targets.
         if casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNEL_TRACK_TARGET:
             if not casting_spell.targeted_unit_on_cast_start:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)  # Arcane missiles cast only sends self as target but expects an unit target to track
@@ -580,7 +579,7 @@ class SpellManager(object):
     def meets_casting_requisites(self, casting_spell) -> bool:
         has_health_cost = casting_spell.spell_entry.PowerType == PowerTypes.TYPE_HEALTH
         if not has_health_cost and casting_spell.spell_entry.PowerType != self.unit_mgr.power_type and \
-                casting_spell.spell_entry.ManaCost != 0:  # Doesn't have the correct power type
+                casting_spell.spell_entry.ManaCost != 0:  # Doesn't have the correct power type.
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 
@@ -594,13 +593,13 @@ class SpellManager(object):
 
         # Player only checks
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
-            # Check if player has required combo points
+            # Check if player has required combo points.
             if casting_spell.requires_combo_points() and \
-                    (casting_spell.initial_target.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points
+                    (casting_spell.initial_target.guid != self.unit_mgr.combo_target or self.unit_mgr.combo_points == 0):  # Doesn't have required combo points.
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
                 return False
 
-            # Check if player has required reagents
+            # Check if player has required reagents.
             for reagent_info, count in casting_spell.get_reagents():
                 if reagent_info == 0:
                     break
@@ -609,17 +608,17 @@ class SpellManager(object):
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_REAGENTS)
                     return False
 
-            # Spells cast with consumables
+            # Spells cast with consumables.
             if casting_spell.source_item and casting_spell.source_item.has_charges():
                 spell_stats = casting_spell.get_item_spell_stats()
                 charges = spell_stats.charges
-                if charges == 0:  # no charges left
+                if charges == 0:  # no charges left.
                     self.send_cast_result(casting_spell.spell_entry.ID,
                                           SpellCheckCastResult.SPELL_FAILED_NO_CHARGES_REMAIN)
                     return False
-                if charges < 0 and self.unit_mgr.inventory.get_item_count(casting_spell.source_item.item_template.entry) < 1:  # Consumables have negative charges
+                if charges < 0 and self.unit_mgr.inventory.get_item_count(casting_spell.source_item.item_template.entry) < 1:  # Consumables have negative charges.
                     self.send_cast_result(casting_spell.spell_entry.ID,
-                                          SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)  # Should never really happen but catch this case
+                                          SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)  # Should never really happen but catch this case.
                     return False
 
             for tool in casting_spell.get_required_tools():
@@ -629,7 +628,7 @@ class SpellManager(object):
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOTEMS)
                     return False
 
-            # Check if player inventory has space left
+            # Check if player inventory has space left.
             for item, count in casting_spell.get_conjured_items():
                 if item == 0:
                     break
@@ -643,7 +642,7 @@ class SpellManager(object):
 
         return True
 
-    def consume_resources_for_cast(self, casting_spell):  # This method assumes that the reagents exist (meets_casting_requisites was run)
+    def consume_resources_for_cast(self, casting_spell):  # This method assumes that the reagents exist (meets_casting_requisites was run).
         power_type = casting_spell.spell_entry.PowerType
         cost = casting_spell.spell_entry.ManaCost
         current_power = self.unit_mgr.health if power_type == PowerTypes.TYPE_HEALTH else self.unit_mgr.get_power_type_value()
@@ -664,26 +663,27 @@ class SpellManager(object):
             self.unit_mgr.remove_combo_points()
             self.unit_mgr.set_dirty()
 
-        for reagent_info in casting_spell.get_reagents():  # Reagents
+        for reagent_info in casting_spell.get_reagents():  # Reagents.
             if reagent_info[0] == 0:
                 break
             self.unit_mgr.inventory.remove_items(reagent_info[0], reagent_info[1])
 
-        # Spells cast with consumables
+        # Spells cast with consumables.
         if casting_spell.source_item and casting_spell.source_item.has_charges():
             spell_stats = casting_spell.get_item_spell_stats()
             charges = spell_stats.charges
-            if charges < 0:  # Negative charges remove items
+            if charges < 0:  # Negative charges remove items.
                 self.unit_mgr.inventory.remove_items(casting_spell.source_item.item_template.entry, 1)
 
-            if charges != 0 and charges != -1:  # don't modify if no charges remain or this item is a consumable
+            if charges != 0 and charges != -1:  # don't modify if no charges remain or this item is a consumable.
                 new_charges = charges-1 if charges > 0 else charges+1
                 spell_stats.charges = new_charges
 
         self.unit_mgr.set_dirty()
 
     def send_cast_result(self, spell_id, error):
-        # cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED  # TODO CAST_SUCCESS_KEEP_TRACKING
+        # TODO CAST_SUCCESS_KEEP_TRACKING
+        #  cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED
 
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return

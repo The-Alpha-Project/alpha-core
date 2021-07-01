@@ -72,7 +72,7 @@ class SpellEffectHandler(object):
         # TODO Skill checks etc.
         if caster and target and target.get_type() == ObjectTypes.TYPE_GAMEOBJECT:  # TODO other object types, ie. lockboxes
             target.use(caster)
-            casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE  # keep checking movement interrupt
+            casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE  # Keep checking movement interrupt.
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
@@ -203,11 +203,11 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_script_effect(casting_spell, effect, caster, target):
-        arcane_missiles = [5143, 5144, 5145, 6125]  # Only arcane missiles and group astral recall
+        arcane_missiles = [5143, 5144, 5145, 6125]  # Only arcane missiles and group astral recall.
         group_astral_recall = 966
         if casting_spell.spell_entry.ID in arcane_missiles:
             # Periodic trigger spell aura uses the original target mask.
-            # Arcane missiles initial cast is self-targeted, so we need to switch the mask here
+            # Arcane missiles initial cast is self-targeted, so we need to switch the mask here.
             casting_spell.spell_target_mask = SpellTargetMask.UNIT
         elif casting_spell.spell_entry.ID == group_astral_recall:
             for target in effect.targets.get_resolved_effect_targets_by_type(ObjectManager):
