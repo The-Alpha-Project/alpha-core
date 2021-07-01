@@ -1,9 +1,5 @@
 from struct import unpack
 
-from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager
-from utils.constants.UnitCodes import SplineFlags
-
 
 class ZoneUpdateHandler(object):
 
@@ -14,13 +10,8 @@ class ZoneUpdateHandler(object):
             player_mgr = world_session.player_mgr
             player_mgr.zone = zone
 
-            # Exploration handling (only if player is not flying).
-            if not player_mgr.movement_spline or player_mgr.movement_spline.flags != SplineFlags.SPLINEFLAG_FLYING:
-                area = DbcDatabaseManager.area_get_by_id_and_map_id(world_session.player_mgr.zone, world_session.player_mgr.map_)
-                if area:
-                    area_template = WorldDatabaseManager.area_get_by_name(area.AreaName_enUS)
-                    if area_template and not player_mgr.has_area_explored(area_template):
-                        player_mgr.set_area_explored(area_template)
+            # Exploration handling.
+            world_session.player_mgr.check_update_zone()
 
             # Update friends and group.
             player_mgr.friends_manager.send_update_to_friends()

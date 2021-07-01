@@ -7,7 +7,7 @@ import colorama
 
 from game.realm import RealmManager
 from game.world import WorldManager
-from utils.ConfigManager import config
+from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 
@@ -28,6 +28,15 @@ if __name__ == '__main__':
     colorama.init()
     # Initialize path
     PathManager.set_root_path(os.path.realpath(__file__))
+
+    # Validate configuration file version.
+    try:
+        if config.Version.current != ConfigManager.EXPECTED_VERSION:
+            Logger.error(f'Invalid config.yml version, expected {ConfigManager.EXPECTED_VERSION} found {config.Version.current}')
+            exit()
+    except:
+        Logger.error(f'Invalid config.yml version, expected {ConfigManager.EXPECTED_VERSION}')
+        exit()
 
     # if platform != 'win32':
     #    from signal import signal, SIGPIPE, SIG_DFL

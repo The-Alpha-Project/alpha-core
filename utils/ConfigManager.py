@@ -1,12 +1,11 @@
 import json
 from collections import namedtuple
-
 import yaml
-
 from utils.PathManager import PathManager
 
 
 class ConfigManager:
+    EXPECTED_VERSION = 1
 
     def __init__(self):
         self.config = None

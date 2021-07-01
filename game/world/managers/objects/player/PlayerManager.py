@@ -28,11 +28,11 @@ from utils.constants.MiscCodes import ChatFlags, LootTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
 from utils.constants.UpdateFields import *
 
 MAX_ACTION_BUTTONS = 120
-MAX_EXPLORED_AREAS = 618
+MAX_EXPLORED_AREAS = 488
 
 
 class PlayerManager(UnitManager):
@@ -91,6 +91,7 @@ class PlayerManager(UnitManager):
         self.last_regen = 0
         self.spirit_release_timer = 0
         self.logout_timer = -1
+        self.zone_check_timer = 4
         self.dirty_inventory = False
         self.pending_taxi_destination = None
         self.explored_areas = bitarray(MAX_EXPLORED_AREAS, 'little')
@@ -737,18 +738,44 @@ class PlayerManager(UnitManager):
 
         self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=reload_items)
 
-    def has_area_explored(self, area_template):
-        return self.explored_areas[area_template.entry]
+    # Exploration handling (only if player is not flying).
+    def check_update_zone(self):
+        if not self.movement_spline or self.movement_spline.flags != SplineFlags.SPLINEFLAG_FLYING:
+            area_number = MapManager.get_area_number(self.map_, self.location.x, self.location.y)
+            # Check if the current player zone correspond to map files zone.
+            if area_number >= 0:
+                zone_id = DbcDatabaseManager.area_get_by_area_number(area_number, self.map_).ID
+                if zone_id != self.zone:
+                    # Update player zone.
+                    self.zone = zone_id
+                    # Update friends and group.
+                    self.friends_manager.send_update_to_friends()
+                    if self.group_manager:
+                        self.group_manager.send_update()
+
+            explore_flag = MapManager.get_area_explore_flag(self.map_, self.location.x, self.location.y)
+            # Check if we need to set this zone as explored.
+            if explore_flag >= 0 and not self.has_area_explored(explore_flag):
+                area_information = MapManager.get_area_information(self)
+                if area_information:
+                    self.set_area_explored(area_information)
+
+            self.zone_check_timer = 4
+        else: # Flying, delay the check even further
+            self.zone_check_timer = 8
+
+    def has_area_explored(self, area_explore_bit):
+        return self.explored_areas[area_explore_bit]
 
     # TODO: Research XP for exploration.
     #  Trigger quest explore requirement checks.
-    def set_area_explored(self, area_template):
-        self.explored_areas[area_template.entry] = True
-        if area_template.area_level > 0:
-            xp_gain = area_template.area_level * 10
+    def set_area_explored(self, area_information):
+        self.explored_areas[area_information.area_explore_bit] = True
+        if area_information.area_level > 0:
+            xp_gain = area_information.area_level * 10
             self.give_xp([xp_gain])
             # Notify client new discovered zone + xp gain.
-            data = pack('<2I', area_template.entry, xp_gain)
+            data = pack('<2I', area_information.area_id, xp_gain)
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
             self.session.enqueue_packet(packet)
 
@@ -1217,6 +1244,12 @@ class PlayerManager(UnitManager):
                 self.logout_timer -= elapsed
                 if self.logout_timer < 0:
                     self.logout()
+
+            # Zone check timer
+            if self.zone_check_timer > 0:
+                self.zone_check_timer -= elapsed
+                if self.zone_check_timer < 0:
+                    self.check_update_zone()
 
         self.last_tick = now
 
