@@ -741,16 +741,20 @@ class PlayerManager(UnitManager):
     # Exploration handling (only if player is not flying).
     def check_update_zone(self):
         if not self.movement_spline or self.movement_spline.flags != SplineFlags.SPLINEFLAG_FLYING:
-            explore_flag = MapManager.get_area_explore_flag(self.map_, self.location.x, self.location.y)
             area_number = MapManager.get_area_number(self.map_, self.location.x, self.location.y)
-
-            # Check if the current zone correspond to map files zone.
+            # Check if the current player zone correspond to map files zone.
             if area_number >= 0:
                 zone_id = DbcDatabaseManager.area_get_by_area_number(area_number, self.map_).ID
                 if zone_id != self.zone:
+                    # Update player zone.
                     self.zone = zone_id
+                    # Update friends and group.
+                    self.friends_manager.send_update_to_friends()
+                    if self.group_manager:
+                        self.group_manager.send_update()
 
-            # Check if we need set this zone as explored.
+            explore_flag = MapManager.get_area_explore_flag(self.map_, self.location.x, self.location.y)
+            # Check if we need to set this zone as explored.
             if explore_flag >= 0 and not self.has_area_explored(explore_flag):
                 area_information = MapManager.get_area_information(self)
                 if area_information:
