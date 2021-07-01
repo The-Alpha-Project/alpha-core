@@ -93,17 +93,6 @@ class MapManager(object):
         return tile_y
 
     @staticmethod
-    def print_area_information(map_id, x, y):
-        area_information = MapManager.get_area_information(map_id, x, y)
-        Logger.debug(f'AreaName {area_information.area_name}')
-        Logger.debug(f'AreaID {area_information.area_id}')
-        Logger.debug(f'AreaNumber {area_information.area_number}')
-        Logger.debug(f'AreaFlags {area_information.area_flags}')
-        Logger.debug(f'AreaLevel {area_information.area_level}')
-        Logger.debug(f'AreaExploreBit {area_information.area_explore_bit}')
-        Logger.debug(f'AreaFactionMask {area_information.area_faction_mask}')
-
-    @staticmethod
     def calculate_z_for_object(world_object):
         return MapManager.calculate_z(world_object.map_, world_object.location.x, world_object.location.y,
                                       world_object.location.z)
