@@ -13,8 +13,10 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
+from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
+from utils.constants.SpellCodes import SpellAttributes, SpellHitFlags
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -487,12 +489,32 @@ class UnitManager(ObjectManager):
         update_packet = self.generate_proper_update_packet(is_self=is_player)
         MapManager.send_surrounding(update_packet, self, include_self=is_player)
 
-    def deal_spell_damage(self, target, damage, school, spell_id):  # TODO Spell hit damage visual?
-        data = pack('<IQQIIfiii', 1, self.guid, target.guid, spell_id,
-                    damage, damage, school, damage, 0)
+    def receive_healing(self, amount, source=None):
+        is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
+
+        new_health = self.health + amount
+        if new_health > self.max_health:
+            self.set_health(self.max_health)
+        else:
+            self.set_health(new_health)
+
+        update_packet = self.generate_proper_update_packet(is_self=is_player)
+        MapManager.send_surrounding(update_packet, self, include_self=is_player)
+
+    def send_debug_info_spell(self, flags, spell_id, victim, damage, school, absorbed):
+        data = pack('<I2Q2If3i', flags, self.guid, victim.guid, spell_id, damage, damage, school, damage, absorbed)
         packet = PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL, data)
-        MapManager.send_surrounding(packet, target, include_self=target.get_type() == ObjectTypes.TYPE_PLAYER)
+        MapManager.send_surrounding(packet, victim, include_self=victim.get_type() == ObjectTypes.TYPE_PLAYER)
+
+    # TODO Spell hit damage visual?
+    def apply_spell_damage(self, target, damage, school, spell_id, flags=SpellHitFlags.HIT_FLAG_DAMAGE):
+        self.send_debug_info_spell(flags, spell_id, target, damage, school, 0)
         self.deal_damage(target, damage)
+
+    # TODO Spell healing visual?
+    def apply_spell_healing(self, target, healing, school, spell_id, flags=SpellHitFlags.HIT_FLAG_HEALED):
+        self.send_debug_info_spell(flags, spell_id, target, healing, school, 0)
+        target.receive_healing(healing, self)
 
     def set_current_target(self, guid):
         self.current_target = guid
@@ -770,6 +792,11 @@ class UnitManager(ObjectManager):
         # Clear all pending waypoint movement
         self.movement_manager.reset()
 
+        if killer:
+            killer.spell_manager.remove_all_casts_directed_at_unit(self.guid)  # Interrupt casting on target death
+        self.spell_manager.remove_all_casts()
+        self.aura_manager.handle_death()
+
         self.leave_combat()
         return True
 
@@ -825,6 +852,21 @@ class UnitManager(ObjectManager):
             return ((own_faction.FriendGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.FriendGroup)) != 0
         else:
             return ((own_faction.EnemyGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.EnemyGroup)) != 0
+
+    # noinspection PyUnresolvedReferences
+    def can_attack_target(self, target):
+        if target is self:
+            return False
+
+        is_enemy = self.is_enemy_to(target)
+        if is_enemy or self.get_type() != ObjectTypes.TYPE_PLAYER or target.get_type() != ObjectTypes.TYPE_PLAYER:
+            return is_enemy
+
+        if not self.duel_manager:
+            return is_enemy
+
+        # Return true if the players are friendly but dueling
+        return self.duel_manager.player_involved(target) and self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
 
     def is_friendly_to(self, target):
         return self._allegiance_status_checker(target, True)

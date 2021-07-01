@@ -8,8 +8,8 @@ begin not atomic
 
         insert into applied_updates values ('130520212');
     end if;
-
-    -- 27/05/2021 1
+    
+  -- 27/05/2021 1
 	if (select count(*) from applied_updates where id='270520211') = 0 then
         DROP TABLE IF EXISTS `npc_trainer`;
         CREATE TABLE IF NOT EXISTS `npc_trainer` (

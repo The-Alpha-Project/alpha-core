@@ -58,7 +58,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_trigger_spell(aura, remove):
-        if not aura.is_past_next_period_timestamp() or remove:
+        if not aura.is_past_next_period_timestamp():  # Note: period timestamp is checked on remove as well
             return
         aura.pop_period_timestamp()
         new_spell_entry = aura.spell_effect.trigger_spell_entry
@@ -67,24 +67,34 @@ class AuraEffectHandler:
         aura.caster.spell_manager.perform_spell_cast(spell, validate=False, is_trigger=True)
 
     @staticmethod
-    def handle_periodic_damage(aura, remove):
+    def handle_periodic_healing(aura, remove):
         if not aura.is_past_next_period_timestamp() or remove:
             return
         aura.pop_period_timestamp()
 
         spell = aura.source_spell
+        healing = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        aura.caster.apply_spell_healing(aura.target, healing, spell.spell_entry.School, spell.spell_entry.ID)
+
+    @staticmethod
+    def handle_periodic_damage(aura, remove):
+        if not aura.is_past_next_period_timestamp():
+            return
+        aura.pop_period_timestamp()
+
+        spell = aura.source_spell
         damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.caster.deal_spell_damage(aura.target, damage, spell.spell_entry.School, spell.spell_entry.ID)
+        aura.caster.apply_spell_damage(aura.target, damage, spell.spell_entry.School, spell.spell_entry.ID)
 
     @staticmethod
     def handle_periodic_leech(aura, remove):
-        if not aura.is_past_next_period_timestamp() or remove:
+        if not aura.is_past_next_period_timestamp():
             return
         aura.pop_period_timestamp()
 
         spell = aura.source_spell
         damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.caster.deal_spell_damage(aura.target, damage, spell.spell_entry.School, spell.spell_entry.ID)
+        aura.caster.apply_spell_damage(aura.target, damage, spell.spell_entry.School, spell.spell_entry.ID)
         # TODO Heal
 
 
@@ -93,6 +103,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted,
     AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_mounted_speed,
     AuraTypes.SPELL_AURA_PERIODIC_TRIGGER_SPELL: AuraEffectHandler.handle_periodic_trigger_spell,
+    AuraTypes.SPELL_AURA_PERIODIC_HEAL: AuraEffectHandler.handle_periodic_healing,
     AuraTypes.SPELL_AURA_PERIODIC_DAMAGE: AuraEffectHandler.handle_periodic_damage,
     AuraTypes.SPELL_AURA_PERIODIC_LEECH: AuraEffectHandler.handle_periodic_leech,
 }

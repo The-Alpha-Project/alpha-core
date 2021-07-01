@@ -61,6 +61,8 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return res
 
+    # AreaTable
+
     @staticmethod
     def area_get_by_id_and_map_id(area_id, map_id):
         dbc_db_session = SessionHolder()

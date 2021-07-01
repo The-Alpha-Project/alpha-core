@@ -82,6 +82,13 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    @staticmethod
+    def area_get_by_name(area_name):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(AreaTemplate).filter_by(name=area_name).first()
+        world_db_session.close()
+        return res
+
     # Worldport stuff
 
     @staticmethod

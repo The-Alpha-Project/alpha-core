@@ -6,7 +6,7 @@ from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandle
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellEffects, SpellCheckCastResult, \
-    SpellAuraInterruptFlags
+    SpellAuraInterruptFlags, SpellAttributes, SpellAttributesEx
 from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
 
@@ -41,7 +41,7 @@ class AuraManager:
             self.send_aura_duration(aura)
 
         # Aura application threat TODO handle threat elsewhere
-        if aura.is_harmful():
+        if aura.harmful:
             if aura.source_spell.generates_threat():
                 self.unit_mgr.attack(aura.caster)
             self.check_aura_interrupts(negative_aura_applied=True)
@@ -109,11 +109,18 @@ class AuraManager:
         caster_guid = aura.caster.guid
 
         for applied_aura in list(self.active_auras.values()):
-            if applied_aura.caster.guid != caster_guid or \
-                    applied_aura.spell_effect.effect_index != aura_effect_index or \
-                    applied_aura.source_spell.spell_entry != aura_spell_template:
+            is_similar = applied_aura.source_spell.spell_entry == aura_spell_template and \
+                         applied_aura.spell_effect.effect_index == aura_effect_index  # Spell and effect are the same
+            # Source doesn't matter for unique auras
+            is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE
+
+            if is_similar and (is_unique or applied_aura.caster.guid == caster_guid):
+                self.remove_aura(applied_aura)
+
+            if applied_aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
+                    aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT:
+                self.remove_aura(applied_aura)  # Player can only be in one shapeshift form
                 continue
-            self.remove_aura(applied_aura)  # Remove identical auras the caster has applied
 
     def get_auras_by_spell_id(self, spell_id) -> list[AppliedAura]:
         auras = []
@@ -137,14 +144,25 @@ class AuraManager:
                 continue
             self.remove_aura(aura)
 
+    def handle_death(self):
+        persistent_flags = SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD | SpellAttributes.SPELL_ATTR_PASSIVE
+        for aura in list(self.active_auras.values()):
+            if aura.source_spell.spell_entry.Attributes & persistent_flags:
+                continue
+            self.remove_aura(aura)
+
+    def remove_harmful_auras_by_caster(self, caster_guid):
+        for aura in list(self.active_auras.values()):
+            if aura.harmful and aura.caster.guid == caster_guid:
+                self.remove_aura(aura)
+
     def remove_aura(self, aura):
-        if aura.index not in self.active_auras:
-            return
         # TODO check if aura can be removed (by player)
         AuraEffectHandler.handle_aura_effect_change(aura, True)
-        self.active_auras.pop(aura.index)
+        if not self.active_auras.pop(aura.index, None):
+            return
         # Some area effect auras (paladin auras, tranq etc.) are tied to spell effects. Cancel cast on aura cancel, canceling the auras as well.
-        self.unit_mgr.spell_manager.remove_cast(aura.source_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
+        self.unit_mgr.spell_manager.remove_cast(aura.source_spell, SpellCheckCastResult.SPELL_NO_ERROR)
 
         # Some spells start cooldown on aura remove, handle that case here
         if aura.source_spell.trigger_cooldown_on_aura_remove():
@@ -156,6 +174,10 @@ class AuraManager:
         self.write_aura_to_unit(aura, clear=True)
         self.write_aura_flag_to_unit(aura, clear=True)
         self.unit_mgr.set_dirty()
+
+    def remove_all_auras(self):
+        for aura in list(self.active_auras.values()):
+            self.remove_aura(aura)
 
     def cancel_auras_by_spell_id(self, spell_id):
         auras = self.get_auras_by_spell_id(spell_id)
@@ -189,7 +211,7 @@ class AuraManager:
         if aura.passive:
             min_index = AuraSlots.AURA_SLOT_PASSIVE_AURA_START
             max_index = AuraSlots.AURA_SLOT_END
-        elif aura.is_harmful():
+        elif aura.harmful:
             min_index = AuraSlots.AURA_SLOT_HARMFUL_AURA_START
             max_index = AuraSlots.AURA_SLOT_PASSIVE_AURA_START
         else:

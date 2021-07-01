@@ -6,7 +6,9 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.GameObjectManager import GameObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.DuelCodes import *
-from utils.constants.UpdateFields import PlayerFields
+from utils.constants.MiscCodes import HighGuid
+from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UpdateFields import PlayerFields, UnitFields
 
 
 class PlayerDuelInformation(object):
@@ -82,7 +84,7 @@ class DuelManager(object):
         self.duel_state = DuelState.DUEL_STATE_STARTED
         for entry in self.players.values():
             entry.duel_status = DuelStatus.DUEL_STATUS_INBOUNDS
-            self.build_update(entry.player)
+            self.build_update(entry.player, set_hostile=True)
             entry.player.set_dirty()
 
     def force_duel_end(self, player_mgr, retreat=True):
@@ -121,6 +123,9 @@ class DuelManager(object):
             entry.player.leave_combat()
             self.build_update(entry.player)
             entry.player.set_dirty()
+
+            entry.player.spell_manager.remove_all_casts_directed_at_unit(entry.target.guid)
+            entry.player.aura_manager.remove_harmful_auras_by_caster(entry.target.guid)
 
         # Clean up arbiter go and cleanup.
         MapManager.remove_object(self.arbiter)
@@ -177,11 +182,17 @@ class DuelManager(object):
             self.boundary_check()
             self.elapsed = 0
 
-    def build_update(self, player_mgr):
+    def build_update(self, player_mgr, set_hostile=False):
         arbiter_guid = self.arbiter.guid if self.duel_state == DuelState.DUEL_STATE_STARTED else 0
         team_id = self.team_ids[player_mgr.guid] if self.duel_state != DuelState.DUEL_STATE_FINISHED else 0
         player_mgr.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, arbiter_guid)
         player_mgr.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, team_id)
+
+        if set_hostile:
+            player_mgr.unit_flags |= UnitFlags.UNIT_FLAG_DUELING
+        else:
+            player_mgr.unit_flags &= ~UnitFlags.UNIT_FLAG_DUELING
+        player_mgr.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player_mgr.unit_flags)
 
     @staticmethod
     def create_arbiter(requester, target, arbiter_entry):
