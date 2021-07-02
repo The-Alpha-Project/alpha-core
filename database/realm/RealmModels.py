@@ -200,7 +200,7 @@ class CharacterButton(Base):
     __tablename__ = 'character_buttons'
 
     owner = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, primary_key=True, server_default=text("'0'"))
-    index = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    index = Column(INTEGER(11), nullable=False, primary_key=True, server_default=text("'0'"))
     action = Column(INTEGER(11), nullable=False, primary_key=True, server_default=text("'1'"))
 
     character = relationship('Character')
