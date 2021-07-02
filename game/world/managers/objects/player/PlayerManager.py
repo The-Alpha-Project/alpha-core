@@ -4,6 +4,7 @@ from struct import unpack
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
@@ -765,7 +766,7 @@ class PlayerManager(UnitManager):
             xp_gain = area_information.area_level * 10
             self.give_xp([xp_gain])
             # Notify client new discovered zone + xp gain.
-            data = pack('<2I', area_information.area_id, xp_gain)
+            data = pack('<2I', area_information.zone_id, xp_gain)
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
             self.session.enqueue_packet(packet)
 

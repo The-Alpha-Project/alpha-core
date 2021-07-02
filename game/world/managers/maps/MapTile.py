@@ -8,12 +8,13 @@ from utils.PathManager import PathManager
 
 
 class MapTile(object):
-    EXPECTED_VERSION = 'ACMAP_1.10'
+    EXPECTED_VERSION = 'ACMAP_1.20'
 
     def __init__(self, map_id, tile_x, tile_y):
         self.cell_x = tile_x
         self.cell_y = tile_y
         self.cell_map = map_id
+        self.area_zone_id = [[0 for r in range(0, RESOLUTION_AREA_INFO)] for c in range(0, RESOLUTION_AREA_INFO)]
         self.area_number = [[0 for r in range(0, RESOLUTION_AREA_INFO)] for c in range(0, RESOLUTION_AREA_INFO)]
         self.area_flags = [[0 for r in range(0, RESOLUTION_AREA_INFO)] for c in range(0, RESOLUTION_AREA_INFO)]
         self.area_level = [[0 for r in range(0, RESOLUTION_AREA_INFO)] for c in range(0, RESOLUTION_AREA_INFO)]
@@ -43,9 +44,10 @@ class MapTile(object):
                     for y in range(0, RESOLUTION_ZMAP):
                         self.z_coords[x][y] = unpack('<f', map_tiles.read(4))[0]
 
-                # AreaNumber, AreaFlags, AreaLevel, AreaExploreFlag(Bit), AreaFactionMask
+                # ZoneID, AreaNumber, AreaFlags, AreaLevel, AreaExploreFlag(Bit), AreaFactionMask
                 for x in range(0, RESOLUTION_AREA_INFO):
                     for y in range(0, RESOLUTION_AREA_INFO):
+                        self.area_zone_id[x][y] = unpack('<I', map_tiles.read(4))[0]
                         self.area_number[x][y] = unpack('<I', map_tiles.read(4))[0]
                         self.area_flags[x][y] = unpack('<B', map_tiles.read(1))[0]
                         self.area_level[x][y] = unpack('<B', map_tiles.read(1))[0]

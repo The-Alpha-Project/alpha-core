@@ -146,18 +146,24 @@ class MapManager(object):
             Logger.warning(f'Tile [{tile_x},{tile_y}] information not found.')
             return None
 
+        area_zone_id = MapManager.get_area_zone_id(world_object.map_, object_location.x, object_location.y)
         area_number = MapManager.get_area_number(world_object.map_, object_location.x, object_location.y)
-        area_table = DbcDatabaseManager.area_get_by_area_number(area_number, world_object.map_)
-        area_name = area_table.AreaName_enUS
         area_flags = MapManager.get_area_flags(world_object.map_, object_location.x, object_location.y)
         area_level = MapManager.get_area_level(world_object.map_, object_location.x, object_location.y)
         area_explore_bit = MapManager.get_area_explore_flag(world_object.map_, object_location.x, object_location.y)
         area_faction_mask = MapManager.get_area_faction_mask(world_object.map_, object_location.x, object_location.y)
 
         # If unable to retrieve any of the area information, return None.
-        if area_number < 0 or area_flags < 0 or area_level < 0 or area_explore_bit < 0 or area_faction_mask < 0:
+        if area_zone_id < 0 or area_number < 0 or area_flags < 0 or area_level < 0 or area_explore_bit < 0 or area_faction_mask < 0:
             return None
-        return AreaInformation(area_table.ID, area_number, area_name, area_flags, area_level, area_explore_bit, area_faction_mask)
+        return AreaInformation(area_zone_id, area_number, area_flags, area_level, area_explore_bit, area_faction_mask)
+
+    @staticmethod
+    def get_area_zone_id(map_id, x, y):
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
+        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
+            return -1
+        return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_zone_id[tile_local_x][tile_local_y]
 
     @staticmethod
     def get_area_number(map_id, x, y):
