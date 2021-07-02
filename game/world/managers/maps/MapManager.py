@@ -54,6 +54,11 @@ class MapManager(object):
         x = MapManager.get_tile_x(x)
         y = MapManager.get_tile_y(y)
 
+        # This tile should already be loaded, skip.
+        if MAPS[map_id].tiles_load_attempt[x][y]:
+            return
+
+        MAPS[map_id].tiles_load_attempt[x][y] = True
         for i in range(-1, 1):
             for j in range(-1, 1):
                 if -1 < x + i < 64 and -1 < y + j < 64:
@@ -103,6 +108,10 @@ class MapManager(object):
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, (RESOLUTION_ZMAP - 1))
             x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / SIZE) - map_tile_x) - tile_local_x
             y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / SIZE) - map_tile_y) - tile_local_y
+
+            # If there has been no attempt to load this tile information yet, do so.
+            if map_id in MAPS and not MAPS[map_id].tiles_load_attempt[map_tile_x][map_tile_y]:
+                MapManager.load_map_tiles(map_id, x, y)
 
             if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
                 Logger.warning(f'Tile [{map_tile_x},{map_tile_y}] information not found.')
