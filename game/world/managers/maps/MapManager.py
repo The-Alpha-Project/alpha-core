@@ -57,8 +57,8 @@ class MapManager(object):
         # This tile should already be loaded, skip.
         if MAPS[map_id].tiles_load_attempt[x][y]:
             return
-
         MAPS[map_id].tiles_load_attempt[x][y] = True
+
         for i in range(-1, 1):
             for j in range(-1, 1):
                 if -1 < x + i < 64 and -1 < y + j < 64:
