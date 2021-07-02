@@ -4,6 +4,7 @@ from struct import unpack
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
@@ -761,7 +762,7 @@ class PlayerManager(UnitManager):
     #  Trigger quest explore requirement checks.
     def set_area_explored(self, area_information):
         self.explored_areas[area_information.area_explore_bit] = True
-        if area_information.area_level > 0:
+        if area_information.area_level > 0 and WorldDatabaseManager.player_is_starting_zone(self.map_, self.zone):
             xp_gain = area_information.area_level * 10
             self.give_xp([xp_gain])
             # Notify client new discovered zone + xp gain.

@@ -30,6 +30,13 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
+    def player_is_starting_zone(map_id, zone_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(Playercreateinfo).filter_by(map=map_id, zone=zone_id).first()
+        world_db_session.close()
+        return res is not None
+
+    @staticmethod
     def player_create_spell_get(race, class_):
         world_db_session = SessionHolder()
         res = world_db_session.query(PlayercreateinfoSpell).filter_by(race=race, _class=class_).all()
