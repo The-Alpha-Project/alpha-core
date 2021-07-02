@@ -433,7 +433,7 @@ class SpellManager(object):
                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
     def handle_channel_start(self, casting_spell):
-        if not casting_spell.is_channeled():
+        if not casting_spell.is_channeled() or casting_spell.duration_entry.Duration == -1:
             return
         casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
         channel_end_timestamp = casting_spell.duration_entry.Duration/1000 + time.time()
