@@ -202,7 +202,7 @@ class AuraManager:
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        data = pack('<Bi', aura.index, aura.get_duration())
+        data = pack('<Bi', aura.index, int(aura.get_duration()))
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))
 
     def write_aura_to_unit(self, aura, clear=False):
