@@ -746,6 +746,10 @@ class PlayerManager(UnitManager):
         if self.group_manager:
             self.group_manager.send_update()
 
+        # Checks below this condition can only happen if map loading is enabled.
+        if not config.Server.Settings.use_map_tiles:
+            return
+
         # Exploration handling (only if player is not flying).
         if not self.movement_spline or self.movement_spline.flags != SplineFlags.SPLINEFLAG_FLYING:
             explore_flag = MapManager.get_area_explore_flag(self.map_, self.location.x, self.location.y)
