@@ -835,7 +835,7 @@ class UnitManager(ObjectManager):
         self.movement_manager.reset()
 
         if killer:
-            killer.spell_manager.remove_all_casts_directed_at_unit(self.guid)  # Interrupt casting on target death
+            killer.spell_manager.remove_unit_from_all_cast_targets(self.guid)  # Interrupt casting on target death
         self.spell_manager.remove_all_casts()
         self.aura_manager.handle_death()
 

@@ -261,11 +261,11 @@ class SpellManager(object):
                     casting_spell.spell_impact_timestamps.pop(target)
 
                 if len(casting_spell.spell_impact_timestamps) == 0:  # All targets finished impact delay.
-                    self.apply_spell_effects(casting_spell, remove=True)
+                    self.apply_spell_effects(casting_spell, remove=True, partial_targets=targets_due)
                     continue
 
                 # Only some targets finished delay
-                self.apply_spell_effects(casting_spell, remove=True, partial_targets=targets_due)
+                self.apply_spell_effects(casting_spell, partial_targets=targets_due)
 
     def check_spell_interrupts(self, moved=False, turned=False, received_damage=False, hit_info=HitInfo.DAMAGE,
                                interrupted=False, received_auto_attack=False):  # TODO provide interrupted, turned
@@ -341,14 +341,29 @@ class SpellManager(object):
 
     def remove_all_casts(self, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
         for casting_spell in list(self.casting_spells):
-            self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+            result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
+            if not casting_spell.is_channeled() and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
+                    casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
+                result = SpellCheckCastResult.SPELL_NO_ERROR  # Don't send interrupted error for active/delayed spells
 
-    def remove_all_casts_directed_at_unit(self, target_guid):
-        for spell in list(self.casting_spells):
-            if not spell.initial_target_is_unit_or_player() or (spell.is_instant_cast() and not spell.is_channeled()):
+            self.remove_cast(casting_spell, result, interrupted=True)
+
+    def remove_unit_from_all_cast_targets(self, target_guid):
+        for casting_spell in list(self.casting_spells):
+            if not casting_spell.initial_target_is_unit_or_player() or (casting_spell.is_instant_cast() and not casting_spell.is_channeled()):  # Don't interrupt instant casts
                 continue
-            if target_guid in spell.object_target_results:
-                self.remove_cast(spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+
+            if target_guid in casting_spell.object_target_results and len(casting_spell.object_target_results) == 1:  # Only target of this spell
+                result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
+                if not casting_spell.is_channeled() and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
+                        casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
+                    result = SpellCheckCastResult.SPELL_NO_ERROR  # Don't send interrupted error for active/delayed spells
+
+                self.remove_cast(casting_spell, result, interrupted=True)
+                return
+
+            for effect in casting_spell.effects:
+                effect.targets.remove_object_from_targets(target_guid)
 
     def remove_colliding_casts(self, current_cast):
         for casting_spell in self.casting_spells:
@@ -367,15 +382,32 @@ class SpellManager(object):
         if casting_spell.spell_entry.Speed == 0:
             return impact_delays
 
-        target_results = casting_spell.object_target_results
-        for target_guid, miss_info in target_results.items():
-            target_unit_location = miss_info.target.location
-            travel_distance = casting_spell.spell_caster.location.distance(target_unit_location)
-            delay = travel_distance / casting_spell.spell_entry.Speed
+        lowest_delay = 0
+        for effect in casting_spell.effects:
+            vector_targets = effect.targets.get_resolved_effect_targets_by_type(Vector)
+            if len(vector_targets) > 0:  # Throwable items - bombs etc. Set as the minimum delay for unit targets.
+                travel_distance = vector_targets[0].distance(effect.targets.effect_source)
+                lowest_delay = travel_distance / casting_spell.spell_entry.Speed
 
-            if delay == 0:
-                continue
-            impact_delays[target_guid] = delay
+            unit_targets = effect.targets.get_resolved_effect_targets_by_type(ObjectManager)
+            source = effect.targets.effect_source
+            for target in unit_targets:
+                if casting_spell.spell_impact_timestamps.get(target.guid, None) == -1:
+                    # Instant target handlers should write -1 to timestamps.
+                    # In these cases, assign the lowest impact delay to the target to still account for regular impact delay.
+                    impact_delays[target.guid] = -1
+                    continue
+
+                target_unit_location = target.location
+                travel_distance = source.location.distance(target_unit_location)
+                delay = travel_distance / casting_spell.spell_entry.Speed
+                if delay == 0:
+                    continue
+                impact_delays[target.guid] = delay
+                lowest_delay = delay if delay < lowest_delay or lowest_delay == 0 else lowest_delay
+
+        for guid, delay in impact_delays.items():
+            impact_delays[guid] = lowest_delay if delay == -1 else delay
 
         return impact_delays
 
@@ -461,13 +493,17 @@ class SpellManager(object):
 
         # Prepare target data
         results_by_type = {SpellMissReason.MISS_REASON_NONE: []}  # Hits need to be written first.
-        for target_guid, miss_info in casting_spell.object_target_results.items():
+
+        # Only include the primary effect targets.
+        targets = casting_spell.effects[0].targets.get_resolved_effect_targets_by_type(ObjectManager)
+        for target in targets:
+            miss_info = casting_spell.object_target_results[target.guid]
             new_targets = results_by_type.get(miss_info.result, [])
-            new_targets.append(target_guid)
+            new_targets.append(target.guid)
             results_by_type[miss_info.result] = new_targets  # Sort targets by hit type for filling packet fields.
 
         hit_count = len(results_by_type[SpellMissReason.MISS_REASON_NONE])
-        miss_count = len(casting_spell.object_target_results) - hit_count  # Subtract hits from all targets.
+        miss_count = len(targets) - hit_count  # Subtract hits from all targets.
         # Write targets, hits first
         for result, guids in results_by_type.items():
             if result == SpellMissReason.MISS_REASON_NONE:  # Hit count is written separately.

@@ -19,7 +19,8 @@ class TargetMissInfo:
 class EffectTargets:
     def __init__(self, casting_spell, spell_effect):
         self.initial_target = casting_spell.initial_target
-        self.caster = casting_spell.spell_caster
+        self.effect_source = casting_spell.spell_caster  # The source this effect is applied from. Used for calculating impact delay.
+
         self.casting_spell = casting_spell
 
         self.simple_targets = []
@@ -41,24 +42,26 @@ class EffectTargets:
         self.simple_targets = self.get_simple_targets()
 
     def get_simple_targets(self) -> dict[SpellImplicitTargets, list[Union[ObjectManager, Vector]]]:
+        caster = self.casting_spell.spell_caster
+
         target_is_player = self.casting_spell.initial_target_is_player()
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
         target_is_item = self.casting_spell.initial_target_is_item()
         target_is_friendly = self.casting_spell.initial_target_is_unit_or_player() and not \
-            self.caster.can_attack_target(self.casting_spell.initial_target)
+            caster.can_attack_target(self.casting_spell.initial_target)
 
         return {
             SpellImplicitTargets.TARGET_NOTHING: [],
-            SpellImplicitTargets.TARGET_SELF: self.caster,
+            SpellImplicitTargets.TARGET_SELF: caster,
             SpellImplicitTargets.TARGET_PET: [],  # TODO
-            SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: self.caster.get_deathbind_coordinates() if target_is_player else [],
+            SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: caster.get_deathbind_coordinates() if target_is_player else [],
             SpellImplicitTargets.TARGET_11: [],  # Word of Recall Other - seems deprecated so return nothing
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else [],
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if target_is_gameobject else [],
             SpellImplicitTargets.TARGET_DUEL_VS_PLAYER: self.initial_target,  # Spells that can be cast on both hostile and friendly?
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
             SpellImplicitTargets.TARGET_MASTER: [],  # TODO
-            SpellImplicitTargets.TARGET_SELF_FISHING: self.caster
+            SpellImplicitTargets.TARGET_SELF_FISHING: caster
         }
 
     def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
@@ -71,7 +74,7 @@ class EffectTargets:
         # Implemented handlers should always return [] if no targets are found
         if target is None:
             Logger.warning(f'Implicit target {implicit_target} resolved to None. Falling back to initial target or self.')
-            target = self.initial_target if self.casting_spell.initial_target_is_object() else self.caster
+            target = self.initial_target if self.casting_spell.initial_target_is_object() else self.casting_spell.spell_caster
 
         if type(target) is not list:
             return [target]
@@ -86,6 +89,15 @@ class EffectTargets:
         self.previous_targets_b = self.resolved_targets_b
         self.resolved_targets_a = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_a)
         self.resolved_targets_b = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_b)
+
+    def remove_object_from_targets(self, guid):
+        if len(self.resolved_targets_a) > 0 and isinstance(self.resolved_targets_a[0], ObjectManager):
+            self.previous_targets_a = self.resolved_targets_a
+            self.resolved_targets_a = [target for target in self.resolved_targets_a if target.guid != guid]
+
+        if len(self.resolved_targets_b) > 0 and isinstance(self.resolved_targets_b[0], ObjectManager):
+            self.previous_targets_b = self.resolved_targets_b
+            self.resolved_targets_b = [target for target in self.resolved_targets_b if target.guid != guid]
 
     def get_effect_target_miss_results(self) -> dict[int, TargetMissInfo]:
         targets = self.get_resolved_effect_targets_by_type(ObjectManager)
@@ -126,11 +138,11 @@ class EffectTargets:
 
     @staticmethod
     def resolve_random_enemy_chain_in_area(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
     def resolve_area_effect_custom(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
     def resolve_chain_damage(casting_spell, target_effect):
@@ -176,18 +188,37 @@ class EffectTargets:
 
     @staticmethod
     def resolve_all_enemy_in_area_instant(casting_spell, target_effect):
-        target = casting_spell.initial_target
-        if not casting_spell.initial_target_is_terrain():
-            return []
+        caster = casting_spell.spell_caster
         map_ = casting_spell.spell_caster.map_
-        result = MapManager.get_surrounding_units_by_location(target, map_, target_effect.get_radius(), True)
+        radius = target_effect.get_radius()
+        if casting_spell.initial_target_is_terrain():
+            effect_source = casting_spell.initial_target
+            result = MapManager.get_surrounding_units_by_location(effect_source, map_, radius, True)  # Ground-targeted AoE.
+            merged = list(result[0].values()) + list(result[1].values())
+        else:
+            effect_source = target_effect.targets.resolved_targets_a[0] if len(target_effect.targets.resolved_targets_a) == 1 else caster
+            target_effect.targets.effect_source = effect_source
 
-        merged = list(result[0].values()) + list(result[1].values())
-        return EffectTargets.get_enemies_from_unit_list(merged, casting_spell.spell_caster)
+            result = MapManager.get_surrounding_units(effect_source, include_players=True)  # Unit-targeted AoE - explosive shot.
+            merged = list(result[0].values()) + list(result[1].values())
+            merged = [target for target in merged if target.location.distance(effect_source.location) <= radius]  # Select targets in range.
+
+        enemies = EffectTargets.get_enemies_from_unit_list(merged, casting_spell.spell_caster)
+        if isinstance(effect_source, ObjectManager) and effect_source in enemies:
+            enemies.remove(effect_source)  # Effect source shouldn't be included in final targets.
+
+        for enemy in enemies:
+            # Write to impact timestamps to indicate that this target should be instant.
+            # See SpellManager.calculate_impact_delays
+            casting_spell.spell_impact_timestamps[enemy.guid] = -1
+
+        if len(enemies) == 0 and len(target_effect.targets.resolved_targets_a) > 0:
+            target_effect.targets.resolved_targets_a = []  # As this target specifies on A in some cases, clear out A if no targets exist.
+        return enemies
 
     @staticmethod
     def resolve_table_coordinates(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
     def resolve_effect_select(casting_spell, target_effect):
@@ -195,7 +226,7 @@ class EffectTargets:
             units = EffectTargets.resolve_all_around_caster(casting_spell, target_effect)
             return EffectTargets.get_enemies_from_unit_list(units, casting_spell.spell_caster)
 
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
     def resolve_party_around_caster(casting_spell, target_effect):
@@ -259,7 +290,7 @@ class EffectTargets:
 
     @staticmethod
     def resolve_aoe_enemy_channel(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     # Only used with TARGET_ALL_AROUND_CASTER in A
     @staticmethod
@@ -309,27 +340,27 @@ class EffectTargets:
 
     @staticmethod
     def resolve_party_around_caster_2(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
     def resolve_single_party(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
     def resolve_all_hostile_around_caster(casting_spell, target_effect):  # TODO Charge effects only?
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
     def resolve_aoe_party(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
     def resolve_script(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
     def resolve_gameobject_script_near_caster(casting_spell, target_effect):
-        Logger.warning(f'Unimlemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
 
 TARGET_RESOLVERS = {
