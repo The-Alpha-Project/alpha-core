@@ -287,7 +287,7 @@ class PlayerManager(UnitManager):
                 self.deathbind.deathbind_position_x,
                 self.deathbind.deathbind_position_y,
                 self.deathbind.deathbind_position_z,
-                self.deathbind.deathbind_map
+                self.deathbind.deathbind_zone
             )
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
