@@ -133,16 +133,26 @@ class MapManager(object):
 
     @staticmethod
     def get_area_information(world_object):
-        map_id = world_object.map_
-        x = world_object.location.x
-        y = world_object.location.y
-        area_number = MapManager.get_area_number(map_id, x, y)
-        area_table = DbcDatabaseManager.area_get_by_area_number(area_number, map_id)
+        object_location = world_object.location
+        tile_x = MapManager.get_tile_x(x)
+        tile_y = MapManager.get_tile_y(y)
+
+        # If there has been no attempt to load this tile information yet, do so.
+        if world_object.map_ in MAPS and not MAPS[world_object.map_].tiles_load_attempt[tile_x][tile_y]:
+            MapManager.load_map_tiles(world_object.map_, object_location.x, object_location.y)
+
+        # If invalid map or tile information not present (even after loading attempt), return None.
+        if world_object.map_ not in MAPS or not MAPS[world_object.map_].tiles[tile_x][tile_y]:
+            Logger.warning(f'Tile [{tile_x},{tile_y}] information not found.')
+            return None
+
+        area_number = MapManager.get_area_number(world_object.map_, object_location.x, object_location.y)
+        area_table = DbcDatabaseManager.area_get_by_area_number(area_number, world_object.map_)
         area_name = area_table.AreaName_enUS
-        area_flags = MapManager.get_area_flags(map_id, x, y)
-        area_level = MapManager.get_area_level(map_id, x, y)
-        area_explore_bit = MapManager.get_area_explore_flag(map_id, x, y)
-        area_faction_mask = MapManager.get_area_faction_mask(map_id, x, y)
+        area_flags = MapManager.get_area_flags(world_object.map_, object_location.x, object_location.y)
+        area_level = MapManager.get_area_level(world_object.map_, object_location.x, object_location.y)
+        area_explore_bit = MapManager.get_area_explore_flag(world_object.map_, object_location.x, object_location.y)
+        area_faction_mask = MapManager.get_area_faction_mask(world_object.map_, object_location.x, object_location.y)
 
         # If unable to retrieve any of the area information, return None.
         if area_number < 0 or area_flags < 0 or area_level < 0 or area_explore_bit < 0 or area_faction_mask < 0:
