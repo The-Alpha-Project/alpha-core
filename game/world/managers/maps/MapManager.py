@@ -134,8 +134,8 @@ class MapManager(object):
     @staticmethod
     def get_area_information(world_object):
         object_location = world_object.location
-        tile_x = MapManager.get_tile_x(x)
-        tile_y = MapManager.get_tile_y(y)
+        tile_x = MapManager.get_tile_x(object_location.x)
+        tile_y = MapManager.get_tile_y(object_location.y)
 
         # If there has been no attempt to load this tile information yet, do so.
         if world_object.map_ in MAPS and not MAPS[world_object.map_].tiles_load_attempt[tile_x][tile_y]:
