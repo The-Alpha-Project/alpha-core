@@ -1,3 +1,4 @@
+from random import randint
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -10,6 +11,7 @@ from game.world.managers.objects.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import HighGuid
+from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -375,6 +377,47 @@ class CommandManager(object):
             return -1, 'please specify a valid item entry.'
 
     @staticmethod
+    def spawncreature(world_session, args):
+        try:
+            entry = int(args)
+            creature_template = WorldDatabaseManager.creature_get_by_entry(entry)
+
+            if not creature_template:
+                return -1, 'unable to find that creature.'
+
+            from database.world.WorldModels import SpawnsCreatures
+            instance = SpawnsCreatures()
+            instance.spawn_id = HighGuid.HIGHGUID_UNIT + randint(500000, 600000)  # TODO Placeholder GUID
+            instance.map = world_session.player_mgr.map_
+            instance.orientation = world_session.player_mgr.location.o
+            instance.position_x = world_session.player_mgr.location.x
+            instance.position_y = world_session.player_mgr.location.y
+            instance.position_z = world_session.player_mgr.location.z
+            instance.spawntimesecsmin = 5000
+            instance.spawntimesecsmax = 10000
+            instance.health_percent = 100
+            instance.mana_percent = 100
+            instance.movement_type = MovementTypes.IDLE
+            instance.spawn_flags = 0
+            instance.visibility_mod = 0
+
+            from game.world.managers.objects.creature.CreatureManager import CreatureManager
+            creature_manager = CreatureManager(
+                creature_template=creature_template,
+                creature_instance=instance
+            )
+
+            creature_manager.faction = creature_template.faction
+
+            creature_manager.load()
+            creature_manager.set_dirty()
+            creature_manager.respawn()
+
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a valid creature entry.'
+
+    @staticmethod
     def creature_info(world_session, args):
         creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
                                                            world_session.player_mgr.current_selection)
@@ -495,7 +538,6 @@ class CommandManager(object):
 
         return 0, ''
 
-
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help,
     'suicide': CommandManager.suicide
@@ -524,6 +566,7 @@ GM_COMMAND_DEFINITIONS = {
     'morph': CommandManager.morph,
     'demorph': CommandManager.demorph,
     'additem': CommandManager.additem,
+    'spawncreature': CommandManager.spawncreature,
     'cinfo': CommandManager.creature_info,
     'pinfo': CommandManager.player_info,
     'goinfo': CommandManager.gobject_info,
