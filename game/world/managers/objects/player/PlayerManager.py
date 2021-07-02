@@ -1237,7 +1237,7 @@ class PlayerManager(UnitManager):
 
         self.last_tick = now
 
-        if self.dirty:
+        if self.dirty and self.online:
             self.send_update_self(reset_fields=False)
             self.send_update_surrounding(self.generate_proper_update_packet())
             MapManager.update_object(self)
