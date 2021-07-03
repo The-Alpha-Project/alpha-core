@@ -1400,7 +1400,8 @@ begin not atomic
 		DELETE FROM `alpha_world`.`spawns_creatures` WHERE (`spawn_id` = '49539');
 		DELETE FROM `alpha_world`.`spawns_creatures` WHERE (`spawn_id` = '46824');
 		DELETE FROM `alpha_world`.`spawns_creatures` WHERE (`spawn_id` = '46561');
-	insert into applied_updates values ('030720211');
+		
+		insert into applied_updates values ('030720211');
     end if;
 	
 end $
