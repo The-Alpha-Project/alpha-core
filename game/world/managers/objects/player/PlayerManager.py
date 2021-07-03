@@ -4,6 +4,7 @@ from struct import unpack
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
@@ -287,7 +288,7 @@ class PlayerManager(UnitManager):
                 self.deathbind.deathbind_position_x,
                 self.deathbind.deathbind_position_y,
                 self.deathbind.deathbind_position_z,
-                self.deathbind.deathbind_map
+                self.deathbind.deathbind_zone
             )
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
@@ -745,6 +746,10 @@ class PlayerManager(UnitManager):
         if self.group_manager:
             self.group_manager.send_update()
 
+        # Checks below this condition can only happen if map loading is enabled.
+        if not config.Server.Settings.use_map_tiles:
+            return
+
         # Exploration handling (only if player is not flying).
         if not self.movement_spline or self.movement_spline.flags != SplineFlags.SPLINEFLAG_FLYING:
             explore_flag = MapManager.get_area_explore_flag(self.map_, self.location.x, self.location.y)
@@ -765,7 +770,7 @@ class PlayerManager(UnitManager):
             xp_gain = area_information.area_level * 10
             self.give_xp([xp_gain])
             # Notify client new discovered zone + xp gain.
-            data = pack('<2I', area_information.area_id, xp_gain)
+            data = pack('<2I', area_information.zone_id, xp_gain)
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
             self.session.enqueue_packet(packet)
 
@@ -1237,7 +1242,7 @@ class PlayerManager(UnitManager):
 
         self.last_tick = now
 
-        if self.dirty:
+        if self.dirty and self.online:
             self.send_update_self(reset_fields=False)
             self.send_update_surrounding(self.generate_proper_update_packet())
             MapManager.update_object(self)

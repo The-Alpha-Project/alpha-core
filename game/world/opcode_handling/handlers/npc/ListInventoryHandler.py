@@ -22,9 +22,7 @@ class ListInventoryHandler(object):
                     if vendor_template:
                         quests: int = world_session.player_mgr.quest_manager.get_active_quest_num_from_quest_giver(vendor)
                         if quests > 0:
-                            # TODO Find another approach instead of calling the packet handler (maybe refactor
-                            #  QuestGiverHelloHandler?)
-                            QuestGiverHelloHandler.handle(world_session, socket, reader)
+                            world_session.player_mgr.quest_manager.handle_quest_giver_hello(vendor, npc_guid)
                             return 0
 
                     vendor.send_inventory_list(world_session)

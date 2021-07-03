@@ -141,6 +141,8 @@ class WorldServerSessionHandler(object):
             data = pack('<B', AuthCode.AUTH_SESSION_EXPIRED)
             sck.request.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
             return False
+        except (OSError, ConnectionResetError, ValueError):
+            return False
 
     def receive(self, sck):
         try:
@@ -157,7 +159,7 @@ class WorldServerSessionHandler(object):
     def receive_client_message(self, sck):
         header_bytes = self.receive_all(sck, 6)  # 6 = header size
         if not header_bytes:
-            return b''
+            return None
 
         reader = PacketReader(header_bytes)
         reader.data = self.receive_all(sck, int(reader.size))

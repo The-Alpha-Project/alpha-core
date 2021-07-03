@@ -46,10 +46,10 @@ class MapManager(object):
     @staticmethod
     def load_map_tiles(map_id, x, y):
         if not config.Server.Settings.use_map_tiles:
-            return
+            return False
 
         if map_id not in MAP_LIST:
-            return
+            return False
 
         x = MapManager.get_tile_x(x)
         y = MapManager.get_tile_y(y)
@@ -58,9 +58,10 @@ class MapManager(object):
             for j in range(-1, 1):
                 if -1 < x + i < 64 and -1 < y + j < 64:
                     # Avoid loading tiles information if we already did.
-                    if not MAPS[map_id].tiles_used[x + i][y + j]:
-                        MAPS[map_id].tiles_used[x + i][y + j] = True
+                    if not MAPS[map_id].tiles[x + i][y + j]:
                         MAPS[map_id].tiles[x + i][y + j] = MapTile(map_id, x + i, y + j)
+
+        return True
 
     @staticmethod
     def get_tile(x, y):
@@ -100,11 +101,21 @@ class MapManager(object):
     @staticmethod
     def calculate_z(map_id, x, y, current_z=0.0):
         try:
+            if map_id not in MAPS:
+                Logger.warning(f'Wrong map, {map_id} not found.')
+                return current_z if current_z else 0.0
+
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, (RESOLUTION_ZMAP - 1))
             x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / SIZE) - map_tile_x) - tile_local_x
             y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / SIZE) - map_tile_y) - tile_local_y
+            tile_loaded = MAPS[map_id].tiles[map_tile_x][map_tile_y] is not None
 
-            if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
+            # Load the tile if it hasn't been loaded yet.
+            if not tile_loaded:
+                tile_loaded = MapManager.load_map_tiles(map_id, x, y)
+
+            # Still tile not loaded? Return default value.
+            if not tile_loaded:
                 Logger.warning(f'Tile [{map_tile_x},{map_tile_y}] information not found.')
                 return current_z if current_z else 0.0
             else:
@@ -124,21 +135,43 @@ class MapManager(object):
 
     @staticmethod
     def get_area_information(world_object):
-        map_id = world_object.map_
-        x = world_object.location.x
-        y = world_object.location.y
-        area_number = MapManager.get_area_number(map_id, x, y)
-        area_table = DbcDatabaseManager.area_get_by_area_number(area_number, map_id)
-        area_name = area_table.AreaName_enUS
-        area_flags = MapManager.get_area_flags(map_id, x, y)
-        area_level = MapManager.get_area_level(map_id, x, y)
-        area_explore_bit = MapManager.get_area_explore_flag(map_id, x, y)
-        area_faction_mask = MapManager.get_area_faction_mask(map_id, x, y)
+        if world_object.map_ not in MAPS:
+            Logger.warning(f'Wrong map, {world_object.map_} not found.')
+            return None
+
+        object_location = world_object.location
+        tile_x = MapManager.get_tile_x(object_location.x)
+        tile_y = MapManager.get_tile_y(object_location.y)
+        tile_loaded = MAPS[world_object.map_].tiles[tile_x][tile_y] is not None
+
+        # Load the tile if it hasn't been loaded yet.
+        if not tile_loaded:
+            tile_loaded = MapManager.load_map_tiles(world_object.map_, object_location.x, object_location.y)
+
+        # If invalid map or tile information not present (even after loading attempt), return None.
+        if not tile_loaded:
+            Logger.warning(f'Tile [{tile_x},{tile_y}] information not found.')
+            return None
+
+        area_zone_id = MapManager.get_area_zone_id(world_object.map_, object_location.x, object_location.y)
+        area_number = MapManager.get_area_number(world_object.map_, object_location.x, object_location.y)
+        area_flags = MapManager.get_area_flags(world_object.map_, object_location.x, object_location.y)
+        area_level = MapManager.get_area_level(world_object.map_, object_location.x, object_location.y)
+        area_explore_bit = MapManager.get_area_explore_flag(world_object.map_, object_location.x, object_location.y)
+        area_faction_mask = MapManager.get_area_faction_mask(world_object.map_, object_location.x, object_location.y)
 
         # If unable to retrieve any of the area information, return None.
-        if area_number < 0 or area_flags < 0 or area_level < 0 or area_explore_bit < 0 or area_faction_mask < 0:
+        if area_zone_id < 0 or area_number < 0 or area_flags < 0 or area_level < 0 or area_explore_bit < 0 or area_faction_mask < 0:
             return None
-        return AreaInformation(area_table.ID, area_number, area_name, area_flags, area_level, area_explore_bit, area_faction_mask)
+
+        return AreaInformation(area_zone_id, area_number, area_flags, area_level, area_explore_bit, area_faction_mask)
+
+    @staticmethod
+    def get_area_zone_id(map_id, x, y):
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
+        if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
+            return -1
+        return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_zone_id[tile_local_x][tile_local_y]
 
     @staticmethod
     def get_area_number(map_id, x, y):
