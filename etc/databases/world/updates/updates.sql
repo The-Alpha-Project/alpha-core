@@ -1388,5 +1388,20 @@ begin not atomic
         insert into applied_updates values ('280620211');
     end if;
 	
+	-- 03/07/2021 1
+	if (select count(*) from applied_updates where id='030720211') = 0 then
+		UPDATE `alpha_world`.`spawns_creatures` SET `position_x` = '-4650', `position_y` = '-1189.24', `position_z` = '503.79', `orientation` = '4.033' WHERE (`spawn_id` = '2008');
+		UPDATE `alpha_world`.`spawns_creatures` SET `position_x` = '9945.62', `position_y` = '2642.33', `position_z` = '1317.99', `orientation` = '1.60' WHERE (`spawn_id` = '49938');
+		DELETE FROM `alpha_world`.`spawns_creatures` WHERE (`spawn_id` = '46825');
+		DELETE FROM `alpha_world`.`spawns_creatures` WHERE (`spawn_id` = '49939');
+		DELETE FROM `alpha_world`.`spawns_creatures` WHERE (`spawn_id` = '46821');
+		DELETE FROM `alpha_world`.`spawns_creatures` WHERE (`spawn_id` = '46823');
+		DELETE FROM `alpha_world`.`spawns_creatures` WHERE (`spawn_id` = '49459');
+		DELETE FROM `alpha_world`.`spawns_creatures` WHERE (`spawn_id` = '49539');
+		DELETE FROM `alpha_world`.`spawns_creatures` WHERE (`spawn_id` = '46824');
+		DELETE FROM `alpha_world`.`spawns_creatures` WHERE (`spawn_id` = '46561');
+	insert into applied_updates values ('030720211');
+    end if;
+	
 end $
 delimiter ;
