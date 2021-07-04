@@ -1390,16 +1390,16 @@ begin not atomic
     
     -- 03/07/2021 1
     if (select count(*) from applied_updates where id='030720211') = 0 then
-        UPDATE `spawns_creatures` SET `position_x` = '-4648.741', `position_y` = '-1187.253', `position_z` = '503.792', `orientation` = '4.033' WHERE (`spawn_id` = '2008');
-        UPDATE `spawns_creatures` SET `position_x` = '9938.881', `position_y` = '2640.370', `position_z` = '1318.052', `orientation` = '4.787' WHERE (`spawn_id` = '49938');
-        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '46825');
-        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '49939');
-        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '46821');
-        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '46823');
-        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '49459');
-        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '49539');
-        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '46824');
-        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '46561');
+        UPDATE `spawns_creatures` SET `position_x` = -4648.741, `position_y` = -1187.253, `position_z` = 503.792, `orientation` = 4.033 WHERE (`spawn_id` = 2008);
+        UPDATE `spawns_creatures` SET `position_x` = 9938.881, `position_y` = 2640.370, `position_z` = 1318.052, `orientation` = 4.787 WHERE (`spawn_id` = 49938);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 46825);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 49939);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 46821);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 46823);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 49459);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 49539);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 46824);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 46561);
 
         UPDATE `creature_template` SET `display_id2` = 0, `display_id3` = 0, `display_id4` = 0 WHERE `entry` = 4262;
 
@@ -1410,6 +1410,8 @@ begin not atomic
     if (select count(*) from applied_updates where id='030720212') = 0 then
         update creature_template set npc_flags = 6 where entry in (3838, 3841, 4267, 4319, 4407, 6706, 8019, 10897, 11138, 12577, 12578);
         update creature_template set npc_flags = 4 where entry = 3575;
+        update spawns_creatures set position_z = 1318.72 where spawn_id in (46841, 46883);
+        update spawns_creatures set position_z = 1318 where spawn_id = 46812;
 
         insert into applied_updates values ('030720212');
     end if;
