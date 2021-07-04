@@ -330,7 +330,9 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_FORCE_SPEED_CHANGE_ACK: MovementHandler.handle_movement_status,
 
     # Ignored packets (Use NullHandler)
-    OpCode.CMSG_TUTORIAL_CLEAR: NullHandler.handle
+    OpCode.CMSG_TUTORIAL_CLEAR: NullHandler.handle,
+    OpCode.CMSG_SCREENSHOT: NullHandler.handle,
+    OpCode.CMSG_COMPLETE_CINEMATIC: NullHandler.handle
 }
 
 
