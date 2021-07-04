@@ -1400,7 +1400,9 @@ begin not atomic
 		UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '49539');
 		UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '46824');
 		UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '46561');
-		
+
+        UPDATE `creature_template` SET `display_id2` = 0, `display_id3` = 0, `display_id4` = 0 WHERE `entry` = 4262;
+
 		insert into applied_updates values ('030720211');
     end if;
 	
