@@ -3,6 +3,22 @@ import math
 from utils.constants.MiscCodes import AttackTypes
 
 
+# Extracted from the 0.5.3 client as is.
+class Distances(object):
+    MAX_DUEL_DISTANCE = 10.0
+    MAX_TRADE_DISTANCE = 11.111111
+    MAX_SHOP_DISTANCE = 5.5555553
+    MAX_INSPECT_DISTANCE = 5.5555553
+    MAX_LOOT_DISTANCE = 5.0
+    MAX_BIND_DISTANCE = 10.0
+    MAX_BIND_RADIUS_CHECK = MAX_BIND_DISTANCE * 1.5  # Taken from CGPlayer_C::DeathBindDistanceCompare
+    MAX_SITCHAIR_DISTANCE = 0.5
+    MAX_SITCHAIRUSE_DISTANCE = 3.0
+    MAX_SHARE_DISTANCE = 100.0
+    SPELL_FOCUS_DISTANCE = 50.0
+    MAX_OBJ_INTEREST_RADIUS = 100.0
+
+
 class CreatureFormulas(object):
 
     @staticmethod

@@ -288,10 +288,6 @@ class PlayerManager(UnitManager):
                 self.deathbind.deathbind_position_x,
                 self.deathbind.deathbind_position_y,
                 self.deathbind.deathbind_position_z,
-                # TODO In the client this variable is actually called "s_bindZoneID", but we believe it's actually
-                #  referring to the map since the "!" on Binder NPCs correctly disappears after binding yourself to it
-                #  only when we send the map, not the zone. Adding this information as a TO DO so we don't forget to do
-                #  more research at some point.
                 self.deathbind.deathbind_map
             )
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
