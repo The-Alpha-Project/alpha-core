@@ -138,10 +138,13 @@ class WorldServerSessionHandler(object):
                         return True
             return False
         except socket.timeout:  # Can't check this inside Auth handler.
-            data = pack('<B', AuthCode.AUTH_SESSION_EXPIRED)
-            sck.request.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
+            try:
+                data = pack('<B', AuthCode.AUTH_SESSION_EXPIRED)
+                sck.request.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
+            except AttributeError:
+                pass
             return False
-        except (socket.timeout, OSError, ConnectionResetError, ValueError):
+        except (OSError, ConnectionResetError, ValueError):
             return False
 
     def receive(self, sck):
