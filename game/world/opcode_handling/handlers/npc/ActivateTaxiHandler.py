@@ -2,14 +2,21 @@ from struct import unpack, pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ActivateTaxiReplies
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import SplineFlags, UnitFlags
+from utils.constants.UnitCodes import SplineFlags, UnitFlags, Teams
 from utils.constants.UpdateFields import UnitFields
 
 GRYPHON_DISPLAY_ID = 1149
+HIPPOGRYPH_DISPLAY_ID = 1936
+BAT_DISPLAY_ID = 1566
+WIND_RIDER_DISPLAY_ID = 2157
+
+HIPPOGRYPH_MASTERS = (3838, 3841, 4267, 4319, 4407, 6706, 8019, 10897, 11138, 12577, 12578)
+BAT_HANDLERS = (2226, 2389, 3575, 4551, 12636)
 
 
 class ActivateTaxiHandler(object):
@@ -18,8 +25,10 @@ class ActivateTaxiHandler(object):
     def handle(world_session, socket, reader):
         if len(reader.data) >= 16:  # Avoid handling empty activate taxi packet.
             guid, start_node, dest_node = unpack('<Q2I', reader.data[:16])
-            if guid <= 0:
-                return
+            flight_master = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
+
+            if not flight_master:
+                return 0
 
             result = ActivateTaxiReplies.ERR_TAXIOK
 
@@ -52,7 +61,20 @@ class ActivateTaxiHandler(object):
                 world_session.player_mgr.pending_taxi_destination = Vector(dest_taxi_node.X,
                                                                            dest_taxi_node.Y,
                                                                            dest_taxi_node.Z)
-                world_session.player_mgr.mount(GRYPHON_DISPLAY_ID)
+
+                # Get the proper display_id for the mount.
+                # This information is not stored in the dbc like in later versions.
+                if flight_master.entry in HIPPOGRYPH_MASTERS:
+                    mount_display_id = HIPPOGRYPH_DISPLAY_ID
+                elif flight_master.entry in BAT_HANDLERS:
+                    mount_display_id = BAT_DISPLAY_ID
+                else:
+                    if world_session.player_mgr.team == Teams.TEAM_HORDE:
+                        mount_display_id = WIND_RIDER_DISPLAY_ID
+                    else:
+                        mount_display_id = GRYPHON_DISPLAY_ID
+
+                world_session.player_mgr.mount(mount_display_id)
                 world_session.player_mgr.set_dirty()
 
                 world_session.player_mgr.movement_manager.send_move_to(waypoints,
