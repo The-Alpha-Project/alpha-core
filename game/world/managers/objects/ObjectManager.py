@@ -6,6 +6,7 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid
 from utils.constants.OpCodes import OpCode
+from utils.constants.UnitCodes import SplineFlags
 from utils.constants.UpdateFields \
     import ObjectFields
 
@@ -60,7 +61,7 @@ class ObjectManager(object):
         self.dirty = False
         self.current_cell = ''
         self.last_tick = 0
-        self.movement_spline = None
+        self.movement_spline = SplineFlags.SPLINEFLAG_NONE
 
     def get_object_type_value(self):
         type_value = 0

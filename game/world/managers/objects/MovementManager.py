@@ -81,7 +81,7 @@ class MovementManager(object):
                 self.reset()
 
     def reset(self):
-        self.unit.movement_spline = None
+        self.unit.movement_spline = SplineFlags.SPLINEFLAG_NONE
         self.should_update_waypoints = False
         self.last_position = None
         self.total_waypoint_time = 0
