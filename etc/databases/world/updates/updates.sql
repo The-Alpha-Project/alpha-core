@@ -1405,6 +1405,13 @@ begin not atomic
 
 		insert into applied_updates values ('030720211');
     end if;
+
+    -- 03/07/2021 2
+	if (select count(*) from applied_updates where id='030720212') = 0 then
+		update creature_template set npc_flags = 6 where entry in (3838, 3841, 4267, 4319, 4407, 6706, 8019, 10897, 11138, 12577, 12578);
+
+		insert into applied_updates values ('030720212');
+    end if;
 	
 end $
 delimiter ;
