@@ -1415,6 +1415,13 @@ begin not atomic
 
         insert into applied_updates values ('030720212');
     end if;
+
+    -- 03/07/2021 3
+    if (select count(*) from applied_updates where id='030720213') = 0 then
+        update quest_template set RewChoiceItemId1 = 0, RewChoiceItemCount1 = 0, RewItemId1 = 3275, RewItemCount1 = 1 where entry = 364;
+
+        insert into applied_updates values ('030720213');
+    end if;
     
 end $
 delimiter ;
