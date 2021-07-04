@@ -105,8 +105,8 @@ from game.world.opcode_handling.handlers.player.cheats.LearnSpellCheatHandler im
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from game.world.opcode_handling.handlers.player.SetActionButtonHandler import SetActionButtonHandler
 from game.world.opcode_handling.handlers.player.NewSpellSlotHandler import NewSpellSlotHandler
-from game.world.opcode_handling.handlers.player.DeathBindGetZoneHandler import DeathBindGetZoneHandler
-from game.world.opcode_handling.handlers.player.DeathBindSetPointHandler import DeathBindSetPointHandler
+from game.world.opcode_handling.handlers.player.GetDeathBindPointHandler import GetDeathBindPointHandler
+from game.world.opcode_handling.handlers.player.SetDeathBindPointHandler import SetDeathBindPointHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverAcceptQuestHandler import QuestGiverAcceptQuestHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverChooseRewardHandler import QuestGiverChooseRewardHandler
 from game.world.opcode_handling.handlers.quest.QuestGiverCompleteQuestHandler import QuestGiverCompleteQuestHandler
@@ -301,8 +301,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_BUY_BANK_SLOT: BuyBankSlotHandler.handle,
     OpCode.CMSG_SET_ACTION_BUTTON: SetActionButtonHandler.handle,
     OpCode.CMSG_NEW_SPELL_SLOT: NewSpellSlotHandler.handle,
-    OpCode.CMSG_SETDEATHBINDPOINT: DeathBindSetPointHandler.handle,
-    OpCode.CMSG_GETDEATHBINDZONE: DeathBindGetZoneHandler.handle,
+    OpCode.CMSG_SETDEATHBINDPOINT: SetDeathBindPointHandler.handle,
+    OpCode.CMSG_GETDEATHBINDZONE: GetDeathBindPointHandler.handle,
 
     # Movement packets
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,

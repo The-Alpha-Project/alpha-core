@@ -3,7 +3,7 @@ from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import *
 
 
-class DeathBindGetZoneHandler(object):
+class GetDeathBindPointHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:

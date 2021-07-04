@@ -1,7 +1,7 @@
 from network.packet.PacketReader import PacketReader
 
 
-class DeathBindSetPointHandler(object):
+class SetDeathBindPointHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
