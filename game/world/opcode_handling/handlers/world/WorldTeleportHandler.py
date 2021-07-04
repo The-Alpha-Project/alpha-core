@@ -10,7 +10,7 @@ class WorldTeleportHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         # Don't teleport if player is in the middle of a flight.
-        if world_session.player_mgr.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
+        if world_session.player_mgr.movement_spline and world_session.player_mgr.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
             return 0
 
         if world_session.player_mgr.is_gm:

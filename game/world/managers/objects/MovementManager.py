@@ -56,7 +56,7 @@ class MovementManager(object):
             else:
                 guessed_distance = self.speed * self.waypoint_timer
                 # If player is flying, don't take terrain Z into account to generate the position.
-                if self.is_player and self.unit.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
+                if self.is_player and self.unit.movement_spline and self.unit.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
                     map_id = -1
                 else:
                     map_id = self.unit.map_
@@ -81,7 +81,7 @@ class MovementManager(object):
                 self.reset()
 
     def reset(self):
-        self.unit.movement_spline = SplineFlags.SPLINEFLAG_NONE
+        self.unit.movement_spline = None
         self.should_update_waypoints = False
         self.last_position = None
         self.total_waypoint_time = 0
