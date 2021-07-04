@@ -721,8 +721,8 @@ class InventoryManager(object):
             self.owner.session.enqueue_packet(update_packet)
             self.owner.session.enqueue_packet(item.query_details())
         else:
-            MapManager.send_surrounding(update_packet, self.owner.session, include_self=False)
-            MapManager.send_surrounding(item.query_details(), self.owner.session, include_self=False)
+            MapManager.send_surrounding(update_packet, self.owner, include_self=False)
+            MapManager.send_surrounding(item.query_details(), self.owner, include_self=False)
 
     def send_inventory_update(self, is_self=True):
         # Edge case where the session might be null at some point.
