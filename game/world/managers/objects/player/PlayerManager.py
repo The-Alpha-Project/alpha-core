@@ -461,11 +461,14 @@ class PlayerManager(UnitManager):
             self.duel_manager.force_duel_end(self)
 
     def set_root(self, active):
+        if not self.session:
+            return
+
         if active:
             opcode = OpCode.SMSG_FORCE_MOVE_ROOT
         else:
             opcode = OpCode.SMSG_FORCE_MOVE_UNROOT
-        MapManager.send_surrounding(PacketWriter.get_packet(opcode), self)
+        self.session.enqueue_packet(PacketWriter.get_packet(opcode))
 
     # TODO Maybe merge all speed changes in one method
     def change_speed(self, speed=0):
