@@ -14,7 +14,7 @@ class BinderActivateHandler(object):
         if len(reader.data) >= 8:  # Avoid handling empty binder activate packet.
             binder_guid = unpack('<Q', reader.data[:8])[0]
             binder = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, binder_guid)
-            if not binder or not binder.location.distance(world_session.player_mgr.location) > Formulas.Distances.MAX_BIND_DISTANCE:
+            if not binder or binder.location.distance(world_session.player_mgr.location) > Formulas.Distances.MAX_BIND_DISTANCE:
                 return 0
 
             if binder.location.distance(x=world_session.player_mgr.deathbind.deathbind_position_x,
