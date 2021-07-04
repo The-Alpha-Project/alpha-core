@@ -19,7 +19,7 @@ class ListInventoryHandler(object):
                 vendor: CreatureManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, npc_guid)
                 vendor_template: CreatureTemplate = WorldDatabaseManager.creature_get_by_entry(vendor.entry)
 
-                if vendor and vendor.location.distance(world_session.player_mgr.location) >= Formulas.Distances.MAX_SHOP_DISTANCE:
+                if vendor and vendor.location.distance(world_session.player_mgr.location) < Formulas.Distances.MAX_SHOP_DISTANCE:
                     if vendor_template:
                         quests: int = world_session.player_mgr.quest_manager.get_active_quest_num_from_quest_giver(vendor)
                         if quests > 0:
