@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from sys import platform
 
@@ -20,10 +21,11 @@ class Logger:
 
     @staticmethod
     def colorize_message(label, color, msg):
+        date = datetime.now().strftime('[%d/%m/%Y %H:%M:%S]')
         # No colors for Windows :)
         if Logger.IS_WINDOWS:
-            return f'{label} {msg}'
-        return f'{color.value}{label}{Style.RESET_ALL} {msg}'
+            return f'{label} {date} {msg}'
+        return f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
 
     @staticmethod
     def debug(msg):
