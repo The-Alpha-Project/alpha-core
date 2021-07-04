@@ -8,13 +8,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 class TaxiManager(object):
     def __init__(self, player_mgr):
         self.owner = player_mgr
-        self.available_taxi_nodes = bitarray(64, 'little')
-        self.available_taxi_nodes.setall(0)
-        self.load()
-
-    def load(self):
-        if self.owner.player.taximask and len(self.owner.player.taximask) > 0:
-            self.available_taxi_nodes = bitarray(self.owner.player.taximask, 'little')
+        self.available_taxi_nodes = bitarray(player_mgr.player.taximask, 'little')
 
     def save(self):
         self.owner.player.taximask = self.available_taxi_nodes.to01()
