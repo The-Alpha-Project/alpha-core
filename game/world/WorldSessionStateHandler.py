@@ -23,22 +23,26 @@ class WorldSessionStateHandler(object):
 
     @staticmethod
     def push_active_player_session(session):
+        lowercase_name = session.player_mgr.player.name.lower()
+
         # This is filled upon player successful login (in-world).
         PLAYERS_BY_GUID[session.player_mgr.guid] = session.player_mgr
-        PLAYER_BY_NAME[session.player_mgr.player.name.lower()] = session.player_mgr
+        PLAYER_BY_NAME[lowercase_name] = session.player_mgr
         SESSION_BY_GUID[session.player_mgr.guid] = session
-        SESSION_BY_NAME[session.player_mgr.player.name.lower()] = session
+        SESSION_BY_NAME[lowercase_name] = session
 
     @staticmethod
     def pop_active_player(player_mgr):
+        lowercase_name = player_mgr.player.name.lower()
+
         # Flushed when player leaves the world.
-        if player_mgr.player.name in PLAYER_BY_NAME:
-            PLAYER_BY_NAME.pop(player_mgr.player.name.lower())
+        if lowercase_name in PLAYER_BY_NAME:
+            PLAYER_BY_NAME.pop(lowercase_name)
         if player_mgr.guid in PLAYERS_BY_GUID:
             PLAYERS_BY_GUID.pop(player_mgr.guid)
 
-        if player_mgr.player.name in SESSION_BY_NAME:
-            SESSION_BY_NAME.pop(player_mgr.player.name.lower())
+        if lowercase_name in SESSION_BY_NAME:
+            SESSION_BY_NAME.pop(lowercase_name)
         if player_mgr.guid in SESSION_BY_GUID:
             SESSION_BY_GUID.pop(player_mgr.guid)
 
