@@ -1390,8 +1390,8 @@ begin not atomic
 	
 	-- 03/07/2021 1
 	if (select count(*) from applied_updates where id='030720211') = 0 then
-		UPDATE `spawns_creatures` SET `position_x` = '-4650', `position_y` = '-1189.24', `position_z` = '503.79', `orientation` = '4.033' WHERE (`spawn_id` = '2008');
-		UPDATE `spawns_creatures` SET `position_x` = '9945.62', `position_y` = '2642.33', `position_z` = '1318', `orientation` = '1.60' WHERE (`spawn_id` = '49938');
+		UPDATE `spawns_creatures` SET `position_x` = '-4648.741', `position_y` = '-1187.253', `position_z` = '503.792', `orientation` = '4.033' WHERE (`spawn_id` = '2008');
+		UPDATE `spawns_creatures` SET `position_x` = '9938.881', `position_y` = '2640.370', `position_z` = '1318.052', `orientation` = '4.787' WHERE (`spawn_id` = '49938');
 		UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '46825');
 		UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '49939');
 		UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = '46821');
