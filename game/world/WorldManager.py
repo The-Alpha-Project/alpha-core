@@ -141,7 +141,7 @@ class WorldServerSessionHandler(object):
             data = pack('<B', AuthCode.AUTH_SESSION_EXPIRED)
             sck.request.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
             return False
-        except (OSError, ConnectionResetError, ValueError):
+        except (socket.timeout, OSError, ConnectionResetError, ValueError):
             return False
 
     def receive(self, sck):
