@@ -35,8 +35,8 @@ class TaxiManager(object):
             #  Client does an OR operation between the two, 'destNodesa = knownNodes | destNodes'
             known_nodes = unpack('<Q', self.available_taxi_nodes.tobytes())[0]
             data = pack(
-                f'<IQI2Q',
-                1,  # Show map
+                '<IQI2Q',
+                1,  # Show map.
                 flight_master_guid,  # NPC taxi guid.
                 node,  # Current node.
                 known_nodes,  # Destination nodes.
