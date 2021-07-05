@@ -14,6 +14,7 @@ from utils.constants.MiscCodes import AttackTypes, ObjectTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellSchools, SpellEffects, SpellInterruptFlags
+from utils.constants.UnitCodes import UnitStats
 
 
 class CastingSpell(object):
@@ -178,11 +179,17 @@ class CastingSpell(object):
         return int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill.value))
 
     def get_resource_cost(self):
-        if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and self.spell_entry.ManaCostPct != 0:
-            return self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
+        mana_cost = self.spell_entry.ManaCost
+        power_cost_mod = 0
 
+        if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and self.spell_entry.ManaCostPct != 0:
+            mana_cost = self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
+
+        if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER:
+            power_cost_mod = self.spell_caster.stat_manager.get_aura_stat_bonus(UnitStats.SCHOOL_POWER_COST, misc_value=self.spell_entry.School)
         # ManaCostPerLevel is not used by anything relevant, ignore for now (only 271/4513/7290) TODO
-        return self.spell_entry.ManaCost
+
+        return mana_cost + power_cost_mod
 
     def load_effects(self):
         self.effects = []

@@ -224,6 +224,15 @@ class AuraEffectHandler:
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.MANA, amount)
 
+    @staticmethod
+    def handle_mod_power_cost_school(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
+            return
+        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SCHOOL_POWER_COST, amount, misc_value=aura.spell_effect.misc_value)
+
+
 AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted,
@@ -244,7 +253,8 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_SKILL: AuraEffectHandler.handle_mod_skill,
     AuraTypes.SPELL_AURA_MOD_INCREASE_HEALTH: AuraEffectHandler.handle_increase_health,
     AuraTypes.SPELL_AURA_MOD_INCREASE_MANA: AuraEffectHandler.handle_increase_mana,
-    AuraTypes.SPELL_AURA_MOD_PERCENT_STAT: AuraEffectHandler.handle_mod_percent_stat
+    AuraTypes.SPELL_AURA_MOD_PERCENT_STAT: AuraEffectHandler.handle_mod_percent_stat,
+    AuraTypes.SPELL_AURA_MOD_POWER_COST_SCHOOL: AuraEffectHandler.handle_mod_power_cost_school
 }
 
 PROC_AURA_EFFECTS = [
