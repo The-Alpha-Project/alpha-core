@@ -506,6 +506,24 @@ class UnitManager(ObjectManager):
         update_packet = self.generate_proper_update_packet(is_self=is_player)
         MapManager.send_surrounding(update_packet, self, include_self=is_player)
 
+    def receive_power(self, amount, power_type, source=None):
+        if self.power_type != power_type:
+            return
+        is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
+
+        new_power = self.get_power_type_value() + amount
+        if power_type == PowerTypes.TYPE_MANA:
+            self.set_mana(new_power)
+        elif power_type == PowerTypes.TYPE_RAGE:
+            self.set_rage(new_power)
+        elif power_type == PowerTypes.TYPE_FOCUS:
+            self.set_focus(new_power)
+        elif power_type == PowerTypes.TYPE_ENERGY:
+            self.set_energy(new_power)
+
+        update_packet = self.generate_proper_update_packet(is_self=is_player)
+        MapManager.send_surrounding(update_packet, self, include_self=is_player)
+
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         miss_info = casting_spell.object_target_results[target.guid].result
         damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)

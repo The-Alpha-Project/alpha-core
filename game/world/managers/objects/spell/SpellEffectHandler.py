@@ -77,19 +77,11 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
         power_type = effect.misc_value
-
         if power_type != target.power_type:
             return
 
-        new_power = target.get_power_type_value() + effect.get_effect_points(casting_spell.caster_effective_level)
-        if power_type == PowerTypes.TYPE_MANA:
-            target.set_mana(new_power)
-        elif power_type == PowerTypes.TYPE_RAGE:
-            target.set_rage(new_power)
-        elif power_type == PowerTypes.TYPE_FOCUS:
-            target.set_focus(new_power)
-        elif power_type == PowerTypes.TYPE_ENERGY:
-            target.set_energy(new_power)
+        amount = effect.get_effect_points(casting_spell.caster_effective_level)
+        target.receive_power(amount, power_type)
 
     @staticmethod
     def handle_summon_mount(casting_spell, effect, caster, target):

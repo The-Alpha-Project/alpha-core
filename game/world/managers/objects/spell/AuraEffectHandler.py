@@ -78,6 +78,15 @@ class AuraEffectHandler:
         aura.caster.apply_spell_healing(aura.target, healing, spell, is_periodic=True)
 
     @staticmethod
+    def handle_periodic_energize(aura, effect_target, remove):
+        if not aura.is_past_next_period() or remove:
+            return
+        power_type = aura.spell_effect.misc_value
+
+        amount = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        aura.target.receive_power(amount, power_type)
+
+    @staticmethod
     def handle_periodic_damage(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
@@ -141,6 +150,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_mounted_speed,
     AuraTypes.SPELL_AURA_PERIODIC_TRIGGER_SPELL: AuraEffectHandler.handle_periodic_trigger_spell,
     AuraTypes.SPELL_AURA_PERIODIC_HEAL: AuraEffectHandler.handle_periodic_healing,
+    AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE: AuraEffectHandler.handle_periodic_energize,
     AuraTypes.SPELL_AURA_PERIODIC_DAMAGE: AuraEffectHandler.handle_periodic_damage,
     AuraTypes.SPELL_AURA_PERIODIC_LEECH: AuraEffectHandler.handle_periodic_leech,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL: AuraEffectHandler.handle_proc_trigger_spell,
