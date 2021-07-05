@@ -160,3 +160,59 @@ class SplineFlags(IntEnum):
     SPLINEFLAG_CYCLIC = 0x00100000  # Movement by cycled spline
     SPLINEFLAG_ENTER_CYCLE = 0x00200000  # Appears with cyclic flag in monster move packet, erases first spline vertex after first cycle done
     SPLINEFLAG_FROZEN = 0x00400000  # Will never arrive
+
+
+class UnitStats(IntEnum):
+    ALL_ATTRIBUTES = -1
+    STRENGTH = 0
+    AGILITY = 1
+    STAMINA = 2
+    INTELLECT = 3
+    SPIRIT = 4
+    HEALTH = 5
+    MANA = 6
+    ENERGY = 7
+
+    RESISTANCE_PHYSICAL = 8  # Armor
+    RESISTANCE_HOLY = 9
+    RESISTANCE_FIRE = 10
+    RESISTANCE_NATURE = 11
+    RESISTANCE_FROST = 12
+    RESISTANCE_SHADOW = 13
+
+    PARRY = 14
+    DODGE = 15
+    BLOCK = 16
+
+    CRITICAL = 17
+    SPELL_CRITICAL = 18
+    SPELL_CASTING_SPEED_NON_STACKING = 19
+    SCHOOL_CRITICAL = 19
+    SCHOOL_POWER_COST = 20
+
+    DAMAGE_DONE = 21
+    DAMAGE_DONE_SCHOOL_OR_WEAPON = 22
+    DAMAGE_DONE_CREATURE_TYPE = 23
+    DAMAGE_TAKEN = 24
+    DAMAGE_TAKEN_SCHOOL = 25
+
+    HEALTH_REGENERATION_PER_5 = 26
+    POWER_REGENERATION_PER_5 = 27
+
+    ATTACK_SPEED = 28
+    THREAT = 29
+    STEALTH = 30
+    STEALTH_DETECTION = 31
+    INVISIBILITY = 32
+    INVISIBILITY_DETECTION = 33
+    SPEED_WALK = 34
+    SPEED_MOUNTED = 35
+
+    # Index skill bonuses at the end
+    SKILL_START = 36
+
+
+
+    ATTRIBUTE_START = STRENGTH
+    ATTRIBUTE_END = HEALTH
+    RESISTANCE_START = RESISTANCE_PHYSICAL
