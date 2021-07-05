@@ -32,7 +32,7 @@ class SpellManager(object):
         for spell in RealmDatabaseManager.character_get_spells(self.unit_mgr.guid):
             self.spells[spell.spell] = spell
 
-    def learn_spell(self, spell_id) -> bool:
+    def learn_spell(self, spell_id, cast_on_learn=False) -> bool:
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return False
 
@@ -52,7 +52,7 @@ class SpellManager(object):
         data = pack('<H', spell_id)
         self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
 
-        if spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
+        if cast_on_learn or spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
             self.start_spell_cast(spell, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF)
 
         # Teach skill required as well like in CharCreateHandler?
