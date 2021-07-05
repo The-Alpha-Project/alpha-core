@@ -539,5 +539,5 @@ GM_COMMAND_DEFINITIONS = {
     'kick': CommandManager.kick,
     'worldoff': CommandManager.worldoff,
     'guildcreate': CommandManager.guildcreate,
-    'alltaxis': CommandManager.alltaxis,
+    'alltaxis': CommandManager.alltaxis
 }
