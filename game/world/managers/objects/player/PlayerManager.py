@@ -770,8 +770,11 @@ class PlayerManager(UnitManager):
     def set_area_explored(self, area_information):
         self.explored_areas[area_information.area_explore_bit] = True
         if area_information.area_level > 0:
-            xp_gain = area_information.area_level * 10
-            self.give_xp([xp_gain])
+            if self.level < config.Unit.Player.Defaults.max_level:
+                xp_gain = area_information.area_level * 10
+                self.give_xp([xp_gain])
+            else:
+                xp_gain = 0
             # Notify client new discovered zone + xp gain.
             data = pack('<2I', area_information.zone_id, xp_gain)
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)

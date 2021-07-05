@@ -415,7 +415,7 @@ class CommandManager(object):
                     found_count += 1
                     ChatManager.send_system_message(world_session, f'[{gobject.gobject_template.name}] - Guid: {gobject.guid & ~HighGuid.HIGHGUID_GAMEOBJECT}, '
                                                                    f'Entry: {gobject.gobject_template.entry}, '
-                                                                   f'Display ID: {gobject.display_id}, '
+                                                                   f'Display ID: {gobject.current_display_id}, '
                                                                    f'X: {gobject.location.x}, '
                                                                    f'Y: {gobject.location.y}, '
                                                                    f'Z: {gobject.location.z}, '
