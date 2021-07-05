@@ -7,7 +7,6 @@ from game.world.managers.objects.player.SkillManager import SkillManager, SkillT
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils import TextUtils
-from bitarray import bitarray
 from utils.ConfigManager import config
 from utils.constants.CharCodes import *
 from utils.constants.ItemCodes import InventorySlots
@@ -115,8 +114,7 @@ class CharCreateHandler(object):
     @staticmethod
     def generate_starting_taxi_nodes(character, race):
         info = DbcDatabaseManager.chr_races_get_by_race(race)
-        known_taxi_nodes = bitarray(bin(info.StartingTaxiNodes)[2:].zfill(64)[::-1], 'little')
-        character.taximask = known_taxi_nodes.to01()
+        character.taximask = bin(info.StartingTaxiNodes)[2:].zfill(64)[::-1]
         RealmDatabaseManager.character_update(character)
 
     @staticmethod
