@@ -241,6 +241,10 @@ class PlayerManager(UnitManager):
         if self.group_manager:
             self.group_manager.send_update()
 
+        if self.talent_manager:
+            self.talent_manager.apply_talent_auras()
+            self.talent_manager.apply_talent_auras()
+
     def logout(self):
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
         self.online = False
