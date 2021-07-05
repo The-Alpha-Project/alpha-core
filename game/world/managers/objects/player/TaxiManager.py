@@ -15,14 +15,17 @@ class TaxiManager(object):
         RealmDatabaseManager.character_update(self.owner.player)
 
     # Enable all taxi node bits, not persisted.
-    def set_all(self):
+    def set_all_taxi_nodes(self):
+        count = 0
         for id, node in DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items():
             if node.Team == self.owner.team.value:
                 self.available_taxi_nodes[id - 1] = True
-
+                count += 1
         for id, node in DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES.items():
             if node.Team == self.owner.team.value:
                 self.available_taxi_nodes[id - 1] = True
+                count += 1
+        return count
 
     def has_node(self, node):
         # Apparently nodes start at bit 0, bit 0 = node 1.
