@@ -7,7 +7,6 @@ from game.world.managers.objects.player.SkillManager import SkillManager, SkillT
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils import TextUtils
-from bitarray import bitarray
 from utils.ConfigManager import config
 from utils.constants.CharCodes import *
 from utils.constants.ItemCodes import InventorySlots
