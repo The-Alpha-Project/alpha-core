@@ -1,10 +1,12 @@
 from struct import pack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import SpawnsGameobjects
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.GameObjectManager import GameObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
+from utils.ConfigManager import config
 from utils.constants.DuelCodes import *
 from utils.constants.MiscCodes import HighGuid
 from utils.constants.UnitCodes import UnitFlags
@@ -95,6 +97,9 @@ class DuelManager(object):
     def end_duel(self, duel_winner_flag, duel_complete_flag, winner):
         if not self.arbiter or self.duel_state == DuelState.DUEL_STATE_FINISHED or not self.players:
             return
+
+        if self.duel_state == DuelState.DUEL_STATE_STARTED:
+            duel_complete_flag = DuelComplete.DUEL_FINISHED
 
         # Set this first to prevent next tick to trigger.
         self.duel_state = DuelState.DUEL_STATE_FINISHED
