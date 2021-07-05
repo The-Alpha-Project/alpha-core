@@ -463,7 +463,6 @@ class CommandManager(object):
 
         return 0, ''
 
-    # TODO, Filter by faction and valid taxi_nodes (Those with flight paths in dbc)
     @staticmethod
     def alltaxis(world_session, args):
         world_session.player_mgr.taxi_manager.set_all()

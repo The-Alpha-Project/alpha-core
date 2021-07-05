@@ -261,7 +261,7 @@ class WorldLoader:
 
     @staticmethod
     def load_taxi_nodes():
-        taxi_nodes = DbcDatabaseManager. taxi_nodes_get_all()
+        taxi_nodes = DbcDatabaseManager.taxi_nodes_get_all()
         length = len(taxi_nodes)
         count = 0
 

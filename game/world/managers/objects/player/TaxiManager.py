@@ -16,7 +16,13 @@ class TaxiManager(object):
 
     # Enable all taxi node bits, not persisted.
     def set_all(self):
-        self.available_taxi_nodes.setall(1)
+        for id, node in DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items():
+            if node.Team == self.owner.team.value:
+                self.available_taxi_nodes[id - 1] = True
+
+        for id, node in DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES.items():
+            if node.Team == self.owner.team.value:
+                self.available_taxi_nodes[id - 1] = True
 
     def has_node(self, node):
         # Apparently nodes start at bit 0, bit 0 = node 1.
