@@ -463,6 +463,13 @@ class CommandManager(object):
 
         return 0, ''
 
+    # TODO, Filter by faction and valid taxi_nodes (Those with flight paths in dbc)
+    @staticmethod
+    def alltaxis(world_session, args):
+        world_session.player_mgr.taxi_manager.set_all()
+
+        return 0, ''
+
     @staticmethod
     def die(world_session, args):
         unit = CommandManager._target_or_self(world_session)
@@ -532,5 +539,6 @@ GM_COMMAND_DEFINITIONS = {
     'die': CommandManager.die,
     'kick': CommandManager.kick,
     'worldoff': CommandManager.worldoff,
-    'guildcreate': CommandManager.guildcreate
+    'guildcreate': CommandManager.guildcreate,
+    'alltaxis': CommandManager.alltaxis,
 }

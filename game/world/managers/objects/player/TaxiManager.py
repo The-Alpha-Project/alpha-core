@@ -14,6 +14,10 @@ class TaxiManager(object):
         self.owner.player.taximask = self.available_taxi_nodes.to01()
         RealmDatabaseManager.character_update(self.owner.player)
 
+    # Enable all taxi node bits, not persisted.
+    def set_all(self):
+        self.available_taxi_nodes.setall(1)
+
     def has_node(self, node):
         # Apparently nodes start at bit 0, bit 0 = node 1.
         return self.available_taxi_nodes[node - 1]
