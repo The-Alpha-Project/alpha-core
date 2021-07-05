@@ -1,7 +1,7 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
-from utils.constants.UnitCodes import PowerTypes, UnitStats
+from utils.constants.UnitCodes import PowerTypes, UnitStats, Classes
 
 
 class StatManager(object):
@@ -9,9 +9,10 @@ class StatManager(object):
     base_stats: dict[UnitStats, int]
     item_stats: dict[UnitStats, int]
 
-    # Managed by AuraManager. [Aura index, (Stat, bonus)]
-    aura_stats_flat: dict[int, (UnitStats, int)]
-    aura_stats_percentual: dict[int, (UnitStats, float)]
+    # Managed by AuraManager. [Aura index, (Stat, bonus, misc value)]
+    # Misc value can contain power/weapon/creature type etc. depending on the stat
+    aura_stats_flat: dict[int, (UnitStats, int, int)]
+    aura_stats_percentual: dict[int, (UnitStats, float, int, int)]
 
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
@@ -55,11 +56,9 @@ class StatManager(object):
         self.player_mgr.set_base_int(base_attrs.inte)
         self.player_mgr.set_base_spi(base_attrs.spi)
 
-        # Regeneration
-
     def get_total_stat(self, stat_type: UnitStats):
         base_stats = self.base_stats.get(stat_type, 0)
-        bonus_stats = self.item_stats.get(stat_type, 0) + self.get_aura_stat_bonus(stat_type, percentual=False)
+        bonus_stats = self.item_stats.get(stat_type, 0) + self.get_aura_stat_bonus(stat_type)
         return base_stats + bonus_stats * self.get_aura_stat_bonus(stat_type, percentual=True)
 
     def apply_bonuses(self):
@@ -75,18 +74,20 @@ class StatManager(object):
         mana_diff = self.update_max_mana()
         self.update_resistances()
         self.update_melee_attributes()
+        self.update_base_mana_regen()
+        self.update_base_health_regen()
 
         return hp_diff, mana_diff
 
-    def apply_aura_stat_bonus(self, index: int, stat_type: UnitStats, amount: int, percentual: bool):
+    def apply_aura_stat_bonus(self, index: int, stat_type: UnitStats, amount: int, misc_value=0, percentual=False):
         if percentual:
-            self.aura_stats_percentual[index] = (stat_type, amount)
+            self.aura_stats_percentual[index] = (stat_type, amount, misc_value)
             return
-        self.aura_stats_flat[index] = (stat_type, amount)
+        self.aura_stats_flat[index] = (stat_type, amount, misc_value)
 
         self.apply_bonuses()
 
-    def remove_aura_stat_bonus(self, index: int, percentual: bool):
+    def remove_aura_stat_bonus(self, index: int, percentual=False):
         if percentual:
             self.aura_stats_percentual.pop(index)
             return
@@ -94,7 +95,7 @@ class StatManager(object):
 
         self.apply_bonuses()
 
-    def get_aura_stat_bonus(self, stat_type: UnitStats, percentual: bool):
+    def get_aura_stat_bonus(self, stat_type: UnitStats, percentual=False, misc_value=-1):
         if percentual:
             target_bonuses = self.aura_stats_percentual
             bonus = 1
@@ -108,6 +109,9 @@ class StatManager(object):
                      stat_type not in range(UnitStats.ATTRIBUTE_START, UnitStats.ATTRIBUTE_END)):
                 # Stat bonus doesn't match
                 # If the bonus is for all attributes, continue if the requested stat type isn't an attribute
+                continue
+
+            if misc_value != -1 and stat_bonus[2] != misc_value:
                 continue
 
             if not percentual:
@@ -208,6 +212,65 @@ class StatManager(object):
         self.player_mgr.set_nature_res(self.get_total_stat(UnitStats.RESISTANCE_NATURE))
         self.player_mgr.set_frost_res(self.get_total_stat(UnitStats.RESISTANCE_FROST))
         self.player_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW))
+
+    def update_base_health_regen(self):
+        player_class = self.player_mgr.player.class_
+        class_spirit_scaling = {
+            Classes.CLASS_WARRIOR: 1.26,
+            Classes.CLASS_PALADIN: 0.25,
+            Classes.CLASS_HUNTER: 0.43,
+            Classes.CLASS_ROGUE: 0.84,
+            Classes.CLASS_PRIEST: 0.15,
+            Classes.CLASS_SHAMAN: 0.28,
+            Classes.CLASS_MAGE: 0.11,
+            Classes.CLASS_WARLOCK: 0.12,
+            Classes.CLASS_DRUID: 0.11
+        }
+        class_base_regen = {
+            Classes.CLASS_WARRIOR: -22.6,
+            Classes.CLASS_PALADIN: 0.0,
+            Classes.CLASS_HUNTER: -5.5,
+            Classes.CLASS_ROGUE: -13,
+            Classes.CLASS_PRIEST: 1.4,
+            Classes.CLASS_SHAMAN: -3.6,
+            Classes.CLASS_MAGE: 1.0,
+            Classes.CLASS_WARLOCK: 1.5,
+            Classes.CLASS_DRUID: 1.0
+        }
+
+        spirit = self.get_total_stat(UnitStats.SPIRIT)
+        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = class_base_regen[player_class] + spirit * class_spirit_scaling[player_class]
+
+
+    def update_base_mana_regen(self):
+        player_class = self.player_mgr.player.class_
+        class_spirit_scaling = {
+            Classes.CLASS_WARRIOR: 0.0,
+            Classes.CLASS_PALADIN: 0.20,
+            Classes.CLASS_HUNTER: 0.0,
+            Classes.CLASS_ROGUE: 0.0,
+            Classes.CLASS_PRIEST: 0.25,
+            Classes.CLASS_SHAMAN: 0.20,
+            Classes.CLASS_MAGE: 0.25,
+            Classes.CLASS_WARLOCK: 0.2,
+            Classes.CLASS_DRUID: 0.2
+        }
+        class_base_regen = {
+            Classes.CLASS_WARRIOR: -22.6,
+            Classes.CLASS_PALADIN: 15.0,
+            Classes.CLASS_HUNTER: 12.5,
+            Classes.CLASS_ROGUE: -13.0,
+            Classes.CLASS_PRIEST: 12.5,
+            Classes.CLASS_SHAMAN: 17.0,
+            Classes.CLASS_MAGE: 12.5,
+            Classes.CLASS_WARLOCK: 15.0,
+            Classes.CLASS_DRUID: 15.0
+        }
+
+        spirit = self.get_total_stat(UnitStats.SPIRIT)
+        regen = class_base_regen[player_class] + spirit * class_spirit_scaling[player_class]
+        self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = regen / 2
+
 
     def update_defense_bonuses(self):
         pass

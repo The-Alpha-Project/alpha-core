@@ -150,71 +150,79 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mod_resistance(aura, effect_target, remove):
         if remove:
-            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, False)
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         stat_type = UnitStats.RESISTANCE_START + aura.spell_effect.misc_value
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount, False)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount)
 
     @staticmethod
     def handle_mod_stat(aura, effect_target, remove):
         if remove:
-            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, False)
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         stat_type = aura.spell_effect.misc_value
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount, False)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount)
 
     @staticmethod
     def handle_mod_percent_stat(aura, effect_target, remove):
         if remove:
-            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, True)
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
         stat_type = aura.spell_effect.misc_value
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount, True)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount, percentual=True)
 
     @staticmethod
     def handle_mod_regen(aura, effect_target, remove):
         if remove:
-            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, False)
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH_REGENERATION_PER_5, amount, False)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH_REGENERATION_PER_5, amount)
+
+    @staticmethod
+    def handle_mod_health_regen_percent(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
+            return
+        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH_REGENERATION_PER_5, amount, percentual=True)
 
     @staticmethod
     def handle_mod_power_regen(aura, effect_target, remove):
         if remove:
-            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, False)
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.POWER_REGENERATION_PER_5, amount, False)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.POWER_REGENERATION_PER_5, amount)
 
     @staticmethod
     def handle_mod_skill(aura, effect_target, remove):
         if remove:
-            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, False)
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
         skill_type = aura.spell_effect.misc_value
         stat_bonus_index = UnitStats.SKILL_START.value + skill_type
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_bonus_index, amount, False)  # TODO Required changes to SkillManager
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_bonus_index, amount)  # TODO Required changes to SkillManager
 
     @staticmethod
     def handle_increase_health(aura, effect_target, remove):
         if remove:
-            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, False)
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH, amount, False)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH, amount)
 
     @staticmethod
     def handle_increase_mana(aura, effect_target, remove):
         if remove:
-            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, False)
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.MANA, amount, False)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.MANA, amount)
 
 AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
@@ -231,6 +239,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
     AuraTypes.SPELL_AURA_MOD_STAT: AuraEffectHandler.handle_mod_stat,
     AuraTypes.SPELL_AURA_MOD_REGEN: AuraEffectHandler.handle_mod_regen,
+    AuraTypes.SPELL_AURA_MOD_HEALTH_REGEN_PERCENT: AuraEffectHandler.handle_mod_health_regen_percent,
     AuraTypes.SPELL_AURA_MOD_POWER_REGEN: AuraEffectHandler.handle_mod_power_regen,
     AuraTypes.SPELL_AURA_MOD_SKILL: AuraEffectHandler.handle_mod_skill,
     AuraTypes.SPELL_AURA_MOD_INCREASE_HEALTH: AuraEffectHandler.handle_increase_health,
