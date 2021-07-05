@@ -697,7 +697,7 @@ class SpellManager(object):
 
     def consume_resources_for_cast(self, casting_spell):  # This method assumes that the reagents exist (meets_casting_requisites was run).
         power_type = casting_spell.spell_entry.PowerType
-        cost = casting_spell.spell_entry.ManaCost
+        cost = casting_spell.get_resource_cost()
         current_power = self.unit_mgr.health if power_type == PowerTypes.TYPE_HEALTH else self.unit_mgr.get_power_type_value()
         new_power = current_power - cost
         if power_type == PowerTypes.TYPE_MANA:
