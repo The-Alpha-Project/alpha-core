@@ -48,7 +48,7 @@ class TaxiManager(object):
     def handle_node_status_query(self, flight_master_guid, node):
         data = pack(
             '<QB',
-            flight_master_guid,  # NPC taxi guid
+            flight_master_guid,  # NPC taxi guid.
             0 if self.has_node(node) else 1  # Available path '!' Green icon.
         )
 
