@@ -171,6 +171,9 @@ class SpellManager(object):
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
     def apply_spell_effects(self, casting_spell, remove=False, update=False, partial_targets=None):
+        if not update:
+            self.handle_procs_for_cast(casting_spell)
+
         for effect in casting_spell.effects:
             if not update:
                 effect.handle_application()
@@ -199,6 +202,20 @@ class SpellManager(object):
 
         if remove:
             self.remove_cast(casting_spell)
+
+    def handle_procs_for_cast(self, casting_spell):
+        applied_targets = []
+        for effect in casting_spell.effects:
+            for target in effect.targets.get_resolved_effect_targets_by_type(ObjectManager):
+                if target.guid in applied_targets:
+                    continue
+
+                target_info = casting_spell.object_target_results[target.guid]
+                if target_info.result != SpellMissReason.MISS_REASON_NONE:
+                    continue
+                target.aura_manager.check_aura_procs(involved_cast=casting_spell)
+                casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
+                applied_targets.append(target.guid)
 
     def cast_queued_melee_ability(self, attack_type) -> bool:
         melee_ability = self.get_queued_melee_ability()

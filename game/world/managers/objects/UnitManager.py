@@ -364,6 +364,9 @@ class UnitManager(ObjectManager):
         if damage_info.damage > 0:
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
 
+        victim.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
+        self.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
+
         self.send_attack_state_update(damage_info)
 
         # Extra attack only at any non extra attack
@@ -836,6 +839,8 @@ class UnitManager(ObjectManager):
 
         if killer:
             killer.spell_manager.remove_unit_from_all_cast_targets(self.guid)  # Interrupt casting on target death
+            killer.aura_manager.check_aura_procs(killed_unit=True)
+
         self.spell_manager.remove_all_casts()
         self.aura_manager.handle_death()
 

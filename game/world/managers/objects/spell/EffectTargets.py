@@ -24,7 +24,6 @@ class EffectTargets:
         self.casting_spell = casting_spell
 
         self.simple_targets = []
-        self.resolve_simple_targets()
 
         self.target_effect = spell_effect
 
@@ -85,6 +84,9 @@ class EffectTargets:
                self.target_effect.implicit_target_b in FRIENDLY_IMPLICIT_TARGETS
 
     def resolve_targets(self):
+        if not self.simple_targets:
+            self.resolve_simple_targets()
+
         self.previous_targets_a = self.resolved_targets_a
         self.previous_targets_b = self.resolved_targets_b
         self.resolved_targets_a = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_a)

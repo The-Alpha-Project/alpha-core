@@ -13,6 +13,8 @@ class AppliedAura:
         self.effective_level = casting_spell.caster_effective_level
         self.interrupt_flags = casting_spell.spell_entry.AuraInterruptFlags
 
+        self.proc_charges = casting_spell.spell_entry.ProcCharges if casting_spell.spell_entry.ProcCharges != 0 else -1
+
         self.period = spell_effect.aura_period
 
         self.passive = casting_spell.is_passive()
@@ -58,7 +60,7 @@ class AppliedAura:
             self.spell_effect.update_effect_aura(timestamp)
 
         if self.is_periodic():
-            AuraEffectHandler.handle_aura_effect_change(self)
+            AuraEffectHandler.handle_aura_effect_change(self, self.target)
 
         if self.source_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
             self.spell_effect.remove_old_periodic_effect_ticks()
