@@ -714,23 +714,26 @@ class InventoryManager(object):
         for slot, item in self.get_backpack().sorted_slots.items():
             self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid)
 
-    def send_single_item_update(self, world_session, item, is_self):
+    def send_single_item_update(self, item, is_self):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(is_self=False)))
         if is_self:
-            world_session.enqueue_packet(update_packet)
-            world_session.enqueue_packet(item.query_details())
+            self.owner.session.enqueue_packet(update_packet)
+            self.owner.session.enqueue_packet(item.query_details())
         else:
-            MapManager.send_surrounding(update_packet, world_session.player_mgr, include_self=False)
-            MapManager.send_surrounding(item.query_details(), world_session.player_mgr,
-                                        include_self=False)
+            MapManager.send_surrounding(update_packet, self.owner, include_self=False)
+            MapManager.send_surrounding(item.query_details(), self.owner, include_self=False)
 
-    def send_inventory_update(self, world_session, is_self=True):
+    def send_inventory_update(self, is_self=True):
+        # Edge case where the session might be null at some point.
+        if self.owner and not self.owner.session:
+            return
+
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
             if not container.is_backpack:
-                self.send_single_item_update(world_session, container, is_self)
+                self.send_single_item_update(container, is_self)
 
             for slot, item in list(container.sorted_slots.items()):
-                self.send_single_item_update(world_session, item, is_self)
+                self.send_single_item_update(item, is_self)

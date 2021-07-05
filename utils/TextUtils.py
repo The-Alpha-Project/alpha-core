@@ -76,8 +76,9 @@ class TextChecker:
 
     @staticmethod
     def valid_text(text_, is_name=False, is_guild=False):
+        stripped_text = text_.replace(' ', '')
         text_length = len(text_)
-        stripped_text_length = len(text_.strip())
+        stripped_text_length = len(stripped_text)
 
         # Null and emptiness checks
         if not text_ or stripped_text_length == 0:
@@ -107,9 +108,16 @@ class TextChecker:
                 return False
 
         if is_guild:
+            # Don't allow spaces at the start or the end of the guild name.
+            if text_[0] == ' ' or text_[-1] == ' ':
+                return False
+
             # Make sure the name is between the allowed number of characters
             if text_length < 2 or text_length > 24:
                 return False
+
+            # Use the guild name without spaces to pass the isalpha() check.
+            text_ = stripped_text
 
         # If all characters in the string are alphabets (can be both lowercase and uppercase)
         return text_.isalpha()

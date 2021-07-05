@@ -4,6 +4,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import Factions, ObjectTypes
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes
+from utils.constants.UnitCodes import Teams
 
 
 class AuraEffectHandler:
@@ -30,7 +31,10 @@ class AuraEffectHandler:
             return
 
         shapeshift_display_info = SHAPESHIFT_MODEL_IDS[aura.spell_effect.misc_value]
-        display_index = 1 if effect_target.faction == Factions.HORDE else 0
+        if effect_target.get_type() == ObjectTypes.TYPE_PLAYER:
+            display_index = 1 if aura.target.team == Teams.TEAM_HORDE else 0
+        else:  # For creatures default to Alliance form for now.
+            display_index = 0
         model_scale = shapeshift_display_info[2]
         effect_target.set_display_id(shapeshift_display_info[display_index])
         effect_target.set_scale(model_scale)

@@ -10,7 +10,7 @@ begin not atomic
     end if;
     
   -- 27/05/2021 1
-	if (select count(*) from applied_updates where id='270520211') = 0 then
+    if (select count(*) from applied_updates where id='270520211') = 0 then
         DROP TABLE IF EXISTS `npc_trainer`;
         CREATE TABLE IF NOT EXISTS `npc_trainer` (
             `template_entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
@@ -1375,7 +1375,7 @@ begin not atomic
         UPDATE `creature_template` SET `trainer_id` = 1001 WHERE `entry` = 4773;
         UPDATE `creature_template` SET `trainer_id` = 1001 WHERE `entry` = 7953;
 
-		insert into applied_updates values ('270520211');
+        insert into applied_updates values ('270520211');
     end if;
 
     -- 28/06/2021 1
@@ -1387,6 +1387,48 @@ begin not atomic
 
         insert into applied_updates values ('280620211');
     end if;
-	
+    
+    -- 03/07/2021 1
+    if (select count(*) from applied_updates where id='030720211') = 0 then
+        UPDATE `spawns_creatures` SET `position_x` = -4648.741, `position_y` = -1187.253, `position_z` = 503.792, `orientation` = 4.033 WHERE (`spawn_id` = 2008);
+        UPDATE `spawns_creatures` SET `position_x` = 9938.881, `position_y` = 2640.370, `position_z` = 1318.052, `orientation` = 4.787 WHERE (`spawn_id` = 49938);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 46825);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 49939);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 46821);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 46823);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 49459);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 49539);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 46824);
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_id` = 46561);
+
+        UPDATE `creature_template` SET `display_id2` = 0, `display_id3` = 0, `display_id4` = 0 WHERE `entry` = 4262;
+
+        insert into applied_updates values ('030720211');
+    end if;
+
+    -- 03/07/2021 2
+    if (select count(*) from applied_updates where id='030720212') = 0 then
+        update creature_template set npc_flags = 6 where entry in (3838, 3841, 4267, 4319, 4407, 6706, 8019, 10897, 11138, 12577, 12578);
+        update creature_template set npc_flags = 4 where entry = 3575;
+        update spawns_creatures set position_z = 1318.72 where spawn_id in (46841, 46883);
+        update spawns_creatures set position_z = 1318 where spawn_id = 46812;
+
+        insert into applied_updates values ('030720212');
+    end if;
+
+    -- 03/07/2021 3
+    if (select count(*) from applied_updates where id='030720213') = 0 then
+        update quest_template set RewChoiceItemId1 = 0, RewChoiceItemCount1 = 0, RewItemId1 = 3275, RewItemCount1 = 1 where entry = 364;
+
+        insert into applied_updates values ('030720213');
+    end if;
+
+    -- 05/07/2021 1
+    if (select count(*) from applied_updates where id='050720211') = 0 then
+        update spawns_gameobjects set ignored = 1 where spawn_id in (10788, 10999);
+
+        insert into applied_updates values ('050720211');
+    end if;
+    
 end $
 delimiter ;

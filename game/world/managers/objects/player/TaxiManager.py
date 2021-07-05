@@ -8,13 +8,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 class TaxiManager(object):
     def __init__(self, player_mgr):
         self.owner = player_mgr
-        self.available_taxi_nodes = bitarray(64, 'little')
-        self.available_taxi_nodes.setall(0)
-        self.load()
-
-    def load(self):
-        if self.owner.player.taximask and len(self.owner.player.taximask) > 0:
-            self.available_taxi_nodes = bitarray(self.owner.player.taximask, 'little')
+        self.available_taxi_nodes = bitarray(player_mgr.player.taximask, 'little')
 
     def save(self):
         self.owner.player.taximask = self.available_taxi_nodes.to01()
@@ -41,8 +35,8 @@ class TaxiManager(object):
             #  Client does an OR operation between the two, 'destNodesa = knownNodes | destNodes'
             known_nodes = unpack('<Q', self.available_taxi_nodes.tobytes())[0]
             data = pack(
-                f'<IQI2Q',
-                1,  # Show map
+                '<IQI2Q',
+                1,  # Show map.
                 flight_master_guid,  # NPC taxi guid.
                 node,  # Current node.
                 known_nodes,  # Destination nodes.
@@ -53,8 +47,8 @@ class TaxiManager(object):
 
     def handle_node_status_query(self, flight_master_guid, node):
         data = pack(
-            f'<QB',
-            flight_master_guid,  # NPC taxi guid
+            '<QB',
+            flight_master_guid,  # NPC taxi guid.
             0 if self.has_node(node) else 1  # Available path '!' Green icon.
         )
 

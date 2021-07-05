@@ -2,12 +2,17 @@ from struct import unpack
 
 from game.world.managers.abstractions.Vector import Vector
 from utils.Logger import Logger
+from utils.constants.UnitCodes import SplineFlags
 
 
 class WorldTeleportHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
+        # Don't teleport if player is in the middle of a flight.
+        if world_session.player_mgr.movement_spline and world_session.player_mgr.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
+            return 0
+
         if world_session.player_mgr.is_gm:
             pack_guid, map_, x, y, z, o = unpack('<IB4f', reader.data)
             world_session.player_mgr.teleport(map_, Vector(x, y, z, o))

@@ -1,10 +1,6 @@
-from database.world.WorldModels import CreatureTemplate
 from game.world.managers.objects.creature.CreatureManager import CreatureManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from struct import unpack
-
-from game.world.opcode_handling.handlers.quest.QuestGiverHelloHandler import QuestGiverHelloHandler
 
 
 class TrainerListHandler(object):
