@@ -75,7 +75,7 @@ class AuraEffectHandler:
             return
         spell = aura.source_spell
         healing = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.caster.apply_spell_healing(aura.target, healing, spell, is_periodic=True)
+        aura.caster.apply_spell_healing(effect_target, healing, spell, is_periodic=True)
 
     @staticmethod
     def handle_periodic_energize(aura, effect_target, remove):
@@ -84,7 +84,7 @@ class AuraEffectHandler:
         power_type = aura.spell_effect.misc_value
 
         amount = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
-        aura.target.receive_power(amount, power_type)
+        effect_target.receive_power(amount, power_type)
 
     @staticmethod
     def handle_periodic_damage(aura, effect_target, remove):
