@@ -29,7 +29,7 @@ from utils.constants.MiscCodes import ChatFlags, LootTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags, UnitStats
 from utils.constants.UpdateFields import *
 
 MAX_ACTION_BUTTONS = 120
@@ -992,6 +992,13 @@ class PlayerManager(UnitManager):
                 mana_regen = (self.spi / 5 + 15) / 2
             elif self.player.class_ == Classes.CLASS_WARRIOR:
                 health_regen = self.spi * 1.26 - 22.6
+
+            # TODO Most of this logic could be moved to StatManager
+            # As these values above are not handled by StatManager, percentual effects do not work
+
+            # Healing aura increases regeneration "by 2 every second", and base points equal to 10. Calculate 2/5 of hp5/mp5.
+            health_regen += self.stat_manager.get_total_stat(UnitStats.HEALTH_REGENERATION_PER_5) * 0.4
+            mana_regen += self.stat_manager.get_total_stat(UnitStats.POWER_REGENERATION_PER_5) * 0.4
 
             # Health
 
