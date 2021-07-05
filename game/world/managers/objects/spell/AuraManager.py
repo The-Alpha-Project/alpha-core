@@ -103,7 +103,7 @@ class AuraManager:
 
         # Always pass the second unit as the effect target. The handler will choose the target based on the spell.
         if damage_info:
-            effect_target = damage_info.target if not is_receiver else damage_info.attacker
+            effect_target = damage_info.attacker if is_receiver else damage_info.target
         elif involved_cast:
             # All targets for the spell could be passed, but this would only matter for ProcFlags.SPELL_CAST
             # SPELL_CAST is only used by one deprecated spell which will have the correct target in initial_target.

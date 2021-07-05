@@ -525,10 +525,14 @@ class UnitManager(ObjectManager):
         MapManager.send_surrounding(update_packet, self, include_self=is_player)
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
-        miss_info = casting_spell.object_target_results[target.guid].result
+        if target.guid in casting_spell.object_target_results:
+            miss_reason = casting_spell.object_target_results[target.guid].result
+        else:  # TODO Proc damage effects (SPELL_AURA_PROC_TRIGGER_DAMAGE) can't fill target results - should they be able to miss?
+            miss_reason = SpellMissReason.MISS_REASON_NONE
+
         damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)
         # TODO Roll crit, handle absorb
-        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, is_periodic=is_periodic)
+        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID, is_periodic=is_periodic)
         self.deal_damage(target, damage, is_periodic)
 
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
@@ -560,7 +564,7 @@ class UnitManager(ObjectManager):
             flags |= SpellHitFlags.HIT_FLAG_PERIODIC
 
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
-            combat_log_data = pack('<i2Qi', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
+            combat_log_data = pack('<i2Q2i', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
 

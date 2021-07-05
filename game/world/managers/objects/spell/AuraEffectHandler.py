@@ -145,7 +145,7 @@ class AuraEffectHandler:
             return
 
         damage = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
-        effect_target.apply_spell_damage(effect_target, damage, aura.source_spell)
+        aura.target.apply_spell_damage(effect_target, damage, aura.source_spell)
 
 
 AURA_EFFECTS = {
