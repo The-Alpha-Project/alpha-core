@@ -1,4 +1,5 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
@@ -115,10 +116,12 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
-        resolved_targets = effect.targets.resolved_targets_b
-        if not resolved_targets or len(resolved_targets) == 0:
+        teleport_targets = effect.targets.get_resolved_effect_targets_by_type(tuple)  # Teleport targets should follow the format (map, Vector)
+        if len(teleport_targets) == 0:
             return
-        teleport_info = resolved_targets[0]
+        teleport_info = teleport_targets[0]
+        if len(teleport_info) != 2 or not isinstance(teleport_info[1], Vector):
+            return
 
         target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved
         # TODO Die sides are assigned for at least Word of Recall (ID 1)
