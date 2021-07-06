@@ -154,9 +154,12 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
 
-        # Note: An effect affecting all resistances/attributes is marked with -1
-        # -1 in this case leads to UnitStats.ALL_RESISTANCES
-        stat_type = UnitStats.RESISTANCE_START + aura.spell_effect.misc_value
+        if aura.spell_effect.misc_value == -1:
+            stat_type = UnitStats.ALL_RESISTANCES
+        else:
+            # Shift RESISTANCE_START to get the proper flag value
+            stat_type = UnitStats.RESISTANCE_START << aura.spell_effect.misc_value
+
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount)
 
@@ -165,7 +168,12 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
-        stat_type = aura.spell_effect.misc_value
+
+        if aura.spell_effect.misc_value == -1:
+            stat_type = UnitStats.ALL_ATTRIBUTES
+        else:
+            stat_type = UnitStats.ATTRIBUTE_START << aura.spell_effect.misc_value
+
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount)
 

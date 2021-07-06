@@ -1,4 +1,4 @@
-from enum import IntEnum, auto
+from enum import IntEnum, auto, IntFlag
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from utils.Logger import Logger
@@ -11,8 +11,7 @@ from utils.constants.UnitCodes import PowerTypes, Classes
 # Stats that are modified aura effects. Used in StatManager and when accessing stats.
 # Use auto indexing to make expanding much easier.
 # TODO Mask instead for more clear handling of damage bonuses, all attribute bonuses etc.?
-class UnitStats(IntEnum):
-    ALL_ATTRIBUTES = -1
+class UnitStats(IntFlag):
     STRENGTH = auto()
     AGILITY = auto()
     STAMINA = auto()
@@ -22,7 +21,6 @@ class UnitStats(IntEnum):
     MANA = auto()
     ENERGY = auto()
 
-    ALL_RESISTANCES = auto()
     RESISTANCE_PHYSICAL = auto()  # Armor
     RESISTANCE_HOLY = auto()
     RESISTANCE_FIRE = auto()
@@ -75,9 +73,11 @@ class UnitStats(IntEnum):
     SKILL = auto()
 
     ATTRIBUTE_START = STRENGTH
-    ATTRIBUTE_END = HEALTH
     RESISTANCE_START = RESISTANCE_PHYSICAL
-    RESISTANCE_END = PARRY
+
+    ALL_ATTRIBUTES = STRENGTH | AGILITY | STAMINA | INTELLECT | SPIRIT
+    # Exclude armor
+    ALL_RESISTANCES = RESISTANCE_HOLY | RESISTANCE_FIRE | RESISTANCE_NATURE | RESISTANCE_FROST | RESISTANCE_SHADOW
 
 
 class StatManager(object):
@@ -124,17 +124,12 @@ class StatManager(object):
         self.base_stats[UnitStats.STAMINA] = base_attrs.sta
         self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
         self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
-
         self.base_stats[UnitStats.SPEED_RUNNING] = config.Unit.Defaults.run_speed
 
         self.player_mgr.base_hp = base_stats.basehp
         self.player_mgr.base_mana = base_stats.basemana
 
-        self.player_mgr.set_base_str(base_attrs.str)
-        self.player_mgr.set_base_agi(base_attrs.agi)
-        self.player_mgr.set_base_sta(base_attrs.sta)
-        self.player_mgr.set_base_int(base_attrs.inte)
-        self.player_mgr.set_base_spi(base_attrs.spi)
+        self.send_attributes()
 
         self.update_base_health_regen()
         self.update_base_mana_regen()
@@ -142,11 +137,20 @@ class StatManager(object):
     def get_base_stat(self, stat_type: UnitStats) -> int:
         return self.base_stats.get(stat_type, 0)
 
-    def get_total_stat(self, stat_type: UnitStats) -> int:
-        base_stats = self.get_base_stat(stat_type)
-        bonus_stats = self.item_stats.get(stat_type, 0) + self.get_aura_stat_bonus(stat_type)
+    def get_item_stat(self, stat_type: UnitStats) -> int:
+        return self.item_stats.get(stat_type, 0)
 
-        return int((base_stats + bonus_stats) * self.get_aura_stat_bonus(stat_type, percentual=True))
+    def get_aura_bonus_stat(self, stat_type: UnitStats) -> int:
+        # Note: bonus can be negative due to harmful effects.
+        return self.get_total_stat(stat_type) - self.get_item_stat(stat_type) - self.get_base_stat(stat_type)
+
+    def get_total_stat(self, stat_type: UnitStats, misc_value=-1) -> int:
+        base_stats = self.get_base_stat(stat_type)
+        bonus_stats = self.item_stats.get(stat_type, 0) + self.get_aura_stat_bonus(stat_type, misc_value=misc_value)
+
+        total = int((base_stats + bonus_stats) * self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value))
+
+        return max(0, total)  # Stats are always positive
 
     def apply_bonuses(self):
         self.calculate_item_stats()
@@ -166,18 +170,18 @@ class StatManager(object):
         self.update_base_mana_regen()
         self.update_base_health_regen()
 
-        self.send_total_attributes()
+        self.send_attributes()
         self.send_melee_attributes()
         self.send_resistances()
 
         return hp_diff, mana_diff
 
-    def apply_bonuses_for_value(self, value: int, stat_type: UnitStats, misc_value=0):
-        flat = self.get_aura_stat_bonus(stat_type, misc_value=misc_value)
-        percentual = self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value)
+    def apply_bonuses_for_value(self, value: int, stat_type: UnitStats, misc_value=0, misc_value_is_mask=False):
+        flat = self.get_aura_stat_bonus(stat_type, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask)
+        percentual = self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask)
         return int((value + flat) * percentual)
 
-    def apply_aura_stat_bonus(self, index: int, stat_type: UnitStats, amount: int, misc_value=0, percentual=False):
+    def apply_aura_stat_bonus(self, index: int, stat_type: UnitStats, amount: int, misc_value=-1, percentual=False):
         if percentual:
             self.aura_stats_percentual[index] = (stat_type, amount, misc_value)
         else:
@@ -193,7 +197,7 @@ class StatManager(object):
 
         self.apply_bonuses()
 
-    def get_aura_stat_bonus(self, stat_type: UnitStats, percentual=False, misc_value=-1):
+    def get_aura_stat_bonus(self, stat_type: UnitStats, percentual=False, misc_value=-1, misc_value_is_mask=False):
         if percentual:
             target_bonuses = self.aura_stats_percentual
             bonus = 1
@@ -202,19 +206,14 @@ class StatManager(object):
             bonus = 0
 
         for stat_bonus in target_bonuses.values():
-            if stat_bonus[0] == UnitStats.ALL_ATTRIBUTES and stat_type not in range(UnitStats.ATTRIBUTE_START, UnitStats.ATTRIBUTE_END):
-                continue
-            if stat_bonus[0] == UnitStats.ALL_RESISTANCES and stat_type not in range(UnitStats.RESISTANCE_START, UnitStats.RESISTANCE_END):
-                continue
-
-            if stat_bonus[0] != stat_type and stat_bonus[0] != UnitStats.ALL_ATTRIBUTES and stat_bonus[0] != UnitStats.ALL_RESISTANCES:
-                # Stat bonus doesn't match
-                # If the bonus is for all attributes, continue if the requested stat type isn't an attribute
+            if not stat_bonus[0] & stat_type:
+                # Stat bonus type or misc value don't match
                 continue
 
-            if misc_value != -1 and stat_bonus[2] != misc_value:
-                continue
-
+            if misc_value != -1 or stat_bonus[2] != -1:
+                if misc_value_is_mask and not misc_value & stat_bonus[2] or \
+                        (not misc_value_is_mask and misc_value != stat_bonus[2]):
+                    continue
             if not percentual:
                 bonus += stat_bonus[1]
             else:
@@ -400,8 +399,9 @@ class StatManager(object):
 
         # Weapon type bonuses
         if weapon_type != -1:
-            weapon_min_damage = self.apply_bonuses_for_value(weapon_min_damage, UnitStats.DAMAGE_DONE_WEAPON, weapon_type)
-            weapon_max_damage = self.apply_bonuses_for_value(weapon_max_damage, UnitStats.DAMAGE_DONE_WEAPON, weapon_type)
+            weapon_type = 1 << weapon_type
+            weapon_min_damage = self.apply_bonuses_for_value(weapon_min_damage, UnitStats.DAMAGE_DONE_WEAPON, weapon_type, misc_value_is_mask=True)
+            weapon_max_damage = self.apply_bonuses_for_value(weapon_max_damage, UnitStats.DAMAGE_DONE_WEAPON, weapon_type, misc_value_is_mask=True)
 
         return weapon_min_damage, weapon_max_damage
 
@@ -468,7 +468,21 @@ class StatManager(object):
         self.player_mgr.set_frost_res(self.get_total_stat(UnitStats.RESISTANCE_FROST))
         self.player_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW))
 
-    def send_total_attributes(self):
+        self.player_mgr.set_bonus_armor(self.get_aura_bonus_stat(UnitStats.RESISTANCE_PHYSICAL))
+        self.player_mgr.set_bonus_holy_res(self.get_aura_bonus_stat(UnitStats.RESISTANCE_HOLY))
+        self.player_mgr.set_bonus_fire_res(self.get_aura_bonus_stat(UnitStats.RESISTANCE_FIRE))
+        self.player_mgr.set_bonus_nature_res(self.get_aura_bonus_stat(UnitStats.RESISTANCE_NATURE))
+        self.player_mgr.set_bonus_frost_res(self.get_aura_bonus_stat(UnitStats.RESISTANCE_FROST))
+        self.player_mgr.set_bonus_shadow_res(self.get_aura_bonus_stat(UnitStats.RESISTANCE_SHADOW))
+
+
+    def send_attributes(self):
+        self.player_mgr.set_base_str(self.get_base_stat(UnitStats.STRENGTH))
+        self.player_mgr.set_base_agi(self.get_base_stat(UnitStats.AGILITY))
+        self.player_mgr.set_base_sta(self.get_base_stat(UnitStats.STAMINA))
+        self.player_mgr.set_base_int(self.get_base_stat(UnitStats.INTELLECT))
+        self.player_mgr.set_base_spi(self.get_base_stat(UnitStats.SPIRIT))
+
         self.player_mgr.set_str(self.get_total_stat(UnitStats.STRENGTH))
         self.player_mgr.set_agi(self.get_total_stat(UnitStats.AGILITY))
         self.player_mgr.set_sta(self.get_total_stat(UnitStats.STAMINA))
