@@ -28,7 +28,7 @@ from utils.constants.DuelCodes import *
 from utils.constants.MiscCodes import ChatFlags, LootTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
-from utils.constants.SpellCodes import ShapeshiftForms
+from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
 from utils.constants.UpdateFields import *
 
@@ -1066,6 +1066,7 @@ class PlayerManager(UnitManager):
     # override
     def calculate_min_max_damage(self, attack_type=0):
         # TODO: Using Vanilla formula, AP was not present in Alpha
+        '''
         weapon = None
         base_min_dmg, base_max_dmg = unpack('<2H', pack('<I', self.damage))
         weapon_min_dmg = 0
@@ -1107,8 +1108,19 @@ class PlayerManager(UnitManager):
 
         min_damage = (weapon_min_dmg + attack_power / 14) * dual_wield_penalty
         max_damage = (weapon_max_dmg + attack_power / 14) * dual_wield_penalty
+        '''
 
-        return int(min_damage), int(max_damage)
+        if attack_type == AttackTypes.BASE_ATTACK:
+            weapon = self.inventory.get_main_hand()
+        elif attack_type == AttackTypes.OFFHAND_ATTACK:
+            weapon = self.inventory.get_offhand()
+        else:
+            weapon = self.inventory.get_ranged()
+        if not weapon:
+            subclass = -1
+        else:
+            subclass = weapon.item_template.subclass
+        return self.stat_manager.get_base_attack_total_min_max_damage(SpellSchools.SPELL_SCHOOL_NORMAL, AttackTypes(attack_type), subclass)
 
     def generate_rage(self, damage_info, is_player=False):
         # Warriors or Druids in Bear form

@@ -3,11 +3,14 @@ from enum import IntEnum, auto
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
+from utils.constants.MiscCodes import AttackTypes
+from utils.constants.SpellCodes import SpellSchools
 from utils.constants.UnitCodes import PowerTypes, Classes
 
 
 # Stats that are modified aura effects. Used in StatManager and when accessing stats.
 # Use auto indexing to make expanding much easier.
+# TODO Mask instead for more clear handling of damage bonuses, all attribute bonuses etc.?
 class UnitStats(IntEnum):
     ALL_ATTRIBUTES = -1
     STRENGTH = auto()
@@ -26,6 +29,18 @@ class UnitStats(IntEnum):
     RESISTANCE_NATURE = auto()
     RESISTANCE_FROST = auto()
     RESISTANCE_SHADOW = auto()
+
+    MAIN_HAND_DAMAGE_MIN = auto()
+    MAIN_HAND_DAMAGE_MAX = auto()
+    MAIN_HAND_DELAY = auto()
+
+    OFF_HAND_DAMAGE_MIN = auto()
+    OFF_HAND_DAMAGE_MAX = auto()
+    OFF_HAND_DELAY = auto()
+
+    RANGED_DAMAGE_MIN = auto()
+    RANGED_DAMAGE_MAX = auto()
+    RANGED_DELAY = auto()
 
     PARRY = auto()
     DODGE = auto()
@@ -57,10 +72,7 @@ class UnitStats(IntEnum):
     SPEED_SWIMMING = auto()
     SPEED_MOUNTED = auto()
 
-    # Skill type in misc value
     SKILL = auto()
-
-
 
     ATTRIBUTE_START = STRENGTH
     ATTRIBUTE_END = HEALTH
@@ -70,7 +82,10 @@ class UnitStats(IntEnum):
 
 class StatManager(object):
 
+    # Player base stats and misc. stats scaling off items (weapon damage etc.)
     base_stats: dict[UnitStats, int]
+
+    # Stat gain from items
     item_stats: dict[UnitStats, int]
 
     # Managed by AuraManager. [Aura index, (Stat, bonus, misc value)]
@@ -78,12 +93,11 @@ class StatManager(object):
     aura_stats_flat: dict[int, (UnitStats, int, int)]
     aura_stats_percentual: dict[int, (UnitStats, float, int, int)]
 
+    weapon_reach: float
+
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
 
-        self.melee_damage = [0] * 2
-        self.melee_attack_time = config.Unit.Defaults.base_attack_time
-        self.offhand_attack_time = config.Unit.Defaults.offhand_attack_time
         self.weapon_reach = 0
 
         self.base_stats = {}
@@ -111,6 +125,8 @@ class StatManager(object):
         self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
         self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
 
+        self.base_stats[UnitStats.SPEED_RUNNING] = config.Unit.Defaults.run_speed
+
         self.player_mgr.base_hp = base_stats.basehp
         self.player_mgr.base_mana = base_stats.basemana
 
@@ -120,41 +136,46 @@ class StatManager(object):
         self.player_mgr.set_base_int(base_attrs.inte)
         self.player_mgr.set_base_spi(base_attrs.spi)
 
-        self.base_stats[UnitStats.SPEED_RUNNING] = config.Unit.Defaults.run_speed
-
         self.update_base_health_regen()
         self.update_base_mana_regen()
 
-    def get_total_stat(self, stat_type: UnitStats):
-        base_stats = self.base_stats.get(stat_type, 0)
+    def get_base_stat(self, stat_type: UnitStats) -> int:
+        return self.base_stats.get(stat_type, 0)
+
+    def get_total_stat(self, stat_type: UnitStats) -> int:
+        base_stats = self.get_base_stat(stat_type)
         bonus_stats = self.item_stats.get(stat_type, 0) + self.get_aura_stat_bonus(stat_type)
 
-        return (base_stats + bonus_stats) * self.get_aura_stat_bonus(stat_type, percentual=True)
+        return int((base_stats + bonus_stats) * self.get_aura_stat_bonus(stat_type, percentual=True))
 
     def apply_bonuses(self):
         self.calculate_item_stats()
 
-        self.player_mgr.set_str(self.get_total_stat(UnitStats.STRENGTH))
-        self.player_mgr.set_agi(self.get_total_stat(UnitStats.AGILITY))
-        self.player_mgr.set_sta(self.get_total_stat(UnitStats.STAMINA))
-        self.player_mgr.set_int(self.get_total_stat(UnitStats.INTELLECT))
-        self.player_mgr.set_spi(self.get_total_stat(UnitStats.SPIRIT))
+        if self.player_mgr.inventory.get_main_hand():
+            self.update_base_weapon_attributes(attack_type=AttackTypes.BASE_ATTACK)
+        if self.player_mgr.inventory.get_offhand():
+            self.update_base_weapon_attributes(attack_type=AttackTypes.OFFHAND_ATTACK)
+        if self.player_mgr.inventory.get_ranged():  # TODO Are ranged formulas different?
+            self.update_base_weapon_attributes(attack_type=AttackTypes.RANGED_ATTACK)
 
         self.player_mgr.change_speed(self.get_total_stat(UnitStats.SPEED_RUNNING))
 
         hp_diff = self.update_max_health()
         mana_diff = self.update_max_mana()
-        self.update_resistances()
-        self.update_melee_attributes()
+
         self.update_base_mana_regen()
         self.update_base_health_regen()
+
+        self.send_total_attributes()
+        self.send_melee_attributes()
+        self.send_resistances()
 
         return hp_diff, mana_diff
 
     def apply_bonuses_for_value(self, value: int, stat_type: UnitStats, misc_value=0):
         flat = self.get_aura_stat_bonus(stat_type, misc_value=misc_value)
         percentual = self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value)
-        return (value + flat) * percentual
+        return int((value + flat) * percentual)
 
     def apply_aura_stat_bonus(self, index: int, stat_type: UnitStats, amount: int, misc_value=0, percentual=False):
         if percentual:
@@ -201,6 +222,7 @@ class StatManager(object):
 
         return bonus
 
+    # TODO move to formulas instead?
     @staticmethod
     def get_health_bonus_from_stamina(stamina):
         # The first 20 points of Stamina grant only 1 health point per unit.
@@ -216,12 +238,9 @@ class StatManager(object):
         return base_int + (more_int * 15.0)
 
     def calculate_item_stats(self):
-        self.melee_damage = [0] * 2
-        self.melee_attack_time = config.Unit.Defaults.base_attack_time
-        self.offhand_attack_time = config.Unit.Defaults.offhand_attack_time
+        self.item_stats = {UnitStats.MAIN_HAND_DELAY: config.Unit.Defaults.base_attack_time,
+                           UnitStats.OFF_HAND_DELAY: config.Unit.Defaults.offhand_attack_time}  # Clear item stats
         self.weapon_reach = 0
-
-        self.item_stats = {}  # Clear item stats
 
         for slot, item in list(self.player_mgr.inventory.get_backpack().sorted_slots.items()):
             # Check only equipped items
@@ -233,30 +252,51 @@ class StatManager(object):
                     current = self.item_stats.get(stat_type, 0)
                     self.item_stats[stat_type] = current + stat.value
 
-                self.item_stats[UnitStats.RESISTANCE_PHYSICAL] = item.item_template.armor
-                self.item_stats[UnitStats.RESISTANCE_HOLY] = item.item_template.holy_res
-                self.item_stats[UnitStats.RESISTANCE_FIRE] = item.item_template.fire_res
-                self.item_stats[UnitStats.RESISTANCE_NATURE] = item.item_template.nature_res
-                self.item_stats[UnitStats.RESISTANCE_FROST] = item.item_template.frost_res
-                self.item_stats[UnitStats.RESISTANCE_SHADOW] = item.item_template.shadow_res
-                self.item_stats[UnitStats.BLOCK] = item.item_template.block
+                # Add resistances/block
+                separate_stats = {UnitStats.RESISTANCE_PHYSICAL: item.item_template.armor,
+                                  UnitStats.RESISTANCE_HOLY: item.item_template.holy_res,
+                                  UnitStats.RESISTANCE_FIRE: item.item_template.fire_res,
+                                  UnitStats.RESISTANCE_NATURE: item.item_template.nature_res,
+                                  UnitStats.RESISTANCE_FROST: item.item_template.frost_res,
+                                  UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res,
+                                  UnitStats.BLOCK: item.item_template.block}
+                for stat, value in separate_stats.items():
+                    self.item_stats[stat] = self.item_stats.get(stat, 0) + value
+
+                weapon_min_damage = int(item.item_template.dmg_min1)
+                weapon_max_damage = int(item.item_template.dmg_max1)
+                weapon_delay = item.item_template.delay
 
                 if item.current_slot == InventorySlots.SLOT_MAINHAND:
-                    self.melee_damage[0] = int(item.item_template.dmg_min1)
-                    self.melee_damage[1] = int(item.item_template.dmg_max1)
-                    self.melee_attack_time = item.item_template.delay
+                    self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
+                    self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage
+                    self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
+                elif item.current_slot == InventorySlots.SLOT_OFFHAND:
+                    dual_wield_penalty = 0.5
+                    self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = int(weapon_min_damage * dual_wield_penalty)
+                    self.item_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = int(weapon_max_damage * dual_wield_penalty)
+                    self.item_stats[UnitStats.OFF_HAND_DELAY] = weapon_delay
+                elif item.current_slot == InventorySlots.SLOT_RANGED:
+                    self.item_stats[UnitStats.RANGED_DAMAGE_MIN] = weapon_min_damage
+                    self.item_stats[UnitStats.RANGED_DAMAGE_MAX] = weapon_max_damage
+                    self.item_stats[UnitStats.RANGED_DELAY] = weapon_delay
 
-                    # This is a TOTAL guess, I have no idea about real weapon reach values.
-                    # The weapon reach unit field was removed in patch 0.10.
-                    if item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
-                        self.weapon_reach = 1.5
-                    elif item.item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_DAGGER:
-                        self.weapon_reach = 0.5
-                    elif item.item_template.subclass != ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON:
-                        self.weapon_reach = 1.0
+                current_reach = self.weapon_reach
+                weapon_reach = StatManager.get_reach_for_weapon(item.item_template)
+                if current_reach == -1 or current_reach > weapon_reach:
+                    self.weapon_reach = weapon_reach
 
-                if item.current_slot == InventorySlots.SLOT_OFFHAND:
-                    self.offhand_attack_time = item.item_template.delay
+    # TODO move to formulas?
+    @staticmethod
+    def get_reach_for_weapon(item_template):
+        # This is a TOTAL guess, I have no idea about real weapon reach values.
+        # The weapon reach unit field was removed in patch 0.10.
+        if item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
+            return 1.5
+        elif item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_DAGGER:
+            return 0.5
+        elif item_template.subclass != ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON:
+            return 1.0
 
     def update_max_health(self):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)
@@ -285,14 +325,6 @@ class StatManager(object):
 
         return mana_diff if mana_diff > 0 else 0
 
-    def update_resistances(self):
-        self.player_mgr.set_armor(self.get_total_stat(UnitStats.RESISTANCE_PHYSICAL))
-        self.player_mgr.set_holy_res(self.get_total_stat(UnitStats.RESISTANCE_HOLY))
-        self.player_mgr.set_fire_res(self.get_total_stat(UnitStats.RESISTANCE_FIRE))
-        self.player_mgr.set_nature_res(self.get_total_stat(UnitStats.RESISTANCE_NATURE))
-        self.player_mgr.set_frost_res(self.get_total_stat(UnitStats.RESISTANCE_FROST))
-        self.player_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW))
-
     def update_base_health_regen(self):
         player_class = self.player_mgr.player.class_
         class_spirit_scaling = {
@@ -319,7 +351,7 @@ class StatManager(object):
         }
 
         spirit = self.get_total_stat(UnitStats.SPIRIT)
-        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = class_base_regen[player_class] + spirit * class_spirit_scaling[player_class]
+        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(class_base_regen[player_class] + spirit * class_spirit_scaling[player_class])
 
 
     def update_base_mana_regen(self):
@@ -349,17 +381,99 @@ class StatManager(object):
 
         spirit = self.get_total_stat(UnitStats.SPIRIT)
         regen = class_base_regen[player_class] + spirit * class_spirit_scaling[player_class]
-        self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = regen / 2
+        self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
 
+    def get_base_attack_total_min_max_damage(self, attack_school: SpellSchools, attack_type: AttackTypes, weapon_type: ItemSubClasses = -1):
+        if attack_type == AttackTypes.BASE_ATTACK:
+            weapon_min_damage = self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN)
+            weapon_max_damage = self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MAX)
+        elif attack_type == AttackTypes.OFFHAND_ATTACK:
+            weapon_min_damage = self.get_total_stat(UnitStats.OFF_HAND_DAMAGE_MIN)
+            weapon_max_damage = self.get_total_stat(UnitStats.OFF_HAND_DAMAGE_MAX)
+        else:
+            weapon_min_damage = self.get_total_stat(UnitStats.RANGED_DAMAGE_MIN)
+            weapon_max_damage = self.get_total_stat(UnitStats.RANGED_DAMAGE_MAX)
+
+        # School bonuses
+        weapon_min_damage = self.apply_bonuses_for_value(weapon_min_damage, UnitStats.DAMAGE_DONE_SCHOOL, attack_school)
+        weapon_max_damage = self.apply_bonuses_for_value(weapon_max_damage, UnitStats.DAMAGE_DONE_SCHOOL, attack_school)
+
+        # Weapon type bonuses
+        if weapon_type != -1:
+            weapon_min_damage = self.apply_bonuses_for_value(weapon_min_damage, UnitStats.DAMAGE_DONE_WEAPON, weapon_type)
+            weapon_max_damage = self.apply_bonuses_for_value(weapon_max_damage, UnitStats.DAMAGE_DONE_WEAPON, weapon_type)
+
+        return weapon_min_damage, weapon_max_damage
+
+
+    def update_base_weapon_attributes(self, attack_type=0):
+        # TODO: Using Vanilla formula, AP was not present in Alpha
+
+        dual_wield_penalty = 1 if attack_type != AttackTypes.OFFHAND_ATTACK else 0.5
+
+        attack_power = 0
+        strength = self.get_total_stat(UnitStats.STRENGTH)
+        agility = self.get_total_stat(UnitStats.AGILITY)
+        level = self.player_mgr.level
+        class_ = self.player_mgr.player.class_
+
+
+        # TODO Formula tables instead
+        if class_ == Classes.CLASS_WARRIOR or \
+                class_ == Classes.CLASS_PALADIN:
+            attack_power = (strength * 2) + (level * 3) - 20
+        elif class_ == Classes.CLASS_DRUID:
+            attack_power = (strength * 2) - 20
+        elif class_ == Classes.CLASS_HUNTER:
+            attack_power = strength + agility + (level * 2) - 20
+        elif class_ == Classes.CLASS_MAGE or \
+                class_ == Classes.CLASS_PRIEST or \
+                class_ == Classes.CLASS_WARLOCK:
+            attack_power = strength - 10
+        elif class_ == Classes.CLASS_ROGUE:
+            attack_power = strength + ((agility * 2) - 20) + (level * 2) - 20
+        elif class_ == Classes.CLASS_SHAMAN:
+            attack_power = strength - 10 + ((agility * 2) - 20) + (level * 2)
+
+        final_min_damage = attack_power / 14 * dual_wield_penalty
+        final_max_damage = attack_power / 14 * dual_wield_penalty
+
+        if attack_type == AttackTypes.BASE_ATTACK:
+            self.base_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = final_min_damage
+            self.base_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = final_max_damage
+        elif attack_type == AttackTypes.OFFHAND_ATTACK:
+            self.base_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = final_min_damage
+            self.base_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = final_max_damage
+        else:
+            self.base_stats[UnitStats.RANGED_DAMAGE_MIN] = final_min_damage
+            self.base_stats[UnitStats.RANGED_DAMAGE_MAX] = final_max_damage
 
     def update_defense_bonuses(self):
         pass
 
-    def update_melee_attributes(self):
-        self.player_mgr.set_melee_damage(self.melee_damage[0], self.melee_damage[1])
-        self.player_mgr.set_melee_attack_time(self.melee_attack_time)
-        self.player_mgr.set_offhand_attack_time(self.offhand_attack_time)
+    def send_melee_attributes(self):
+        # For stat sheet
+        self.player_mgr.set_melee_damage(self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN),
+                                         self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MAX))
+
+        self.player_mgr.set_melee_attack_time(self.get_total_stat(UnitStats.MAIN_HAND_DELAY))
+        self.player_mgr.set_offhand_attack_time(self.get_total_stat(UnitStats.OFF_HAND_DELAY))
         self.player_mgr.set_weapon_reach(self.weapon_reach)
+
+    def send_resistances(self):
+        self.player_mgr.set_armor(self.get_total_stat(UnitStats.RESISTANCE_PHYSICAL))
+        self.player_mgr.set_holy_res(self.get_total_stat(UnitStats.RESISTANCE_HOLY))
+        self.player_mgr.set_fire_res(self.get_total_stat(UnitStats.RESISTANCE_FIRE))
+        self.player_mgr.set_nature_res(self.get_total_stat(UnitStats.RESISTANCE_NATURE))
+        self.player_mgr.set_frost_res(self.get_total_stat(UnitStats.RESISTANCE_FROST))
+        self.player_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW))
+
+    def send_total_attributes(self):
+        self.player_mgr.set_str(self.get_total_stat(UnitStats.STRENGTH))
+        self.player_mgr.set_agi(self.get_total_stat(UnitStats.AGILITY))
+        self.player_mgr.set_sta(self.get_total_stat(UnitStats.STAMINA))
+        self.player_mgr.set_int(self.get_total_stat(UnitStats.INTELLECT))
+        self.player_mgr.set_spi(self.get_total_stat(UnitStats.SPIRIT))
 
 
 INVENTORY_STAT_TO_UNIT_STAT = {
