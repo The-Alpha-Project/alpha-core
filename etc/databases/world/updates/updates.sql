@@ -1504,7 +1504,7 @@ begin not atomic
 	    (59, 640),
 	    (60, 660);
         
-		insert into applied_updates values ('050720212');
+	    insert into applied_updates values ('050720212');
     end if;
 	
 end $
