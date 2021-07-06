@@ -261,6 +261,27 @@ class AuraEffectHandler:
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPEED_SWIMMING, amount, percentual=True)
 
 
+    @staticmethod
+    def handle_mod_damage_done(aura, effect_target, remove):
+        # Note: These bonuses are all flat
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
+            return
+        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+
+        # Weapon specializations. All of these auras have either -1 or 2 as item class.
+        if aura.source_spell.spell_entry.EquippedItemClass == 2:
+            misc_value = aura.source_spell.spell_entry.EquippedItemSubclass  # Weapon type mask
+            effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DAMAGE_DONE_WEAPON, amount,
+                                                             percentual=False, misc_value=misc_value)
+            return
+
+        misc_value = aura.spell_effect.misc_value  # Spell school
+
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DAMAGE_DONE_SCHOOL, amount,
+                                                         percentual=False, misc_value=misc_value)
+
+
 AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted,
@@ -287,6 +308,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED: AuraEffectHandler.handle_decrease_speed,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED: AuraEffectHandler.handle_increase_swim_speed,
 
+    AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE: AuraEffectHandler.handle_mod_damage_done
 
 }
 
