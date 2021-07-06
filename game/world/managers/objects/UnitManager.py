@@ -587,15 +587,15 @@ class UnitManager(ObjectManager):
     # Implemented by PlayerManager
     def send_attack_swing_facing_wrong_way(self, victim):
         pass
-    
+
     # Implemented by PlayerManager
     def send_attack_swing_cant_attack(self, victim):
         pass
-    
+
     # Implemented by PlayerManager
     def send_attack_swing_dead_target(self, victim):
         pass
-    
+
     # Implemented by PlayerManager
     def send_attack_swing_not_standing(self, victim):
         pass
@@ -755,6 +755,55 @@ class UnitManager(ObjectManager):
     def set_shadow_res(self, shadow_res):
         self.resistance_5 = shadow_res
         self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
+
+    def set_bonus_armor(self, armor):
+        if armor >= 0:
+            self.resistance_buff_mods_positive_0 = armor
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, armor)
+        else:
+            self.resistance_buff_mods_negative_0 = -armor
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, -armor)
+
+    def set_bonus_holy_res(self, holy_res):
+        if holy_res >= 0:
+            self.resistance_buff_mods_positive_1 = holy_res
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, holy_res)
+        else:
+            self.resistance_buff_mods_negative_1 = -holy_res
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, -holy_res)
+
+
+    def set_bonus_fire_res(self, fire_res):
+        if fire_res >= 0:
+            self.resistance_buff_mods_positive_2 = fire_res
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, fire_res)
+        else:
+            self.resistance_buff_mods_negative_2 = -fire_res
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, -fire_res)
+
+    def set_bonus_nature_res(self, nature_res):
+        if nature_res >= 0:
+            self.resistance_buff_mods_positive_3 = nature_res
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, nature_res)
+        else:
+            self.resistance_buff_mods_negative_3 = -nature_res
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, -nature_res)
+
+    def set_bonus_frost_res(self, frost_res):
+        if frost_res >= 0:
+            self.resistance_buff_mods_positive_4 = frost_res
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, frost_res)
+        else:
+            self.resistance_buff_mods_negative_4 = -frost_res
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, -frost_res)
+
+    def set_bonus_shadow_res(self, shadow_res):
+        if shadow_res >= 0:
+            self.resistance_buff_mods_positive_5 = shadow_res
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, shadow_res)
+        else:
+            self.resistance_buff_mods_negative_5 = -shadow_res
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, -shadow_res)
 
     def set_melee_damage(self, min_dmg, max_dmg):
         damages = unpack('<I', pack('<2H', min_dmg, max_dmg))[0]
