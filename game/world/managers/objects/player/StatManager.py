@@ -1,7 +1,71 @@
+from enum import IntEnum, auto
+
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
-from utils.constants.UnitCodes import PowerTypes, UnitStats, Classes
+from utils.constants.UnitCodes import PowerTypes, Classes
+
+
+# Stats that are modified aura effects. Used in StatManager and when accessing stats.
+# Use auto indexing to make expanding much easier.
+class UnitStats(IntEnum):
+    ALL_ATTRIBUTES = -1
+    STRENGTH = auto()
+    AGILITY = auto()
+    STAMINA = auto()
+    INTELLECT = auto()
+    SPIRIT = auto()
+    HEALTH = auto()
+    MANA = auto()
+    ENERGY = auto()
+
+    ALL_RESISTANCES = auto()
+    RESISTANCE_PHYSICAL = auto()  # Armor
+    RESISTANCE_HOLY = auto()
+    RESISTANCE_FIRE = auto()
+    RESISTANCE_NATURE = auto()
+    RESISTANCE_FROST = auto()
+    RESISTANCE_SHADOW = auto()
+
+    PARRY = auto()
+    DODGE = auto()
+    BLOCK = auto()
+
+    CRITICAL = auto()
+    SPELL_CRITICAL = auto()
+    SPELL_CASTING_SPEED_NON_STACKING = auto()
+    SCHOOL_CRITICAL = auto()
+    SCHOOL_POWER_COST = auto()
+
+    DAMAGE_DONE = auto()
+    DAMAGE_DONE_SCHOOL = auto()
+    DAMAGE_DONE_WEAPON = auto()
+    DAMAGE_DONE_CREATURE_TYPE = auto()
+    DAMAGE_TAKEN = auto()
+    DAMAGE_TAKEN_SCHOOL = auto()
+
+    HEALTH_REGENERATION_PER_5 = auto()
+    POWER_REGENERATION_PER_5 = auto()
+
+    ATTACK_SPEED = auto()
+    THREAT = auto()
+    STEALTH = auto()
+    STEALTH_DETECTION = auto()
+    INVISIBILITY = auto()
+    INVISIBILITY_DETECTION = auto()
+    SPEED_RUNNING = auto()
+    SPEED_SWIMMING = auto()
+    SPEED_MOUNTED = auto()
+
+    # Skill type in misc value
+    SKILL = auto()
+
+
+
+    ATTRIBUTE_START = STRENGTH
+    ATTRIBUTE_END = HEALTH
+    RESISTANCE_START = RESISTANCE_PHYSICAL
+    RESISTANCE_END = PARRY
 
 
 class StatManager(object):
@@ -59,7 +123,8 @@ class StatManager(object):
     def get_total_stat(self, stat_type: UnitStats):
         base_stats = self.base_stats.get(stat_type, 0)
         bonus_stats = self.item_stats.get(stat_type, 0) + self.get_aura_stat_bonus(stat_type)
-        return base_stats + bonus_stats * self.get_aura_stat_bonus(stat_type, percentual=True)
+
+        return (base_stats + bonus_stats) * self.get_aura_stat_bonus(stat_type, percentual=True)
 
     def apply_bonuses(self):
         self.calculate_item_stats()
@@ -79,19 +144,24 @@ class StatManager(object):
 
         return hp_diff, mana_diff
 
+    def apply_bonuses_for_value(self, value: int, stat_type: UnitStats, misc_value=0):
+        flat = self.get_aura_stat_bonus(stat_type, misc_value=misc_value)
+        percentual = self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value)
+        return (value + flat) * percentual
+
     def apply_aura_stat_bonus(self, index: int, stat_type: UnitStats, amount: int, misc_value=0, percentual=False):
         if percentual:
             self.aura_stats_percentual[index] = (stat_type, amount, misc_value)
-            return
-        self.aura_stats_flat[index] = (stat_type, amount, misc_value)
+        else:
+            self.aura_stats_flat[index] = (stat_type, amount, misc_value)
 
         self.apply_bonuses()
 
     def remove_aura_stat_bonus(self, index: int, percentual=False):
         if percentual:
             self.aura_stats_percentual.pop(index)
-            return
-        self.aura_stats_flat.pop(index)
+        else:
+            self.aura_stats_flat.pop(index)
 
         self.apply_bonuses()
 
@@ -104,9 +174,12 @@ class StatManager(object):
             bonus = 0
 
         for stat_bonus in target_bonuses.values():
-            if stat_bonus[0] != stat_type and stat_bonus[0] != UnitStats.ALL_ATTRIBUTES or \
-                    (stat_bonus[0] == UnitStats.ALL_ATTRIBUTES and
-                     stat_type not in range(UnitStats.ATTRIBUTE_START, UnitStats.ATTRIBUTE_END)):
+            if stat_bonus[0] == UnitStats.ALL_ATTRIBUTES and stat_type not in range(UnitStats.ATTRIBUTE_START, UnitStats.ATTRIBUTE_END):
+                continue
+            if stat_bonus[0] == UnitStats.ALL_RESISTANCES and stat_type not in range(UnitStats.RESISTANCE_START, UnitStats.RESISTANCE_END):
+                continue
+
+            if stat_bonus[0] != stat_type and stat_bonus[0] != UnitStats.ALL_ATTRIBUTES and stat_bonus[0] != UnitStats.ALL_RESISTANCES:
                 # Stat bonus doesn't match
                 # If the bonus is for all attributes, continue if the requested stat type isn't an attribute
                 continue

@@ -16,7 +16,7 @@ from game.world.managers.objects.player.TaxiManager import TaxiManager
 from game.world.managers.objects.player.quest.QuestManager import QuestManager
 from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager
-from game.world.managers.objects.player.StatManager import StatManager
+from game.world.managers.objects.player.StatManager import StatManager, UnitStats
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
@@ -29,7 +29,7 @@ from utils.constants.MiscCodes import ChatFlags, LootTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags, UnitStats
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
 from utils.constants.UpdateFields import *
 
 MAX_ACTION_BUTTONS = 120
