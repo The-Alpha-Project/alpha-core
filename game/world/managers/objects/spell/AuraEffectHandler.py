@@ -164,6 +164,31 @@ class AuraEffectHandler:
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount)
 
     @staticmethod
+    def handle_mod_base_resistance(aura, effect_target, remove):
+        # This handler is a slight exception to the usual handling of aura stat modifiers.
+        # Only this effect modifies base stats and is used by the Toughness talent which increases armor.
+        # Since this is a slight exception, handle this case more specifically by changing *one* base stat of the unit.
+
+        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        if aura.spell_effect.misc_value == -1:
+            # stat_type = UnitStats.ALL_RESISTANCES
+            stat_type = UnitStats.RESISTANCE_PHYSICAL
+
+            # This case shouldn't exist with an unmodified database.
+            Logger.warning("[AuraEffectHandler]: Unsupported behaviour in handle_mod_base_resistance.")
+        else:
+            stat_type = UnitStats.RESISTANCE_START << aura.spell_effect.misc_value
+
+        base_stat = effect_target.stat_manager.get_base_stat(stat_type)
+
+        if remove:
+            new_value = max(base_stat - amount, 0)  # Avoid <0, though it should never occur.
+        else:
+            new_value = base_stat + amount
+
+        effect_target.stat_manager.base_stats[stat_type] = new_value
+
+    @staticmethod
     def handle_mod_stat(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
@@ -303,6 +328,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE: AuraEffectHandler.handle_proc_trigger_damage,
 
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
+    AuraTypes.SPELL_AURA_MOD_BASE_RESISTANCE: AuraEffectHandler.handle_mod_base_resistance,
     AuraTypes.SPELL_AURA_MOD_STAT: AuraEffectHandler.handle_mod_stat,
     AuraTypes.SPELL_AURA_MOD_REGEN: AuraEffectHandler.handle_mod_regen,
     AuraTypes.SPELL_AURA_MOD_HEALTH_REGEN_PERCENT: AuraEffectHandler.handle_mod_health_regen_percent,
