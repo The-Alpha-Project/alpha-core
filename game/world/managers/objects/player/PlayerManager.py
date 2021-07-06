@@ -765,16 +765,29 @@ class PlayerManager(UnitManager):
     def has_area_explored(self, area_explore_bit):
         return self.explored_areas[area_explore_bit]
 
-    # TODO: Research XP for exploration.
-    #  Trigger quest explore requirement checks.
+    # TODO, Trigger quest explore requirement checks.
     def set_area_explored(self, area_information):
         self.explored_areas[area_information.area_explore_bit] = True
         if area_information.area_level > 0:
             if self.level < config.Unit.Player.Defaults.max_level:
-                xp_gain = area_information.area_level * 10
+                # The following calculations are taken from VMangos core.
+                xp_rate = int(config.Server.Settings.xp_rate)
+                diff = self.level - area_information.area_level
+                if diff < -5:
+                    xp_gain = WorldDatabaseManager.get_exploration_base_xp(self.level + 5) * xp_rate
+                elif diff > 5:
+                    exploration_percent = (100 - ((diff - 5) * 5))
+                    if exploration_percent > 100:
+                        exploration_percent = 100
+                    elif exploration_percent < 0:
+                        exploration_percent = 0
+                    xp_gain = WorldDatabaseManager.get_exploration_base_xp(area_information.area_level) * exploration_percent / 100 * xp_rate
+                else:
+                    xp_gain = WorldDatabaseManager.get_exploration_base_xp(area_information.area_level) * xp_rate
                 self.give_xp([xp_gain])
             else:
                 xp_gain = 0
+
             # Notify client new discovered zone + xp gain.
             data = pack('<2I', area_information.zone_id, xp_gain)
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
