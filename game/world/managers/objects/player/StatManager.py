@@ -120,6 +120,11 @@ class StatManager(object):
         self.player_mgr.set_base_int(base_attrs.inte)
         self.player_mgr.set_base_spi(base_attrs.spi)
 
+        self.base_stats[UnitStats.SPEED_RUNNING] = config.Unit.Defaults.run_speed
+
+        self.update_base_health_regen()
+        self.update_base_mana_regen()
+
     def get_total_stat(self, stat_type: UnitStats):
         base_stats = self.base_stats.get(stat_type, 0)
         bonus_stats = self.item_stats.get(stat_type, 0) + self.get_aura_stat_bonus(stat_type)
@@ -134,6 +139,8 @@ class StatManager(object):
         self.player_mgr.set_sta(self.get_total_stat(UnitStats.STAMINA))
         self.player_mgr.set_int(self.get_total_stat(UnitStats.INTELLECT))
         self.player_mgr.set_spi(self.get_total_stat(UnitStats.SPIRIT))
+
+        self.player_mgr.change_speed(self.get_total_stat(UnitStats.SPEED_RUNNING))
 
         hp_diff = self.update_max_health()
         mana_diff = self.update_max_mana()
