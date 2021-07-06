@@ -8,13 +8,13 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import AttackTypes, ObjectTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellSchools, SpellEffects, SpellInterruptFlags
-from utils.constants.UnitCodes import UnitStats
 
 
 class CastingSpell(object):
@@ -186,7 +186,8 @@ class CastingSpell(object):
             mana_cost = self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
 
         if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER:
-            power_cost_mod = self.spell_caster.stat_manager.get_aura_stat_bonus(UnitStats.SCHOOL_POWER_COST, misc_value=self.spell_entry.School)
+            mana_cost = self.spell_caster.stat_manager.apply_bonuses_for_value(mana_cost, UnitStats.SCHOOL_POWER_COST,
+                                                                               misc_value=self.spell_entry.School)
         # ManaCostPerLevel is not used by anything relevant, ignore for now (only 271/4513/7290) TODO
 
         return mana_cost + power_cost_mod

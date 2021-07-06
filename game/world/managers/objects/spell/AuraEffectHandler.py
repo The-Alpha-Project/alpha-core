@@ -1,10 +1,11 @@
 import random
 
+from game.world.managers.objects.player.StatManager import UnitStats
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import Factions, ObjectTypes
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes
-from utils.constants.UnitCodes import Teams, UnitStats
+from utils.constants.UnitCodes import Teams
 
 
 class AuraEffectHandler:
@@ -152,6 +153,9 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
+
+        # Note: An effect affecting all resistances/attributes is marked with -1
+        # -1 in this case leads to UnitStats.ALL_RESISTANCES
         stat_type = UnitStats.RESISTANCE_START + aura.spell_effect.misc_value
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount)
@@ -205,8 +209,7 @@ class AuraEffectHandler:
             return
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
         skill_type = aura.spell_effect.misc_value
-        stat_bonus_index = UnitStats.SKILL_START.value + skill_type
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_bonus_index, amount)  # TODO Required changes to SkillManager
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SKILL, amount, misc_value=skill_type)  # TODO Required changes to SkillManager
 
     @staticmethod
     def handle_increase_health(aura, effect_target, remove):
