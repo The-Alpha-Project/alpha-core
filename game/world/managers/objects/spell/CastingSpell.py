@@ -53,6 +53,7 @@ class CastingSpell(object):
 
         self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged() else AttackTypes.BASE_ATTACK
         self.cast_state = SpellState.SPELL_STATE_PREPARING
+        self.spell_impact_timestamps = {}
 
         if ObjectTypes.TYPE_PLAYER in caster_obj.object_type:
             self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(self.spell_caster, self.spell_caster.current_selection, include_players=True)
@@ -114,7 +115,7 @@ class CastingSpell(object):
         self.object_target_results = {**self.object_target_results, **effect_info}
 
     def is_instant_cast(self):
-        return self.cast_time_entry.Base == 0
+        return self.cast_time_entry.Base <= 0  # One entry has negative (-1000000) base cast time and should be instant.
 
     def is_ranged(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_RANGED == SpellAttributes.SPELL_ATTR_RANGED

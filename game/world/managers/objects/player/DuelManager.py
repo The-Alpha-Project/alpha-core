@@ -124,7 +124,7 @@ class DuelManager(object):
             self.build_update(entry.player)
             entry.player.set_dirty()
 
-            entry.player.spell_manager.remove_all_casts_directed_at_unit(entry.target.guid)
+            entry.player.spell_manager.remove_unit_from_all_cast_targets(entry.target.guid)
             entry.player.aura_manager.remove_harmful_auras_by_caster(entry.target.guid)
 
         # Clean up arbiter go and cleanup.

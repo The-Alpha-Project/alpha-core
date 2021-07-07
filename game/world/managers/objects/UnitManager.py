@@ -364,6 +364,9 @@ class UnitManager(ObjectManager):
         if damage_info.damage > 0:
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
 
+        victim.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
+        self.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
+
         self.send_attack_state_update(damage_info)
 
         # Extra attack only at any non extra attack
@@ -503,11 +506,33 @@ class UnitManager(ObjectManager):
         update_packet = self.generate_proper_update_packet(is_self=is_player)
         MapManager.send_surrounding(update_packet, self, include_self=is_player)
 
+    def receive_power(self, amount, power_type, source=None):
+        if self.power_type != power_type:
+            return
+        is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
+
+        new_power = self.get_power_type_value() + amount
+        if power_type == PowerTypes.TYPE_MANA:
+            self.set_mana(new_power)
+        elif power_type == PowerTypes.TYPE_RAGE:
+            self.set_rage(new_power)
+        elif power_type == PowerTypes.TYPE_FOCUS:
+            self.set_focus(new_power)
+        elif power_type == PowerTypes.TYPE_ENERGY:
+            self.set_energy(new_power)
+
+        update_packet = self.generate_proper_update_packet(is_self=is_player)
+        MapManager.send_surrounding(update_packet, self, include_self=is_player)
+
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
-        miss_info = casting_spell.object_target_results[target.guid].result
+        if target.guid in casting_spell.object_target_results:
+            miss_reason = casting_spell.object_target_results[target.guid].result
+        else:  # TODO Proc damage effects (SPELL_AURA_PROC_TRIGGER_DAMAGE) can't fill target results - should they be able to miss?
+            miss_reason = SpellMissReason.MISS_REASON_NONE
+
         damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)
         # TODO Roll crit, handle absorb
-        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, is_periodic=is_periodic)
+        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID, is_periodic=is_periodic)
         self.deal_damage(target, damage, is_periodic)
 
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
@@ -539,7 +564,7 @@ class UnitManager(ObjectManager):
             flags |= SpellHitFlags.HIT_FLAG_PERIODIC
 
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
-            combat_log_data = pack('<i2Qi', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
+            combat_log_data = pack('<i2Q2i', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
 
@@ -835,7 +860,9 @@ class UnitManager(ObjectManager):
         self.movement_manager.reset()
 
         if killer:
-            killer.spell_manager.remove_all_casts_directed_at_unit(self.guid)  # Interrupt casting on target death
+            killer.spell_manager.remove_unit_from_all_cast_targets(self.guid)  # Interrupt casting on target death
+            killer.aura_manager.check_aura_procs(killed_unit=True)
+
         self.spell_manager.remove_all_casts()
         self.aura_manager.handle_death()
 
