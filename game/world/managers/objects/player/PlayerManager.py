@@ -443,7 +443,7 @@ class PlayerManager(UnitManager):
             create=True if not self.is_relocating else False,
             force_inventory_update=True if not self.is_relocating else False)
 
-        self.reset_fields()
+        self.reset_fields_older_than(time.time())
         self.update_lock = False
         self.teleport_destination_map = None
         self.teleport_destination = None
@@ -1003,6 +1003,8 @@ class PlayerManager(UnitManager):
                     self.set_health(self.max_health)
                 elif self.health < self.max_health:
                     self.set_health(self.health + int(health_regen))
+            else:
+                should_update_health = False
 
             # Powers
 
@@ -1051,6 +1053,7 @@ class PlayerManager(UnitManager):
 
             if should_update_health or should_update_power:
                 self.set_dirty()
+
             self.last_regen = current_time
 
     # override
@@ -1246,15 +1249,17 @@ class PlayerManager(UnitManager):
                 if self.logout_timer < 0:
                     self.logout()
 
+            # Check "dirtiness" to determine if this player object should be updated yet or not.
+            if self.dirty and self.online:
+                self.send_update_self(reset_fields=False)
+                self.send_update_surrounding(self.generate_proper_update_packet())
+                MapManager.update_object(self)
+                if self.reset_fields_older_than(now):
+                    self.set_dirty(is_dirty=False, dirty_inventory=False)
+
         self.last_tick = now
 
-        if self.dirty and self.online:
-            self.send_update_self(reset_fields=False)
-            self.send_update_surrounding(self.generate_proper_update_packet())
-            MapManager.update_object(self)
-            self.reset_fields()
-            self.set_dirty(is_dirty=False, dirty_inventory=False)
-
+        # Player object finished being updated.
         self.update_lock = False
 
     def send_update_self(self, update_packet=None, create=False, force_inventory_update=False, reset_fields=True):
@@ -1268,7 +1273,7 @@ class PlayerManager(UnitManager):
         self.session.enqueue_packet(update_packet)
 
         if reset_fields:
-            self.reset_fields()
+            self.reset_fields_older_than(time.time())
 
     def send_update_surrounding(self, update_packet, include_self=False, create=False, force_inventory_update=False):
         if not create and (self.dirty_inventory or force_inventory_update):

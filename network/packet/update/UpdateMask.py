@@ -24,6 +24,9 @@ class UpdateMask(object):
     def clear(self):
         self.update_mask.setall(0)
 
+    def is_empty(self):
+        return self.update_mask.count() == 0
+
     def set_count(self, values_count):
         self.field_count = values_count
         self.block_count = int((values_count + BLOCK_SIZE - 1) / BLOCK_SIZE)

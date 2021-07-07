@@ -16,7 +16,7 @@ from utils.Formulas import UnitFormulas
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
-from utils.constants.SpellCodes import SpellAttributes, SpellMissReason, SpellHitFlags
+from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -491,25 +491,20 @@ class UnitManager(ObjectManager):
         if not self.combat_target and not is_player and source and source.get_type() != ObjectTypes.TYPE_GAMEOBJECT:
             self.attack(source)
 
-        update_packet = self.generate_proper_update_packet(is_self=is_player)
-        MapManager.send_surrounding(update_packet, self, include_self=is_player)
+        self.set_dirty()
 
     def receive_healing(self, amount, source=None):
-        is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
-
         new_health = self.health + amount
         if new_health > self.max_health:
             self.set_health(self.max_health)
         else:
             self.set_health(new_health)
 
-        update_packet = self.generate_proper_update_packet(is_self=is_player)
-        MapManager.send_surrounding(update_packet, self, include_self=is_player)
+        self.set_dirty()
 
     def receive_power(self, amount, power_type, source=None):
         if self.power_type != power_type:
             return
-        is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
 
         new_power = self.get_power_type_value() + amount
         if power_type == PowerTypes.TYPE_MANA:
@@ -521,8 +516,7 @@ class UnitManager(ObjectManager):
         elif power_type == PowerTypes.TYPE_ENERGY:
             self.set_energy(new_power)
 
-        update_packet = self.generate_proper_update_packet(is_self=is_player)
-        MapManager.send_surrounding(update_packet, self, include_self=is_player)
+        self.set_dirty()
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         if target.guid in casting_spell.object_target_results:
@@ -581,7 +575,6 @@ class UnitManager(ObjectManager):
                                miss_reason, spell_id, damage_info.attacker.guid)
             MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
                                         include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
-
 
     def set_current_target(self, guid):
         self.current_target = guid

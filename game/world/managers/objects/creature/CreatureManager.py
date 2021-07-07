@@ -400,14 +400,15 @@ class CreatureManager(UnitManager):
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
                     self.is_spawned = False
                     MapManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
+
+            # Check "dirtiness" to determine if this creature object should be updated yet or not.
+            if self.dirty:
+                MapManager.send_surrounding(self.generate_proper_update_packet(create=False), self, include_self=False)
+                MapManager.update_object(self)
+                if self.reset_fields_older_than(now):
+                    self.set_dirty(is_dirty=False)
+
         self.last_tick = now
-
-        if self.dirty:
-            MapManager.send_surrounding(self.generate_proper_update_packet(create=False), self, include_self=False)
-            MapManager.update_object(self)
-            self.reset_fields()
-
-            self.set_dirty(is_dirty=False)
 
     # override
     def respawn(self):
