@@ -921,23 +921,23 @@ class PlayerManager(UnitManager):
 
     def set_str(self, str_):
         self.str = str_
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT0, str_)
+        self.set_int32(UnitFields.UNIT_FIELD_STAT0, str_)
 
     def set_agi(self, agi):
         self.agi = agi
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT1, agi)
+        self.set_int32(UnitFields.UNIT_FIELD_STAT1, agi)
 
     def set_sta(self, sta):
         self.sta = sta
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT2, sta)
+        self.set_int32(UnitFields.UNIT_FIELD_STAT2, sta)
 
     def set_int(self, int_):
         self.int = int_
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT3, int_)
+        self.set_int32(UnitFields.UNIT_FIELD_STAT3, int_)
 
     def set_spi(self, spi):
         self.spi = spi
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT4, spi)
+        self.set_int32(UnitFields.UNIT_FIELD_STAT4, spi)
 
     def add_talent_points(self, talent_points):
         self.talent_points += talent_points

@@ -140,15 +140,24 @@ class StatManager(object):
     def get_item_stat(self, stat_type: UnitStats) -> int:
         return self.item_stats.get(stat_type, 0)
 
-    def get_aura_bonus_stat(self, stat_type: UnitStats) -> int:
+    def get_stat_gain_from_aura_bonuses(self, stat_type: UnitStats, misc_value=-1) -> int:
         # Note: bonus can be negative due to harmful effects.
-        return self.get_total_stat(stat_type) - self.get_item_stat(stat_type) - self.get_base_stat(stat_type)
+        base_stats = self.get_base_stat(stat_type)
+        item_stats = self.get_item_stat(stat_type)
+        bonus_stats = self.get_aura_stat_bonus(stat_type, misc_value=misc_value)
 
-    def get_total_stat(self, stat_type: UnitStats, misc_value=-1) -> int:
+        total = int((base_stats + item_stats + bonus_stats) * self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value))
+
+        return total - base_stats - item_stats
+
+    def get_total_stat(self, stat_type: UnitStats, misc_value=-1, accept_negative=False) -> int:
         base_stats = self.get_base_stat(stat_type)
         bonus_stats = self.item_stats.get(stat_type, 0) + self.get_aura_stat_bonus(stat_type, misc_value=misc_value)
 
         total = int((base_stats + bonus_stats) * self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value))
+
+        if accept_negative:
+            return total
 
         return max(0, total)  # Stats are always positive
 
@@ -172,11 +181,12 @@ class StatManager(object):
 
         self.send_attributes()
         self.send_melee_attributes()
+        self.send_damage_bonuses()
         self.send_resistances()
 
         return hp_diff, mana_diff
 
-    def apply_bonuses_for_value(self, value: int, stat_type: UnitStats, misc_value=0, misc_value_is_mask=False):
+    def apply_bonuses_for_value(self, value: int, stat_type: UnitStats, misc_value=-1, misc_value_is_mask=False):
         flat = self.get_aura_stat_bonus(stat_type, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask)
         percentual = self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask)
         return int((value + flat) * percentual)
@@ -461,20 +471,20 @@ class StatManager(object):
         self.player_mgr.set_weapon_reach(self.weapon_reach)
 
     def send_resistances(self):
-        self.player_mgr.set_armor(self.get_total_stat(UnitStats.RESISTANCE_PHYSICAL))
-        self.player_mgr.set_holy_res(self.get_total_stat(UnitStats.RESISTANCE_HOLY))
-        self.player_mgr.set_fire_res(self.get_total_stat(UnitStats.RESISTANCE_FIRE))
-        self.player_mgr.set_nature_res(self.get_total_stat(UnitStats.RESISTANCE_NATURE))
-        self.player_mgr.set_frost_res(self.get_total_stat(UnitStats.RESISTANCE_FROST))
-        self.player_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW))
+        self.player_mgr.set_armor(self.get_total_stat(UnitStats.RESISTANCE_PHYSICAL, accept_negative=True))
+        self.player_mgr.set_holy_res(self.get_total_stat(UnitStats.RESISTANCE_HOLY, accept_negative=True))
+        self.player_mgr.set_fire_res(self.get_total_stat(UnitStats.RESISTANCE_FIRE, accept_negative=True))
+        self.player_mgr.set_nature_res(self.get_total_stat(UnitStats.RESISTANCE_NATURE, accept_negative=True))
+        self.player_mgr.set_frost_res(self.get_total_stat(UnitStats.RESISTANCE_FROST, accept_negative=True))
+        self.player_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW, accept_negative=True))
 
-        self.player_mgr.set_bonus_armor(self.get_aura_bonus_stat(UnitStats.RESISTANCE_PHYSICAL))
-        self.player_mgr.set_bonus_holy_res(self.get_aura_bonus_stat(UnitStats.RESISTANCE_HOLY))
-        self.player_mgr.set_bonus_fire_res(self.get_aura_bonus_stat(UnitStats.RESISTANCE_FIRE))
-        self.player_mgr.set_bonus_nature_res(self.get_aura_bonus_stat(UnitStats.RESISTANCE_NATURE))
-        self.player_mgr.set_bonus_frost_res(self.get_aura_bonus_stat(UnitStats.RESISTANCE_FROST))
-        self.player_mgr.set_bonus_shadow_res(self.get_aura_bonus_stat(UnitStats.RESISTANCE_SHADOW))
-
+        # TODO Distinguish between positive and negative buffs (client seems to be able to display both at the same time)
+        self.player_mgr.set_bonus_armor(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_PHYSICAL))
+        self.player_mgr.set_bonus_holy_res(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_HOLY))
+        self.player_mgr.set_bonus_fire_res(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_FIRE))
+        self.player_mgr.set_bonus_nature_res(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_NATURE))
+        self.player_mgr.set_bonus_frost_res(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_FROST))
+        self.player_mgr.set_bonus_shadow_res(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_SHADOW))
 
     def send_attributes(self):
         self.player_mgr.set_base_str(self.get_base_stat(UnitStats.STRENGTH))
@@ -483,11 +493,24 @@ class StatManager(object):
         self.player_mgr.set_base_int(self.get_base_stat(UnitStats.INTELLECT))
         self.player_mgr.set_base_spi(self.get_base_stat(UnitStats.SPIRIT))
 
-        self.player_mgr.set_str(self.get_total_stat(UnitStats.STRENGTH))
-        self.player_mgr.set_agi(self.get_total_stat(UnitStats.AGILITY))
-        self.player_mgr.set_sta(self.get_total_stat(UnitStats.STAMINA))
-        self.player_mgr.set_int(self.get_total_stat(UnitStats.INTELLECT))
-        self.player_mgr.set_spi(self.get_total_stat(UnitStats.SPIRIT))
+        # TODO Should the stat display be allowed to show negative values?
+        self.player_mgr.set_str(self.get_total_stat(UnitStats.STRENGTH, accept_negative=True))
+        self.player_mgr.set_agi(self.get_total_stat(UnitStats.AGILITY, accept_negative=True))
+        self.player_mgr.set_sta(self.get_total_stat(UnitStats.STAMINA, accept_negative=True))
+        self.player_mgr.set_int(self.get_total_stat(UnitStats.INTELLECT, accept_negative=True))
+        self.player_mgr.set_spi(self.get_total_stat(UnitStats.SPIRIT, accept_negative=True))
+
+    def send_damage_bonuses(self):
+        main_hand = self.player_mgr.inventory.get_main_hand()
+        subclass_mask = -1
+        if main_hand:
+            subclass_mask = 1 << main_hand.item_template.subclass
+
+        for school in SpellSchools:
+            bonus = self.get_stat_gain_from_aura_bonuses(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school)
+            # Since this field is for damage bonuses in general (just for each school), include weapon type bonuses here as well
+            bonus = self.apply_bonuses_for_value(bonus, UnitStats.DAMAGE_DONE_WEAPON, subclass_mask, misc_value_is_mask=True)
+            self.player_mgr.set_bonus_damage_done_for_school(bonus, school)
 
 
 INVENTORY_STAT_TO_UNIT_STAT = {
