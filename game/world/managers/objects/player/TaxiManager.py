@@ -18,11 +18,11 @@ class TaxiManager(object):
     def set_all_taxi_nodes(self):
         count = 0
         for id, node in DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items():
-            if node.Team == self.owner.team.value:
+            if node.custom_team == self.owner.team.value:
                 self.available_taxi_nodes[id - 1] = True
                 count += 1
         for id, node in DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES.items():
-            if node.Team == self.owner.team.value:
+            if node.custom_team == self.owner.team.value:
                 self.available_taxi_nodes[id - 1] = True
                 count += 1
         return count
