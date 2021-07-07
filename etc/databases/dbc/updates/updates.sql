@@ -15,7 +15,7 @@ begin not atomic
 	
 	-- 04/07/2021 1
 	if (select count(*) from applied_updates where id='040720211') = 0 then
-        ALTER TABLE `alpha_dbc`.`taxinodes` 
+        ALTER TABLE `taxinodes` 
         ADD COLUMN `Team` INT NOT NULL DEFAULT '0' AFTER `Name_Mask`;
 
         UPDATE `alpha_dbc`.`taxinodes` SET `Team` = '-1' WHERE (`ID` = '1');
@@ -55,7 +55,7 @@ begin not atomic
         UPDATE `alpha_dbc`.`taxinodes` SET `Team` = '-1' WHERE (`ID` = '35');
         UPDATE `alpha_dbc`.`taxinodes` SET `Team` = '-1' WHERE (`ID` = '34');
 		
-		insert into applied_updates values ('040720211');
+        insert into applied_updates values ('040720211');
     end if;
 
 end $
