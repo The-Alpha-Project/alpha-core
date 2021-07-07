@@ -50,7 +50,7 @@ class EffectTargets:
             caster.can_attack_target(self.casting_spell.initial_target)
 
         return {
-            SpellImplicitTargets.TARGET_NOTHING: [],
+            SpellImplicitTargets.TARGET_INITIAL: self.initial_target,
             SpellImplicitTargets.TARGET_SELF: caster,
             SpellImplicitTargets.TARGET_PET: [],  # TODO
             SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: caster.get_deathbind_coordinates() if target_is_player else [],

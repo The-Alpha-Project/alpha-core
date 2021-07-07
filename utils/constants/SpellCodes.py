@@ -502,7 +502,7 @@ class AuraSlots(IntEnum):
 
 
 class SpellImplicitTargets(IntEnum):
-    TARGET_NOTHING = 0
+    TARGET_INITIAL = 0
     TARGET_SELF = 1
     TARGET_RANDOM_ENEMY_CHAIN_IN_AREA = 2  # Only one spell has this one but regardless it's a target type after all
     TARGET_UNIT_NEAR_CASTER = 4
