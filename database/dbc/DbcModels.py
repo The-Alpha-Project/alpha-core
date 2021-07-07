@@ -1112,7 +1112,7 @@ class TaxiNode(Base):
     Name_zhCN = Column(Text)
     Name_enTW = Column(Text)
     Name_Mask = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    Team = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    custom_team = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
 
 
 class TaxiPath(Base):
