@@ -9,7 +9,7 @@ begin not atomic
         insert into applied_updates values ('130520212');
     end if;
     
-  -- 27/05/2021 1
+    -- 27/05/2021 1
     if (select count(*) from applied_updates where id='270520211') = 0 then
         DROP TABLE IF EXISTS `npc_trainer`;
         CREATE TABLE IF NOT EXISTS `npc_trainer` (
@@ -21,7 +21,7 @@ begin not atomic
             `reqskill` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
             `reqskillvalue` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
             `reqlevel` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
-            UNIQUE INDEX `template_entry_spell` (`template_entry`, `spell`) USING BTREE
+            UNIQUE INDEX `template_entry_spell` (`template_entry`, `spell`)
         )
         COLLATE='utf8mb4_general_ci'
         ENGINE=InnoDB;
@@ -33,7 +33,7 @@ begin not atomic
             `first_spell` MEDIUMINT(8) UNSIGNED NULL DEFAULT '0',
             `rank` TINYINT(3) UNSIGNED NULL DEFAULT '0',
             `req_spell` MEDIUMINT(8) UNSIGNED NULL DEFAULT NULL,
-            PRIMARY KEY (`spell_id`) USING BTREE
+            PRIMARY KEY (`spell_id`)
         )
         COLLATE='utf8mb4_general_ci'
         ENGINE=InnoDB;

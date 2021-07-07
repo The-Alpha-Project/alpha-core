@@ -780,6 +780,7 @@ class ItemLootTemplate(Base):
     item_template = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.entry == ItemTemplate.entry')
     item_template1 = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.item == ItemTemplate.entry')
 
+
 class NpcTrainer(Base):
     __tablename__ = 'npc_trainer'
     
@@ -792,6 +793,7 @@ class NpcTrainer(Base):
     reqskillvalue = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     reqlevel = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
 
+
 class SpellChain(Base):
     __tablename__ = 'spell_chain'
 
@@ -800,6 +802,7 @@ class SpellChain(Base):
     first_spell = Column(MEDIUMINT(8), primary_key=False, nullable=False, server_default=text("'0'"))
     rank = Column(TINYINT(3), primary_key=False, nullable=False, server_default=text("'0'"))
     req_spell = Column(MEDIUMINT(8), primary_key=False, nullable=False, server_default=text("'0'"))
+
 
 class NpcVendor(Base):
     __tablename__ = 'npc_vendor'
