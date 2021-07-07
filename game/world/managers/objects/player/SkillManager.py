@@ -341,7 +341,7 @@ class SkillManager(object):
             self.player_mgr.set_uint32(PlayerFields.PLAYER_SKILL_INFO_1_1 + (count * 3),
                                        unpack('<I', pack('<2H', skill_id, skill.value))[0])
             self.player_mgr.set_uint32(PlayerFields.PLAYER_SKILL_INFO_1_1 + (count * 3) + 1,
-                                       unpack('<I', pack('<2H', 300, total_value - skill.value))[0])  # max_rank, skill_mod
+                                       unpack('<I', pack('<2H', skill.max, total_value - skill.value))[0])  # max_rank, skill_mod
             self.player_mgr.set_uint32(PlayerFields.PLAYER_SKILL_INFO_1_1 + (count * 3) + 2,
                                        unpack('<I', pack('<2H', 0, 0))[0])  # skill_step, padding
             count += 1
