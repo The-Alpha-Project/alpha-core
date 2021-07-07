@@ -184,6 +184,9 @@ class StatManager(object):
         self.send_damage_bonuses()
         self.send_resistances()
 
+        self.player_mgr.skill_manager.build_update()
+        self.player_mgr.set_dirty()
+
         return hp_diff, mana_diff
 
     def apply_bonuses_for_value(self, value: int, stat_type: UnitStats, misc_value=-1, misc_value_is_mask=False):

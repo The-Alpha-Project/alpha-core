@@ -172,11 +172,11 @@ class CastingSpell(object):
     def get_base_cast_time(self):
         if self.is_instant_cast():
             return 0
-        skill = self.spell_caster.skill_manager.get_skill_for_spell_id(self.spell_entry.ID)
+        skill = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
         if not skill:
             return self.cast_time_entry.Minimum
 
-        return int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill.value))
+        return int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill))
 
     def get_resource_cost(self):
         mana_cost = self.spell_entry.ManaCost

@@ -242,7 +242,7 @@ class AuraEffectHandler:
             return
         amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
         skill_type = aura.spell_effect.misc_value
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SKILL, amount, misc_value=skill_type)  # TODO Required changes to SkillManager
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SKILL, amount, misc_value=skill_type)
 
     @staticmethod
     def handle_increase_health(aura, effect_target, remove):
