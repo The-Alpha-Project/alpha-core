@@ -17,9 +17,14 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
     def handle(self):
         try:
             self.serve_realm(self.request)
+        except OSError:
+            pass
         finally:
-            self.request.shutdown(socket.SHUT_RDWR)
-            self.request.close()
+            try:
+                self.request.shutdown(socket.SHUT_RDWR)
+                self.request.close()
+            except OSError:
+                pass
 
     @staticmethod
     def serve_realm(sck):
