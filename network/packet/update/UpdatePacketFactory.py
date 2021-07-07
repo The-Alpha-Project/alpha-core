@@ -8,7 +8,6 @@ from utils.constants.OpCodes import OpCode
 
 class UpdatePacketFactory(object):
     def __init__(self):
-        self.last_update = 0
         self.fields_size = 0
         self.update_timestamps = []
         self.update_values = []
