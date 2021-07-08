@@ -17,7 +17,7 @@ from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellAttributes, SpellMissReason, SpellHitFlags
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, CreatureTypes
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -389,7 +389,7 @@ class UnitManager(ObjectManager):
 
         damage_info.attacker = self
         damage_info.target = victim
-        damage_info.damage += self.calculate_damage(attack_type)
+        damage_info.damage += self.calculate_damage(attack_type, victim.creature_type)
         # Not taking "subdamages" into account
         damage_info.total_damage = damage_info.damage
 
@@ -438,8 +438,8 @@ class UnitManager(ObjectManager):
         # Damage effects
         self.deal_damage(damage_info.target, damage_info.total_damage)
 
-    def calculate_damage(self, attack_type):
-        min_damage, max_damage = self.calculate_min_max_damage(attack_type)
+    def calculate_damage(self, attack_type, target_creature_type: CreatureTypes = -1):
+        min_damage, max_damage = self.calculate_min_max_damage(attack_type, target_creature_type)
 
         if min_damage > max_damage:
             tmp_min = min_damage
@@ -453,7 +453,7 @@ class UnitManager(ObjectManager):
         return
 
     # Implemented by PlayerManager and CreatureManager
-    def calculate_min_max_damage(self, attack_type=0):
+    def calculate_min_max_damage(self, attack_type=0, target_creature_type: CreatureTypes = -1):
         return 0, 0
 
     def deal_damage(self, target, damage, is_periodic=False):

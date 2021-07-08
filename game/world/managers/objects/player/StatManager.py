@@ -5,7 +5,7 @@ from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import AttackTypes
 from utils.constants.SpellCodes import SpellSchools
-from utils.constants.UnitCodes import PowerTypes, Classes
+from utils.constants.UnitCodes import PowerTypes, Classes, CreatureTypes
 
 
 # Stats that are modified aura effects. Used in StatManager and when accessing stats.
@@ -395,7 +395,9 @@ class StatManager(object):
         regen = class_base_regen[player_class] + spirit * class_spirit_scaling[player_class]
         self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
 
-    def get_base_attack_total_min_max_damage(self, attack_school: SpellSchools, attack_type: AttackTypes, weapon_type: ItemSubClasses = -1):
+    # Auto attack/shoot total damage with modifiers applied
+    def get_base_attack_total_min_max_damage(self, attack_school: SpellSchools, attack_type: AttackTypes,
+                                             creature_type: CreatureTypes = -1, weapon_type: ItemSubClasses = -1):
         if attack_type == AttackTypes.BASE_ATTACK:
             weapon_min_damage = self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN)
             weapon_max_damage = self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MAX)
@@ -415,6 +417,11 @@ class StatManager(object):
             weapon_type = 1 << weapon_type
             weapon_min_damage = self.apply_bonuses_for_value(weapon_min_damage, UnitStats.DAMAGE_DONE_WEAPON, weapon_type, misc_value_is_mask=True)
             weapon_max_damage = self.apply_bonuses_for_value(weapon_max_damage, UnitStats.DAMAGE_DONE_WEAPON, weapon_type, misc_value_is_mask=True)
+
+        # Creature type bonuses
+        if creature_type != -1:
+            weapon_min_damage = self.apply_bonuses_for_value(weapon_min_damage, UnitStats.DAMAGE_DONE_CREATURE_TYPE, creature_type)
+            weapon_max_damage = self.apply_bonuses_for_value(weapon_max_damage, UnitStats.DAMAGE_DONE_CREATURE_TYPE, creature_type)
 
         return weapon_min_damage, weapon_max_damage
 
