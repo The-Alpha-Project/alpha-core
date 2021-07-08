@@ -293,7 +293,7 @@ class GroupManager(object):
         remainder = int(creature.loot_manager.current_money % len(surrounding_members))
 
         for member in surrounding_members:
-            player_share = share if member != creature.killed_by else share + remainder
+            player_share = share if member.guid != creature.killed_by.guid else share + remainder
             data = pack('<I', player_share)
             member.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
             member.mod_money(player_share)

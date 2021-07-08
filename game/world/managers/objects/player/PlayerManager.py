@@ -565,7 +565,7 @@ class PlayerManager(UnitManager):
             # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
             enemy = MapManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
             if enemy:
-                if enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
+                if enemy.killed_by and enemy.killed_by.guid == self.guid and not enemy.killed_by.group_manager:
                     enemy.killed_by = None
                 # If in party, check if this player has rights to release the loot for FFA.
                 elif enemy.killed_by and enemy.killed_by.group_manager:
