@@ -15,7 +15,7 @@ class TaxiManager(object):
         RealmDatabaseManager.character_update(self.owner.player)
 
     # Enable all taxi node bits, not persisted.
-    def set_all_taxi_nodes(self):
+    def enable_all_taxi_nodes(self):
         count = 0
         for id, node in DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items():
             if node.custom_team == self.owner.team.value:
@@ -26,6 +26,10 @@ class TaxiManager(object):
                 self.available_taxi_nodes[id - 1] = True
                 count += 1
         return count
+
+    # Disable all taxi node bits, not persisted.
+    def disable_all_taxi_nodes(self):
+        self.owner.available_taxi_nodes.setall(0)
 
     def has_node(self, node):
         # Apparently nodes start at bit 0, bit 0 = node 1.

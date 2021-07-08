@@ -465,7 +465,7 @@ class CommandManager(object):
 
     @staticmethod
     def alltaxis(world_session, args):
-        taxi_nodes_count = world_session.player_mgr.taxi_manager.set_all_taxi_nodes()
+        taxi_nodes_count = world_session.player_mgr.taxi_manager.enable_all_taxi_nodes()
 
         return 0, f'Enabled {taxi_nodes_count} taxi nodes.'
 
