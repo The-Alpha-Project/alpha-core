@@ -51,7 +51,7 @@ class CreatureLootManager(LootManager):
             if player.guid in creature.killed_by.group_manager.get_allowed_looters(creature):
                 loot_type = LootTypes.LOOT_TYPE_CORPSE
         # No party but looter is the actual killer.
-        elif creature.killed_by == player:
+        elif creature.killed_by == player or creature.killed_by.guid == player.guid:
             loot_type = LootTypes.LOOT_TYPE_CORPSE
 
         return loot_type
