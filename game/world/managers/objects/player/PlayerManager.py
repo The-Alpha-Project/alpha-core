@@ -1,3 +1,4 @@
+import random
 import time
 from struct import unpack
 
@@ -1063,64 +1064,41 @@ class PlayerManager(UnitManager):
             self.last_regen = current_time
 
     # override
-    def calculate_min_max_damage(self, attack_type=0, target_creature_type: CreatureTypes = -1):
-        # TODO: Using Vanilla formula, AP was not present in Alpha
-        '''
-        weapon = None
-        base_min_dmg, base_max_dmg = unpack('<2H', pack('<I', self.damage))
-        weapon_min_dmg = 0
-        weapon_max_dmg = 0
-        attack_power = 0
-        dual_wield_penalty = 1
+    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes):
+        return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
-        if self.player.class_ == Classes.CLASS_WARRIOR or \
-                self.player.class_ == Classes.CLASS_PALADIN:
-            attack_power = (self.str * 2) + (self.level * 3) - 20
-        elif self.player.class_ == Classes.CLASS_DRUID:
-            attack_power = (self.str * 2) - 20
-        elif self.player.class_ == Classes.CLASS_HUNTER:
-            attack_power = self.str + self.agi + (self.level * 2) - 20
-        elif self.player.class_ == Classes.CLASS_MAGE or \
-                self.player.class_ == Classes.CLASS_PRIEST or \
-                self.player.class_ == Classes.CLASS_WARLOCK:
-            attack_power = self.str - 10
-        elif self.player.class_ == Classes.CLASS_ROGUE:
-            attack_power = self.str + ((self.agi * 2) - 20) + (self.level * 2) - 20
-        elif self.player.class_ == Classes.CLASS_SHAMAN:
-            attack_power = self.str - 10 + ((self.agi * 2) - 20) + (self.level * 2)
+    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes, apply_bonuses=True):
+        rolled_damage = super().calculate_base_attack_damage(attack_type, attack_school, target_creature_type, apply_bonuses)
 
-        if attack_type == AttackTypes.BASE_ATTACK:
-            weapon = self.inventory.get_main_hand()
-            dual_wield_penalty = 1.0
-        elif attack_type == AttackTypes.OFFHAND_ATTACK:
-            weapon = self.inventory.get_offhand()
-            dual_wield_penalty = 0.5
-
-        if weapon:
-            weapon_min_dmg = weapon.item_template.dmg_min1
-            weapon_max_dmg = weapon.item_template.dmg_max1
-
-        # Disarmed
-        if not self.can_use_attack_type(attack_type):
-            weapon_min_dmg = base_min_dmg
-            weapon_max_dmg = base_max_dmg
-
-        min_damage = (weapon_min_dmg + attack_power / 14) * dual_wield_penalty
-        max_damage = (weapon_max_dmg + attack_power / 14) * dual_wield_penalty
-        '''
-
-        if attack_type == AttackTypes.BASE_ATTACK:
-            weapon = self.inventory.get_main_hand()
-        elif attack_type == AttackTypes.OFFHAND_ATTACK:
-            weapon = self.inventory.get_offhand()
-        else:
-            weapon = self.inventory.get_ranged()
-        if not weapon:
+        if apply_bonuses:
             subclass = -1
-        else:
-            subclass = weapon.item_template.subclass
-        return self.stat_manager.get_base_attack_total_min_max_damage(SpellSchools.SPELL_SCHOOL_NORMAL, AttackTypes(attack_type),
-                                                                      target_creature_type, subclass)
+            if attack_type == AttackTypes.BASE_ATTACK:
+                equipped_weapon = self.inventory.get_main_hand()
+            elif attack_type == AttackTypes.OFFHAND_ATTACK:
+                equipped_weapon = self.inventory.get_offhand()
+            else:
+                equipped_weapon = self.inventory.get_ranged()
+            if equipped_weapon:
+                subclass = equipped_weapon.item_template.subclass
+            rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target_creature_type, subclass)
+
+        return rolled_damage
+
+    # override
+    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target_creature_type: CreatureTypes, spell_attack_type: AttackTypes = -1):
+        subclass = 0
+        if spell_attack_type != -1:
+            if spell_attack_type == AttackTypes.BASE_ATTACK:
+                equipped_weapon = self.inventory.get_main_hand()
+            elif spell_attack_type == AttackTypes.OFFHAND_ATTACK:
+                equipped_weapon = self.inventory.get_offhand()
+            else:
+                equipped_weapon = self.inventory.get_ranged()
+
+            if equipped_weapon:
+                subclass = equipped_weapon.item_template.subclass
+
+        return self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school, target_creature_type, subclass)
 
     def generate_rage(self, damage_info, is_player=False):
         # Warriors or Druids in Bear form

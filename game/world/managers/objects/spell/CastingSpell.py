@@ -52,7 +52,7 @@ class CastingSpell(object):
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
         self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
 
-        self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged() else AttackTypes.BASE_ATTACK
+        self.spell_attack_type = -1  # Assigned on cast TODO Next ranged spells
         self.cast_state = SpellState.SPELL_STATE_PREPARING
         self.spell_impact_timestamps = {}
 

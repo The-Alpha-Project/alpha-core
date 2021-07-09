@@ -10,7 +10,6 @@ from utils.constants.UnitCodes import PowerTypes, Classes, CreatureTypes
 
 # Stats that are modified aura effects. Used in StatManager and when accessing stats.
 # Use auto indexing to make expanding much easier.
-# TODO Mask instead for more clear handling of damage bonuses, all attribute bonuses etc.?
 class UnitStats(IntFlag):
     STRENGTH = auto()
     AGILITY = auto()
@@ -164,8 +163,9 @@ class StatManager(object):
     def apply_bonuses(self):
         self.calculate_item_stats()
 
-        if self.player_mgr.inventory.get_main_hand():
-            self.update_base_weapon_attributes(attack_type=AttackTypes.BASE_ATTACK)
+        # Always update base attack since unarmed damage should update.
+        self.update_base_weapon_attributes(attack_type=AttackTypes.BASE_ATTACK)
+
         if self.player_mgr.inventory.get_offhand():
             self.update_base_weapon_attributes(attack_type=AttackTypes.OFFHAND_ATTACK)
         if self.player_mgr.inventory.get_ranged():  # TODO Are ranged formulas different?
@@ -227,6 +227,7 @@ class StatManager(object):
                 if misc_value_is_mask and not misc_value & stat_bonus[2] or \
                         (not misc_value_is_mask and misc_value != stat_bonus[2]):
                     continue
+
             if not percentual:
                 bonus += stat_bonus[1]
             else:
@@ -396,8 +397,7 @@ class StatManager(object):
         self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
 
     # Auto attack/shoot total damage with modifiers applied
-    def get_base_attack_total_min_max_damage(self, attack_school: SpellSchools, attack_type: AttackTypes,
-                                             creature_type: CreatureTypes = -1, weapon_type: ItemSubClasses = -1):
+    def get_base_attack_base_min_max_damage(self, attack_type: AttackTypes):
         if attack_type == AttackTypes.BASE_ATTACK:
             weapon_min_damage = self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN)
             weapon_max_damage = self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MAX)
@@ -408,23 +408,24 @@ class StatManager(object):
             weapon_min_damage = self.get_total_stat(UnitStats.RANGED_DAMAGE_MIN)
             weapon_max_damage = self.get_total_stat(UnitStats.RANGED_DAMAGE_MAX)
 
-        # School bonuses
-        weapon_min_damage = self.apply_bonuses_for_value(weapon_min_damage, UnitStats.DAMAGE_DONE_SCHOOL, attack_school)
-        weapon_max_damage = self.apply_bonuses_for_value(weapon_max_damage, UnitStats.DAMAGE_DONE_SCHOOL, attack_school)
-
-        # Weapon type bonuses
-        if weapon_type != -1:
-            weapon_type = 1 << weapon_type
-            weapon_min_damage = self.apply_bonuses_for_value(weapon_min_damage, UnitStats.DAMAGE_DONE_WEAPON, weapon_type, misc_value_is_mask=True)
-            weapon_max_damage = self.apply_bonuses_for_value(weapon_max_damage, UnitStats.DAMAGE_DONE_WEAPON, weapon_type, misc_value_is_mask=True)
-
-        # Creature type bonuses
-        if creature_type != -1:
-            weapon_min_damage = self.apply_bonuses_for_value(weapon_min_damage, UnitStats.DAMAGE_DONE_CREATURE_TYPE, creature_type)
-            weapon_max_damage = self.apply_bonuses_for_value(weapon_max_damage, UnitStats.DAMAGE_DONE_CREATURE_TYPE, creature_type)
-
         return weapon_min_damage, weapon_max_damage
 
+    # Do not provide attack_type to calculate spell damage bonuses
+    def apply_bonuses_for_damage(self, damage, attack_school: SpellSchools, target_creature_type: CreatureTypes, weapon_type: ItemSubClasses = -1):
+        if weapon_type != -1:
+            weapon_type = 1 << weapon_type
+        else:
+            weapon_type = 0
+
+        flat_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, percentual=False, misc_value=attack_school) + \
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, percentual=False, misc_value=weapon_type, misc_value_is_mask=True) + \
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, percentual=False, misc_value=target_creature_type)
+
+        percentual_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, percentual=True, misc_value=attack_school) * \
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, percentual=True, misc_value=weapon_type, misc_value_is_mask=True) * \
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, percentual=True, misc_value=target_creature_type)
+
+        return (damage + flat_bonuses) * percentual_bonuses
 
     def update_base_weapon_attributes(self, attack_type=0):
         # TODO: Using Vanilla formula, AP was not present in Alpha
@@ -512,15 +513,18 @@ class StatManager(object):
 
     def send_damage_bonuses(self):
         main_hand = self.player_mgr.inventory.get_main_hand()
-        subclass_mask = -1
+        subclass_mask = 0
         if main_hand:
             subclass_mask = 1 << main_hand.item_template.subclass
 
         for school in SpellSchools:
-            bonus = self.get_stat_gain_from_aura_bonuses(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school)
-            # Since this field is for damage bonuses in general (just for each school), include weapon type bonuses here as well
-            bonus = self.apply_bonuses_for_value(bonus, UnitStats.DAMAGE_DONE_WEAPON, subclass_mask, misc_value_is_mask=True)
-            self.player_mgr.set_bonus_damage_done_for_school(bonus, school)
+            flat_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school) + \
+                self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, misc_value=subclass_mask, misc_value_is_mask=True)
+
+            percentual_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school, percentual=True) * \
+                self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, misc_value=subclass_mask, percentual=True, misc_value_is_mask=True)
+
+            self.player_mgr.set_bonus_damage_done_for_school(int(flat_bonuses * percentual_bonuses), school)
 
 
 INVENTORY_STAT_TO_UNIT_STAT = {
