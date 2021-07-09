@@ -530,7 +530,7 @@ class UnitManager(ObjectManager):
         else:  # TODO Proc damage effects (SPELL_AURA_PROC_TRIGGER_DAMAGE) can't fill target results - should they be able to miss?
             miss_reason = SpellMissReason.MISS_REASON_NONE
 
-        damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target.creature_type, casting_spell.att)
+        damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target.creature_type, casting_spell.spell_attack_type)
 
         damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)
         # TODO Roll crit, handle absorb
