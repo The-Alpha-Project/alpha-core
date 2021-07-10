@@ -64,9 +64,6 @@ class EffectTargets:
         }
 
     def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
-        if implicit_target == 0:
-            return []
-
         target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else TARGET_RESOLVERS[implicit_target](self.casting_spell, self.target_effect)
 
         # Avoid crash on unfinished implementation while target resolving isn't finished TODO
