@@ -464,6 +464,12 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
+    def alltaxis(world_session, args):
+        taxi_nodes_count = world_session.player_mgr.taxi_manager.enable_all_taxi_nodes()
+
+        return 0, f'Enabled {taxi_nodes_count} taxi nodes.'
+
+    @staticmethod
     def die(world_session, args):
         unit = CommandManager._target_or_self(world_session)
         world_session.player_mgr.deal_damage(unit, unit.health)
@@ -532,5 +538,6 @@ GM_COMMAND_DEFINITIONS = {
     'die': CommandManager.die,
     'kick': CommandManager.kick,
     'worldoff': CommandManager.worldoff,
-    'guildcreate': CommandManager.guildcreate
+    'guildcreate': CommandManager.guildcreate,
+    'alltaxis': CommandManager.alltaxis
 }
