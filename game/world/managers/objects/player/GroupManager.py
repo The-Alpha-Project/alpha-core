@@ -316,11 +316,11 @@ class GroupManager(object):
         surrounding_members = [player for player in surrounding_players if player.guid in self.members]
 
         # Party kill log packet, not sure how to display on client but it is handled.
-        data = pack('<2Q', player.guid, creature.guid) # Player with killing blow and victim guid.
-        packet = PacketWriter.get_packet(OpCode.SMSG_PARTYKILLLOG, data)
+        data = pack('<2Q', player.guid, creature.guid)  # Player with killing blow and victim guid.
+        kill_log_packet = PacketWriter.get_packet(OpCode.SMSG_PARTYKILLLOG, data)
 
         for member in surrounding_members:
-            member.session.enqueue_packet(packet)
+            member.session.enqueue_packet(kill_log_packet)
             member.quest_manager.reward_creature_or_go(creature)
             member.send_update_self()
 
