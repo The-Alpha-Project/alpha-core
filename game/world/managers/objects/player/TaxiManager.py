@@ -10,20 +10,20 @@ class TaxiManager(object):
         self.owner = player_mgr
         self.available_taxi_nodes = bitarray(player_mgr.player.taximask, 'little')
 
-    # Enable all taxi node bits, not persisted.
+    # Enable all taxi node bits.
     def enable_all_taxi_nodes(self):
         count = 0
         for taxi_node_id, node in DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items():
-            if node.custom_team == self.owner.team.value:
+            if node.custom_Team == self.owner.team.value:
                 self.available_taxi_nodes[taxi_node_id - 1] = True
                 count += 1
         for taxi_node_id, node in DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES.items():
-            if node.custom_team == self.owner.team.value:
+            if node.custom_Team == self.owner.team.value:
                 self.available_taxi_nodes[taxi_node_id - 1] = True
                 count += 1
         return count
 
-    # Disable all taxi node bits, not persisted.
+    # Disable all taxi node bits.
     def disable_all_taxi_nodes(self):
         self.owner.available_taxi_nodes.setall(0)
 
