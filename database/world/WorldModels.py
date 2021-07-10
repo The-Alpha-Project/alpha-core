@@ -44,6 +44,13 @@ class AreaTemplate(Base):
     liquid_type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
 
 
+class ExplorationBasexp(Base):
+    __tablename__ = 'exploration_basexp'
+
+    level = Column(TINYINT, primary_key=True, server_default=text("'0'"))
+    basexp = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+
+
 class CreatureModelInfo(Base):
     __tablename__ = 'creature_model_info'
 
