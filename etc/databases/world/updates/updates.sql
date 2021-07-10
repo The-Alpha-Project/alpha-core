@@ -1432,16 +1432,16 @@ begin not atomic
 	
 	-- 05/07/2021 2
     if (select count(*) from applied_updates where id='050720212') = 0 then
-	    DROP TABLE IF EXISTS `exploration_basexp`;
-	    CREATE TABLE IF NOT EXISTS `exploration_basexp` (
+	    DROP TABLE IF EXISTS `exploration_base_xp`;
+	    CREATE TABLE IF NOT EXISTS `exploration_base_xp` (
 	    `level` tinyint(4) NOT NULL DEFAULT '0',
-	    `basexp` mediumint(9) NOT NULL DEFAULT '0',
+	    `base_xp` mediumint(9) NOT NULL DEFAULT '0',
 	    PRIMARY KEY (`level`)
 	    )
 	    COLLATE='utf8mb4_general_ci'
 	    ENGINE=InnoDB;
 
-        INSERT INTO `exploration_basexp` (`level`, `basexp`) VALUES
+        INSERT INTO `exploration_base_xp` (`level`, `base_xp`) VALUES
 	    (0, 0),
 	    (1, 5),
 	    (2, 15),

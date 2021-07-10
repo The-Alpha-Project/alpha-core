@@ -57,7 +57,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Area related
+    # Area stuff
 
     @staticmethod
     def area_trigger_teleport_get_by_id(trigger_id):
@@ -87,14 +87,14 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Exploration
+    # Exploration stuff
 
     @staticmethod
-    def get_exploration_base_xp(level):
+    def exploration_base_xp_get_by_level(level):
         world_db_session = SessionHolder()
-        res = world_db_session.query(ExplorationBasexp).filter_by(level=level).first()
+        res = world_db_session.query(ExplorationBaseXP).filter_by(level=level).first()
         world_db_session.close()
-        return res.basexp
+        return res.base_xp
 
     # Worldport stuff
 

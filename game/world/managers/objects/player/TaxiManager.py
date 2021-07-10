@@ -25,7 +25,7 @@ class TaxiManager(object):
 
     # Disable all taxi node bits.
     def disable_all_taxi_nodes(self):
-        self.owner.available_taxi_nodes.setall(0)
+        self.available_taxi_nodes.setall(0)
 
     def has_node(self, node):
         # Apparently nodes start at bit 0, bit 0 = node 1.
