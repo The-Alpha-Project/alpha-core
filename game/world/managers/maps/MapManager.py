@@ -98,6 +98,7 @@ class MapManager(object):
         return MapManager.calculate_z(world_object.map_, world_object.location.x, world_object.location.y,
                                       world_object.location.z)
 
+    # noinspection PyBroadException
     @staticmethod
     def calculate_z(map_id, x, y, current_z=0.0):
         try:

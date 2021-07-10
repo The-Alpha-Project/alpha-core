@@ -15,45 +15,45 @@ begin not atomic
 	
 	-- 04/07/2021 1
 	if (select count(*) from applied_updates where id='040720211') = 0 then
-        ALTER TABLE `taxinodes` 
-        ADD COLUMN `custom_team` INT NOT NULL DEFAULT '0' AFTER `Name_Mask`;
+        ALTER TABLE `TaxiNodes`
+        ADD COLUMN `custom_Team` INT(3) NOT NULL DEFAULT -1 AFTER `Name_Mask`;
 
-        UPDATE `taxinodes` SET `custom_team` = '-1' WHERE (`ID` = '1');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '2');
-        UPDATE `taxinodes` SET `custom_team` = '-1' WHERE (`ID` = '3');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '4');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '5');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '6');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '7');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '8');
-        UPDATE `taxinodes` SET `custom_team` = '-1' WHERE (`ID` = '9');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '10');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '11');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '12');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '13');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '14');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '15');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '16');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '17');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '18');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '19');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '20');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '21');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '22');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '23');
-        UPDATE `taxinodes` SET `custom_team` = '-1' WHERE (`ID` = '24');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '25');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '26');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '27');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '28');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '29');
-        UPDATE `taxinodes` SET `custom_team` = '67' WHERE (`ID` = '30');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '31');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '32');
-        UPDATE `taxinodes` SET `custom_team` = '469' WHERE (`ID` = '33');
-        UPDATE `taxinodes` SET `custom_team` = '-1' WHERE (`ID` = '36');
-        UPDATE `taxinodes` SET `custom_team` = '-1' WHERE (`ID` = '35');
-        UPDATE `taxinodes` SET `custom_team` = '-1' WHERE (`ID` = '34');
+        UPDATE `TaxiNodes` SET `custom_team` = -1 WHERE (`ID` = 1);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 2);
+        UPDATE `TaxiNodes` SET `custom_team` = -1 WHERE (`ID` = 3);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 4);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 5);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 6);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 7);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 8);
+        UPDATE `TaxiNodes` SET `custom_team` = -1 WHERE (`ID` = 9);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 10);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 11);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 12);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 13);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 14);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 15);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 16);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 17);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 18);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 19);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 20);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 21);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 22);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 23);
+        UPDATE `TaxiNodes` SET `custom_team` = -1 WHERE (`ID` = 24);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 25);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 26);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 27);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 28);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 29);
+        UPDATE `TaxiNodes` SET `custom_team` = 67 WHERE (`ID` = 30);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 31);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 32);
+        UPDATE `TaxiNodes` SET `custom_team` = 469 WHERE (`ID` = 33);
+        UPDATE `TaxiNodes` SET `custom_team` = -1 WHERE (`ID` = 36);
+        UPDATE `TaxiNodes` SET `custom_team` = -1 WHERE (`ID` = 35);
+        UPDATE `TaxiNodes` SET `custom_team` = -1 WHERE (`ID` = 34);
 		
         insert into applied_updates values ('040720211');
     end if;

@@ -10,20 +10,16 @@ class TaxiManager(object):
         self.owner = player_mgr
         self.available_taxi_nodes = bitarray(player_mgr.player.taximask, 'little')
 
-    def save(self):
-        self.owner.player.taximask = self.available_taxi_nodes.to01()
-        RealmDatabaseManager.character_update(self.owner.player)
-
     # Enable all taxi node bits, not persisted.
     def enable_all_taxi_nodes(self):
         count = 0
-        for id, node in DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items():
+        for taxi_node_id, node in DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items():
             if node.custom_team == self.owner.team.value:
-                self.available_taxi_nodes[id - 1] = True
+                self.available_taxi_nodes[taxi_node_id - 1] = True
                 count += 1
-        for id, node in DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES.items():
+        for taxi_node_id, node in DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES.items():
             if node.custom_team == self.owner.team.value:
-                self.available_taxi_nodes[id - 1] = True
+                self.available_taxi_nodes[taxi_node_id - 1] = True
                 count += 1
         return count
 
@@ -37,7 +33,6 @@ class TaxiManager(object):
 
     def add_taxi(self, node):
         self.available_taxi_nodes[node - 1] = True
-        self.save()
 
     def handle_query_node(self, flight_master_guid, node):
         if not self.has_node(node):

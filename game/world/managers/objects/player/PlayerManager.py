@@ -352,6 +352,7 @@ class PlayerManager(UnitManager):
             self.player.orientation = self.location.o
             self.player.zone = self.zone
             self.player.explored_areas = self.explored_areas.to01()
+            self.player.taximask = self.taxi_manager.available_taxi_nodes.to01()
             self.player.health = self.health
             self.player.power1 = self.power_1
             self.player.power2 = self.power_2
