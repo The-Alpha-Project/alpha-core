@@ -206,7 +206,7 @@ class AuraManager:
 
         # Some spells start cooldown on aura remove, handle that case here
         if aura.source_spell.trigger_cooldown_on_aura_remove():
-            self.unit_mgr.spell_manager.set_on_cooldown(aura.source_spell.spell_entry)
+            self.unit_mgr.spell_manager.set_on_cooldown(aura.source_spell, start_locked_cooldown=True)
 
         if aura.passive:
             return  # Passive auras aren't written to unit
