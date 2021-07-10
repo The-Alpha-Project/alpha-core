@@ -212,7 +212,8 @@ class SpellManager(object):
                 target_info = casting_spell.object_target_results[target.guid]
                 if target_info.result != SpellMissReason.MISS_REASON_NONE:
                     continue
-                target.aura_manager.check_aura_procs(involved_cast=casting_spell)
+                if ObjectTypes.TYPE_UNIT in target.object_type:
+                    target.aura_manager.check_aura_procs(involved_cast=casting_spell)
                 casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
                 applied_targets.append(target.guid)
 
