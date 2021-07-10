@@ -165,7 +165,6 @@ class SpellManager(object):
             if casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
                 self.remove_cast(casting_spell)
 
-        #if not casting_spell.trigger_cooldown_on_aura_remove():
         self.set_on_cooldown(casting_spell)
 
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
