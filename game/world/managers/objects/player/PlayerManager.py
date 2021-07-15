@@ -427,8 +427,9 @@ class PlayerManager(UnitManager):
                     player.session.enqueue_packet(self.get_destroy_packet())
 
         # Update new coordinates and map.
-        self.map_ = self.teleport_destination_map
-        self.location = Vector(self.teleport_destination.x, self.teleport_destination.y, self.teleport_destination.z, self.teleport_destination.o)
+        if self.teleport_destination_map and self.teleport_destination:
+            self.map_ = self.teleport_destination_map
+            self.location = Vector(self.teleport_destination.x, self.teleport_destination.y, self.teleport_destination.z, self.teleport_destination.o)
 
         # Get us in a new grid.
         MapManager.update_object(self)
