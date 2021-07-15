@@ -285,6 +285,9 @@ class GuildManager(object):
         self.update_db_guild_members()
         return True
 
+    def has_members(self):
+        return len(self.members) > 1
+
     def has_member(self, player_guid):
         return player_guid in self.members
 
