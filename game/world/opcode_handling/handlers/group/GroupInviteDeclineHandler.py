@@ -4,7 +4,7 @@ class GroupInviteDeclineHandler(object):
     def handle(world_session, socket, reader):
         player = world_session.player_mgr
         if not player.group_manager:
-            return
+            return 0
 
         if player.guid != player.group_manager.group.leader_guid:
             player.group_manager.send_invite_decline(player.player.name)
