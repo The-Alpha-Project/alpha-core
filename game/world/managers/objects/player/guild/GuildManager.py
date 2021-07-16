@@ -20,7 +20,6 @@ class GuildManager(object):
         self.guild = guild
         self.members = {}
         self.guild_master = None
-        GuildManager.GUILDS[self.guild.name] = self
 
     def load_guild_members(self):
         members = RealmDatabaseManager.guild_get_members(self.guild)
@@ -29,6 +28,11 @@ class GuildManager(object):
             self.members[member.guid] = member
             if member.rank == 0:
                 self.guild_master = member
+
+        if len(self.members) == 0:
+            RealmDatabaseManager.guild_destroy(self.guild)
+            return False
+        return True
 
     def set_guild_master(self, player_guid):
         member = self.members[player_guid]
@@ -354,8 +358,9 @@ class GuildManager(object):
 
     @staticmethod
     def load_guild(raw_guild):
-        GuildManager.GUILDS[raw_guild.name] = GuildManager(raw_guild)
-        GuildManager.GUILDS[raw_guild.name].load_guild_members()
+        group = GuildManager(raw_guild)
+        if group.load_guild_members():
+            GuildManager.GUILDS[raw_guild.name] = group
 
     @staticmethod
     def create_guild(player_mgr, guild_name, petition=None):
@@ -374,6 +379,7 @@ class GuildManager(object):
 
         guild = GuildManager._create_guild("", guild_name, -1, -1, -1, -1, -1, player_mgr.guid)
         player_mgr.guild_manager = GuildManager(guild)
+        GuildManager.GUILDS[guild_name] = player_mgr.guild_manager
         player_mgr.guild_manager.add_new_member(player_mgr, is_guild_master=True)
 
         if petition:
