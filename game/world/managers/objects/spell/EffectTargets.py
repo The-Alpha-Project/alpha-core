@@ -50,7 +50,7 @@ class EffectTargets:
             caster.can_attack_target(self.casting_spell.initial_target)
 
         return {
-            SpellImplicitTargets.TARGET_INITIAL: self.initial_target,
+            SpellImplicitTargets.TARGET_INITIAL: self.initial_target,  # Only accept in A.
             SpellImplicitTargets.TARGET_SELF: caster,
             SpellImplicitTargets.TARGET_PET: [],  # TODO
             SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: caster.get_deathbind_coordinates() if target_is_player else [],
@@ -64,9 +64,6 @@ class EffectTargets:
         }
 
     def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
-        if implicit_target == 0:
-            return []
-
         target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else TARGET_RESOLVERS[implicit_target](self.casting_spell, self.target_effect)
 
         # Avoid crash on unfinished implementation while target resolving isn't finished TODO
@@ -111,10 +108,12 @@ class EffectTargets:
 
     def get_resolved_effect_targets_by_type(self, _type) -> list[Union[ObjectManager, Vector]]:
         b_matches_type = False
-
         # If both A and B are the same type, we should prefer B as it can act as specifying
         # TODO if issues arise, add table for specifying ImplicitTargets
-        if self.resolved_targets_b and len(self.resolved_targets_b) > 0 and isinstance(self.resolved_targets_b[0], _type):
+
+        # Accept B when it's the correct type and not 0.
+        if self.resolved_targets_b and self.target_effect.implicit_target_b != SpellImplicitTargets.TARGET_INITIAL and \
+                len(self.resolved_targets_b) > 0 and isinstance(self.resolved_targets_b[0], _type):
             b_matches_type = True
         if self.resolved_targets_a and len(self.resolved_targets_a) > 0 and isinstance(self.resolved_targets_a[0], _type):
             if not b_matches_type:

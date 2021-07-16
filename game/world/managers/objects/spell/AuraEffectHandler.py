@@ -137,7 +137,6 @@ class AuraEffectHandler:
 
         effect_target.spell_manager.start_spell_cast(None, None, None, None, initialized_spell=spell, is_trigger=True)
 
-
     @staticmethod
     def handle_proc_trigger_damage(aura, effect_target, remove):
         if remove:

@@ -165,8 +165,7 @@ class SpellManager(object):
             if casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
                 self.remove_cast(casting_spell)
 
-        if not casting_spell.trigger_cooldown_on_aura_remove():
-            self.set_on_cooldown(casting_spell.spell_entry)
+        self.set_on_cooldown(casting_spell)
 
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
@@ -213,7 +212,8 @@ class SpellManager(object):
                 target_info = casting_spell.object_target_results[target.guid]
                 if target_info.result != SpellMissReason.MISS_REASON_NONE:
                     continue
-                target.aura_manager.check_aura_procs(involved_cast=casting_spell)
+                if ObjectTypes.TYPE_UNIT in target.object_type:
+                    target.aura_manager.check_aura_procs(involved_cast=casting_spell)
                 casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
                 applied_targets.append(target.guid)
 
@@ -552,10 +552,24 @@ class SpellManager(object):
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.unit_mgr,
                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
 
-    def set_on_cooldown(self, spell):
+    def set_on_cooldown(self, casting_spell, start_locked_cooldown=False):
+        spell = casting_spell.spell_entry
+
         if spell.RecoveryTime == 0 and spell.CategoryRecoveryTime == 0:
             return
-        cooldown_entry = CooldownEntry(spell, time.time())
+
+        timestamp = time.time()
+
+        if start_locked_cooldown:
+            data = pack('<IQ', spell.ID, self.unit_mgr.guid)
+            self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_COOLDOWN_EVENT, data))
+            for cooldown in self.cooldowns:
+                if cooldown.spell_id == spell.ID:
+                    cooldown.unlock(timestamp)
+                    return
+            Logger.warning(f'[SpellManager]: Attempted to unlock cooldown for spell {spell.ID}, but the cooldown didn\'t exist.')
+
+        cooldown_entry = CooldownEntry(spell, timestamp, casting_spell.trigger_cooldown_on_aura_remove())
         self.cooldowns.append(cooldown_entry)
 
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:

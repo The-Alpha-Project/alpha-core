@@ -52,7 +52,7 @@ begin not atomic
 	
 	-- 17/06/2021 1
 	if (select count(*) from applied_updates where id='170620211') = 0 then
-		ALTER TABLE `alpha_realm`.`characters` 
+		ALTER TABLE `characters` 
 		ADD COLUMN `explored_areas` LONGTEXT NULL DEFAULT NULL AFTER `taximask`;
 		insert into applied_updates values ('170620211');
 	end if;

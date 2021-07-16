@@ -3,6 +3,7 @@ from struct import pack
 from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import PacketWriter
+from utils.constants.OpCodes import OpCode
 
 
 class BankerActivateHandler(object):
