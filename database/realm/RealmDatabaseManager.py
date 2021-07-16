@@ -299,7 +299,7 @@ class RealmDatabaseManager(object):
         return guild
 
     @staticmethod
-    def character_is_gm(character_guid):
+    def character_is_guild_master(character_guid):
         realm_db_session = SessionHolder()
         guild_member = realm_db_session.query(GuildMember).filter_by(guid=character_guid & ~HighGuid.HIGHGUID_PLAYER).first()
         if guild_member:
