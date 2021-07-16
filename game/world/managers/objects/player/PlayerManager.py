@@ -1082,7 +1082,7 @@ class PlayerManager(UnitManager):
                 subclass = equipped_weapon.item_template.subclass
             rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target_creature_type, subclass)
 
-        return rolled_damage
+        return max(0, rolled_damage)
 
     # override
     def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target_creature_type: CreatureTypes, spell_attack_type: AttackTypes = -1):
