@@ -62,7 +62,7 @@ class PlayerManager(UnitManager):
         self.session = session
         self.update_lock = False
         self.teleport_destination = None
-        self.teleport_destination_map = None
+        self.teleport_destination_map = -1
         self.is_relocating = False
         self.objects_in_range = dict()
 
@@ -427,7 +427,7 @@ class PlayerManager(UnitManager):
                     player.session.enqueue_packet(self.get_destroy_packet())
 
         # Update new coordinates and map.
-        if self.teleport_destination_map and self.teleport_destination:
+        if self.teleport_destination_map != -1 and self.teleport_destination:
             self.map_ = self.teleport_destination_map
             self.location = Vector(self.teleport_destination.x, self.teleport_destination.y, self.teleport_destination.z, self.teleport_destination.o)
 
@@ -447,7 +447,7 @@ class PlayerManager(UnitManager):
 
         self.reset_fields_older_than(time.time())
         self.update_lock = False
-        self.teleport_destination_map = None
+        self.teleport_destination_map = -1
         self.teleport_destination = None
         self.is_relocating = False
 
