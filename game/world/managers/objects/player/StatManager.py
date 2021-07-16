@@ -396,7 +396,7 @@ class StatManager(object):
         regen = class_base_regen[player_class] + spirit * class_spirit_scaling[player_class]
         self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
 
-    # Auto attack/shoot total damage with modifiers applied
+    # Auto attack/shoot base damage
     def get_base_attack_base_min_max_damage(self, attack_type: AttackTypes):
         if attack_type == AttackTypes.BASE_ATTACK:
             weapon_min_damage = self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN)
@@ -410,7 +410,6 @@ class StatManager(object):
 
         return weapon_min_damage, weapon_max_damage
 
-    # Do not provide attack_type to calculate spell damage bonuses
     def apply_bonuses_for_damage(self, damage, attack_school: SpellSchools, target_creature_type: CreatureTypes, weapon_type: ItemSubClasses = -1):
         if weapon_type != -1:
             weapon_type = 1 << weapon_type
