@@ -5,7 +5,6 @@ class CharList(IntEnum):
     CHAR_LIST_RETRIEVING = 0x24
     CHAR_LIST_RETRIEVED = 0x25
     CHAR_LIST_FAILED = 0x26
-    LAST_CHAR_LIST_RESULT = 0x27
 
 
 class CharCreate(IntEnum):
@@ -15,14 +14,12 @@ class CharCreate(IntEnum):
     CHAR_CREATE_FAILED = 0x2A
     CHAR_CREATE_NAME_IN_USE = 0x2B
     CHAR_CREATE_DISABLED = 0x2C
-    LAST_CHAR_CREATE_RESULT = 0x2D
 
 
 class CharDelete(IntEnum):
     CHAR_DELETE_IN_PROGRESS = 0x2D
     CHAR_DELETE_SUCCESS = 0x2E
     CHAR_DELETE_FAILED = 0x2F
-    LAST_CHAR_DELETE_RESULT = 0x30
 
 
 class CharLogin(IntEnum):
@@ -33,7 +30,6 @@ class CharLogin(IntEnum):
     CHAR_LOGIN_NO_INSTANCES = 0x34
     CHAR_LOGIN_FAILED = 0x35
     CHAR_LOGIN_DISABLED = 0x36
-    LAST_CHAR_LOGIN_RESULT = 0x37
 
 
 class TutorialFlags(IntEnum):
