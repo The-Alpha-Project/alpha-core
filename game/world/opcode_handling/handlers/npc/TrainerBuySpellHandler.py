@@ -53,7 +53,7 @@ class TrainerBuySpellHandler(object):
                     TrainerBuySpellHandler.send_trainer_buy_fail(world_session, trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE)
 
                     return 0
-                elif not npc.can_talk_to_trainer(world_session.player_mgr.player):
+                elif not npc.can_train(world_session.player_mgr.player):
                     Logger.anticheat(f'Player with GUID {world_session.player_mgr.guid} tried to train spell {spell_id} from NPC {npc.entry} but that NPC does not train that player. Possible cheating.')
                     TrainerBuySpellHandler.send_trainer_buy_fail(world_session, trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE)
                     

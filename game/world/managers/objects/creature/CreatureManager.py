@@ -121,7 +121,7 @@ class CreatureManager(UnitManager):
 
     def send_trainer_list(self, world_session): # TODO Add skills (Two-Handed Swords etc.) to trainers for skill points https://i.imgur.com/tzyDDqL.jpg
 
-        if not self.can_talk_to_trainer(world_session.player_mgr):
+        if not self.can_train(world_session.player_mgr):
             Logger.anticheat(f'send_trainer_list called from NPC {self.entry} by player with GUID {world_session.player_mgr.guid} but this unit does not train that player\'s class. Possible cheating')
             return
 
@@ -257,7 +257,7 @@ class CreatureManager(UnitManager):
         return self.npc_flags & NpcFlags.NPC_FLAG_TRAINER
 
     # TODO: Validate trainer_spell field and Pet trainers.
-    def can_talk_to_trainer(self, player_mgr) -> bool:
+    def can_train(self, player_mgr) -> bool:
         if not self.is_trainer():
             return False
 
