@@ -19,22 +19,20 @@ class TrainerListHandler(object):
             else:
                 trainer: CreatureManager = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
 
-            if not trainer:
-                return 0
+            if trainer:
+                available_quests: int = 0
+                # Check if any quest is available.
+                if trainer.is_quest_giver():
+                    available_quests = player_mgr.quest_manager.get_active_quest_num_from_quest_giver(trainer)
 
-            available_quests: int = 0
-            # Check if any quest is available.
-            if trainer.is_quest_giver():
-                available_quests = player_mgr.quest_manager.get_active_quest_num_from_quest_giver(trainer)
-
-            # If player does not meet requirements to talk to this Trainer, just send the quest giver greeting.
-            # Ineligible quests won't show up here, so this matches the behavior of classic WoW.
-            if not trainer.can_talk_to_trainer(player_mgr):
-                player_mgr.quest_manager.handle_quest_giver_hello(trainer, guid)
-            # Give quests priority over trainer list.
-            elif available_quests > 0:
-                player_mgr.quest_manager.handle_quest_giver_hello(trainer, guid)
-            else:
-                trainer.send_trainer_list(world_session)
+                # If player does not meet requirements to talk to this Trainer, just send the quest giver greeting.
+                # Ineligible quests won't show up here, so this matches the behavior of classic WoW.
+                if not trainer.can_talk_to_trainer(player_mgr):
+                    player_mgr.quest_manager.handle_quest_giver_hello(trainer, guid)
+                # Give quests priority over trainer list.
+                elif available_quests > 0:
+                    player_mgr.quest_manager.handle_quest_giver_hello(trainer, guid)
+                else:
+                    trainer.send_trainer_list(world_session)
 
         return 0
