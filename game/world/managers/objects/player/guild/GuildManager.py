@@ -29,9 +29,11 @@ class GuildManager(object):
             if member.rank == 0:
                 self.guild_master = member
 
-        if len(self.members) == 0:
+        # Destroy guilds that for some reason have 0 members.
+        if self.has_members(ignore_gm=False):
             RealmDatabaseManager.guild_destroy(self.guild)
             return False
+
         return True
 
     def set_guild_master(self, player_guid):
@@ -289,8 +291,8 @@ class GuildManager(object):
         self.update_db_guild_members()
         return True
 
-    def has_members(self):
-        return len(self.members) > 1
+    def has_members(self, ignore_gm=True):
+        return len(self.members) > (1 - (0 if ignore_gm else 1))
 
     def has_member(self, player_guid):
         return player_guid in self.members
@@ -358,9 +360,9 @@ class GuildManager(object):
 
     @staticmethod
     def load_guild(raw_guild):
-        group = GuildManager(raw_guild)
-        if group.load_guild_members():
-            GuildManager.GUILDS[raw_guild.name] = group
+        guild = GuildManager(raw_guild)
+        if guild.load_guild_members():
+            GuildManager.GUILDS[raw_guild.name] = guild
 
     @staticmethod
     def create_guild(player_mgr, guild_name, petition=None):
