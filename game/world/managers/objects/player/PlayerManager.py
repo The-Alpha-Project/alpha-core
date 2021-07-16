@@ -786,7 +786,7 @@ class PlayerManager(UnitManager):
                     xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.area_level) * exploration_percent / 100 * xp_rate
                 else:
                     xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.area_level) * xp_rate
-                self.give_xp([xp_gain])
+                self.give_xp([xp_gain], notify=False)
             else:
                 xp_gain = 0
 
