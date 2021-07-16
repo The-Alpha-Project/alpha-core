@@ -16,7 +16,7 @@ class CharDeleteHandler(object):
 
         res = CharDelete.CHAR_DELETE_SUCCESS
         # Prevent Guild Masters from deleting their character.
-        if RealmDatabaseManager.character_is_gm(guid):
+        if RealmDatabaseManager.character_is_guild_master(guid):
             res = CharDelete.CHAR_DELETE_FAILED
 
         # Try to delete the character.
