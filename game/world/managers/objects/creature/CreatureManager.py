@@ -120,17 +120,15 @@ class CreatureManager(UnitManager):
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
 
     def send_trainer_list(self, world_session): # TODO Add skills (Two-Handed Swords etc.) to trainers for skill points https://i.imgur.com/tzyDDqL.jpg
-        trainspell_bytes: bytes = b''
-        trainspell_count: int = 0
 
-        trainer_ability_list: list[NpcTrainer] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
-
-        if not self.is_trainer():
-            return
-
-        if not self.is_trainer_for_class(world_session.player_mgr.player.class_):
+        if not self.can_talk_to_trainer(world_session.player_mgr):
             Logger.anticheat(f'send_trainer_list called from NPC {self.entry} by player with GUID {world_session.player_mgr.guid} but this unit does not train that player\'s class. Possible cheating')
             return
+
+        train_spell_bytes: bytes = b''
+        train_spell_count: int = 0
+
+        trainer_ability_list: list[NpcTrainer] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
 
         if not trainer_ability_list or trainer_ability_list.count == 0:
             Logger.warning(f'send_trainer_list called from NPC {self.entry} but no trainer spells found!')
@@ -171,8 +169,8 @@ class CreatureManager(UnitManager):
                 0,  # Required Ability (2)
                 0  # Required Ability (3)
             )
-            trainspell_bytes += data
-            trainspell_count += 1
+            train_spell_bytes += data
+            train_spell_count += 1
 
         # TODO: Temp placeholder.
         greeting: str = f'Hello, {world_session.player_mgr.player.name}! Ready for some training?'
@@ -182,7 +180,7 @@ class CreatureManager(UnitManager):
                     greeting_bytes
         )
 
-        data = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, trainspell_count) + trainspell_bytes + greeting_bytes
+        data = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, train_spell_count) + train_spell_bytes + greeting_bytes
         world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
 
     def finish_loading(self):
@@ -258,13 +256,20 @@ class CreatureManager(UnitManager):
     def is_trainer(self) -> bool:
         return self.npc_flags & NpcFlags.NPC_FLAG_TRAINER
 
-    def is_trainer_for_class(self, player_class: int) -> bool:
+    # TODO: Validate trainer_spell field and Pet trainers.
+    def can_talk_to_trainer(self, player_mgr) -> bool:
         if not self.is_trainer():
             return False
 
-        if self.creature_template.trainer_class == player_class:
-            return True
-        return False
+        if not self.is_within_interactable_distance(player_mgr) and not player_mgr.is_gm:
+            return False
+
+        # If expects an specific class, check if they match.
+        if self.creature_template.trainer_class > 0:
+            return self.creature_template.trainer_class == player_mgr.player.class_
+
+        # Mount, TradeSkill or Pet trainer.
+        return True
 
     def trainer_has_spell(self, spell_id: int) -> bool:
         if not self.is_trainer():
