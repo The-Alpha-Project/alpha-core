@@ -264,7 +264,7 @@ class CreatureManager(UnitManager):
         if not self.is_within_interactable_distance(player_mgr) and not player_mgr.is_gm:
             return False
 
-        # If expects an specific class, check if they match.
+        # If expecting a specific class, check if they match.
         if self.creature_template.trainer_class > 0:
             return self.creature_template.trainer_class == player_mgr.player.class_
 
