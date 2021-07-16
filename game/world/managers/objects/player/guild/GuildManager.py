@@ -30,7 +30,7 @@ class GuildManager(object):
                 self.guild_master = member
 
         # Destroy guilds that for some reason have 0 members.
-        if self.has_members(ignore_gm=False):
+        if not self.has_members(ignore_gm=False):
             RealmDatabaseManager.guild_destroy(self.guild)
             return False
 
