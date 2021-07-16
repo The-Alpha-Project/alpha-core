@@ -259,7 +259,7 @@ class StatManager(object):
             # Check only equipped items
             if item.current_slot <= InventorySlots.SLOT_TABARD:
                 for stat in item.stats:
-                    if stat.stat_type == 0:
+                    if stat.value == 0:
                         continue
                     stat_type = INVENTORY_STAT_TO_UNIT_STAT[stat.stat_type]
                     current = self.item_stats.get(stat_type, 0)
