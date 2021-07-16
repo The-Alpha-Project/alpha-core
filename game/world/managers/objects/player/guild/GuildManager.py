@@ -378,9 +378,10 @@ class GuildManager(object):
             return False
 
         guild = GuildManager._create_guild("", guild_name, -1, -1, -1, -1, -1, player_mgr.guid)
-        player_mgr.guild_manager = GuildManager(guild)
-        GuildManager.GUILDS[guild_name] = player_mgr.guild_manager
-        player_mgr.guild_manager.add_new_member(player_mgr, is_guild_master=True)
+        guild_manager = GuildManager(guild)
+        player_mgr.guild_manager = guild_manager
+        GuildManager.GUILDS[guild_name] = guild_manager
+        guild_manager.add_new_member(player_mgr, is_guild_master=True)
 
         if petition:
             for member_signer in petition.characters:
