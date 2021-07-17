@@ -31,4 +31,4 @@ class ShapeshiftInfo:
             return 0, 0
         info = ShapeshiftInfo.shapeshift_model_ids.get(form)
         # For creatures default to Alliance form for now.
-        return info[1], info[2] if faction == Teams.TEAM_HORDE else info[0], info[2]
+        return (info[1], info[2]) if faction == Teams.TEAM_HORDE else (info[0], info[2])
