@@ -1,3 +1,4 @@
+from game.world.managers.objects.spell import SpellConstants
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
 from utils.constants.SpellCodes import SpellEffects, SpellState
 
@@ -14,6 +15,10 @@ class AppliedAura:
         self.interrupt_flags = casting_spell.spell_entry.AuraInterruptFlags
 
         self.proc_charges = casting_spell.spell_entry.ProcCharges if casting_spell.spell_entry.ProcCharges != 0 else -1
+
+        self.applied_stacks = 1
+        self.can_stack = SpellConstants.AuraDoseInfo.aura_can_stack(self.spell_id)
+        self.max_stacks = SpellConstants.AuraDoseInfo.get_aura_max_stacks(self.spell_id)
 
         self.period = spell_effect.aura_period
 

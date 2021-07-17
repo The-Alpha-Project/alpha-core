@@ -175,7 +175,7 @@ class SpellManager(object):
 
         for effect in casting_spell.effects:
             if not update:
-                effect.handle_application()
+                effect.start_aura_duration()
 
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)

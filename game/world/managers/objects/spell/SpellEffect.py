@@ -78,8 +78,8 @@ class SpellEffect(object):
             ticks.append(period * i)
         return ticks
 
-    def handle_application(self):
-        if not self.duration_entry or len(self.periodic_effect_ticks) > 0:
+    def start_aura_duration(self, overwrite=False):
+        if not self.duration_entry or (len(self.periodic_effect_ticks) > 0 and not overwrite):
             return
         self.applied_aura_duration = self.duration_entry.Duration
         self.last_update_timestamp = time.time()

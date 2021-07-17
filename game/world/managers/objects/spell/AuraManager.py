@@ -29,9 +29,18 @@ class AuraManager:
         if not can_apply:
             return
 
+        # If this aura can stack and another is already applied
+        if aura.can_stack and len(existing_auras := self.get_auras_by_spell_id(aura.spell_id)) > 0:
+            if existing_auras[0].applied_stacks < existing_auras[0].max_stacks:
+                existing_auras[0].applied_stacks += 1  # Add a stack if the aura isn't at max already
+            existing_auras[0].spell_effect.start_aura_duration(overwrite=True)  # Refresh duration
+            aura.index = existing_auras[0].index  # Note that this aura will not be actually applied. The index is copied just for sending information.
+        else:
+            aura.index = self.get_next_aura_index(aura)
+            self.active_auras[aura.index] = aura
+
+        # Handle effects after possible stack increase to update stats properly
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target)
-        aura.index = self.get_next_aura_index(aura)
-        self.active_auras[aura.index] = aura
 
         if not aura.passive:
             self.write_aura_to_unit(aura)
@@ -153,8 +162,9 @@ class AuraManager:
                          applied_aura.spell_effect.effect_index == aura_effect_index  # Spell and effect are the same
             # Source doesn't matter for unique auras
             is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE
+            is_stacking = applied_aura.can_stack
 
-            if is_similar and (is_unique or applied_aura.caster.guid == caster_guid):
+            if is_similar and (is_unique or applied_aura.caster.guid == caster_guid and not is_stacking):
                 self.remove_aura(applied_aura)
 
             if applied_aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
