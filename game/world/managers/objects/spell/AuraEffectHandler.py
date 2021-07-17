@@ -1,5 +1,6 @@
 import random
 
+from game.world.managers.objects.spell import SpellConstants
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import Factions, ObjectTypes
@@ -24,20 +25,18 @@ class AuraEffectHandler:
     def handle_shapeshift(aura, effect_target, remove):
         form = aura.spell_effect.misc_value if not remove else ShapeshiftForms.SHAPESHIFT_FORM_NONE
         effect_target.set_shapeshift_form(form)
-        if remove or aura.spell_effect.misc_value not in SHAPESHIFT_MODEL_IDS:
+
+        faction = aura.target.team if effect_target.get_type() == ObjectTypes.TYPE_PLAYER else 0
+        model_info = SpellConstants.ShapeshiftInfo.get_form_model_info(form, faction)
+
+        if remove or not model_info[0]:
             effect_target.reset_display_id()
             effect_target.reset_scale()
             effect_target.set_dirty()
             return
 
-        shapeshift_display_info = SHAPESHIFT_MODEL_IDS[aura.spell_effect.misc_value]
-        if effect_target.get_type() == ObjectTypes.TYPE_PLAYER:
-            display_index = 1 if aura.target.team == Teams.TEAM_HORDE else 0
-        else:  # For creatures default to Alliance form for now.
-            display_index = 0
-        model_scale = shapeshift_display_info[2]
-        effect_target.set_display_id(shapeshift_display_info[display_index])
-        effect_target.set_scale(model_scale)
+        effect_target.set_display_id(model_info[0])
+        effect_target.set_scale(model_info[1])
         effect_target.set_dirty()
 
     @staticmethod
@@ -164,11 +163,3 @@ PROC_AURA_EFFECTS = [
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE
 ]
-
-# Alliance / Default display_id, Horde display_id, Scale
-SHAPESHIFT_MODEL_IDS = {
-    ShapeshiftForms.SHAPESHIFT_FORM_CAT: (892, 892, 0.8),
-    ShapeshiftForms.SHAPESHIFT_FORM_TREE: (864, 864, 1.0),
-    ShapeshiftForms.SHAPESHIFT_FORM_AQUATIC: (2428, 2428, 0.8),
-    ShapeshiftForms.SHAPESHIFT_FORM_BEAR: (2281, 2289, 1.0)
-}
