@@ -60,7 +60,7 @@ class AuraEffectHandler:
             return
 
         default_speed = config.Unit.Defaults.run_speed
-        speed_percentage = aura.spell_effect.get_effect_points(aura.effective_level) / 100.0
+        speed_percentage = aura.get_effect_points() / 100.0
         effect_target.change_speed(default_speed + (default_speed * speed_percentage))
 
     @staticmethod
@@ -77,7 +77,7 @@ class AuraEffectHandler:
         if not aura.is_past_next_period() or remove:
             return
         spell = aura.source_spell
-        healing = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        healing = aura.get_effect_points()
         aura.caster.apply_spell_healing(effect_target, healing, spell, is_periodic=True)
 
     @staticmethod
@@ -86,7 +86,7 @@ class AuraEffectHandler:
             return
         power_type = aura.spell_effect.misc_value
 
-        amount = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.receive_power(amount, power_type)
 
     @staticmethod
@@ -94,7 +94,7 @@ class AuraEffectHandler:
         if not aura.is_past_next_period() or remove:
             return
         spell = aura.source_spell
-        damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        damage = aura.get_effect_points()
         aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
 
     @staticmethod
@@ -102,7 +102,7 @@ class AuraEffectHandler:
         if not aura.is_past_next_period() or remove:
             return
         spell = aura.source_spell
-        damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        damage = aura.get_effect_points()
         aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
         effect_target.receive_healing(damage, aura.caster)
 
@@ -142,7 +142,7 @@ class AuraEffectHandler:
         if random.randint(1, 100) > proc_chance:
             return
 
-        damage = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        damage = aura.get_effect_points()
         aura.target.apply_spell_damage(effect_target, damage, aura.source_spell)
 
 

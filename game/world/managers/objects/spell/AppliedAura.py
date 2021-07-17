@@ -11,7 +11,6 @@ class AppliedAura:
         self.caster = caster
         self.spell_id = casting_spell.spell_entry.ID
         self.spell_effect = spell_effect
-        self.effective_level = casting_spell.caster_effective_level
         self.interrupt_flags = casting_spell.spell_entry.AuraInterruptFlags
 
         self.proc_charges = casting_spell.spell_entry.ProcCharges if casting_spell.spell_entry.ProcCharges != 0 else -1
@@ -56,6 +55,9 @@ class AppliedAura:
 
     def get_duration(self):
         return self.spell_effect.applied_aura_duration
+
+    def get_effect_points(self):
+        return self.spell_effect.get_effect_points(self.source_spell.caster_effective_level) * self.applied_stacks
 
     def is_past_next_period(self) -> bool:
         return self.spell_effect.is_past_next_period()
