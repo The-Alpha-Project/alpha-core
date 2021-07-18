@@ -2,7 +2,7 @@ from game.world.managers.objects.timers.MirrorTimer import MirrorTimer
 from utils.constants.MiscCodes import MirrorTimerTypes
 
 
-class MirrorsTimerManager(object):
+class MirrorTimersManager(object):
     def __init__(self, owner):
         self.owner = owner
         self.timers = {}
