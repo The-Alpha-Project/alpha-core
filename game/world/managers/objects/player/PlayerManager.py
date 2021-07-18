@@ -1087,12 +1087,7 @@ class PlayerManager(UnitManager):
 
         if apply_bonuses:
             subclass = -1
-            if attack_type == AttackTypes.BASE_ATTACK:
-                equipped_weapon = self.inventory.get_main_hand()
-            elif attack_type == AttackTypes.OFFHAND_ATTACK:
-                equipped_weapon = self.inventory.get_offhand()
-            else:
-                equipped_weapon = self.inventory.get_ranged()
+            equipped_weapon = self._get_weapon_for_attack_type(attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
             rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target_creature_type, subclass)
@@ -1103,13 +1098,7 @@ class PlayerManager(UnitManager):
     def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target_creature_type: CreatureTypes, spell_attack_type: AttackTypes = -1):
         subclass = 0
         if spell_attack_type != -1:
-            if spell_attack_type == AttackTypes.BASE_ATTACK:
-                equipped_weapon = self.inventory.get_main_hand()
-            elif spell_attack_type == AttackTypes.OFFHAND_ATTACK:
-                equipped_weapon = self.inventory.get_offhand()
-            else:
-                equipped_weapon = self.inventory.get_ranged()
-
+            equipped_weapon = self._get_weapon_for_attack_type(spell_attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
 
@@ -1362,6 +1351,14 @@ class PlayerManager(UnitManager):
     # override
     def generate_object_guid(self, low_guid):
         return low_guid | HighGuid.HIGHGUID_PLAYER
+
+    def _get_weapon_for_attack_type(self, attack_type: AttackTypes):
+        if attack_type == AttackTypes.BASE_ATTACK:
+            return self.inventory.get_main_hand()
+        elif attack_type == AttackTypes.OFFHAND_ATTACK:
+            return self.inventory.get_offhand()
+        else:
+            return self.inventory.get_ranged()
 
     @staticmethod
     def get_team_for_race(race):
