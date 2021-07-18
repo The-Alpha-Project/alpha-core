@@ -19,7 +19,7 @@ from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
-from game.world.managers.objects.timers.MirrorTimersManager import MirrorsTimerManager
+from game.world.managers.objects.timers.MirrorTimersManager import MirrorTimersManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
@@ -156,7 +156,7 @@ class PlayerManager(UnitManager):
             self.guild_manager = None
             self.has_pending_group_invite = False
             self.group_manager = None
-            self.mirror_timers_manager = MirrorsTimerManager(self)
+            self.mirror_timers_manager = MirrorTimersManager(self)
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:
