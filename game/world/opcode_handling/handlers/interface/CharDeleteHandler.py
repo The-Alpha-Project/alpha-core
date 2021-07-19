@@ -15,7 +15,12 @@ class CharDeleteHandler(object):
             guid = unpack('<Q', reader.data[:8])[0]
 
         res = CharDelete.CHAR_DELETE_SUCCESS
-        if guid == 0 or RealmDatabaseManager.character_delete(guid) != 0:
+        # Prevent Guild Masters from deleting their character.
+        if RealmDatabaseManager.character_is_guild_master(guid):
+            res = CharDelete.CHAR_DELETE_FAILED
+
+        # Try to delete the character.
+        if res != CharDelete.CHAR_DELETE_FAILED and (guid == 0 or RealmDatabaseManager.character_delete(guid) != 0):
             res = CharDelete.CHAR_DELETE_FAILED
             Logger.error(f'Error deleting character with guid {guid}.')
 

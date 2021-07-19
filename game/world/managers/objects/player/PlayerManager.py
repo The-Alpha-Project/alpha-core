@@ -63,7 +63,7 @@ class PlayerManager(UnitManager):
         self.session = session
         self.update_lock = False
         self.teleport_destination = None
-        self.teleport_destination_map = None
+        self.teleport_destination_map = -1
         self.is_relocating = False
         self.objects_in_range = dict()
 
@@ -428,7 +428,7 @@ class PlayerManager(UnitManager):
                     player.session.enqueue_packet(self.get_destroy_packet())
 
         # Update new coordinates and map.
-        if self.teleport_destination_map and self.teleport_destination:
+        if self.teleport_destination_map != -1 and self.teleport_destination:
             self.map_ = self.teleport_destination_map
             self.location = Vector(self.teleport_destination.x, self.teleport_destination.y, self.teleport_destination.z, self.teleport_destination.o)
 
@@ -448,7 +448,7 @@ class PlayerManager(UnitManager):
 
         self.reset_fields_older_than(time.time())
         self.update_lock = False
-        self.teleport_destination_map = None
+        self.teleport_destination_map = -1
         self.teleport_destination = None
         self.is_relocating = False
 
@@ -787,7 +787,7 @@ class PlayerManager(UnitManager):
                     xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.area_level) * exploration_percent / 100 * xp_rate
                 else:
                     xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.area_level) * xp_rate
-                self.give_xp([xp_gain])
+                self.give_xp([xp_gain], notify=False)
             else:
                 xp_gain = 0
 
