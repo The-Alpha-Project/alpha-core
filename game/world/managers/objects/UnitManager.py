@@ -764,66 +764,29 @@ class UnitManager(ObjectManager):
         self.resistance_5 = shadow_res
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
 
-    def set_bonus_armor(self, armor):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, 0)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, 0)
-        if armor > 0:
-            self.resistance_buff_mods_positive_0 = armor
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, armor)
-        else:
-            self.resistance_buff_mods_negative_0 = armor
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, armor)
+    def set_bonus_armor(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, negative_mods)
 
-    def set_bonus_holy_res(self, holy_res):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, 0)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, 0)
-        if holy_res >= 0:
-            self.resistance_buff_mods_positive_1 = holy_res
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, holy_res)
-        else:
-            self.resistance_buff_mods_negative_1 = holy_res
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, holy_res)
+    def set_bonus_holy_res(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, negative_mods)
 
+    def set_bonus_fire_res(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, negative_mods)
 
-    def set_bonus_fire_res(self, fire_res):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, 0)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, 0)
-        if fire_res >= 0:
-            self.resistance_buff_mods_positive_2 = fire_res
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, fire_res)
-        else:
-            self.resistance_buff_mods_negative_2 = fire_res
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, fire_res)
+    def set_bonus_nature_res(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, negative_mods)
 
-    def set_bonus_nature_res(self, nature_res):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, 0)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, 0)
-        if nature_res >= 0:
-            self.resistance_buff_mods_positive_3 = nature_res
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, nature_res)
-        else:
-            self.resistance_buff_mods_negative_3 = nature_res
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, nature_res)
+    def set_bonus_frost_res(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, negative_mods)
 
-    def set_bonus_frost_res(self, frost_res):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, 0)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, 0)
-        if frost_res >= 0:
-            self.resistance_buff_mods_positive_4 = frost_res
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, frost_res)
-        else:
-            self.resistance_buff_mods_negative_4 = frost_res
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, frost_res)
-
-    def set_bonus_shadow_res(self, shadow_res):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, 0)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, 0)
-        if shadow_res >= 0:
-            self.resistance_buff_mods_positive_5 = shadow_res
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, shadow_res)
-        else:
-            self.resistance_buff_mods_negative_5 = shadow_res
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, shadow_res)
+    def set_bonus_shadow_res(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, negative_mods)
 
     def set_bonus_damage_done_for_school(self, value, school):  # TODO Fields
         self.set_int32(UnitFields.UNIT_FIELD_MOD_DAMAGE_DONE + school, value)

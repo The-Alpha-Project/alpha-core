@@ -212,11 +212,24 @@ class StatManager(object):
 
     def get_aura_stat_bonus(self, stat_type: UnitStats, percentual=False, misc_value=-1, misc_value_is_mask=False):
         if percentual:
-            target_bonuses = self.aura_stats_percentual
             bonus = 1
         else:
-            target_bonuses = self.aura_stats_flat
             bonus = 0
+
+        for stat_bonus in self.get_aura_stat_bonuses(stat_type, percentual, misc_value, misc_value_is_mask):
+            if not percentual:
+                bonus += stat_bonus
+            else:
+                bonus *= stat_bonus / 100 + 1
+
+        return bonus
+
+    def get_aura_stat_bonuses(self, stat_type: UnitStats, percentual=False, misc_value=-1, misc_value_is_mask=False) -> list[int]:
+        bonuses = []
+        if percentual:
+            target_bonuses = self.aura_stats_percentual
+        else:
+            target_bonuses = self.aura_stats_flat
 
         for stat_bonus in target_bonuses.values():
             if not stat_bonus[0] & stat_type:
@@ -228,12 +241,8 @@ class StatManager(object):
                         (not misc_value_is_mask and misc_value != stat_bonus[2]):
                     continue
 
-            if not percentual:
-                bonus += stat_bonus[1]
-            else:
-                bonus *= stat_bonus[1] / 100 + 1
-
-        return bonus
+            bonuses.append(stat_bonus[1])
+        return bonuses
 
     # TODO move to formulas instead?
     @staticmethod
@@ -340,60 +349,18 @@ class StatManager(object):
 
     def update_base_health_regen(self):
         player_class = self.player_mgr.player.class_
-        class_spirit_scaling = {
-            Classes.CLASS_WARRIOR: 1.26,
-            Classes.CLASS_PALADIN: 0.25,
-            Classes.CLASS_HUNTER: 0.43,
-            Classes.CLASS_ROGUE: 0.84,
-            Classes.CLASS_PRIEST: 0.15,
-            Classes.CLASS_SHAMAN: 0.28,
-            Classes.CLASS_MAGE: 0.11,
-            Classes.CLASS_WARLOCK: 0.12,
-            Classes.CLASS_DRUID: 0.11
-        }
-        class_base_regen = {
-            Classes.CLASS_WARRIOR: -22.6,
-            Classes.CLASS_PALADIN: 0.0,
-            Classes.CLASS_HUNTER: -5.5,
-            Classes.CLASS_ROGUE: -13,
-            Classes.CLASS_PRIEST: 1.4,
-            Classes.CLASS_SHAMAN: -3.6,
-            Classes.CLASS_MAGE: 1.0,
-            Classes.CLASS_WARLOCK: 1.5,
-            Classes.CLASS_DRUID: 1.0
-        }
 
         spirit = self.get_total_stat(UnitStats.SPIRIT)
-        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(class_base_regen[player_class] + spirit * class_spirit_scaling[player_class])
+        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(class_base_regen_health[player_class] + spirit * class_spirit_scaling_health[player_class])
 
 
     def update_base_mana_regen(self):
         player_class = self.player_mgr.player.class_
-        class_spirit_scaling = {
-            Classes.CLASS_WARRIOR: 0.0,
-            Classes.CLASS_PALADIN: 0.20,
-            Classes.CLASS_HUNTER: 0.0,
-            Classes.CLASS_ROGUE: 0.0,
-            Classes.CLASS_PRIEST: 0.25,
-            Classes.CLASS_SHAMAN: 0.20,
-            Classes.CLASS_MAGE: 0.25,
-            Classes.CLASS_WARLOCK: 0.2,
-            Classes.CLASS_DRUID: 0.2
-        }
-        class_base_regen = {
-            Classes.CLASS_WARRIOR: -22.6,
-            Classes.CLASS_PALADIN: 15.0,
-            Classes.CLASS_HUNTER: 12.5,
-            Classes.CLASS_ROGUE: -13.0,
-            Classes.CLASS_PRIEST: 12.5,
-            Classes.CLASS_SHAMAN: 17.0,
-            Classes.CLASS_MAGE: 12.5,
-            Classes.CLASS_WARLOCK: 15.0,
-            Classes.CLASS_DRUID: 15.0
-        }
+        if player_class not in class_spirit_scaling_mana:
+            return
 
         spirit = self.get_total_stat(UnitStats.SPIRIT)
-        regen = class_base_regen[player_class] + spirit * class_spirit_scaling[player_class]
+        regen = class_base_regen_mana[player_class] + spirit * class_spirit_scaling_mana[player_class]
         self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
 
     # Auto attack/shoot base damage
@@ -489,12 +456,29 @@ class StatManager(object):
         self.player_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW, accept_negative=True))
 
         # TODO Distinguish between positive and negative buffs (client seems to be able to display both at the same time)
-        self.player_mgr.set_bonus_armor(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_PHYSICAL))
-        self.player_mgr.set_bonus_holy_res(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_HOLY))
-        self.player_mgr.set_bonus_fire_res(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_FIRE))
-        self.player_mgr.set_bonus_nature_res(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_NATURE))
-        self.player_mgr.set_bonus_frost_res(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_FROST))
-        self.player_mgr.set_bonus_shadow_res(self.get_stat_gain_from_aura_bonuses(UnitStats.RESISTANCE_SHADOW))
+        self.player_mgr.set_bonus_armor(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_PHYSICAL))
+        self.player_mgr.set_bonus_holy_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_HOLY))
+        self.player_mgr.set_bonus_fire_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_FIRE))
+        self.player_mgr.set_bonus_nature_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_NATURE))
+        self.player_mgr.set_bonus_frost_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_FROST))
+        self.player_mgr.set_bonus_shadow_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_SHADOW))
+
+    def _get_positive_negative_bonus(self, stat_type: UnitStats):
+        bonuses = self.get_aura_stat_bonuses(stat_type)
+        percentual = self.get_aura_stat_bonuses(stat_type, percentual=True)
+
+        negative = 0
+        positive = 0
+        for bonus in bonuses:
+            if bonus > 0:
+                positive += bonus
+                continue
+            negative += bonus
+
+        for percentual_bonus in percentual:
+            positive *= percentual_bonus
+        return negative, positive
+
 
     def send_attributes(self):
         self.player_mgr.set_base_str(self.get_base_stat(UnitStats.STRENGTH))
@@ -525,6 +509,48 @@ class StatManager(object):
 
             self.player_mgr.set_bonus_damage_done_for_school(int(flat_bonuses * percentual_bonuses), school)
 
+
+class_spirit_scaling_health = {
+    Classes.CLASS_WARRIOR: 1.26,
+    Classes.CLASS_PALADIN: 0.25,
+    Classes.CLASS_HUNTER: 0.43,
+    Classes.CLASS_ROGUE: 0.84,
+    Classes.CLASS_PRIEST: 0.15,
+    Classes.CLASS_SHAMAN: 0.28,
+    Classes.CLASS_MAGE: 0.11,
+    Classes.CLASS_WARLOCK: 0.12,
+    Classes.CLASS_DRUID: 0.11
+}
+
+class_base_regen_health = {
+    Classes.CLASS_WARRIOR: -22.6,
+    Classes.CLASS_PALADIN: 0.0,
+    Classes.CLASS_HUNTER: -5.5,
+    Classes.CLASS_ROGUE: -13,
+    Classes.CLASS_PRIEST: 1.4,
+    Classes.CLASS_SHAMAN: -3.6,
+    Classes.CLASS_MAGE: 1.0,
+    Classes.CLASS_WARLOCK: 1.5,
+    Classes.CLASS_DRUID: 1.0
+}
+
+class_spirit_scaling_mana = {
+    Classes.CLASS_PALADIN: 0.20,
+    Classes.CLASS_PRIEST: 0.25,
+    Classes.CLASS_SHAMAN: 0.20,
+    Classes.CLASS_MAGE: 0.25,
+    Classes.CLASS_WARLOCK: 0.2,
+    Classes.CLASS_DRUID: 0.2
+}
+
+class_base_regen_mana = {
+    Classes.CLASS_PALADIN: 15.0,
+    Classes.CLASS_PRIEST: 12.5,
+    Classes.CLASS_SHAMAN: 17.0,
+    Classes.CLASS_MAGE: 12.5,
+    Classes.CLASS_WARLOCK: 15.0,
+    Classes.CLASS_DRUID: 15.0
+}
 
 INVENTORY_STAT_TO_UNIT_STAT = {
     InventoryStats.MANA: UnitStats.MANA,
