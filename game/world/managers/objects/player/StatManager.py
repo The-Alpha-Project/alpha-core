@@ -448,16 +448,22 @@ class StatManager(object):
         self.player_mgr.set_bonus_shadow_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_SHADOW))
 
     def _get_positive_negative_bonus(self, stat_type: UnitStats):
-        bonuses = self.get_aura_stat_bonuses(stat_type)
+        aura_bonuses = self.get_aura_stat_bonuses(stat_type)
         percentual = self.get_aura_stat_bonuses(stat_type, percentual=True)
 
         negative = 0
         positive = 0
-        for bonus in bonuses:
-            if bonus > 0:
-                positive += bonus
+        for aura_bonus in aura_bonuses:
+            if aura_bonus > 0:
+                positive += aura_bonus
                 continue
-            negative += bonus
+            negative += aura_bonus
+
+        item_bonus = self.get_item_stat(stat_type)
+        if item_bonus > 0:
+            positive += item_bonus
+        else:
+            negative += item_bonus
 
         for percentual_bonus in percentual:
             positive *= percentual_bonus
@@ -506,6 +512,7 @@ class StatManager(object):
         base_int = intellect if intellect < 20 else 20
         more_int = intellect - base_int
         return base_int + (more_int * 15.0)
+
 
 class_spirit_scaling_health = {
     Classes.CLASS_WARRIOR: 1.26,
