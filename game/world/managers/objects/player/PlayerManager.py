@@ -248,6 +248,7 @@ class PlayerManager(UnitManager):
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
         self.online = False
         self.logout_timer = -1
+        self.mirror_timers_manager.stop_all()
 
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
@@ -447,6 +448,8 @@ class PlayerManager(UnitManager):
             force_inventory_update=True if not self.is_relocating else False)
 
         self.reset_fields_older_than(time.time())
+        self.mirror_timers_manager.stop_all()
+        self.update_swimming_state(False)
         self.update_lock = False
         self.teleport_destination_map = -1
         self.teleport_destination = None
@@ -804,7 +807,7 @@ class PlayerManager(UnitManager):
             self.liquid_information = None
 
     def is_swimming(self):
-        return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
+        return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING and self.is_alive
 
     def is_under_water(self):
         if self.liquid_information is None or not self.is_swimming():
@@ -1345,6 +1348,8 @@ class PlayerManager(UnitManager):
 
         TradeManager.cancel_trade(self)
         self.spirit_release_timer = 0
+        self.mirror_timers_manager.stop_all()
+        self.update_swimming_state(False)
 
         self.set_dirty()
         return True
