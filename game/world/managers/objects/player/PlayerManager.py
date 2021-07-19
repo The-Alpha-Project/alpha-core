@@ -98,7 +98,6 @@ class PlayerManager(UnitManager):
         self.explored_areas = bitarray(MAX_EXPLORED_AREAS, 'little')
         self.explored_areas.setall(0)
         self.liquid_information = None
-        self.is_swimming = False
 
         if self.player:
             self.set_player_variables()
@@ -452,7 +451,6 @@ class PlayerManager(UnitManager):
         self.teleport_destination_map = -1
         self.teleport_destination = None
         self.is_relocating = False
-        self.set_swimming_state(False)
 
         # Update managers.
         self.friends_manager.send_update_to_friends()
@@ -797,12 +795,19 @@ class PlayerManager(UnitManager):
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
             self.session.enqueue_packet(packet)
 
-    def set_swimming_state(self, state, liquids=None):
-        self.liquid_information = liquids
-        self.is_swimming = state
+    def update_swimming_state(self, state):
+        if state:
+            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y)
+            if not self.liquid_information:
+                Logger.warning(f'Unable to retrieve liquid information.')
+        else:
+            self.liquid_information = None
+
+    def is_swimming(self):
+        return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
 
     def is_under_water(self):
-        if self.liquid_information is None or not self.is_swimming:
+        if self.liquid_information is None or not self.is_swimming():
             return False
         return self.location.z + (self.current_scale * 2) < self.liquid_information.height
 

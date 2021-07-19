@@ -48,6 +48,10 @@ class MirrorTimer(object):
             packet = PacketWriter.get_packet(OpCode.SMSG_STOP_MIRROR_TIMER, data)
             self.owner.session.enqueue_packet(packet)
 
+    def set_scale(self, scale):
+        if scale != self.scale:
+            self.scale = scale
+
     def update(self, elapsed):
         if self.active:
             self.chunk_elapsed += elapsed
