@@ -802,7 +802,7 @@ class PlayerManager(UnitManager):
         self.is_swimming = state
 
     def is_under_water(self):
-        if self.liquid_information is None and not self.is_swimming:
+        if self.liquid_information is None or not self.is_swimming:
             return False
         return self.location.z + (self.current_scale * 2) < self.liquid_information.height
 
