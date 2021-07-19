@@ -224,6 +224,7 @@ class StatManager(object):
 
         return bonus
 
+    # Returns a list pf bonuses for a stat from auras. Needed for separating negative and positive resistance bonuses for the client.
     def get_aura_stat_bonuses(self, stat_type: UnitStats, percentual=False, misc_value=-1, misc_value_is_mask=False) -> list[int]:
         bonuses = []
         if percentual:
@@ -243,21 +244,6 @@ class StatManager(object):
 
             bonuses.append(stat_bonus[1])
         return bonuses
-
-    # TODO move to formulas instead?
-    @staticmethod
-    def get_health_bonus_from_stamina(stamina):
-        # The first 20 points of Stamina grant only 1 health point per unit.
-        base_sta = stamina if stamina < 20 else 20
-        more_sta = stamina - base_sta
-        return base_sta + (more_sta * 10.0)
-
-    @staticmethod
-    def get_mana_bonus_from_intellect(intellect):
-        # The first 20 points of Intellect grant only 1 mana point per unit.
-        base_int = intellect if intellect < 20 else 20
-        more_int = intellect - base_int
-        return base_int + (more_int * 15.0)
 
     def calculate_item_stats(self):
         self.item_stats = {UnitStats.MAIN_HAND_DELAY: config.Unit.Defaults.base_attack_time,
@@ -404,8 +390,6 @@ class StatManager(object):
         level = self.player_mgr.level
         class_ = self.player_mgr.player.class_
 
-
-        # TODO Formula tables instead
         if class_ == Classes.CLASS_WARRIOR or \
                 class_ == Classes.CLASS_PALADIN:
             attack_power = (strength * 2) + (level * 3) - 20
@@ -509,6 +493,19 @@ class StatManager(object):
 
             self.player_mgr.set_bonus_damage_done_for_school(int(flat_bonuses * percentual_bonuses), school)
 
+    @staticmethod
+    def get_health_bonus_from_stamina(stamina):
+        # The first 20 points of Stamina grant only 1 health point per unit.
+        base_sta = stamina if stamina < 20 else 20
+        more_sta = stamina - base_sta
+        return base_sta + (more_sta * 10.0)
+
+    @staticmethod
+    def get_mana_bonus_from_intellect(intellect):
+        # The first 20 points of Intellect grant only 1 mana point per unit.
+        base_int = intellect if intellect < 20 else 20
+        more_int = intellect - base_int
+        return base_int + (more_int * 15.0)
 
 class_spirit_scaling_health = {
     Classes.CLASS_WARRIOR: 1.26,
