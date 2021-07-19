@@ -21,12 +21,17 @@ class MirrorTimersManager(object):
         for timer in self.timers.values():
             timer.update(elapsed)
 
-    def _check_breathing(self, elapsed):
-        timer_active = self.owner.is_swimming() and self.owner.is_under_water()
-        timer_scale = -1 if timer_active else 10
+    def stop_all(self):
+        for timer in self.timers.values():
+            timer.stop()
 
-        # Set scale depending if timer is regenerating or depleting.
-        self.timers[MirrorTimerTypes.BREATH].set_scale(timer_scale)
-        # If timer should be active and is not, start it.
-        if timer_active and not self.timers[MirrorTimerTypes.BREATH].active:
-            self.timers[MirrorTimerTypes.BREATH].start(elapsed)
+    def _check_breathing(self, elapsed):
+        if self.owner.is_alive:
+            timer_active = self.owner.is_swimming() and self.owner.is_under_water()
+            timer_scale = -1 if timer_active else 10
+
+            # Set scale depending if timer is regenerating or depleting.
+            self.timers[MirrorTimerTypes.BREATH].set_scale(timer_scale)
+            # If timer should be active and is not, start it.
+            if timer_active and not self.timers[MirrorTimerTypes.BREATH].active:
+                self.timers[MirrorTimerTypes.BREATH].start(elapsed)
