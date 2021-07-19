@@ -8,6 +8,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.spell import SpellConstants
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
@@ -387,7 +388,9 @@ class SpellManager(object):
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING or casting_spell.is_channeled():
                 self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
                 continue
-            if casting_spell.is_paladin_aura() and current_cast.is_paladin_aura():  # Paladin aura exclusivity.
+
+            if SpellConstants.AuraSourceRestrictions.are_colliding_auras(casting_spell.spell_entry.ID,
+                                                                         current_cast.spell_entry.ID):  # Paladin auras
                 self.remove_cast(casting_spell, interrupted=True)
                 continue
             if current_cast.casts_on_swing() and casting_spell.casts_on_swing() and casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:

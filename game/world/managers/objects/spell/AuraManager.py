@@ -1,6 +1,7 @@
 import time
 from struct import pack
 
+from game.world.managers.objects.spell import SpellConstants
 from game.world.managers.objects.spell.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -160,12 +161,18 @@ class AuraManager:
         for applied_aura in list(self.active_auras.values()):
             is_similar = applied_aura.source_spell.spell_entry == aura_spell_template and \
                          applied_aura.spell_effect.effect_index == aura_effect_index  # Spell and effect are the same
+
+            are_exclusive_by_source = SpellConstants.AuraSourceRestrictions.are_colliding_auras(aura.spell_id, applied_aura.spell_id)  # Paladin seals, warlock curses
+
             # Source doesn't matter for unique auras
-            is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE
+            is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE or not aura.harmful  # Buffs are unique.
             is_stacking = applied_aura.can_stack
 
-            if is_similar and (is_unique or applied_aura.caster.guid == caster_guid and not is_stacking):
+            casters_are_same = applied_aura.caster.guid == caster_guid
+            if is_similar and (is_unique or casters_are_same and not is_stacking) or \
+                    are_exclusive_by_source and casters_are_same:
                 self.remove_aura(applied_aura)
+                continue
 
             if applied_aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
                     aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT:
