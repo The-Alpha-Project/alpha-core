@@ -7,6 +7,7 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypes, HighGuid
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
 from utils.constants.UnitCodes import PowerTypes, UnitFlags, MovementTypes
+from utils.constants.UpdateFields import UnitFields
 
 
 class SpellEffectHandler(object):
@@ -73,7 +74,9 @@ class SpellEffectHandler(object):
         # TODO Skill checks etc.
         if caster and target and target.get_type() == ObjectTypes.TYPE_GAMEOBJECT:  # TODO other object types, ie. lockboxes
             target.use(caster)
-            casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE  # Keep checking movement interrupt.
+            caster.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
+            caster.set_uint32(UnitFields.UNIT_FIELD_FLAGS, caster.unit_flags)
+            caster.set_dirty()
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
