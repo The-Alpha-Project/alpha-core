@@ -56,12 +56,12 @@ class MirrorTimer(object):
 
     def set_remaining(self, elapsed):
         if self.scale < 0:
-            if self.remaining - elapsed < 0:
+            if self.remaining - elapsed <= 0:
                 self.remaining = 0
             else:
                 self.remaining -= int(elapsed)
         else:
-            if self.remaining + self.scale > self.duration:
+            if self.remaining + self.scale >= self.duration:
                 self.remaining = self.duration
             else:
                 self.remaining += int(self.scale)
