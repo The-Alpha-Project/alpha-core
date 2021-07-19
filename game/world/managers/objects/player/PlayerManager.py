@@ -977,35 +977,6 @@ class PlayerManager(UnitManager):
 
             should_update_health = self.health < self.max_health
             should_update_power = True
-            '''
-            health_regen = 0
-            mana_regen = 0
-            
-            if self.player.class_ == Classes.CLASS_DRUID:
-                health_regen = self.spi * 0.11 + 1
-                mana_regen = (self.spi / 5 + 15) / 2
-            elif self.player.class_ == Classes.CLASS_HUNTER:
-                health_regen = self.spi * 0.43 - 5.5
-            elif self.player.class_ == Classes.CLASS_PRIEST:
-                health_regen = self.spi * 0.15 + 1.4
-                mana_regen = (self.spi / 4 + 12.5) / 2
-            elif self.player.class_ == Classes.CLASS_MAGE:
-                health_regen = self.spi * 0.11 + 1
-                mana_regen = (self.spi / 4 + 12.5) / 2
-            elif self.player.class_ == Classes.CLASS_PALADIN:
-                health_regen = self.spi * 0.25
-                mana_regen = (self.spi / 5 + 15) / 2
-            elif self.player.class_ == Classes.CLASS_ROGUE:
-                health_regen = self.spi * 0.84 - 13
-            elif self.player.class_ == Classes.CLASS_SHAMAN:
-                health_regen = self.spi * 0.28 - 3.6
-                mana_regen = (self.spi / 5 + 17) / 2
-            elif self.player.class_ == Classes.CLASS_WARLOCK:
-                health_regen = self.spi * 0.12 + 1.5
-                mana_regen = (self.spi / 5 + 15) / 2
-            elif self.player.class_ == Classes.CLASS_WARRIOR:
-                health_regen = self.spi * 1.26 - 22.6
-            '''
 
             # Healing aura increases regeneration "by 2 every second", and base points equal to 10. Calculate 2/5 of hp5/mp5.
             health_regen = self.stat_manager.get_total_stat(UnitStats.HEALTH_REGENERATION_PER_5) * 0.4
