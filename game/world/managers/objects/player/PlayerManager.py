@@ -448,8 +448,6 @@ class PlayerManager(UnitManager):
             force_inventory_update=True if not self.is_relocating else False)
 
         self.reset_fields_older_than(time.time())
-        self.mirror_timers_manager.stop_all()
-        self.update_swimming_state(False)
         self.update_lock = False
         self.teleport_destination_map = -1
         self.teleport_destination = None
