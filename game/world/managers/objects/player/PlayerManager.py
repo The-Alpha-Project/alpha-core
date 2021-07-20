@@ -815,7 +815,7 @@ class PlayerManager(UnitManager):
     def is_in_deep_water(self):
         if self.liquid_information is None or not self.is_swimming():
             return False
-        return self.liquid_information.flag == LiquidTypes.DEEP
+        return self.liquid_information.liquid_type == LiquidTypes.DEEP
 
     def update_liquid_information(self):
         # Retrieve latest liquid information, only if player is swimming.
