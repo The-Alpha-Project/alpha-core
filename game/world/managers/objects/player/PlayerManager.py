@@ -26,7 +26,7 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
-from utils.constants.MiscCodes import ChatFlags, LootTypes
+from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms
@@ -811,6 +811,16 @@ class PlayerManager(UnitManager):
         if self.liquid_information is None or not self.is_swimming():
             return False
         return self.location.z + (self.current_scale * 2) < self.liquid_information.height
+
+    def is_in_deep_water(self):
+        if self.liquid_information is None or not self.is_swimming():
+            return False
+        return self.liquid_information.flag == LiquidTypes.DEEP
+
+    def update_liquid_information(self):
+        # Retrieve latest liquid information, only if player is swimming.
+        if self.is_swimming():
+            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y)
 
     # override
     def get_full_update_packet(self, is_self=True):

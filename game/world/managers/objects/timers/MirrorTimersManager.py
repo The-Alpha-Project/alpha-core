@@ -5,33 +5,55 @@ from utils.constants.MiscCodes import MirrorTimerTypes
 class MirrorTimersManager(object):
     def __init__(self, owner):
         self.owner = owner
+        self.update_liquids_timer = 0
         self.timers = {}
         self.load()
 
     def load(self):
         self.timers[MirrorTimerTypes.BREATH] = MirrorTimer(self.owner, MirrorTimerTypes.BREATH, 1, 60, -1, 0)
-        self.timers[MirrorTimerTypes.FATIGUE] = MirrorTimer(self.owner, MirrorTimerTypes.FATIGUE, 0, 0, 0, 0)
+        self.timers[MirrorTimerTypes.FATIGUE] = MirrorTimer(self.owner, MirrorTimerTypes.FATIGUE, 1, 60, -1, 0)
         self.timers[MirrorTimerTypes.FEIGNDEATH] = MirrorTimer(self.owner, MirrorTimerTypes.FEIGNDEATH, 0, 0, 0, 0)
         self.timers[MirrorTimerTypes.ENVIRONMENTAL] = MirrorTimer(self.owner, MirrorTimerTypes.ENVIRONMENTAL, 0, 0, 0, 0)
-
-    def update(self, elapsed):
-        # Handle breathing timer.
-        self._check_breathing(elapsed)
-
-        for timer in self.timers.values():
-            timer.update(elapsed)
 
     def stop_all(self):
         for timer in self.timers.values():
             timer.stop()
 
+    def update(self, elapsed):
+        # Check if we should update liquid information for player.
+        self.update_liquids_timer += elapsed
+        if self.update_liquids_timer > 3:
+            self.owner.update_liquid_information()
+            self.update_liquids_timer = 0
+
+        # Handle fatigue timer.
+        self._check_fatigue(elapsed)
+        # Handle breathing timer.
+        self._check_breathing(elapsed)
+        # Update timers.
+        for timer in self.timers.values():
+            timer.update(elapsed)
+
+    def _check_fatigue(self, elapsed):
+        if self.owner.is_alive:
+            timer_active = self.owner.is_swimming() and self.owner.is_in_deep_water()
+            timer_scale = -1 if timer_active else 10
+            # Set scale depending if timer is regenerating or depleting.
+            self.timers[MirrorTimerTypes.FATIGUE].set_scale(timer_scale)
+            # If timer should be active and is not, start it.
+            if timer_active and not self.timers[MirrorTimerTypes.FATIGUE].active:
+                self.timers[MirrorTimerTypes.FATIGUE].start(elapsed)
+            elif not timer_active:  # Not swimming and not in deep water, stop the timer.
+                self.timers[MirrorTimerTypes.FATIGUE].stop()
+
     def _check_breathing(self, elapsed):
         if self.owner.is_alive:
             timer_active = self.owner.is_swimming() and self.owner.is_under_water()
             timer_scale = -1 if timer_active else 10
-
             # Set scale depending if timer is regenerating or depleting.
             self.timers[MirrorTimerTypes.BREATH].set_scale(timer_scale)
             # If timer should be active and is not, start it.
             if timer_active and not self.timers[MirrorTimerTypes.BREATH].active:
                 self.timers[MirrorTimerTypes.BREATH].start(elapsed)
+            elif not timer_active:  # Not swimming and not under water, stop the timer.
+                self.timers[MirrorTimerTypes.BREATH].stop()

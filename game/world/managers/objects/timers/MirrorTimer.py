@@ -74,9 +74,9 @@ class MirrorTimer(object):
                 self.chunk_elapsed = 0
 
                 if self.type == MirrorTimerTypes.BREATH:
-                    self.handle_breathing()
+                    self.handle_breathing(0.10)
                 elif self.type == MirrorTimerTypes.FEIGNDEATH:
-                    self.handle_feigndeath()
+                    self.handle_feign_death()
                 elif self.type == MirrorTimerTypes.FATIGUE:
                     self.handle_fatigue()
                 else:
@@ -87,12 +87,13 @@ class MirrorTimer(object):
                     self.send_full_update()
 
     # TODO, should we halt regeneration when drowning?
-    def handle_breathing(self):
+    #  CombatLog should display drown and fatigue.
+    def handle_breathing(self, dmg_multiplier):
         if self.remaining == self.duration:
             self.stop()  # Replenished
         elif self.remaining == 0 and self.owner.health > 0:
             # TODO: Find drowning damage formula.
-            damage = int(self.owner.max_health * 0.10)
+            damage = int(self.owner.max_health * dmg_multiplier)
             if self.owner.health - damage <= 0:
                 self.owner.die()
             else:
@@ -101,9 +102,10 @@ class MirrorTimer(object):
                 self.owner.set_dirty()
 
     def handle_fatigue(self):
-        pass
+        # Handle the same as breathing for now.
+        self.handle_breathing(0.20)
 
-    def handle_feigndeath(self):
+    def handle_feign_death(self):
         pass
 
     def handle_environmental(self):
