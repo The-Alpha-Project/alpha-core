@@ -337,16 +337,16 @@ class StatManager(object):
         player_class = self.player_mgr.player.class_
 
         spirit = self.get_total_stat(UnitStats.SPIRIT)
-        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(class_base_regen_health[player_class] + spirit * class_spirit_scaling_health[player_class])
+        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(CLASS_BASE_REGEN_HEALTH[player_class] + spirit * CLASS_SPIRIT_SCALING_HP5[player_class])
 
 
     def update_base_mana_regen(self):
         player_class = self.player_mgr.player.class_
-        if player_class not in class_spirit_scaling_mana:
+        if player_class not in CLASS_SPIRIT_SCALING_MANA:
             return
 
         spirit = self.get_total_stat(UnitStats.SPIRIT)
-        regen = class_base_regen_mana[player_class] + spirit * class_spirit_scaling_mana[player_class]
+        regen = CLASS_BASE_REGEN_MANA[player_class] + spirit * CLASS_SPIRIT_SCALING_MANA[player_class]
         self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
 
     # Auto attack/shoot base damage
@@ -514,7 +514,7 @@ class StatManager(object):
         return base_int + (more_int * 15.0)
 
 
-class_spirit_scaling_health = {
+CLASS_SPIRIT_SCALING_HP5 = {
     Classes.CLASS_WARRIOR: 1.26,
     Classes.CLASS_PALADIN: 0.25,
     Classes.CLASS_HUNTER: 0.43,
@@ -526,7 +526,16 @@ class_spirit_scaling_health = {
     Classes.CLASS_DRUID: 0.11
 }
 
-class_base_regen_health = {
+CLASS_SPIRIT_SCALING_MANA = {
+    Classes.CLASS_PALADIN: 0.20,
+    Classes.CLASS_PRIEST: 0.25,
+    Classes.CLASS_SHAMAN: 0.20,
+    Classes.CLASS_MAGE: 0.25,
+    Classes.CLASS_WARLOCK: 0.2,
+    Classes.CLASS_DRUID: 0.2
+}
+
+CLASS_BASE_REGEN_HEALTH = {
     Classes.CLASS_WARRIOR: -22.6,
     Classes.CLASS_PALADIN: 0.0,
     Classes.CLASS_HUNTER: -5.5,
@@ -538,16 +547,7 @@ class_base_regen_health = {
     Classes.CLASS_DRUID: 1.0
 }
 
-class_spirit_scaling_mana = {
-    Classes.CLASS_PALADIN: 0.20,
-    Classes.CLASS_PRIEST: 0.25,
-    Classes.CLASS_SHAMAN: 0.20,
-    Classes.CLASS_MAGE: 0.25,
-    Classes.CLASS_WARLOCK: 0.2,
-    Classes.CLASS_DRUID: 0.2
-}
-
-class_base_regen_mana = {
+CLASS_BASE_REGEN_MANA = {
     Classes.CLASS_PALADIN: 15.0,
     Classes.CLASS_PRIEST: 12.5,
     Classes.CLASS_SHAMAN: 17.0,
