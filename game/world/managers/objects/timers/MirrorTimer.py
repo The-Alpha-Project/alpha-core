@@ -11,7 +11,7 @@ class MirrorTimer(object):
         self.type = type
         self.interval = interval  # How often we check this timer.
         self.duration = duration  # In seconds, sent in milliseconds.
-        self.scale = scale  # Time added per second in seconds, for e.g. -1
+        self.scale = scale  # Time added/subtracted per elapsed second in seconds, for e.g. -1
         self.spell_id = spell_id
         self.active = False
         self.remaining = self.duration  # In seconds, sent in milliseconds.
