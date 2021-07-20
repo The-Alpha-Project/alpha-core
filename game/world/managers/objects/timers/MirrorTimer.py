@@ -5,16 +5,17 @@ from utils.constants.OpCodes import OpCode
 
 
 class MirrorTimer(object):
+    # Player guid, timer type, server side check interval, timer duration (seconds), scale (change per elapsed second), spell_id)
     def __init__(self, owner, type, interval, duration, scale, spell_id):
         self.owner = owner
         self.type = type
-        self.interval = interval
-        self.duration = duration
-        self.scale = scale
+        self.interval = interval  # How often we check this timer.
+        self.duration = duration  # In seconds, sent in milliseconds.
+        self.scale = scale  # Time added per second in seconds, for e.g. -1
         self.spell_id = spell_id
         self.active = False
-        self.remaining = self.duration
-        self.chunk_elapsed = 0
+        self.remaining = self.duration  # In seconds, sent in milliseconds.
+        self.chunk_elapsed = 0  # Milliseconds
 
     def start(self, elapsed):
         if not self.active and self.owner.is_alive:
@@ -46,13 +47,14 @@ class MirrorTimer(object):
 
     def send_full_update(self):
         if self.active:
-            data = pack('<3IiBI', self.type, self.remaining, self.duration, self.scale, self.active, self.spell_id)
+            data = pack('<3IiBI', self.type, self.remaining * 1000, self.duration * 1000, self.scale, not self.active, self.spell_id)
             packet = PacketWriter.get_packet(OpCode.SMSG_START_MIRROR_TIMER, data)
             self.owner.session.enqueue_packet(packet)
 
     def set_scale(self, scale):
         if scale != self.scale:
             self.scale = scale
+            self.send_full_update()  # Scale changed, notify the client.
 
     def set_remaining(self, elapsed):
         if self.scale < 0:
@@ -74,17 +76,13 @@ class MirrorTimer(object):
                 self.chunk_elapsed = 0
 
                 if self.type == MirrorTimerTypes.BREATH:
-                    self.handle_breathing(0.10)
+                    self.handle_breathing(0.10)  # Damage: 10% of players max health.
                 elif self.type == MirrorTimerTypes.FEIGNDEATH:
                     self.handle_feign_death()
                 elif self.type == MirrorTimerTypes.FATIGUE:
                     self.handle_fatigue()
                 else:
                     self.handle_environmental()
-
-                # If timer did not stop in this tick, send update.
-                if self.active:
-                    self.send_full_update()
 
     # TODO, should we halt regeneration when drowning?
     #  CombatLog should display drown and fatigue.
@@ -102,8 +100,8 @@ class MirrorTimer(object):
                 self.owner.set_dirty()
 
     def handle_fatigue(self):
-        # Handle the same as breathing for now.
-        self.handle_breathing(0.20)
+        # Handle the same as breathing for now with different damage multiplier.
+        self.handle_breathing(0.20)  # Damage: 20% of players max health.
 
     def handle_feign_death(self):
         pass

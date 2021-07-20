@@ -55,5 +55,5 @@ class MirrorTimersManager(object):
             # If timer should be active and is not, start it.
             if timer_active and not self.timers[MirrorTimerTypes.BREATH].active:
                 self.timers[MirrorTimerTypes.BREATH].start(elapsed)
-            elif not timer_active:  # Not swimming and not under water, stop the timer.
+            elif not timer_active and not self.owner.is_swimming():  # Not swimming, stop the timer.
                 self.timers[MirrorTimerTypes.BREATH].stop()
