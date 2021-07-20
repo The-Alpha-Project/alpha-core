@@ -55,6 +55,6 @@ class MapTile(object):
                 # Liquids
                 for x in range(0, RESOLUTION_LIQUIDS):
                     for y in range(0, RESOLUTION_LIQUIDS):
-                        flag = unpack('<B', map_tiles.read(1))[0]
+                        liquid_type = unpack('<B', map_tiles.read(1))[0]
                         height = unpack('<f', map_tiles.read(4))[0]
-                        self.liquid_information[x][y] = LiquidInformation(flag, height)
+                        self.liquid_information[x][y] = LiquidInformation(liquid_type, height)
