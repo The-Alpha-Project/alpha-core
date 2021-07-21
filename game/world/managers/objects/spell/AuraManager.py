@@ -159,6 +159,7 @@ class AuraManager:
         caster_guid = aura.caster.guid
 
         for applied_aura in list(self.active_auras.values()):
+            # TODO is_similar does not match different spell ranks
             is_similar = applied_aura.source_spell.spell_entry == aura_spell_template and \
                          applied_aura.spell_effect.effect_index == aura_effect_index  # Spell and effect are the same
 
