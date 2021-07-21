@@ -59,3 +59,19 @@ class MapTile(object):
                         height = unpack('<f', map_tiles.read(4))[0]
                         # noinspection PyTypeChecker
                         self.liquid_information[x][y] = LiquidInformation(liquid_type, height)
+
+    @staticmethod
+    def validate_version():
+        # Use the first available tile map.
+        filename = '0000000.map'
+        maps_path = PathManager.get_map_file_path(filename)
+
+        if not path.exists(maps_path):
+            return False
+
+        with open(maps_path, "rb") as map_tiles:
+            version = PacketReader.read_string(map_tiles.read(10), 0)
+            if version != MapTile.EXPECTED_VERSION:
+                return False
+
+        return True

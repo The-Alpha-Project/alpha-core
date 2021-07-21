@@ -44,6 +44,16 @@ class MapManager(object):
         MapManager.load_map_tiles(world_object.map_, world_object.location.x, world_object.location.y)
 
     @staticmethod
+    def validate_maps():
+        if not config.Server.Settings.use_map_tiles:
+            return True
+
+        if not MapTile.validate_version():
+            return False
+
+        return True
+
+    @staticmethod
     def load_map_tiles(map_id, x, y):
         if not config.Server.Settings.use_map_tiles:
             return False
