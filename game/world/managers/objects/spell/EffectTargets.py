@@ -281,10 +281,7 @@ class EffectTargets:
             distance = caster.location.distance(unit.location)
             if distance > target_effect.get_radius():
                 continue
-
-            current_angle = caster.location.angle(unit.location)
-            infront_angle = math.pi / 2  # Cone
-            if -infront_angle <= current_angle <= infront_angle:
+            if caster.location.has_in_arc(unit.location, math.pi / 2):
                 units_in_range_front.append(unit)
 
         return units_in_range_front
