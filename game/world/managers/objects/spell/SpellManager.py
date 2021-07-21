@@ -1,3 +1,4 @@
+import math
 import time
 from struct import pack
 from typing import Optional
@@ -640,6 +641,14 @@ class SpellManager(object):
         if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_SITTING and \
                 self.unit_mgr.stand_state != StandState.UNIT_STANDING:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
+            return False
+
+        if casting_spell.initial_target_is_unit_or_player():  # Orientation checks
+            orientation_diff = abs(self.unit_mgr.location.o - casting_spell.initial_target.location.o)
+            caster_and_target_are_facing = orientation_diff > math.pi/2
+            if not SpellConstants.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID, caster_and_target_are_facing):
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
+                return False
 
         if not self.meets_casting_requisites(casting_spell):
             return False
