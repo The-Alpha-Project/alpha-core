@@ -162,7 +162,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_PERIODIC_LEECH: AuraEffectHandler.handle_periodic_leech,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL: AuraEffectHandler.handle_proc_trigger_spell,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE: AuraEffectHandler.handle_proc_trigger_damage,
-    AuraTypes.SPELL_AURA_FEIGN_DEATH: AuraEffectHandler.handle_feign_death,
+    AuraTypes.SPELL_AURA_FEIGN_DEATH: AuraEffectHandler.handle_feign_death
 }
 
 PROC_AURA_EFFECTS = [
