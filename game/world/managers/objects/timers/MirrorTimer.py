@@ -106,4 +106,5 @@ class MirrorTimer(object):
                 self.owner.set_dirty()
 
     def handle_normal_timer(self):
-        self.handle_damage_timer(0)
+        if self.remaining <= 0:
+            self.stop()
