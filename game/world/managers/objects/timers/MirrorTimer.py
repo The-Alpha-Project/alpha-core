@@ -27,27 +27,35 @@ class MirrorTimer(object):
     def resume(self):
         if not self.active and self.owner.is_alive:
             self.active = True
-            data = pack('<IB', self.type, not self.active)
+            data = pack('<IB', self._get_type(), not self.active)
             packet = PacketWriter.get_packet(OpCode.SMSG_PAUSE_MIRROR_TIMER, data)
             self.owner.session.enqueue_packet(packet)
 
     def pause(self):
         if self.active:
             self.active = False
-            data = pack('<IB', self.type, not self.active)
+            data = pack('<IB', self._get_type(), not self.active)
             packet = PacketWriter.get_packet(OpCode.SMSG_PAUSE_MIRROR_TIMER, data)
             self.owner.session.enqueue_packet(packet)
 
     def stop(self):
         if self.active:
             self.active = False
-            data = pack('<I', self.type)
+            data = pack('<I', self._get_type())
             packet = PacketWriter.get_packet(OpCode.SMSG_STOP_MIRROR_TIMER, data)
             self.owner.session.enqueue_packet(packet)
 
+    # There are only two available 'types' (Timer colors): Dark Yellow (0) or Blue (1)
+    # We use Dark Yellow for Feign Death.
+    def _get_type(self):
+        if self.type.value > MirrorTimerTypes.BREATH.value:
+            return 0
+        else:
+            return self.type.value
+
     def send_full_update(self):
         if self.active:
-            data = pack('<3IiBI', self.type, self.remaining * 1000, self.duration * 1000, self.scale, not self.active, self.spell_id)
+            data = pack('<3IiBI', self._get_type(), self.remaining * 1000, self.duration * 1000, self.scale, not self.active, self.spell_id)
             packet = PacketWriter.get_packet(OpCode.SMSG_START_MIRROR_TIMER, data)
             self.owner.session.enqueue_packet(packet)
 
@@ -76,21 +84,19 @@ class MirrorTimer(object):
                 self.chunk_elapsed = 0
 
                 if self.type == MirrorTimerTypes.BREATH:
-                    self.handle_breathing(0.10)  # Damage: 10% of players max health.
-                elif self.type == MirrorTimerTypes.FEIGNDEATH:
-                    self.handle_feign_death()
-                elif self.type == MirrorTimerTypes.FATIGUE:
-                    self.handle_fatigue()
-                else:
-                    self.handle_environmental()
+                    self.handle_damage_timer(0.10)  # Damage: 10% of players max health.
+                if self.type == MirrorTimerTypes.FATIGUE:
+                    self.handle_damage_timer(0.20) # Damage: 20% of players max health.
+                else:  # Feign Death
+                    self.handle_normal_timer()
 
-    # TODO, should we halt regeneration when drowning?
+    # TODO, should we halt regeneration when drowning or fatigue?
+    #  Find drowning damage formula.
     #  CombatLog should display drown and fatigue.
-    def handle_breathing(self, dmg_multiplier):
+    def handle_damage_timer(self, dmg_multiplier):
         if self.remaining == self.duration:
             self.stop()  # Replenished
         elif self.remaining == 0 and self.owner.health > 0:
-            # TODO: Find drowning damage formula.
             damage = int(self.owner.max_health * dmg_multiplier)
             if self.owner.health - damage <= 0:
                 self.owner.die()
@@ -99,12 +105,5 @@ class MirrorTimer(object):
                 self.owner.set_health(new_health)
                 self.owner.set_dirty()
 
-    def handle_fatigue(self):
-        # Handle the same as breathing for now with different damage multiplier.
-        self.handle_breathing(0.20)  # Damage: 20% of players max health.
-
-    def handle_feign_death(self):
-        pass
-
-    def handle_environmental(self):
-        pass
+    def handle_normal_timer(self):
+        self.handle_damage_timer(0)

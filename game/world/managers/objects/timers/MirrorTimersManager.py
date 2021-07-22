@@ -7,13 +7,13 @@ class MirrorTimersManager(object):
         self.owner = owner
         self.update_liquids_timer = 0
         self.timers = {}
+        self.feign_death = False
         self.load()
 
     def load(self):
         self.timers[MirrorTimerTypes.BREATH] = MirrorTimer(self.owner, MirrorTimerTypes.BREATH, 1, 60, -1, 0)
         self.timers[MirrorTimerTypes.FATIGUE] = MirrorTimer(self.owner, MirrorTimerTypes.FATIGUE, 1, 60, -1, 0)
-        self.timers[MirrorTimerTypes.FEIGNDEATH] = MirrorTimer(self.owner, MirrorTimerTypes.FEIGNDEATH, 0, 0, 0, 0)
-        self.timers[MirrorTimerTypes.ENVIRONMENTAL] = MirrorTimer(self.owner, MirrorTimerTypes.ENVIRONMENTAL, 0, 0, 0, 0)
+        self.timers[MirrorTimerTypes.FEIGNDEATH] = MirrorTimer(self.owner, MirrorTimerTypes.FEIGNDEATH, 1, 300, -1, 5384)
 
     def stop_all(self):
         for timer in self.timers.values():
@@ -30,6 +30,9 @@ class MirrorTimersManager(object):
         self._check_fatigue(elapsed)
         # Handle breathing timer.
         self._check_breathing(elapsed)
+        # Handle feign death.
+        self._check_feign_death(elapsed)
+
         # Update timers.
         for timer in self.timers.values():
             timer.update(elapsed)
@@ -57,3 +60,12 @@ class MirrorTimersManager(object):
                 self.timers[MirrorTimerTypes.BREATH].start(elapsed)
             elif not timer_active and not self.owner.is_swimming():  # Not swimming, stop the timer.
                 self.timers[MirrorTimerTypes.BREATH].stop()
+
+    def _check_feign_death(self, elapsed):
+        if self.owner.is_alive:
+            timer_active = self.feign_death
+            # If timer should be active and is not, start it.
+            if timer_active and not self.timers[MirrorTimerTypes.FEIGNDEATH].active:
+                self.timers[MirrorTimerTypes.FEIGNDEATH].start(elapsed)
+            elif not timer_active:
+                self.timers[MirrorTimerTypes.FEIGNDEATH].stop()
