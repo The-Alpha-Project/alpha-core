@@ -16,8 +16,8 @@ class MapTile(object):
         self.cell_x = tile_x
         self.cell_y = tile_y
         self.cell_map = map_id
-        self.area_information = [[0 for r in range(0, RESOLUTION_AREA_INFO)] for c in range(0, RESOLUTION_AREA_INFO)]
-        self.liquid_information = [[0 for r in range(0, RESOLUTION_LIQUIDS)] for c in range(0, RESOLUTION_LIQUIDS)]
+        self.area_information = [[None for r in range(0, RESOLUTION_AREA_INFO)] for c in range(0, RESOLUTION_AREA_INFO)]
+        self.liquid_information = [[None for r in range(0, RESOLUTION_LIQUIDS)] for c in range(0, RESOLUTION_LIQUIDS)]
         self.z_height_map = [[0 for r in range(0, RESOLUTION_ZMAP)] for c in range(0, RESOLUTION_ZMAP)]
         self.load()
 
