@@ -1,4 +1,4 @@
 class LiquidInformation(object):
-    def __init__(self, flag, height):
-        self.liquid_type = flag
+    def __init__(self, liquid_type, height):
+        self.liquid_type = liquid_type
         self.height = height
