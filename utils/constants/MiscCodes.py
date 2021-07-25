@@ -828,6 +828,22 @@ class ActivateTaxiReplies(IntEnum):
     ERR_TAXINOTSTANDING = 12
 
 
+class LiquidTypes(IntEnum):
+    NONE = 0,
+    SHADOW = 1,
+    IMPASS = 2,
+    RIVER = 4,
+    OCEAN = 8,
+    MAGMA = 10,
+    DEEP = 20,
+
+
+class MirrorTimerTypes(IntEnum):
+    FATIGUE = 0
+    BREATH = 1
+    FEIGNDEATH = 2
+
+
 class LogoutResponseCodes(IntEnum):
     LOGOUT_CANCEL = 0
     LOGOUT_PROCEED = 1

@@ -150,6 +150,10 @@ class AuraEffectHandler:
         aura.target.apply_spell_damage(effect_target, damage, aura.source_spell)
 
     @staticmethod
+    def handle_feign_death(aura, effect_target, remove):
+        effect_target.mirror_timers_manager.feign_death = not remove
+        
+    @staticmethod
     def handle_mod_resistance(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
@@ -338,6 +342,8 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_PERIODIC_LEECH: AuraEffectHandler.handle_periodic_leech,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL: AuraEffectHandler.handle_proc_trigger_spell,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE: AuraEffectHandler.handle_proc_trigger_damage,
+    AuraTypes.SPELL_AURA_FEIGN_DEATH: AuraEffectHandler.handle_feign_death,
+
 
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
     AuraTypes.SPELL_AURA_MOD_BASE_RESISTANCE: AuraEffectHandler.handle_mod_base_resistance,
@@ -356,7 +362,6 @@ AURA_EFFECTS = {
 
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE: AuraEffectHandler.handle_mod_damage_done,
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE_CREATURE: AuraEffectHandler.handle_mod_damage_done_creature
-
 }
 
 PROC_AURA_EFFECTS = [
