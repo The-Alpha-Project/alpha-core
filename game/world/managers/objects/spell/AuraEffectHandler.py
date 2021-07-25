@@ -1,7 +1,7 @@
 import random
 
 from game.world.managers.objects.player.StatManager import UnitStats
-from game.world.managers.objects.spell import SpellConstants
+from game.world.managers.objects.spell import ExtendedSpellData
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import Factions, ObjectTypes
@@ -30,7 +30,7 @@ class AuraEffectHandler:
         effect_target.set_shapeshift_form(form)
 
         faction = aura.target.team if effect_target.get_type() == ObjectTypes.TYPE_PLAYER else 0
-        model_info = SpellConstants.ShapeshiftInfo.get_form_model_info(form, faction)
+        model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
 
         if remove or not model_info[0]:
             effect_target.reset_display_id()

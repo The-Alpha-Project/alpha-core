@@ -1,7 +1,7 @@
 import time
 from struct import pack
 
-from game.world.managers.objects.spell import SpellConstants
+from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -163,7 +163,7 @@ class AuraManager:
             is_similar = applied_aura.source_spell.spell_entry == aura_spell_template and \
                          applied_aura.spell_effect.effect_index == aura_effect_index  # Spell and effect are the same
 
-            are_exclusive_by_source = SpellConstants.AuraSourceRestrictions.are_colliding_auras(aura.spell_id, applied_aura.spell_id)  # Paladin seals, warlock curses
+            are_exclusive_by_source = ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(aura.spell_id, applied_aura.spell_id)  # Paladin seals, warlock curses
 
             # Source doesn't matter for unique auras
             is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE or not aura.harmful  # Buffs are unique.
