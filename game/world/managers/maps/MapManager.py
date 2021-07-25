@@ -1,7 +1,6 @@
 import traceback
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.AreaInformation import AreaInformation
 from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
@@ -14,6 +13,7 @@ AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
 
 
+# noinspection PyBroadException
 class MapManager(object):
     @staticmethod
     def initialize_maps():

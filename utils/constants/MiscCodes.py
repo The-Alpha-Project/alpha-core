@@ -829,13 +829,13 @@ class ActivateTaxiReplies(IntEnum):
 
 
 class LiquidTypes(IntEnum):
-    NONE = 0,
-    SHADOW = 1,
-    IMPASS = 2,
-    RIVER = 4,
-    OCEAN = 8,
-    MAGMA = 10,
-    DEEP = 20,
+    NONE = 0
+    SHADOW = 1
+    IMPASS = 2
+    RIVER = 4
+    OCEAN = 8
+    MAGMA = 10
+    DEEP = 20
 
 
 class MirrorTimerTypes(IntEnum):
