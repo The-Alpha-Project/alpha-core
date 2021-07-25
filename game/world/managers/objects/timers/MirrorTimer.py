@@ -89,7 +89,7 @@ class MirrorTimer(object):
                 elif self.type == MirrorTimerTypes.FATIGUE:
                     self.handle_damage_timer(0.20)  # Damage: 20% of players max health.
                 else:  # Feign Death.
-                    self.handle_normal_timer()
+                    self.handle_feign_death_timer()
 
     # TODO, should we halt regeneration when drowning or fatigue?
     #  Find drowning damage formula.
@@ -106,6 +106,7 @@ class MirrorTimer(object):
                 self.owner.set_health(new_health)
                 self.owner.set_dirty()
 
-    def handle_normal_timer(self):
+    def handle_feign_death_timer(self):
         if self.remaining <= 0:
             self.stop()
+            self.owner.die()
