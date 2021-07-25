@@ -470,7 +470,6 @@ class StatManager(object):
             positive *= percentual_bonus
         return negative, positive
 
-
     def send_attributes(self):
         self.player_mgr.set_base_str(self.get_base_stat(UnitStats.STRENGTH))
         self.player_mgr.set_base_agi(self.get_base_stat(UnitStats.AGILITY))
