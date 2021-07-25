@@ -10,6 +10,7 @@ class AuraDoseInfo:
         7386: 5,  # Sundering Strike (Rank 1)
         7405: 5  # Sundering Strike (Rank 2)
     }
+
     @staticmethod
     def aura_can_stack(spell_id: int):
         return spell_id in AuraDoseInfo.DOSE_INFO
