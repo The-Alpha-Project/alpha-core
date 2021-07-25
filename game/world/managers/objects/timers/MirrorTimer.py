@@ -46,13 +46,12 @@ class MirrorTimer(object):
             self.owner.session.enqueue_packet(packet)
 
     # There are only two available 'types' (Timer colors): Dark Yellow (0) or Blue (1).
-    # We use Dark Yellow for Feign Death since the actual value for Feign Death (2) will trigger
+    # We use Dark Yellow (Fatigue) for Feign Death since the actual value for Feign Death (2) will trigger
     # LUA errors.
     def _get_type(self):
-        if self.type.value > MirrorTimerTypes.BREATH.value:
-            return 0
-        else:
-            return self.type.value
+        if self.type.value == MirrorTimerTypes.FEIGNDEATH:
+            return MirrorTimerTypes.FATIGUE.value
+        return self.type.value
 
     def send_full_update(self):
         if self.active:
