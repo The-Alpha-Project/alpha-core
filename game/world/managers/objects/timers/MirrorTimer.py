@@ -85,8 +85,8 @@ class MirrorTimer(object):
 
                 if self.type == MirrorTimerTypes.BREATH:
                     self.handle_damage_timer(0.10)  # Damage: 10% of players max health.
-                if self.type == MirrorTimerTypes.FATIGUE:
-                    self.handle_damage_timer(0.20) # Damage: 20% of players max health.
+                elif self.type == MirrorTimerTypes.FATIGUE:
+                    self.handle_damage_timer(0.20)  # Damage: 20% of players max health.
                 else:  # Feign Death
                     self.handle_normal_timer()
 
