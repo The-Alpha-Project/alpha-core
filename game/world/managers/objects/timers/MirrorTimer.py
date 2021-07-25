@@ -49,7 +49,7 @@ class MirrorTimer(object):
     # We use Dark Yellow (Fatigue) for Feign Death since the actual value for Feign Death (2) will trigger
     # LUA errors.
     def _get_type(self):
-        if self.type.value == MirrorTimerTypes.FEIGNDEATH:
+        if self.type == MirrorTimerTypes.FEIGNDEATH:
             return MirrorTimerTypes.FATIGUE.value
         return self.type.value
 
