@@ -69,9 +69,14 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
     def handle(self):
         try:
             self.redirect_to_world(self.request)
+        except OSError:
+            return
         finally:
-            self.request.shutdown(socket.SHUT_RDWR)
-            self.request.close()
+            try:
+                self.request.shutdown(socket.SHUT_RDWR)
+                self.request.close()
+            except OSError:
+                return
 
     @staticmethod
     def redirect_to_world(sck):
