@@ -1,3 +1,4 @@
+import random
 import time
 from struct import unpack
 
@@ -16,20 +17,21 @@ from game.world.managers.objects.player.TaxiManager import TaxiManager
 from game.world.managers.objects.player.quest.QuestManager import QuestManager
 from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager
-from game.world.managers.objects.player.StatManager import StatManager
+from game.world.managers.objects.player.StatManager import StatManager, UnitStats
 from game.world.managers.objects.player.TalentManager import TalentManager
 from game.world.managers.objects.player.TradeManager import TradeManager
+from game.world.managers.objects.timers.MirrorTimersManager import MirrorTimersManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
-from utils.constants.MiscCodes import ChatFlags, LootTypes
+from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
-from utils.constants.SpellCodes import ShapeshiftForms
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
+from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags, CreatureTypes
 from utils.constants.UpdateFields import *
 
 MAX_ACTION_BUTTONS = 120
@@ -96,6 +98,7 @@ class PlayerManager(UnitManager):
         self.pending_taxi_destination = None
         self.explored_areas = bitarray(MAX_EXPLORED_AREAS, 'little')
         self.explored_areas.setall(0)
+        self.liquid_information = None
 
         if self.player:
             self.set_player_variables()
@@ -153,6 +156,7 @@ class PlayerManager(UnitManager):
             self.guild_manager = None
             self.has_pending_group_invite = False
             self.group_manager = None
+            self.mirror_timers_manager = MirrorTimersManager(self)
 
     def get_native_display_id(self, is_male, race_data=None):
         if not race_data:
@@ -245,6 +249,7 @@ class PlayerManager(UnitManager):
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
         self.online = False
         self.logout_timer = -1
+        self.mirror_timers_manager.stop_all()
 
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
@@ -379,8 +384,6 @@ class PlayerManager(UnitManager):
             if MapManager.should_relocate(self, self.teleport_destination, map_):
                 self.is_relocating = True
 
-            # TODO: After teleport, popping happens because we are not using the real terrain Z, once we have proper
-            #  maps, we should validate destination Z.
             data = pack(
                 '<Q9fI',
                 self.transport_id,
@@ -757,11 +760,10 @@ class PlayerManager(UnitManager):
 
         # Exploration handling (only if player is not flying).
         if not self.movement_spline or self.movement_spline.flags != SplineFlags.SPLINEFLAG_FLYING:
-            explore_flag = MapManager.get_area_explore_flag(self.map_, self.location.x, self.location.y)
-            # Check if we need to set this zone as explored.
-            if explore_flag >= 0 and not self.has_area_explored(explore_flag):
-                area_information = MapManager.get_area_information(self)
-                if area_information:
+            area_information = MapManager.get_area_information(self.map_, self.location.x, self.location.y)
+            if area_information:
+                # Check if we need to set this zone as explored.
+                if area_information.explore_bit >= 0 and not self.has_area_explored(area_information.explore_bit):
                     self.set_area_explored(area_information)
 
     def has_area_explored(self, area_explore_bit):
@@ -769,12 +771,12 @@ class PlayerManager(UnitManager):
 
     # TODO, Trigger quest explore requirement checks.
     def set_area_explored(self, area_information):
-        self.explored_areas[area_information.area_explore_bit] = True
-        if area_information.area_level > 0:
+        self.explored_areas[area_information.explore_bit] = True
+        if area_information.level > 0:
             if self.level < config.Unit.Player.Defaults.max_level:
                 # The following calculations are taken from VMaNGOS core.
                 xp_rate = int(config.Server.Settings.xp_rate)
-                diff = self.level - area_information.area_level
+                diff = self.level - area_information.level
                 if diff < -5:
                     xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(self.level + 5) * xp_rate
                 elif diff > 5:
@@ -783,17 +785,43 @@ class PlayerManager(UnitManager):
                         exploration_percent = 100
                     elif exploration_percent < 0:
                         exploration_percent = 0
-                    xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.area_level) * exploration_percent / 100 * xp_rate
+                    xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level) * exploration_percent / 100 * xp_rate
                 else:
-                    xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.area_level) * xp_rate
+                    xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level) * xp_rate
                 self.give_xp([xp_gain], notify=False)
             else:
                 xp_gain = 0
 
             # Notify client new discovered zone + xp gain.
-            data = pack('<2I', area_information.zone_id, xp_gain)
+            data = pack('<2I', area_information.zone_id, int(xp_gain))
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
             self.session.enqueue_packet(packet)
+
+    def update_swimming_state(self, state):
+        if state:
+            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y)
+            if not self.liquid_information:
+                Logger.warning(f'Unable to retrieve liquid information.')
+        else:
+            self.liquid_information = None
+
+    def is_swimming(self):
+        return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING and self.is_alive
+
+    def is_under_water(self):
+        if self.liquid_information is None or not self.is_swimming():
+            return False
+        return self.location.z + (self.current_scale * 2) < self.liquid_information.height
+
+    def is_in_deep_water(self):
+        if self.liquid_information is None or not self.is_swimming():
+            return False
+        return self.liquid_information.liquid_type == LiquidTypes.DEEP
+
+    def update_liquid_information(self):
+        # Retrieve latest liquid information, only if player is swimming.
+        if self.is_swimming():
+            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y)
 
     # override
     def get_full_update_packet(self, is_self=True):
@@ -932,23 +960,23 @@ class PlayerManager(UnitManager):
 
     def set_str(self, str_):
         self.str = str_
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT0, str_)
+        self.set_int32(UnitFields.UNIT_FIELD_STAT0, str_)
 
     def set_agi(self, agi):
         self.agi = agi
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT1, agi)
+        self.set_int32(UnitFields.UNIT_FIELD_STAT1, agi)
 
     def set_sta(self, sta):
         self.sta = sta
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT2, sta)
+        self.set_int32(UnitFields.UNIT_FIELD_STAT2, sta)
 
     def set_int(self, int_):
         self.int = int_
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT3, int_)
+        self.set_int32(UnitFields.UNIT_FIELD_STAT3, int_)
 
     def set_spi(self, spi):
         self.spi = spi
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT4, spi)
+        self.set_int32(UnitFields.UNIT_FIELD_STAT4, spi)
 
     def add_talent_points(self, talent_points):
         self.talent_points += talent_points
@@ -961,7 +989,7 @@ class PlayerManager(UnitManager):
     def remove_talent_points(self, talent_points):
         self.talent_points -= talent_points
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS1, self.talent_points)
-    
+
     def remove_skill_points(self, skill_points):
         self.skill_points -= skill_points
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
@@ -977,32 +1005,9 @@ class PlayerManager(UnitManager):
             should_update_health = self.health < self.max_health
             should_update_power = True
 
-            health_regen = 0
-            mana_regen = 0
-            if self.player.class_ == Classes.CLASS_DRUID:
-                health_regen = self.spi * 0.11 + 1
-                mana_regen = (self.spi / 5 + 15) / 2
-            elif self.player.class_ == Classes.CLASS_HUNTER:
-                health_regen = self.spi * 0.43 - 5.5
-            elif self.player.class_ == Classes.CLASS_PRIEST:
-                health_regen = self.spi * 0.15 + 1.4
-                mana_regen = (self.spi / 4 + 12.5) / 2
-            elif self.player.class_ == Classes.CLASS_MAGE:
-                health_regen = self.spi * 0.11 + 1
-                mana_regen = (self.spi / 4 + 12.5) / 2
-            elif self.player.class_ == Classes.CLASS_PALADIN:
-                health_regen = self.spi * 0.25
-                mana_regen = (self.spi / 5 + 15) / 2
-            elif self.player.class_ == Classes.CLASS_ROGUE:
-                health_regen = self.spi * 0.84 - 13
-            elif self.player.class_ == Classes.CLASS_SHAMAN:
-                health_regen = self.spi * 0.28 - 3.6
-                mana_regen = (self.spi / 5 + 17) / 2
-            elif self.player.class_ == Classes.CLASS_WARLOCK:
-                health_regen = self.spi * 0.12 + 1.5
-                mana_regen = (self.spi / 5 + 15) / 2
-            elif self.player.class_ == Classes.CLASS_WARRIOR:
-                health_regen = self.spi * 1.26 - 22.6
+            # Healing aura increases regeneration "by 2 every second", and base points equal to 10. Calculate 2/5 of hp5/mp5.
+            health_regen = self.stat_manager.get_total_stat(UnitStats.HEALTH_REGENERATION_PER_5) * 0.4
+            mana_regen = self.stat_manager.get_total_stat(UnitStats.POWER_REGENERATION_PER_5) * 0.4
 
             # Health
 
@@ -1072,51 +1077,30 @@ class PlayerManager(UnitManager):
             self.last_regen = current_time
 
     # override
-    def calculate_min_max_damage(self, attack_type=0):
-        # TODO: Using Vanilla formula, AP was not present in Alpha
-        weapon = None
-        base_min_dmg, base_max_dmg = unpack('<2H', pack('<I', self.damage))
-        weapon_min_dmg = 0
-        weapon_max_dmg = 0
-        attack_power = 0
-        dual_wield_penalty = 1
+    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes):
+        return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
-        if self.player.class_ == Classes.CLASS_WARRIOR or \
-                self.player.class_ == Classes.CLASS_PALADIN:
-            attack_power = (self.str * 2) + (self.level * 3) - 20
-        elif self.player.class_ == Classes.CLASS_DRUID:
-            attack_power = (self.str * 2) - 20
-        elif self.player.class_ == Classes.CLASS_HUNTER:
-            attack_power = self.str + self.agi + (self.level * 2) - 20
-        elif self.player.class_ == Classes.CLASS_MAGE or \
-                self.player.class_ == Classes.CLASS_PRIEST or \
-                self.player.class_ == Classes.CLASS_WARLOCK:
-            attack_power = self.str - 10
-        elif self.player.class_ == Classes.CLASS_ROGUE:
-            attack_power = self.str + ((self.agi * 2) - 20) + (self.level * 2) - 20
-        elif self.player.class_ == Classes.CLASS_SHAMAN:
-            attack_power = self.str - 10 + ((self.agi * 2) - 20) + (self.level * 2)
+    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes, apply_bonuses=True):
+        rolled_damage = super().calculate_base_attack_damage(attack_type, attack_school, target_creature_type, apply_bonuses)
 
-        if attack_type == AttackTypes.BASE_ATTACK:
-            weapon = self.inventory.get_main_hand()
-            dual_wield_penalty = 1.0
-        elif attack_type == AttackTypes.OFFHAND_ATTACK:
-            weapon = self.inventory.get_offhand()
-            dual_wield_penalty = 0.5
+        if apply_bonuses:
+            subclass = -1
+            equipped_weapon = self._get_weapon_for_attack_type(attack_type)
+            if equipped_weapon:
+                subclass = equipped_weapon.item_template.subclass
+            rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target_creature_type, subclass)
 
-        if weapon:
-            weapon_min_dmg = weapon.item_template.dmg_min1
-            weapon_max_dmg = weapon.item_template.dmg_max1
+        return max(0, rolled_damage)
 
-        # Disarmed
-        if not self.can_use_attack_type(attack_type):
-            weapon_min_dmg = base_min_dmg
-            weapon_max_dmg = base_max_dmg
+    # override
+    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target_creature_type: CreatureTypes, spell_attack_type: AttackTypes = -1):
+        subclass = 0
+        if spell_attack_type != -1:
+            equipped_weapon = self._get_weapon_for_attack_type(spell_attack_type)
+            if equipped_weapon:
+                subclass = equipped_weapon.item_template.subclass
 
-        min_damage = (weapon_min_dmg + attack_power / 14) * dual_wield_penalty
-        max_damage = (weapon_max_dmg + attack_power / 14) * dual_wield_penalty
-
-        return int(min_damage), int(max_damage)
+        return self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school, target_creature_type, subclass)
 
     def generate_rage(self, damage_info, is_player=False):
         # Warriors or Druids in Bear form
@@ -1258,6 +1242,10 @@ class PlayerManager(UnitManager):
                 else:
                     self.repop()
 
+            # Swimming / Breathing
+            if self.is_alive:
+                self.mirror_timers_manager.update(elapsed)
+
             # Logout timer
             if self.logout_timer > 0:
                 self.logout_timer -= elapsed
@@ -1325,6 +1313,8 @@ class PlayerManager(UnitManager):
 
         TradeManager.cancel_trade(self)
         self.spirit_release_timer = 0
+        self.mirror_timers_manager.stop_all()
+        self.update_swimming_state(False)
 
         self.set_dirty()
         return True
@@ -1365,6 +1355,14 @@ class PlayerManager(UnitManager):
     # override
     def generate_object_guid(self, low_guid):
         return low_guid | HighGuid.HIGHGUID_PLAYER
+
+    def _get_weapon_for_attack_type(self, attack_type: AttackTypes):
+        if attack_type == AttackTypes.BASE_ATTACK:
+            return self.inventory.get_main_hand()
+        elif attack_type == AttackTypes.OFFHAND_ATTACK:
+            return self.inventory.get_offhand()
+        else:
+            return self.inventory.get_ranged()
 
     @staticmethod
     def get_team_for_race(race):

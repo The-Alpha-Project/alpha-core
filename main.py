@@ -7,6 +7,8 @@ import colorama
 
 from game.realm import RealmManager
 from game.world import WorldManager
+from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
 from utils.PathManager import PathManager
@@ -27,7 +29,7 @@ if __name__ == '__main__':
     # Initialize colorama
     colorama.init()
     # Initialize path
-    PathManager.set_root_path(os.path.realpath(__file__))
+    PathManager.set_root_path(os.path.dirname(os.path.realpath(__file__)))
 
     # Validate configuration file version.
     try:
@@ -36,6 +38,11 @@ if __name__ == '__main__':
             exit()
     except:
         Logger.error(f'Invalid config.yml version, expected {ConfigManager.EXPECTED_VERSION}')
+        exit()
+
+    # Validate if maps available and if version match.
+    if not MapManager.validate_maps():
+        Logger.error(f'Invalid maps version or maps missing, expected version {MapTile.EXPECTED_VERSION}')
         exit()
 
     # if platform != 'win32':
