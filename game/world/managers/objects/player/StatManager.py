@@ -224,7 +224,7 @@ class StatManager(object):
 
         return bonus
 
-    # Returns a list pf bonuses for a stat from auras. Needed for separating negative and positive resistance bonuses for the client.
+    # Returns a list of bonuses for a stat from auras. Needed for separating negative and positive resistance bonuses for the client.
     def get_aura_stat_bonuses(self, stat_type: UnitStats, percentual=False, misc_value=-1, misc_value_is_mask=False) -> list[int]:
         bonuses = []
         if percentual:
@@ -305,6 +305,7 @@ class StatManager(object):
             return 0.5
         elif item_template.subclass != ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON:
             return 1.0
+        return 0
 
     def update_max_health(self):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)
