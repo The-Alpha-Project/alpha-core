@@ -45,8 +45,9 @@ class MirrorTimer(object):
             packet = PacketWriter.get_packet(OpCode.SMSG_STOP_MIRROR_TIMER, data)
             self.owner.session.enqueue_packet(packet)
 
-    # There are only two available 'types' (Timer colors): Dark Yellow (0) or Blue (1)
-    # We use Dark Yellow for Feign Death.
+    # There are only two available 'types' (Timer colors): Dark Yellow (0) or Blue (1).
+    # We use Dark Yellow for Feign Death since the actual value for Feign Death (2) will trigger
+    # LUA errors.
     def _get_type(self):
         if self.type.value > MirrorTimerTypes.BREATH.value:
             return 0
