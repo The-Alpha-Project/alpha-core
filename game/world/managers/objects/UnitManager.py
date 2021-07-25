@@ -14,10 +14,11 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.constants.DuelCodes import DuelState
+from utils.constants.ItemCodes import ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
-from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
+from utils.constants.SpellCodes import SpellAttributes, SpellMissReason, SpellHitFlags, SpellSchools
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, CreatureTypes
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -389,7 +390,8 @@ class UnitManager(ObjectManager):
 
         damage_info.attacker = self
         damage_info.target = victim
-        damage_info.damage += self.calculate_damage(attack_type)
+        damage_info.damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim.creature_type)
+
         # Not taking "subdamages" into account
         damage_info.total_damage = damage_info.damage
 
@@ -438,8 +440,8 @@ class UnitManager(ObjectManager):
         # Damage effects
         self.deal_damage(damage_info.target, damage_info.total_damage)
 
-    def calculate_damage(self, attack_type):
-        min_damage, max_damage = self.calculate_min_max_damage(attack_type)
+    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes, apply_bonuses=True):
+        min_damage, max_damage = self.calculate_min_max_damage(attack_type, attack_school, target_creature_type)
 
         if min_damage > max_damage:
             tmp_min = min_damage
@@ -453,8 +455,12 @@ class UnitManager(ObjectManager):
         return
 
     # Implemented by PlayerManager and CreatureManager
-    def calculate_min_max_damage(self, attack_type=0):
+    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes):
         return 0, 0
+
+    # Implemented by PlayerManager
+    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target_creature_type: CreatureTypes, spell_attack_type: AttackTypes = -1):
+        return base_damage
 
     def deal_damage(self, target, damage, is_periodic=False):
         if not target or not target.is_alive or damage < 1:
@@ -524,6 +530,8 @@ class UnitManager(ObjectManager):
         else:  # TODO Proc damage effects (SPELL_AURA_PROC_TRIGGER_DAMAGE) can't fill target results - should they be able to miss?
             miss_reason = SpellMissReason.MISS_REASON_NONE
 
+        damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target.creature_type, casting_spell.spell_attack_type)
+
         damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)
         # TODO Roll crit, handle absorb
         self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID, is_periodic=is_periodic)
@@ -587,15 +595,15 @@ class UnitManager(ObjectManager):
     # Implemented by PlayerManager
     def send_attack_swing_facing_wrong_way(self, victim):
         pass
-    
+
     # Implemented by PlayerManager
     def send_attack_swing_cant_attack(self, victim):
         pass
-    
+
     # Implemented by PlayerManager
     def send_attack_swing_dead_target(self, victim):
         pass
-    
+
     # Implemented by PlayerManager
     def send_attack_swing_not_standing(self, victim):
         pass
@@ -734,27 +742,54 @@ class UnitManager(ObjectManager):
 
     def set_armor(self, armor):
         self.resistance_0 = armor
-        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
 
     def set_holy_res(self, holy_res):
         self.resistance_1 = holy_res
-        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
 
     def set_fire_res(self, fire_res):
         self.resistance_2 = fire_res
-        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
 
     def set_nature_res(self, nature_res):
         self.resistance_3 = nature_res
-        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
 
     def set_frost_res(self, frost_res):
         self.resistance_4 = frost_res
-        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
 
     def set_shadow_res(self, shadow_res):
         self.resistance_5 = shadow_res
-        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
+
+    def set_bonus_armor(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, negative_mods)
+
+    def set_bonus_holy_res(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, negative_mods)
+
+    def set_bonus_fire_res(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, negative_mods)
+
+    def set_bonus_nature_res(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, negative_mods)
+
+    def set_bonus_frost_res(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, negative_mods)
+
+    def set_bonus_shadow_res(self, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, positive_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, negative_mods)
+
+    def set_bonus_damage_done_for_school(self, value, school):  # TODO Fields
+        self.set_int32(UnitFields.UNIT_FIELD_MOD_DAMAGE_DONE + school, value)
 
     def set_melee_damage(self, min_dmg, max_dmg):
         damages = unpack('<I', pack('<2H', min_dmg, max_dmg))[0]
