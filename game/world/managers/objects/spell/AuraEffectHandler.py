@@ -1,6 +1,7 @@
 import random
 
 from game.world.managers.objects.player.StatManager import UnitStats
+from game.world.managers.objects.spell import ExtendedSpellData
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import Factions, ObjectTypes
@@ -27,20 +28,18 @@ class AuraEffectHandler:
     def handle_shapeshift(aura, effect_target, remove):
         form = aura.spell_effect.misc_value if not remove else ShapeshiftForms.SHAPESHIFT_FORM_NONE
         effect_target.set_shapeshift_form(form)
-        if remove or aura.spell_effect.misc_value not in SHAPESHIFT_MODEL_IDS:
+
+        faction = aura.target.team if effect_target.get_type() == ObjectTypes.TYPE_PLAYER else 0
+        model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
+
+        if remove or not model_info[0]:
             effect_target.reset_display_id()
             effect_target.reset_scale()
             effect_target.set_dirty()
             return
 
-        shapeshift_display_info = SHAPESHIFT_MODEL_IDS[aura.spell_effect.misc_value]
-        if effect_target.get_type() == ObjectTypes.TYPE_PLAYER:
-            display_index = 1 if aura.target.team == Teams.TEAM_HORDE else 0
-        else:  # For creatures default to Alliance form for now.
-            display_index = 0
-        model_scale = shapeshift_display_info[2]
-        effect_target.set_display_id(shapeshift_display_info[display_index])
-        effect_target.set_scale(model_scale)
+        effect_target.set_display_id(model_info[0])
+        effect_target.set_scale(model_info[1])
         effect_target.set_dirty()
 
     @staticmethod
@@ -64,7 +63,7 @@ class AuraEffectHandler:
             return
 
         default_speed = config.Unit.Defaults.run_speed
-        speed_percentage = aura.spell_effect.get_effect_points(aura.effective_level) / 100.0
+        speed_percentage = aura.get_effect_points() / 100.0
         effect_target.change_speed(default_speed + (default_speed * speed_percentage))
 
     @staticmethod
@@ -81,7 +80,7 @@ class AuraEffectHandler:
         if not aura.is_past_next_period() or remove:
             return
         spell = aura.source_spell
-        healing = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        healing = aura.get_effect_points()
         aura.caster.apply_spell_healing(effect_target, healing, spell, is_periodic=True)
 
     @staticmethod
@@ -90,7 +89,7 @@ class AuraEffectHandler:
             return
         power_type = aura.spell_effect.misc_value
 
-        amount = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.receive_power(amount, power_type)
 
     @staticmethod
@@ -98,7 +97,7 @@ class AuraEffectHandler:
         if not aura.is_past_next_period() or remove:
             return
         spell = aura.source_spell
-        damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        damage = aura.get_effect_points()
         aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
 
     @staticmethod
@@ -106,7 +105,7 @@ class AuraEffectHandler:
         if not aura.is_past_next_period() or remove:
             return
         spell = aura.source_spell
-        damage = aura.spell_effect.get_effect_points(aura.spell_effect.caster_effective_level)
+        damage = aura.get_effect_points()
         aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
         effect_target.receive_healing(damage, aura.caster)
 
@@ -146,13 +145,13 @@ class AuraEffectHandler:
         if random.randint(1, 100) > proc_chance:
             return
 
-        damage = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        damage = aura.get_effect_points()
         aura.target.apply_spell_damage(effect_target, damage, aura.source_spell)
 
     @staticmethod
     def handle_feign_death(aura, effect_target, remove):
         effect_target.mirror_timers_manager.feign_death = not remove
-        
+
     @staticmethod
     def handle_mod_resistance(aura, effect_target, remove):
         if remove:
@@ -165,7 +164,7 @@ class AuraEffectHandler:
             # Shift RESISTANCE_START to get the proper flag value
             stat_type = UnitStats.RESISTANCE_START << aura.spell_effect.misc_value
 
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount)
 
     @staticmethod
@@ -174,7 +173,7 @@ class AuraEffectHandler:
         # Only this effect modifies base stats and is used by the Toughness talent which increases armor.
         # Since this is a slight exception, handle this case more specifically by changing *one* base stat of the unit.
 
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         if aura.spell_effect.misc_value == -1:
             # stat_type = UnitStats.ALL_RESISTANCES
             stat_type = UnitStats.RESISTANCE_PHYSICAL
@@ -204,7 +203,7 @@ class AuraEffectHandler:
         else:
             stat_type = UnitStats.ATTRIBUTE_START << aura.spell_effect.misc_value
 
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount)
 
     @staticmethod
@@ -213,7 +212,7 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
         stat_type = aura.spell_effect.misc_value
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount, percentual=True)
 
     @staticmethod
@@ -221,7 +220,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH_REGENERATION_PER_5, amount)
 
     @staticmethod
@@ -229,7 +228,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH_REGENERATION_PER_5, amount, percentual=True)
 
     @staticmethod
@@ -237,7 +236,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.POWER_REGENERATION_PER_5, amount)
 
     @staticmethod
@@ -245,7 +244,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         skill_type = aura.spell_effect.misc_value
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SKILL, amount, misc_value=skill_type)
 
@@ -254,7 +253,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH, amount)
 
     @staticmethod
@@ -262,7 +261,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.MANA, amount)
 
     @staticmethod
@@ -270,7 +269,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SCHOOL_POWER_COST, amount, misc_value=aura.spell_effect.misc_value)
 
     @staticmethod
@@ -278,7 +277,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPEED_RUNNING, amount, percentual=True)
 
     @staticmethod
@@ -287,7 +286,7 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
         # Points are positive in dbc
-        amount = -aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = -aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPEED_RUNNING, amount, percentual=True)
 
     @staticmethod
@@ -295,7 +294,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPEED_SWIMMING, amount, percentual=True)
 
 
@@ -305,7 +304,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
             return
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
 
         # Weapon specializations. All of these auras have either -1 or 2 as item class.
         if aura.source_spell.spell_entry.EquippedItemClass == 2:
@@ -324,7 +323,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
             return
-        amount = aura.spell_effect.get_effect_points(aura.source_spell.caster_effective_level)
+        amount = aura.get_effect_points()
         misc_value = aura.spell_effect.misc_value  # CreatureTypes
 
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DAMAGE_DONE_CREATURE_TYPE, amount,

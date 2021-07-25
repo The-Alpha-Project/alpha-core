@@ -1,6 +1,7 @@
 import time
 from struct import pack
 
+from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -29,9 +30,20 @@ class AuraManager:
         if not can_apply:
             return
 
-        aura.index = self.get_next_aura_index(aura)
-        self.active_auras[aura.index] = aura
+        # If this aura can stack and another is already applied
+        if aura.can_stack and len(existing_auras := self.get_auras_by_spell_id(aura.spell_id)) > 0:
+            if existing_auras[0].applied_stacks < existing_auras[0].max_stacks:
+                existing_auras[0].applied_stacks += 1  # Add a stack if the aura isn't at max already
+            existing_auras[0].spell_effect.start_aura_duration(overwrite=True)  # Refresh duration
 
+            # Note that this aura will not be actually applied. Index and stacks are copied for sending information and updating effect points.
+            aura.applied_stacks = existing_auras[0].applied_stacks
+            aura.index = existing_auras[0].index
+        else:
+            aura.index = self.get_next_aura_index(aura)
+            self.active_auras[aura.index] = aura
+
+        # Handle effects after possible stack increase to update stats properly
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target)
 
         if not aura.passive:
@@ -150,13 +162,21 @@ class AuraManager:
         caster_guid = aura.caster.guid
 
         for applied_aura in list(self.active_auras.values()):
+            # TODO is_similar does not match different spell ranks
             is_similar = applied_aura.source_spell.spell_entry == aura_spell_template and \
                          applied_aura.spell_effect.effect_index == aura_effect_index  # Spell and effect are the same
-            # Source doesn't matter for unique auras
-            is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE
 
-            if is_similar and (is_unique or applied_aura.caster.guid == caster_guid):
+            are_exclusive_by_source = ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(aura.spell_id, applied_aura.spell_id)  # Paladin seals, warlock curses
+
+            # Source doesn't matter for unique auras
+            is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE or not aura.harmful  # Buffs are unique.
+            is_stacking = applied_aura.can_stack
+
+            casters_are_same = applied_aura.caster.guid == caster_guid
+            if is_similar and (is_unique or casters_are_same and not is_stacking) or \
+                    are_exclusive_by_source and casters_are_same:
                 self.remove_aura(applied_aura)
+                continue
 
             if applied_aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
                     aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT:

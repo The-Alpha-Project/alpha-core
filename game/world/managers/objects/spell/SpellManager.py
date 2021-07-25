@@ -1,3 +1,4 @@
+import math
 import time
 from struct import pack
 from typing import Optional
@@ -8,6 +9,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
@@ -175,7 +177,7 @@ class SpellManager(object):
 
         for effect in casting_spell.effects:
             if not update:
-                effect.handle_application()
+                effect.start_aura_duration()
 
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
@@ -387,7 +389,9 @@ class SpellManager(object):
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING or casting_spell.is_channeled():
                 self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
                 continue
-            if casting_spell.is_paladin_aura() and current_cast.is_paladin_aura():  # Paladin aura exclusivity.
+
+            if ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(casting_spell.spell_entry.ID,
+                                                                            current_cast.spell_entry.ID):  # Paladin auras
                 self.remove_cast(casting_spell, interrupted=True)
                 continue
             if current_cast.casts_on_swing() and casting_spell.casts_on_swing() and casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
@@ -637,6 +641,14 @@ class SpellManager(object):
         if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_SITTING and \
                 self.unit_mgr.stand_state != StandState.UNIT_STANDING:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
+            return False
+
+        if casting_spell.initial_target_is_unit_or_player():  # Orientation checks
+            orientation_diff = abs(self.unit_mgr.location.o - casting_spell.initial_target.location.o)
+            caster_and_target_are_facing = orientation_diff > math.pi/2
+            if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID, caster_and_target_are_facing):
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
+                return False
 
         if not self.meets_casting_requisites(casting_spell):
             return False

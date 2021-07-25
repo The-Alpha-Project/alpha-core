@@ -291,12 +291,11 @@ class UnitManager(ObjectManager):
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK) or self.spell_manager.is_casting():
             return False
 
-        current_angle = self.location.angle(self.combat_target.location)
         # Out of reach
         if not self.is_within_interactable_distance(self.combat_target):
             swing_error = AttackSwingError.NOTINRANGE
         # Not proper angle
-        elif current_angle > combat_angle or current_angle < -combat_angle:
+        elif not self.location.has_in_arc(self.combat_target.location, combat_angle):
             swing_error = AttackSwingError.BADFACING
         # Moving
         elif self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK:

@@ -64,6 +64,22 @@ class Vector(object):
             vector = Vector(x=x, y=y)
         return math.atan2(vector.x - self.x, vector.y - self.y)
 
+    def has_in_arc(self, vector, arc):
+        vector_angle = self.angle(vector) % (2 * math.pi)
+
+        # Orientation is offset by 90°
+        vector_angle += (self.o - math.pi / 2) % (2 * math.pi)
+
+        # Translate arc to 0..pi*2
+        arc = arc % (math.pi * 2)
+
+        # Translate total angle to -pi..pi
+        vector_angle = vector_angle % (2 * math.pi)
+        if vector_angle > math.pi:
+            vector_angle -= 2 * math.pi
+
+        return -arc / 2 < vector_angle < arc / 2
+
     # https://math.stackexchange.com/a/2045181
     # a map_id of -1 will make Z ignore map information.
     def get_point_in_between(self, offset, vector=None, x=0, y=0, z=0, map_id=-1):

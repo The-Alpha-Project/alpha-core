@@ -140,11 +140,6 @@ class CastingSpell(object):
 
         return has_sitting_attribute and is_regen_buff
 
-    def is_paladin_aura(self):  # Paladin aura casts are the only holy area auras TODO table in constants instead?
-        return self.spell_entry.School == SpellSchools.SPELL_SCHOOL_HOLY and \
-               self.spell_entry.Effect_1 == SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA and \
-               self.spell_entry.EffectRadiusIndex_1 != 0  # One unrelated (unfinished? Has area aura effect but isn't functional) spell matches other criteria, but has no radius entry
-
     def trigger_cooldown_on_aura_remove(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE == SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE
 

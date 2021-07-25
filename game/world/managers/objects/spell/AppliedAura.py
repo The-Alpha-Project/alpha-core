@@ -1,3 +1,4 @@
+from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
 from utils.constants.SpellCodes import SpellEffects, SpellState
 
@@ -10,10 +11,13 @@ class AppliedAura:
         self.caster = caster
         self.spell_id = casting_spell.spell_entry.ID
         self.spell_effect = spell_effect
-        self.effective_level = casting_spell.caster_effective_level
         self.interrupt_flags = casting_spell.spell_entry.AuraInterruptFlags
 
         self.proc_charges = casting_spell.spell_entry.ProcCharges if casting_spell.spell_entry.ProcCharges != 0 else -1
+
+        self.applied_stacks = 1
+        self.can_stack = ExtendedSpellData.AuraDoseInfo.aura_can_stack(self.spell_id)
+        self.max_stacks = ExtendedSpellData.AuraDoseInfo.get_aura_max_stacks(self.spell_id)
 
         self.period = spell_effect.aura_period
 
@@ -51,6 +55,9 @@ class AppliedAura:
 
     def get_duration(self):
         return self.spell_effect.applied_aura_duration
+
+    def get_effect_points(self):
+        return self.spell_effect.get_effect_points(self.source_spell.caster_effective_level) * self.applied_stacks
 
     def is_past_next_period(self) -> bool:
         return self.spell_effect.is_past_next_period()
