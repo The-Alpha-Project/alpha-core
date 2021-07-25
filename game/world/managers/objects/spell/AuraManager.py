@@ -35,7 +35,10 @@ class AuraManager:
             if existing_auras[0].applied_stacks < existing_auras[0].max_stacks:
                 existing_auras[0].applied_stacks += 1  # Add a stack if the aura isn't at max already
             existing_auras[0].spell_effect.start_aura_duration(overwrite=True)  # Refresh duration
-            aura.index = existing_auras[0].index  # Note that this aura will not be actually applied. The index is copied just for sending information.
+
+            # Note that this aura will not be actually applied. Index and stacks are copied for sending information and updating effect points.
+            aura.applied_stacks = existing_auras[0].applied_stacks
+            aura.index = existing_auras[0].index
         else:
             aura.index = self.get_next_aura_index(aura)
             self.active_auras[aura.index] = aura
