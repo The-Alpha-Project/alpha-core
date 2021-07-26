@@ -680,8 +680,6 @@ class PlayerManager(UnitManager):
         if level != self.level:
             max_level = 255 if self.is_gm else config.Unit.Player.Defaults.max_level
             if 0 < level <= max_level:
-                should_send_info = level > self.level
-
                 self.level = level
                 self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
                 self.player.leveltime = 0
@@ -694,18 +692,27 @@ class PlayerManager(UnitManager):
                 self.skill_manager.update_skills_max_value()
                 self.skill_manager.build_update()
 
-                if should_send_info:
-                    data = pack('<3I',
-                                level,
-                                hp_diff,
-                                mana_diff if self.power_type == PowerTypes.TYPE_MANA else 0
-                                )
-                    self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
+                # Always send an update on 
+                data = pack('<3I',
+                            level,
+                            hp_diff,
+                            mana_diff if self.power_type == PowerTypes.TYPE_MANA else 0
+                            )
 
+                self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
+
+                # If levelling up
+                if level > self.level:
                     # Add Talent and Skill points
                     self.add_talent_points(Formulas.PlayerFormulas.talent_points_gain_per_level(self.level))
                     self.add_skill_points(1)
 
+                # If levelling down
+                if level < self.level:
+                    # Remove Talent and Skill points
+                    self.remove_talent_points(Formulas.PlayerFormulas.talent_points_gain_per_level(self.level))
+                    self.remove_skill_points(1)
+                    
                 self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
                 self.quest_manager.update_surrounding_quest_status()
