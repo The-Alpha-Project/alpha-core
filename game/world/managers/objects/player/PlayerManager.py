@@ -680,6 +680,29 @@ class PlayerManager(UnitManager):
         if level != self.level:
             max_level = 255 if self.is_gm else config.Unit.Player.Defaults.max_level
             if 0 < level <= max_level:
+                # Store the difference difference between the starting level and the target level
+                level_count = abs(level - self.level)
+                talent_points = 0
+
+                # Calculate total talent points for each level starting from the current character level
+                for i in range(level_count):
+                    if level > self.level:
+                        talent_points += Formulas.PlayerFormulas.talent_points_gain_per_level(self.level + (i + 1))
+                    if level < self.level:
+                        talent_points += Formulas.PlayerFormulas.talent_points_gain_per_level(self.level - i)
+
+                # If levelling up
+                if level > self.level:
+                    # Add Talent and Skill points
+                    self.add_talent_points(talent_points)
+                    self.add_skill_points(level_count)
+
+                # If levelling down
+                if level < self.level:
+                    # Remove Talent and Skill points
+                    self.remove_talent_points(talent_points)
+                    self.remove_skill_points(level_count)
+
                 self.level = level
                 self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
                 self.player.leveltime = 0
@@ -692,7 +715,6 @@ class PlayerManager(UnitManager):
                 self.skill_manager.update_skills_max_value()
                 self.skill_manager.build_update()
 
-                # Always send an update on 
                 data = pack('<3I',
                             level,
                             hp_diff,
@@ -701,18 +723,6 @@ class PlayerManager(UnitManager):
 
                 self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
 
-                # If levelling up
-                if level > self.level:
-                    # Add Talent and Skill points
-                    self.add_talent_points(Formulas.PlayerFormulas.talent_points_gain_per_level(self.level))
-                    self.add_skill_points(1)
-
-                # If levelling down
-                if level < self.level:
-                    # Remove Talent and Skill points
-                    self.remove_talent_points(Formulas.PlayerFormulas.talent_points_gain_per_level(self.level))
-                    self.remove_skill_points(1)
-                    
                 self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
                 self.quest_manager.update_surrounding_quest_status()
