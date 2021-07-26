@@ -668,9 +668,16 @@ class PlayerManager(UnitManager):
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
 
         if new_xp >= self.next_level_xp:  # Level up!
+            level_amount = 1
+            # Burn off the experience needed to level from the currently gained XP
+            # If we overshoot double or triple then add it to the calculation
+            while (new_xp >= Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)):
+                new_xp -= Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)
+                level_amount += 1
+            
             self.xp = (new_xp - self.next_level_xp)  # Set the overload xp as current
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
-            self.mod_level(self.level + 1)
+            self.mod_level(self.level + level_amount)
         else:
             self.xp = new_xp
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
