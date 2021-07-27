@@ -203,43 +203,6 @@ class QuestManager(object):
 
         return quest_num
 
-    #def get_active_quest_num_from_quest_giver(self, quest_giver): # TODO figure out how to simplify that function (it may not be possible...)
-    #    quest_num: int = 0
-
-    #    # Type is unit, but not player.
-    #    if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
-    #        quest_list: list[t_creature_quest_finisher] = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(quest_giver.entry)
-    #        quest_list.extend(WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(quest_giver.entry))
-    #    else:
-    #        return
-
-    #    # Quest finish.
-    #    for potential_quest in quest_list:
-    #        if len(potential_quest) == 0:
-    #            continue
-    ##        quest_entry = potential_quest[1]
-    #        quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
-    #        if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
-    #            continue
-    #        if type(potential_quest) == t_creature_quest_starter:
-    #            if quest_entry in self.completed_quests:
-    #                continue
-    #            quest_state = QuestState.QUEST_OFFER
-    #            if quest_entry in self.active_quests:
-    #                quest_state = self.active_quests[quest_entry].get_quest_state()
-    #            if quest_state >= QuestState.QUEST_ACCEPTED:
-    #                continue  # Quest turn-in is handled by involved_relations_list.
-    #            quest_num += 1
-    #        elif type(potential_quest) == t_creature_quest_finisher:
-    #            if quest_entry not in self.active_quests:
-    #                continue
-    #            quest_state = self.active_quests[quest_entry].get_quest_state()
-    #            if quest_state <= QuestState.QUEST_ACCEPTED:
-    #                continue  # Quest accept is handled by relation_list.
-    #            quest_num += 1
-    #        
-    #    return quest_num
-
     def check_quest_requirements(self, quest_template):
         # Is the player character the required race.
         race_is_required = quest_template.RequiredRaces > 0

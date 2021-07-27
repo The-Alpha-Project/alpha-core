@@ -1526,6 +1526,62 @@ begin not atomic
         ENGINE=InnoDB;
 
         -- Class Trainer Spells
+
+        -- Low Level Trainers
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (5, 1142, 116, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (5, 6116, 168, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (13, 1374, 348, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (13, 1476, 1454, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (11, 1309, 315, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (5, 2141, 2136, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (22, 1605, 78, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (22, 1423, 772, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (22, 6553, 6552, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (25, 1761, 1752, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (25, 1780, 1776, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (25, 2843, 2835, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (25, 2844, 2837, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (25, 5397, 5395, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (25, 3422, 3420, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (25, 3423, 3421, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (19, 1567, 1513, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (19, 6973, 771, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (28, 1872, 635, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (28, 1873, 639, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (7, 2851, 17, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (7, 1255, 1243, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (28, 5572, 498, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (28, 1937, 1152, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (7, 2056, 2052, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (7, 2051, 2050, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (13, 2965, 686, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (13, 6221, 172, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (7, 1389, 700, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (7, 1258, 589, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (13, 1381, 695, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (11, 1312, 308, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (11, 2611, 2607, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (13, 7763, 688, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (5, 1249, 587, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (5, 5507, 5504, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (19, 1571, 1485, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (19, 1580, 1516, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (19, 3039, 3035, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (28, 1888, 679, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (5, 1472, 1459, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (25, 1789, 1784, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (22, 2467, 2457, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (22, 6674, 6673, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (22, 797, 845, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (25, 2592, 53, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (25, 6712, 2098, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (22, 1738, 100, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (11, 5396, 5394, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (11, 2075, 3599, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (28, 1875, 465, 10, 0, 0, 0, 0, 1);
+        INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (28, 1908, 649, 80, 0, 0, 0, 0, 4);
+
+        -- Regular Trainers
         INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1, 1142, 116, 80, 0, 0, 0, 0, 4);
         INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1, 1191, 205, 1800, 0, 0, 0, 0, 16);
         INSERT INTO `npc_trainer` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1, 1194, 122, 300, 0, 0, 0, 0, 10);
