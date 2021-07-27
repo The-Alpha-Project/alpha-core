@@ -57,7 +57,7 @@ class SpellManager(object):
         if cast_on_learn or spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
             self.start_spell_cast(spell, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF)
 
-        # Teach skill required as well like in CharCreateHandler?
+        # TODO Teach skill required as well like in CharCreateHandler
         return True
 
     def get_initial_spells(self) -> bytes:

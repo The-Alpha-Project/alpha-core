@@ -210,6 +210,7 @@ class CommandManager(object):
                 return -1, 'The skill was not found.'
 
             world_session.player_mgr.skill_manager.add_skill(skill_id)
+            world_session.player_mgr.set_dirty()
             return 0, 'Skill learned.'
         except ValueError:
             return -1, 'Invalid ID.'
