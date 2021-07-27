@@ -31,7 +31,7 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type, casting_spell.spell_entry.School,
-                                                            target.creature_type, apply_bonuses=False)  # Bonuses are applied on spell damage
+                                                            target, apply_bonuses=False)  # Bonuses are applied on spell damage
 
         damage = weapon_damage + effect.get_effect_points(casting_spell.caster_effective_level)
         caster.apply_spell_damage(target, damage, casting_spell)
@@ -39,7 +39,7 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_weapon_damage_plus(casting_spell, effect, caster, target):
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type, casting_spell.spell_entry.School,
-                                                            target.creature_type, apply_bonuses=False)  # Bonuses are applied on spell damage
+                                                            target, apply_bonuses=False)  # Bonuses are applied on spell damage
 
         damage_bonus = effect.get_effect_points(casting_spell.caster_effective_level)
 

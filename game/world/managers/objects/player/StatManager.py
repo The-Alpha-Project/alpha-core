@@ -3,7 +3,7 @@ from enum import IntEnum, auto, IntFlag
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import AttackTypes
+from utils.constants.MiscCodes import AttackTypes, ObjectTypes
 from utils.constants.SpellCodes import SpellSchools
 from utils.constants.UnitCodes import PowerTypes, Classes, CreatureTypes
 
@@ -53,7 +53,6 @@ class UnitStats(IntFlag):
     DAMAGE_DONE_SCHOOL = auto()
     DAMAGE_DONE_WEAPON = auto()
     DAMAGE_DONE_CREATURE_TYPE = auto()
-    DAMAGE_TAKEN = auto()
     DAMAGE_TAKEN_SCHOOL = auto()
 
     HEALTH_REGENERATION_PER_5 = auto()
@@ -149,11 +148,13 @@ class StatManager(object):
 
         return total - base_stats - item_stats
 
-    def get_total_stat(self, stat_type: UnitStats, misc_value=-1, accept_negative=False) -> int:
+    def get_total_stat(self, stat_type: UnitStats, misc_value=-1, accept_negative=False, misc_value_is_mask=False) -> int:
         base_stats = self.get_base_stat(stat_type)
-        bonus_stats = self.item_stats.get(stat_type, 0) + self.get_aura_stat_bonus(stat_type, misc_value=misc_value)
+        bonus_stats = self.item_stats.get(stat_type, 0) + \
+            self.get_aura_stat_bonus(stat_type, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask)
 
-        total = int((base_stats + bonus_stats) * self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value))
+        total = int((base_stats + bonus_stats) *
+                    self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask))
 
         if accept_negative:
             return total
@@ -364,11 +365,13 @@ class StatManager(object):
 
         return weapon_min_damage, weapon_max_damage
 
-    def apply_bonuses_for_damage(self, damage, attack_school: SpellSchools, target_creature_type: CreatureTypes, weapon_type: ItemSubClasses = -1):
+    def apply_bonuses_for_damage(self, damage, attack_school: SpellSchools, victim, weapon_type: ItemSubClasses = -1):
         if weapon_type != -1:
             weapon_type = 1 << weapon_type
         else:
             weapon_type = 0
+
+        target_creature_type = victim.creature_type
 
         flat_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, percentual=False, misc_value=attack_school) + \
             self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, percentual=False, misc_value=weapon_type, misc_value_is_mask=True) + \
@@ -378,7 +381,13 @@ class StatManager(object):
             self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, percentual=True, misc_value=weapon_type, misc_value_is_mask=True) * \
             self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, percentual=True, misc_value=target_creature_type)
 
-        return (damage + flat_bonuses) * percentual_bonuses
+        damage_dealt = (damage + flat_bonuses) * percentual_bonuses
+        if victim.get_type() == ObjectTypes.TYPE_PLAYER:  # TODO StatManager is restricted to PlayerManager
+            # Add victim buffs/debuffs after calculations to not scale them.
+            damage_dealt += victim.stat_manager.get_total_stat(UnitStats.DAMAGE_TAKEN_SCHOOL, 1 << attack_school,
+                                                               accept_negative=True, misc_value_is_mask=True)
+        # Damage taken reduction can bring damage to negative, limit to 0.
+        return max(0, damage_dealt)
 
     def update_base_weapon_attributes(self, attack_type=0):
         # TODO: Using Vanilla formula, AP was not present in Alpha

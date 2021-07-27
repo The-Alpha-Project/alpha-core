@@ -1077,30 +1077,30 @@ class PlayerManager(UnitManager):
             self.last_regen = current_time
 
     # override
-    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes):
+    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
-    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes, apply_bonuses=True):
-        rolled_damage = super().calculate_base_attack_damage(attack_type, attack_school, target_creature_type, apply_bonuses)
+    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target: UnitManager, apply_bonuses=True):
+        rolled_damage = super().calculate_base_attack_damage(attack_type, attack_school, target, apply_bonuses)
 
         if apply_bonuses:
             subclass = -1
             equipped_weapon = self._get_weapon_for_attack_type(attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
-            rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target_creature_type, subclass)
+            rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target, subclass)
 
         return max(0, rolled_damage)
 
     # override
-    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target_creature_type: CreatureTypes, spell_attack_type: AttackTypes = -1):
+    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
         subclass = 0
         if spell_attack_type != -1:
             equipped_weapon = self._get_weapon_for_attack_type(spell_attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
 
-        return self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school, target_creature_type, subclass)
+        return self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school, target, subclass)
 
     def generate_rage(self, damage_info, is_player=False):
         # Warriors or Druids in Bear form

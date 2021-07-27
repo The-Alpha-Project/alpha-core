@@ -5,7 +5,7 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import Factions, ObjectTypes
-from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes
+from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
 from utils.constants.UnitCodes import Teams
 
 
@@ -319,6 +319,27 @@ class AuraEffectHandler:
                                                          percentual=False, misc_value=misc_value)
 
     @staticmethod
+    def handle_mod_damage_taken(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
+            return
+        amount = aura.get_effect_points()
+        misc_value = aura.spell_effect.misc_value  # Spell school
+
+        # Fatigued (3271) is the only spell with a negative misc value (-2).
+        # There are no descriptions, but in Vmangos this is handled as all schools.
+        # -1 is handled as all magic schools, but doesn't exist in the database.
+        if misc_value == -2:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        elif misc_value == -1:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_SPELL
+        else:
+            spell_school = 1 << misc_value
+
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DAMAGE_TAKEN_SCHOOL, amount,
+                                                         percentual=False, misc_value=spell_school)
+
+    @staticmethod
     def handle_mod_damage_done_creature(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
@@ -359,6 +380,8 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED: AuraEffectHandler.handle_decrease_speed,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED: AuraEffectHandler.handle_increase_swim_speed,
 
+    AuraTypes.SPELL_AURA_MOD_DAMAGE_TAKEN: AuraEffectHandler.handle_mod_damage_taken,
+
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE: AuraEffectHandler.handle_mod_damage_done,
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE_CREATURE: AuraEffectHandler.handle_mod_damage_done_creature
 }
@@ -386,6 +409,7 @@ STAT_MOD_EFFECTS = [
     AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED,
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE,
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE_CREATURE,
+    AuraTypes.SPELL_AURA_MOD_DAMAGE_TAKEN
 ]
 
 # Alliance / Default display_id, Horde display_id, Scale

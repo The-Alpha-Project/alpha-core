@@ -472,7 +472,7 @@ class CreatureManager(UnitManager):
         else:
             player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite)], self)
 
-    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes):
+    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
         min_damage, max_damage = unpack('<2H', pack('<I', self.damage))
         return int(min_damage), int(max_damage)
 
