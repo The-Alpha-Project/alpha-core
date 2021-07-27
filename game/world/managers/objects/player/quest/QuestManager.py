@@ -1,6 +1,7 @@
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import t_creature_quest_finisher, t_creature_quest_starter
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.quest.ActiveQuest import ActiveQuest
@@ -156,8 +157,7 @@ class QuestManager(object):
 
         self.update_surrounding_quest_status()
 
-    # TODO sloppy and probably slow, just copied from handle_quest_giver_hello. Can't think of a quicker way to check
-    #  atm, all that is needed is the number of active quests so this seems overkill.
+    # TODO Change? Honestly do not see how it could be simplified any further...
     def get_active_quest_num_from_quest_giver(self, quest_giver):
         quest_num: int = 0
 
@@ -202,6 +202,43 @@ class QuestManager(object):
             quest_num += 1
 
         return quest_num
+
+    #def get_active_quest_num_from_quest_giver(self, quest_giver): # TODO figure out how to simplify that function (it may not be possible...)
+    #    quest_num: int = 0
+
+    #    # Type is unit, but not player.
+    #    if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
+    #        quest_list: list[t_creature_quest_finisher] = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(quest_giver.entry)
+    #        quest_list.extend(WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(quest_giver.entry))
+    #    else:
+    #        return
+
+    #    # Quest finish.
+    #    for potential_quest in quest_list:
+    #        if len(potential_quest) == 0:
+    #            continue
+    ##        quest_entry = potential_quest[1]
+    #        quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
+    #        if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
+    #            continue
+    #        if type(potential_quest) == t_creature_quest_starter:
+    #            if quest_entry in self.completed_quests:
+    #                continue
+    #            quest_state = QuestState.QUEST_OFFER
+    #            if quest_entry in self.active_quests:
+    #                quest_state = self.active_quests[quest_entry].get_quest_state()
+    #            if quest_state >= QuestState.QUEST_ACCEPTED:
+    #                continue  # Quest turn-in is handled by involved_relations_list.
+    #            quest_num += 1
+    #        elif type(potential_quest) == t_creature_quest_finisher:
+    #            if quest_entry not in self.active_quests:
+    #                continue
+    #            quest_state = self.active_quests[quest_entry].get_quest_state()
+    #            if quest_state <= QuestState.QUEST_ACCEPTED:
+    #                continue  # Quest accept is handled by relation_list.
+    #            quest_num += 1
+    #        
+    #    return quest_num
 
     def check_quest_requirements(self, quest_template):
         # Is the player character the required race.

@@ -167,7 +167,9 @@ class CastingSpell(object):
     def get_base_cast_time(self):
         if self.is_instant_cast():
             return 0
-        skill = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
+        skill = None
+        if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER:
+            skill = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
         if not skill:
             return self.cast_time_entry.Minimum
 

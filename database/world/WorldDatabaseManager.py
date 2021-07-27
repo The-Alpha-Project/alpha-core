@@ -367,9 +367,32 @@ class WorldDatabaseManager(object):
             return trainer_spells if len(trainer_spells) > 0 else None
 
         @staticmethod
-        def trainer_spell_get_by_trainer_and_spell(trainer_id: int, spell_id: int) -> Optional[NpcTrainer]:
+        def get_all_talents() -> Optional[list[NpcTrainer]]:
+            talents: list[NpcTrainer] = []
+
+            trainer_template_id = 100 # Set talent trainer id
+
+            for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
+                if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == trainer_template_id:
+                    talents.append(WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell])
+
+            return talents if len(talents) > 0 else None
+
+        # Returns the trainer spell database entry for a given trainer id/trainer spell id.
+        @staticmethod
+        def trainer_spell_entry_get_by_trainer_and_spell(trainer_id: int, spell_id: int) -> Optional[NpcTrainer]:
             return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[(trainer_id, spell_id)] \
                 if (trainer_id, spell_id) in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS else None
+
+        # Returns the actual useable spell that the player casts from the trainer spell entry.
+        @staticmethod
+        def trainer_spell_id_get_from_player_spell_id(trainer_id: int, player_spell_id: int) -> Optional[int]:
+            for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
+                if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == trainer_id:
+                    if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].playerspell == player_spell_id:
+                        return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].spell
+
+            return None
 
     @staticmethod
     def trainer_spell_get_all() -> Optional[list[NpcTrainer]]:
