@@ -693,20 +693,20 @@ class PlayerManager(UnitManager):
             max_level = 255 if self.is_gm else config.Unit.Player.Defaults.max_level
             if 0 < level <= max_level:
                 # Check if the new level is higher than the current one or not.
-                is_levelling_up = level > self.level
+                is_leveling_up = level > self.level
                 # Store the difference between the starting level and the target level.
                 level_count = abs(level - self.level)
 
                 # Calculate total talent points for each level starting from the current character level.
                 talent_points = 0
                 for i in range(level_count):
-                    if is_levelling_up:
+                    if is_leveling_up:
                         level_for_calculation = self.level + (i + 1)
                     else:
                         level_for_calculation = self.level - i
                     talent_points += Formulas.PlayerFormulas.talent_points_gain_per_level(level_for_calculation)
 
-                if is_levelling_up:
+                if is_leveling_up:
                     # Add Talent and Skill points.
                     self.add_talent_points(talent_points)
                     self.add_skill_points(level_count)
@@ -727,7 +727,7 @@ class PlayerManager(UnitManager):
                 self.skill_manager.update_skills_max_value()
                 self.skill_manager.build_update()
 
-                if is_levelling_up:
+                if is_leveling_up:
                     data = pack(
                         '<3I',
                         level,
