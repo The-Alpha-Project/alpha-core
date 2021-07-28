@@ -1,4 +1,4 @@
-version: '3.0'
+version: '3.9'
 services:
   main:
     image: alpha-core:latest
@@ -15,7 +15,10 @@ services:
       - "9100:9100"
     volumes:
       - .:/var/wow/
+    depends_on:
+      - sql
     restart: on-failure
+
   sql:
     image: alpha-mariadb:latest
     build: etc/docker/sql
@@ -26,3 +29,18 @@ services:
     volumes:
       - ./etc/databases/:/etc/databases/
     restart: on-failure
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - "8080:80"    
+    environment: 
+      - PMA_HOST=sql
+      - PMA_USER=root
+      - PMA_PASSWORD=pwd
+    restart: "no"
+    depends_on:
+      - sql
+    profiles:
+      - dev
+  
