@@ -672,13 +672,15 @@ class PlayerManager(UnitManager):
 
         if new_xp >= self.next_level_xp:  # Level up!
             level_amount = 1
-            # Burn off the experience needed to level from the currently gained XP
-            # If we overshoot double or triple then add it to the calculation
-            while (new_xp >= Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)):
-                new_xp -= Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)
+            # Burn off the experience needed to level from the currently gained XP.
+            # If we overshoot double or triple then add it to the calculation.
+            xp_to_level = Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)
+            while new_xp >= xp_to_level:
+                new_xp -= xp_to_level
                 level_amount += 1
-            
-            self.xp = (new_xp - self.next_level_xp)  # Set the overload xp as current
+                xp_to_level = Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)
+
+            self.xp = (new_xp - self.next_level_xp)  # Set the overload XP as current.
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
             self.mod_level(self.level + level_amount)
         else:
@@ -690,26 +692,26 @@ class PlayerManager(UnitManager):
         if level != self.level:
             max_level = 255 if self.is_gm else config.Unit.Player.Defaults.max_level
             if 0 < level <= max_level:
-                # Store the difference difference between the starting level and the target level
+                # Check if the new level is higher than the current one or not.
+                is_levelling_up = level > self.level
+                # Store the difference between the starting level and the target level.
                 level_count = abs(level - self.level)
+
+                # Calculate total talent points for each level starting from the current character level.
                 talent_points = 0
-
-                # Calculate total talent points for each level starting from the current character level
                 for i in range(level_count):
-                    if level > self.level:
-                        talent_points += Formulas.PlayerFormulas.talent_points_gain_per_level(self.level + (i + 1))
-                    if level < self.level:
-                        talent_points += Formulas.PlayerFormulas.talent_points_gain_per_level(self.level - i)
+                    if is_levelling_up:
+                        level_for_calculation = self.level + (i + 1)
+                    else:
+                        level_for_calculation = self.level - i
+                    talent_points += Formulas.PlayerFormulas.talent_points_gain_per_level(level_for_calculation)
 
-                # If levelling up
-                if level > self.level:
-                    # Add Talent and Skill points
+                if is_levelling_up:
+                    # Add Talent and Skill points.
                     self.add_talent_points(talent_points)
                     self.add_skill_points(level_count)
-
-                # If levelling down
-                if level < self.level:
-                    # Remove Talent and Skill points
+                else:
+                    # Remove Talent and Skill points.
                     self.remove_talent_points(talent_points)
                     self.remove_skill_points(level_count)
 
@@ -725,13 +727,15 @@ class PlayerManager(UnitManager):
                 self.skill_manager.update_skills_max_value()
                 self.skill_manager.build_update()
 
-                data = pack('<3I',
-                            level,
-                            hp_diff,
-                            mana_diff if self.power_type == PowerTypes.TYPE_MANA else 0
-                            )
+                if is_levelling_up:
+                    data = pack(
+                        '<3I',
+                        level,
+                        hp_diff,
+                        mana_diff if self.power_type == PowerTypes.TYPE_MANA else 0
+                    )
 
-                self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
+                    self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
 
                 self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
@@ -1011,11 +1015,17 @@ class PlayerManager(UnitManager):
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
     def remove_talent_points(self, talent_points):
-        self.talent_points -= talent_points
+        if self.talent_points - talent_points < 0:
+            self.talent_points = 0
+        else:
+            self.talent_points -= talent_points
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS1, self.talent_points)
 
     def remove_skill_points(self, skill_points):
-        self.skill_points -= skill_points
+        if self.skill_points - skill_points < 0:
+            self.skill_points = 0
+        else:
+            self.skill_points -= skill_points
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
     def regenerate(self, current_time):
