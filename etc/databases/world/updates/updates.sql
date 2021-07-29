@@ -1635,6 +1635,7 @@ begin not atomic
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1432, 780, 16000, 0, 0, 0, 0, 40);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5216, 5215, 300, 0, 0, 0, 0, 10);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6784, 6783, 8000, 0, 0, 0, 0, 30);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5218, 5217, 2200, 0, 0, 0, 0, 18);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1, 1142, 116, 80, 0, 0, 0, 0, 4);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1, 1191, 205, 1800, 0, 0, 0, 0, 16);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1, 1194, 122, 300, 0, 0, 0, 0, 10);
@@ -2650,6 +2651,57 @@ begin not atomic
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (100, 2118, 1114, 0, 0, 0, 0, 0, 0);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (100, 4753, 4751, 0, 0, 0, 0, 0, 0);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (100, 4754, 4752, 0, 0, 0, 0, 0, 0);
+        
+        -- Druid spell_chain inserts
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (467, 0, 467, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (339, 0, 339, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (2895, 2894, 0, 3, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6756, 5232, 0, 3, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (740, 0, 740, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5234, 6756, 0, 4, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5232, 1126, 1126, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (1126, 0, 1126, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5195, 1062, 0, 3, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (1075, 782, 0, 3, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (2894, 2893, 2893, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (2893, 0, 2893, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (2090, 1430, 0, 4, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (1430, 1058, 0, 3, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (1058, 774, 774, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (782, 467, 467, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (776, 0, 776, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (1062, 339, 339, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (774, 0, 774, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (768, 0, 768, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (779, 0, 779, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6793, 5217, 5217, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6789, 6788, 0, 4, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6788, 6787, 0, 3, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6787, 6785, 6785, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6785, 0, 6785, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5202, 5201, 0, 4, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5201, 3029, 0, 3, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5225, 0, 5225, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6809, 6808, 0, 3, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6808, 6807, 6807, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6807, 0, 6807, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6800, 5221, 5221, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (1824, 1823, 0, 3, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (1823, 1822, 1822, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (1822, 0, 1822, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5223, 0, 5223, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5221, 0, 5221, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (2856, 0, 2856, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5211, 0, 5211, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5209, 0, 5209, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (1735, 99, 99, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (99, 0, 99, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (3029, 1082, 1082, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (1082, 0, 1082, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (780, 779, 779, 2, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5215, 0, 5215, 1, 0);
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6783, 5215, 5215, 2, 0);
+
 
 
 	    insert into applied_updates values ('071920211');
