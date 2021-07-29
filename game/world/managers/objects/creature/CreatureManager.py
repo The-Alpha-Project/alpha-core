@@ -253,8 +253,8 @@ class CreatureManager(UnitManager):
                                                item_template.inventory_type == InventoryTypes.WEAPONOFFHAND)
             # Ranged
             if slot == 2:
-                self.wearing_offhand_weapon = (item_template.inventory_type == InventoryTypes.RANGED or
-                                               item_template.inventory_type == InventoryTypes.RANGEDRIGHT)
+                self.wearing_ranged_weapon = (item_template.inventory_type == InventoryTypes.RANGED or
+                                              item_template.inventory_type == InventoryTypes.RANGEDRIGHT)
         elif slot == 0:
             self.weapon_reach = 0.0
 
