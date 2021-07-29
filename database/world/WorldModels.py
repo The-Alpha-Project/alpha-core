@@ -788,8 +788,8 @@ class ItemLootTemplate(Base):
     item_template1 = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.item == ItemTemplate.entry')
 
 
-class TrainingInfo(Base):
-    __tablename__ = 'training_info'
+class TrainerTemplate(Base):
+    __tablename__ = 'trainer_template'
     
     template_entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
     spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))

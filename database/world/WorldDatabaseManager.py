@@ -347,15 +347,15 @@ class WorldDatabaseManager(object):
     # Trainer stuff
 
     class TrainerSpellHolder:
-        TRAINER_SPELLS: dict[tuple[int, int], TrainingInfo] = {}
+        TRAINER_SPELLS: dict[tuple[int, int], TrainerTemplate] = {}
 
         @staticmethod
-        def load_trainer_spell(trainer_spell: TrainingInfo):
+        def load_trainer_spell(trainer_spell: TrainerTemplate):
             WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[(trainer_spell.template_entry, trainer_spell.spell)] = trainer_spell
 
         @staticmethod
-        def trainer_spells_get_by_trainer(trainer_entry_id: int) -> Optional[list[TrainingInfo]]:
-            trainer_spells: list[TrainingInfo] = []
+        def trainer_spells_get_by_trainer(trainer_entry_id: int) -> Optional[list[TrainerTemplate]]:
+            trainer_spells: list[TrainerTemplate] = []
 
             creature_template: CreatureTemplate = WorldDatabaseManager.creature_get_by_entry(trainer_entry_id)
             trainer_template_id = creature_template.trainer_id
@@ -367,8 +367,8 @@ class WorldDatabaseManager(object):
             return trainer_spells if len(trainer_spells) > 0 else None
 
         @staticmethod
-        def get_all_talents() -> Optional[list[TrainingInfo]]:
-            talents: list[TrainingInfo] = []
+        def get_all_talents() -> Optional[list[TrainerTemplate]]:
+            talents: list[TrainerTemplate] = []
 
             trainer_template_id = 100 # Set talent trainer id
 
@@ -380,7 +380,7 @@ class WorldDatabaseManager(object):
 
         # Returns the trainer spell database entry for a given trainer id/trainer spell id.
         @staticmethod
-        def trainer_spell_entry_get_by_trainer_and_spell(trainer_id: int, spell_id: int) -> Optional[TrainingInfo]:
+        def trainer_spell_entry_get_by_trainer_and_spell(trainer_id: int, spell_id: int) -> Optional[TrainerTemplate]:
             return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[(trainer_id, spell_id)] \
                 if (trainer_id, spell_id) in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS else None
 
@@ -395,9 +395,9 @@ class WorldDatabaseManager(object):
             return None
 
     @staticmethod
-    def trainer_spell_get_all() -> Optional[list[TrainingInfo]]:
+    def trainer_spell_get_all() -> Optional[list[TrainerTemplate]]:
         world_db_session: scoped_session = SessionHolder()
-        res = world_db_session.query(TrainingInfo).all()
+        res = world_db_session.query(TrainerTemplate).all()
         world_db_session.close()
         return res
 
