@@ -473,7 +473,6 @@ class StatManager(object):
         self.unit_mgr.set_frost_res(self.get_total_stat(UnitStats.RESISTANCE_FROST, accept_negative=True))
         self.unit_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW, accept_negative=True))
 
-        # TODO Distinguish between positive and negative buffs (client seems to be able to display both at the same time)
         self.unit_mgr.set_bonus_armor(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_PHYSICAL))
         self.unit_mgr.set_bonus_holy_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_HOLY))
         self.unit_mgr.set_bonus_fire_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_FIRE))
