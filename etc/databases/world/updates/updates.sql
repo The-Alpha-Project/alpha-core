@@ -1510,6 +1510,7 @@ begin not atomic
     -- 07/19/2021 1
     if (select count(*) from applied_updates where id='071920211') = 0 then
 	    DROP TABLE IF EXISTS `npc_trainer`;
+        DROP TABLE IF EXISTS `training_info`;
         CREATE TABLE IF NOT EXISTS `training_info` (
             `template_entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
             `spell` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
@@ -1528,6 +1529,10 @@ begin not atomic
         -- Class Trainer Spells
 
         -- Low Level Trainers
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (16, 5231, 1126, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (16, 1428, 774, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (16, 499, 768, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (16, 1448, 1082, 100, 0, 0, 0, 0, 6);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (5, 1142, 116, 80, 0, 0, 0, 0, 4);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (5, 6116, 168, 10, 0, 0, 0, 0, 1);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (13, 1374, 348, 10, 0, 0, 0, 0, 1);
@@ -1582,6 +1587,54 @@ begin not atomic
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (28, 1908, 649, 80, 0, 0, 0, 0, 4);
 
         -- Regular Trainers
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1420, 467, 300, 0, 0, 0, 0, 10);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1435, 339, 200, 0, 0, 0, 0, 8);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 2899, 2895, 16000, 0, 0, 0, 0, 40);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5235, 6756, 8100, 0, 0, 0, 0, 28);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1439, 740, 16000, 0, 0, 0, 0, 40);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6782, 5234, 16000, 0, 0, 0, 0, 40);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5233, 5232, 1200, 0, 0, 0, 0, 14);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5231, 1126, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 2919, 5195, 15000, 0, 0, 0, 0, 36);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1422, 1075, 18000, 0, 0, 0, 0, 34);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 2898, 2894, 8100, 0, 0, 0, 0, 28);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 2897, 2893, 1800, 0, 0, 0, 0, 16);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 2092, 2090, 18000, 0, 0, 0, 0, 34);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1431, 1430, 5300, 0, 0, 0, 0, 24);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1429, 1058, 1200, 0, 0, 0, 0, 14);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1421, 782, 3400, 0, 0, 0, 0, 22);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1437, 776, 15000, 0, 0, 0, 0, 36);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1436, 1062, 3400, 0, 0, 0, 0, 22);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1428, 774, 80, 0, 0, 0, 0, 4);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 499, 768, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 3139, 779, 8000, 0, 0, 0, 0, 30);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6794, 6793, 18000, 0, 0, 0, 0, 34);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6792, 6789, 16000, 0, 0, 0, 0, 40);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6791, 6788, 8000, 0, 0, 0, 0, 30);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6790, 6787, 2600, 0, 0, 0, 0, 20);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6786, 6785, 300, 0, 0, 0, 0, 10);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5204, 5202, 15000, 0, 0, 0, 0, 36);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5203, 5201, 6700, 0, 0, 0, 0, 26);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5226, 5225, 800, 0, 0, 0, 0, 12);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6812, 6809, 23000, 0, 0, 0, 0, 38);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6811, 6808, 8100, 0, 0, 0, 0, 28);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6810, 6807, 2600, 0, 0, 0, 0, 20);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6801, 6800, 23000, 0, 0, 0, 0, 38);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1829, 1824, 11000, 0, 0, 0, 0, 32);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1828, 1823, 2600, 0, 0, 0, 0, 20);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1827, 1822, 200, 0, 0, 0, 0, 8);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5224, 5223, 8000, 0, 0, 0, 0, 30);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5222, 5221, 6700, 0, 0, 0, 0, 26);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5214, 2856, 18000, 0, 0, 0, 0, 34);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5212, 5211, 5300, 0, 0, 0, 0, 24);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5210, 5209, 8100, 0, 0, 0, 0, 28);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1737, 1735, 15000, 0, 0, 0, 0, 36);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1736, 99, 3400, 0, 0, 0, 0, 22);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 3030, 3029, 1800, 0, 0, 0, 0, 16);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1448, 1082, 100, 0, 0, 0, 0, 6);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 1432, 780, 16000, 0, 0, 0, 0, 40);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 5216, 5215, 300, 0, 0, 0, 0, 10);
+        INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (17, 6784, 6783, 8000, 0, 0, 0, 0, 30);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1, 1142, 116, 80, 0, 0, 0, 0, 4);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1, 1191, 205, 1800, 0, 0, 0, 0, 16);
         INSERT INTO `training_info` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1, 1194, 122, 300, 0, 0, 0, 0, 10);
