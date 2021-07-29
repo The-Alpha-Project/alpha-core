@@ -6,12 +6,12 @@ from utils.constants.OpCodes import OpCode
 
 class MirrorTimer(object):
     # Player, timer type, server side interval, timer duration (seconds), scale (change per elapsed second), spell_id)
-    def __init__(self, owner, timer_type, interval, duration, scale, spell_id):
+    def __init__(self, owner, timer_type, interval, duration, scale=-1, spell_id=0):
         self.owner = owner
         self.type = timer_type
         self.interval = interval  # Seconds, How often we check this timer.
         self.duration = duration  # In seconds, sent in milliseconds.
-        self.scale = scale  # Time added/subtracted per elapsed second in seconds, for e.g. -1
+        self.scale = scale  # Time added / subtracted per elapsed second in seconds, e.g. -1
         self.spell_id = spell_id
         self.active = False
         self.remaining = self.duration  # In seconds, sent in milliseconds.
