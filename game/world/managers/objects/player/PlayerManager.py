@@ -472,12 +472,9 @@ class PlayerManager(UnitManager):
         self.session.enqueue_packet(PacketWriter.get_packet(opcode))
 
     # TODO Maybe merge all speed changes in one method
+    # override
     def change_speed(self, speed=0):
-        if speed <= 0:
-            speed = config.Unit.Defaults.run_speed
-        elif speed >= 56:
-            speed = 56  # Max speed without glitches
-        self.running_speed = speed
+        super().change_speed(speed)
         data = pack('<f', speed)
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
 
@@ -1076,10 +1073,6 @@ class PlayerManager(UnitManager):
 
             self.last_regen = current_time
 
-    # override
-    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
-        return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
-
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target: UnitManager, apply_bonuses=True):
         rolled_damage = super().calculate_base_attack_damage(attack_type, attack_school, target, apply_bonuses)
 
@@ -1136,6 +1129,10 @@ class PlayerManager(UnitManager):
     # override
     def has_offhand_weapon(self):
         return self.inventory.has_offhand_weapon()
+
+    # override
+    def has_ranged_weapon(self):
+        return self.inventory.has_ranged_weapon()
 
     # override
     def set_weapon_mode(self, weapon_mode):

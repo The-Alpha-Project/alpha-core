@@ -20,8 +20,6 @@ class AuraEffectHandler:
         if not is_proc and aura_type in PROC_AURA_EFFECTS:
             return  # Only call proc effects when a proc happens.
 
-        if aura.spell_effect.aura_type in STAT_MOD_EFFECTS and effect_target.get_type() != ObjectTypes.TYPE_PLAYER:
-            return  # TODO Temporary fix for creatures not having StatManager
         AURA_EFFECTS[aura.spell_effect.aura_type](aura, effect_target, remove)
 
     @staticmethod
@@ -389,27 +387,6 @@ AURA_EFFECTS = {
 PROC_AURA_EFFECTS = [
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE
-]
-
-# TODO Temporary
-STAT_MOD_EFFECTS = [
-    AuraTypes.SPELL_AURA_MOD_RESISTANCE,
-    AuraTypes.SPELL_AURA_MOD_BASE_RESISTANCE,
-    AuraTypes.SPELL_AURA_MOD_REGEN,
-    AuraTypes.SPELL_AURA_MOD_STAT,
-    AuraTypes.SPELL_AURA_MOD_HEALTH_REGEN_PERCENT,
-    AuraTypes.SPELL_AURA_MOD_POWER_REGEN,
-    AuraTypes.SPELL_AURA_MOD_SKILL,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_HEALTH,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_MANA,
-    AuraTypes.SPELL_AURA_MOD_PERCENT_STAT,
-    AuraTypes.SPELL_AURA_MOD_POWER_COST_SCHOOL,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_SPEED,
-    AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED,
-    AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE,
-    AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE_CREATURE,
-    AuraTypes.SPELL_AURA_MOD_DAMAGE_TAKEN
 ]
 
 # Alliance / Default display_id, Horde display_id, Scale

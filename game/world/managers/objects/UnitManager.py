@@ -7,6 +7,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.spell.AuraManager import AuraManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -201,6 +202,7 @@ class UnitManager(ObjectManager):
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
 
+        self.stat_manager = StatManager(self)
         self.spell_manager = SpellManager(self)
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
@@ -453,9 +455,8 @@ class UnitManager(ObjectManager):
     def generate_rage(self, damage_info, is_player=False):
         return
 
-    # Implemented by PlayerManager and CreatureManager
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
-        return 0, 0
+        return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
     # Implemented by PlayerManager
     def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
@@ -609,6 +610,10 @@ class UnitManager(ObjectManager):
 
     # Implemented by PlayerManager and CreatureManager
     def has_offhand_weapon(self):
+        return False
+
+    # Implemented by PlayerManager and CreatureManager
+    def has_ranged_weapon(self):
         return False
 
     def enter_combat(self):

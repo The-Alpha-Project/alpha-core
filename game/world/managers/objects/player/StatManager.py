@@ -1,4 +1,5 @@
 from enum import IntEnum, auto, IntFlag
+from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from utils.Logger import Logger
@@ -93,8 +94,8 @@ class StatManager(object):
 
     weapon_reach: float
 
-    def __init__(self, player_mgr):
-        self.player_mgr = player_mgr
+    def __init__(self, unit_mgr):
+        self.unit_mgr = unit_mgr
 
         self.weapon_reach = 0
 
@@ -105,27 +106,31 @@ class StatManager(object):
         self.aura_stats_percentual = {}
 
     def init_stats(self):
-        base_stats = WorldDatabaseManager.player_get_class_level_stats(self.player_mgr.player.class_,
-                                                                       self.player_mgr.level)
-        base_attrs = WorldDatabaseManager.player_get_level_stats(self.player_mgr.player.class_,
-                                                                 self.player_mgr.level,
-                                                                 self.player_mgr.player.race)
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+            base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.player.class_,
+                                                                           self.unit_mgr.level)
+            base_attrs = WorldDatabaseManager.player_get_level_stats(self.unit_mgr.player.class_,
+                                                                     self.unit_mgr.level,
+                                                                     self.unit_mgr.player.race)
+            if not base_stats or not base_attrs:
+                Logger.error(f'Unsupported level ({self.unit_mgr.level}) from {self.unit_mgr.player.name}.')
+                return
+            self.base_stats[UnitStats.HEALTH] = base_stats.basehp
+            self.base_stats[UnitStats.MANA] = base_stats.basemana
+            self.base_stats[UnitStats.STRENGTH] = base_attrs.str
+            self.base_stats[UnitStats.AGILITY] = base_attrs.agi
+            self.base_stats[UnitStats.STAMINA] = base_attrs.sta
+            self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
+            self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
+            self.base_stats[UnitStats.SPEED_RUNNING] = config.Unit.Defaults.run_speed
 
-        if not base_stats or not base_attrs:
-            Logger.error(f'Unsupported level ({self.player_mgr.level}) from {self.player_mgr.player.name}.')
-            return
-
-        self.base_stats[UnitStats.HEALTH] = base_stats.basehp
-        self.base_stats[UnitStats.MANA] = base_stats.basemana
-        self.base_stats[UnitStats.STRENGTH] = base_attrs.str
-        self.base_stats[UnitStats.AGILITY] = base_attrs.agi
-        self.base_stats[UnitStats.STAMINA] = base_attrs.sta
-        self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
-        self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
-        self.base_stats[UnitStats.SPEED_RUNNING] = config.Unit.Defaults.run_speed
-
-        self.player_mgr.base_hp = base_stats.basehp
-        self.player_mgr.base_mana = base_stats.basemana
+            self.unit_mgr.base_hp = base_stats.basehp
+            self.unit_mgr.base_mana = base_stats.basemana
+        else:
+            # Creature
+            self.base_stats[UnitStats.HEALTH] = self.unit_mgr.max_health
+            self.base_stats[UnitStats.MANA] = self.unit_mgr.max_power_1
+            self.base_stats[UnitStats.SPEED_RUNNING] = self.unit_mgr.running_speed
 
         self.send_attributes()
 
@@ -167,12 +172,12 @@ class StatManager(object):
         # Always update base attack since unarmed damage should update.
         self.update_base_weapon_attributes(attack_type=AttackTypes.BASE_ATTACK)
 
-        if self.player_mgr.inventory.get_offhand():
+        if self.unit_mgr.has_offhand_weapon():
             self.update_base_weapon_attributes(attack_type=AttackTypes.OFFHAND_ATTACK)
-        if self.player_mgr.inventory.get_ranged():  # TODO Are ranged formulas different?
+        if self.unit_mgr.has_ranged_weapon():  # TODO Are ranged formulas different?
             self.update_base_weapon_attributes(attack_type=AttackTypes.RANGED_ATTACK)
 
-        self.player_mgr.change_speed(self.get_total_stat(UnitStats.SPEED_RUNNING))
+        self.unit_mgr.change_speed(self.get_total_stat(UnitStats.SPEED_RUNNING))
 
         hp_diff = self.update_max_health()
         mana_diff = self.update_max_mana()
@@ -185,8 +190,9 @@ class StatManager(object):
         self.send_damage_bonuses()
         self.send_resistances()
 
-        self.player_mgr.skill_manager.build_update()
-        self.player_mgr.set_dirty()
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+            self.unit_mgr.skill_manager.build_update()
+        self.unit_mgr.set_dirty()
 
         return hp_diff, mana_diff
 
@@ -247,11 +253,19 @@ class StatManager(object):
         return bonuses
 
     def calculate_item_stats(self):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            self.weapon_reach = self.unit_mgr.weapon_reach
+            min_damage, max_damage = unpack('<2H', pack('<I', self.unit_mgr.damage))
+            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = min_damage
+            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = max_damage
+            self.item_stats[UnitStats.MAIN_HAND_DELAY] = self.unit_mgr.base_attack_time
+            return
+
         self.item_stats = {UnitStats.MAIN_HAND_DELAY: config.Unit.Defaults.base_attack_time,
                            UnitStats.OFF_HAND_DELAY: config.Unit.Defaults.offhand_attack_time}  # Clear item stats
         self.weapon_reach = 0
 
-        for slot, item in list(self.player_mgr.inventory.get_backpack().sorted_slots.items()):
+        for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
             # Check only equipped items
             if item.current_slot <= InventorySlots.SLOT_TABARD:
                 for stat in item.stats:
@@ -312,38 +326,42 @@ class StatManager(object):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)
         total_health = self.get_total_stat(UnitStats.HEALTH)
 
-        current_hp = self.player_mgr.max_health
+        current_hp = self.unit_mgr.max_health
         new_hp = int(self.get_health_bonus_from_stamina(total_stamina) + total_health)
-        self.player_mgr.set_max_health(new_hp)
+        self.unit_mgr.set_max_health(new_hp)
 
         hp_diff = new_hp - current_hp
 
         return hp_diff if hp_diff > 0 else 0
 
     def update_max_mana(self):
-        if self.player_mgr.power_type != PowerTypes.TYPE_MANA:
+        if self.unit_mgr.power_type != PowerTypes.TYPE_MANA:
             return 0
 
         total_intellect = self.get_total_stat(UnitStats.INTELLECT)
         total_mana = self.get_total_stat(UnitStats.MANA)
 
-        current_mana = self.player_mgr.max_power_1
+        current_mana = self.unit_mgr.max_power_1
         new_mana = int(self.get_mana_bonus_from_intellect(total_intellect) + total_mana)
-        self.player_mgr.set_max_mana(new_mana)
+        self.unit_mgr.set_max_mana(new_mana)
 
         mana_diff = new_mana - current_mana
 
         return mana_diff if mana_diff > 0 else 0
 
     def update_base_health_regen(self):
-        player_class = self.player_mgr.player.class_
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
 
+        player_class = self.unit_mgr.player.class_
         spirit = self.get_total_stat(UnitStats.SPIRIT)
         self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(CLASS_BASE_REGEN_HEALTH[player_class] + spirit * CLASS_SPIRIT_SCALING_HP5[player_class])
 
 
     def update_base_mana_regen(self):
-        player_class = self.player_mgr.player.class_
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        player_class = self.unit_mgr.player.class_
         if player_class not in CLASS_SPIRIT_SCALING_MANA:
             return
 
@@ -382,14 +400,16 @@ class StatManager(object):
             self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, percentual=True, misc_value=target_creature_type)
 
         damage_dealt = (damage + flat_bonuses) * percentual_bonuses
-        if victim.get_type() == ObjectTypes.TYPE_PLAYER:  # TODO StatManager is restricted to PlayerManager
-            # Add victim buffs/debuffs after calculations to not scale them.
-            damage_dealt += victim.stat_manager.get_total_stat(UnitStats.DAMAGE_TAKEN_SCHOOL, 1 << attack_school,
-                                                               accept_negative=True, misc_value_is_mask=True)
+
+        # Add victim buffs/debuffs after calculations to not scale them.
+        damage_dealt += victim.stat_manager.get_total_stat(UnitStats.DAMAGE_TAKEN_SCHOOL, 1 << attack_school,
+                                                           accept_negative=True, misc_value_is_mask=True)
         # Damage taken reduction can bring damage to negative, limit to 0.
         return max(0, damage_dealt)
 
     def update_base_weapon_attributes(self, attack_type=0):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
         # TODO: Using Vanilla formula, AP was not present in Alpha
 
         dual_wield_penalty = 1 if attack_type != AttackTypes.OFFHAND_ATTACK else 0.5
@@ -397,8 +417,8 @@ class StatManager(object):
         attack_power = 0
         strength = self.get_total_stat(UnitStats.STRENGTH)
         agility = self.get_total_stat(UnitStats.AGILITY)
-        level = self.player_mgr.level
-        class_ = self.player_mgr.player.class_
+        level = self.unit_mgr.level
+        class_ = self.unit_mgr.player.class_
 
         if class_ == Classes.CLASS_WARRIOR or \
                 class_ == Classes.CLASS_PALADIN:
@@ -433,29 +453,33 @@ class StatManager(object):
         pass
 
     def send_melee_attributes(self):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
         # For stat sheet
-        self.player_mgr.set_melee_damage(self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN),
-                                         self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MAX))
+        self.unit_mgr.set_melee_damage(self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN),
+                                       self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MAX))
 
-        self.player_mgr.set_melee_attack_time(self.get_total_stat(UnitStats.MAIN_HAND_DELAY))
-        self.player_mgr.set_offhand_attack_time(self.get_total_stat(UnitStats.OFF_HAND_DELAY))
-        self.player_mgr.set_weapon_reach(self.weapon_reach)
+        self.unit_mgr.set_melee_attack_time(self.get_total_stat(UnitStats.MAIN_HAND_DELAY))
+        self.unit_mgr.set_offhand_attack_time(self.get_total_stat(UnitStats.OFF_HAND_DELAY))
+        self.unit_mgr.set_weapon_reach(self.weapon_reach)
 
     def send_resistances(self):
-        self.player_mgr.set_armor(self.get_total_stat(UnitStats.RESISTANCE_PHYSICAL, accept_negative=True))
-        self.player_mgr.set_holy_res(self.get_total_stat(UnitStats.RESISTANCE_HOLY, accept_negative=True))
-        self.player_mgr.set_fire_res(self.get_total_stat(UnitStats.RESISTANCE_FIRE, accept_negative=True))
-        self.player_mgr.set_nature_res(self.get_total_stat(UnitStats.RESISTANCE_NATURE, accept_negative=True))
-        self.player_mgr.set_frost_res(self.get_total_stat(UnitStats.RESISTANCE_FROST, accept_negative=True))
-        self.player_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW, accept_negative=True))
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        self.unit_mgr.set_armor(self.get_total_stat(UnitStats.RESISTANCE_PHYSICAL, accept_negative=True))
+        self.unit_mgr.set_holy_res(self.get_total_stat(UnitStats.RESISTANCE_HOLY, accept_negative=True))
+        self.unit_mgr.set_fire_res(self.get_total_stat(UnitStats.RESISTANCE_FIRE, accept_negative=True))
+        self.unit_mgr.set_nature_res(self.get_total_stat(UnitStats.RESISTANCE_NATURE, accept_negative=True))
+        self.unit_mgr.set_frost_res(self.get_total_stat(UnitStats.RESISTANCE_FROST, accept_negative=True))
+        self.unit_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW, accept_negative=True))
 
         # TODO Distinguish between positive and negative buffs (client seems to be able to display both at the same time)
-        self.player_mgr.set_bonus_armor(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_PHYSICAL))
-        self.player_mgr.set_bonus_holy_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_HOLY))
-        self.player_mgr.set_bonus_fire_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_FIRE))
-        self.player_mgr.set_bonus_nature_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_NATURE))
-        self.player_mgr.set_bonus_frost_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_FROST))
-        self.player_mgr.set_bonus_shadow_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_SHADOW))
+        self.unit_mgr.set_bonus_armor(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_PHYSICAL))
+        self.unit_mgr.set_bonus_holy_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_HOLY))
+        self.unit_mgr.set_bonus_fire_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_FIRE))
+        self.unit_mgr.set_bonus_nature_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_NATURE))
+        self.unit_mgr.set_bonus_frost_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_FROST))
+        self.unit_mgr.set_bonus_shadow_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_SHADOW))
 
     def _get_positive_negative_bonus(self, stat_type: UnitStats):
         aura_bonuses = self.get_aura_stat_bonuses(stat_type)
@@ -480,21 +504,24 @@ class StatManager(object):
         return negative, positive
 
     def send_attributes(self):
-        self.player_mgr.set_base_str(self.get_base_stat(UnitStats.STRENGTH))
-        self.player_mgr.set_base_agi(self.get_base_stat(UnitStats.AGILITY))
-        self.player_mgr.set_base_sta(self.get_base_stat(UnitStats.STAMINA))
-        self.player_mgr.set_base_int(self.get_base_stat(UnitStats.INTELLECT))
-        self.player_mgr.set_base_spi(self.get_base_stat(UnitStats.SPIRIT))
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        self.unit_mgr.set_base_str(self.get_base_stat(UnitStats.STRENGTH))
+        self.unit_mgr.set_base_agi(self.get_base_stat(UnitStats.AGILITY))
+        self.unit_mgr.set_base_sta(self.get_base_stat(UnitStats.STAMINA))
+        self.unit_mgr.set_base_int(self.get_base_stat(UnitStats.INTELLECT))
+        self.unit_mgr.set_base_spi(self.get_base_stat(UnitStats.SPIRIT))
 
-        # TODO Should the stat display be allowed to show negative values?
-        self.player_mgr.set_str(self.get_total_stat(UnitStats.STRENGTH, accept_negative=True))
-        self.player_mgr.set_agi(self.get_total_stat(UnitStats.AGILITY, accept_negative=True))
-        self.player_mgr.set_sta(self.get_total_stat(UnitStats.STAMINA, accept_negative=True))
-        self.player_mgr.set_int(self.get_total_stat(UnitStats.INTELLECT, accept_negative=True))
-        self.player_mgr.set_spi(self.get_total_stat(UnitStats.SPIRIT, accept_negative=True))
+        self.unit_mgr.set_str(self.get_total_stat(UnitStats.STRENGTH, accept_negative=True))
+        self.unit_mgr.set_agi(self.get_total_stat(UnitStats.AGILITY, accept_negative=True))
+        self.unit_mgr.set_sta(self.get_total_stat(UnitStats.STAMINA, accept_negative=True))
+        self.unit_mgr.set_int(self.get_total_stat(UnitStats.INTELLECT, accept_negative=True))
+        self.unit_mgr.set_spi(self.get_total_stat(UnitStats.SPIRIT, accept_negative=True))
 
     def send_damage_bonuses(self):
-        main_hand = self.player_mgr.inventory.get_main_hand()
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        main_hand = self.unit_mgr.inventory.get_main_hand()
         subclass_mask = 0
         if main_hand:
             subclass_mask = 1 << main_hand.item_template.subclass
@@ -506,7 +533,7 @@ class StatManager(object):
             percentual_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school, percentual=True) * \
                 self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, misc_value=subclass_mask, percentual=True, misc_value_is_mask=True)
 
-            self.player_mgr.set_bonus_damage_done_for_school(int(flat_bonuses * percentual_bonuses), school)
+            self.unit_mgr.set_bonus_damage_done_for_school(int(flat_bonuses * percentual_bonuses), school)
 
     @staticmethod
     def get_health_bonus_from_stamina(stamina):
