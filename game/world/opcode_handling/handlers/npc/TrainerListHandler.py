@@ -19,7 +19,7 @@ class TrainerListHandler(object):
             else:
                 trainer: CreatureManager = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
 
-            if trainer and trainer.is_within_interactable_distance(world_session.player_mgr):
+            if trainer and trainer.is_within_interactable_distance(player_mgr):
                 available_quests: int = 0
                 # Check if any quest is available.
                 if trainer.is_quest_giver():

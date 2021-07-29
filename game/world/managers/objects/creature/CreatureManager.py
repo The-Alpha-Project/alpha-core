@@ -2,7 +2,7 @@ import time
 from random import randint, choice
 from struct import unpack, pack
 
-from database.world.WorldModels import NpcTrainer, SpellChain
+from database.world.WorldModels import TrainingInfo, SpellChain
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
@@ -130,7 +130,7 @@ class CreatureManager(UnitManager):
         train_spell_bytes: bytes = b''
         train_spell_count: int = 0
 
-        trainer_ability_list: list[NpcTrainer] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
+        trainer_ability_list: list[TrainingInfo] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
 
         if not trainer_ability_list or trainer_ability_list.count == 0:
             Logger.warning(f'send_trainer_list called from NPC {self.entry} but no trainer spells found!')
@@ -286,7 +286,7 @@ class CreatureManager(UnitManager):
         if not self.is_trainer():
             return False
         
-        trainer_spells: list[NpcTrainer] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
+        trainer_spells: list[TrainingInfo] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
 
         for trainer_spell in trainer_spells:
             if trainer_spell.spell == spell_id:
