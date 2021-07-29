@@ -105,7 +105,6 @@ from game.world.opcode_handling.handlers.player.cheats.LevelCheatHandler import 
 from game.world.opcode_handling.handlers.player.cheats.LevelUpCheatHandler import LevelUpCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.LearnSpellCheatHandler import LearnSpellCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.CooldownCheatHandler import CooldownCheatHandler
-from game.world.opcode_handling.handlers.player.cheats.CreateMonsterHandler import CreateMonsterHandler
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.TaxiEnableAllNodesHandlers import TaxiEnableAllNodesHandler
 from game.world.opcode_handling.handlers.player.cheats.TaxiClearAllNodesHandler import TaxiClearAllNodesHandler
@@ -305,7 +304,6 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_TAXICLEARALLNODES: TaxiClearAllNodesHandler.handle,
     OpCode.CMSG_LEARN_SPELL: LearnSpellCheatHandler.handle,
     OpCode.CMSG_COOLDOWN_CHEAT: CooldownCheatHandler.handle,
-    OpCode.CMSG_CREATEMONSTER: CreateMonsterHandler.handle,
     OpCode.CMSG_CREATEITEM: CreateItemHandler.handle,
     OpCode.CMSG_RECHARGE: RechargeHandler.handle,
     OpCode.CMSG_DEBUG_AISTATE: DebugAIStateHandler.handle,
