@@ -2701,8 +2701,7 @@ begin not atomic
         INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (780, 779, 779, 2, 0);
         INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5215, 0, 5215, 1, 0);
         INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (6783, 5215, 5215, 2, 0);
-
-
+        INSERT IGNORE INTO `spell_chain` (`spell_id`, `prev_spell`, `first_spell`, `rank`, `req_spell`) VALUES (5217, 0, 5217, 1, 0);
 
 	    insert into applied_updates values ('071920211');
     end if;

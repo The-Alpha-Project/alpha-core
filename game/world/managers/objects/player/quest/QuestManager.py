@@ -157,7 +157,6 @@ class QuestManager(object):
 
         self.update_surrounding_quest_status()
 
-    # TODO Change? Honestly do not see how it could be simplified any further...
     def get_active_quest_num_from_quest_giver(self, quest_giver):
         quest_num: int = 0
 
