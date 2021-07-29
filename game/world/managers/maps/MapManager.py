@@ -157,7 +157,7 @@ class MapManager(object):
             return None
 
     @staticmethod
-    def get_liquid_information(map_id, x, y):
+    def get_liquid_information(map_id, x, y, z):
         try:
             if map_id not in MAPS:
                 Logger.warning(f'Wrong map, {map_id} not found.')
@@ -170,7 +170,9 @@ class MapManager(object):
 
             if map_id not in MAPS or not MAPS[map_id].tiles[map_tile_x][map_tile_y]:
                 return None
-            return MAPS[map_id].tiles[map_tile_x][map_tile_y].liquid_information[tile_local_x][tile_local_y]
+
+            liquids = MAPS[map_id].tiles[map_tile_x][map_tile_y].liquid_information[tile_local_x][tile_local_y]
+            return liquids if liquids and liquids.height > z else None
         except:
             Logger.error(traceback.format_exc())
             return None

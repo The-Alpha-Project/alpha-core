@@ -823,7 +823,7 @@ class PlayerManager(UnitManager):
 
     def update_swimming_state(self, state):
         if state:
-            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y)
+            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
             if not self.liquid_information:
                 Logger.warning(f'Unable to retrieve liquid information.')
         else:
@@ -845,7 +845,7 @@ class PlayerManager(UnitManager):
     def update_liquid_information(self):
         # Retrieve latest liquid information, only if player is swimming.
         if self.is_swimming():
-            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y)
+            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
 
     # override
     def get_full_update_packet(self, is_self=True):
