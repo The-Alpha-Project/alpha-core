@@ -145,7 +145,6 @@ class PlayerManager(UnitManager):
             self.object_type.append(ObjectTypes.TYPE_PLAYER)
             self.update_packet_factory.init_values(PlayerFields.PLAYER_END)
 
-            self.stat_manager = StatManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.quest_manager = QuestManager(self)
