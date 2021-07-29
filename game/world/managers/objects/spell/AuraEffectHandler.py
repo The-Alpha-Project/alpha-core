@@ -5,7 +5,7 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import Factions, ObjectTypes
-from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes
+from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
 from utils.constants.UnitCodes import Teams
 
 
@@ -20,8 +20,6 @@ class AuraEffectHandler:
         if not is_proc and aura_type in PROC_AURA_EFFECTS:
             return  # Only call proc effects when a proc happens.
 
-        if aura.spell_effect.aura_type in STAT_MOD_EFFECTS and effect_target.get_type() != ObjectTypes.TYPE_PLAYER:
-            return  # TODO Temporary fix for creatures not having StatManager
         AURA_EFFECTS[aura.spell_effect.aura_type](aura, effect_target, remove)
 
     @staticmethod
@@ -319,6 +317,27 @@ class AuraEffectHandler:
                                                          percentual=False, misc_value=misc_value)
 
     @staticmethod
+    def handle_mod_damage_taken(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
+            return
+        amount = aura.get_effect_points()
+        misc_value = aura.spell_effect.misc_value  # Spell school
+
+        # Fatigued (3271) is the only spell with a negative misc value (-2).
+        # There are no descriptions, but in Vmangos this is handled as all schools.
+        # -1 is handled as all magic schools, but doesn't exist in the database.
+        if misc_value == -2:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        elif misc_value == -1:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_SPELL
+        else:
+            spell_school = 1 << misc_value
+
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DAMAGE_TAKEN_SCHOOL, amount,
+                                                         percentual=False, misc_value=spell_school)
+
+    @staticmethod
     def handle_mod_damage_done_creature(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
@@ -359,6 +378,8 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED: AuraEffectHandler.handle_decrease_speed,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED: AuraEffectHandler.handle_increase_swim_speed,
 
+    AuraTypes.SPELL_AURA_MOD_DAMAGE_TAKEN: AuraEffectHandler.handle_mod_damage_taken,
+
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE: AuraEffectHandler.handle_mod_damage_done,
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE_CREATURE: AuraEffectHandler.handle_mod_damage_done_creature
 }
@@ -366,26 +387,6 @@ AURA_EFFECTS = {
 PROC_AURA_EFFECTS = [
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE
-]
-
-# TODO Temporary
-STAT_MOD_EFFECTS = [
-    AuraTypes.SPELL_AURA_MOD_RESISTANCE,
-    AuraTypes.SPELL_AURA_MOD_BASE_RESISTANCE,
-    AuraTypes.SPELL_AURA_MOD_REGEN,
-    AuraTypes.SPELL_AURA_MOD_STAT,
-    AuraTypes.SPELL_AURA_MOD_HEALTH_REGEN_PERCENT,
-    AuraTypes.SPELL_AURA_MOD_POWER_REGEN,
-    AuraTypes.SPELL_AURA_MOD_SKILL,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_HEALTH,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_MANA,
-    AuraTypes.SPELL_AURA_MOD_PERCENT_STAT,
-    AuraTypes.SPELL_AURA_MOD_POWER_COST_SCHOOL,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_SPEED,
-    AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED,
-    AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE,
-    AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE_CREATURE,
 ]
 
 # Alliance / Default display_id, Horde display_id, Scale

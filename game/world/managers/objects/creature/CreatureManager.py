@@ -65,6 +65,7 @@ class CreatureManager(UnitManager):
             self.fully_loaded = False
             self.is_evading = False
             self.wearing_offhand_weapon = False
+            self.wearing_ranged_weapon = False
             self.respawn_timer = 0
             self.is_spawned = True
             self.last_random_movement = 0
@@ -213,6 +214,7 @@ class CreatureManager(UnitManager):
                         self.set_virtual_item(1, creature_equip_template.equipentry2)
                         self.set_virtual_item(2, creature_equip_template.equipentry3)
 
+                self.stat_manager.init_stats()
                 self.fully_loaded = True
 
     def set_virtual_item(self, slot, item_entry):
@@ -249,6 +251,10 @@ class CreatureManager(UnitManager):
             if slot == 1:
                 self.wearing_offhand_weapon = (item_template.inventory_type == InventoryTypes.WEAPON or
                                                item_template.inventory_type == InventoryTypes.WEAPONOFFHAND)
+            # Ranged
+            if slot == 2:
+                self.wearing_ranged_weapon = (item_template.inventory_type == InventoryTypes.RANGED or
+                                              item_template.inventory_type == InventoryTypes.RANGEDRIGHT)
         elif slot == 0:
             self.weapon_reach = 0.0
 
@@ -472,10 +478,6 @@ class CreatureManager(UnitManager):
         else:
             player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite)], self)
 
-    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes):
-        min_damage, max_damage = unpack('<2H', pack('<I', self.damage))
-        return int(min_damage), int(max_damage)
-
     def set_lootable(self, flag=True):
         if flag:
             self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
@@ -486,6 +488,10 @@ class CreatureManager(UnitManager):
     # override
     def has_offhand_weapon(self):
         return self.wearing_offhand_weapon
+
+    # override
+    def has_ranged_weapon(self):
+        return self.wearing_ranged_weapon
 
     # override
     def set_weapon_mode(self, weapon_mode):
