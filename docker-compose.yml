@@ -15,7 +15,7 @@ services:
       - "9100:9100"
     volumes:
       - .:/var/wow/
-    restart: always
+    restart: on-failure
   sql:
     image: alpha-mariadb:latest
     build: etc/docker/sql
@@ -25,3 +25,4 @@ services:
       - "3306:3306"
     volumes:
       - ./etc/databases/:/etc/databases/
+    restart: on-failure

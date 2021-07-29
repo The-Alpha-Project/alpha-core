@@ -22,9 +22,16 @@ class GuildInfoHandler(object):
             )
 
             accounts = RealmDatabaseManager.guild_get_accounts(guild_id=player.guild_manager.guild.guild_id)
-            # TODO: Parse DB DT.
+            creation_date = player.guild_manager.guild.creation_date
             # Day, Month, Years, Players, Nº Accounts
-            data += pack('<5I', 0, 0, 0, len(player.guild_manager.members), len(accounts))
+            data += pack(
+                '<5I',
+                creation_date.day,
+                creation_date.month,
+                creation_date.year,
+                len(player.guild_manager.members),
+                len(accounts)
+            )
             player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_INFO, data))
 
         return 0

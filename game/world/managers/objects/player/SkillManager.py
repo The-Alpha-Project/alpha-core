@@ -236,7 +236,7 @@ class SkillManager(object):
             self.send_set_proficiency(proficiency)
 
     def add_skill(self, skill_id):
-        # Skill already learnt
+        # Skill already learned.
         if skill_id in self.skills:
             return
 
@@ -257,6 +257,7 @@ class SkillManager(object):
         RealmDatabaseManager.character_add_skill(skill_to_set)
 
         self.skills[skill_id] = skill_to_set
+        self.build_update()
 
     def set_skill(self, skill_id, current_value, max_value=-1):
         if skill_id not in self.skills:
