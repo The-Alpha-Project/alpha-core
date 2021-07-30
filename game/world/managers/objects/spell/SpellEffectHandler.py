@@ -231,6 +231,18 @@ class SpellEffectHandler(object):
 
         target.skill_manager.add_proficiency(item_class, item_subclass_mask)
 
+    @staticmethod
+    def handle_add_language(casting_spell, effect, caster, target):
+        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        # The value in SkillLineAbility for languages is equal to "language TEMP",
+        # the proper skill is 1 number below.
+        skill_id = SkillManager.get_skill_id_for_spell_id(casting_spell.spell_entry.ID)
+        skill_id -= 1
+
+        target.skill_manager.add_skill(skill_id)
+
     # Block/parry/dodge/defense passives have their own effects and no aura. Flag the unit here as being able to block/parry/dodge.
     @staticmethod
     def handle_block_passive(casting_spell, effect, caster, target):
@@ -250,6 +262,10 @@ class SpellEffectHandler(object):
     def handle_defense_passive(casting_spell, effect, caster, target):
         if target.get_type() == ObjectTypes.TYPE_PLAYER:
             target.skill_manager.add_skill(SkillTypes.DEFENSE.value)
+
+    @staticmethod
+    def handle_spell_defense_passive(casting_spell, effect, caster, target):
+        pass  # Only "SPELLDEFENSE (DND)", obsolete
 
     AREA_SPELL_EFFECTS = [
         SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA,
@@ -277,13 +293,14 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SUMMON_TOTEM: SpellEffectHandler.handle_summon_totem,
     SpellEffects.SPELL_EFFECT_SCRIPT_EFFECT: SpellEffectHandler.handle_script_effect,
 
-    SpellEffects.SPELL_EFFECT_WEAPON: SpellEffectHandler.handle_weapon_skill,
-    SpellEffects.SPELL_EFFECT_PROFICIENCY: SpellEffectHandler.handle_add_proficiency,
-
-    # Passive effects - enable flags (and skills if needed) on logon
+    # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,
     SpellEffects.SPELL_EFFECT_PARRY: SpellEffectHandler.handle_parry_passive,
     SpellEffects.SPELL_EFFECT_DODGE: SpellEffectHandler.handle_dodge_passive,
     SpellEffects.SPELL_EFFECT_DEFENSE: SpellEffectHandler.handle_defense_passive,
+    SpellEffects.SPELL_EFFECT_SPELL_DEFENSE: SpellEffectHandler.handle_spell_defense_passive,
+    SpellEffects.SPELL_EFFECT_WEAPON: SpellEffectHandler.handle_weapon_skill,
+    SpellEffects.SPELL_EFFECT_PROFICIENCY: SpellEffectHandler.handle_add_proficiency,
+    SpellEffects.SPELL_EFFECT_LANGUAGE: SpellEffectHandler.handle_add_language
 }
 
