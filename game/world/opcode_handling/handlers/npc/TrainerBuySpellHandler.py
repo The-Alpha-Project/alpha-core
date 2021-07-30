@@ -1,5 +1,4 @@
-from utils.constants.UnitCodes import TalentTemplateInfo
-from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.MiscCodes import TalentTemplateInfo
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell
 from network.packet.PacketReader import PacketReader
@@ -45,6 +44,7 @@ class TrainerBuySpellHandler(object):
                     world_session.player_mgr.send_update_self(
                         world_session.player_mgr.generate_proper_update_packet(is_self=True),
                         force_inventory_update=False)
+                    world_session.player_mgr.talent_manager.apply_talent_auras()
                     TrainerBuySpellHandler.send_trainer_buy_succeeded(world_session, trainer_guid, spell_id)
                     # Send talent list again to refresh it.
                     world_session.player_mgr.talent_manager.send_talent_list()

@@ -847,3 +847,7 @@ class MirrorTimerTypes(IntEnum):
 class LogoutResponseCodes(IntEnum):
     LOGOUT_CANCEL = 0
     LOGOUT_PROCEED = 1
+
+
+class TalentTemplateInfo(IntEnum):
+    TALENT_TEMPLATE_ID = 1000 # Constant value for talent trainer template id. Use this value to retrieve talents from trainer_template. Not defined by Blizzard.
