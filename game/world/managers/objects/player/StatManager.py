@@ -1,3 +1,4 @@
+import random
 from enum import IntEnum, auto, IntFlag
 from struct import pack, unpack
 
@@ -43,6 +44,8 @@ class UnitStats(IntFlag):
     PARRY = auto()
     DODGE = auto()
     BLOCK = auto()
+
+    PROC_CHANCE = auto()
 
     CRITICAL = auto()
     SPELL_CRITICAL = auto()
@@ -137,6 +140,9 @@ class StatManager(object):
         self.update_base_health_regen()
         self.update_base_mana_regen()
 
+        self.update_base_proc_chance()
+        self.update_base_dodge_chance()
+
     def get_base_stat(self, stat_type: UnitStats) -> int:
         return self.base_stats.get(stat_type, 0)
 
@@ -184,6 +190,9 @@ class StatManager(object):
 
         self.update_base_mana_regen()
         self.update_base_health_regen()
+
+        self.update_base_proc_chance()
+        self.update_base_dodge_chance()
 
         self.send_attributes()
         self.send_melee_attributes()
@@ -357,7 +366,6 @@ class StatManager(object):
         spirit = self.get_total_stat(UnitStats.SPIRIT)
         self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(CLASS_BASE_REGEN_HEALTH[player_class] + spirit * CLASS_SPIRIT_SCALING_HP5[player_class])
 
-
     def update_base_mana_regen(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
@@ -368,6 +376,35 @@ class StatManager(object):
         spirit = self.get_total_stat(UnitStats.SPIRIT)
         regen = CLASS_BASE_REGEN_MANA[player_class] + spirit * CLASS_SPIRIT_SCALING_MANA[player_class]
         self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
+
+    def update_base_dodge_chance(self):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        player_class = self.unit_mgr.player.class_
+
+        agility = self.get_total_stat(UnitStats.AGILITY)
+        scaling = CLASS_AGILITY_SCALING_DODGE[player_class]
+        class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
+                      scaling[1] * (self.unit_mgr.level - 1)) / 59
+
+        class_base_dodge = CLASS_BASE_DODGE_PERCENTAGE[player_class] if player_class in CLASS_BASE_DODGE_PERCENTAGE else 0
+        total_dodge = class_base_dodge + agility / class_rate
+        self.base_stats[UnitStats.DODGE] = total_dodge
+
+    def update_base_proc_chance(self):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        player_class = self.unit_mgr.player.class_
+
+        agility = self.get_total_stat(UnitStats.AGILITY)
+
+        # TODO Using dodge formula because of missing information - tune if needed.
+        scaling = CLASS_AGILITY_SCALING_DODGE[player_class]
+        class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
+                      scaling[1] * (self.unit_mgr.level - 1)) / 59
+
+        total_proc_chance = agility / class_rate
+        self.base_stats[UnitStats.PROC_CHANCE] = total_proc_chance
 
     # Auto attack/shoot base damage
     def get_base_attack_base_min_max_damage(self, attack_type: AttackTypes):
@@ -406,6 +443,10 @@ class StatManager(object):
                                                            accept_negative=True, misc_value_is_mask=True)
         # Damage taken reduction can bring damage to negative, limit to 0.
         return max(0, damage_dealt)
+
+    def roll_proc_chance(self, base_chance: float) -> bool:
+        chance = base_chance + self.get_total_stat(UnitStats.PROC_CHANCE)
+        return random.randint(1, 100) <= chance
 
     def update_base_weapon_attributes(self, attack_type=0):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
@@ -589,6 +630,29 @@ CLASS_BASE_REGEN_MANA = {
     Classes.CLASS_MAGE: 12.5,
     Classes.CLASS_WARLOCK: 15.0,
     Classes.CLASS_DRUID: 15.0
+}
+
+# Vmangos
+CLASS_BASE_DODGE_PERCENTAGE = {
+    Classes.CLASS_DRUID: 0.9,
+    Classes.CLASS_MAGE: 3.2,
+    Classes.CLASS_PALADIN: 0.7,
+    Classes.CLASS_PRIEST: 3.0,
+    Classes.CLASS_SHAMAN: 1.7,
+    Classes.CLASS_WARLOCK: 2.0
+}
+
+# Vmangos (level 1, level 60)
+CLASS_AGILITY_SCALING_DODGE = {
+    Classes.CLASS_DRUID: (4.6, 20.0),
+    Classes.CLASS_PALADIN: (4.6, 20.0),
+    Classes.CLASS_SHAMAN: (4.6, 20.0),
+    Classes.CLASS_MAGE: (12.9, 20.0),
+    Classes.CLASS_ROGUE: (1.1, 14.5),
+    Classes.CLASS_HUNTER: (1.8, 26.5),
+    Classes.CLASS_PRIEST: (11.0, 20.0),
+    Classes.CLASS_WARLOCK: (8.4, 20.0),
+    Classes.CLASS_WARRIOR: (3.9, 20.0)
 }
 
 INVENTORY_STAT_TO_UNIT_STAT = {
