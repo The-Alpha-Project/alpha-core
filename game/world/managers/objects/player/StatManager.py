@@ -507,12 +507,13 @@ class StatManager(object):
     def send_resistances(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
-        self.unit_mgr.set_armor(self.get_total_stat(UnitStats.RESISTANCE_PHYSICAL, accept_negative=True))
-        self.unit_mgr.set_holy_res(self.get_total_stat(UnitStats.RESISTANCE_HOLY, accept_negative=True))
-        self.unit_mgr.set_fire_res(self.get_total_stat(UnitStats.RESISTANCE_FIRE, accept_negative=True))
-        self.unit_mgr.set_nature_res(self.get_total_stat(UnitStats.RESISTANCE_NATURE, accept_negative=True))
-        self.unit_mgr.set_frost_res(self.get_total_stat(UnitStats.RESISTANCE_FROST, accept_negative=True))
-        self.unit_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW, accept_negative=True))
+
+        self.unit_mgr.set_armor(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_PHYSICAL))
+        self.unit_mgr.set_holy_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_HOLY))
+        self.unit_mgr.set_fire_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_FIRE))
+        self.unit_mgr.set_nature_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_NATURE))
+        self.unit_mgr.set_frost_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_FROST))
+        self.unit_mgr.set_shadow_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_SHADOW))
 
         self.unit_mgr.set_bonus_armor(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_PHYSICAL))
         self.unit_mgr.set_bonus_holy_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_HOLY))
@@ -533,15 +534,12 @@ class StatManager(object):
                 continue
             negative += aura_bonus
 
-        item_bonus = self.get_item_stat(stat_type)
-        if item_bonus > 0:
-            positive += item_bonus
-        else:
-            negative += item_bonus
-
         for percentual_bonus in percentual:
             positive *= percentual_bonus
         return negative, positive
+
+    def _get_total_and_item_stat_bonus(self, stat_type: UnitStats):
+        return self.get_total_stat(stat_type, accept_negative=True), self.get_item_stat(stat_type)
 
     def send_attributes(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
