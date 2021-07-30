@@ -474,7 +474,7 @@ class PlayerManager(UnitManager):
     # override
     def change_speed(self, speed=0):
         super().change_speed(speed)
-        data = pack('<f', speed)
+        data = pack('<f', self.running_speed)
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
@@ -486,7 +486,7 @@ class PlayerManager(UnitManager):
         elif swim_speed >= 56:
             swim_speed = 56  # Max possible swim speed
         self.swim_speed = swim_speed
-        data = pack('<f', swim_speed)
+        data = pack('<f', self.swim_speed)
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
@@ -498,7 +498,7 @@ class PlayerManager(UnitManager):
         elif walk_speed >= 56:
             walk_speed = 56  # Max speed without glitches
         self.walk_speed = walk_speed
-        data = pack('<f', walk_speed)
+        data = pack('<f', self.walk_speed)
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
@@ -508,7 +508,7 @@ class PlayerManager(UnitManager):
         if turn_speed <= 0:
             turn_speed = config.Unit.Player.Defaults.turn_speed
         self.turn_rate = turn_speed
-        data = pack('<f', turn_speed)
+        data = pack('<f', self.turn_rate)
         # TODO NOT WORKING
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 
