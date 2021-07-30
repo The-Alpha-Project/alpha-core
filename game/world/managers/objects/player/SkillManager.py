@@ -220,7 +220,7 @@ class SkillManager(object):
             if acquire_method == -1:
                 break
 
-            # TODO: Only loading proficiencies acquired on char creation for now
+            # Learned proficiencies are applied through passive spells
             if acquire_method != ProficiencyAcquireMethod.ON_CHAR_CREATE:
                 continue
 
@@ -265,7 +265,7 @@ class SkillManager(object):
         skill_to_set.guid = self.player_mgr.guid
         skill_to_set.skill = skill_id
         skill_to_set.value = start_rank_value
-        skill_to_set.max = skill.MaxRank
+        skill_to_set.max = SkillManager.get_max_rank(self.player_mgr.level, skill_id)
 
         RealmDatabaseManager.character_add_skill(skill_to_set)
 
