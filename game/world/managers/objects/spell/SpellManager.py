@@ -65,7 +65,9 @@ class SpellManager(object):
         for spell_id in self.spells.keys():
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
-                self.start_spell_cast(spell_template, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF)
+                spell = self.try_initialize_spell(spell_template, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF, validate=False)
+                spell.resolve_target_info_for_effects()
+                self.apply_spell_effects(spell, remove=True)
 
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.unit_mgr.guid)
