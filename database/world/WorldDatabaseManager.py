@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from database.world.WorldModels import *
 from utils.ConfigManager import *
 from utils.constants.MiscCodes import HighGuid
+from utils.constants.UnitCodes import TalentTemplateInfo
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
 DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
@@ -370,7 +371,7 @@ class WorldDatabaseManager(object):
         def get_all_talents() -> Optional[list[TrainerTemplate]]:
             talents: list[TrainerTemplate] = []
 
-            trainer_template_id = 100 # Set talent trainer id
+            trainer_template_id = TalentTemplateInfo.TALENT_TEMPLATE_ID
 
             for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
                 if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == trainer_template_id:

@@ -160,3 +160,6 @@ class SplineFlags(IntEnum):
     SPLINEFLAG_CYCLIC = 0x00100000  # Movement by cycled spline
     SPLINEFLAG_ENTER_CYCLE = 0x00200000  # Appears with cyclic flag in monster move packet, erases first spline vertex after first cycle done
     SPLINEFLAG_FROZEN = 0x00400000  # Will never arrive
+
+class TalentTemplateInfo(IntEnum):
+    TALENT_TEMPLATE_ID = 100
