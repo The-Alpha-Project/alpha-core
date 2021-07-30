@@ -184,11 +184,17 @@ class ProficiencyAcquireMethod(IntEnum):
     ON_CHAR_CREATE = 1
 
 
-class Proficiency(NamedTuple):
-    min_level: int
-    acquire_method: int
+class Proficiency:
     item_class: int
     item_subclass_mask: int
+
+    def __init__(self, item_class, item_subclass_mask):
+        self.item_class = item_class
+        self.item_subclass_mask = item_subclass_mask
+
+    def matches(self, item_class, item_subclass):
+        return self.item_class == item_class and \
+               (self.item_subclass_mask & 1 << item_subclass)
 
 
 class SkillManager(object):
@@ -220,11 +226,19 @@ class SkillManager(object):
 
             item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
             self.proficiencies[item_class] = Proficiency(
-                    eval(f'chr_proficiency.Proficiency_MinLevel_{x}'),
-                    acquire_method,
                     item_class,
                     eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}'),
             )
+
+    def add_proficiency(self, item_class, item_subclass_mask):
+        if item_class in self.proficiencies:
+            proficiency = self.proficiencies[item_class]
+            proficiency.item_subclass_mask |= item_subclass_mask
+        else:
+            proficiency = Proficiency(item_class, item_subclass_mask)
+            self.proficiencies[item_class] = proficiency
+
+        self.send_set_proficiency(proficiency)
 
     def send_set_proficiency(self, proficiency):
         packet = PacketWriter.get_packet(OpCode.SMSG_SET_PROFICIENCY, pack('<bI', proficiency.item_class, proficiency.item_subclass_mask))
@@ -283,7 +297,7 @@ class SkillManager(object):
     def can_use_equipment(self, item_class, item_subclass):
         if item_class not in self.proficiencies:
             return False
-        return self.proficiencies[item_class].item_subclass_mask & (1 << item_subclass) != 0
+        return self.proficiencies[item_class].matches(item_class, item_subclass)
 
     def get_total_skill_value(self, skill_id):
         if skill_id not in self.skills:
@@ -293,13 +307,10 @@ class SkillManager(object):
         return skill.value + bonus_skill
 
     def get_skill_value_for_spell_id(self, spell_id):
-        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell_id)
-        if not skill_line_ability:
-            return None
-
-        skill_id = skill_line_ability.SkillLine
+        skill_id = self.get_skill_id_for_spell_id(spell_id)
         if skill_id not in self.skills:
             return None
+
         return self.get_total_skill_value(skill_id)
 
     @staticmethod
@@ -311,6 +322,14 @@ class SkillManager(object):
         if language_id in LANG_DESCRIPTION:
             return LANG_DESCRIPTION[language_id].skill_id
         return -1
+
+    @staticmethod
+    def get_skill_id_for_spell_id(spell_id):
+        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell_id)
+        if not skill_line_ability:
+            return None
+
+        return skill_line_ability.SkillLine
 
     @staticmethod
     def get_max_rank(player_level, skill_id):
