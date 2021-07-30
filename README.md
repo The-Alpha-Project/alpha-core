@@ -17,19 +17,17 @@ You can install `docker` through your OS package manager or [via download throug
 
 1. Copy `etc/config/config.yml.dist` to `etc/config/config.yml` 
 2. Run: `docker-compose up -d`
+
 ### Development in Docker
 
 The docker-compose configuration will mount the entire project folder on `/var/wow` in the main container. To access the container run `docker-compose exec main bash` as usual, to inspect the logs `docker-compose logs -f main`
 
-Codebase is under a continuous watch process and server will reboot everytime the code has changed. To manually restart the server run `docker-compose restart main`
-### Database management
+To enable extra development features please run `docker-compose --profile dev up` to run the project with the developer profile on.
 
-An additional phpmyadmin image is provided in the docker-compose for ease of browsing the database, this is accessible through compose profiles.
 
-Either run:
-- `docker-compose --profile dev up` to spin all the containers
-- or `docker-compose run phpmyadmin` to spin up the container separately if the other containers are already running
+If run with the development profile the codebase will be under a continuous watch process and server will reboot everytime the code has changed. To manually restart the server run `docker-compose restart main`
 
+In addition a phpmyadmin image is provided in the docker-compose for ease of browsing the database, this is accessible through compose profiles. 
 You can access phpmyadmin by visiting `http://localhost:8080`
 
 ### Rebuilding the database
