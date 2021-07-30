@@ -494,6 +494,11 @@ class CreatureManager(UnitManager):
         return self.wearing_ranged_weapon
 
     # override
+    def can_block(self):
+        # All creatures can block by default
+        return True  # TODO CANT_BLOCK creature extra flag
+
+    # override
     def set_weapon_mode(self, weapon_mode):
         super().set_weapon_mode(weapon_mode)
         self.bytes_2 = unpack('<I', pack('<4B', self.sheath_state, 0, 0, 0))[0]

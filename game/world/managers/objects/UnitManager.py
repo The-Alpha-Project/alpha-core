@@ -202,6 +202,11 @@ class UnitManager(ObjectManager):
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
 
+        # Defensive passive spells are not handled through the aura system. The effects will instead flag the unit with these fields.
+        self.has_block_passive = False
+        self.has_parry_passive = False
+        self.has_dodge_passive = False
+
         self.stat_manager = StatManager(self)
         self.spell_manager = SpellManager(self)
         self.aura_manager = AuraManager(self)
@@ -615,6 +620,15 @@ class UnitManager(ObjectManager):
     # Implemented by PlayerManager and CreatureManager
     def has_ranged_weapon(self):
         return False
+
+    def can_block(self):
+        return self.has_block_passive  # TODO Stunned/facing checks
+
+    def can_parry(self):
+        return self.has_parry_passive  # TODO Stunned/casting/facing checks
+
+    def can_dodge(self):
+        return self.has_dodge_passive  # TODO Stunned check
 
     def enter_combat(self):
         self.in_combat = True
