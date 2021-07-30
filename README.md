@@ -24,7 +24,6 @@ The docker-compose configuration will mount the entire project folder on `/var/w
 
 To enable extra development features please run `docker-compose --profile dev up` to run the project with the developer profile on.
 
-
 If run with the development profile the codebase will be under a continuous watch process and server will reboot everytime the code has changed. To manually restart the server run `docker-compose restart main`
 
 In addition a phpmyadmin image is provided in the docker-compose for ease of browsing the database, this is accessible through compose profiles. 
