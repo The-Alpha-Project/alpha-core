@@ -2,6 +2,7 @@ version: '3.9'
 services:
   main:
     image: alpha-core:latest
+    container_name: alpha-core-main
     build: .
     environment:
       - MYSQL_HOST=sql
@@ -21,6 +22,7 @@ services:
 
   sql:
     image: alpha-mariadb:latest
+    container_name: alpha-core-sql
     build: etc/docker/sql
     environment:
       - MYSQL_ROOT_PASSWORD=pwd
@@ -44,3 +46,15 @@ services:
     profiles:
       - dev
   
+  inotify:
+    image: alpha-inotify:latest
+    build: etc/docker/inotify
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - .:/var/wow/
+    environment:
+      - CONTAINER=alpha-core-main
+      - VOLUMES=/var/wow
+    restart: on-failure
+    profiles:
+      - dev
