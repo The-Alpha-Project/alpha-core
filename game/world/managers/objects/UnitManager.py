@@ -7,6 +7,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.player.StatManager import StatManager
 from game.world.managers.objects.spell.AuraManager import AuraManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -201,6 +202,7 @@ class UnitManager(ObjectManager):
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
 
+        self.stat_manager = StatManager(self)
         self.spell_manager = SpellManager(self)
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
@@ -389,7 +391,7 @@ class UnitManager(ObjectManager):
 
         damage_info.attacker = self
         damage_info.target = victim
-        damage_info.damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim.creature_type)
+        damage_info.damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
 
         # Not taking "subdamages" into account
         damage_info.total_damage = damage_info.damage
@@ -439,8 +441,8 @@ class UnitManager(ObjectManager):
         # Damage effects
         self.deal_damage(damage_info.target, damage_info.total_damage)
 
-    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes, apply_bonuses=True):
-        min_damage, max_damage = self.calculate_min_max_damage(attack_type, attack_school, target_creature_type)
+    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target, apply_bonuses=True):
+        min_damage, max_damage = self.calculate_min_max_damage(attack_type, attack_school, target)
 
         if min_damage > max_damage:
             tmp_min = min_damage
@@ -453,12 +455,11 @@ class UnitManager(ObjectManager):
     def generate_rage(self, damage_info, is_player=False):
         return
 
-    # Implemented by PlayerManager and CreatureManager
-    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes):
-        return 0, 0
+    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
+        return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
     # Implemented by PlayerManager
-    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target_creature_type: CreatureTypes, spell_attack_type: AttackTypes = -1):
+    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
         return base_damage
 
     def deal_damage(self, target, damage, is_periodic=False):
@@ -529,7 +530,7 @@ class UnitManager(ObjectManager):
         else:  # TODO Proc damage effects (SPELL_AURA_PROC_TRIGGER_DAMAGE) can't fill target results - should they be able to miss?
             miss_reason = SpellMissReason.MISS_REASON_NONE
 
-        damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target.creature_type, casting_spell.spell_attack_type)
+        damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target, casting_spell.spell_attack_type)
 
         damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)
         # TODO Roll crit, handle absorb
@@ -609,6 +610,10 @@ class UnitManager(ObjectManager):
 
     # Implemented by PlayerManager and CreatureManager
     def has_offhand_weapon(self):
+        return False
+
+    # Implemented by PlayerManager and CreatureManager
+    def has_ranged_weapon(self):
         return False
 
     def enter_combat(self):

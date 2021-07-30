@@ -145,7 +145,6 @@ class PlayerManager(UnitManager):
             self.object_type.append(ObjectTypes.TYPE_PLAYER)
             self.update_packet_factory.init_values(PlayerFields.PLAYER_END)
 
-            self.stat_manager = StatManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.quest_manager = QuestManager(self)
@@ -472,12 +471,9 @@ class PlayerManager(UnitManager):
         self.session.enqueue_packet(PacketWriter.get_packet(opcode))
 
     # TODO Maybe merge all speed changes in one method
+    # override
     def change_speed(self, speed=0):
-        if speed <= 0:
-            speed = config.Unit.Defaults.run_speed
-        elif speed >= 56:
-            speed = 56  # Max speed without glitches
-        self.running_speed = speed
+        super().change_speed(speed)
         data = pack('<f', speed)
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
 
@@ -827,7 +823,7 @@ class PlayerManager(UnitManager):
 
     def update_swimming_state(self, state):
         if state:
-            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y)
+            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
             if not self.liquid_information:
                 Logger.warning(f'Unable to retrieve liquid information.')
         else:
@@ -849,7 +845,7 @@ class PlayerManager(UnitManager):
     def update_liquid_information(self):
         # Retrieve latest liquid information, only if player is swimming.
         if self.is_swimming():
-            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y)
+            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
 
     # override
     def get_full_update_packet(self, is_self=True):
@@ -1104,31 +1100,27 @@ class PlayerManager(UnitManager):
 
             self.last_regen = current_time
 
-    # override
-    def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes):
-        return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
-
-    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target_creature_type: CreatureTypes, apply_bonuses=True):
-        rolled_damage = super().calculate_base_attack_damage(attack_type, attack_school, target_creature_type, apply_bonuses)
+    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target: UnitManager, apply_bonuses=True):
+        rolled_damage = super().calculate_base_attack_damage(attack_type, attack_school, target, apply_bonuses)
 
         if apply_bonuses:
             subclass = -1
             equipped_weapon = self._get_weapon_for_attack_type(attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
-            rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target_creature_type, subclass)
+            rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target, subclass)
 
         return max(0, rolled_damage)
 
     # override
-    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target_creature_type: CreatureTypes, spell_attack_type: AttackTypes = -1):
+    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
         subclass = 0
         if spell_attack_type != -1:
             equipped_weapon = self._get_weapon_for_attack_type(spell_attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
 
-        return self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school, target_creature_type, subclass)
+        return self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school, target, subclass)
 
     def generate_rage(self, damage_info, is_player=False):
         # Warriors or Druids in Bear form
@@ -1164,6 +1156,10 @@ class PlayerManager(UnitManager):
     # override
     def has_offhand_weapon(self):
         return self.inventory.has_offhand_weapon()
+
+    # override
+    def has_ranged_weapon(self):
+        return self.inventory.has_ranged_weapon()
 
     # override
     def set_weapon_mode(self, weapon_mode):

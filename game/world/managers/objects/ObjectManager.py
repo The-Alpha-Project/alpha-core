@@ -137,6 +137,13 @@ class ObjectManager(object):
         self.current_scale = scale
         self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
+    def change_speed(self, speed=0):
+        if speed <= 0:
+            speed = config.Unit.Defaults.run_speed
+        elif speed >= 56:
+            speed = 56  # Max speed without glitches
+        self.running_speed = speed
+
     def reset_scale(self):
         self.set_scale(self.native_scale)
 

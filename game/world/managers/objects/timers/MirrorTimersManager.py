@@ -4,6 +4,7 @@ from utils.constants.MiscCodes import MirrorTimerTypes
 
 class MirrorTimersManager(object):
     UPDATE_RATE = 1  # In seconds, how often we check timers status.
+    SPELL_FEIGN_DEATH = 5384
 
     def __init__(self, owner):
         self.owner = owner
@@ -13,9 +14,10 @@ class MirrorTimersManager(object):
         self.load()
 
     def load(self):
-        self.timers[MirrorTimerTypes.BREATH] = MirrorTimer(self.owner, MirrorTimerTypes.BREATH, 1, 60, -1, 0)
-        self.timers[MirrorTimerTypes.FATIGUE] = MirrorTimer(self.owner, MirrorTimerTypes.FATIGUE, 1, 60, -1, 0)
-        self.timers[MirrorTimerTypes.FEIGNDEATH] = MirrorTimer(self.owner, MirrorTimerTypes.FEIGNDEATH, 1, 300, -1, 5384)
+        self.timers[MirrorTimerTypes.BREATH] = MirrorTimer(self.owner, MirrorTimerTypes.BREATH, 1, 60)
+        self.timers[MirrorTimerTypes.FATIGUE] = MirrorTimer(self.owner, MirrorTimerTypes.FATIGUE, 1, 60)
+        self.timers[MirrorTimerTypes.FEIGNDEATH] = MirrorTimer(self.owner, MirrorTimerTypes.FEIGNDEATH, 1, 300, -1,
+                                                               MirrorTimersManager.SPELL_FEIGN_DEATH)
 
     def stop_all(self):
         for timer in self.timers.values():
