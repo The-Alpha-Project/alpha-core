@@ -10,7 +10,7 @@ from utils.PathManager import PathManager
 
 
 class MapTile(object):
-    EXPECTED_VERSION = 'ACMAP_1.30'
+    EXPECTED_VERSION = 'ACMAP_1.40'
 
     def __init__(self, map_id, tile_x, tile_y):
         self.cell_x = tile_x
@@ -43,7 +43,9 @@ class MapTile(object):
                 # ZoneID, AreaNumber, AreaFlags, AreaLevel, AreaExploreFlag(Bit), AreaFactionMask
                 for x in range(0, RESOLUTION_AREA_INFO):
                     for y in range(0, RESOLUTION_AREA_INFO):
-                        zone_id = unpack('<I', map_tiles.read(4))[0]
+                        zone_id = unpack('<i', map_tiles.read(4))[0]
+                        if zone_id == -1:  # No area information.
+                            continue
                         area_number = unpack('<I', map_tiles.read(4))[0]
                         area_flags = unpack('<B', map_tiles.read(1))[0]
                         area_level = unpack('<B', map_tiles.read(1))[0]
@@ -55,7 +57,9 @@ class MapTile(object):
                 # Liquids
                 for x in range(0, RESOLUTION_LIQUIDS):
                     for y in range(0, RESOLUTION_LIQUIDS):
-                        liquid_type = unpack('<B', map_tiles.read(1))[0]
+                        liquid_type = unpack('<b', map_tiles.read(1))[0]
+                        if liquid_type == -1:  # No liquid information / not rendered.
+                            continue
                         height = unpack('<f', map_tiles.read(4))[0]
                         # noinspection PyTypeChecker
                         self.liquid_information[x][y] = LiquidInformation(liquid_type, height)
