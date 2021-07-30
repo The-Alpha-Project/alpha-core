@@ -22,7 +22,6 @@ services:
 
   sql:
     image: alpha-mariadb:latest
-    container_name: alpha-core-sql
     build: etc/docker/sql
     environment:
       - MYSQL_ROOT_PASSWORD=pwd
