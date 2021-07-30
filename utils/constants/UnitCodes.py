@@ -162,4 +162,4 @@ class SplineFlags(IntEnum):
     SPLINEFLAG_FROZEN = 0x00400000  # Will never arrive
 
 class TalentTemplateInfo(IntEnum):
-    TALENT_TEMPLATE_ID = 100
+    TALENT_TEMPLATE_ID = 1000 # Constant value for talent trainer template id. Use this value to retrieve talents from trainer_template. Not defined by Blizzard.
