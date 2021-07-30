@@ -2,7 +2,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.player.DuelManager import DuelManager
-from game.world.managers.objects.player.SkillManager import SkillTypes
+from game.world.managers.objects.player.SkillManager import SkillTypes, SkillManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypes, HighGuid
@@ -214,6 +214,23 @@ class SpellEffectHandler(object):
                 recall_coordinates = target.get_deathbind_coordinates()
                 target.teleport(recall_coordinates[0], recall_coordinates[1])
 
+    @staticmethod
+    def handle_weapon_skill(casting_spell, effect, caster, target):
+        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        skill_id = SkillManager.get_skill_id_for_spell_id(casting_spell.spell_entry.ID)
+        target.skill_manager.add_skill(skill_id)
+
+    @staticmethod
+    def handle_add_proficiency(casting_spell, effect, caster, target):
+        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        item_class = casting_spell.spell_entry.EquippedItemClass
+        item_subclass_mask = casting_spell.spell_entry.EquippedItemSubclass
+
+        target.skill_manager.add_proficiency(item_class, item_subclass_mask)
+
     # Block/parry/dodge/defense passives have their own effects and no aura. Flag the unit here as being able to block/parry/dodge.
     @staticmethod
     def handle_block_passive(casting_spell, effect, caster, target):
@@ -259,6 +276,9 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA: SpellEffectHandler.handle_apply_area_aura,
     SpellEffects.SPELL_EFFECT_SUMMON_TOTEM: SpellEffectHandler.handle_summon_totem,
     SpellEffects.SPELL_EFFECT_SCRIPT_EFFECT: SpellEffectHandler.handle_script_effect,
+
+    SpellEffects.SPELL_EFFECT_WEAPON: SpellEffectHandler.handle_weapon_skill,
+    SpellEffects.SPELL_EFFECT_PROFICIENCY: SpellEffectHandler.handle_add_proficiency,
 
     # Passive effects - enable flags (and skills if needed) on logon
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,
