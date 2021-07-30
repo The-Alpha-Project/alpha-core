@@ -8,7 +8,7 @@ set -e
 CURL_OPTIONS_DEFAULT=
 SIGNAL_DEFAULT="restart"
 INOTIFY_EVENTS_DEFAULT="create,delete,modify,move"
-INOTIFY_OPTONS_DEFAULT='--monitor --exclude=\.pyc'
+INOTIFY_OPTONS_DEFAULT='--monitor --recursive --exclude=\.pyc|\.sql|\.sh'
 
 #
 # Display settings on standard out.
@@ -33,5 +33,5 @@ inotifywait -e ${INOTIFY_EVENTS} ${INOTIFY_OPTONS} "${VOLUMES}" | \
   do
     echo "$notifies"
     echo "notify received, sent signal ${SIGNAL} to container ${CONTAINER}"
-    curl ${CURL_OPTIONS} -X POST --silent --unix-socket /tmp/docker.sock http://docker/containers/${CONTAINER}/${SIGNAL} > /dev/stdout 2> /dev/stderr
+    curl ${CURL_OPTIONS} -X POST --silent --unix-socket /tmp/docker.sock http://docker/containers/${CONTAINER}/${SIGNAL} & > /dev/stdout 2> /dev/stderr
   done
