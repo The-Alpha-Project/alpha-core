@@ -1,3 +1,4 @@
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import TalentTemplateInfo
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell
@@ -93,7 +94,7 @@ class TrainerBuySpellHandler(object):
                     # TODO Only remove money/points if spell cast was successful.
                     spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_id)
                     cast_target = world_session.player_mgr
-                    npc.spell_manager.start_spell_cast(spell=spell_to_cast, caster=npc, spell_target=cast_target, target_mask=0)
+                    npc.spell_manager.start_spell_cast(spell=spell_to_cast, caster=npc, spell_target=cast_target, target_mask=SpellTargetMask.SELF)
                     
                     if spell_money_cost > 0:
                         world_session.player_mgr.mod_money(-spell_money_cost)
