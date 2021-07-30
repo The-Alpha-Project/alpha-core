@@ -116,7 +116,7 @@ class CastingSpell(object):
         self.object_target_results = {**self.object_target_results, **effect_info}
 
     def is_instant_cast(self):
-        return self.cast_time_entry.Base <= 0  # One entry has negative (-1000000) base cast time and should be instant.
+        return not self.cast_time_entry or self.cast_time_entry.Base <= 0  # One entry has negative (-1000000) base cast time and should be instant.
 
     def is_ranged(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_RANGED == SpellAttributes.SPELL_ATTR_RANGED
