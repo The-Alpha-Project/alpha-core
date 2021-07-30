@@ -5,7 +5,6 @@ from typing import NamedTuple
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
-from game.world.managers.objects.player.StatManager import UnitStats
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import SkillCategories, Languages
 from utils.constants.OpCodes import OpCode
@@ -290,7 +289,7 @@ class SkillManager(object):
         if skill_id not in self.skills:
             return None
         skill = self.skills[skill_id]
-        bonus_skill = self.player_mgr.stat_manager.get_total_stat(UnitStats.SKILL, misc_value=skill_id)
+        bonus_skill = self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
         return skill.value + bonus_skill
 
     def get_skill_value_for_spell_id(self, spell_id):

@@ -26,19 +26,6 @@ class TalentManager(object):
         talent_points_cost: int = 10 + ((spell_rank - 1) * 5)
         return talent_points_cost
 
-    def apply_talent_auras(self):
-        skill_line_abilities: list[SkillLineAbility] = DbcDatabaseManager.skill_line_ability_get_by_skill_lines(
-            SKILL_LINE_TALENT_IDS)
-
-        for ability in skill_line_abilities:
-            if not ability.Spell:
-                continue
-
-            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(ability.Spell)
-
-            if ability.Spell in self.player_mgr.spell_manager.spells:
-                self.player_mgr.spell_manager.start_spell_cast(spell, self.player_mgr, self.player_mgr, SpellTargetMask.SELF)
-
     def send_talent_list(self):
         next_talent: list[int] = []
         talent_bytes: bytes = b''

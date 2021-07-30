@@ -58,6 +58,7 @@ class PlayerLoginHandler(object):
                                                              PlayerLoginHandler._get_login_timespeed()))
 
         world_session.player_mgr.skill_manager.load_proficiencies()
+        world_session.player_mgr.skill_manager.load_skills()
         world_session.player_mgr.spell_manager.load_spells()
 
         world_session.player_mgr.deathbind = RealmDatabaseManager.character_get_deathbind(world_session.player_mgr.guid)
@@ -66,7 +67,6 @@ class PlayerLoginHandler(object):
         world_session.enqueue_packet(world_session.player_mgr.get_deathbind_packet())
         # Tutorials aren't implemented in 0.5.3
         # world_session.enqueue_packet(world_session.player_mgr.get_tutorial_packet())
-        world_session.player_mgr.skill_manager.init_proficiencies()
         world_session.enqueue_packet(world_session.player_mgr.spell_manager.get_initial_spells())
         world_session.enqueue_packet(world_session.player_mgr.get_action_buttons())
 
@@ -74,10 +74,12 @@ class PlayerLoginHandler(object):
         ChatManager.send_system_message(world_session, config.Server.General.motd)
 
         world_session.player_mgr.inventory.load_items()
-        world_session.player_mgr.talent_manager.apply_talent_auras()
+        # Passive spells contain skill and proficiency learning.
+        # Perform passive spell casts after loading skills to avoid duplicate database entries.
+        world_session.player_mgr.spell_manager.cast_passive_spells()
+        world_session.player_mgr.skill_manager.init_proficiencies()
         world_session.player_mgr.stat_manager.init_stats()
         world_session.player_mgr.stat_manager.apply_bonuses()
-        world_session.player_mgr.skill_manager.load_skills()
         world_session.player_mgr.quest_manager.load_quests()
         world_session.player_mgr.reputation_manager.load_reputations()
         GuildManager.set_character_guild(world_session.player_mgr)

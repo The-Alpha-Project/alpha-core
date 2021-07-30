@@ -60,6 +60,13 @@ class SpellManager(object):
         # TODO Teach skill required as well like in CharCreateHandler
         return True
 
+    def cast_passive_spells(self):
+        # Self-cast all passive spells. This will apply learned skills, proficiencies, talents etc.
+        for spell_id in self.spells.keys():
+            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+                self.start_spell_cast(spell_template, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF)
+
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.unit_mgr.guid)
         
