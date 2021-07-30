@@ -12,13 +12,17 @@ Once you create the three databases, populate them using the corresponding sql f
 
 ## Run in Docker
 
-Minimum requirements are `docker` version `19.03` and `docker-compose` version `1.28`. 
-You can install `docker` through your OS package manager and `docker-compose` using `pip3`, for any more info or clarification you can [check the official installation docs](https://docs.docker.com/engine/install/).
+Minimum requirements are docker 19.03+ and docker-compose 1.28+. 
+You can install `docker` through your OS package manager or [via download through the docker.com site](https://docs.docker.com/engine/install/) and `docker-compose` using `pip3 install docker-compose`..
 
 1. Copy `etc/config/config.yml.dist` to `etc/config/config.yml` 
 2. Run: `docker-compose up -d`
-
 ### Development in Docker
+
+The docker-compose configuration will mount the entire project folder on `/var/wow` in the main container. To access the container run `docker-compose exec main bash` as usual, to inspect the logs `docker-compose logs -f main`
+
+Codebase is under a continuous watch process and server will reboot everytime the code has changed. To manually restart the server run `docker-compose restart main`
+### Database management
 
 An additional phpmyadmin image is provided in the docker-compose for ease of browsing the database, this is accessible through compose profiles.
 
@@ -27,3 +31,7 @@ Either run:
 - or `docker-compose run phpmyadmin` to spin up the container separately if the other containers are already running
 
 You can access phpmyadmin by visiting `http://localhost:8080`
+
+### Rebuilding the database
+
+To rebuild the database from scratch and apply again all the updates run  `docker-compose up --renew-anon-volumes sql`. Note: this will WIPE any custom handmade changes, including accounts.

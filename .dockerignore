@@ -1,0 +1,3 @@
+# Exclude heavy folders to avoid being sent on the build context.
+/etc/maps
+.git

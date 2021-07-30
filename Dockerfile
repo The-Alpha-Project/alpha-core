@@ -6,4 +6,5 @@ WORKDIR /var/wow/
 COPY requirements.txt ./
 RUN pip3 install -r requirements.txt
 
-CMD python3 main.py
+COPY autoreload.py ./
+CMD python3 autoreload.py python3 main.py
