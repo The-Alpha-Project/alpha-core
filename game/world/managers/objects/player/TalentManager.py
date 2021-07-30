@@ -1,6 +1,6 @@
 from struct import pack
 from typing import Optional
-from database.dbc.DbcModels import SkillLineAbility
+from database.dbc.DbcModels import SkillLineAbility, Spell
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -40,11 +40,18 @@ class TalentManager(object):
             if ability.Spell in self.player_mgr.spell_manager.spells:
                 self.player_mgr.spell_manager.start_spell_cast(spell, self.player_mgr, self.player_mgr, SpellTargetMask.SELF)
 
+    # We want to apply each aura immediately after training, not just after relogging. 
+    # However, we don't want to try to apply all of them each time.
+    def apply_talent_aura(self, talent_spell_id: int):
+        spell: Spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(talent_spell_id)
+
+        if talent_spell_id in self.player_mgr.spell_manager.spells:
+            self.player_mgr.spell_manager.start_spell_cast(spell, self.player_mgr, self.player_mgr, SpellTargetMask.SELF)
+
     def send_talent_list(self):
         talent_bytes: bytes = b''
         talent_count: int = 0
 
-        #skill_line_abilities: list[SkillLineAbility] = DbcDatabaseManager.skill_line_ability_get_by_skill_lines(SKILL_LINE_TALENT_IDS)
         talent_abilities = WorldDatabaseManager.TrainerSpellHolder.get_all_talents()
 
         for training_spell in talent_abilities:
