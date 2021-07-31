@@ -28,7 +28,7 @@ class PlayerLoginHandler(object):
 
         world_session.player_mgr = PlayerManager(
             RealmDatabaseManager.character_get_by_guid(guid), world_session)
-        world_session.player_mgr.session = world_session
+
         if not world_session.player_mgr.player:
             Logger.anticheat(f'Character with wrong guid ({guid}) tried to login.')
             return -1
