@@ -86,7 +86,7 @@ class UnitStats(IntFlag):
 
 class StatManager(object):
 
-    # Player base stats, misc. stats from items (weapon damage etc.) and stats scaling off base attributes (block value etc.)
+    # Player base stats and stats scaling off base attributes (block value, weapon damage bonus from attributes etc.)
     base_stats: dict[UnitStats, float]  # Floats for defensive chances
 
     # Stat gain from items
