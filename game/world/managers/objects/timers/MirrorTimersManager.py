@@ -1,10 +1,10 @@
 from game.world.managers.objects.timers.MirrorTimer import MirrorTimer
 from utils.constants.MiscCodes import MirrorTimerTypes
+from utils.constants.SpellCodes import AuraTypes
 
 
 class MirrorTimersManager(object):
     UPDATE_RATE = 1  # In seconds, how often we check timers status.
-    SPELL_FEIGN_DEATH = 5384
 
     def __init__(self, owner):
         self.owner = owner
@@ -16,8 +16,7 @@ class MirrorTimersManager(object):
     def load(self):
         self.timers[MirrorTimerTypes.BREATH] = MirrorTimer(self.owner, MirrorTimerTypes.BREATH, 1, 60)
         self.timers[MirrorTimerTypes.FATIGUE] = MirrorTimer(self.owner, MirrorTimerTypes.FATIGUE, 1, 60)
-        self.timers[MirrorTimerTypes.FEIGNDEATH] = MirrorTimer(self.owner, MirrorTimerTypes.FEIGNDEATH, 1, 300, -1,
-                                                               MirrorTimersManager.SPELL_FEIGN_DEATH)
+        self.timers[MirrorTimerTypes.FEIGNDEATH] = MirrorTimer(self.owner, MirrorTimerTypes.FEIGNDEATH, 1, 300)
 
     def stop_all(self):
         for timer in self.timers.values():
@@ -68,6 +67,11 @@ class MirrorTimersManager(object):
             timer_active = self.feign_death
             # If timer should be active and is not, start it.
             if timer_active and not self.timers[MirrorTimerTypes.FEIGNDEATH].active:
-                self.timers[MirrorTimerTypes.FEIGNDEATH].start(elapsed)
+                feign_death_auras = self.owner.aura_manager.get_auras_by_type(AuraTypes.SPELL_AURA_FEIGN_DEATH)
+                if len(feign_death_auras) > 0:
+                    self.timers[MirrorTimerTypes.FEIGNDEATH].start(elapsed, feign_death_auras[0].spell_id)
+                else:  # Possible edge case where the player doesn't have any Feign Death aura anymore.
+                    self.feign_death = False
+                    self.timers[MirrorTimerTypes.FEIGNDEATH].stop()
             elif not timer_active:
                 self.timers[MirrorTimerTypes.FEIGNDEATH].stop()

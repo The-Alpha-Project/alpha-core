@@ -17,8 +17,9 @@ class MirrorTimer(object):
         self.remaining = self.duration  # In seconds, sent in milliseconds.
         self.chunk_elapsed = 0  # Seconds, compared versus interval.
 
-    def start(self, elapsed):
+    def start(self, elapsed, spell_id=0):
         if not self.active and self.owner.is_alive:
+            self.spell_id = spell_id
             self.remaining = self.duration
             self.chunk_elapsed = int(elapsed)
             self.active = True
