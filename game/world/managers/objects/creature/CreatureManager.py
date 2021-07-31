@@ -368,6 +368,8 @@ class CreatureManager(UnitManager):
 
     def _perform_combat_movement(self, now):
         if self.combat_target:
+            self.location.face_point(self.combat_target.location)
+
             current_distance = self.location.distance(self.combat_target.location)
             interactable_distance = UnitFormulas.interactable_distance(self, self.combat_target)
 
