@@ -1266,7 +1266,7 @@ class PlayerManager(UnitManager):
                 else:
                     self.repop()
 
-            # Swimming / Breathing
+            # Update timers (Breath, Fatigue, Feign Death).
             if self.is_alive:
                 self.mirror_timers_manager.update(elapsed)
 
