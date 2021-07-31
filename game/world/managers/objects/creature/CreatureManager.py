@@ -59,6 +59,8 @@ class CreatureManager(UnitManager):
             self.creature_type = self.creature_template.type
             self.sheath_state = WeaponMode.NORMALMODE
 
+            self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
+
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
 
@@ -215,6 +217,8 @@ class CreatureManager(UnitManager):
                         self.set_virtual_item(2, creature_equip_template.equipentry3)
 
                 self.stat_manager.init_stats()
+                self.stat_manager.apply_bonuses()
+
                 self.fully_loaded = True
 
     def set_virtual_item(self, slot, item_entry):
