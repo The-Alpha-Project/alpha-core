@@ -133,33 +133,7 @@ class CharCreateHandler(object):
 
     @staticmethod
     def generate_starting_spells(guid, race, class_, level):
-        added_skills = []
         added_spells = []
-
-        def insert_skill(skill_id_to_insert, override_rank_value=-1, override_max_rank_value=-1):
-            if skill_id_to_insert in added_skills:
-                return
-
-            skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id_to_insert)
-            if not skill:
-                return
-
-            if override_rank_value == -1:
-                start_rank_value = 1
-                if skill.CategoryID == SkillCategories.MAX_SKILL:
-                    start_rank_value = skill.MaxRank
-            else:
-                start_rank_value = override_rank_value
-
-            skill_to_set = CharacterSkill()
-            skill_to_set.guid = guid
-            skill_to_set.skill = skill_id_to_insert
-            skill_to_set.value = start_rank_value
-            skill_to_set.max = SkillManager.get_max_rank(level, skill_id_to_insert) if override_max_rank_value == -1 else \
-                override_max_rank_value
-
-            RealmDatabaseManager.character_add_skill(skill_to_set)
-            added_skills.append(skill_id_to_insert)
 
         for spell in WorldDatabaseManager.player_create_spell_get(race, class_):
             spell_to_load = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
@@ -171,22 +145,6 @@ class CharCreateHandler(object):
 
                     RealmDatabaseManager.character_add_spell(spell_to_set)
                     added_spells.append(spell_to_load.ID)
-
-                    # Insert related skill
-                    skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell_to_load.ID)
-                    if skill_line_ability:
-                        skill_id = skill_line_ability.SkillLine
-
-                        # The value in SkillLineAbility for languages is equal to "language TEMP",
-                        # the proper skill is 1 number below.
-                        if spell_to_load.Effect_1 == SpellEffects.SPELL_EFFECT_LANGUAGE:
-                            skill_id -= 1
-
-                        insert_skill(skill_id)
-
-                    # Add the block skill if character has the Block spell (107)
-                    if spell_to_load.ID == 107:
-                        insert_skill(SkillTypes.BLOCK.value)
 
         # TODO: Investigate the below behavior
         """

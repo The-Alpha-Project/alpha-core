@@ -1,7 +1,9 @@
+import random
 from enum import IntEnum, auto, IntFlag
 from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
+from game.world.managers.objects.player.SkillManager import SkillTypes, SkillManager
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import AttackTypes, ObjectTypes
@@ -40,9 +42,12 @@ class UnitStats(IntFlag):
     RANGED_DAMAGE_MAX = auto()
     RANGED_DELAY = auto()
 
-    PARRY = auto()
-    DODGE = auto()
-    BLOCK = auto()
+    PARRY_CHANCE = auto()
+    DODGE_CHANCE = auto()
+    BLOCK_CHANCE = auto()
+    BLOCK_VALUE = auto()
+
+    PROC_CHANCE = auto()
 
     CRITICAL = auto()
     SPELL_CRITICAL = auto()
@@ -81,8 +86,8 @@ class UnitStats(IntFlag):
 
 class StatManager(object):
 
-    # Player base stats and misc. stats scaling off items (weapon damage etc.)
-    base_stats: dict[UnitStats, int]
+    # Player base stats and stats scaling off base attributes (block value, weapon damage bonus from attributes etc.)
+    base_stats: dict[UnitStats, float]  # Floats for defensive chances
 
     # Stat gain from items
     item_stats: dict[UnitStats, int]
@@ -131,11 +136,19 @@ class StatManager(object):
             self.base_stats[UnitStats.HEALTH] = self.unit_mgr.max_health
             self.base_stats[UnitStats.MANA] = self.unit_mgr.max_power_1
             self.base_stats[UnitStats.SPEED_RUNNING] = self.unit_mgr.running_speed
+            self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE  # Players don't have a flat dodge chance.
+
+        # Players and creatures have an unchanging base 5% chance to block and parry. (before defense skill differences)
+        self.base_stats[UnitStats.PARRY_CHANCE] = BASE_BLOCK_PARRY_CHANCE
+        self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE
 
         self.send_attributes()
 
         self.update_base_health_regen()
         self.update_base_mana_regen()
+
+        self.update_base_proc_chance()
+        self.update_defense_bonuses()
 
     def get_base_stat(self, stat_type: UnitStats) -> int:
         return self.base_stats.get(stat_type, 0)
@@ -166,6 +179,9 @@ class StatManager(object):
 
         return max(0, total)  # Stats are always positive
 
+    def get_stat_skill_bonus(self, skill_type):  # Avoids circular import with SkillManager
+        return self.get_total_stat(UnitStats.SKILL, misc_value=skill_type)
+
     def apply_bonuses(self):
         self.calculate_item_stats()
 
@@ -185,10 +201,13 @@ class StatManager(object):
         self.update_base_mana_regen()
         self.update_base_health_regen()
 
+        self.update_defense_bonuses()
+
         self.send_attributes()
         self.send_melee_attributes()
         self.send_damage_bonuses()
         self.send_resistances()
+        self.send_defense_bonuses()
 
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
             self.unit_mgr.skill_manager.build_update()
@@ -282,7 +301,7 @@ class StatManager(object):
                                   UnitStats.RESISTANCE_NATURE: item.item_template.nature_res,
                                   UnitStats.RESISTANCE_FROST: item.item_template.frost_res,
                                   UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res,
-                                  UnitStats.BLOCK: item.item_template.block}
+                                  UnitStats.BLOCK_VALUE: item.item_template.block}
                 for stat, value in separate_stats.items():
                     self.item_stats[stat] = self.item_stats.get(stat, 0) + value
 
@@ -357,7 +376,6 @@ class StatManager(object):
         spirit = self.get_total_stat(UnitStats.SPIRIT)
         self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(CLASS_BASE_REGEN_HEALTH[player_class] + spirit * CLASS_SPIRIT_SCALING_HP5[player_class])
 
-
     def update_base_mana_regen(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
@@ -368,6 +386,46 @@ class StatManager(object):
         spirit = self.get_total_stat(UnitStats.SPIRIT)
         regen = CLASS_BASE_REGEN_MANA[player_class] + spirit * CLASS_SPIRIT_SCALING_MANA[player_class]
         self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
+
+    def update_base_dodge_chance(self):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return  # Base dodge can't change for creatures - set on init
+
+        player_class = self.unit_mgr.player.class_
+        agility = self.get_total_stat(UnitStats.AGILITY)
+        scaling = CLASS_AGILITY_SCALING_DODGE[player_class]
+        class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
+                      scaling[1] * (self.unit_mgr.level - 1)) / 59
+
+        class_base_dodge = CLASS_BASE_DODGE_PERCENTAGE[player_class] if player_class in CLASS_BASE_DODGE_PERCENTAGE else 0
+        base_dodge = class_base_dodge + agility / class_rate
+
+        self.base_stats[UnitStats.DODGE_CHANCE] = base_dodge
+
+    def update_base_block_value(self):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return  # Base block can't change for creatures - set on init
+
+        base_block = BASE_BLOCK_PARRY_CHANCE
+        strength = self.get_total_stat(UnitStats.STRENGTH)
+        base_block += strength / 2
+
+        self.base_stats[UnitStats.BLOCK_VALUE] = base_block
+
+    def update_base_proc_chance(self):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        player_class = self.unit_mgr.player.class_
+
+        agility = self.get_total_stat(UnitStats.AGILITY)
+
+        # TODO Using dodge formula because of missing information - tune if needed.
+        scaling = CLASS_AGILITY_SCALING_DODGE[player_class]
+        class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
+                      scaling[1] * (self.unit_mgr.level - 1)) / 59
+
+        total_proc_chance = agility / class_rate
+        self.base_stats[UnitStats.PROC_CHANCE] = total_proc_chance
 
     # Auto attack/shoot base damage
     def get_base_attack_base_min_max_damage(self, attack_type: AttackTypes):
@@ -406,6 +464,10 @@ class StatManager(object):
                                                            accept_negative=True, misc_value_is_mask=True)
         # Damage taken reduction can bring damage to negative, limit to 0.
         return max(0, damage_dealt)
+
+    def roll_proc_chance(self, base_chance: float) -> bool:
+        chance = base_chance + self.get_total_stat(UnitStats.PROC_CHANCE)
+        return random.randint(1, 100) <= chance
 
     def update_base_weapon_attributes(self, attack_type=0):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
@@ -450,7 +512,8 @@ class StatManager(object):
             self.base_stats[UnitStats.RANGED_DAMAGE_MAX] = final_max_damage
 
     def update_defense_bonuses(self):
-        pass
+        self.update_base_block_value()
+        self.update_base_dodge_chance()
 
     def send_melee_attributes(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
@@ -466,12 +529,13 @@ class StatManager(object):
     def send_resistances(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
-        self.unit_mgr.set_armor(self.get_total_stat(UnitStats.RESISTANCE_PHYSICAL, accept_negative=True))
-        self.unit_mgr.set_holy_res(self.get_total_stat(UnitStats.RESISTANCE_HOLY, accept_negative=True))
-        self.unit_mgr.set_fire_res(self.get_total_stat(UnitStats.RESISTANCE_FIRE, accept_negative=True))
-        self.unit_mgr.set_nature_res(self.get_total_stat(UnitStats.RESISTANCE_NATURE, accept_negative=True))
-        self.unit_mgr.set_frost_res(self.get_total_stat(UnitStats.RESISTANCE_FROST, accept_negative=True))
-        self.unit_mgr.set_shadow_res(self.get_total_stat(UnitStats.RESISTANCE_SHADOW, accept_negative=True))
+
+        self.unit_mgr.set_armor(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_PHYSICAL))
+        self.unit_mgr.set_holy_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_HOLY))
+        self.unit_mgr.set_fire_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_FIRE))
+        self.unit_mgr.set_nature_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_NATURE))
+        self.unit_mgr.set_frost_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_FROST))
+        self.unit_mgr.set_shadow_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_SHADOW))
 
         self.unit_mgr.set_bonus_armor(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_PHYSICAL))
         self.unit_mgr.set_bonus_holy_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_HOLY))
@@ -492,15 +556,12 @@ class StatManager(object):
                 continue
             negative += aura_bonus
 
-        item_bonus = self.get_item_stat(stat_type)
-        if item_bonus > 0:
-            positive += item_bonus
-        else:
-            negative += item_bonus
-
         for percentual_bonus in percentual:
             positive *= percentual_bonus
         return negative, positive
+
+    def _get_total_and_item_stat_bonus(self, stat_type: UnitStats):
+        return self.get_total_stat(stat_type, accept_negative=True), self.get_item_stat(stat_type)
 
     def send_attributes(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
@@ -534,6 +595,59 @@ class StatManager(object):
 
             self.unit_mgr.set_bonus_damage_done_for_school(int(flat_bonuses * percentual_bonuses), school)
 
+
+    def send_defense_bonuses(self):
+        self.send_block_percentage()
+        self.send_parry_percentage()
+        self.send_dodge_percentage()
+
+    def send_block_percentage(self):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        if not self.unit_mgr.can_block():
+            self.unit_mgr.set_block_chance(0)
+            return
+
+        value = self.get_total_stat(UnitStats.BLOCK_CHANCE)
+
+        # Penalty against player of same level with max skill
+        value += self._get_defense_value_difference_penalty()
+
+        value = max(0, value)
+        self.unit_mgr.set_block_chance(value)
+
+    def send_parry_percentage(self):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        if not self.unit_mgr.can_parry():
+            self.unit_mgr.set_parry_chance(0)
+            return
+
+        value = self.get_total_stat(UnitStats.PARRY_CHANCE)
+
+        # Penalty against player of same level with max skill
+        value += self._get_defense_value_difference_penalty()
+        value = max(0, value)
+        self.unit_mgr.set_parry_chance(value)
+
+    def send_dodge_percentage(self):
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        if not self.unit_mgr.can_dodge():
+            self.unit_mgr.set_dodge_chance(0)
+            return
+
+        value = self.get_total_stat(UnitStats.DODGE_CHANCE)
+
+        # Penalty against player of same level with max skill
+        value += self._get_defense_value_difference_penalty()
+        value = max(0, value)
+        self.unit_mgr.set_dodge_chance(value)
+
+    def _get_defense_value_difference_penalty(self):
+        return (self.unit_mgr.skill_manager.get_total_skill_value(SkillTypes.DEFENSE) -
+                SkillManager.get_max_rank(self.unit_mgr.level, SkillTypes.DEFENSE)) * 0.04
+
     @staticmethod
     def get_health_bonus_from_stamina(stamina):
         # The first 20 points of Stamina grant only 1 health point per unit.
@@ -548,6 +662,9 @@ class StatManager(object):
         more_int = intellect - base_int
         return base_int + (more_int * 15.0)
 
+
+BASE_BLOCK_PARRY_CHANCE = 5
+BASE_DODGE_CHANCE_CREATURE = 5
 
 CLASS_SPIRIT_SCALING_HP5 = {
     Classes.CLASS_WARRIOR: 1.26,
@@ -589,6 +706,29 @@ CLASS_BASE_REGEN_MANA = {
     Classes.CLASS_MAGE: 12.5,
     Classes.CLASS_WARLOCK: 15.0,
     Classes.CLASS_DRUID: 15.0
+}
+
+# Vmangos
+CLASS_BASE_DODGE_PERCENTAGE = {
+    Classes.CLASS_DRUID: 0.9,
+    Classes.CLASS_MAGE: 3.2,
+    Classes.CLASS_PALADIN: 0.7,
+    Classes.CLASS_PRIEST: 3.0,
+    Classes.CLASS_SHAMAN: 1.7,
+    Classes.CLASS_WARLOCK: 2.0
+}
+
+# Vmangos (level 1, level 60)
+CLASS_AGILITY_SCALING_DODGE = {
+    Classes.CLASS_DRUID: (4.6, 20.0),
+    Classes.CLASS_PALADIN: (4.6, 20.0),
+    Classes.CLASS_SHAMAN: (4.6, 20.0),
+    Classes.CLASS_MAGE: (12.9, 20.0),
+    Classes.CLASS_ROGUE: (1.1, 14.5),
+    Classes.CLASS_HUNTER: (1.8, 26.5),
+    Classes.CLASS_PRIEST: (11.0, 20.0),
+    Classes.CLASS_WARLOCK: (8.4, 20.0),
+    Classes.CLASS_WARRIOR: (3.9, 20.0)
 }
 
 INVENTORY_STAT_TO_UNIT_STAT = {

@@ -202,6 +202,11 @@ class UnitManager(ObjectManager):
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
 
+        # Defensive passive spells are not handled through the aura system. The effects will instead flag the unit with these fields.
+        self.has_block_passive = False
+        self.has_parry_passive = False
+        self.has_dodge_passive = False
+
         self.stat_manager = StatManager(self)
         self.spell_manager = SpellManager(self)
         self.aura_manager = AuraManager(self)
@@ -616,6 +621,15 @@ class UnitManager(ObjectManager):
     def has_ranged_weapon(self):
         return False
 
+    def can_block(self):
+        return self.has_block_passive  # TODO Stunned/facing checks
+
+    def can_parry(self):
+        return self.has_parry_passive  # TODO Stunned/casting/facing checks
+
+    def can_dodge(self):
+        return self.has_dodge_passive  # TODO Stunned check
+
     def enter_combat(self):
         self.in_combat = True
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
@@ -744,29 +758,35 @@ class UnitManager(ObjectManager):
         self.max_power_1 = mana
         self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
 
-    def set_armor(self, armor):
-        self.resistance_0 = armor
+    def set_armor(self, total_armor, item_armor):
+        self.resistance_0 = total_armor
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS, item_armor)
 
-    def set_holy_res(self, holy_res):
-        self.resistance_1 = holy_res
+    def set_holy_res(self, total_holy_res, item_holy_res):
+        self.resistance_1 = total_holy_res
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS + 1, item_holy_res)
 
-    def set_fire_res(self, fire_res):
-        self.resistance_2 = fire_res
+    def set_fire_res(self, total_fire_res, item_fire_res):
+        self.resistance_2 = total_fire_res
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS + 2, item_fire_res)
 
-    def set_nature_res(self, nature_res):
-        self.resistance_3 = nature_res
+    def set_nature_res(self, total_nature_res, item_nature_res):
+        self.resistance_3 = total_nature_res
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS + 3, item_nature_res)
 
-    def set_frost_res(self, frost_res):
-        self.resistance_4 = frost_res
+    def set_frost_res(self, total_frost_res, item_frost_res):
+        self.resistance_4 = total_frost_res
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS + 4, item_frost_res)
 
-    def set_shadow_res(self, shadow_res):
-        self.resistance_5 = shadow_res
+    def set_shadow_res(self, total_shadow_res, item_shadow_res):
+        self.resistance_5 = total_shadow_res
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS + 5, item_shadow_res)
 
     def set_bonus_armor(self, negative_mods, positive_mods):
         self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, positive_mods)

@@ -579,9 +579,6 @@ class InventoryManager(object):
         if source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED:
             source_item.set_binding(True)
 
-        # Bonus application
-        self.owner.stat_manager.apply_bonuses()
-
         # Offhand removal on 2H equip
         current_oh = self.get_offhand()
         source_is_2h = source_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
@@ -597,6 +594,10 @@ class InventoryManager(object):
             self.add_item(item_template=current_oh.item_template, count=current_oh.item_instance.stackcount,
                           send_message=False, show_item_get=False)  #
             self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
+
+
+        # Bonus application
+        self.owner.stat_manager.apply_bonuses()
 
         self.owner.set_dirty(dirty_inventory=True)  # Mark as dirty to update equipment for other players
 

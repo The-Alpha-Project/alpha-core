@@ -2,6 +2,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.player.DuelManager import DuelManager
+from game.world.managers.objects.player.SkillManager import SkillTypes, SkillManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypes, HighGuid
@@ -213,6 +214,59 @@ class SpellEffectHandler(object):
                 recall_coordinates = target.get_deathbind_coordinates()
                 target.teleport(recall_coordinates[0], recall_coordinates[1])
 
+    @staticmethod
+    def handle_weapon_skill(casting_spell, effect, caster, target):
+        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        skill_id = SkillManager.get_skill_id_for_spell_id(casting_spell.spell_entry.ID)
+        target.skill_manager.add_skill(skill_id)
+
+    @staticmethod
+    def handle_add_proficiency(casting_spell, effect, caster, target):
+        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+        item_class = casting_spell.spell_entry.EquippedItemClass
+        item_subclass_mask = casting_spell.spell_entry.EquippedItemSubclass
+
+        target.skill_manager.add_proficiency(item_class, item_subclass_mask)
+
+    @staticmethod
+    def handle_add_language(casting_spell, effect, caster, target):
+        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        # The value in SkillLineAbility for languages is equal to "language TEMP",
+        # the proper skill is 1 number below.
+        skill_id = SkillManager.get_skill_id_for_spell_id(casting_spell.spell_entry.ID)
+        skill_id -= 1
+
+        target.skill_manager.add_skill(skill_id)
+
+    # Block/parry/dodge/defense passives have their own effects and no aura. Flag the unit here as being able to block/parry/dodge.
+    @staticmethod
+    def handle_block_passive(casting_spell, effect, caster, target):
+        target.has_block_passive = True
+        if target.get_type() == ObjectTypes.TYPE_PLAYER:
+            target.skill_manager.add_skill(SkillTypes.BLOCK.value)
+
+    @staticmethod
+    def handle_parry_passive(casting_spell, effect, caster, target):
+        target.has_parry_passive = True
+
+    @staticmethod
+    def handle_dodge_passive(casting_spell, effect, caster, target):
+        target.has_dodge_passive = True
+
+    @staticmethod
+    def handle_defense_passive(casting_spell, effect, caster, target):
+        if target.get_type() == ObjectTypes.TYPE_PLAYER:
+            target.skill_manager.add_skill(SkillTypes.DEFENSE.value)
+
+    @staticmethod
+    def handle_spell_defense_passive(casting_spell, effect, caster, target):
+        pass  # Only "SPELLDEFENSE (DND)", obsolete
+
     AREA_SPELL_EFFECTS = [
         SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA,
         SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA
@@ -237,6 +291,16 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_LEARN_SPELL: SpellEffectHandler.handle_learn_spell,
     SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA: SpellEffectHandler.handle_apply_area_aura,
     SpellEffects.SPELL_EFFECT_SUMMON_TOTEM: SpellEffectHandler.handle_summon_totem,
-    SpellEffects.SPELL_EFFECT_SCRIPT_EFFECT: SpellEffectHandler.handle_script_effect
+    SpellEffects.SPELL_EFFECT_SCRIPT_EFFECT: SpellEffectHandler.handle_script_effect,
+
+    # Passive effects - enable skills, add skills and proficiencies on login.
+    SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,
+    SpellEffects.SPELL_EFFECT_PARRY: SpellEffectHandler.handle_parry_passive,
+    SpellEffects.SPELL_EFFECT_DODGE: SpellEffectHandler.handle_dodge_passive,
+    SpellEffects.SPELL_EFFECT_DEFENSE: SpellEffectHandler.handle_defense_passive,
+    SpellEffects.SPELL_EFFECT_SPELL_DEFENSE: SpellEffectHandler.handle_spell_defense_passive,
+    SpellEffects.SPELL_EFFECT_WEAPON: SpellEffectHandler.handle_weapon_skill,
+    SpellEffects.SPELL_EFFECT_PROFICIENCY: SpellEffectHandler.handle_add_proficiency,
+    SpellEffects.SPELL_EFFECT_LANGUAGE: SpellEffectHandler.handle_add_language
 }
 

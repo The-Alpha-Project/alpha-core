@@ -59,6 +59,8 @@ class CreatureManager(UnitManager):
             self.creature_type = self.creature_template.type
             self.sheath_state = WeaponMode.NORMALMODE
 
+            self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
+
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
 
@@ -225,6 +227,8 @@ class CreatureManager(UnitManager):
                         self.set_virtual_item(2, creature_equip_template.equipentry3)
 
                 self.stat_manager.init_stats()
+                self.stat_manager.apply_bonuses()
+
                 self.fully_loaded = True
 
     def set_virtual_item(self, slot, item_entry):
@@ -378,6 +382,8 @@ class CreatureManager(UnitManager):
 
     def _perform_combat_movement(self):
         if self.combat_target:
+            self.location.face_point(self.combat_target.location)
+
             current_distance = self.location.distance(self.combat_target.location)
             interactable_distance = UnitFormulas.interactable_distance(self, self.combat_target)
 
@@ -502,6 +508,11 @@ class CreatureManager(UnitManager):
     # override
     def has_ranged_weapon(self):
         return self.wearing_ranged_weapon
+
+    # override
+    def can_block(self):
+        # All creatures can block by default
+        return True  # TODO CANT_BLOCK creature extra flag
 
     # override
     def set_weapon_mode(self, weapon_mode):

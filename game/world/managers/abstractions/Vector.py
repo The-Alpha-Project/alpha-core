@@ -80,6 +80,11 @@ class Vector(object):
 
         return -arc / 2 < vector_angle < arc / 2
 
+    def face_point(self, vector):
+        # orientation is offset by pi/2 and reversed to atan2.
+        vector_angle = -self.angle(vector) + math.pi / 2
+        self.o = vector_angle % (2 * math.pi)
+
     # https://math.stackexchange.com/a/2045181
     # a map_id of -1 will make Z ignore map information.
     def get_point_in_between(self, offset, vector=None, x=0, y=0, z=0, map_id=-1):

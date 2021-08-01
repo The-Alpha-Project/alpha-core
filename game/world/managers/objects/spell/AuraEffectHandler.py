@@ -114,7 +114,7 @@ class AuraEffectHandler:
             return
 
         proc_chance = aura.source_spell.spell_entry.ProcChance
-        if random.randint(1, 100) > proc_chance:
+        if not aura.target.stat_manager.roll_proc_chance(proc_chance):
             return
 
         new_spell_entry = aura.spell_effect.trigger_spell_entry
@@ -140,7 +140,7 @@ class AuraEffectHandler:
             return
 
         proc_chance = aura.source_spell.spell_entry.ProcChance
-        if random.randint(1, 100) > proc_chance:
+        if not aura.target.stat_manager.roll_proc_chance(proc_chance):
             return
 
         damage = aura.get_effect_points()

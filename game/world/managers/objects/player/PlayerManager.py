@@ -27,6 +27,7 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
+from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
@@ -1002,6 +1003,18 @@ class PlayerManager(UnitManager):
         self.spi = spi
         self.set_int32(UnitFields.UNIT_FIELD_STAT4, spi)
 
+    def set_block_chance(self, block):
+        self.block_percentage = block
+        self.set_float(PlayerFields.PLAYER_BLOCK_PERCENTAGE, block)
+
+    def set_parry_chance(self, parry):
+        self.parry_percentage = parry
+        self.set_float(PlayerFields.PLAYER_PARRY_PERCENTAGE, parry)
+
+    def set_dodge_chance(self, dodge):
+        self.dodge_percentage = dodge
+        self.set_float(PlayerFields.PLAYER_DODGE_PERCENTAGE, dodge)
+
     def add_talent_points(self, talent_points):
         self.talent_points += talent_points
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS1, self.talent_points)
@@ -1170,6 +1183,27 @@ class PlayerManager(UnitManager):
     # override
     def has_ranged_weapon(self):
         return self.inventory.has_ranged_weapon()
+
+    # override
+    def can_block(self):
+        if not super().can_block():
+            return False
+
+        return self.inventory.has_offhand() and \
+            self.inventory.get_offhand().item_template.inventory_type == InventoryTypes.SHIELD
+
+    # override
+    def can_parry(self):
+        if not super().can_parry():
+            return False
+        return
+
+    # override
+    def can_dodge(self):
+        if not super().can_dodge():
+            return False
+
+        return True  # TODO Stunned check
 
     # override
     def set_weapon_mode(self, weapon_mode):
