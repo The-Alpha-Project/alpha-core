@@ -1,5 +1,4 @@
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.MiscCodes import TalentTemplateInfo
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell
 from network.packet.PacketReader import PacketReader
@@ -26,7 +25,8 @@ class TrainerBuySpellHandler(object):
             if trainer_guid == world_session.player_mgr.guid:
                 talent_mgr = world_session.player_mgr.talent_manager
                 talent_cost = talent_mgr.get_talent_cost_by_id(spell_id)
-                trainer_spell_id = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_id_get_from_player_spell_id(TalentTemplateInfo.TALENT_TEMPLATE_ID, spell_id)
+                trainer_spell_id = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_id_get_from_player_spell_id(
+                    WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID, spell_id)
 
                 if talent_cost > world_session.player_mgr.talent_points:
                     TrainerBuySpellHandler.send_trainer_buy_fail(world_session, trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_POINTS)
