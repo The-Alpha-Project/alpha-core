@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.world.WorldModels import *
 from utils.ConfigManager import *
-from utils.constants.MiscCodes import HighGuid
+from utils.constants.MiscCodes import HighGuid, TalentTemplateInfo
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
 DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
@@ -347,15 +347,15 @@ class WorldDatabaseManager(object):
     # Trainer stuff
 
     class TrainerSpellHolder:
-        TRAINER_SPELLS: dict[tuple[int, int], NpcTrainer] = {}
+        TRAINER_SPELLS: dict[tuple[int, int], TrainerTemplate] = {}
 
         @staticmethod
-        def load_trainer_spell(trainer_spell: NpcTrainer):
+        def load_trainer_spell(trainer_spell: TrainerTemplate):
             WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[(trainer_spell.template_entry, trainer_spell.spell)] = trainer_spell
 
         @staticmethod
-        def trainer_spells_get_by_trainer(trainer_entry_id: int) -> Optional[list[NpcTrainer]]:
-            trainer_spells: list[NpcTrainer] = []
+        def trainer_spells_get_by_trainer(trainer_entry_id: int) -> Optional[list[TrainerTemplate]]:
+            trainer_spells: list[TrainerTemplate] = []
 
             creature_template: CreatureTemplate = WorldDatabaseManager.creature_get_by_entry(trainer_entry_id)
             trainer_template_id = creature_template.trainer_id
@@ -367,14 +367,37 @@ class WorldDatabaseManager(object):
             return trainer_spells if len(trainer_spells) > 0 else None
 
         @staticmethod
-        def trainer_spell_get_by_trainer_and_spell(trainer_id: int, spell_id: int) -> Optional[NpcTrainer]:
+        def get_all_talents() -> Optional[list[TrainerTemplate]]:
+            talents: list[TrainerTemplate] = []
+
+            trainer_template_id = TalentTemplateInfo.TALENT_TEMPLATE_ID
+
+            for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
+                if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == trainer_template_id:
+                    talents.append(WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell])
+
+            return talents if len(talents) > 0 else None
+
+        # Returns the trainer spell database entry for a given trainer id/trainer spell id.
+        @staticmethod
+        def trainer_spell_entry_get_by_trainer_and_spell(trainer_id: int, spell_id: int) -> Optional[TrainerTemplate]:
             return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[(trainer_id, spell_id)] \
                 if (trainer_id, spell_id) in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS else None
 
+        # Returns the actual useable spell that the player casts from the trainer spell entry.
+        @staticmethod
+        def trainer_spell_id_get_from_player_spell_id(trainer_id: int, player_spell_id: int) -> Optional[int]:
+            for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
+                if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == trainer_id:
+                    if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].playerspell == player_spell_id:
+                        return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].spell
+
+            return None
+
     @staticmethod
-    def trainer_spell_get_all() -> Optional[list[NpcTrainer]]:
+    def trainer_spell_get_all() -> Optional[list[TrainerTemplate]]:
         world_db_session: scoped_session = SessionHolder()
-        res = world_db_session.query(NpcTrainer).all()
+        res = world_db_session.query(TrainerTemplate).all()
         world_db_session.close()
         return res
 

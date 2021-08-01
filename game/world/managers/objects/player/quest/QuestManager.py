@@ -1,6 +1,7 @@
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import t_creature_quest_finisher, t_creature_quest_starter
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.quest.ActiveQuest import ActiveQuest
@@ -156,8 +157,6 @@ class QuestManager(object):
 
         self.update_surrounding_quest_status()
 
-    # TODO sloppy and probably slow, just copied from handle_quest_giver_hello. Can't think of a quicker way to check
-    #  atm, all that is needed is the number of active quests so this seems overkill.
     def get_active_quest_num_from_quest_giver(self, quest_giver):
         quest_num: int = 0
 

@@ -42,6 +42,7 @@ class EffectTargets:
 
     def get_simple_targets(self) -> dict[SpellImplicitTargets, list[Union[ObjectManager, Vector]]]:
         caster = self.casting_spell.spell_caster
+        caster_is_player = caster.get_type() == ObjectTypes.TYPE_PLAYER
 
         target_is_player = self.casting_spell.initial_target_is_player()
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
@@ -53,7 +54,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_INITIAL: self.initial_target,  # Only accept in A.
             SpellImplicitTargets.TARGET_SELF: caster,
             SpellImplicitTargets.TARGET_PET: [],  # TODO
-            SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: caster.get_deathbind_coordinates() if target_is_player else [],
+            SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: caster.get_deathbind_coordinates() if target_is_player and caster_is_player else [],
             SpellImplicitTargets.TARGET_11: [],  # Word of Recall Other - seems deprecated so return nothing
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else [],
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if target_is_gameobject else [],

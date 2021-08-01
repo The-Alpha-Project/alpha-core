@@ -2,7 +2,7 @@ import time
 from random import randint, choice
 from struct import unpack, pack
 
-from database.world.WorldModels import NpcTrainer, SpellChain
+from database.world.WorldModels import TrainerTemplate, SpellChain
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
@@ -131,23 +131,32 @@ class CreatureManager(UnitManager):
         train_spell_bytes: bytes = b''
         train_spell_count: int = 0
 
-        trainer_ability_list: list[NpcTrainer] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
+        trainer_ability_list: list[TrainerTemplate] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
 
         if not trainer_ability_list or trainer_ability_list.count == 0:
             Logger.warning(f'send_trainer_list called from NPC {self.entry} but no trainer spells found!')
             return
 
-        for ability in trainer_ability_list:
-            ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(ability.spell)
+        for trainer_spell in trainer_ability_list: # trainer_spell: The spell the trainer uses to teach the player.
+            player_spell_id = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_1 if \
+                DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_1 > 0 else \
+                    DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_2 if \
+                        DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_2 > 0 else \
+                            DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_3
 
-            spell_level: int = ability.reqlevel  # Use this and not spell data, as there are differences between data source (2003 Game Guide) and what is in spell table.
+            if player_spell_id < 1:
+                continue
+            
+            ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(player_spell_id)
+
+            spell_level: int = trainer_spell.reqlevel  # Use this and not spell data, as there are differences between data source (2003 Game Guide) and what is in spell table.
             spell_rank: int = ability_spell_chain.rank
             prev_spell: int = ability_spell_chain.prev_spell
             req_spell: int = ability_spell_chain.req_spell
 
             spell_is_too_high_level: bool = spell_level > world_session.player_mgr.level
 
-            if ability.spell in world_session.player_mgr.spell_manager.spells:
+            if player_spell_id in world_session.player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
             else:
                 if prev_spell in world_session.player_mgr.spell_manager.spells and spell_rank > 1 and not spell_is_too_high_level:
@@ -159,14 +168,14 @@ class CreatureManager(UnitManager):
 
             data: bytes = pack(
                 '<IBI3B6I',
-                ability.spell,  # Spell id
+                player_spell_id,  # Spell id
                 status,  # Status
-                ability.spellcost,  # Cost
-                ability.talentpointcost,  # Talent Point Cost
-                ability.skillpointcost,  # Skill Point Cost
+                trainer_spell.spellcost,  # Cost
+                trainer_spell.talentpointcost,  # Talent Point Cost
+                trainer_spell.skillpointcost,  # Skill Point Cost
                 spell_level,  # Required Level
-                ability.reqskill,  # Required Skill Line
-                ability.reqskillvalue,  # Required Skill Rank
+                trainer_spell.reqskill,  # Required Skill Line
+                trainer_spell.reqskillvalue,  # Required Skill Rank
                 0,  # Required Skill Step
                 prev_spell,  # Required Ability (1)
                 0,  # Required Ability (2)
@@ -283,7 +292,7 @@ class CreatureManager(UnitManager):
         if not self.is_trainer():
             return False
         
-        trainer_spells: list[NpcTrainer] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
+        trainer_spells: list[TrainerTemplate] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
 
         for trainer_spell in trainer_spells:
             if trainer_spell.spell == spell_id:

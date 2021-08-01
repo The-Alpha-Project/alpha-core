@@ -1,8 +1,9 @@
 from struct import pack
 from typing import Optional
-from database.dbc.DbcModels import SkillLineAbility
+from database.dbc.DbcModels import SkillLineAbility, Spell
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.SpellCodes import SpellTargetMask
@@ -39,37 +40,39 @@ class TalentManager(object):
             if ability.Spell in self.player_mgr.spell_manager.spells:
                 self.player_mgr.spell_manager.start_spell_cast(spell, self.player_mgr, self.player_mgr, SpellTargetMask.SELF)
 
+    # We want to apply each aura immediately after training, not just after relogging. 
+    # However, we don't want to try to apply all of them each time.
+    def apply_talent_aura(self, talent_spell_id: int):
+        spell: Spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(talent_spell_id)
+
+        if talent_spell_id in self.player_mgr.spell_manager.spells:
+            self.player_mgr.spell_manager.start_spell_cast(spell, self.player_mgr, self.player_mgr, SpellTargetMask.SELF)
+
     def send_talent_list(self):
-        next_talent: list[int] = []
         talent_bytes: bytes = b''
         talent_count: int = 0
 
-        skill_line_abilities: list[SkillLineAbility] = DbcDatabaseManager.skill_line_ability_get_by_skill_lines(SKILL_LINE_TALENT_IDS)
+        talent_abilities = WorldDatabaseManager.TrainerSpellHolder.get_all_talents()
 
-        for ability in skill_line_abilities:
-            # We only want the ones having an attached spell.
-            if not ability.Spell:
-                continue
-
-            spell: Optional[SkillLineAbility] = DbcDatabaseManager.SpellHolder.spell_get_by_id(ability.Spell)
+        for training_spell in talent_abilities:
+            spell: Optional[SkillLineAbility] = DbcDatabaseManager.SpellHolder.spell_get_by_id(training_spell.playerspell)
             spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
+            skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell.ID)
 
-            if ability.Spell in self.player_mgr.spell_manager.spells:
-                if ability.SupercededBySpell > 0:
-                    next_talent.append(ability.SupercededBySpell)
+            if spell.ID in self.player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
             else:
-                if ability.Spell in next_talent:
+                if skill_line_ability.custom_PrecededBySpell in self.player_mgr.spell_manager.spells and spell_rank > 1:
                     status = TrainerServices.TRAINER_SERVICE_AVAILABLE
                 elif spell_rank == 1:
                     status = TrainerServices.TRAINER_SERVICE_AVAILABLE
                 else:
                     status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
             
-            talent_points_cost = TalentManager.get_talent_cost_by_id(ability.Spell)
+            talent_points_cost = TalentManager.get_talent_cost_by_id(training_spell.playerspell)
             data = pack(
                 '<IBI3B6I',
-                ability.Spell,  # Spell id
+                training_spell.playerspell,  # Spell id
                 status,  # Status
                 0,  # Cost
                 talent_points_cost,  # Talent Point Cost
@@ -78,7 +81,7 @@ class TalentManager(object):
                 0,  # Required Skill Line
                 0,  # Required Skill Rank
                 0,  # Required Skill Step
-                ability.custom_PrecededBySpell,  # Required Ability (1)
+                skill_line_ability.custom_PrecededBySpell,  # Required Ability (1)
                 0,  # Required Ability (2)
                 0  # Required Ability (3)
             )

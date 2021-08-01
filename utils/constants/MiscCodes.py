@@ -250,7 +250,7 @@ class TrainerTypes(IntEnum):
 class TrainingFailReasons(IntEnum):
     TRAIN_FAIL_UNAVAILABLE = 0x0
     TRAIN_FAIL_NOT_ENOUGH_MONEY = 0x1
-    TRAIN_FAIL_NOT_ENOUGH_SKILL = 0x2
+    TRAIN_FAIL_NOT_ENOUGH_POINTS = 0x2
 
 
 class UnitDynamicTypes(IntEnum):
@@ -847,3 +847,7 @@ class MirrorTimerTypes(IntEnum):
 class LogoutResponseCodes(IntEnum):
     LOGOUT_CANCEL = 0
     LOGOUT_PROCEED = 1
+
+
+class TalentTemplateInfo(IntEnum):
+    TALENT_TEMPLATE_ID = 1000 # Constant value for talent trainer template id. Use this value to retrieve talents from trainer_template. Not defined by Blizzard.
