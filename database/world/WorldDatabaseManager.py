@@ -355,13 +355,9 @@ class WorldDatabaseManager(object):
         @staticmethod
         def load_trainer_spell(trainer_spell: TrainerTemplate):
             WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[(trainer_spell.template_entry, trainer_spell.spell)] = trainer_spell
-
-        @staticmethod
-        def trainer_spells_load_talents():
-            for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
-                if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == \
-                        WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID:
-                    WorldDatabaseManager.TrainerSpellHolder.TALENTS.append(WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell])
+            # If this trainer template references a talent spell, load it in the corresponding table too.
+            if trainer_spell.template_entry == WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID:
+                WorldDatabaseManager.TrainerSpellHolder.TALENTS.append(trainer_spell)
 
         @staticmethod
         def trainer_spells_get_by_trainer(trainer_entry_id: int) -> list[TrainerTemplate]:

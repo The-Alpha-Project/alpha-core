@@ -215,9 +215,6 @@ class WorldLoader:
             count += 1
             Logger.progress('Loading trainer spells...', count, length)
 
-        # Load talents after all trainer spells are loaded.
-        WorldDatabaseManager.TrainerSpellHolder.trainer_spells_load_talents()
-
         return length
 
     @staticmethod
