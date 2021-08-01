@@ -19,8 +19,8 @@ from utils.constants.ItemCodes import InventoryError, InventoryTypes
 from utils.constants.MiscCodes import ObjectTypes, HitInfo
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, SpellEffects, SpellSchools, \
-    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx
-from utils.constants.UnitCodes import PowerTypes, StandState
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellImplicitTargets
+from utils.constants.UnitCodes import CreatureTypes, PowerTypes, StandState
 
 
 class SpellManager(object):
@@ -111,8 +111,9 @@ class SpellManager(object):
         return spell if self.validate_cast(spell) else None
 
     def start_spell_cast(self, spell, caster, spell_target, target_mask, source_item=None,
-                         initialized_spell=None, is_trigger=False):
-        casting_spell = self.try_initialize_spell(spell, caster, spell_target, target_mask, source_item) if not initialized_spell else initialized_spell
+                         initialized_spell=None, is_trigger=False, force_cast=False):
+        casting_spell = self.try_initialize_spell(spell, caster, spell_target, target_mask, source_item,
+                                                  validate=not force_cast) if not initialized_spell else initialized_spell
         if not casting_spell:
             return
 

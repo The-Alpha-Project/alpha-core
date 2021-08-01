@@ -475,7 +475,7 @@ class PlayerManager(UnitManager):
     # override
     def change_speed(self, speed=0):
         super().change_speed(speed)
-        data = pack('<f', speed)
+        data = pack('<f', self.running_speed)
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
@@ -487,7 +487,7 @@ class PlayerManager(UnitManager):
         elif swim_speed >= 56:
             swim_speed = 56  # Max possible swim speed
         self.swim_speed = swim_speed
-        data = pack('<f', swim_speed)
+        data = pack('<f', self.swim_speed)
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
@@ -499,7 +499,7 @@ class PlayerManager(UnitManager):
         elif walk_speed >= 56:
             walk_speed = 56  # Max speed without glitches
         self.walk_speed = walk_speed
-        data = pack('<f', walk_speed)
+        data = pack('<f', self.walk_speed)
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
@@ -509,7 +509,7 @@ class PlayerManager(UnitManager):
         if turn_speed <= 0:
             turn_speed = config.Unit.Player.Defaults.turn_speed
         self.turn_rate = turn_speed
-        data = pack('<f', turn_speed)
+        data = pack('<f', self.turn_rate)
         # TODO NOT WORKING
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 
@@ -1031,6 +1031,16 @@ class PlayerManager(UnitManager):
         self.skill_points = max(0, self.skill_points - skill_points)
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
+    def recharge_power(self):
+        if self.power_type == PowerTypes.TYPE_MANA:
+            self.set_mana(self.get_max_power_value())
+        elif self.power_type == PowerTypes.TYPE_RAGE:
+            self.set_rage(self.get_max_power_value())
+        elif self.power_type == PowerTypes.TYPE_FOCUS:
+            self.set_focus(self.get_max_power_value())
+        elif self.power_type == PowerTypes.TYPE_ENERGY:
+            self.set_energy(self.get_max_power_value())
+
     def regenerate(self, current_time):
         if not self.is_alive or self.health == 0:
             return
@@ -1262,49 +1272,49 @@ class PlayerManager(UnitManager):
 
     # override
     def update(self):
-        # Prevent updates if not online
+        # Prevent updates if not online.
         if not self.online:
             return
 
-        # Specify that the player is being updated
+        # Specify that the player is being updated.
         self.update_lock = True
 
         now = time.time()
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            # Update played time
+            # Update played time.
             self.player.totaltime += elapsed
             self.player.leveltime += elapsed
 
-            # Regeneration
+            # Regeneration.
             self.regenerate(now)
-            # Attack update
+            # Attack update.
             self.attack_update(elapsed)
-            # Waypoints (mostly flying paths) update
+            # Waypoints (mostly flying paths) update.
             self.movement_manager.update_pending_waypoints(elapsed)
 
-            # SpellManager tick
+            # SpellManager tick.
             self.spell_manager.update(now, elapsed)
-            # AuraManager tick
+            # AuraManager tick.
             self.aura_manager.update(now)
 
-            # Duel tick
+            # Duel tick.
             if self.duel_manager:
                 self.duel_manager.update(self, elapsed)
 
-            # Release spirit timer
+            # Release spirit timer.
             if not self.is_alive:
-                if self.spirit_release_timer < 300:  # 5 min
+                if self.spirit_release_timer < 300:  # 5 min.
                     self.spirit_release_timer += elapsed
                 else:
                     self.repop()
 
-            # Swimming / Breathing
+            # Update timers (Breath, Fatigue, Feign Death).
             if self.is_alive:
                 self.mirror_timers_manager.update(elapsed)
 
-            # Logout timer
+            # Logout timer.
             if self.logout_timer > 0:
                 self.logout_timer -= elapsed
                 if self.logout_timer < 0:

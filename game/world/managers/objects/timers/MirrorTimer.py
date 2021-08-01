@@ -16,31 +16,37 @@ class MirrorTimer(object):
         self.active = False
         self.remaining = self.duration  # In seconds, sent in milliseconds.
         self.chunk_elapsed = 0  # Seconds, compared versus interval.
+        self.stop_on_next_tick = False
 
-    def start(self, elapsed):
+    def start(self, elapsed, spell_id=0):
         if not self.active and self.owner.is_alive:
+            self.spell_id = spell_id
             self.remaining = self.duration
             self.chunk_elapsed = int(elapsed)
             self.active = True
+            self.stop_on_next_tick = False
             self.send_full_update()
 
     def resume(self):
         if not self.active and self.owner.is_alive:
             self.active = True
-            data = pack('<IB', self._get_type(), not self.active)
-            packet = PacketWriter.get_packet(OpCode.SMSG_PAUSE_MIRROR_TIMER, data)
-            self.owner.session.enqueue_packet(packet)
+            self._send_pause_mirror_timer_packet(1)
 
     def pause(self):
         if self.active:
             self.active = False
-            data = pack('<IB', self._get_type(), not self.active)
-            packet = PacketWriter.get_packet(OpCode.SMSG_PAUSE_MIRROR_TIMER, data)
-            self.owner.session.enqueue_packet(packet)
+            self._send_pause_mirror_timer_packet(0)
+
+    def _send_pause_mirror_timer_packet(self, state):
+        self.stop_on_next_tick = False
+        data = pack('<IB', self._get_type(), state)
+        packet = PacketWriter.get_packet(OpCode.SMSG_PAUSE_MIRROR_TIMER, data)
+        self.owner.session.enqueue_packet(packet)
 
     def stop(self):
         if self.active:
             self.active = False
+            self.stop_on_next_tick = False
             data = pack('<I', self._get_type())
             packet = PacketWriter.get_packet(OpCode.SMSG_STOP_MIRROR_TIMER, data)
             self.owner.session.enqueue_packet(packet)
@@ -80,22 +86,26 @@ class MirrorTimer(object):
         if self.active and self.owner.is_alive:
             self.chunk_elapsed += elapsed
             if self.chunk_elapsed >= self.interval:
-                self.set_remaining(self.chunk_elapsed)
-                self.chunk_elapsed = 0
+                if self.stop_on_next_tick:
+                    self.stop()
+                else:
+                    self.set_remaining(self.chunk_elapsed)
+                    self.chunk_elapsed = 0
 
-                if self.type == MirrorTimerTypes.BREATH:
-                    self.handle_damage_timer(0.10)  # Damage: 10% of players max health.
-                elif self.type == MirrorTimerTypes.FATIGUE:
-                    self.handle_damage_timer(0.20)  # Damage: 20% of players max health.
-                else:  # Feign Death.
-                    self.handle_feign_death_timer()
+                    if self.type == MirrorTimerTypes.BREATH:
+                        self.handle_damage_timer(0.10)  # Damage: 10% of players max health.
+                    elif self.type == MirrorTimerTypes.FATIGUE:
+                        self.handle_damage_timer(0.20)  # Damage: 20% of players max health.
+                    else:  # Feign Death.
+                        self.handle_feign_death_timer()
 
     # TODO, should we halt regeneration when drowning or fatigue?
     #  Find drowning damage formula.
     #  CombatLog should display drown and fatigue.
     def handle_damage_timer(self, dmg_multiplier):
         if self.remaining == self.duration:
-            self.stop()  # Replenished.
+            # Replenished, stop next tick since scale is greater than 1 and client needs to fill its timer bar.
+            self.stop_on_next_tick = True
         elif self.remaining == 0 and self.owner.health > 0:
             damage = int(self.owner.max_health * dmg_multiplier)
             if self.owner.health - damage <= 0:

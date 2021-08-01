@@ -156,8 +156,6 @@ class QuestManager(object):
 
         self.update_surrounding_quest_status()
 
-    # TODO sloppy and probably slow, just copied from handle_quest_giver_hello. Can't think of a quicker way to check
-    #  atm, all that is needed is the number of active quests so this seems overkill.
     def get_active_quest_num_from_quest_giver(self, quest_giver):
         quest_num: int = 0
 

@@ -214,7 +214,7 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading trainer spells...', count, length)
-        
+
         return length
 
     @staticmethod
