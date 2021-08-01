@@ -16,7 +16,7 @@ class TrainerBuySpellHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
-        if len(reader.data) >= 12: # Avoid handling empty trainer buy spell packet.
+        if len(reader.data) >= 12:  # Avoid handling empty trainer buy spell packet.
 
             trainer_guid: int = unpack('<Q', reader.data[:8])[0]
             spell_id: int = unpack('<I', reader.data[8:12])[0]
@@ -43,7 +43,7 @@ class TrainerBuySpellHandler(object):
                     world_session.player_mgr.send_update_self(
                         world_session.player_mgr.generate_proper_update_packet(is_self=True),
                         force_inventory_update=False)
-                    world_session.player_mgr.talent_manager.apply_talent_aura(spell_id) # Make sure to apply the aura immediately after training.
+                    world_session.player_mgr.talent_manager.apply_talent_aura(spell_id)  # Make sure to apply the aura immediately after training.
                     TrainerBuySpellHandler.send_trainer_buy_succeeded(world_session, trainer_guid, spell_id)
                     # Send talent list again to refresh it.
                     world_session.player_mgr.talent_manager.send_talent_list()
