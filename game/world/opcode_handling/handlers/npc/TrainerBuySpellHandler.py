@@ -22,8 +22,6 @@ class TrainerBuySpellHandler(object):
             trainer_guid: int = unpack('<Q', reader.data[:8])[0]
             spell_id: int = unpack('<I', reader.data[8:12])[0]
 
-            Logger.debug(f'Spell ID: {spell_id}')
-
             # If the guid equals to player guid, training through a talent.
             if trainer_guid == world_session.player_mgr.guid:
                 talent_mgr = world_session.player_mgr.talent_manager

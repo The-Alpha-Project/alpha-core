@@ -3,7 +3,7 @@ from typing import Optional
 from database.dbc.DbcModels import SkillLineAbility, Spell
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager, TrainerTemplate
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.SpellCodes import SpellTargetMask
@@ -11,6 +11,7 @@ from utils.constants.SpellCodes import SpellTargetMask
 TALENT_SKILL_ID = 3
 # Weapon, Attribute, Slayer, Magic, Defensive
 SKILL_LINE_TALENT_IDS: list[int] = [222, 230, 231, 233, 234]
+TALENT_SPELL_IDS: list[TrainerTemplate] = WorldDatabaseManager.TrainerSpellHolder.trainer_talents_get_all()
 
 
 class TalentManager(object):
@@ -52,9 +53,7 @@ class TalentManager(object):
         talent_bytes: bytes = b''
         talent_count: int = 0
 
-        talent_abilities = WorldDatabaseManager.TrainerSpellHolder.get_all_talents()
-
-        for training_spell in talent_abilities:
+        for training_spell in TALENT_SPELL_IDS:
             spell: Optional[SkillLineAbility] = DbcDatabaseManager.SpellHolder.spell_get_by_id(training_spell.playerspell)
             spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
             skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell.ID)

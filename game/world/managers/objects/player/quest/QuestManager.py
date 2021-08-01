@@ -1,7 +1,6 @@
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from database.world.WorldModels import t_creature_quest_finisher, t_creature_quest_starter
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.quest.ActiveQuest import ActiveQuest

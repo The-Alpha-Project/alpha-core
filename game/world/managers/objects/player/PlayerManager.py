@@ -1018,14 +1018,14 @@ class PlayerManager(UnitManager):
         self.skill_points = max(0, self.skill_points - skill_points)
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
-    def set_max_power_type(self):
+    def recharge_power(self):
         if self.power_type == PowerTypes.TYPE_MANA:
             self.set_mana(self.get_max_power_value())
         elif self.power_type == PowerTypes.TYPE_RAGE:
             self.set_rage(self.get_max_power_value())
         elif self.power_type == PowerTypes.TYPE_FOCUS:
             self.set_focus(self.get_max_power_value())
-        else:
+        elif self.power_type == PowerTypes.TYPE_ENERGY:
             self.set_energy(self.get_max_power_value())
 
     def regenerate(self, current_time):

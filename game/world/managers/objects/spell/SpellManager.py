@@ -103,7 +103,8 @@ class SpellManager(object):
 
     def start_spell_cast(self, spell, caster, spell_target, target_mask, source_item=None,
                          initialized_spell=None, is_trigger=False, force_cast=False):
-        casting_spell = self.try_initialize_spell(spell, caster, spell_target, target_mask, source_item, validate= not force_cast) if not initialized_spell else initialized_spell
+        casting_spell = self.try_initialize_spell(spell, caster, spell_target, target_mask, source_item,
+                                                  validate=not force_cast) if not initialized_spell else initialized_spell
         if not casting_spell:
             return
 

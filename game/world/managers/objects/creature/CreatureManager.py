@@ -122,7 +122,8 @@ class CreatureManager(UnitManager):
         session.close()
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
 
-    def send_trainer_list(self, world_session): # TODO Add skills (Two-Handed Swords etc.) to trainers for skill points https://i.imgur.com/tzyDDqL.jpg
+    # TODO Add skills (Two-Handed Swords etc.) to trainers for skill points https://i.imgur.com/tzyDDqL.jpg
+    def send_trainer_list(self, world_session):
 
         if not self.can_train(world_session.player_mgr):
             Logger.anticheat(f'send_trainer_list called from NPC {self.entry} by player with GUID {world_session.player_mgr.guid} but this unit does not train that player\'s class. Possible cheating')
@@ -137,12 +138,12 @@ class CreatureManager(UnitManager):
             Logger.warning(f'send_trainer_list called from NPC {self.entry} but no trainer spells found!')
             return
 
-        for trainer_spell in trainer_ability_list: # trainer_spell: The spell the trainer uses to teach the player.
+        for trainer_spell in trainer_ability_list:  # trainer_spell: The spell the trainer uses to teach the player.
             player_spell_id = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_1 if \
                 DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_1 > 0 else \
-                    DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_2 if \
-                        DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_2 > 0 else \
-                            DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_3
+                DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_2 if \
+                DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_2 > 0 else \
+                DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_3
 
             if player_spell_id < 1:
                 continue
@@ -375,7 +376,7 @@ class CreatureManager(UnitManager):
                     self.random_movement_wait_time = randint(1, 12)
                     self.last_random_movement = now
 
-    def _perform_combat_movement(self, now):
+    def _perform_combat_movement(self):
         if self.combat_target:
             current_distance = self.location.distance(self.combat_target.location)
             interactable_distance = UnitFormulas.interactable_distance(self, self.combat_target)
@@ -409,7 +410,7 @@ class CreatureManager(UnitManager):
                 # Random Movement
                 self._perform_random_movement(now)
                 # Combat movement
-                self._perform_combat_movement(now)
+                self._perform_combat_movement()
                 # Attack update
                 if self.combat_target and self.is_within_interactable_distance(self.combat_target):
                     self.attack_update(elapsed)

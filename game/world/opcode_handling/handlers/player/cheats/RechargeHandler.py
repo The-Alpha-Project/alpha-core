@@ -1,4 +1,3 @@
-from utils.constants.UnitCodes import PowerTypes
 from network.packet.PacketReader import PacketReader
 
 
@@ -9,10 +8,7 @@ class RechargeHandler(object):
         if not world_session.player_mgr.is_gm:
             return 0
 
-        world_session.player_mgr.set_max_power_type()
-
-        world_session.player_mgr.send_update_self(
-                        world_session.player_mgr.generate_proper_update_packet(is_self=True),
-                        force_inventory_update=False)
+        world_session.player_mgr.recharge_power()
+        world_session.player_mgr.send_update_self(world_session.player_mgr.generate_proper_update_packet(is_self=True))
 
         return 0
