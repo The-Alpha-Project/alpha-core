@@ -12,7 +12,8 @@ class LogoutRequestHandler(object):
             res = LogoutResponseCodes.LOGOUT_CANCEL
         else:
             res = LogoutResponseCodes.LOGOUT_PROCEED
-            world_session.player_mgr.set_stand_state(StandState.UNIT_SITTING)
+            if not world_session.player_mgr.is_swimming():
+                world_session.player_mgr.set_stand_state(StandState.UNIT_SITTING)
             world_session.player_mgr.set_root(True)
             world_session.player_mgr.set_dirty()
             world_session.player_mgr.logout_timer = 20
