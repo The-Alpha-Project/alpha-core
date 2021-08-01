@@ -11,7 +11,6 @@ from utils.constants.SpellCodes import SpellTargetMask
 TALENT_SKILL_ID = 3
 # Weapon, Attribute, Slayer, Magic, Defensive
 SKILL_LINE_TALENT_IDS: list[int] = [222, 230, 231, 233, 234]
-TALENT_SPELL_IDS: list[TrainerTemplate] = WorldDatabaseManager.TrainerSpellHolder.trainer_talents_get_all()
 
 
 class TalentManager(object):
@@ -53,7 +52,7 @@ class TalentManager(object):
         talent_bytes: bytes = b''
         talent_count: int = 0
 
-        for training_spell in TALENT_SPELL_IDS:
+        for training_spell in WorldDatabaseManager.TrainerSpellHolder.TALENTS:
             spell: Optional[SkillLineAbility] = DbcDatabaseManager.SpellHolder.spell_get_by_id(training_spell.playerspell)
             spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
             skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell.ID)
