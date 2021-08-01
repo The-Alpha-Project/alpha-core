@@ -172,7 +172,7 @@ class MapManager(object):
                 return None
 
             liquids = MAPS[map_id].tiles[map_tile_x][map_tile_y].liquid_information[tile_local_x][tile_local_y]
-            return liquids if liquids and liquids.height > z else None
+            return liquids if liquids and liquids.height >= z else None
         except:
             Logger.error(traceback.format_exc())
             return None
