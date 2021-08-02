@@ -155,14 +155,9 @@ class MovementManager(object):
     def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
         random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
         # TODO: Below check might not be needed once better path finding is implemented
-        # Try to keep the unit random movement close to its original Z
-        retry_count = 0
-        while math.fabs(start_position.z - random_point.z) > 1.5:
-            random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
-            # Set a hard limit, just in case
-            if retry_count >= 20:
-                break
-            retry_count += 1
+        # Don't move if the new Z is very different to original Z.
+        if math.fabs(start_position.z - random_point.z) > 1.5:
+            return
 
         self.send_move_to([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
