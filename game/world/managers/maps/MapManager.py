@@ -105,8 +105,8 @@ class MapManager(object):
 
     @staticmethod
     def calculate_z_for_object(world_object):
-        return MapManager.calculate_z(world_object.map_, world_object.location.x, world_object.location.y,
-                                      world_object.location.z)
+        return world_object.location.calculate_z(world_object.location.x, world_object.location.y, world_object.map_,
+                                                 world_object.location.z)
 
     # noinspection PyBroadException
     @staticmethod
