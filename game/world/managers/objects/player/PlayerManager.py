@@ -510,7 +510,7 @@ class PlayerManager(UnitManager):
             turn_speed = config.Unit.Player.Defaults.turn_speed
         self.turn_rate = turn_speed
         data = pack('<f', self.turn_rate)
-        # TODO NOT WORKING
+        # TODO NOT WORKING?
         self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,

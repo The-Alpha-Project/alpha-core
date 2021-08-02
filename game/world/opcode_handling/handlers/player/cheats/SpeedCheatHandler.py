@@ -7,20 +7,25 @@ class SpeedCheatHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
-        if not world_session.player_mgr.is_gm:
+        speed = 0.0
+        if world_session.player_mgr.is_gm:
+            if len(reader.data) >= 52:  # Avoid handling empty speed cheat packet.
+                speed = unpack('<f', reader.data[48:52])[0]
+        else:
             Logger.anticheat(f'Player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}) tried to use speed hacks.')
-            return 0
 
+        # A speed of 0 will ensure that the speed is reset to the default values if the player is not a GM.
         if reader.opcode == OpCode.MSG_MOVE_SET_RUN_SPEED_CHEAT:
-            world_session.player_mgr.change_speed()
+            world_session.player_mgr.change_speed(speed)
         elif reader.opcode == OpCode.MSG_MOVE_SET_SWIM_SPEED_CHEAT:
-            world_session.player_mgr.change_swim_speed()
+            world_session.player_mgr.change_swim_speed(speed)
         elif reader.opcode == OpCode.MSG_MOVE_SET_WALK_SPEED_CHEAT:
-            world_session.player_mgr.change_walk_speed()
+            world_session.player_mgr.change_walk_speed(speed)
         elif reader.opcode == OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT:
-            # world_session.player_mgr.change_turn_speed()
-            # Disconnect as I haven't found a way to change turn speed back to normal
-            return -1
+            world_session.player_mgr.change_turn_speed(speed)
+            # Disconnect if the player is not a GM as I haven't found a way to change turn speed back to normal.
+            if not world_session.player_mgr.is_gm:
+                return -1
         else:
             return -1
 
