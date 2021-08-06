@@ -128,7 +128,7 @@ class AuraManager:
             ProcFlags.DEAL_COMBAT_DMG: not is_receiver and damage_info and damage_info.total_damage > 0,  # -> cast on target.
             ProcFlags.TAKE_COMBAT_DMG: is_receiver and damage_info and damage_info.total_damage > 0,
             ProcFlags.KILL: killed_unit,
-            ProcFlags.HEARTBEAT: True,  # TODO Not sure what expected behaviour is - call on every proc for now
+            ProcFlags.HEARTBEAT: False,  # Heartbeat effects are handled in their respective places on update - ignore the flag here.
             ProcFlags.DODGE: is_receiver and damage_info and damage_info.hit_info & HitInfo.DODGE,
             ProcFlags.PARRY: is_receiver and damage_info and damage_info.hit_info & HitInfo.PARRY,
             ProcFlags.BLOCK: is_receiver and damage_info and damage_info.hit_info & HitInfo.BLOCK,
