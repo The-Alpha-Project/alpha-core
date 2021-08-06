@@ -417,3 +417,42 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    # Gossip
+
+    class QuestGossipHolder:
+        NPC_GOSSIPS: dict[int, NpcGossip] = {}
+        NPC_TEXTS: dict[int, NpcText] = {}
+
+        @staticmethod
+        def load_npc_gossip(npc_gossip: NpcGossip):
+            WorldDatabaseManager.QuestGossipHolder.NPC_GOSSIPS[npc_gossip.npc_guid] = npc_gossip
+
+        @staticmethod
+        def load_npc_text(npc_text: NpcText):
+            WorldDatabaseManager.QuestGossipHolder.NPC_TEXTS[npc_text.id] = npc_text
+        
+        @staticmethod
+        def npc_gossip_get_by_guid(npc_guid: int) -> Optional[NpcGossip]:
+            return WorldDatabaseManager.QuestGossipHolder.NPC_GOSSIPS[npc_guid] \
+                if npc_guid in WorldDatabaseManager.QuestGossipHolder.NPC_GOSSIPS else None
+
+        @staticmethod
+        def npc_text_get_by_id(text_id: int) -> Optional[NpcText]:
+            if text_id in WorldDatabaseManager.QuestGossipHolder.NPC_TEXTS:
+                return WorldDatabaseManager.QuestGossipHolder.NPC_TEXTS[text_id]
+            return None
+
+    @staticmethod
+    def npc_gossip_get_all() -> Optional[list[NpcGossip]]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(NpcGossip).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def npc_text_get_all() -> Optional[list[NpcText]]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(NpcText).all()
+        world_db_session.close()
+        return res
+        

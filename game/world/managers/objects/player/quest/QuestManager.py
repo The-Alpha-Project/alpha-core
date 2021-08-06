@@ -1,3 +1,4 @@
+from database.world.WorldModels import NpcGossip, NpcText
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -9,7 +10,7 @@ from game.world.managers.objects.player.quest.QuestMenu import QuestMenu
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes, QuestMethod, \
-    QuestFlags
+    QuestFlags, HighGuid
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -151,8 +152,11 @@ class QuestManager(object):
             else:
                 self.send_quest_giver_quest_details(quest_menu_item.quest, quest_giver_guid, True)
         else:
-            # TODO: Send the proper greeting message
-            self.send_quest_giver_quest_list("Greetings, $N.", quest_giver_guid, quest_menu.items)
+            questgiver_gossip_entry: NpcGossip = WorldDatabaseManager.QuestGossipHolder.npc_gossip_get_by_guid(quest_giver_guid & ~HighGuid.HIGHGUID_UNIT)
+            questgiver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(questgiver_gossip_entry.textid if questgiver_gossip_entry != None else 68) # 68 textid = "Greetings, $N"
+            questgiver_greeting: str = questgiver_text_entry.text0_0 if questgiver_text_entry.text0_0 != "" else questgiver_text_entry.text0_1 if questgiver_text_entry.text0_1 != "" else "Greetings, $N"
+
+            self.send_quest_giver_quest_list(questgiver_greeting, quest_giver_guid, quest_menu.items)
 
         self.update_surrounding_quest_status()
 
