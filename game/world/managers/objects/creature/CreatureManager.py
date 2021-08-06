@@ -141,21 +141,13 @@ class CreatureManager(UnitManager):
             return
 
         for trainer_spell in trainer_ability_list:  # trainer_spell: The spell the trainer uses to teach the player.
-            player_spell_id = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_1 if \
-                DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_1 > 0 else \
-                DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_2 if \
-                DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_2 > 0 else \
-                DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell).EffectTriggerSpell_3
-
-            if player_spell_id < 1:
-                continue
+            player_spell_id = trainer_spell.playerspell
             
             ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(player_spell_id)
 
             spell_level: int = trainer_spell.reqlevel  # Use this and not spell data, as there are differences between data source (2003 Game Guide) and what is in spell table.
             spell_rank: int = ability_spell_chain.rank
             prev_spell: int = ability_spell_chain.prev_spell
-            req_spell: int = ability_spell_chain.req_spell
 
             spell_is_too_high_level: bool = spell_level > world_session.player_mgr.level
 

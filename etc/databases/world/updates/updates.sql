@@ -2705,6 +2705,17 @@ begin not atomic
 
 	    insert into applied_updates values ('071920211');
     end if;
+
+    -- 8/4/2021
+    if (select count(*) from applied_updates where id='080420211') = 0 then
+        -- Fix Nullify Disease (Rank 2).
+        UPDATE `spell_chain` SET `prev_spell` = 528, `first_spell` = 528 WHERE `spell_id` = 552;
+
+        -- Fix Ice Armor (Rank 2)
+        UPDATE `trainer_template` SET `spell` = 1228 WHERE `template_entry` = 1 AND `spell` = 7320;
+
+        insert into applied_updates values ('080420211');
+    end if;
 	
 end $
 delimiter ;
