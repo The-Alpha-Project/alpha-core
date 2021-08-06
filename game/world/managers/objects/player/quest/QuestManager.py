@@ -153,7 +153,7 @@ class QuestManager(object):
                 self.send_quest_giver_quest_details(quest_menu_item.quest, quest_giver_guid, True)
         else:
             questgiver_gossip_entry: NpcGossip = WorldDatabaseManager.QuestGossipHolder.npc_gossip_get_by_guid(quest_giver_guid & ~HighGuid.HIGHGUID_UNIT)
-            questgiver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(questgiver_gossip_entry.textid if questgiver_gossip_entry != None else 68) # 68 textid = "Greetings, $N"
+            questgiver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(questgiver_gossip_entry.textid if questgiver_gossip_entry != None else WorldDatabaseManager.QuestGossipHolder.DEFAULT_GREETING_TEXT_ID) # 68 textid = "Greetings $N"
             questgiver_greeting: str = questgiver_text_entry.text0_0 if questgiver_text_entry.text0_0 != "" else questgiver_text_entry.text0_1 if questgiver_text_entry.text0_1 != "" else "Greetings, $N"
 
             self.send_quest_giver_quest_list(questgiver_greeting, quest_giver_guid, quest_menu.items)

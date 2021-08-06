@@ -422,6 +422,7 @@ class WorldDatabaseManager(object):
     class QuestGossipHolder:
         NPC_GOSSIPS: dict[int, NpcGossip] = {}
         NPC_TEXTS: dict[int, NpcText] = {}
+        DEFAULT_GREETING_TEXT_ID = 68 # Greetings $N
 
         @staticmethod
         def load_npc_gossip(npc_gossip: NpcGossip):
