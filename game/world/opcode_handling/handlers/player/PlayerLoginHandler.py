@@ -35,7 +35,7 @@ class PlayerLoginHandler(object):
         else:
             WorldSessionStateHandler.push_active_player_session(world_session)
 
-        # Disabled race & class checks (only if not a GM)
+        # Disabled race & class checks (only if not a GM).
         if not world_session.player_mgr.is_gm:
             disabled_race_mask = config.Server.General.disabled_race_mask
             disabled = disabled_race_mask & world_session.player_mgr.race_mask == world_session.player_mgr.race_mask
@@ -45,14 +45,14 @@ class PlayerLoginHandler(object):
                 disabled = disabled_class_mask & world_session.player_mgr.class_mask == world_session.player_mgr.class_mask
 
             if disabled:
-                # Not 100% sure if CHAR_LOGIN_DISABLED matters here, but I don't know where else to send it
+                # Not 100% sure if CHAR_LOGIN_DISABLED matters here, but I don't know where else to send it.
                 data = pack(
                     '<B', CharLogin.CHAR_LOGIN_DISABLED
                 )
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CHARACTER_LOGIN_FAILED, data))
                 return 0
 
-        # Class & race allowed, continue with the login process
+        # Class & race allowed, continue with the login process.
 
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
                                                              PlayerLoginHandler._get_login_timespeed()))
@@ -65,12 +65,12 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.friends_manager.load_from_db(RealmDatabaseManager.character_get_social(world_session.player_mgr.guid))
 
         world_session.enqueue_packet(world_session.player_mgr.get_deathbind_packet())
-        # Tutorials aren't implemented in 0.5.3
+        # Tutorials aren't implemented in 0.5.3.
         # world_session.enqueue_packet(world_session.player_mgr.get_tutorial_packet())
         world_session.enqueue_packet(world_session.player_mgr.spell_manager.get_initial_spells())
         world_session.enqueue_packet(world_session.player_mgr.get_action_buttons())
 
-        # MotD
+        # MotD.
         ChatManager.send_system_message(world_session, config.Server.General.motd)
 
         world_session.player_mgr.inventory.load_items()
@@ -80,22 +80,15 @@ class PlayerLoginHandler(object):
         GroupManager.set_character_group(world_session.player_mgr)
         PetitionManager.load_petition(world_session.player_mgr)
 
-        # First login
-        if world_session.player_mgr.player.totaltime == 0:
-            # Replenish health, and mana if needed.
-            world_session.player_mgr.set_health(world_session.player_mgr.max_health)
-            if world_session.player_mgr.power_type == PowerTypes.TYPE_MANA:
-                world_session.player_mgr.set_mana(world_session.player_mgr.max_power_1)
+        # Load self.
+        PlayerLoginHandler._load_self(world_session.player_mgr)
 
-            # Load self before sending cinematic
-            PlayerLoginHandler._load_self(world_session.player_mgr)
-
-            # Send cinematic
+        first_login = world_session.player_mgr.player.totaltime == 0
+        # Send cinematic.
+        if first_login:
             PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
-        else:
-            PlayerLoginHandler._load_self(world_session.player_mgr)
 
-        world_session.player_mgr.complete_login()
+        world_session.player_mgr.complete_login(first_login=first_login)
 
         return 0
 
