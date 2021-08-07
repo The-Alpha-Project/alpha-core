@@ -19,7 +19,6 @@ class MapTile(object):
         self.area_information = [[None for r in range(0, RESOLUTION_AREA_INFO)] for c in range(0, RESOLUTION_AREA_INFO)]
         self.liquid_information = [[None for r in range(0, RESOLUTION_LIQUIDS)] for c in range(0, RESOLUTION_LIQUIDS)]
         self.z_height_map = [[0 for r in range(0, RESOLUTION_ZMAP)] for c in range(0, RESOLUTION_ZMAP)]
-        self.load()
 
     def load(self):
         filename = f'{self.cell_map:03}{self.cell_x:02}{self.cell_y:02}.map'
