@@ -708,8 +708,9 @@ class UnitManager(ObjectManager):
             return self.power_2
         elif self.power_type == PowerTypes.TYPE_FOCUS:
             return self.power_3
-        else:
+        elif self.power_type == PowerTypes.TYPE_ENERGY:
             return self.power_4
+        return 0
 
     def get_max_power_value(self):
         if self.power_type == PowerTypes.TYPE_MANA:
@@ -718,18 +719,20 @@ class UnitManager(ObjectManager):
             return self.max_power_2
         elif self.power_type == PowerTypes.TYPE_FOCUS:
             return self.max_power_3
-        else:
+        elif self.power_type == PowerTypes.TYPE_ENERGY:
             return self.max_power_4
+        return 0
 
     def recharge_power(self):
+        max_power = self.get_max_power_value()
         if self.power_type == PowerTypes.TYPE_MANA:
-            self.set_mana(self.get_max_power_value())
+            self.set_mana(max_power)
         elif self.power_type == PowerTypes.TYPE_RAGE:
-            self.set_rage(self.get_max_power_value())
+            self.set_rage(max_power)
         elif self.power_type == PowerTypes.TYPE_FOCUS:
-            self.set_focus(self.get_max_power_value())
+            self.set_focus(max_power)
         elif self.power_type == PowerTypes.TYPE_ENERGY:
-            self.set_energy(self.get_max_power_value())
+            self.set_energy(max_power)
 
     def set_health(self, health):
         if health < 0:
