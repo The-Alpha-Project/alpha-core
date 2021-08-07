@@ -70,6 +70,7 @@ class MapManager(object):
                     # Avoid loading tiles information if we already did.
                     if not MAPS[map_id].tiles[x + i][y + j]:
                         MAPS[map_id].tiles[x + i][y + j] = MapTile(map_id, x + i, y + j)
+                        MAPS[map_id].tiles[x + i][y + j].load()
 
         return True
 
