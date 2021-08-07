@@ -14,6 +14,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
+from utils.Logger import Logger
 from utils.constants.DuelCodes import DuelState
 from utils.constants.ItemCodes import ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
@@ -955,9 +956,13 @@ class UnitManager(ObjectManager):
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)
         target_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(target.faction)
 
-        # Some units currently have a bugged faction, terminate the method if this is encountered
+        if not own_faction:
+            Logger.error(f'Invalid faction template: {self.faction}.')
+            return not check_friendly
+
         if not target_faction:
-            return False
+            Logger.error(f'Invalid faction template: {target.faction}.')
+            return not check_friendly
 
         own_enemies = [own_faction.Enemies_1, own_faction.Enemies_2, own_faction.Enemies_3, own_faction.Enemies_4]
         own_friends = [own_faction.Friend_1, own_faction.Friend_2, own_faction.Friend_3, own_faction.Friend_4]
