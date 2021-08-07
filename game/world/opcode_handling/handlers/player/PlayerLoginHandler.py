@@ -74,12 +74,6 @@ class PlayerLoginHandler(object):
         ChatManager.send_system_message(world_session, config.Server.General.motd)
 
         world_session.player_mgr.inventory.load_items()
-        # Passive spells contain skill and proficiency learning.
-        # Perform passive spell casts after loading skills to avoid duplicate database entries.
-        world_session.player_mgr.spell_manager.cast_passive_spells()
-        world_session.player_mgr.skill_manager.init_proficiencies()
-        world_session.player_mgr.stat_manager.init_stats()
-        world_session.player_mgr.stat_manager.apply_bonuses()
         world_session.player_mgr.quest_manager.load_quests()
         world_session.player_mgr.reputation_manager.load_reputations()
         GuildManager.set_character_guild(world_session.player_mgr)
