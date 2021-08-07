@@ -2717,7 +2717,7 @@ begin not atomic
         insert into applied_updates values ('040820211');
     end if;
 
-    -- 07/08/2021
+    -- 07/08/2021 1
     if (select count(*) from applied_updates where id='070820211') = 0 then
         -- Update faction for gnomes.
         UPDATE `creature_template` SET `faction` = 64 WHERE `faction` = 875;
