@@ -242,7 +242,7 @@ class PlayerManager(UnitManager):
         self.reputation_manager.send_initialize_factions()
 
         # Notify friends about player login.
-        self.friends_manager.send_online_notification()  # Notify our friends
+        self.friends_manager.send_online_notification()
 
         # If guild, send guild Message of the Day.
         if self.guild_manager:
