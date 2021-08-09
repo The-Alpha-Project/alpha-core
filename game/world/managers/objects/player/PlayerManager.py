@@ -221,33 +221,6 @@ class PlayerManager(UnitManager):
         self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
         self.chat_flags = ChatFlags.CHAT_TAG_GM
 
-    def complete_login(self, first_login=False):
-        self.online = True
-
-        # Place player in world and update surroundings.
-        MapManager.update_object(self)
-        self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
-
-        # Join default channels.
-        ChannelManager.join_default_channels(self)
-
-        # Apply stats bonuses.
-        self.stat_manager.apply_bonuses(replenish=first_login)
-
-        # Init faction status.
-        self.reputation_manager.send_initialize_factions()
-
-        # Notify friends about player login.
-        self.friends_manager.send_online_notification()
-
-        # If guild, send guild Message of the Day.
-        if self.guild_manager:
-            self.guild_manager.send_motd(player_mgr=self)
-
-        # If group, notify group members.
-        if self.group_manager:
-            self.group_manager.send_update()
-
     def logout(self):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
         self.online = False
@@ -1408,8 +1381,35 @@ class PlayerManager(UnitManager):
 
     # override
     def on_cell_change(self):
-        self.update_surrounding_on_me()
-        self.quest_manager.update_surrounding_quest_status()
+        # If player just logged in, set as online and update its managers and surrounding world_objects.
+        if not self.online:
+            self.online = True
+            self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
+
+            # Join default channels.
+            ChannelManager.join_default_channels(self)
+
+            # Apply stats bonuses.
+            first_login = self.player.totaltime == 0
+            self.stat_manager.apply_bonuses(replenish=first_login)
+
+            # Init faction status.
+            self.reputation_manager.send_initialize_factions()
+
+            # Notify friends about player login.
+            self.friends_manager.send_online_notification()
+
+            # If guild, send guild Message of the Day.
+            if self.guild_manager:
+                self.guild_manager.send_motd(player_mgr=self)
+
+            # If group, notify group members.
+            if self.group_manager:
+                self.group_manager.send_update()
+
+        if self.online:
+            self.update_surrounding_on_me()
+            self.quest_manager.update_surrounding_quest_status()
 
     # override
     def get_type(self):

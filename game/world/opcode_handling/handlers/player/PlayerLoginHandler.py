@@ -5,6 +5,7 @@ from struct import unpack
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import *
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.player.ChatManager import ChatManager
 from game.world.managers.objects.player.GroupManager import GroupManager
 from game.world.managers.objects.player.PlayerManager import PlayerManager
@@ -93,7 +94,8 @@ class PlayerLoginHandler(object):
         if first_login:
             PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
 
-        world_session.player_mgr.complete_login(first_login=first_login)
+        # Place player in its corresponding world cell.
+        MapManager.update_object(world_session.player_mgr)
 
         return 0
 
