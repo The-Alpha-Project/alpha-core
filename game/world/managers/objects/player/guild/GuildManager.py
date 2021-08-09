@@ -89,7 +89,7 @@ class GuildManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
 
         if player_mgr:
-            player_mgr.session.enqueue_packet(packet)
+            player_mgr.enqueue_packet(packet)
         else:
             self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
@@ -356,7 +356,7 @@ class GuildManager(object):
     def send_emblem_result(player_mgr, result):
         data = pack('<I', result)
         packet = PacketWriter.get_packet(OpCode.MSG_SAVE_GUILD_EMBLEM, data)
-        player_mgr.session.enqueue_packet(packet)
+        player_mgr.enqueue_packet(packet)
 
     @staticmethod
     def load_guild(raw_guild):
@@ -429,4 +429,4 @@ class GuildManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_COMMAND_RESULT, data)
-        player_mgr.session.enqueue_packet(packet)
+        player_mgr.enqueue_packet(packet)

@@ -53,7 +53,7 @@ class ActiveQuest:
         # Notify the current objective count to the player.
         data = pack('<4IQ', self.db_state.quest, creature.entry, current + value, required, creature.guid)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_KILL, data)
-        self.owner.session.enqueue_packet(packet)
+        self.owner.enqueue_packet(packet)
 
     def _update_db_creature_go_count(self, index, value):
         if index == 0:
@@ -75,7 +75,7 @@ class ActiveQuest:
         # Notify the current item count to the player.
         data = pack('<2I', item_entry, quantity)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
-        self.owner.session.enqueue_packet(packet)
+        self.owner.enqueue_packet(packet)
 
     def _update_db_item_count(self, index, value, required_count=None):
         if not required_count:
