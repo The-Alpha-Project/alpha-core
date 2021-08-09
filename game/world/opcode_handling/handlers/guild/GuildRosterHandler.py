@@ -33,6 +33,6 @@ class GuildRosterHandler(object):
                     member.rank
                 )
 
-            player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_ROSTER, data))
+            player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_ROSTER, data))
 
         return 0

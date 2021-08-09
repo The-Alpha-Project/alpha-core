@@ -284,7 +284,7 @@ class Cell(object):
                 if use_ignore and source and player_mgr.friends_manager.has_ignore(source.guid):
                     continue
 
-                player_mgr.session.enqueue_packet(packet)
+                player_mgr.enqueue_packet(packet)
 
     def send_all_in_range(self, packet, range_, source, include_self=True, exclude=None, use_ignore=False):
         if range_ <= 0:
@@ -297,4 +297,4 @@ class Cell(object):
                     if use_ignore and player_mgr.friends_manager.has_ignore(source.guid):
                         continue
 
-                    player_mgr.session.enqueue_packet(packet)
+                    player_mgr.enqueue_packet(packet)

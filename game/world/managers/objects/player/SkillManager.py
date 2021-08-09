@@ -242,7 +242,7 @@ class SkillManager(object):
 
     def send_set_proficiency(self, proficiency):
         packet = PacketWriter.get_packet(OpCode.SMSG_SET_PROFICIENCY, pack('<bI', proficiency.item_class, proficiency.item_subclass_mask))
-        self.player_mgr.session.enqueue_packet(packet)
+        self.player_mgr.enqueue_packet(packet)
 
     def init_proficiencies(self):
         for proficiency in self.proficiencies.values():
