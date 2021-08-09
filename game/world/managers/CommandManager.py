@@ -187,6 +187,12 @@ class CommandManager(object):
             return -1, 'Invalid ID.'
 
     @staticmethod
+    def lspells(world_session, args):
+        spell_ids = args.splice()
+        for spell_id in spell_ids:
+            CommandManager.lspell(world_session, spell_id)
+
+    @staticmethod
     def sskill(world_session, args):
         skill_name = args.strip()
         if not skill_name:
@@ -367,21 +373,29 @@ class CommandManager(object):
         try:
             arguments = args.split()
             entry = int(arguments[0])
-            count = int(arguments[1]) or 1
+            try:
+                count = int(arguments[1])
+            except IndexError:
+                count = 1
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-            item_mgr = player_mgr.inventory.add_item(entry, count)
+            item_mgr = player_mgr.inventory.add_item(entry=entry, count=count)
             if item_mgr:
                 return 0, ''
             else:
-                return -1, 'unable to find and / or add that item.'
+                return -1, f'unable to find and / or add item id {entry}.'
         except ValueError:
             return -1, 'please specify a valid item entry and the quantity (optional).'
 
     @staticmethod
     def additems(world_session, args):
-        entries = args.split()
-        for entry in entries:
-            CommandManager.additem(world_session, entry)
+        try:
+            entries = args.split()
+            for entry in entries:
+                CommandManager.additem(world_session, entry)
+            return 0
+        except ValueError:
+            return -1, 'please specify one or more valid item ids.'
+
 
     @staticmethod
     def creature_info(world_session, args):
