@@ -365,15 +365,17 @@ class CommandManager(object):
     @staticmethod
     def additem(world_session, args):
         try:
-            entry = int(args)
+            arguments = args.split();
+            entry = int(arguments[0])
+            count = int(arguments[1]) or 1
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-            item_mgr = player_mgr.inventory.add_item(entry)
+            item_mgr = player_mgr.inventory.add_item(entry, count)
             if item_mgr:
                 return 0, ''
             else:
                 return -1, 'unable to find and / or add that item.'
         except ValueError:
-            return -1, 'please specify a valid item entry.'
+            return -1, 'please specify a valid item entry and the quantity (optional).'
 
     @staticmethod
     def creature_info(world_session, args):
