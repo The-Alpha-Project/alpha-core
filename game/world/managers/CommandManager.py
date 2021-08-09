@@ -365,7 +365,7 @@ class CommandManager(object):
     @staticmethod
     def additem(world_session, args):
         try:
-            arguments = args.split();
+            arguments = args.split()
             entry = int(arguments[0])
             count = int(arguments[1]) or 1
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
