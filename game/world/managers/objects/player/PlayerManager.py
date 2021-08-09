@@ -227,6 +227,7 @@ class PlayerManager(UnitManager):
         # Place player in world and update surroundings.
         MapManager.update_object(self)
         self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
+        self.update_surrounding_on_me()
 
         # Join default channels.
         ChannelManager.join_default_channels(self)
@@ -450,6 +451,8 @@ class PlayerManager(UnitManager):
             include_self=False,
             create=True if not self.is_relocating else False,
             force_inventory_update=True if not self.is_relocating else False)
+
+        self.update_surrounding_on_me()
 
         self.reset_fields_older_than(time.time())
         self.update_lock = False
