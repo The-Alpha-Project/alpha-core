@@ -378,6 +378,12 @@ class CommandManager(object):
             return -1, 'please specify a valid item entry and the quantity (optional).'
 
     @staticmethod
+    def additems(world_session, args):
+        entries = args.split()
+        for entry in entries:
+            CommandManager.additem(world_session, entry)
+
+    @staticmethod
     def creature_info(world_session, args):
         creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
                                                            world_session.player_mgr.current_selection)
@@ -533,6 +539,7 @@ GM_COMMAND_DEFINITIONS = {
     'morph': CommandManager.morph,
     'demorph': CommandManager.demorph,
     'additem': CommandManager.additem,
+    'additems': CommandManager.additems,
     'cinfo': CommandManager.creature_info,
     'pinfo': CommandManager.player_info,
     'goinfo': CommandManager.gobject_info,
