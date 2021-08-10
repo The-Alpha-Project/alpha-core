@@ -448,12 +448,6 @@ class PlayerManager(UnitManager):
                               force_inventory_update=True if not self.is_relocating else False,
                               reset_fields=False)
 
-        self.send_update_surrounding(self.generate_proper_update_packet(
-            create=True if not self.is_relocating else False),
-            include_self=False,
-            create=True if not self.is_relocating else False,
-            force_inventory_update=True if not self.is_relocating else False)
-
         self.reset_fields_older_than(time.time())
         self.update_lock = False
         self.teleport_destination_map = -1
