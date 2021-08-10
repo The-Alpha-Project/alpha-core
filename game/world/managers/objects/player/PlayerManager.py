@@ -224,7 +224,7 @@ class PlayerManager(UnitManager):
     def complete_login(self, first_login=False):
         self.online = True
 
-        # Place player in world cell.
+        # Place player in a world cell.
         MapManager.update_object(self)
 
         # Join default channels.
