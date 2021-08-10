@@ -435,11 +435,11 @@ class CommandManager(object):
                     invalid.append(entry)
 
             if len(entries) == len(invalid):
-                return -1, f'items id(s) {", ".join(invalid)} are not valid.'
+                return -1, f'item ID(s) {", ".join(invalid)} are not valid.'
             else:
-                return 0, f'items id(s) {", ".join(added)} to the inventory.'
+                return 0, f'item ID(s) {", ".join(added)} to the inventory.'
         except ValueError:
-            return -1, 'please specify one or more valid item id(s).'
+            return -1, 'please specify one or more valid item ID(s).'
 
 
     @staticmethod
