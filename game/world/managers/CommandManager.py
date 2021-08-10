@@ -188,9 +188,24 @@ class CommandManager(object):
 
     @staticmethod
     def lspells(world_session, args):
-        spell_ids = args.splice()
-        for spell_id in spell_ids:
-            CommandManager.lspell(world_session, spell_id)
+        try:
+            spell_ids = args.split()
+            added = []
+            invalid = []
+            for spell_id in spell_ids:
+                result = CommandManager.lspell(world_session, spell_id)
+                if result == 0:
+                    added.append(spell_id)
+                else:
+                    invalid.append(spell_id)
+
+            if len(spell_ids) == len(invalid):
+                return -1, f'spell ID(s) {", ".join(invalid)} are not valid.'
+            else:
+                return 0, f'spell ID(s) {", ".join(added)} learned.'
+        except ValueError:
+            return -1, 'please specify one or more valid spell ID(s).'
+
 
     @staticmethod
     def sskill(world_session, args):
@@ -549,6 +564,7 @@ GM_COMMAND_DEFINITIONS = {
     'sitem': CommandManager.sitem,
     'sspell': CommandManager.sspell,
     'lspell': CommandManager.lspell,
+    'lspells': CommandManager.lspells,
     'sskill': CommandManager.sskill,
     'lskill': CommandManager.lskill,
     'port': CommandManager.port,
