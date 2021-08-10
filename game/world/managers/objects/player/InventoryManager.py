@@ -589,17 +589,16 @@ class InventoryManager(object):
             if error != InventoryError.BAG_OK:
                 return
 
-            # Remove the offhand item from OH and add it to inventory
-            # This is necessary in case of a stacking offhand (3675) - otherwise swap_item to free slot would be valid
+            # Remove the offhand item from OH and add it to inventory.
+            # This is necessary in case of a stacking offhand (3675) - otherwise swap_item to free slot would be valid.
             self.add_item(item_template=current_oh.item_template, count=current_oh.item_instance.stackcount,
                           send_message=False, show_item_get=False)  #
             self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
 
+        # Bonus application.
+        self.owner.stat_manager.apply_bonuses(set_dirty=False)
 
-        # Bonus application
-        self.owner.stat_manager.apply_bonuses()
-
-        self.owner.set_dirty(dirty_inventory=True)  # Mark as dirty to update equipment for other players
+        self.owner.set_dirty(dirty_inventory=True)  # Mark as dirty to update equipment for other players.
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
