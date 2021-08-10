@@ -156,6 +156,44 @@ class CommandManager(object):
         return 0, f'{len(items)} items found.'
 
     @staticmethod
+    def additem(world_session, args):
+        try:
+            arguments = args.split()
+            entry = int(arguments[0])
+            try:
+                count = int(arguments[1])
+            except IndexError:
+                count = 1
+            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
+            item_mgr = player_mgr.inventory.add_item(entry=entry, count=count)
+            if item_mgr:
+                return 0, ''
+            else:
+                return -1, f'unable to find and / or add item id {entry}.'
+        except ValueError:
+            return -1, 'please specify a valid item entry and the quantity (optional).'
+
+    @staticmethod
+    def additems(world_session, args):
+        try:
+            entries = args.split()
+            added = []
+            invalid = []
+            for entry in entries:
+                code, res = CommandManager.additem(world_session, entry)
+                if code == 0:
+                    added.append(entry)
+                else:
+                    invalid.append(entry)
+
+            if len(entries) == len(invalid):
+                return -1, f'item ID(s) {", ".join(invalid)} are not valid.'
+            else:
+                return 0, f'item ID(s) {", ".join(added)} to the inventory.'
+        except ValueError:
+            return -1, 'please specify one or more valid item ID(s).'
+
+    @staticmethod
     def sspell(world_session, args):
         spell_name = args.strip()
         if not spell_name:
@@ -404,45 +442,6 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
-    def additem(world_session, args):
-        try:
-            arguments = args.split()
-            entry = int(arguments[0])
-            try:
-                count = int(arguments[1])
-            except IndexError:
-                count = 1
-            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-            item_mgr = player_mgr.inventory.add_item(entry=entry, count=count)
-            if item_mgr:
-                return 0, ''
-            else:
-                return -1, f'unable to find and / or add item id {entry}.'
-        except ValueError:
-            return -1, 'please specify a valid item entry and the quantity (optional).'
-
-    @staticmethod
-    def additems(world_session, args):
-        try:
-            entries = args.split()
-            added = []
-            invalid = []
-            for entry in entries:
-                code, res = CommandManager.additem(world_session, entry)
-                if code == 0:
-                    added.append(entry)
-                else:
-                    invalid.append(entry)
-
-            if len(entries) == len(invalid):
-                return -1, f'item ID(s) {", ".join(invalid)} are not valid.'
-            else:
-                return 0, f'item ID(s) {", ".join(added)} to the inventory.'
-        except ValueError:
-            return -1, 'please specify one or more valid item ID(s).'
-
-
-    @staticmethod
     def creature_info(world_session, args):
         creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
                                                            world_session.player_mgr.current_selection)
@@ -582,6 +581,8 @@ GM_COMMAND_DEFINITIONS = {
     'tel': CommandManager.tel,
     'stel': CommandManager.stel,
     'sitem': CommandManager.sitem,
+    'additem': CommandManager.additem,
+    'additems': CommandManager.additems,
     'sspell': CommandManager.sspell,
     'lspell': CommandManager.lspell,
     'lspells': CommandManager.lspells,
@@ -599,8 +600,6 @@ GM_COMMAND_DEFINITIONS = {
     'unmount': CommandManager.unmount,
     'morph': CommandManager.morph,
     'demorph': CommandManager.demorph,
-    'additem': CommandManager.additem,
-    'additems': CommandManager.additems,
     'cinfo': CommandManager.creature_info,
     'pinfo': CommandManager.player_info,
     'goinfo': CommandManager.gobject_info,
