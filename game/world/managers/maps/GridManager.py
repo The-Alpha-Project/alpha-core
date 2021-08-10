@@ -251,6 +251,16 @@ class Cell(object):
             self.players[world_object.guid] = world_object
             self.active_cell_callback(world_object)
 
+            # Player entered a new cell, notify others about self.
+            world_object.send_update_surrounding(
+                world_object.generate_proper_update_packet(create=True),
+                include_self=False,
+                create=True
+            )
+
+            # Player entered a new cell, notify self with surrounding world_objects.
+            world_object.update_surrounding_on_me()
+
             # Set this Cell and surrounding ones as Active
             for cell_key in list(grid_manager.get_surrounding_cell_keys(world_object)):
                 # Load tile maps of adjacent cells if there's at least one creature on them.

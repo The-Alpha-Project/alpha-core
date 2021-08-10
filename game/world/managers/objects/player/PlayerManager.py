@@ -226,7 +226,6 @@ class PlayerManager(UnitManager):
 
         # Place player in world and update surroundings.
         MapManager.update_object(self)
-        self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
 
         # Join default channels.
         ChannelManager.join_default_channels(self)
@@ -1406,7 +1405,6 @@ class PlayerManager(UnitManager):
 
     # override
     def on_cell_change(self):
-        self.update_surrounding_on_me()
         self.quest_manager.update_surrounding_quest_status()
 
     # override
