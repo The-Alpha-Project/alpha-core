@@ -249,7 +249,8 @@ class Cell(object):
     def add(self, grid_manager, world_object):
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players[world_object.guid] = world_object
-            self.active_cell_callback(world_object)
+            # Player entered a new cell, notify self with surrounding world_objects.
+            world_object.update_surrounding_on_me()
 
             # Player entered a new cell, notify others about self.
             world_object.send_update_surrounding(world_object.generate_proper_update_packet(
@@ -257,9 +258,6 @@ class Cell(object):
                 include_self=False,
                 create=True if not world_object.is_relocating else False,
                 force_inventory_update=True if not world_object.is_relocating else False)
-
-            # Player entered a new cell, notify self with surrounding world_objects.
-            world_object.update_surrounding_on_me()
 
             # Set this Cell and surrounding ones as Active
             for cell_key in list(grid_manager.get_surrounding_cell_keys(world_object)):
@@ -275,6 +273,9 @@ class Cell(object):
             self.gameobjects[world_object.guid] = world_object
 
         world_object.current_cell = self.key
+
+        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
+            self.active_cell_callback(world_object)
 
     def remove(self, world_object):
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
