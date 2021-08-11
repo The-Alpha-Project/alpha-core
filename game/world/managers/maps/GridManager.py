@@ -252,7 +252,7 @@ class Cell(object):
             # Player entered a new cell, notify self with surrounding world_objects.
             world_object.update_surrounding_on_me()
 
-            # Player entered a new cell, notify others about self.
+            # Notify others about self.
             world_object.send_update_surrounding(world_object.generate_proper_update_packet(
                 create=True if not world_object.is_relocating else False),
                 include_self=False,
