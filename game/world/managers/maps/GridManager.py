@@ -276,6 +276,7 @@ class Cell(object):
 
         world_object.current_cell = self.key
 
+        # Always trigger cell changed event for players.
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             self.active_cell_callback(world_object)
 
