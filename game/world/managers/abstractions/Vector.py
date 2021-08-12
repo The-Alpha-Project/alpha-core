@@ -80,6 +80,12 @@ class Vector(object):
 
         return -arc / 2 < vector_angle < arc / 2
 
+    def vectors_are_facing(self, vector):
+        # Simple orientation check.
+        # Return True if the difference between orientation is more than 90°.
+        orientation_diff = abs(self.o - vector.o)
+        return orientation_diff > math.pi / 2
+
     def face_point(self, vector):
         # orientation is offset by pi/2 and reversed to atan2.
         vector_angle = -self.angle(vector) + math.pi / 2

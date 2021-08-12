@@ -1184,23 +1184,33 @@ class PlayerManager(UnitManager):
         return self.inventory.has_ranged_weapon()
 
     # override
-    def can_block(self):
-        if not super().can_block():
+    def can_block(self, attacker_location=None):
+        if not super().can_block(attacker_location):
             return False
+
+        if attacker_location and not self.location.vectors_are_facing(attacker_location):
+            return False  # players can't block from behind.
 
         return self.inventory.has_offhand() and \
             self.inventory.get_offhand().item_template.inventory_type == InventoryTypes.SHIELD
 
     # override
-    def can_parry(self):
-        if not super().can_parry():
+    def can_parry(self, attacker_location=None):
+        if not super().can_parry(attacker_location):
             return False
+
+        if attacker_location and not self.location.vectors_are_facing(attacker_location):
+            return False  # players can't parry from behind.
+
         return
 
     # override
-    def can_dodge(self):
-        if not super().can_dodge():
+    def can_dodge(self, attacker_location=None):
+        if not super().can_dodge(attacker_location):
             return False
+
+        if attacker_location and not self.location.vectors_are_facing(attacker_location):
+            return False  # players can't dodge from behind.
 
         return True  # TODO Stunned check
 

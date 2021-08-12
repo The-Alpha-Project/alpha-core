@@ -525,18 +525,18 @@ class StatManager(object):
         # Dodge/parry/block receive a 0.04% bonus/penalty for each skill point difference.
         dodge_chance = self.get_total_stat(UnitStats.DODGE_CHANCE, accept_float=True) + rating_difference * 0.0004
         roll = random.uniform(0, 1)
-        if self.unit_mgr.can_dodge() and roll < dodge_chance:
+        if self.unit_mgr.can_dodge(attacker.location) and roll < dodge_chance:
             return HitInfo.DODGE
 
         parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
         roll = random.uniform(0, 1)
-        if self.unit_mgr.can_parry() and roll < parry_chance:
+        if self.unit_mgr.can_parry(attacker.location) and roll < parry_chance:
             return HitInfo.PARRY
 
         rating_difference_block = self._get_combat_rating_difference(attacker.level, attack_rating, use_block=True)
         block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
         roll = random.uniform(0, 1)
-        if self.unit_mgr.can_block() and roll < block_chance:
+        if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
             return HitInfo.BLOCK
 
         # TODO Roll crit

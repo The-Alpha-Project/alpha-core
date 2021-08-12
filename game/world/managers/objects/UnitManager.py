@@ -632,14 +632,16 @@ class UnitManager(ObjectManager):
     def has_ranged_weapon(self):
         return False
 
-    def can_block(self):
-        return self.has_block_passive  # TODO Stunned/facing checks
+    # Location is used by PlayerManager if provided.
+    # According to 1.3.0 notes, creatures were able to block/parry from behind.
+    def can_block(self, attacker_location=None):
+        return self.has_block_passive  # TODO Stunned/casting checks
 
-    def can_parry(self):
-        return self.has_parry_passive  # TODO Stunned/casting/facing checks
+    def can_parry(self, attacker_location=None):
+        return self.has_parry_passive  # TODO Stunned/casting checks
 
-    def can_dodge(self):
-        return self.has_dodge_passive  # TODO Stunned check
+    def can_dodge(self, attacker_location=None):
+        return self.has_dodge_passive  # TODO Stunned/casting checks
 
     def enter_combat(self):
         self.in_combat = True
