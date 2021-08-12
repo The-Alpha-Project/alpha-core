@@ -403,8 +403,7 @@ class UnitManager(ObjectManager):
 
         damage_info.damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
         damage_info.clean_damage = damage_info.total_damage = damage_info.damage
-        damage_info = hit_info
-
+        damage_info.hit_info = hit_info
         if hit_info != HitInfo.SUCCESS:
             damage_info.hit_info = HitInfo.MISS
             if hit_info == HitInfo.DODGE:
