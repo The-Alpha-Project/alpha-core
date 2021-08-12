@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -216,17 +217,30 @@ class DbcDatabaseManager(object):
         return res
 
     class SkillLineAbilityHolder:
-        SKILL_LINE_ABILITIES = {}
+        SKILL_LINE_ABILITIES = defaultdict(list)
 
         @staticmethod
         def load_skill_line_ability(skill_line_ability):
-            DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES[
-                skill_line_ability.Spell] = skill_line_ability
+            DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES[skill_line_ability.Spell].append(skill_line_ability)
 
         @staticmethod
-        def skill_line_ability_get_by_spell(spell_id):
-            return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES[spell_id] \
-                if spell_id in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES else None
+        def skill_line_abilities_get_by_spell(spell_id) -> list:
+            return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.get(spell_id, list())
+
+        @staticmethod
+        def skill_line_ability_get_by_spell_for_player(spell_id, player_mgr):
+            race = 1 << player_mgr.player.race
+            class_ = 1 << player_mgr.player.class_
+            skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
+            for skill_line_ability in skill_line_abilities:
+                if (skill_line_ability.RaceMask and skill_line_ability.RaceMask & race == 0) or \
+                        (skill_line_ability.ClassMask and skill_line_ability.ClassMask & class_ == 0) or \
+                        skill_line_ability.ExcludeRace & race != 0 or \
+                        skill_line_ability.ExcludeClass & class_ != 0:
+                    continue
+                return skill_line_ability
+
+            return None
 
     @staticmethod
     def skill_line_ability_get_by_skill_lines(skill_lines):

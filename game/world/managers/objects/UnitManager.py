@@ -7,7 +7,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.player.StatManager import StatManager
+from game.world.managers.objects.player.StatManager import StatManager, UnitStats
 from game.world.managers.objects.spell.AuraManager import AuraManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -369,7 +369,7 @@ class UnitManager(ObjectManager):
         if not damage_info:
             return
 
-        if damage_info.damage > 0:
+        if damage_info.total_damage > 0:
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
 
         victim.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
@@ -397,30 +397,48 @@ class UnitManager(ObjectManager):
 
         damage_info.attacker = self
         damage_info.target = victim
-        damage_info.damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
 
-        # Not taking "subdamages" into account
-        damage_info.total_damage = damage_info.damage
+        hit_info = victim.stat_manager.get_attack_result_against_self(self, attack_type,
+                                                                      0.19 if self.has_offhand_weapon() else 0)  # Dual wield penalty
+
+        damage_info.damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
+        damage_info.clean_damage = damage_info.total_damage = damage_info.damage
+        if hit_info != HitInfo.SUCCESS:
+            damage_info.hit_info = HitInfo.MISS
+            if hit_info == HitInfo.DODGE:
+                damage_info.target_state = VictimStates.VS_DODGE
+                damage_info.proc_victim |= ProcFlags.DODGE
+                damage_info.hit_info |= HitInfo.DODGE
+                damage_info.total_damage = 0
+            elif hit_info == HitInfo.PARRY:
+                damage_info.target_state = VictimStates.VS_PARRY
+                damage_info.proc_victim |= ProcFlags.PARRY
+                damage_info.hit_info |= HitInfo.PARRY
+                damage_info.total_damage = 0
+            elif hit_info == HitInfo.BLOCK:
+                block_amount = victim.stat_manager.get_total_stat(UnitStats.BLOCK_VALUE)
+                damage_info.total_damage = max(0, damage_info.total_damage - block_amount)
+                damage_info.proc_victim |= ProcFlags.BLOCK
+                damage_info.hit_info |= HitInfo.BLOCK
+                if damage_info.total_damage == 0:
+                    damage_info.target_state = VictimStates.VS_BLOCK
+                else:
+                    damage_info.target_state = VictimStates.VS_WOUND
 
         # Generate rage (if needed)
         self.generate_rage(damage_info, is_player=self.get_type() == ObjectTypes.TYPE_PLAYER)
 
-        if attack_type == AttackTypes.BASE_ATTACK:
-            damage_info.proc_attacker = ProcFlags.DEAL_COMBAT_DMG | ProcFlags.SWING
-            damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
-            damage_info.hit_info = HitInfo.SUCCESS
-        elif attack_type == AttackTypes.OFFHAND_ATTACK:
-            damage_info.proc_attacker = ProcFlags.DEAL_COMBAT_DMG | ProcFlags.SWING
-            damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
-            damage_info.hit_info = HitInfo.SUCCESS | HitInfo.OFFHAND
-        elif attack_type == AttackTypes.RANGED_ATTACK:
-            damage_info.proc_attacker = ProcFlags.DEAL_COMBAT_DMG
-            damage_info.proc_victim = ProcFlags.TAKE_COMBAT_DMG
-            damage_info.hit_info = HitInfo.DAMAGE  # ?
+        if damage_info.total_damage > 0:
+            damage_info.proc_victim |= ProcFlags.TAKE_COMBAT_DMG
+            damage_info.proc_attacker |= ProcFlags.DEAL_COMBAT_DMG
 
-        # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
-        # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
-        # regardless of how much +hit% gear was equipped.
+        if attack_type == AttackTypes.BASE_ATTACK:
+            damage_info.proc_attacker |= ProcFlags.SWING
+        elif attack_type == AttackTypes.OFFHAND_ATTACK:
+            damage_info.proc_attacker |= ProcFlags.SWING
+            damage_info.hit_info |= HitInfo.OFFHAND
+
+
         # TODO FINISH IMPLEMENTING
         damage_info.target_state = VictimStates.VS_WOUND  # test remove later
 
@@ -469,7 +487,7 @@ class UnitManager(ObjectManager):
         return base_damage
 
     def deal_damage(self, target, damage, is_periodic=False):
-        if not target or not target.is_alive or damage < 1:
+        if not target or not target.is_alive:
             return
 
         if target is not self:
@@ -489,7 +507,7 @@ class UnitManager(ObjectManager):
     def receive_damage(self, amount, source=None, is_periodic=False):
         is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
 
-        if source is not self and not is_periodic:
+        if source is not self and not is_periodic and amount > 0:
             self.aura_manager.check_aura_interrupts(received_damage=True)
             self.spell_manager.check_spell_interrupts(received_damage=True)
 

@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
 from network.packet.PacketWriter import PacketWriter
+from utils.constants.ItemCodes import ItemClasses
 from utils.constants.MiscCodes import SkillCategories, Languages
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields
@@ -187,14 +188,23 @@ class ProficiencyAcquireMethod(IntEnum):
 class Proficiency:
     item_class: int
     item_subclass_mask: int
+    related_skill_ids: dict  # {subclass_mask, skill_id}. -1 if no proficiency exists
 
-    def __init__(self, item_class, item_subclass_mask):
+    def __init__(self, item_class, item_subclass_mask, skill_id=-1):
         self.item_class = item_class
         self.item_subclass_mask = item_subclass_mask
+        self.related_skill_ids = {item_subclass_mask: skill_id}
+
+    def add_subclass(self, item_subclass_mask, skill_id):
+        self.item_subclass_mask |= item_subclass_mask
+        self.related_skill_ids[item_subclass_mask] = skill_id
 
     def matches(self, item_class, item_subclass):
         return self.item_class == item_class and \
                (self.item_subclass_mask & 1 << item_subclass)
+
+    def get_skill_for_subclass(self, item_subclass):
+        return self.related_skill_ids.get(1 << item_subclass, -1)
 
 
 class SkillManager(object):
@@ -209,7 +219,8 @@ class SkillManager(object):
         self.update_skills_max_value()
         self.build_update()
 
-    def load_proficiencies(self):
+    # Armor proficiencies learned on character create do not have spells assigned to them, so they will be manually assigned on login.
+    def load_armor_proficiencies(self):
         base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.player.race, self.player_mgr.player.class_)
         if not base_info:
             return
@@ -225,17 +236,21 @@ class SkillManager(object):
                 continue
 
             item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
+
+            if item_class != ItemClasses.ITEM_CLASS_ARMOR:
+                continue
+
             self.proficiencies[item_class] = Proficiency(
                     item_class,
-                    eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}'),
+                    eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}')
             )
 
-    def add_proficiency(self, item_class, item_subclass_mask):
+    def add_proficiency(self, item_class, item_subclass_mask, skill_id):
         if item_class in self.proficiencies:
             proficiency = self.proficiencies[item_class]
-            proficiency.item_subclass_mask |= item_subclass_mask
+            proficiency.add_subclass(item_subclass_mask, skill_id)
         else:
-            proficiency = Proficiency(item_class, item_subclass_mask)
+            proficiency = Proficiency(item_class, item_subclass_mask, skill_id)
             self.proficiencies[item_class] = proficiency
 
         self.send_set_proficiency(proficiency)
@@ -301,17 +316,27 @@ class SkillManager(object):
 
     def get_total_skill_value(self, skill_id):
         if skill_id not in self.skills:
-            return None
+            return -1
         skill = self.skills[skill_id]
         bonus_skill = self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
         return skill.value + bonus_skill
 
     def get_skill_value_for_spell_id(self, spell_id):
-        skill_id = self.get_skill_id_for_spell_id(spell_id)
-        if skill_id not in self.skills:
+        skill = self.get_skill_for_spell_id(spell_id)
+        if not skill or skill.ID not in self.skills:
             return None
 
-        return self.get_total_skill_value(skill_id)
+        return self.get_total_skill_value(skill.ID)
+
+    def get_skill_id_for_weapon(self, item_template):
+        if not item_template:
+            return SkillTypes.UNARMED
+
+        item_class = item_template.class_
+        if item_class not in self.proficiencies:
+            return -1
+        prof = self.proficiencies[item_class]
+        return prof.get_skill_for_subclass(item_template.subclass)
 
     @staticmethod
     def get_all_languages():
@@ -323,13 +348,12 @@ class SkillManager(object):
             return LANG_DESCRIPTION[language_id].skill_id
         return -1
 
-    @staticmethod
-    def get_skill_id_for_spell_id(spell_id):
-        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell_id)
+
+    def get_skill_for_spell_id(self, spell_id):
+        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_for_player(spell_id, self.player_mgr)
         if not skill_line_ability:
             return None
-
-        return skill_line_ability.SkillLine
+        return DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
 
     @staticmethod
     def get_max_rank(player_level, skill_id):

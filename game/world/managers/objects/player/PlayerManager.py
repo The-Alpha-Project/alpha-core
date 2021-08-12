@@ -231,11 +231,13 @@ class PlayerManager(UnitManager):
         # Join default channels.
         ChannelManager.join_default_channels(self)
 
+        # Initialize stats first to have existing base stats for further calculations.
+        self.stat_manager.init_stats()
+
         # Passive spells contain skill and proficiency learning.
         # Perform passive spell casts after loading skills to avoid duplicate database entries.
         self.spell_manager.cast_passive_spells()
         self.skill_manager.init_proficiencies()
-        self.stat_manager.init_stats()
         self.stat_manager.apply_bonuses(replenish=first_login)
 
         # Init faction status.
@@ -1125,7 +1127,7 @@ class PlayerManager(UnitManager):
 
         if apply_bonuses:
             subclass = -1
-            equipped_weapon = self._get_weapon_for_attack_type(attack_type)
+            equipped_weapon = self.get_weapon_for_attack_type(attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
             rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target, subclass)
@@ -1136,7 +1138,7 @@ class PlayerManager(UnitManager):
     def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
         subclass = 0
         if spell_attack_type != -1:
-            equipped_weapon = self._get_weapon_for_attack_type(spell_attack_type)
+            equipped_weapon = self.get_weapon_for_attack_type(spell_attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
 
@@ -1421,7 +1423,7 @@ class PlayerManager(UnitManager):
     def generate_object_guid(self, low_guid):
         return low_guid | HighGuid.HIGHGUID_PLAYER
 
-    def _get_weapon_for_attack_type(self, attack_type: AttackTypes):
+    def get_weapon_for_attack_type(self, attack_type: AttackTypes):
         if attack_type == AttackTypes.BASE_ATTACK:
             return self.inventory.get_main_hand()
         elif attack_type == AttackTypes.OFFHAND_ATTACK:
