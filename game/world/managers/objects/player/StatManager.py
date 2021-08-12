@@ -136,7 +136,8 @@ class StatManager(object):
             self.base_stats[UnitStats.HEALTH] = self.unit_mgr.max_health
             self.base_stats[UnitStats.MANA] = self.unit_mgr.max_power_1
             self.base_stats[UnitStats.SPEED_RUNNING] = self.unit_mgr.running_speed
-            self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100  # Players don't have a flat dodge chance.
+            self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100  # Players don't have a flat dodge/block chance.
+            self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100  # Players have block scaling, assign flat 5% to creatures.
 
         # Players and creatures have an unchanging base 5% chance to block and parry (before defense skill differences).
         # As block chance also scales with strength, the value is calculated in update_base_block_chance
@@ -422,14 +423,16 @@ class StatManager(object):
         strength = self.get_total_stat(UnitStats.STRENGTH)
 
         # TODO Using dodge formula because of missing information - tune if needed.
+
         scaling = CLASS_AGILITY_SCALING_DODGE[player_class]
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
 
-        agility_scaling = strength / class_rate / 100
+        # Since players have a base block chance of 5% unlike dodge, subtract this base from the placeholder scaling.
+        strength_scaling = max(0, strength / class_rate / 100 - 5)
         base_block_chance = BASE_BLOCK_PARRY_CHANCE / 100
 
-        self.base_stats[UnitStats.BLOCK_CHANCE] = agility_scaling + base_block_chance
+        self.base_stats[UnitStats.BLOCK_CHANCE] = strength_scaling + base_block_chance
 
     def update_base_proc_chance(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
