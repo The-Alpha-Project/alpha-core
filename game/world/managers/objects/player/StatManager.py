@@ -532,7 +532,8 @@ class StatManager(object):
         if self.unit_mgr.can_parry() and roll < parry_chance:
             return HitInfo.PARRY
 
-        block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference * 0.04
+        rating_difference_block = self._get_combat_rating_difference(attacker.level, attack_rating, use_block=True)
+        block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.04
         roll = random.uniform(0, 1)
         if self.unit_mgr.can_block() and roll < block_chance:
             return HitInfo.BLOCK
@@ -683,7 +684,7 @@ class StatManager(object):
         value = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) * 100
 
         # Penalty against player of same level with max skill.
-        value += self._get_combat_rating_difference() * 0.04
+        value += self._get_combat_rating_difference(use_block=True) * 0.04
 
         value = max(0, value)
         self.unit_mgr.set_block_chance(value)
@@ -716,16 +717,18 @@ class StatManager(object):
         value = max(0, value)
         self.unit_mgr.set_dodge_chance(value)
 
-    def _get_combat_rating_difference(self, attacker_level=-1, attacker_rating=-1):  # > 0 if defense is higher
+    def _get_combat_rating_difference(self, attacker_level=-1, attacker_rating=-1, use_block=False):  # > 0 if defense is higher
         # Client displays percentages against enemies of equal level and max attack rating.
         if attacker_level == -1:
             attacker_level = self.unit_mgr.level
         if attacker_rating == -1:  # Use max defense skill since it follows the same values as max weapon skill
             attacker_rating = SkillManager.get_max_rank(attacker_level, SkillTypes.DEFENSE)
 
-
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
-            own_defense_rating = self.unit_mgr.skill_manager.get_total_skill_value(SkillTypes.DEFENSE)
+            # TODO It's unclear what the block skill is used for based on patch notes.
+            # Replace Defense in calculations with block to at least give it a purpose.
+            # This way, block chance will be affected by block skill instead of defense skill like in vanilla.
+            own_defense_rating = self.unit_mgr.skill_manager.get_total_skill_value(SkillTypes.DEFENSE if not use_block else SkillTypes.BLOCK)
         else:
             own_defense_rating = SkillManager.get_max_rank(self.unit_mgr.level, SkillTypes.DEFENSE)
 
