@@ -404,25 +404,22 @@ class UnitManager(ObjectManager):
         damage_info.damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
         damage_info.clean_damage = damage_info.total_damage = damage_info.damage
         damage_info.hit_info = hit_info
+        damage_info.target_state = VictimStates.VS_WOUND  # Default state on successful attack
+
         if hit_info != HitInfo.SUCCESS:
             damage_info.hit_info = HitInfo.MISS
+            damage_info.total_damage = 0
             if hit_info == HitInfo.DODGE:
                 damage_info.target_state = VictimStates.VS_DODGE
                 damage_info.proc_victim |= ProcFlags.DODGE
-                damage_info.hit_info |= HitInfo.DODGE
-                damage_info.total_damage = 0
             elif hit_info == HitInfo.PARRY:
                 damage_info.target_state = VictimStates.VS_PARRY
                 damage_info.proc_victim |= ProcFlags.PARRY
-                damage_info.hit_info |= HitInfo.PARRY
-
             elif hit_info == HitInfo.BLOCK:
                 # 0.6 patch notes: "Blocking an attack no longer avoids all of the damage of an attack."
                 # Completely mitigate damage on block.
-                damage_info.total_damage = 0
-                damage_info.proc_victim |= ProcFlags.BLOCK
-                damage_info.hit_info |= HitInfo.BLOCK
                 damage_info.target_state = VictimStates.VS_BLOCK
+                damage_info.proc_victim |= ProcFlags.BLOCK
 
         # Generate rage (if needed)
         self.generate_rage(damage_info, is_player=self.get_type() == ObjectTypes.TYPE_PLAYER)
@@ -436,10 +433,6 @@ class UnitManager(ObjectManager):
         elif attack_type == AttackTypes.OFFHAND_ATTACK:
             damage_info.proc_attacker |= ProcFlags.SWING
             damage_info.hit_info |= HitInfo.OFFHAND
-
-
-        # TODO FINISH IMPLEMENTING
-        damage_info.target_state = VictimStates.VS_WOUND  # test remove later
 
         return damage_info
 
