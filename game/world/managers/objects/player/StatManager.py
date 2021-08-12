@@ -45,7 +45,7 @@ class UnitStats(IntFlag):
     PARRY_CHANCE = auto()
     DODGE_CHANCE = auto()
     BLOCK_CHANCE = auto()
-    BLOCK_VALUE = auto()
+    # Note: Block value did not exist in 0.5.3
 
     PROC_CHANCE = auto()
 
@@ -139,8 +139,8 @@ class StatManager(object):
             self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100  # Players don't have a flat dodge chance.
 
         # Players and creatures have an unchanging base 5% chance to block and parry (before defense skill differences).
+        # As block chance also scales with strength, the value is calculated in update_base_block_chance
         self.base_stats[UnitStats.PARRY_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100
-        self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100
 
         self.send_attributes()
 
@@ -309,8 +309,7 @@ class StatManager(object):
                                   UnitStats.RESISTANCE_FIRE: item.item_template.fire_res,
                                   UnitStats.RESISTANCE_NATURE: item.item_template.nature_res,
                                   UnitStats.RESISTANCE_FROST: item.item_template.frost_res,
-                                  UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res,
-                                  UnitStats.BLOCK_VALUE: item.item_template.block}
+                                  UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res}
                 for stat, value in separate_stats.items():
                     self.item_stats[stat] = self.item_stats.get(stat, 0) + value
 
@@ -413,15 +412,24 @@ class StatManager(object):
 
         self.base_stats[UnitStats.DODGE_CHANCE] = base_dodge
 
-    def update_base_block_value(self):
+    def update_base_block_chance(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
-            return  # Base block can't change for creatures - set on init
+            return
 
-        base_block = BASE_BLOCK_PARRY_CHANCE / 100
+        player_class = self.unit_mgr.player.class_
+
+        # Strength increases chance to block according to the stat sheet tooltip.
         strength = self.get_total_stat(UnitStats.STRENGTH)
-        base_block += strength / 2
 
-        self.base_stats[UnitStats.BLOCK_VALUE] = base_block
+        # TODO Using dodge formula because of missing information - tune if needed.
+        scaling = CLASS_AGILITY_SCALING_DODGE[player_class]
+        class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
+                      scaling[1] * (self.unit_mgr.level - 1)) / 59
+
+        agility_scaling = strength / class_rate / 100
+        base_block_chance = BASE_BLOCK_PARRY_CHANCE / 100
+
+        self.base_stats[UnitStats.BLOCK_CHANCE] = agility_scaling + base_block_chance
 
     def update_base_proc_chance(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
@@ -575,8 +583,8 @@ class StatManager(object):
             self.base_stats[UnitStats.RANGED_DAMAGE_MAX] = final_max_damage
 
     def update_defense_bonuses(self):
-        self.update_base_block_value()
         self.update_base_dodge_chance()
+        self.update_base_block_chance()
 
     def send_melee_attributes(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:

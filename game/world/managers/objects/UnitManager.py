@@ -414,16 +414,14 @@ class UnitManager(ObjectManager):
                 damage_info.target_state = VictimStates.VS_PARRY
                 damage_info.proc_victim |= ProcFlags.PARRY
                 damage_info.hit_info |= HitInfo.PARRY
-                damage_info.total_damage = 0
+
             elif hit_info == HitInfo.BLOCK:
-                block_amount = victim.stat_manager.get_total_stat(UnitStats.BLOCK_VALUE)
-                damage_info.total_damage = max(0, damage_info.total_damage - block_amount)
+                # 0.6 patch notes: "Blocking an attack no longer avoids all of the damage of an attack."
+                # Completely mitigate damage on block.
+                damage_info.total_damage = 0
                 damage_info.proc_victim |= ProcFlags.BLOCK
                 damage_info.hit_info |= HitInfo.BLOCK
-                if damage_info.total_damage == 0:
-                    damage_info.target_state = VictimStates.VS_BLOCK
-                else:
-                    damage_info.target_state = VictimStates.VS_WOUND
+                damage_info.target_state = VictimStates.VS_BLOCK
 
         # Generate rage (if needed)
         self.generate_rage(damage_info, is_player=self.get_type() == ObjectTypes.TYPE_PLAYER)
