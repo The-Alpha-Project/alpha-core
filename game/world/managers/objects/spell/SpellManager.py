@@ -654,8 +654,8 @@ class SpellManager(object):
             return False
 
         if casting_spell.initial_target_is_unit_or_player():  # Orientation checks
-            caster_and_target_are_facing = self.unit_mgr.location.vectors_are_facing(casting_spell.initial_target.location)
-            if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID, caster_and_target_are_facing):
+            target_is_facing_caster = casting_spell.initial_target.location.has_in_arc(self.unit_mgr.location, math.pi)
+            if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID, target_is_facing_caster):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
                 return False
 

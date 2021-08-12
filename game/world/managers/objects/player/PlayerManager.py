@@ -1,3 +1,4 @@
+import math
 import random
 import time
 from struct import unpack
@@ -1188,7 +1189,7 @@ class PlayerManager(UnitManager):
         if not super().can_block(attacker_location):
             return False
 
-        if attacker_location and not self.location.vectors_are_facing(attacker_location):
+        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
             return False  # players can't block from behind.
 
         return self.inventory.has_offhand() and \
@@ -1199,7 +1200,7 @@ class PlayerManager(UnitManager):
         if not super().can_parry(attacker_location):
             return False
 
-        if attacker_location and not self.location.vectors_are_facing(attacker_location):
+        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
             return False  # players can't parry from behind.
 
         return
@@ -1209,7 +1210,7 @@ class PlayerManager(UnitManager):
         if not super().can_dodge(attacker_location):
             return False
 
-        if attacker_location and not self.location.vectors_are_facing(attacker_location):
+        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
             return False  # players can't dodge from behind.
 
         return True  # TODO Stunned check
