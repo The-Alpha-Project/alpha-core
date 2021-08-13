@@ -414,7 +414,7 @@ class SpellManager(object):
                 self.remove_cast(casting_spell, interrupted=True)
                 continue
             if current_cast.casts_on_swing() and casting_spell.casts_on_swing() and casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
-                self.remove_cast(casting_spell, interrupted=True)
+                self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT, interrupted=True)
                 continue
 
     def calculate_impact_delays(self, casting_spell) -> dict[int, float]:
