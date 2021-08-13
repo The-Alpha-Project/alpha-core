@@ -172,15 +172,16 @@ class StatManager(object):
         bonus_stats = self.item_stats.get(stat_type, 0) + \
             self.get_aura_stat_bonus(stat_type, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask)
 
-        total = (base_stats + bonus_stats *
-                 self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask))
+        total = (base_stats + bonus_stats) * \
+            self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask)
 
-        if accept_negative:
-            return total
         if not accept_float:
             total = int(total)
 
-        return max(0, total)  # Stats are always positive
+        if accept_negative:
+            return total
+
+        return max(0, total)
 
     def get_stat_skill_bonus(self, skill_type):  # Avoids circular import with SkillManager
         return self.get_total_stat(UnitStats.SKILL, misc_value=skill_type)
