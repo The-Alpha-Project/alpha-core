@@ -179,33 +179,6 @@ LANG_DESCRIPTION = {
     Languages.LANG_TROLL: LanguageDesc(Languages.LANG_TROLL, 7341, SkillTypes.LANGUAGE_TROLL.value)
 }
 
-# The PlayerCreateInfo_Spell table is missing some proficiencies that classes should have on creation.
-# This means that we'll need to rely on ChrProficiency.dbc, which also means that we have no connected spell IDs to the weapon skills listed.
-# This table will help with connecting the proficiencies to the necessary skills.
-WEAPON_REQUIRED_SKILL_ID = {
-    ItemSubClasses.ITEM_SUBCLASS_AXE: SkillTypes.AXES,
-    ItemSubClasses.ITEM_SUBCLASS_TWOHAND_AXE: SkillTypes.TWOHANDEDAXES,
-    ItemSubClasses.ITEM_SUBCLASS_BOW: SkillTypes.BOWS,
-    ItemSubClasses.ITEM_SUBCLASS_GUN: SkillTypes.GUNS,
-    ItemSubClasses.ITEM_SUBCLASS_MACE: SkillTypes.MACES,
-    ItemSubClasses.ITEM_SUBCLASS_TWOHAND_MACE: SkillTypes.TWOHANDEDMACES,
-    ItemSubClasses.ITEM_SUBCLASS_POLEARM: SkillTypes.POLEARMS,
-    ItemSubClasses.ITEM_SUBCLASS_SWORD: SkillTypes.SWORDS,
-    ItemSubClasses.ITEM_SUBCLASS_TWOHAND_SWORD: SkillTypes.TWOHANDEDSWORDS,
-    ItemSubClasses.ITEM_SUBCLASS_WEAPON_obsolete: SkillTypes.GENERIC,
-    ItemSubClasses.ITEM_SUBCLASS_STAFF: SkillTypes.STAVES,
-    ItemSubClasses.ITEM_SUBCLASS_WEAPON_EXOTIC: SkillTypes.GENERIC,
-    ItemSubClasses.ITEM_SUBCLASS_WEAPON_EXOTIC2: SkillTypes.GENERIC,
-    ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON: SkillTypes.UNARMED,
-    ItemSubClasses.ITEM_SUBCLASS_MISC_WEAPON: SkillTypes.GENERIC,
-    ItemSubClasses.ITEM_SUBCLASS_DAGGER: SkillTypes.DAGGERS,
-    ItemSubClasses.ITEM_SUBCLASS_THROWN: SkillTypes.THROWN,
-    ItemSubClasses.ITEM_SUBCLASS_SPEAR: SkillTypes.SPEARS,
-    ItemSubClasses.ITEM_SUBCLASS_CROSSBOW: SkillTypes.CROSSBOWS,
-    ItemSubClasses.ITEM_SUBCLASS_WAND: SkillTypes.WANDS,
-    ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE: SkillTypes.GENERIC
-}
-
 
 class ProficiencyAcquireMethod(IntEnum):
     ON_TRAINER_LEARN = 0
@@ -240,16 +213,18 @@ class SkillManager(object):
         self.skills = {}
         self.proficiencies = {}
 
+        # Dictionary for all equipment proficiencies the player can learn.
+        # Used to determine which talents should be excluded from the player (ie. 2H talents from rogues).
+        self.full_proficiency_masks = {}
+
     def load_skills(self):
         for skill in RealmDatabaseManager.character_get_skills(self.player_mgr.guid):
             self.skills[skill.skill] = skill
         self.update_skills_max_value()
         self.build_update()
 
-    # Apply all proficiencies marked as initial in ChrProficiency.dbc.
-    # CharCreateInfo_spell is missing proficiencies that are included in the ChrProficiency dbc.
-    # If the table had correct initial spells, this method would not be needed.
-    def load_initial_proficiencies(self):
+    # Apply armor proficiencies and populate full_proficiency_masks
+    def initialize_proficiencies(self):
         base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.player.race, self.player_mgr.player.class_)
         if not base_info:
             return
@@ -260,17 +235,19 @@ class SkillManager(object):
             if acquire_method == -1:
                 break
 
+            item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
+            item_subclass_mask = eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}')
+
+            curr_mask = self.full_proficiency_masks.get(item_class, 0)
+            curr_mask |= item_subclass_mask
+            self.full_proficiency_masks[item_class] = curr_mask
+
             # Learned proficiencies are applied through passive spells
             if acquire_method != ProficiencyAcquireMethod.ON_CHAR_CREATE:
                 continue
 
-            item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
-            item_subclass_mask = eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}')
-
-            if item_class == ItemClasses.ITEM_CLASS_WEAPON:
-                for subclass, skill in WEAPON_REQUIRED_SKILL_ID.items():
-                    if (1 << subclass) & item_subclass_mask:
-                        self.add_proficiency(item_class, 1 << subclass, skill)
+            # Weapon proficiencies have passive spells assigned to them, but armor proficiencies don't.
+            if item_class != ItemClasses.ITEM_CLASS_ARMOR:
                 continue
             self.add_proficiency(item_class, item_subclass_mask, -1)
 
@@ -342,6 +319,12 @@ class SkillManager(object):
         if item_class not in self.proficiencies:
             return False
         return self.proficiencies[item_class].matches(item_class, item_subclass)
+
+    def can_ever_use_equipment(self, item_class, item_subclass_mask):
+        if self.proficiencies[item_class].item_subclass_mask & item_subclass_mask:
+            return True  # Account for case where the player has learned a proficiency with a command.
+
+        return self.full_proficiency_masks.get(item_class, 0) & item_subclass_mask
 
     def get_total_skill_value(self, skill_id):
         if skill_id not in self.skills:
