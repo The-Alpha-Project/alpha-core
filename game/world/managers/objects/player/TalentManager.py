@@ -27,14 +27,6 @@ class TalentManager(object):
         talent_points_cost: int = 10 + ((spell_rank - 1) * 5)
         return talent_points_cost
 
-    # We want to apply each aura immediately after training, not just after relogging.
-    # However, we don't want to try to apply all of them each time.
-    def apply_talent_aura(self, talent_spell_id: int):
-        spell: Spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(talent_spell_id)
-
-        if talent_spell_id in self.player_mgr.spell_manager.spells:
-            self.player_mgr.spell_manager.start_spell_cast(spell, self.player_mgr, self.player_mgr, SpellTargetMask.SELF)
-
     def send_talent_list(self):
         talent_bytes: bytes = b''
         talent_count: int = 0

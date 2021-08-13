@@ -57,6 +57,10 @@ class SpellManager(object):
         if cast_on_learn or spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
             self.start_spell_cast(spell, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF)
 
+        # Apply passive effects when they're learned. This will also apply talents on learn.
+        if spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+            self.apply_passive_spell_effects(spell)
+
         # TODO Teach skill required as well like in CharCreateHandler
         return True
 
@@ -65,9 +69,14 @@ class SpellManager(object):
         for spell_id in self.spells.keys():
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
-                spell = self.try_initialize_spell(spell_template, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF, validate=False)
-                spell.resolve_target_info_for_effects()
-                self.apply_spell_effects(spell, remove=True)
+                self.apply_passive_spell_effects(spell_template)
+
+    def apply_passive_spell_effects(self, spell_template):
+        if spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+            spell = self.try_initialize_spell(spell_template, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF,
+                                              validate=False)
+            spell.resolve_target_info_for_effects()
+            self.apply_spell_effects(spell)
 
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.unit_mgr.guid)
