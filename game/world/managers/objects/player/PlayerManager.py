@@ -1157,7 +1157,7 @@ class PlayerManager(UnitManager):
         if damage_info.attacker == self:
             self.skill_manager.handle_weapon_skill_gain_chance(damage_info.attack_type)
         else:
-            pass  # TODO Defence skill gain
+            self.skill_manager.handle_defense_skill_gain_chance(damage_info)
 
     def _send_attack_swing_error(self, victim, opcode):
         data = pack('<2Q', self.guid, victim.guid if victim else 0)

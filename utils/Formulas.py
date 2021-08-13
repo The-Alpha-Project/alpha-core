@@ -26,14 +26,7 @@ class CreatureFormulas(object):
         if player_level == 60:
             return 0
 
-        gray_level = 0
-        if 5 < player_level < 50:
-            gray_level = int(player_level - math.floor(player_level / 10.0) - 5)
-        elif player_level == 50:
-            gray_level = 40
-        elif 50 < player_level < 60:
-            gray_level = int(player_level - math.floor(player_level / 5.0) - 1)
-
+        gray_level = PlayerFormulas.get_gray_level(player_level)
         if creature_level <= gray_level:
             return 0
 
@@ -63,6 +56,18 @@ class PlayerFormulas(object):
     @staticmethod
     def rage_conversion_value(level):
         return 0.0091107836 * level ** 2 + 3.225598133 * level + 4.2652911
+
+    @staticmethod
+    def get_gray_level(player_level):
+        gray_level = 0
+        if 5 < player_level < 50:
+            gray_level = int(player_level - math.floor(player_level / 10.0) - 5)
+        elif player_level == 50:
+            gray_level = 40
+        elif 50 < player_level < 60:
+            gray_level = int(player_level - math.floor(player_level / 5.0) - 1)
+
+        return gray_level
 
     @staticmethod
     def calculate_rage_regen(damage_info, is_player=True):

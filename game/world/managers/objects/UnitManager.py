@@ -427,6 +427,8 @@ class UnitManager(ObjectManager):
 
         # Note: 1.1.0 patch: "Skills will not increase from use while dueling or engaged in PvP."
         self.handle_combat_skill_gain(damage_info)
+        victim.handle_combat_skill_gain(damage_info)
+
         if damage_info.total_damage > 0:
             damage_info.proc_victim |= ProcFlags.TAKE_COMBAT_DMG
             damage_info.proc_attacker |= ProcFlags.DEAL_COMBAT_DMG
@@ -560,6 +562,7 @@ class UnitManager(ObjectManager):
 
         if casting_spell.casts_on_swing():  # TODO Should other spells give skill too?
             self.handle_combat_skill_gain(damage_info)
+            target.handle_combat_skill_gain(damage_info)
 
         self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID, is_periodic=is_periodic)
 

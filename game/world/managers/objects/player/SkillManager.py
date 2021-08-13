@@ -8,8 +8,9 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
+from utils.Formulas import PlayerFormulas
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
-from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes
+from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, HitInfo
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields
 
@@ -320,27 +321,29 @@ class SkillManager(object):
     def handle_weapon_skill_gain_chance(self, attack_type: AttackTypes):
         # Vanilla formulae.
         equipped_weapon = self.player_mgr.get_weapon_for_attack_type(attack_type)
-        skill_id = self.get_skill_id_for_weapon(equipped_weapon.item_template if equipped_weapon is not None else None)  # Handles unarmed case
+        skill_id = self.get_skill_id_for_weapon(equipped_weapon.item_template if equipped_weapon is not None else None)
         if skill_id == -1:
             return False
 
-        skill = self.skills[skill_id]
+        skill = self.skills.get(skill_id, None)
+        if not skill:
+            return False
 
         current_unmodified_skill = skill.value
         maximum_skill = SkillManager.get_max_rank(self.player_mgr.level, skill_id)
-        skill_diff_from_max = maximum_skill - current_unmodified_skill
 
         if current_unmodified_skill >= maximum_skill:
             return False
 
         # Magic values from vmangos
-
         if maximum_skill * 0.9 > current_unmodified_skill:
             chance = (maximum_skill * 0.9 * 0.05) / current_unmodified_skill
         else:
             level_modifier = SkillManager.get_max_rank(config.Unit.Player.Defaults.max_level, skill_id) / maximum_skill
 
             chance = (0.5 - 0.0168966 * current_unmodified_skill * level_modifier + 0.0152069 * maximum_skill * level_modifier) / 100
+
+            skill_diff_from_max = maximum_skill - current_unmodified_skill
             if skill_diff_from_max <= 3:
                 chance *= (0.5 / (4 - skill_diff_from_max))
 
@@ -353,6 +356,42 @@ class SkillManager(object):
         # TODO Skill gain config value?
         self.set_skill(skill_id, current_unmodified_skill + 1)
         self.build_update()
+        self.player_mgr.set_dirty()
+        return True
+
+    def handle_defense_skill_gain_chance(self, damage_info):
+        # Vanilla formulae
+        target_skill_type = SkillTypes.BLOCK if damage_info.hit_info == HitInfo.BLOCK else SkillTypes.DEFENSE
+        skill = self.skills.get(target_skill_type, None)
+        if not skill:
+            return False
+
+        current_unmodified_skill = skill.value
+        maximum_skill = SkillManager.get_max_rank(self.player_mgr.level, target_skill_type)
+
+        if current_unmodified_skill >= maximum_skill:
+            return False
+
+        own_level = self.player_mgr.level
+        gray_level = PlayerFormulas.get_gray_level(own_level)
+        attacker_level = damage_info.attacker.level
+
+        if attacker_level > own_level + 5:
+            attacker_level = own_level + 5
+
+        level_difference = max(3, attacker_level - gray_level)
+        chance = 0.03 * level_difference * (maximum_skill - current_unmodified_skill) / own_level
+
+        if random.random() > chance:
+            return False
+
+        # TODO Skill gain config value?
+        self.set_skill(target_skill_type, current_unmodified_skill + 1)
+        self.build_update()
+
+        # Dodge/parry/block chance displayed in the player's abilities depends on current defense skill
+        self.player_mgr.stat_manager.send_defense_bonuses()
+
         self.player_mgr.set_dirty()
         return True
 
@@ -383,7 +422,8 @@ class SkillManager(object):
 
     def get_skill_id_for_weapon(self, item_template):
         if not item_template:
-            return SkillTypes.UNARMED
+            # Street fighting replaces unarmed for rogues - prioritize if the player knows it.
+            return SkillTypes.STREETFIGHTING if self.skills.get(SkillTypes.STREETFIGHTING, None) else SkillTypes.UNARMED
 
         item_class = item_template.class_
         if item_class not in self.proficiencies:

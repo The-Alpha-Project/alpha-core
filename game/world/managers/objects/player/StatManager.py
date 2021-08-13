@@ -489,8 +489,12 @@ class StatManager(object):
         return max(0, damage_dealt)
 
     def roll_proc_chance(self, base_chance: float) -> bool:
-        chance = base_chance + self.get_total_stat(UnitStats.PROC_CHANCE)
-        return random.randint(1, 100) <= chance
+        chance = base_chance/100 + self.get_total_stat(UnitStats.PROC_CHANCE)
+        return random.random() < chance
+
+    def get_intellect_stat_gain_chance_bonus(self):
+        gain = self.get_total_stat(UnitStats.INTELLECT) * 0.0002
+        return gain if gain <= 0.10 else 0.10  # Cap at 10% (Guessed in vmangos)
 
     def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0):
         # TODO Based on vanilla calculations.
@@ -521,24 +525,24 @@ class StatManager(object):
         # regardless of how much +hit% gear was equipped.
         miss_chance = max(dual_wield_penalty, miss_chance)
 
-        roll = random.uniform(0, 1)
+        roll = random.random()
         if roll < miss_chance:
             return HitInfo.MISS
 
         # Dodge/parry/block receive a 0.04% bonus/penalty for each skill point difference.
         dodge_chance = self.get_total_stat(UnitStats.DODGE_CHANCE, accept_float=True) + rating_difference * 0.0004
-        roll = random.uniform(0, 1)
+        roll = random.random()
         if self.unit_mgr.can_dodge(attacker.location) and roll < dodge_chance:
             return HitInfo.DODGE
 
         parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
-        roll = random.uniform(0, 1)
+        roll = random.random()
         if self.unit_mgr.can_parry(attacker.location) and roll < parry_chance:
             return HitInfo.PARRY
 
         rating_difference_block = self._get_combat_rating_difference(attacker.level, attack_rating, use_block=True)
         block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
-        roll = random.uniform(0, 1)
+        roll = random.random()
         if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
             return HitInfo.BLOCK
 
