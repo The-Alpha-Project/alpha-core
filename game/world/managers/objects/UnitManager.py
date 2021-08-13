@@ -397,6 +397,7 @@ class UnitManager(ObjectManager):
 
         damage_info.attacker = self
         damage_info.target = victim
+        damage_info.attack_type = attack_type
 
         hit_info = victim.stat_manager.get_attack_result_against_self(self, attack_type,
                                                                       0.19 if self.has_offhand_weapon() else 0)  # Dual wield penalty
@@ -424,6 +425,8 @@ class UnitManager(ObjectManager):
         # Generate rage (if needed)
         self.generate_rage(damage_info, is_player=self.get_type() == ObjectTypes.TYPE_PLAYER)
 
+        # Note: 1.1.0 patch: "Skills will not increase from use while dueling or engaged in PvP."
+        self.handle_combat_skill_gain(damage_info)
         if damage_info.total_damage > 0:
             damage_info.proc_victim |= ProcFlags.TAKE_COMBAT_DMG
             damage_info.proc_attacker |= ProcFlags.DEAL_COMBAT_DMG
@@ -469,6 +472,10 @@ class UnitManager(ObjectManager):
 
     # Implemented by PlayerManager
     def generate_rage(self, damage_info, is_player=False):
+        return
+
+    # Implemented by PlayerManager
+    def handle_combat_skill_gain(self, damage_info):
         return
 
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
@@ -548,9 +555,14 @@ class UnitManager(ObjectManager):
 
         damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target, casting_spell.spell_attack_type)
 
+        # TODO Handle misses, absorbs etc. for spells.
         damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)
-        # TODO Roll crit, handle absorb
+
+        if casting_spell.casts_on_swing():  # TODO Should other spells give skill too?
+            self.handle_combat_skill_gain(damage_info)
+
         self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID, is_periodic=is_periodic)
+
         self.deal_damage(target, damage, is_periodic)
 
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
@@ -567,6 +579,8 @@ class UnitManager(ObjectManager):
 
         damage_info.attacker = self
         damage_info.target = victim
+        damage_info.attack_type = casting_spell.spell_attack_type if casting_spell.spell_attack_type != -1 else 0
+
         damage_info.damage += damage
         damage_info.damage_school_mask = casting_spell.spell_entry.School
         # Not taking "subdamages" into account

@@ -1,3 +1,4 @@
+import random
 from enum import IntEnum
 from struct import pack, unpack
 from typing import NamedTuple
@@ -6,8 +7,9 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
 from network.packet.PacketWriter import PacketWriter
+from utils.ConfigManager import config
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
-from utils.constants.MiscCodes import SkillCategories, Languages
+from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields
 
@@ -203,7 +205,7 @@ class Proficiency:
         return self.item_class == item_class and \
                (self.item_subclass_mask & 1 << item_subclass)
 
-    def get_skill_for_subclass(self, item_subclass):
+    def get_skill_id_for_subclass(self, item_subclass):
         return self.related_skill_ids.get(1 << item_subclass, -1)
 
 
@@ -315,6 +317,45 @@ class SkillManager(object):
 
             self.set_skill(skill_id, skill.value, new_max)
 
+    def handle_weapon_skill_gain_chance(self, attack_type: AttackTypes):
+        # Vanilla formulae.
+        equipped_weapon = self.player_mgr.get_weapon_for_attack_type(attack_type)
+        skill_id = self.get_skill_id_for_weapon(equipped_weapon.item_template if equipped_weapon is not None else None)  # Handles unarmed case
+        if skill_id == -1:
+            return False
+
+        skill = self.skills[skill_id]
+
+        current_unmodified_skill = skill.value
+        maximum_skill = SkillManager.get_max_rank(self.player_mgr.level, skill_id)
+        skill_diff_from_max = maximum_skill - current_unmodified_skill
+
+        if current_unmodified_skill >= maximum_skill:
+            return False
+
+        # Magic values from vmangos
+
+        if maximum_skill * 0.9 > current_unmodified_skill:
+            chance = (maximum_skill * 0.9 * 0.05) / current_unmodified_skill
+        else:
+            level_modifier = SkillManager.get_max_rank(config.Unit.Player.Defaults.max_level, skill_id) / maximum_skill
+
+            chance = (0.5 - 0.0168966 * current_unmodified_skill * level_modifier + 0.0152069 * maximum_skill * level_modifier) / 100
+            if skill_diff_from_max <= 3:
+                chance *= (0.5 / (4 - skill_diff_from_max))
+
+        # Can't find information in patch notes on intellect affecting skill gain, but it's implemented in vmangos.
+        chance += self.player_mgr.stat_manager.get_intellect_stat_gain_chance_bonus()
+
+        if random.random() > chance:
+            return False
+
+        # TODO Skill gain config value?
+        self.set_skill(skill_id, current_unmodified_skill + 1)
+        self.build_update()
+        self.player_mgr.set_dirty()
+        return True
+
     def can_use_equipment(self, item_class, item_subclass):
         if item_class not in self.proficiencies:
             return False
@@ -348,7 +389,7 @@ class SkillManager(object):
         if item_class not in self.proficiencies:
             return -1
         prof = self.proficiencies[item_class]
-        return prof.get_skill_for_subclass(item_template.subclass)
+        return prof.get_skill_id_for_subclass(item_template.subclass)
 
     @staticmethod
     def get_all_languages():

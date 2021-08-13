@@ -1152,6 +1152,13 @@ class PlayerManager(UnitManager):
             self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, is_player=is_player))
             self.set_dirty()
 
+    # override
+    def handle_combat_skill_gain(self, damage_info):
+        if damage_info.attacker == self:
+            self.skill_manager.handle_weapon_skill_gain_chance(damage_info.attack_type)
+        else:
+            pass  # TODO Defence skill gain
+
     def _send_attack_swing_error(self, victim, opcode):
         data = pack('<2Q', self.guid, victim.guid if victim else 0)
         self.session.enqueue_packet(PacketWriter.get_packet(opcode, data))
