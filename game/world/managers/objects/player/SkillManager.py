@@ -6,7 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.ItemCodes import ItemClasses
+from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.MiscCodes import SkillCategories, Languages
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields
@@ -179,6 +179,33 @@ LANG_DESCRIPTION = {
     Languages.LANG_TROLL: LanguageDesc(Languages.LANG_TROLL, 7341, SkillTypes.LANGUAGE_TROLL.value)
 }
 
+# The PlayerCreateInfo_Spell table is missing some proficiencies that classes should have on creation.
+# This means that we'll need to rely on ChrProficiency.dbc, which also means that we have no connected spell IDs to the weapon skills listed.
+# This table will help with connecting the proficiencies to the necessary skills.
+WEAPON_REQUIRED_SKILL_ID = {
+    ItemSubClasses.ITEM_SUBCLASS_AXE: SkillTypes.AXES,
+    ItemSubClasses.ITEM_SUBCLASS_TWOHAND_AXE: SkillTypes.TWOHANDEDAXES,
+    ItemSubClasses.ITEM_SUBCLASS_BOW: SkillTypes.BOWS,
+    ItemSubClasses.ITEM_SUBCLASS_GUN: SkillTypes.GUNS,
+    ItemSubClasses.ITEM_SUBCLASS_MACE: SkillTypes.MACES,
+    ItemSubClasses.ITEM_SUBCLASS_TWOHAND_MACE: SkillTypes.TWOHANDEDMACES,
+    ItemSubClasses.ITEM_SUBCLASS_POLEARM: SkillTypes.POLEARMS,
+    ItemSubClasses.ITEM_SUBCLASS_SWORD: SkillTypes.SWORDS,
+    ItemSubClasses.ITEM_SUBCLASS_TWOHAND_SWORD: SkillTypes.TWOHANDEDSWORDS,
+    ItemSubClasses.ITEM_SUBCLASS_WEAPON_obsolete: SkillTypes.GENERIC,
+    ItemSubClasses.ITEM_SUBCLASS_STAFF: SkillTypes.STAVES,
+    ItemSubClasses.ITEM_SUBCLASS_WEAPON_EXOTIC: SkillTypes.GENERIC,
+    ItemSubClasses.ITEM_SUBCLASS_WEAPON_EXOTIC2: SkillTypes.GENERIC,
+    ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON: SkillTypes.UNARMED,
+    ItemSubClasses.ITEM_SUBCLASS_MISC_WEAPON: SkillTypes.GENERIC,
+    ItemSubClasses.ITEM_SUBCLASS_DAGGER: SkillTypes.DAGGERS,
+    ItemSubClasses.ITEM_SUBCLASS_THROWN: SkillTypes.THROWN,
+    ItemSubClasses.ITEM_SUBCLASS_SPEAR: SkillTypes.SPEARS,
+    ItemSubClasses.ITEM_SUBCLASS_CROSSBOW: SkillTypes.CROSSBOWS,
+    ItemSubClasses.ITEM_SUBCLASS_WAND: SkillTypes.WANDS,
+    ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE: SkillTypes.GENERIC
+}
+
 
 class ProficiencyAcquireMethod(IntEnum):
     ON_TRAINER_LEARN = 0
@@ -219,8 +246,10 @@ class SkillManager(object):
         self.update_skills_max_value()
         self.build_update()
 
-    # Armor proficiencies learned on character create do not have spells assigned to them, so they will be manually assigned on login.
-    def load_armor_proficiencies(self):
+    # Apply all proficiencies marked as initial in ChrProficiency.dbc.
+    # CharCreateInfo_spell is missing proficiencies that are included in the ChrProficiency dbc.
+    # If the table had correct initial spells, this method would not be needed.
+    def load_initial_proficiencies(self):
         base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.player.race, self.player_mgr.player.class_)
         if not base_info:
             return
@@ -236,14 +265,14 @@ class SkillManager(object):
                 continue
 
             item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
+            item_subclass_mask = eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}')
 
-            if item_class != ItemClasses.ITEM_CLASS_ARMOR:
+            if item_class == ItemClasses.ITEM_CLASS_WEAPON:
+                for subclass, skill in WEAPON_REQUIRED_SKILL_ID.items():
+                    if (1 << subclass) & item_subclass_mask:
+                        self.add_proficiency(item_class, 1 << subclass, skill)
                 continue
-
-            self.proficiencies[item_class] = Proficiency(
-                    item_class,
-                    eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}')
-            )
+            self.add_proficiency(item_class, item_subclass_mask, -1)
 
     def add_proficiency(self, item_class, item_subclass_mask, skill_id):
         if item_class in self.proficiencies:
@@ -347,7 +376,6 @@ class SkillManager(object):
         if language_id in LANG_DESCRIPTION:
             return LANG_DESCRIPTION[language_id].skill_id
         return -1
-
 
     def get_skill_for_spell_id(self, spell_id):
         skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_for_player(spell_id, self.player_mgr)
