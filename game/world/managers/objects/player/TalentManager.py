@@ -32,14 +32,20 @@ class TalentManager(object):
         talent_count: int = 0
 
         for training_spell in WorldDatabaseManager.TrainerSpellHolder.TALENTS:
-            spell: Optional[SkillLineAbility] = DbcDatabaseManager.SpellHolder.spell_get_by_id(training_spell.playerspell)
+            spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(training_spell.playerspell)
             spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
 
             skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_for_player(
                 spell.ID, self.player_mgr)
 
-            if not skill_line_ability:
+            if not skill_line_ability:  # Talent is not available for player
                 continue
+
+            spell_item_class = spell.EquippedItemClass
+            spell_item_subclass_mask = spell.EquippedItemSubclass
+            if spell_item_class != -1 and spell_item_subclass_mask != 1:  # Check for required proficiencies for this talent
+                if not self.player_mgr.skill_manager.can_ever_use_equipment(spell_item_class, spell_item_subclass_mask):
+                    continue  # Don't display talent if the player can never learn the proficiency needed.
 
             if spell.ID in self.player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
