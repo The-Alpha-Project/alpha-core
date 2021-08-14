@@ -13,6 +13,9 @@ class WorldTeleportHandler(object):
         if world_session.player_mgr.movement_spline and world_session.player_mgr.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
             return 0
 
+        if len(reader.data) >= 21:  # Avoid handling malformed world port packet.
+            return 0
+        
         if world_session.player_mgr.is_gm:
             pack_guid, map_, x, y, z, o = unpack('<IB4f', reader.data)
             world_session.player_mgr.teleport(map_, Vector(x, y, z, o))
