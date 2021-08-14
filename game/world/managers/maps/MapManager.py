@@ -114,6 +114,10 @@ class MapManager(object):
         if map_id not in MAPS:
             return False
 
+        # We have no tiles for instances.
+        if map_id > 1:
+            return True
+
         map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
         if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
             return False
