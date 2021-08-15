@@ -127,7 +127,6 @@ class StatManager(object):
             self.base_stats[UnitStats.STAMINA] = base_attrs.sta
             self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
             self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
-            self.base_stats[UnitStats.SPEED_RUNNING] = config.Unit.Defaults.run_speed
 
             self.unit_mgr.base_hp = base_stats.basehp
             self.unit_mgr.base_mana = base_stats.basemana
@@ -135,9 +134,10 @@ class StatManager(object):
             # Creature
             self.base_stats[UnitStats.HEALTH] = self.unit_mgr.max_health
             self.base_stats[UnitStats.MANA] = self.unit_mgr.max_power_1
-            self.base_stats[UnitStats.SPEED_RUNNING] = self.unit_mgr.running_speed
             self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100  # Players don't have a flat dodge/block chance.
             self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100  # Players have block scaling, assign flat 5% to creatures.
+
+        self.base_stats[UnitStats.SPEED_RUNNING] = self.unit_mgr.running_speed
 
         # Players and creatures have an unchanging base 5% chance to block and parry (before defense skill differences).
         # As block chance also scales with strength, the value is calculated in update_base_block_chance
@@ -197,7 +197,8 @@ class StatManager(object):
         if self.unit_mgr.has_ranged_weapon():  # TODO Are ranged formulas different?
             self.update_base_weapon_attributes(attack_type=AttackTypes.RANGED_ATTACK)
 
-        self.unit_mgr.change_speed(self.get_total_stat(UnitStats.SPEED_RUNNING))
+        # Only send base speed - change_speed will apply total value.
+        self.unit_mgr.change_speed(self.get_base_stat(UnitStats.SPEED_RUNNING))
 
         hp_diff = self.update_max_health()
         mana_diff = self.update_max_mana()

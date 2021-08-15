@@ -52,19 +52,6 @@ class AuraEffectHandler:
             Logger.error(f'SPELL_AURA_MOUNTED: Creature template ({creature_entry}) not found in database.')
 
     @staticmethod
-    def handle_increase_mounted_speed(aura, effect_target, remove):
-        # TODO: Should handle for creatures too? (refactor all change speed methods?)
-        if effect_target.get_type() != ObjectTypes.TYPE_PLAYER:
-            return
-        effect_target.change_speed()
-        if remove:
-            return
-
-        default_speed = config.Unit.Defaults.run_speed
-        speed_percentage = aura.get_effect_points() / 100.0
-        effect_target.change_speed(default_speed + (default_speed * speed_percentage))
-
-    @staticmethod
     def handle_periodic_trigger_spell(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
@@ -295,7 +282,6 @@ class AuraEffectHandler:
         amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPEED_SWIMMING, amount, percentual=True)
 
-
     @staticmethod
     def handle_mod_damage_done(aura, effect_target, remove):
         # Note: These bonuses are all flat
@@ -352,7 +338,6 @@ class AuraEffectHandler:
 AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_mounted_speed,
     AuraTypes.SPELL_AURA_PERIODIC_TRIGGER_SPELL: AuraEffectHandler.handle_periodic_trigger_spell,
     AuraTypes.SPELL_AURA_PERIODIC_HEAL: AuraEffectHandler.handle_periodic_healing,
     AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE: AuraEffectHandler.handle_periodic_energize,
@@ -375,6 +360,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_PERCENT_STAT: AuraEffectHandler.handle_mod_percent_stat,
     AuraTypes.SPELL_AURA_MOD_POWER_COST_SCHOOL: AuraEffectHandler.handle_mod_power_cost_school,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SPEED: AuraEffectHandler.handle_increase_speed,
+    AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_speed,
     AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED: AuraEffectHandler.handle_decrease_speed,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED: AuraEffectHandler.handle_increase_swim_speed,
 

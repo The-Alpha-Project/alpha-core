@@ -703,6 +703,15 @@ class UnitManager(ObjectManager):
     def set_attack_timer(self, attack_type, value):
         self.attack_timers[attack_type] = value
 
+    # override
+    def change_speed(self, speed=0):
+        # Assign new base speed.
+        self.stat_manager.base_stats[UnitStats.SPEED_RUNNING] = speed
+        # Get new total speed.
+        speed = self.stat_manager.get_total_stat(UnitStats.SPEED_RUNNING)
+        # Limit to 0-56 and assign object field.
+        super().change_speed(speed)
+
     def play_emote(self, emote):
         if emote != 0:
             data = pack('<IQ', emote, self.guid)
