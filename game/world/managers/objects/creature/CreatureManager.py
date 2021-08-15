@@ -193,7 +193,7 @@ class CreatureManager(UnitManager):
     def finish_loading(self):
         if self.creature_template and self.creature_instance:
             if not self.fully_loaded:
-                creature_model_info = WorldDatabaseManager.creature_get_model_info(self.current_display_id)
+                creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)
                 if creature_model_info:
                     self.bounding_radius = creature_model_info.bounding_radius
                     self.combat_reach = creature_model_info.combat_reach

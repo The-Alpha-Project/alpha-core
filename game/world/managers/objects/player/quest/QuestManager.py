@@ -51,8 +51,8 @@ class QuestManager(object):
             return dialog_status
 
         # Relations bounds, the quest giver; Involved relations bounds, the quest completer.
-        relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(world_object.entry)
-        involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(world_object.entry)
+        relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(world_object.entry)
+        involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(world_object.entry)
 
         # Quest finish
         for involved_relation in involved_relations_list:
@@ -98,8 +98,8 @@ class QuestManager(object):
         quest_menu = QuestMenu()
         # Type is unit, but not player.
         if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
-            relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(quest_giver.entry)
-            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(
+            relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
                 quest_giver.entry)
         elif quest_giver.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             # TODO: Gameobjects
@@ -161,8 +161,8 @@ class QuestManager(object):
 
         # Type is unit, but not player.
         if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
-            relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(quest_giver.entry)
-            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(
+            relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
                 quest_giver.entry)
         else:
             return
@@ -243,7 +243,7 @@ class QuestManager(object):
     @staticmethod
     def check_quest_giver_npc_is_related(quest_giver_entry, quest_entry):
         is_related = False
-        relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(quest_giver_entry)
+        relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver_entry)
         for relation in relations_list:
             if relation.entry == quest_giver_entry and relation.quest == quest_entry:
                 is_related = True
@@ -251,8 +251,8 @@ class QuestManager(object):
 
     def update_surrounding_quest_status(self):
         for guid, unit in list(MapManager.get_surrounding_units(self.player_mgr).items()):
-            if WorldDatabaseManager.QuestRelationHolder.creature_involved_quest_get_by_entry(
-                    unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_get_by_entry(unit.entry):
+            if WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
+                    unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry):
                 quest_status = self.get_dialog_status(unit)
                 self.send_quest_giver_status(guid, quest_status)
 
