@@ -14,6 +14,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
+from utils.Logger import Logger
 from utils.constants.DuelCodes import DuelState
 from utils.constants.ItemCodes import ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
@@ -707,8 +708,9 @@ class UnitManager(ObjectManager):
             return self.power_2
         elif self.power_type == PowerTypes.TYPE_FOCUS:
             return self.power_3
-        else:
+        elif self.power_type == PowerTypes.TYPE_ENERGY:
             return self.power_4
+        return 0
 
     def get_max_power_value(self):
         if self.power_type == PowerTypes.TYPE_MANA:
@@ -717,8 +719,20 @@ class UnitManager(ObjectManager):
             return self.max_power_2
         elif self.power_type == PowerTypes.TYPE_FOCUS:
             return self.max_power_3
-        else:
+        elif self.power_type == PowerTypes.TYPE_ENERGY:
             return self.max_power_4
+        return 0
+
+    def recharge_power(self):
+        max_power = self.get_max_power_value()
+        if self.power_type == PowerTypes.TYPE_MANA:
+            self.set_mana(max_power)
+        elif self.power_type == PowerTypes.TYPE_RAGE:
+            self.set_rage(max_power)
+        elif self.power_type == PowerTypes.TYPE_FOCUS:
+            self.set_focus(max_power)
+        elif self.power_type == PowerTypes.TYPE_ENERGY:
+            self.set_energy(max_power)
 
     def set_health(self, health):
         if health < 0:
@@ -955,9 +969,13 @@ class UnitManager(ObjectManager):
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)
         target_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(target.faction)
 
-        # Some units currently have a bugged faction, terminate the method if this is encountered
+        if not own_faction:
+            Logger.error(f'Invalid faction template: {self.faction}.')
+            return not check_friendly
+
         if not target_faction:
-            return False
+            Logger.error(f'Invalid faction template: {target.faction}.')
+            return not check_friendly
 
         own_enemies = [own_faction.Enemies_1, own_faction.Enemies_2, own_faction.Enemies_3, own_faction.Enemies_4]
         own_friends = [own_faction.Friend_1, own_faction.Friend_2, own_faction.Friend_3, own_faction.Friend_4]

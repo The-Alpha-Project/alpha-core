@@ -221,7 +221,7 @@ class PlayerManager(UnitManager):
         self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
         self.chat_flags = ChatFlags.CHAT_TAG_GM
 
-    def complete_login(self):
+    def complete_login(self, first_login=False):
         self.online = True
 
         # Place player in world and update surroundings.
@@ -231,11 +231,18 @@ class PlayerManager(UnitManager):
         # Join default channels.
         ChannelManager.join_default_channels(self)
 
+        # Passive spells contain skill and proficiency learning.
+        # Perform passive spell casts after loading skills to avoid duplicate database entries.
+        self.spell_manager.cast_passive_spells()
+        self.skill_manager.init_proficiencies()
+        self.stat_manager.init_stats()
+        self.stat_manager.apply_bonuses(replenish=first_login)
+
         # Init faction status.
         self.reputation_manager.send_initialize_factions()
 
         # Notify friends about player login.
-        self.friends_manager.send_online_notification()  # Notify our friends
+        self.friends_manager.send_online_notification()
 
         # If guild, send guild Message of the Day.
         if self.guild_manager:
@@ -1030,16 +1037,6 @@ class PlayerManager(UnitManager):
     def remove_skill_points(self, skill_points):
         self.skill_points = max(0, self.skill_points - skill_points)
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
-
-    def recharge_power(self):
-        if self.power_type == PowerTypes.TYPE_MANA:
-            self.set_mana(self.get_max_power_value())
-        elif self.power_type == PowerTypes.TYPE_RAGE:
-            self.set_rage(self.get_max_power_value())
-        elif self.power_type == PowerTypes.TYPE_FOCUS:
-            self.set_focus(self.get_max_power_value())
-        elif self.power_type == PowerTypes.TYPE_ENERGY:
-            self.set_energy(self.get_max_power_value())
 
     def regenerate(self, current_time):
         if not self.is_alive or self.health == 0:

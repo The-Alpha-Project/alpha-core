@@ -2705,6 +2705,25 @@ begin not atomic
 
 	    insert into applied_updates values ('071920211');
     end if;
+
+    -- 04/08/2021 1
+    if (select count(*) from applied_updates where id='040820211') = 0 then
+        -- Fix Nullify Disease (Rank 2).
+        UPDATE `spell_chain` SET `prev_spell` = 528, `first_spell` = 528 WHERE `spell_id` = 552;
+
+        -- Fix Ice Armor (Rank 2)
+        UPDATE `trainer_template` SET `spell` = 1228 WHERE `template_entry` = 1 AND `spell` = 7320;
+
+        insert into applied_updates values ('040820211');
+    end if;
+
+    -- 07/08/2021 1
+    if (select count(*) from applied_updates where id='070820211') = 0 then
+        -- Update faction for gnomes.
+        UPDATE `creature_template` SET `faction` = 64 WHERE `faction` = 875;
+
+        insert into applied_updates values ('070820211');
+    end if;
 	
 end $
 delimiter ;
