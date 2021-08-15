@@ -156,6 +156,44 @@ class CommandManager(object):
         return 0, f'{len(items)} items found.'
 
     @staticmethod
+    def additem(world_session, args):
+        try:
+            arguments = args.split()
+            entry = int(arguments[0])
+            try:
+                count = int(arguments[1])
+            except IndexError:
+                count = 1
+            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
+            item_mgr = player_mgr.inventory.add_item(entry=entry, count=count)
+            if item_mgr:
+                return 0, ''
+            else:
+                return -1, f'unable to find and / or add item id {entry}.'
+        except ValueError:
+            return -1, 'please specify a valid item entry and the quantity (optional).'
+
+    @staticmethod
+    def additems(world_session, args):
+        try:
+            entries = args.split()
+            added = []
+            invalid = []
+            for entry in entries:
+                code, res = CommandManager.additem(world_session, entry)
+                if code == 0:
+                    added.append(entry)
+                else:
+                    invalid.append(entry)
+
+            if len(entries) == len(invalid):
+                return -1, f'item ID(s) {", ".join(invalid)} are not valid.'
+            else:
+                return 0, f'item ID(s) {", ".join(added)} to the inventory.'
+        except ValueError:
+            return -1, 'please specify one or more valid item ID(s).'
+
+    @staticmethod
     def sspell(world_session, args):
         spell_name = args.strip()
         if not spell_name:
@@ -187,6 +225,27 @@ class CommandManager(object):
             return -1, 'Invalid ID.'
 
     @staticmethod
+    def lspells(world_session, args):
+        try:
+            spell_ids = args.split()
+            added = []
+            invalid = []
+            for spell_id in spell_ids:
+                code, res = CommandManager.lspell(world_session, spell_id)
+                if code == 0:
+                    added.append(spell_id)
+                else:
+                    invalid.append(spell_id)
+
+            if len(spell_ids) == len(invalid):
+                return -1, f'spell ID(s) {", ".join(invalid)} are not valid.'
+            else:
+                return 0, f'spell ID(s) {", ".join(added)} learned.'
+        except ValueError:
+            return -1, 'please specify one or more valid spell ID(s).'
+
+
+    @staticmethod
     def sskill(world_session, args):
         skill_name = args.strip()
         if not skill_name:
@@ -214,6 +273,26 @@ class CommandManager(object):
             return 0, 'Skill learned.'
         except ValueError:
             return -1, 'Invalid ID.'
+
+    @staticmethod
+    def lskills(world_session, args):
+        try:
+            skill_ids = args.split()
+            added = []
+            invalid = []
+            for skill_id in skill_ids:
+                code, res = CommandManager.lskill(world_session, skill_id)
+                if code == 0:
+                    added.append(skill_id)
+                else:
+                    invalid.append(skill_id)
+
+            if len(skill_ids) == len(invalid):
+                return -1, f'skill ID(s) {", ".join(invalid)} are not valid.'
+            else:
+                return 0, f'skill ID(s) {", ".join(added)} learned.'
+        except ValueError:
+            return -1, 'please specify one or more valid skill ID(s).'
 
     @staticmethod
     def port(world_session, args):
@@ -363,19 +442,6 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
-    def additem(world_session, args):
-        try:
-            entry = int(args)
-            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-            item_mgr = player_mgr.inventory.add_item(entry)
-            if item_mgr:
-                return 0, ''
-            else:
-                return -1, 'unable to find and / or add that item.'
-        except ValueError:
-            return -1, 'please specify a valid item entry.'
-
-    @staticmethod
     def creature_info(world_session, args):
         creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
                                                            world_session.player_mgr.current_selection)
@@ -515,10 +581,14 @@ GM_COMMAND_DEFINITIONS = {
     'tel': CommandManager.tel,
     'stel': CommandManager.stel,
     'sitem': CommandManager.sitem,
+    'additem': CommandManager.additem,
+    'additems': CommandManager.additems,
     'sspell': CommandManager.sspell,
     'lspell': CommandManager.lspell,
+    'lspells': CommandManager.lspells,
     'sskill': CommandManager.sskill,
     'lskill': CommandManager.lskill,
+    'lskills': CommandManager.lskills,
     'port': CommandManager.port,
     'tickets': CommandManager.tickets,
     'rticket': CommandManager.rticket,
@@ -530,7 +600,6 @@ GM_COMMAND_DEFINITIONS = {
     'unmount': CommandManager.unmount,
     'morph': CommandManager.morph,
     'demorph': CommandManager.demorph,
-    'additem': CommandManager.additem,
     'cinfo': CommandManager.creature_info,
     'pinfo': CommandManager.player_info,
     'goinfo': CommandManager.gobject_info,
