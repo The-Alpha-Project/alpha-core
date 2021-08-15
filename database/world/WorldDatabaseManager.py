@@ -127,9 +127,7 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def item_template_get_by_entry(entry) -> Optional[ItemTemplate]:
-            if entry in WorldDatabaseManager.ItemTemplateHolder.ITEM_TEMPLATES:
-                return WorldDatabaseManager.ItemTemplateHolder.ITEM_TEMPLATES[entry]
-            return None
+            return WorldDatabaseManager.ItemTemplateHolder.ITEM_TEMPLATES.get(entry)
 
     @staticmethod
     def item_template_get_all() -> list[ItemTemplate]:
@@ -345,9 +343,7 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def quest_get_by_entry(entry) -> Optional[QuestTemplate]:
-            if entry in WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES:
-                return WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES[entry]
-            return None
+            return WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES.get(entry)
 
     @staticmethod
     def quest_template_get_all() -> list[QuestTemplate]:
@@ -434,7 +430,7 @@ class WorldDatabaseManager(object):
     class QuestGossipHolder:
         NPC_GOSSIPS: dict[int, NpcGossip] = {}
         NPC_TEXTS: dict[int, NpcText] = {}
-        DEFAULT_GREETING_TEXT_ID = 68 # Greetings $N
+        DEFAULT_GREETING_TEXT_ID = 68  # Greetings $N
 
         @staticmethod
         def load_npc_gossip(npc_gossip: NpcGossip):
@@ -446,26 +442,22 @@ class WorldDatabaseManager(object):
         
         @staticmethod
         def npc_gossip_get_by_guid(npc_guid: int) -> Optional[NpcGossip]:
-            return WorldDatabaseManager.QuestGossipHolder.NPC_GOSSIPS[npc_guid] \
-                if npc_guid in WorldDatabaseManager.QuestGossipHolder.NPC_GOSSIPS else None
+            return WorldDatabaseManager.QuestGossipHolder.NPC_GOSSIPS.get(npc_guid & ~HighGuid.HIGHGUID_UNIT)
 
         @staticmethod
         def npc_text_get_by_id(text_id: int) -> Optional[NpcText]:
-            if text_id in WorldDatabaseManager.QuestGossipHolder.NPC_TEXTS:
-                return WorldDatabaseManager.QuestGossipHolder.NPC_TEXTS[text_id]
-            return None
+            return WorldDatabaseManager.QuestGossipHolder.NPC_TEXTS.get(text_id)
 
     @staticmethod
-    def npc_gossip_get_all() -> Optional[list[NpcGossip]]:
+    def npc_gossip_get_all() -> list[NpcGossip]:
         world_db_session: scoped_session = SessionHolder()
         res = world_db_session.query(NpcGossip).all()
         world_db_session.close()
         return res
 
     @staticmethod
-    def npc_text_get_all() -> Optional[list[NpcText]]:
+    def npc_text_get_all() -> list[NpcText]:
         world_db_session: scoped_session = SessionHolder()
         res = world_db_session.query(NpcText).all()
         world_db_session.close()
         return res
-        

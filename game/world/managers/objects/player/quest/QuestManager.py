@@ -9,6 +9,7 @@ from game.world.managers.objects.player.quest.QuestHelpers import QuestHelpers
 from game.world.managers.objects.player.quest.QuestMenu import QuestMenu
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
+from utils.constants import UnitCodes
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes, QuestMethod, \
     QuestFlags, HighGuid
 from utils.constants.UpdateFields import PlayerFields
@@ -152,18 +153,11 @@ class QuestManager(object):
             else:
                 self.send_quest_giver_quest_details(quest_menu_item.quest, quest_giver_guid, True)
         else:
-            questgiver_greeting: str = self.get_quest_giver_gossip_string_by_guid(quest_giver_guid & ~HighGuid.HIGHGUID_UNIT)
+            questgiver_greeting: str = QuestManager.get_quest_giver_gossip_string(quest_giver)
 
             self.send_quest_giver_quest_list(questgiver_greeting, quest_giver_guid, quest_menu.items)
 
         self.update_surrounding_quest_status()
-
-    def get_quest_giver_gossip_string_by_guid(self, quest_giver_guid: int) -> str:
-        questgiver_gossip_entry: NpcGossip = WorldDatabaseManager.QuestGossipHolder.npc_gossip_get_by_guid(quest_giver_guid)
-        questgiver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(questgiver_gossip_entry.textid if questgiver_gossip_entry != None else WorldDatabaseManager.QuestGossipHolder.DEFAULT_GREETING_TEXT_ID) # 68 textid = "Greetings $N"
-        questgiver_greeting: str = questgiver_text_entry.text0_0 if questgiver_text_entry.text0_0 != "" else questgiver_text_entry.text0_1 if questgiver_text_entry.text0_1 != "" else "Greetings, $N"
-
-        return questgiver_greeting
 
     def get_active_quest_num_from_quest_giver(self, quest_giver):
         quest_num: int = 0
@@ -257,6 +251,22 @@ class QuestManager(object):
             if relation.entry == quest_giver_entry and relation.quest == quest_entry:
                 is_related = True
         return is_related
+
+    @staticmethod
+    def get_quest_giver_gossip_string(quest_giver) -> str:
+        questgiver_gossip_entry: NpcGossip = WorldDatabaseManager.QuestGossipHolder.npc_gossip_get_by_guid(quest_giver.guid)
+        text_entry: int = WorldDatabaseManager.QuestGossipHolder.DEFAULT_GREETING_TEXT_ID  # 68 textid = "Greetings $N".
+        if questgiver_gossip_entry:
+            text_entry = questgiver_gossip_entry.textid
+        questgiver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(text_entry)
+
+        # Get text based on creature gender.
+        if quest_giver.gender == UnitCodes.Genders.GENDER_MALE:
+            questgiver_greeting: str = questgiver_text_entry.text0_0
+        else:
+            questgiver_greeting: str = questgiver_text_entry.text0_1
+
+        return questgiver_greeting
 
     def update_surrounding_quest_status(self):
         for guid, unit in list(MapManager.get_surrounding_units(self.player_mgr).items()):
