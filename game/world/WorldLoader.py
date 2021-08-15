@@ -31,8 +31,11 @@ class WorldLoader:
         if config.Server.Settings.load_creatures:
             WorldLoader.load_creature_loot_templates()
             WorldLoader.load_creatures()
-            WorldLoader.load_creature_quests()
-            WorldLoader.load_creature_involved_quests()
+            WorldLoader.load_creature_quest_starters()
+            WorldLoader.load_creature_quest_finishers()
+            WorldLoader.load_creature_model_info()
+            WorldLoader.load_npc_gossip()
+            WorldLoader.load_npc_text()
         else:
             Logger.info('Skipped creature loading.')
 
@@ -288,30 +291,72 @@ class WorldLoader:
         return length
 
     @staticmethod
-    def load_creature_quests():
-        creature_quests = WorldDatabaseManager.creature_quest_get_all()
-        length = len(creature_quests)
+    def load_creature_quest_starters():
+        creature_quest_starters = WorldDatabaseManager.creature_quest_starter_get_all()
+        length = len(creature_quest_starters)
         count = 0
 
-        for creature_quest in creature_quests:
-            WorldDatabaseManager.QuestRelationHolder.load_creature_quest(creature_quest)
+        for creature_quest_starter in creature_quest_starters:
+            WorldDatabaseManager.QuestRelationHolder.load_creature_starter_quest(creature_quest_starter)
 
             count += 1
-            Logger.progress('Loading creature quest relations...', count, length)
+            Logger.progress('Loading creature quest starters...', count, length)
 
         return length
 
     @staticmethod
-    def load_creature_involved_quests():
-        creature_involved_quests = WorldDatabaseManager.creature_involved_quest_get_all()
-        length = len(creature_involved_quests)
+    def load_creature_quest_finishers():
+        creature_quest_finishers = WorldDatabaseManager.creature_quest_finisher_get_all()
+        length = len(creature_quest_finishers)
         count = 0
 
-        for creature_involved_quest in creature_involved_quests:
-            WorldDatabaseManager.QuestRelationHolder.load_creature_involved_quest(creature_involved_quest)
+        for creature_quest_finisher in creature_quest_finishers:
+            WorldDatabaseManager.QuestRelationHolder.load_creature_finisher_quest(creature_quest_finisher)
 
             count += 1
-            Logger.progress('Loading creature involved quest relations...', count, length)
+            Logger.progress('Loading creature quest finishers...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_model_info():
+        creature_model_infos = WorldDatabaseManager.creature_model_info_get_all()
+        length = len(creature_model_infos)
+        count = 0
+
+        for creature_model_info in creature_model_infos:
+            WorldDatabaseManager.CreatureModelInfoHolder.load_creature_model_info(creature_model_info)
+
+            count += 1
+            Logger.progress('Loading creature model info...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_npc_gossip():
+        npc_gossips = WorldDatabaseManager.npc_gossip_get_all()
+        length = len(npc_gossips)
+        count = 0
+
+        for npc_gossip in npc_gossips:
+            WorldDatabaseManager.QuestGossipHolder.load_npc_gossip(npc_gossip)
+
+            count += 1
+            Logger.progress('Loading npc gossip...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_npc_text():
+        npc_texts = WorldDatabaseManager.npc_text_get_all()
+        length = len(npc_texts)
+        count = 0
+
+        for npc_text in npc_texts:
+            WorldDatabaseManager.QuestGossipHolder.load_npc_text(npc_text)
+
+            count += 1
+            Logger.progress('Loading npc gossip texts...', count, length)
 
         return length
 

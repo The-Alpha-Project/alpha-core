@@ -64,7 +64,7 @@ class PetitionManager(object):
                 if GuildManager.create_guild(player_mgr, petition.name, petition=petition):
                     data = pack('<I', PetitionError.PETITION_SUCCESS)
                     packet = PacketWriter.get_packet(OpCode.SMSG_TURN_IN_PETITION_RESULTS, data)
-                    player_mgr.session.enqueue_packet(packet)
+                    player_mgr.enqueue_packet(packet)
                     player_mgr.inventory.remove_item(PetitionManager.CHARTER_ENTRY, 1)
                     RealmDatabaseManager.guild_petition_destroy(petition)
         else:
@@ -74,7 +74,7 @@ class PetitionManager(object):
     def send_petition_sign_result(player_mgr, result):
         data = pack('<I', result)
         packet = PacketWriter.get_packet(OpCode.SMSG_PETITION_SIGN_RESULTS, data)
-        player_mgr.session.enqueue_packet(packet)
+        player_mgr.enqueue_packet(packet)
 
     @staticmethod
     def build_petition_query(petition):

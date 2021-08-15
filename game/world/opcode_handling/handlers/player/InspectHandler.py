@@ -21,5 +21,5 @@ class InspectHandler(object):
                 world_session.player_mgr.set_dirty()
 
                 data = pack('<Q', world_session.player_mgr.guid)
-                inspected_player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_INSPECT, data))
+                inspected_player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_INSPECT, data))
         return 0

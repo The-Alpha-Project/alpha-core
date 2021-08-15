@@ -113,9 +113,9 @@ class TrainerBuySpellHandler(object):
     @staticmethod
     def send_trainer_buy_fail(world_session, trainer_guid: int, spell_id: int, reason: TrainingFailReasons):
         data = pack('<Q2I', trainer_guid, spell_id, reason)
-        world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_FAILED, data))
+        world_session.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_FAILED, data))
 
     @staticmethod
     def send_trainer_buy_succeeded(world_session, trainer_guid: int, spell_id: int):
         data = pack('<QI', trainer_guid, spell_id)
-        world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_SUCCEEDED, data))
+        world_session.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_BUY_SUCCEEDED, data))
