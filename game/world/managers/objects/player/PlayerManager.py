@@ -481,11 +481,12 @@ class PlayerManager(UnitManager):
     # TODO Maybe merge all speed changes in one method
     # override
     def change_speed(self, speed=0):
-        super().change_speed(speed)
-        data = pack('<f', self.running_speed)
-        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                            self.get_movement_update_packet()), self)
+        if super().change_speed(speed):
+            data = pack('<f', self.running_speed)
+            self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
+            # TODO Move object update to UnitManager
+            MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                                                self.get_movement_update_packet()), self)
 
     def change_swim_speed(self, swim_speed=0):
         if swim_speed <= 0:
