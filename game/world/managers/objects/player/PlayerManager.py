@@ -224,9 +224,8 @@ class PlayerManager(UnitManager):
     def complete_login(self, first_login=False):
         self.online = True
 
-        # Place player in world and update surroundings.
+        # Place player in a world cell.
         MapManager.update_object(self)
-        self.send_update_surrounding(self.generate_proper_update_packet(create=True), include_self=False, create=True)
 
         # Join default channels.
         ChannelManager.join_default_channels(self)
@@ -447,12 +446,6 @@ class PlayerManager(UnitManager):
         self.send_update_self(create=True if not self.is_relocating else False,
                               force_inventory_update=True if not self.is_relocating else False,
                               reset_fields=False)
-
-        self.send_update_surrounding(self.generate_proper_update_packet(
-            create=True if not self.is_relocating else False),
-            include_self=False,
-            create=True if not self.is_relocating else False,
-            force_inventory_update=True if not self.is_relocating else False)
 
         self.reset_fields_older_than(time.time())
         self.update_lock = False
@@ -1410,7 +1403,6 @@ class PlayerManager(UnitManager):
 
     # override
     def on_cell_change(self):
-        self.update_surrounding_on_me()
         self.quest_manager.update_surrounding_quest_status()
 
     # override
