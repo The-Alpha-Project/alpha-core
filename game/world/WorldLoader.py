@@ -34,6 +34,8 @@ class WorldLoader:
             WorldLoader.load_creature_quest_starters()
             WorldLoader.load_creature_quest_finishers()
             WorldLoader.load_creature_model_info()
+            WorldLoader.load_npc_gossip()
+            WorldLoader.load_npc_text()
         else:
             Logger.info('Skipped creature loading.')
 
@@ -327,6 +329,34 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading creature model info...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_npc_gossip():
+        npc_gossips = WorldDatabaseManager.npc_gossip_get_all()
+        length = len(npc_gossips)
+        count = 0
+
+        for npc_gossip in npc_gossips:
+            WorldDatabaseManager.QuestGossipHolder.load_npc_gossip(npc_gossip)
+
+            count += 1
+            Logger.progress('Loading npc gossip...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_npc_text():
+        npc_texts = WorldDatabaseManager.npc_text_get_all()
+        length = len(npc_texts)
+        count = 0
+
+        for npc_text in npc_texts:
+            WorldDatabaseManager.QuestGossipHolder.load_npc_text(npc_text)
+
+            count += 1
+            Logger.progress('Loading npc gossip texts...', count, length)
 
         return length
 
