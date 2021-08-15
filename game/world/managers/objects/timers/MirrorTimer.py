@@ -41,7 +41,7 @@ class MirrorTimer(object):
         self.stop_on_next_tick = False
         data = pack('<IB', self._get_type(), state)
         packet = PacketWriter.get_packet(OpCode.SMSG_PAUSE_MIRROR_TIMER, data)
-        self.owner.session.enqueue_packet(packet)
+        self.owner.enqueue_packet(packet)
 
     def stop(self):
         if self.active:
@@ -49,7 +49,7 @@ class MirrorTimer(object):
             self.stop_on_next_tick = False
             data = pack('<I', self._get_type())
             packet = PacketWriter.get_packet(OpCode.SMSG_STOP_MIRROR_TIMER, data)
-            self.owner.session.enqueue_packet(packet)
+            self.owner.enqueue_packet(packet)
 
     # There are only two available 'types' (Timer colors): Dark Yellow (0) or Blue (1).
     # We use Dark Yellow (Fatigue) for Feign Death since the actual value for Feign Death (2) will trigger
@@ -63,7 +63,7 @@ class MirrorTimer(object):
         if self.active:
             data = pack('<3IiBI', self._get_type(), self.remaining * 1000, self.duration * 1000, self.scale, not self.active, self.spell_id)
             packet = PacketWriter.get_packet(OpCode.SMSG_START_MIRROR_TIMER, data)
-            self.owner.session.enqueue_packet(packet)
+            self.owner.enqueue_packet(packet)
 
     def set_scale(self, scale):
         if scale != self.scale:

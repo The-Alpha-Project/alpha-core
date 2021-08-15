@@ -4,6 +4,7 @@ import time
 from struct import unpack
 
 from bitarray import bitarray
+
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -14,13 +15,13 @@ from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.player.ChannelManager import ChannelManager
 from game.world.managers.objects.player.FriendsManager import FriendsManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
-from game.world.managers.objects.player.TaxiManager import TaxiManager
-from game.world.managers.objects.player.quest.QuestManager import QuestManager
 from game.world.managers.objects.player.ReputationManager import ReputationManager
 from game.world.managers.objects.player.SkillManager import SkillManager
-from game.world.managers.objects.player.StatManager import StatManager, UnitStats
+from game.world.managers.objects.player.StatManager import UnitStats
 from game.world.managers.objects.player.TalentManager import TalentManager
+from game.world.managers.objects.player.TaxiManager import TaxiManager
 from game.world.managers.objects.player.TradeManager import TradeManager
+from game.world.managers.objects.player.quest.QuestManager import QuestManager
 from game.world.managers.objects.timers.MirrorTimersManager import MirrorTimersManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
@@ -33,7 +34,7 @@ from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags, CreatureTypes
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
 from utils.constants.UpdateFields import *
 
 MAX_ACTION_BUTTONS = 120
@@ -256,7 +257,7 @@ class PlayerManager(UnitManager):
             self.group_manager.send_update()
 
     def logout(self):
-        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
         self.online = False
         self.logout_timer = -1
         self.mirror_timers_manager.stop_all()
@@ -320,8 +321,8 @@ class PlayerManager(UnitManager):
             if self.guid != guid:
                 if guid not in self.objects_in_range:
                     update_packet = player.generate_proper_update_packet(create=True)
-                    self.session.enqueue_packet(update_packet)
-                    self.session.enqueue_packet(NameQueryHandler.get_query_details(player.player))
+                    self.enqueue_packet(update_packet)
+                    self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
                 self.objects_in_range[guid] = {'object': player, 'synced': True}
 
         for guid, creature in creatures.items():
@@ -330,8 +331,8 @@ class PlayerManager(UnitManager):
                     update_packet = UpdatePacketFactory.compress_if_needed(
                         PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                 creature.get_full_update_packet(is_self=False)))
-                    self.session.enqueue_packet(update_packet)
-                    self.session.enqueue_packet(creature.query_details())
+                    self.enqueue_packet(update_packet)
+                    self.enqueue_packet(creature.query_details())
             self.objects_in_range[guid] = {'object': creature, 'synced': True}
 
         for guid, gobject in gobjects.items():
@@ -339,8 +340,8 @@ class PlayerManager(UnitManager):
                 update_packet = UpdatePacketFactory.compress_if_needed(
                     PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                             gobject.get_full_update_packet(is_self=False)))
-                self.session.enqueue_packet(update_packet)
-                self.session.enqueue_packet(gobject.query_details())
+                self.enqueue_packet(update_packet)
+                self.enqueue_packet(gobject.query_details())
             self.objects_in_range[guid] = {'object': gobject, 'synced': True}
 
         for guid, object_info in list(self.objects_in_range.items()):
@@ -349,7 +350,7 @@ class PlayerManager(UnitManager):
 
     def destroy_near_object(self, guid, skip_check=False):
         if skip_check or guid in self.objects_in_range:
-            self.session.enqueue_packet(self.objects_in_range[guid]['object'].get_destroy_packet())
+            self.enqueue_packet(self.objects_in_range[guid]['object'].get_destroy_packet())
             del self.objects_in_range[guid]
             return True
         return False
@@ -409,11 +410,11 @@ class PlayerManager(UnitManager):
                 MoveFlags.MOVEFLAG_NONE,
             )
 
-            self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
+            self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
 
         # Loading screen
         else:
-            self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
+            self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
 
             data = pack(
                 '<B4f',
@@ -424,7 +425,7 @@ class PlayerManager(UnitManager):
                 location.o
             )
 
-            self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
+            self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
 
         return True
 
@@ -437,7 +438,7 @@ class PlayerManager(UnitManager):
 
                 # Always make sure self is destroyed for others
                 if not player.destroy_near_object(self.guid):
-                    player.session.enqueue_packet(self.get_destroy_packet())
+                    player.enqueue_packet(self.get_destroy_packet())
 
         # Update new coordinates and map.
         if self.teleport_destination_map != -1 and self.teleport_destination:
@@ -479,17 +480,16 @@ class PlayerManager(UnitManager):
             opcode = OpCode.SMSG_FORCE_MOVE_ROOT
         else:
             opcode = OpCode.SMSG_FORCE_MOVE_UNROOT
-        self.session.enqueue_packet(PacketWriter.get_packet(opcode))
+        self.enqueue_packet(PacketWriter.get_packet(opcode))
 
     # TODO Maybe merge all speed changes in one method
     # override
     def change_speed(self, speed=0):
-        super().change_speed(speed)
-        data = pack('<f', self.running_speed)
-        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
-
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                            self.get_movement_update_packet()), self)
+        if super().change_speed(speed):
+            data = pack('<f', self.running_speed)
+            self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
+            MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                                                self.get_movement_update_packet()), self)
 
     def change_swim_speed(self, swim_speed=0):
         if swim_speed <= 0:
@@ -498,7 +498,7 @@ class PlayerManager(UnitManager):
             swim_speed = 56  # Max possible swim speed
         self.swim_speed = swim_speed
         data = pack('<f', self.swim_speed)
-        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                             self.get_movement_update_packet()), self)
@@ -510,7 +510,7 @@ class PlayerManager(UnitManager):
             walk_speed = 56  # Max speed without glitches
         self.walk_speed = walk_speed
         data = pack('<f', self.walk_speed)
-        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                             self.get_movement_update_packet()), self)
@@ -521,7 +521,7 @@ class PlayerManager(UnitManager):
         self.turn_rate = turn_speed
         data = pack('<f', self.turn_rate)
         # TODO NOT WORKING?
-        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT, data))
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                             self.get_movement_update_packet()), self)
@@ -537,14 +537,14 @@ class PlayerManager(UnitManager):
                         return
                     else:  # Not able to split, notify the whole amount to the sole player.
                         data = pack('<I', enemy.loot_manager.current_money)
-                        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
+                        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
 
                 # Not able to split money or no group, loot money to self only.
                 self.mod_money(enemy.loot_manager.current_money)
                 enemy.loot_manager.clear_money()
                 packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY)
                 for looter in enemy.loot_manager.get_active_looters():
-                    looter.session.enqueue_packet(packet)
+                    looter.enqueue_packet(packet)
 
     def loot_item(self, slot):
         if self.current_loot_selection > 0:
@@ -563,7 +563,7 @@ class PlayerManager(UnitManager):
                         data = pack('<B', slot)
                         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
                         for looter in world_obj_target.loot_manager.get_active_looters():
-                            looter.session.enqueue_packet(packet)
+                            looter.enqueue_packet(packet)
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
@@ -571,7 +571,7 @@ class PlayerManager(UnitManager):
 
         high_guid: HighGuid = self.extract_high_guid(self.current_loot_selection)
         data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
-        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
         if high_guid == HighGuid.HIGHGUID_UNIT:
             # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
@@ -626,7 +626,7 @@ class PlayerManager(UnitManager):
                         continue
 
                     # Send item query information
-                    self.session.enqueue_packet(loot.item.query_details())
+                    self.enqueue_packet(loot.item.query_details())
 
                     data += pack(
                         '<B3I',
@@ -641,7 +641,7 @@ class PlayerManager(UnitManager):
             world_object.loot_manager.add_active_looter(self)
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
-        self.session.enqueue_packet(packet)
+        self.enqueue_packet(packet)
 
         return loot_type != LootTypes.LOOT_TYPE_NOTALLOWED
 
@@ -675,7 +675,7 @@ class PlayerManager(UnitManager):
                         len(amounts)
                         )
             data += amount_bytes
-            self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
+            self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
 
         if new_xp >= self.next_level_xp:  # Level up!
             level_amount = 1
@@ -742,7 +742,7 @@ class PlayerManager(UnitManager):
                         mana_diff if self.power_type == PowerTypes.TYPE_MANA else 0
                     )
 
-                    self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
+                    self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEVELUP_INFO, data))
 
                 self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
@@ -830,7 +830,7 @@ class PlayerManager(UnitManager):
             # Notify client new discovered zone + xp gain.
             data = pack('<2I', area_information.zone_id, int(xp_gain))
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
-            self.session.enqueue_packet(packet)
+            self.enqueue_packet(packet)
 
     def update_swimming_state(self, state):
         if state:
@@ -1161,7 +1161,7 @@ class PlayerManager(UnitManager):
 
     def _send_attack_swing_error(self, victim, opcode):
         data = pack('<2Q', self.guid, victim.guid if victim else 0)
-        self.session.enqueue_packet(PacketWriter.get_packet(opcode, data))
+        self.enqueue_packet(PacketWriter.get_packet(opcode, data))
 
     # override
     def send_attack_swing_not_in_range(self, victim):
@@ -1281,11 +1281,17 @@ class PlayerManager(UnitManager):
         super().receive_healing(amount, source)
 
         data = pack('<IQ', amount, source.guid)
-        self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
 
     def set_dirty(self, is_dirty=True, dirty_inventory=False):
         self.dirty = is_dirty
         self.dirty_inventory = dirty_inventory
+
+    def enqueue_packet(self, data):
+        if self.session:
+            self.session.enqueue_packet(data)
+        else:
+            Logger.warning('Tried to send packet to null session.')
 
     # override
     def update(self):
@@ -1358,7 +1364,7 @@ class PlayerManager(UnitManager):
         if not update_packet:
             update_packet = self.generate_proper_update_packet(is_self=True, create=create)
 
-        self.session.enqueue_packet(update_packet)
+        self.enqueue_packet(update_packet)
 
         if reset_fields:
             self.reset_fields_older_than(time.time())
@@ -1394,7 +1400,7 @@ class PlayerManager(UnitManager):
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
-            self.session.enqueue_packet(death_notify_packet)
+            self.enqueue_packet(death_notify_packet)
 
         TradeManager.cancel_trade(self)
         self.spirit_release_timer = 0

@@ -52,7 +52,7 @@ class SpellManager(object):
         self.spells[spell_id] = db_spell
 
         data = pack('<H', spell_id)
-        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
+        self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
 
         if cast_on_learn or spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
             self.start_spell_cast(spell, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF)
@@ -491,7 +491,7 @@ class SpellManager(object):
             return
 
         data = pack('<2I', casting_spell.spell_entry.ID, casting_spell.duration_entry.Duration)  # No channeled spells with duration per level.
-        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
+        self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
         # TODO Channeling animations do not play
 
     def handle_spell_effect_update(self, casting_spell, timestamp):
@@ -523,7 +523,7 @@ class SpellManager(object):
             return
 
         data = pack('<I', 0)
-        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
+        self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
 
     def send_spell_go(self, casting_spell):
         data = [self.unit_mgr.guid, self.unit_mgr.guid,
@@ -585,7 +585,7 @@ class SpellManager(object):
 
         if start_locked_cooldown:
             data = pack('<IQ', spell.ID, self.unit_mgr.guid)
-            self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_COOLDOWN_EVENT, data))
+            self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_COOLDOWN_EVENT, data))
             for cooldown in self.cooldowns:
                 if cooldown.spell_id == spell.ID:
                     cooldown.unlock(timestamp)
@@ -599,7 +599,7 @@ class SpellManager(object):
             return
 
         data = pack('<IQI', spell.ID, self.unit_mgr.guid, cooldown_entry.cooldown_length)
-        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+        self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def check_spell_cooldowns(self):
         for cooldown_entry in list(self.cooldowns):
@@ -610,7 +610,7 @@ class SpellManager(object):
             if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
                 continue
             data = pack('<IQ', cooldown_entry.spell_id, self.unit_mgr.guid)
-            self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
+            self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
 
     def is_on_cooldown(self, spell_entry) -> bool:
         for cooldown_entry in list(self.cooldowns):
@@ -790,4 +790,4 @@ class SpellManager(object):
         else:
             data = pack('<I2B', spell_id, SpellCastStatus.CAST_FAILED, error)
 
-        self.unit_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
+        self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))

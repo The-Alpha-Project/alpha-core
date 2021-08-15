@@ -32,6 +32,6 @@ class GuildInfoHandler(object):
                 len(player.guild_manager.members),
                 len(accounts)
             )
-            player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_INFO, data))
+            player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_INFO, data))
 
         return 0

@@ -194,12 +194,12 @@ class CreatureManager(UnitManager):
         )
 
         data = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, train_spell_count) + train_spell_bytes + greeting_bytes
-        world_session.player_mgr.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
+        world_session.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
 
     def finish_loading(self):
         if self.creature_template and self.creature_instance:
             if not self.fully_loaded:
-                creature_model_info = WorldDatabaseManager.creature_get_model_info(self.current_display_id)
+                creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)
                 if creature_model_info:
                     self.bounding_radius = creature_model_info.bounding_radius
                     self.combat_reach = creature_model_info.combat_reach

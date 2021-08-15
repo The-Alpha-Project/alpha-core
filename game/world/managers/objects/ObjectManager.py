@@ -142,7 +142,12 @@ class ObjectManager(object):
             speed = config.Unit.Defaults.run_speed
         elif speed >= 56:
             speed = 56  # Max speed without glitches
+
+        if self.running_speed == speed:
+            return False
+
         self.running_speed = speed
+        return True
 
     def reset_scale(self):
         self.set_scale(self.native_scale)

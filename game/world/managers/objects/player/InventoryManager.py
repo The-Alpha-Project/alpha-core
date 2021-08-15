@@ -396,7 +396,7 @@ class InventoryManager(object):
         return True
 
     def send_destroy_packet(self, slot, slot_list):
-        self.owner.session.enqueue_packet(slot_list[slot].get_destroy_packet())
+        self.owner.enqueue_packet(slot_list[slot].get_destroy_packet())
 
     def get_empty_slots(self):
         empty_slots = 0
@@ -589,17 +589,16 @@ class InventoryManager(object):
             if error != InventoryError.BAG_OK:
                 return
 
-            # Remove the offhand item from OH and add it to inventory
-            # This is necessary in case of a stacking offhand (3675) - otherwise swap_item to free slot would be valid
+            # Remove the offhand item from OH and add it to inventory.
+            # This is necessary in case of a stacking offhand (3675) - otherwise swap_item to free slot would be valid.
             self.add_item(item_template=current_oh.item_template, count=current_oh.item_instance.stackcount,
                           send_message=False, show_item_get=False)  #
             self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
 
-
-        # Bonus application
+        # Bonus application.
         self.owner.stat_manager.apply_bonuses()
 
-        self.owner.set_dirty(dirty_inventory=True)  # Mark as dirty to update equipment for other players
+        self.owner.set_dirty(dirty_inventory=True)  # Mark as dirty to update equipment for other players.
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
@@ -673,7 +672,7 @@ class InventoryManager(object):
                 item_2.guid if item_2 else self.owner.guid,
                 0
             )
-        self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_INVENTORY_CHANGE_FAILURE, data))
+        self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_INVENTORY_CHANGE_FAILURE, data))
 
     def send_buy_error(self, error, entry, vendor_guid=0):
         data = pack(
@@ -682,7 +681,7 @@ class InventoryManager(object):
             entry,
             error
         )
-        self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_BUY_FAILED, data))
+        self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_BUY_FAILED, data))
 
     def send_sell_error(self, error, item_guid, vendor_guid=0):
         data = pack(
@@ -691,7 +690,7 @@ class InventoryManager(object):
             item_guid,
             error
         )
-        self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SELL_ITEM, data))
+        self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SELL_ITEM, data))
 
     def send_item_receive_message(self, guid, item_entry, bag_slot, looted=False, show_in_chat=True):
         if bag_slot == InventorySlots.SLOT_INBACKPACK:
@@ -705,7 +704,7 @@ class InventoryManager(object):
         if looted and self.owner.group_manager:
             self.owner.group_manager.send_packet_to_members(packet, source=self.owner, surrounding_only=True)
         else:
-            self.owner.session.enqueue_packet(packet)
+            self.owner.enqueue_packet(packet)
 
     def mark_as_removed(self, item):
         if item and item.item_instance.bag == InventorySlots.SLOT_INBACKPACK:
@@ -719,8 +718,8 @@ class InventoryManager(object):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(is_self=False)))
         if is_self:
-            self.owner.session.enqueue_packet(update_packet)
-            self.owner.session.enqueue_packet(item.query_details())
+            self.owner.enqueue_packet(update_packet)
+            self.owner.enqueue_packet(item.query_details())
         else:
             MapManager.send_surrounding(update_packet, self.owner, include_self=False)
             MapManager.send_surrounding(item.query_details(), self.owner, include_self=False)
