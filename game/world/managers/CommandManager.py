@@ -13,6 +13,7 @@ from utils.constants.MiscCodes import HighGuid
 from utils.constants.UpdateFields import PlayerFields
 
 
+# noinspection SpellCheckingInspection,PyUnusedLocal
 class CommandManager(object):
 
     @staticmethod
@@ -243,7 +244,6 @@ class CommandManager(object):
                 return 0, f'spell ID(s) {", ".join(added)} learned.'
         except ValueError:
             return -1, 'please specify one or more valid spell ID(s).'
-
 
     @staticmethod
     def sskill(world_session, args):
@@ -574,6 +574,7 @@ PLAYER_COMMAND_DEFINITIONS = {
     'suicide': CommandManager.suicide
 }
 
+# noinspection SpellCheckingInspection
 GM_COMMAND_DEFINITIONS = {
     'speed': CommandManager.speed,
     'swimspeed': CommandManager.swim_speed,

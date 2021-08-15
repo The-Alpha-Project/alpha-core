@@ -99,7 +99,7 @@ class WorldDatabaseManager(object):
     # Worldport stuff
 
     @staticmethod
-    def worldport_get_by_name(name, return_all=False) -> Optional[Worldports]:
+    def worldport_get_by_name(name, return_all=False) -> [list, Optional[Worldports]]:
         world_db_session = SessionHolder()
         best_matching_location = None
         best_matching_ratio = 0
@@ -137,7 +137,7 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def item_template_get_by_name(name, return_all=False) -> Optional[ItemTemplate]:
+    def item_template_get_by_name(name, return_all=False) -> [list, Optional[ItemTemplate]]:
         world_db_session = SessionHolder()
         best_matching_item = None
         best_matching_ratio = 0
