@@ -94,7 +94,8 @@ class MapManager(object):
                     # Avoid loading tiles information if we already did.
                     if not MAPS[map_id].tiles[x + i][y + j]:
                         MAPS[map_id].tiles[x + i][y + j] = MapTile(map_id, x + i, y + j)
-                        MAPS[map_id].tiles[x + i][y + j].load()
+                        if not MAPS[map_id].tiles[x + i][y + j].load():
+                            MAPS[map_id].tiles[x + i][y + j] = None
 
         return True
 
@@ -129,6 +130,25 @@ class MapManager(object):
         return tile_y
 
     @staticmethod
+    def validate_teleport_destination(map_id, x, y):
+        # Can't validate if not using tile files, so return as True.
+        if not config.Server.Settings.use_map_tiles:
+            return True
+
+        if map_id not in MAPS:
+            return False
+
+        # We have no tiles for instances.
+        if map_id > 1:
+            return True
+
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
+        if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
+            return False
+
+        return MAPS[map_id].tiles[map_tile_x][map_tile_y] is not None
+
+    @staticmethod
     def calculate_z_for_object(world_object):
         return world_object.location.calculate_z(world_object.location.x, world_object.location.y, world_object.map_,
                                                  world_object.location.z)
@@ -139,6 +159,9 @@ class MapManager(object):
         try:
             if map_id not in MAPS:
                 Logger.warning(f'Wrong map, {map_id} not found.')
+                return current_z if current_z else 0.0
+
+            if not config.Server.Settings.use_map_tiles:
                 return current_z if current_z else 0.0
 
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, (RESOLUTION_ZMAP - 1))
