@@ -145,6 +145,7 @@ class ObjectManager(object):
 
         if self.running_speed == speed:
             return False
+
         self.running_speed = speed
         return True
 
