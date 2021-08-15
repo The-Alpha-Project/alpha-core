@@ -49,6 +49,9 @@ class Vector(object):
             return pack('<4f', self.x, self.y, self.z, self.o)
         return pack('<3f', self.x, self.y, self.z)
 
+    def copy(self):
+        return Vector(self.x, self.y, self.z, self.o)
+
     def distance(self, vector=None, x=0, y=0, z=0):
         return math.sqrt(self.distance_sqrd(vector.x, vector.y, vector.z) if vector else self.distance_sqrd(x, y, z))
 

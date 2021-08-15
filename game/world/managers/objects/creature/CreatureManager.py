@@ -82,7 +82,7 @@ class CreatureManager(UnitManager):
                                          self.creature_instance.position_y,
                                          self.creature_instance.position_z,
                                          self.creature_instance.orientation)
-            self.location = self.spawn_position
+            self.location = self.spawn_position.copy()
             self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
     def load(self):
@@ -374,6 +374,15 @@ class CreatureManager(UnitManager):
 
     def _perform_combat_movement(self):
         if self.combat_target:
+            # TODO Temp, extremely basic evade / runback mechanic based ONLY on distance. Replace later with a proper one.
+            if self.location.distance(self.spawn_position) > 50:
+                self.leave_combat(force=True)
+                self.set_health(self.max_health)
+                self.recharge_power()
+                self.set_dirty()
+                self.movement_manager.send_move_to([self.spawn_position], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+                return
+
             self.location.face_point(self.combat_target.location)
 
             current_distance = self.location.distance(self.combat_target.location)
