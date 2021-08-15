@@ -190,7 +190,7 @@ class CommandManager(object):
             if len(entries) == len(invalid):
                 return -1, f'item ID(s) {", ".join(invalid)} are not valid.'
             else:
-                return 0, f'item ID(s) {", ".join(added)} to the inventory.'
+                return 0, f'Item ID(s) {", ".join(added)} added to the inventory.'
         except ValueError:
             return -1, 'please specify one or more valid item ID(s).'
 
@@ -241,7 +241,7 @@ class CommandManager(object):
             if len(spell_ids) == len(invalid):
                 return -1, f'spell ID(s) {", ".join(invalid)} are not valid.'
             else:
-                return 0, f'spell ID(s) {", ".join(added)} learned.'
+                return 0, f'Spell ID(s) {", ".join(added)} learned.'
         except ValueError:
             return -1, 'please specify one or more valid spell ID(s).'
 
@@ -290,7 +290,7 @@ class CommandManager(object):
             if len(skill_ids) == len(invalid):
                 return -1, f'skill ID(s) {", ".join(invalid)} are not valid.'
             else:
-                return 0, f'skill ID(s) {", ".join(added)} learned.'
+                return 0, f'Skill ID(s) {", ".join(added)} learned.'
         except ValueError:
             return -1, 'please specify one or more valid skill ID(s).'
 
