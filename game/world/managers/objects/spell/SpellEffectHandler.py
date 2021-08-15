@@ -219,8 +219,10 @@ class SpellEffectHandler(object):
         if target.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        skill_id = SkillManager.get_skill_id_for_spell_id(casting_spell.spell_entry.ID)
-        target.skill_manager.add_skill(skill_id)
+        skill = target.skill_manager.get_skill_for_spell_id(casting_spell.spell_entry.ID)
+        if not skill:
+            return
+        target.skill_manager.add_skill(skill.ID)
 
     @staticmethod
     def handle_add_proficiency(casting_spell, effect, caster, target):
@@ -229,7 +231,10 @@ class SpellEffectHandler(object):
         item_class = casting_spell.spell_entry.EquippedItemClass
         item_subclass_mask = casting_spell.spell_entry.EquippedItemSubclass
 
-        target.skill_manager.add_proficiency(item_class, item_subclass_mask)
+        skill = target.skill_manager.get_skill_for_spell_id(casting_spell.spell_entry.ID)
+        if not skill:
+            return
+        target.skill_manager.add_proficiency(item_class, item_subclass_mask, skill.ID)
 
     @staticmethod
     def handle_add_language(casting_spell, effect, caster, target):
@@ -238,8 +243,10 @@ class SpellEffectHandler(object):
 
         # The value in SkillLineAbility for languages is equal to "language TEMP",
         # the proper skill is 1 number below.
-        skill_id = SkillManager.get_skill_id_for_spell_id(casting_spell.spell_entry.ID)
-        skill_id -= 1
+        skill = target.skill_manager.get_skill_for_spell_id(casting_spell.spell_entry.ID)
+        if not skill:
+            return
+        skill_id = skill.ID - 1
 
         target.skill_manager.add_skill(skill_id)
 

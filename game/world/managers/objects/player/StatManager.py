@@ -6,7 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from game.world.managers.objects.player.SkillManager import SkillTypes, SkillManager
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import AttackTypes, ObjectTypes
+from utils.constants.MiscCodes import AttackTypes, ObjectTypes, HitInfo
 from utils.constants.SpellCodes import SpellSchools
 from utils.constants.UnitCodes import PowerTypes, Classes, CreatureTypes
 
@@ -45,7 +45,7 @@ class UnitStats(IntFlag):
     PARRY_CHANCE = auto()
     DODGE_CHANCE = auto()
     BLOCK_CHANCE = auto()
-    BLOCK_VALUE = auto()
+    # Note: Block value did not exist in 0.5.3
 
     PROC_CHANCE = auto()
 
@@ -127,7 +127,6 @@ class StatManager(object):
             self.base_stats[UnitStats.STAMINA] = base_attrs.sta
             self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
             self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
-            self.base_stats[UnitStats.SPEED_RUNNING] = config.Unit.Defaults.run_speed
 
             self.unit_mgr.base_hp = base_stats.basehp
             self.unit_mgr.base_mana = base_stats.basemana
@@ -135,12 +134,14 @@ class StatManager(object):
             # Creature
             self.base_stats[UnitStats.HEALTH] = self.unit_mgr.max_health
             self.base_stats[UnitStats.MANA] = self.unit_mgr.max_power_1
-            self.base_stats[UnitStats.SPEED_RUNNING] = self.unit_mgr.running_speed
-            self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE  # Players don't have a flat dodge chance.
+            self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100  # Players don't have a flat dodge/block chance.
+            self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100  # Players have block scaling, assign flat 5% to creatures.
 
-        # Players and creatures have an unchanging base 5% chance to block and parry. (before defense skill differences)
-        self.base_stats[UnitStats.PARRY_CHANCE] = BASE_BLOCK_PARRY_CHANCE
-        self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE
+        self.base_stats[UnitStats.SPEED_RUNNING] = self.unit_mgr.running_speed
+
+        # Players and creatures have an unchanging base 5% chance to block and parry (before defense skill differences).
+        # As block chance also scales with strength, the value is calculated in update_base_block_chance
+        self.base_stats[UnitStats.PARRY_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100
 
         self.send_attributes()
 
@@ -166,18 +167,21 @@ class StatManager(object):
 
         return total - base_stats - item_stats
 
-    def get_total_stat(self, stat_type: UnitStats, misc_value=-1, accept_negative=False, misc_value_is_mask=False) -> int:
+    def get_total_stat(self, stat_type: UnitStats, misc_value=-1, accept_negative=False, accept_float=False, misc_value_is_mask=False) -> int:
         base_stats = self.get_base_stat(stat_type)
         bonus_stats = self.item_stats.get(stat_type, 0) + \
             self.get_aura_stat_bonus(stat_type, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask)
 
-        total = int((base_stats + bonus_stats) *
-                    self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask))
+        total = (base_stats + bonus_stats) * \
+            self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask)
+
+        if not accept_float:
+            total = int(total)
 
         if accept_negative:
             return total
 
-        return max(0, total)  # Stats are always positive
+        return max(0, total)
 
     def get_stat_skill_bonus(self, skill_type):  # Avoids circular import with SkillManager
         return self.get_total_stat(UnitStats.SKILL, misc_value=skill_type)
@@ -193,7 +197,8 @@ class StatManager(object):
         if self.unit_mgr.has_ranged_weapon():  # TODO Are ranged formulas different?
             self.update_base_weapon_attributes(attack_type=AttackTypes.RANGED_ATTACK)
 
-        self.unit_mgr.change_speed(self.get_total_stat(UnitStats.SPEED_RUNNING))
+        # Only send base speed - change_speed will apply total value.
+        self.unit_mgr.change_speed(self.get_base_stat(UnitStats.SPEED_RUNNING))
 
         hp_diff = self.update_max_health()
         mana_diff = self.update_max_mana()
@@ -307,8 +312,7 @@ class StatManager(object):
                                   UnitStats.RESISTANCE_FIRE: item.item_template.fire_res,
                                   UnitStats.RESISTANCE_NATURE: item.item_template.nature_res,
                                   UnitStats.RESISTANCE_FROST: item.item_template.frost_res,
-                                  UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res,
-                                  UnitStats.BLOCK_VALUE: item.item_template.block}
+                                  UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res}
                 for stat, value in separate_stats.items():
                     self.item_stats[stat] = self.item_stats.get(stat, 0) + value
 
@@ -404,20 +408,33 @@ class StatManager(object):
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
 
-        class_base_dodge = CLASS_BASE_DODGE_PERCENTAGE[player_class] if player_class in CLASS_BASE_DODGE_PERCENTAGE else 0
-        base_dodge = class_base_dodge + agility / class_rate
+        class_base_dodge = CLASS_BASE_DODGE[player_class] / 100 if player_class in CLASS_BASE_DODGE else 0
+        agility_bonus = agility / class_rate / 100
+
+        base_dodge = class_base_dodge + agility_bonus
 
         self.base_stats[UnitStats.DODGE_CHANCE] = base_dodge
 
-    def update_base_block_value(self):
+    def update_base_block_chance(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
-            return  # Base block can't change for creatures - set on init
+            return
 
-        base_block = BASE_BLOCK_PARRY_CHANCE
+        player_class = self.unit_mgr.player.class_
+
+        # Strength increases chance to block according to the stat sheet tooltip.
         strength = self.get_total_stat(UnitStats.STRENGTH)
-        base_block += strength / 2
 
-        self.base_stats[UnitStats.BLOCK_VALUE] = base_block
+        # TODO Using dodge formula because of missing information - tune if needed.
+
+        scaling = CLASS_AGILITY_SCALING_DODGE[player_class]
+        class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
+                      scaling[1] * (self.unit_mgr.level - 1)) / 59
+
+        # Since players have a base block chance of 5% unlike dodge, subtract this base from the placeholder scaling.
+        strength_scaling = max(0, strength / class_rate / 100 - 5)
+        base_block_chance = BASE_BLOCK_PARRY_CHANCE / 100
+
+        self.base_stats[UnitStats.BLOCK_CHANCE] = strength_scaling + base_block_chance
 
     def update_base_proc_chance(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
@@ -431,8 +448,9 @@ class StatManager(object):
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
 
-        total_proc_chance = agility / class_rate
-        self.base_stats[UnitStats.PROC_CHANCE] = total_proc_chance
+        agility_scaling = agility / class_rate / 100
+
+        self.base_stats[UnitStats.PROC_CHANCE] = agility_scaling
 
     # Auto attack/shoot base damage
     def get_base_attack_base_min_max_damage(self, attack_type: AttackTypes):
@@ -473,8 +491,65 @@ class StatManager(object):
         return max(0, damage_dealt)
 
     def roll_proc_chance(self, base_chance: float) -> bool:
-        chance = base_chance + self.get_total_stat(UnitStats.PROC_CHANCE)
-        return random.randint(1, 100) <= chance
+        chance = base_chance/100 + self.get_total_stat(UnitStats.PROC_CHANCE)
+        return random.random() < chance
+
+    def get_intellect_stat_gain_chance_bonus(self):
+        gain = self.get_total_stat(UnitStats.INTELLECT) * 0.0002
+        return gain if gain <= 0.10 else 0.10  # Cap at 10% (Guessed in vmangos)
+
+    def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0):
+        # TODO Based on vanilla calculations.
+
+        if attacker.get_type() == ObjectTypes.TYPE_PLAYER:
+            attack_weapon = attacker.get_weapon_for_attack_type(attack_type)
+            attack_weapon_template = attack_weapon.item_template if attack_weapon is not None else None
+
+            skill_id = attacker.skill_manager.get_skill_id_for_weapon(attack_weapon_template)
+            attack_rating = attacker.skill_manager.get_total_skill_value(skill_id)
+        else:
+            attack_rating = -1
+        rating_difference = self._get_combat_rating_difference(attacker.level, attack_rating)
+
+        base_miss = 0.05 + dual_wield_penalty
+
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+            # 0.04% Bonus against players when the defender has a higher combat rating,
+            # 0.02% Bonus when the attacker has a higher combat rating.
+            miss_chance = base_miss + rating_difference * 0.0004 if rating_difference > 0 else base_miss + rating_difference * 0.0002
+        else:
+            #  0.4% if defense rating is >10 points higher than attack rating, otherwise 0.1%.
+            miss_chance = base_miss + rating_difference * 0.001 if rating_difference <= 10 \
+                else base_miss + 1 + (rating_difference - 10) * 0.004
+
+        # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
+        # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
+        # regardless of how much +hit% gear was equipped.
+        miss_chance = max(dual_wield_penalty, miss_chance)
+
+        roll = random.random()
+        if roll < miss_chance:
+            return HitInfo.MISS
+
+        # Dodge/parry/block receive a 0.04% bonus/penalty for each skill point difference.
+        dodge_chance = self.get_total_stat(UnitStats.DODGE_CHANCE, accept_float=True) + rating_difference * 0.0004
+        roll = random.random()
+        if self.unit_mgr.can_dodge(attacker.location) and roll < dodge_chance:
+            return HitInfo.DODGE
+
+        parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
+        roll = random.random()
+        if self.unit_mgr.can_parry(attacker.location) and roll < parry_chance:
+            return HitInfo.PARRY
+
+        rating_difference_block = self._get_combat_rating_difference(attacker.level, attack_rating, use_block=True)
+        block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
+        roll = random.random()
+        if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
+            return HitInfo.BLOCK
+
+        # TODO Roll crit
+        return HitInfo.SUCCESS
 
     def update_base_weapon_attributes(self, attack_type=0):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
@@ -519,8 +594,8 @@ class StatManager(object):
             self.base_stats[UnitStats.RANGED_DAMAGE_MAX] = final_max_damage
 
     def update_defense_bonuses(self):
-        self.update_base_block_value()
         self.update_base_dodge_chance()
+        self.update_base_block_chance()
 
     def send_melee_attributes(self):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
@@ -615,10 +690,11 @@ class StatManager(object):
             self.unit_mgr.set_block_chance(0)
             return
 
-        value = self.get_total_stat(UnitStats.BLOCK_CHANCE)
+        # Percentual bonuses are stored as 100% = 1, client expects 100% = 100
+        value = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) * 100
 
-        # Penalty against player of same level with max skill
-        value += self._get_defense_value_difference_penalty()
+        # Penalty against player of same level with max skill.
+        value += self._get_combat_rating_difference(use_block=True) * 0.04
 
         value = max(0, value)
         self.unit_mgr.set_block_chance(value)
@@ -630,10 +706,10 @@ class StatManager(object):
             self.unit_mgr.set_parry_chance(0)
             return
 
-        value = self.get_total_stat(UnitStats.PARRY_CHANCE)
+        value = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) * 100
 
         # Penalty against player of same level with max skill
-        value += self._get_defense_value_difference_penalty()
+        value += self._get_combat_rating_difference() * 0.04
         value = max(0, value)
         self.unit_mgr.set_parry_chance(value)
 
@@ -644,16 +720,30 @@ class StatManager(object):
             self.unit_mgr.set_dodge_chance(0)
             return
 
-        value = self.get_total_stat(UnitStats.DODGE_CHANCE)
+        value = self.get_total_stat(UnitStats.DODGE_CHANCE, accept_float=True) * 100
 
         # Penalty against player of same level with max skill
-        value += self._get_defense_value_difference_penalty()
+        value += self._get_combat_rating_difference() * 0.04
         value = max(0, value)
         self.unit_mgr.set_dodge_chance(value)
 
-    def _get_defense_value_difference_penalty(self):
-        return (self.unit_mgr.skill_manager.get_total_skill_value(SkillTypes.DEFENSE) -
-                SkillManager.get_max_rank(self.unit_mgr.level, SkillTypes.DEFENSE)) * 0.04
+    def _get_combat_rating_difference(self, attacker_level=-1, attacker_rating=-1, use_block=False):  # > 0 if defense is higher
+        # Client displays percentages against enemies of equal level and max attack rating.
+        if attacker_level == -1:
+            attacker_level = self.unit_mgr.level
+        if attacker_rating == -1:  # Use max defense skill since it follows the same values as max weapon skill
+            attacker_rating = SkillManager.get_max_rank(attacker_level, SkillTypes.DEFENSE)
+
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+            # TODO It's unclear what the block skill is used for based on patch notes.
+            # Replace Defense in calculations with block to at least give it a purpose.
+            # This way, block chance will be affected by block skill instead of defense skill like in vanilla.
+            own_defense_rating = self.unit_mgr.skill_manager.get_total_skill_value(SkillTypes.DEFENSE if not use_block else SkillTypes.BLOCK)
+        else:
+            own_defense_rating = SkillManager.get_max_rank(self.unit_mgr.level, SkillTypes.DEFENSE)
+
+
+        return own_defense_rating - attacker_rating
 
     @staticmethod
     def get_health_bonus_from_stamina(stamina):
@@ -716,7 +806,7 @@ CLASS_BASE_REGEN_MANA = {
 }
 
 # Vmangos
-CLASS_BASE_DODGE_PERCENTAGE = {
+CLASS_BASE_DODGE = {
     Classes.CLASS_DRUID: 0.9,
     Classes.CLASS_MAGE: 3.2,
     Classes.CLASS_PALADIN: 0.7,

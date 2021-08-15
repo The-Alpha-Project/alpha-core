@@ -57,6 +57,10 @@ class SpellManager(object):
         if cast_on_learn or spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
             self.start_spell_cast(spell, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF)
 
+        # Apply passive effects when they're learned. This will also apply talents on learn.
+        if spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+            self.apply_passive_spell_effects(spell)
+
         # TODO Teach skill required as well like in CharCreateHandler
         return True
 
@@ -65,9 +69,14 @@ class SpellManager(object):
         for spell_id in self.spells.keys():
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
-                spell = self.try_initialize_spell(spell_template, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF, validate=False)
-                spell.resolve_target_info_for_effects()
-                self.apply_spell_effects(spell, remove=True)
+                self.apply_passive_spell_effects(spell_template)
+
+    def apply_passive_spell_effects(self, spell_template):
+        if spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+            spell = self.try_initialize_spell(spell_template, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF,
+                                              validate=False)
+            spell.resolve_target_info_for_effects()
+            self.apply_spell_effects(spell)
 
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.unit_mgr.guid)
@@ -405,7 +414,7 @@ class SpellManager(object):
                 self.remove_cast(casting_spell, interrupted=True)
                 continue
             if current_cast.casts_on_swing() and casting_spell.casts_on_swing() and casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
-                self.remove_cast(casting_spell, interrupted=True)
+                self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT, interrupted=True)
                 continue
 
     def calculate_impact_delays(self, casting_spell) -> dict[int, float]:
@@ -654,9 +663,8 @@ class SpellManager(object):
             return False
 
         if casting_spell.initial_target_is_unit_or_player():  # Orientation checks
-            orientation_diff = abs(self.unit_mgr.location.o - casting_spell.initial_target.location.o)
-            caster_and_target_are_facing = orientation_diff > math.pi/2
-            if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID, caster_and_target_are_facing):
+            target_is_facing_caster = casting_spell.initial_target.location.has_in_arc(self.unit_mgr.location, math.pi)
+            if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID, target_is_facing_caster):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
                 return False
 

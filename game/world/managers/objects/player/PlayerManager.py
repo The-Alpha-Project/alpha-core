@@ -1,3 +1,5 @@
+import math
+import random
 import time
 from struct import unpack
 
@@ -230,7 +232,13 @@ class PlayerManager(UnitManager):
         # Join default channels.
         ChannelManager.join_default_channels(self)
 
-        # Apply stats bonuses.
+        # Initialize stats first to have existing base stats for further calculations.
+        self.stat_manager.init_stats()
+
+        # Passive spells contain skill and proficiency learning.
+        # Perform passive spell casts after loading skills to avoid duplicate database entries.
+        self.spell_manager.cast_passive_spells()
+        self.skill_manager.init_proficiencies()
         self.stat_manager.apply_bonuses(replenish=first_login)
 
         # Init faction status.
@@ -476,6 +484,7 @@ class PlayerManager(UnitManager):
         if super().change_speed(speed):
             data = pack('<f', self.running_speed)
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
+            # TODO Move object update to UnitManager
             MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                                 self.get_movement_update_packet()), self)
 
@@ -1116,7 +1125,7 @@ class PlayerManager(UnitManager):
 
         if apply_bonuses:
             subclass = -1
-            equipped_weapon = self._get_weapon_for_attack_type(attack_type)
+            equipped_weapon = self.get_weapon_for_attack_type(attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
             rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target, subclass)
@@ -1127,7 +1136,7 @@ class PlayerManager(UnitManager):
     def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
         subclass = 0
         if spell_attack_type != -1:
-            equipped_weapon = self._get_weapon_for_attack_type(spell_attack_type)
+            equipped_weapon = self.get_weapon_for_attack_type(spell_attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
 
@@ -1139,6 +1148,13 @@ class PlayerManager(UnitManager):
                                                            self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR)):
             self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, is_player=is_player))
             self.set_dirty()
+
+    # override
+    def handle_combat_skill_gain(self, damage_info):
+        if damage_info.attacker == self:
+            self.skill_manager.handle_weapon_skill_gain_chance(damage_info.attack_type)
+        else:
+            self.skill_manager.handle_defense_skill_gain_chance(damage_info)
 
     def _send_attack_swing_error(self, victim, opcode):
         data = pack('<2Q', self.guid, victim.guid if victim else 0)
@@ -1173,23 +1189,33 @@ class PlayerManager(UnitManager):
         return self.inventory.has_ranged_weapon()
 
     # override
-    def can_block(self):
-        if not super().can_block():
+    def can_block(self, attacker_location=None):
+        if not super().can_block(attacker_location):
             return False
+
+        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
+            return False  # players can't block from behind.
 
         return self.inventory.has_offhand() and \
             self.inventory.get_offhand().item_template.inventory_type == InventoryTypes.SHIELD
 
     # override
-    def can_parry(self):
-        if not super().can_parry():
+    def can_parry(self, attacker_location=None):
+        if not super().can_parry(attacker_location):
             return False
+
+        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
+            return False  # players can't parry from behind.
+
         return
 
     # override
-    def can_dodge(self):
-        if not super().can_dodge():
+    def can_dodge(self, attacker_location=None):
+        if not super().can_dodge(attacker_location):
             return False
+
+        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
+            return False  # players can't dodge from behind.
 
         return True  # TODO Stunned check
 
@@ -1417,7 +1443,7 @@ class PlayerManager(UnitManager):
     def generate_object_guid(self, low_guid):
         return low_guid | HighGuid.HIGHGUID_PLAYER
 
-    def _get_weapon_for_attack_type(self, attack_type: AttackTypes):
+    def get_weapon_for_attack_type(self, attack_type: AttackTypes):
         if attack_type == AttackTypes.BASE_ATTACK:
             return self.inventory.get_main_hand()
         elif attack_type == AttackTypes.OFFHAND_ATTACK:

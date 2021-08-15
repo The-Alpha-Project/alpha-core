@@ -1,3 +1,4 @@
+import random
 from enum import IntEnum
 from struct import pack, unpack
 from typing import NamedTuple
@@ -6,7 +7,10 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import SkillCategories, Languages
+from utils.ConfigManager import config
+from utils.Formulas import PlayerFormulas
+from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
+from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, HitInfo
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields
 
@@ -187,14 +191,23 @@ class ProficiencyAcquireMethod(IntEnum):
 class Proficiency:
     item_class: int
     item_subclass_mask: int
+    related_skill_ids: dict  # {subclass_mask, skill_id}. -1 if no proficiency exists
 
-    def __init__(self, item_class, item_subclass_mask):
+    def __init__(self, item_class, item_subclass_mask, skill_id=-1):
         self.item_class = item_class
         self.item_subclass_mask = item_subclass_mask
+        self.related_skill_ids = {item_subclass_mask: skill_id}
+
+    def add_subclass(self, item_subclass_mask, skill_id):
+        self.item_subclass_mask |= item_subclass_mask
+        self.related_skill_ids[item_subclass_mask] = skill_id
 
     def matches(self, item_class, item_subclass):
         return self.item_class == item_class and \
                (self.item_subclass_mask & 1 << item_subclass)
+
+    def get_skill_id_for_subclass(self, item_subclass):
+        return self.related_skill_ids.get(1 << item_subclass, -1)
 
 
 class SkillManager(object):
@@ -203,13 +216,18 @@ class SkillManager(object):
         self.skills = {}
         self.proficiencies = {}
 
+        # Dictionary for all equipment proficiencies the player can learn.
+        # Used to determine which talents should be excluded from the player (ie. 2H talents from rogues).
+        self.full_proficiency_masks = {}
+
     def load_skills(self):
         for skill in RealmDatabaseManager.character_get_skills(self.player_mgr.guid):
             self.skills[skill.skill] = skill
         self.update_skills_max_value()
         self.build_update()
 
-    def load_proficiencies(self):
+    # Apply armor proficiencies and populate full_proficiency_masks
+    def initialize_proficiencies(self):
         base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.player.race, self.player_mgr.player.class_)
         if not base_info:
             return
@@ -220,22 +238,28 @@ class SkillManager(object):
             if acquire_method == -1:
                 break
 
+            item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
+            item_subclass_mask = eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}')
+
+            curr_mask = self.full_proficiency_masks.get(item_class, 0)
+            curr_mask |= item_subclass_mask
+            self.full_proficiency_masks[item_class] = curr_mask
+
             # Learned proficiencies are applied through passive spells
             if acquire_method != ProficiencyAcquireMethod.ON_CHAR_CREATE:
                 continue
 
-            item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
-            self.proficiencies[item_class] = Proficiency(
-                    item_class,
-                    eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}'),
-            )
+            # Weapon proficiencies have passive spells assigned to them, but armor proficiencies don't.
+            if item_class != ItemClasses.ITEM_CLASS_ARMOR:
+                continue
+            self.add_proficiency(item_class, item_subclass_mask, -1)
 
-    def add_proficiency(self, item_class, item_subclass_mask):
+    def add_proficiency(self, item_class, item_subclass_mask, skill_id):
         if item_class in self.proficiencies:
             proficiency = self.proficiencies[item_class]
-            proficiency.item_subclass_mask |= item_subclass_mask
+            proficiency.add_subclass(item_subclass_mask, skill_id)
         else:
-            proficiency = Proficiency(item_class, item_subclass_mask)
+            proficiency = Proficiency(item_class, item_subclass_mask, skill_id)
             self.proficiencies[item_class] = proficiency
 
         self.send_set_proficiency(proficiency)
@@ -294,24 +318,118 @@ class SkillManager(object):
 
             self.set_skill(skill_id, skill.value, new_max)
 
+    def handle_weapon_skill_gain_chance(self, attack_type: AttackTypes):
+        # Vanilla formulae.
+        equipped_weapon = self.player_mgr.get_weapon_for_attack_type(attack_type)
+        skill_id = self.get_skill_id_for_weapon(equipped_weapon.item_template if equipped_weapon is not None else None)
+        if skill_id == -1:
+            return False
+
+        skill = self.skills.get(skill_id, None)
+        if not skill:
+            return False
+
+        current_unmodified_skill = skill.value
+        maximum_skill = SkillManager.get_max_rank(self.player_mgr.level, skill_id)
+
+        if current_unmodified_skill >= maximum_skill:
+            return False
+
+        # Magic values from vmangos
+        if maximum_skill * 0.9 > current_unmodified_skill:
+            chance = (maximum_skill * 0.9 * 0.05) / current_unmodified_skill
+        else:
+            level_modifier = SkillManager.get_max_rank(config.Unit.Player.Defaults.max_level, skill_id) / maximum_skill
+
+            chance = (0.5 - 0.0168966 * current_unmodified_skill * level_modifier + 0.0152069 * maximum_skill * level_modifier) / 100
+
+            skill_diff_from_max = maximum_skill - current_unmodified_skill
+            if skill_diff_from_max <= 3:
+                chance *= (0.5 / (4 - skill_diff_from_max))
+
+        # Can't find information in patch notes on intellect affecting skill gain, but it's implemented in vmangos.
+        chance += self.player_mgr.stat_manager.get_intellect_stat_gain_chance_bonus()
+
+        if random.random() > chance:
+            return False
+
+        # TODO Skill gain config value?
+        self.set_skill(skill_id, current_unmodified_skill + 1)
+        self.build_update()
+        self.player_mgr.set_dirty()
+        return True
+
+    def handle_defense_skill_gain_chance(self, damage_info):
+        # Vanilla formulae
+        target_skill_type = SkillTypes.BLOCK if damage_info.hit_info == HitInfo.BLOCK else SkillTypes.DEFENSE
+        skill = self.skills.get(target_skill_type, None)
+        if not skill:
+            return False
+
+        current_unmodified_skill = skill.value
+        maximum_skill = SkillManager.get_max_rank(self.player_mgr.level, target_skill_type)
+
+        if current_unmodified_skill >= maximum_skill:
+            return False
+
+        own_level = self.player_mgr.level
+        gray_level = PlayerFormulas.get_gray_level(own_level)
+        attacker_level = damage_info.attacker.level
+
+        if attacker_level > own_level + 5:
+            attacker_level = own_level + 5
+
+        level_difference = max(3, attacker_level - gray_level)
+        chance = 0.03 * level_difference * (maximum_skill - current_unmodified_skill) / own_level
+
+        if random.random() > chance:
+            return False
+
+        # TODO Skill gain config value?
+        self.set_skill(target_skill_type, current_unmodified_skill + 1)
+        self.build_update()
+
+        # Dodge/parry/block chance displayed in the player's abilities depends on current defense skill
+        self.player_mgr.stat_manager.send_defense_bonuses()
+
+        self.player_mgr.set_dirty()
+        return True
+
     def can_use_equipment(self, item_class, item_subclass):
         if item_class not in self.proficiencies:
             return False
         return self.proficiencies[item_class].matches(item_class, item_subclass)
 
+    def can_ever_use_equipment(self, item_class, item_subclass_mask):
+        if self.proficiencies[item_class].item_subclass_mask & item_subclass_mask:
+            return True  # Account for case where the player has learned a proficiency with a command.
+
+        return self.full_proficiency_masks.get(item_class, 0) & item_subclass_mask
+
     def get_total_skill_value(self, skill_id):
         if skill_id not in self.skills:
-            return None
+            return -1
         skill = self.skills[skill_id]
         bonus_skill = self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
         return skill.value + bonus_skill
 
     def get_skill_value_for_spell_id(self, spell_id):
-        skill_id = self.get_skill_id_for_spell_id(spell_id)
-        if skill_id not in self.skills:
+        skill = self.get_skill_for_spell_id(spell_id)
+        if not skill or skill.ID not in self.skills:
             return None
 
-        return self.get_total_skill_value(skill_id)
+        return self.get_total_skill_value(skill.ID)
+
+    def get_skill_id_for_weapon(self, item_template):
+        if not item_template:
+            # Street fighting replaces unarmed for rogues - prioritize if the player knows it.
+            return SkillTypes.STREETFIGHTING if self.skills.get(SkillTypes.STREETFIGHTING, None) else SkillTypes.UNARMED
+
+        item_class = item_template.class_
+        if item_class not in self.proficiencies:
+            return -1
+        prof = self.proficiencies[item_class]
+        return prof.get_skill_id_for_subclass(item_template.subclass)
 
     @staticmethod
     def get_all_languages():
@@ -323,13 +441,11 @@ class SkillManager(object):
             return LANG_DESCRIPTION[language_id].skill_id
         return -1
 
-    @staticmethod
-    def get_skill_id_for_spell_id(spell_id):
-        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell(spell_id)
+    def get_skill_for_spell_id(self, spell_id):
+        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_for_player(spell_id, self.player_mgr)
         if not skill_line_ability:
             return None
-
-        return skill_line_ability.SkillLine
+        return DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
 
     @staticmethod
     def get_max_rank(player_level, skill_id):

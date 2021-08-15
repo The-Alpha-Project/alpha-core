@@ -85,6 +85,12 @@ class CreatureManager(UnitManager):
             self.location = self.spawn_position.copy()
             self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
+        # All creatures can block, parry and dodge by default
+        # TODO CANT_BLOCK creature extra flag
+        self.has_block_passive = True
+        self.has_dodge_passive = True
+        self.has_parry_passive = True
+
     def load(self):
         MapManager.update_object(self)
 
@@ -509,11 +515,6 @@ class CreatureManager(UnitManager):
     # override
     def has_ranged_weapon(self):
         return self.wearing_ranged_weapon
-
-    # override
-    def can_block(self):
-        # All creatures can block by default
-        return True  # TODO CANT_BLOCK creature extra flag
 
     # override
     def set_weapon_mode(self, weapon_mode):
