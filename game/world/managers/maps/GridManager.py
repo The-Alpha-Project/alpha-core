@@ -249,15 +249,25 @@ class Cell(object):
     def add(self, grid_manager, world_object):
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players[world_object.guid] = world_object
-            self.active_cell_callback(world_object)
+            # Player entered a new cell, notify self with surrounding world_objects.
+            world_object.update_surrounding_on_me()
+
+            # Notify others about self.
+            world_object.send_update_surrounding(world_object.generate_proper_update_packet(
+                create=True if not world_object.is_relocating else False),
+                include_self=False,
+                create=True if not world_object.is_relocating else False,
+                force_inventory_update=True if not world_object.is_relocating else False)
 
             # Set this Cell and surrounding ones as Active
             for cell_key in list(grid_manager.get_surrounding_cell_keys(world_object)):
-                # Load tile maps of adjacent cells if there's at least one creature on them.
-                creatures = list(grid_manager.cells[cell_key].creatures.values())
-                for creature in creatures:
-                    self.active_cell_callback(creature)
-                grid_manager.active_cell_keys.add(cell_key)
+                # Do not trigger active cell events and tile loading if this cell was already active.
+                if cell_key not in grid_manager.active_cell_keys:
+                    # Load tile maps of adjacent cells if there's at least one creature on them.
+                    creatures = list(grid_manager.cells[cell_key].creatures.values())
+                    for creature in creatures:
+                        self.active_cell_callback(creature)
+                    grid_manager.active_cell_keys.add(cell_key)
 
         elif world_object.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures[world_object.guid] = world_object
@@ -265,6 +275,10 @@ class Cell(object):
             self.gameobjects[world_object.guid] = world_object
 
         world_object.current_cell = self.key
+
+        # Always trigger cell changed event for players.
+        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
+            self.active_cell_callback(world_object)
 
     def remove(self, world_object):
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:

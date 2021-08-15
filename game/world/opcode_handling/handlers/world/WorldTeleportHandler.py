@@ -14,8 +14,9 @@ class WorldTeleportHandler(object):
             return 0
 
         if world_session.player_mgr.is_gm:
-            pack_guid, map_, x, y, z, o = unpack('<IB4f', reader.data)
-            world_session.player_mgr.teleport(map_, Vector(x, y, z, o))
+            if len(reader.data) >= 21:  # Avoid handling empty world teleport packet.
+                pack_guid, map_, x, y, z, o = unpack('<IB4f', reader.data[:21])
+                world_session.player_mgr.teleport(map_, Vector(x, y, z, o))
         else:
             Logger.anticheat(f'Player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}) tried to teleport himself.')
 
