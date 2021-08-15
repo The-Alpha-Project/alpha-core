@@ -213,6 +213,11 @@ class WorldServerSessionHandler(object):
                                         max_instances=1)
         player_update_scheduler.start()
 
+        # MapManager tile loading.
+        world_session_thread = threading.Thread(target=MapManager.load_pending_tiles)
+        world_session_thread.daemon = True
+        world_session_thread.start()
+
         # Creature updates
         creature_update_scheduler = BackgroundScheduler()
         creature_update_scheduler._daemon = True

@@ -29,7 +29,7 @@ class ReputationManager(object):
             else:
                 data += pack('<Bi', 0, 0)
         packet = PacketWriter.get_packet(OpCode.SMSG_INITIALIZE_FACTIONS, data)
-        self.player_mgr.session.enqueue_packet(packet)
+        self.player_mgr.enqueue_packet(packet)
 
         if set_visible:
             for reputation in self.reputations.values():
@@ -37,7 +37,7 @@ class ReputationManager(object):
 
     def send_set_faction_visible(self, faction):
         packet = PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_VISIBLE, pack('<I', faction.index))
-        self.player_mgr.session.enqueue_packet(packet)
+        self.player_mgr.enqueue_packet(packet)
 
     def modify_reputation(self, faction, amount):
         if faction.index not in self.reputations:
@@ -49,7 +49,7 @@ class ReputationManager(object):
         # Notify the client
         data = pack('<3i', 0x1, faction.index, self.reputations[faction.index].standing)
         packet = PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_STANDING, data)
-        self.player_mgr.session.enqueue_packet(packet)
+        self.player_mgr.enqueue_packet(packet)
 
     def get_reputation_flag(self, faction):
         standing = -1

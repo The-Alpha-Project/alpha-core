@@ -68,7 +68,7 @@ class GameObjectManager(ObjectManager):
             cinematic_id = self.gobject_template.data1
             if DbcDatabaseManager.cinematic_sequences_get_by_id(cinematic_id):
                 data = pack('<I', cinematic_id)
-                player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
+                player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
         elif self.gobject_template.type == GameObjectTypes.TYPE_CHAIR:
             slots = self.gobject_template.data0
             height = self.gobject_template.data1

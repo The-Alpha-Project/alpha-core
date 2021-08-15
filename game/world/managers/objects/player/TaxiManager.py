@@ -38,10 +38,10 @@ class TaxiManager(object):
         if not self.has_node(node):
             self.add_taxi(node)
             # Notify new taxi path discovered.
-            self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NEW_TAXI_PATH))
+            self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NEW_TAXI_PATH))
             # Update flight master status.
             data = pack('<QB', flight_master_guid, 1)
-            self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TAXINODE_STATUS, data))
+            self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TAXINODE_STATUS, data))
         else:
             # TODO: Find out how 'Destination Nodes' and 'Known Nodes' fields correlate,
             #  Client does an OR operation between the two, 'destNodesa = knownNodes | destNodes'
@@ -55,7 +55,7 @@ class TaxiManager(object):
                 known_nodes  # Known nodes.
             )
 
-            self.owner.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SHOWTAXINODES, data))
+            self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SHOWTAXINODES, data))
 
     def handle_node_status_query(self, flight_master_guid, node):
         data = pack(
@@ -65,7 +65,7 @@ class TaxiManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_TAXINODE_STATUS, data)
-        self.owner.session.enqueue_packet(packet)
+        self.owner.enqueue_packet(packet)
 
     @staticmethod
     def get_nearest_taxi_node(player_mgr):

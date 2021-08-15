@@ -13,6 +13,6 @@ class PetitionQueryHandler(object):
             petition = PetitionManager.get_petition(petition_item_guid)
             if petition:
                 packet = PetitionManager.build_petition_query(petition)
-                world_session.player_mgr.session.enqueue_packet(packet)
+                world_session.player_mgr.enqueue_packet(packet)
 
         return 0

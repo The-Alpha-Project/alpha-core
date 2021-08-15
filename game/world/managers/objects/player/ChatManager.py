@@ -77,14 +77,14 @@ class ChatManager(object):
         if receiver.friends_manager.has_ignore(sender.guid):
             sender_packet = ChatManager._get_message_packet(receiver.guid, receiver.chat_flags, message,
                                                             ChatMsgs.CHAT_MSG_IGNORED, lang)
-            sender.session.enqueue_packet(sender_packet)
+            sender.enqueue_packet(sender_packet)
         else:
             sender_packet = ChatManager._get_message_packet(receiver.guid, receiver.chat_flags, message,
                                                             ChatMsgs.CHAT_MSG_WHISPER_INFORM, lang)
-            sender.session.enqueue_packet(sender_packet)
+            sender.enqueue_packet(sender_packet)
             receiver_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
                                                               ChatMsgs.CHAT_MSG_WHISPER, lang)
-            receiver.session.enqueue_packet(receiver_packet)
+            receiver.enqueue_packet(receiver_packet)
 
     @staticmethod
     def _get_message_packet(guid, chat_flags, message, chat_type, lang, channel=None):

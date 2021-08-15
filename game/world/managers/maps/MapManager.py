@@ -1,5 +1,5 @@
 import traceback
-
+import _queue
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
 from game.world.managers.maps.Map import Map
@@ -11,6 +11,8 @@ MAPS = {}
 MAP_LIST = DbcDatabaseManager.map_get_all_ids()
 AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
+PENDING_LOAD = {}
+PENDING_LOAD_QUEUE = _queue.SimpleQueue()
 
 
 # noinspection PyBroadException
@@ -41,7 +43,7 @@ class MapManager(object):
 
     @staticmethod
     def on_cell_turn_active(world_object):
-        MapManager.load_map_tiles(world_object.map_, world_object.location.x, world_object.location.y)
+        MapManager.enqueue_tile_load(world_object.map_, world_object.location.x, world_object.location.y)
 
     @staticmethod
     def validate_maps():
@@ -52,6 +54,28 @@ class MapManager(object):
             return False
 
         return True
+
+    @staticmethod
+    def enqueue_tile_load(map_id, x, y):
+        if not config.Server.Settings.use_map_tiles:
+            return
+
+        x = MapManager.get_tile_x(x)
+        y = MapManager.get_tile_y(y)
+
+        key = f'{map_id},{x},{y}'
+        if key in PENDING_LOAD:
+            return
+
+        PENDING_LOAD[key] = True
+        PENDING_LOAD_QUEUE.put(key)
+
+    @staticmethod
+    def load_pending_tiles():
+        while True:
+            key = PENDING_LOAD_QUEUE.get(block=True, timeout=None)
+            map_id, x, y = str(key).rsplit(',')
+            MapManager.load_map_tiles(map_id, x, y)
 
     @staticmethod
     def load_map_tiles(map_id, x, y):

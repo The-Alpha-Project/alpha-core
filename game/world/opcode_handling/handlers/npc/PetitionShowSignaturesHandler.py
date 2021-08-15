@@ -13,6 +13,6 @@ class PetitionShowSignaturesHandler(object):
 
             if petition:
                 packet = PetitionManager.build_signatures_packet(petition)
-                world_session.player_mgr.session.enqueue_packet(packet)
+                world_session.player_mgr.enqueue_packet(packet)
 
         return 0

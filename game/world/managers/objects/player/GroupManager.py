@@ -116,7 +116,7 @@ class GroupManager(object):
         for member in list(self.members.keys()):
             player_mgr = WorldSessionStateHandler.find_player_by_guid(member)
             if player_mgr:
-                player_mgr.session.enqueue_packet(self._build_group_list(player_mgr))
+                player_mgr.enqueue_packet(self._build_group_list(player_mgr))
 
         self.send_party_members_stats()
 
@@ -194,17 +194,17 @@ class GroupManager(object):
 
                     if was_formed and member_player and disband and not is_kicked and member.guid != player_guid:
                         disband_packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DESTROYED)
-                        member_player.session.enqueue_packet(disband_packet)
+                        member_player.enqueue_packet(disband_packet)
                     elif was_formed and member_player and disband and member.guid != player_guid:
                         disband_packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DESTROYED)
-                        member_player.session.enqueue_packet(disband_packet)
+                        member_player.enqueue_packet(disband_packet)
                     elif was_formed and member_player and not is_kicked:
                         GroupManager.send_group_operation_result(member_player, PartyOperations.PARTY_OP_LEAVE, member_player.player.name,
                                                                  PartyResults.ERR_PARTY_RESULT_OK)
 
                     if member_player and is_kicked and member.guid == player_guid:  # 'You have been removed from the group.' message
                         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_UNINVITE)
-                        member_player.session.enqueue_packet(packet)
+                        member_player.enqueue_packet(packet)
 
         if disband:
             self.flush()
@@ -287,7 +287,7 @@ class GroupManager(object):
         # Notify the money looter 'You distribute <coinage> to your party'.
         data = pack('<QI', looter.guid, int(creature.loot_manager.current_money))
         split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
-        looter.session.enqueue_packet(split_packet)
+        looter.enqueue_packet(split_packet)
 
         # Append div remainder to the player who killed the creature for now.
         remainder = int(creature.loot_manager.current_money % len(surrounding_members))
@@ -295,7 +295,7 @@ class GroupManager(object):
         for member in surrounding_members:
             player_share = share if member != creature.killed_by else share + remainder
             data = pack('<I', player_share)
-            member.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
+            member.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
             member.mod_money(player_share)
 
         creature.loot_manager.clear_money()
@@ -320,7 +320,7 @@ class GroupManager(object):
         kill_log_packet = PacketWriter.get_packet(OpCode.SMSG_PARTYKILLLOG, data)
 
         for member in surrounding_members:
-            member.session.enqueue_packet(kill_log_packet)
+            member.enqueue_packet(kill_log_packet)
             member.quest_manager.reward_creature_or_go(creature)
             member.send_update_self()
 
@@ -334,7 +334,7 @@ class GroupManager(object):
             )
 
             packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
-            player_mgr.session.enqueue_packet(packet)
+            player_mgr.enqueue_packet(packet)
 
     def send_packet_to_members(self, packet, ignore=None, source=None, use_ignore=False, exclude=None, surrounding_only=False):
         if surrounding_only and source:
@@ -355,7 +355,7 @@ class GroupManager(object):
             if use_ignore and source and player_mgr.friends_manager.has_ignore(source.guid):
                 continue
 
-            player_mgr.session.enqueue_packet(packet)
+            player_mgr.enqueue_packet(packet)
 
     def send_minimap_ping(self, player_mgr, x, y):
         data = pack('<Q2f', player_mgr.guid, x, y)
@@ -455,7 +455,7 @@ class GroupManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_INVITE, data)
-        target_player_mgr.session.enqueue_packet(packet)
+        target_player_mgr.enqueue_packet(packet)
 
         GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PARTY_RESULT_OK)
 
@@ -470,7 +470,7 @@ class GroupManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_PARTY_COMMAND_RESULT, data)
-        player.session.enqueue_packet(packet)
+        player.enqueue_packet(packet)
 
     @staticmethod
     def _set_leader_flag(member):

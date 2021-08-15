@@ -55,11 +55,11 @@ class DuelManager(object):
 
             data = pack('<2Q', arbiter.guid, requester.guid)
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_REQUESTED, data)
-            target.session.enqueue_packet(packet)  # '<player> has challenged you to a duel ui box'
+            target.enqueue_packet(packet)  # '<player> has challenged you to a duel ui box'
 
             data = pack('<2Q', arbiter.guid, requester.guid)
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_REQUESTED, data)
-            requester.session.enqueue_packet(packet)  # 'You have requested a duel.' Message
+            requester.enqueue_packet(packet)  # 'You have requested a duel.' Message
 
             for entry in duel_manager.players.values():
                 entry.player.duel_manager = duel_manager
@@ -69,7 +69,7 @@ class DuelManager(object):
             return 1
         else:
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_COMPLETE, pack('<B', DuelComplete.DUEL_CANCELED_INTERRUPTED))
-            requester.session.enqueue_packet(packet)
+            requester.enqueue_packet(packet)
 
             return -1
 
@@ -124,7 +124,7 @@ class DuelManager(object):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT)
         for entry in self.players.values():
-            entry.player.session.enqueue_packet(packet)
+            entry.player.enqueue_packet(packet)
             entry.player.leave_combat()
             self.build_update(entry.player)
             entry.player.set_dirty()
@@ -168,11 +168,11 @@ class DuelManager(object):
                     entry.timer = 10  # 10 seconds to come back.
                     data = pack('<I', entry.timer)
                     packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_OUTOFBOUNDS, data)
-                    entry.player.session.enqueue_packet(packet)  # Notify out of bounds.
+                    entry.player.enqueue_packet(packet)  # Notify out of bounds.
             else:  # In range
                 if entry.duel_status == DuelStatus.DUEL_STATUS_OUTOFBOUNDS:  # Just got in range again, notify
                     entry.duel_status = DuelStatus.DUEL_STATUS_INBOUNDS
-                    entry.player.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_DUEL_INBOUNDS))
+                    entry.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_DUEL_INBOUNDS))
 
     def update(self, player_mgr, elapsed):
         if not self.players or not self.arbiter or self.duel_state != DuelState.DUEL_STATE_STARTED:

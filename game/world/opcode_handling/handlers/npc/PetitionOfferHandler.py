@@ -31,7 +31,7 @@ class PetitionOfferHandler(object):
                     petition = PetitionManager.get_petition(petition_item_guid)
                     if petition:
                         packet = PetitionManager.build_signatures_packet(petition)
-                        target_player_mgr.session.enqueue_packet(packet)
+                        target_player_mgr.enqueue_packet(packet)
                     else:
                         PetitionManager.send_petition_sign_result(world_session.player_mgr, PetitionError.PETITION_UNKNOWN_ERROR)
 
