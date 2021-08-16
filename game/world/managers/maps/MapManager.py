@@ -138,7 +138,7 @@ class MapManager(object):
         if map_id not in MAPS:
             return False
 
-        # We have no tiles for instances.
+        # Some instances don't have tiles, only WMOs; always allow teleporting inside one.
         if map_id > 1:
             return True
 
