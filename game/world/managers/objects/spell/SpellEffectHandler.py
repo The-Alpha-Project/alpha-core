@@ -162,39 +162,22 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_summon_totem(casting_spell, effect, caster, target):
         totem_entry = effect.misc_value
-
-        # TODO Temporary way to spawn creature
-        creature_template = WorldDatabaseManager.creature_get_by_entry(totem_entry)
-        from database.world.WorldModels import SpawnsCreatures
-        instance = SpawnsCreatures()
-        instance.spawn_id = HighGuid.HIGHGUID_UNIT + 1000  # TODO Placeholder GUID
-        instance.map = caster.map_
-        instance.orientation = target.o
-        instance.position_x = target.x
-        instance.position_y = target.y
-        instance.position_z = target.z
-        instance.spawntimesecsmin = 0
-        instance.spawntimesecsmax = 0
-        instance.health_percent = 100
-        instance.mana_percent = 100
-        instance.movement_type = MovementTypes.IDLE
-        instance.spawn_flags = 0
-        instance.visibility_mod = 0
-
+        # TODO Refactor to avoid circular import?
         from game.world.managers.objects.creature.CreatureManager import CreatureManager
-        creature_manager = CreatureManager(
-            creature_template=creature_template,
-            creature_instance=instance
-        )
-        creature_manager.faction = caster.faction
+        creature_manager = CreatureManager.spawn(totem_entry, caster.location, caster.map_,
+                                                 override_faction=caster.faction)
 
-        creature_manager.load()
-        creature_manager.set_dirty()
+        if not creature_manager:
+            return
+
         creature_manager.respawn()
 
         # TODO This should be handled in creature AI instead
         # TODO Totems are not connected to player (pet etc. handling)
-        for spell_id in [creature_template.spell_id1, creature_template.spell_id2, creature_template.spell_id3, creature_template.spell_id4]:
+        for spell_id in [creature_manager.creature_template.spell_id1,
+                         creature_manager.creature_template.spell_id2,
+                         creature_manager.creature_template.spell_id3,
+                         creature_manager.creature_template.spell_id4]:
             if spell_id == 0:
                 break
             creature_manager.spell_manager.handle_cast_attempt(spell_id, creature_manager, creature_manager, 0)
