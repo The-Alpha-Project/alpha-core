@@ -57,7 +57,7 @@ class PlayerLoginHandler(object):
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
                                                              PlayerLoginHandler._get_login_timespeed()))
 
-        world_session.player_mgr.skill_manager.initialize_proficiencies()
+        world_session.player_mgr.skill_manager.load_proficiencies()
         world_session.player_mgr.skill_manager.load_skills()
         world_session.player_mgr.spell_manager.load_spells()
 

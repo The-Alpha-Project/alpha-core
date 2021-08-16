@@ -227,12 +227,11 @@ class SkillManager(object):
         self.build_update()
 
     # Apply armor proficiencies and populate full_proficiency_masks.
-    def initialize_proficiencies(self):
+    def load_proficiencies(self):
         base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.player.race, self.player_mgr.player.class_)
         if not base_info:
             return
 
-        chr_proficiency = base_info.proficiency
         for x in range(1, 17):
             acquire_method = eval(f'chr_proficiency.Proficiency_AcquireMethod_{x}')
             if acquire_method == -1:
@@ -245,7 +244,7 @@ class SkillManager(object):
             curr_mask |= item_subclass_mask
             self.full_proficiency_masks[item_class] = curr_mask
 
-            # Learned proficiencies are applied through passive spells
+            # Learned proficiencies are applied through passive spells.
             if acquire_method != ProficiencyAcquireMethod.ON_CHAR_CREATE:
                 continue
 
