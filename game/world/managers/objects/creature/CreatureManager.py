@@ -17,15 +17,14 @@ from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, \
-    TrainerTypes, AttackTypes
+    TrainerTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.SpellCodes import SpellSchools
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
 class CreatureManager(UnitManager):
-    LAST_USED_GUID = 0
+    CURRENT_HIGHEST_GUID = 0
 
     def __init__(self,
                  creature_template,
@@ -78,8 +77,8 @@ class CreatureManager(UnitManager):
             self.loot_manager = CreatureLootManager(self)
 
         if self.creature_instance:
-            if CreatureManager.LAST_USED_GUID < creature_instance.spawn_id:
-                CreatureManager.LAST_USED_GUID = creature_instance.spawn_id
+            if CreatureManager.CURRENT_HIGHEST_GUID < creature_instance.spawn_id:
+                CreatureManager.CURRENT_HIGHEST_GUID = creature_instance.spawn_id
 
             self.guid = self.generate_object_guid(creature_instance.spawn_id)
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
@@ -108,7 +107,7 @@ class CreatureManager(UnitManager):
             return None
 
         instance = SpawnsCreatures()
-        instance.spawn_id = CreatureManager.LAST_USED_GUID + 1
+        instance.spawn_id = CreatureManager.CURRENT_HIGHEST_GUID + 1
         instance.spawn_entry1 = entry
         instance.map = map_id
         instance.orientation = location.o

@@ -18,16 +18,18 @@ from utils.constants.UpdateFields import ObjectFields, GameObjectFields
 
 
 class GameObjectManager(ObjectManager):
-    LAST_USED_GUID = 0
+    CURRENT_HIGHEST_GUID = 0
 
     def __init__(self,
                  gobject_template,
                  gobject_instance=None,
+                 is_summon=False,
                  **kwargs):
         super().__init__(**kwargs)
 
         self.gobject_template = gobject_template
         self.gobject_instance = gobject_instance
+        self.is_summon = is_summon
 
         if self.gobject_template:
             self.entry = self.gobject_template.entry
@@ -38,8 +40,8 @@ class GameObjectManager(ObjectManager):
             self.faction = self.gobject_template.faction
 
         if gobject_instance:
-            if GameObjectManager.LAST_USED_GUID < gobject_instance.spawn_id:
-                GameObjectManager.LAST_USED_GUID = gobject_instance.spawn_id
+            if GameObjectManager.CURRENT_HIGHEST_GUID < gobject_instance.spawn_id:
+                GameObjectManager.CURRENT_HIGHEST_GUID = gobject_instance.spawn_id
 
             self.guid = self.generate_object_guid(gobject_instance.spawn_id)
             self.state = self.gobject_instance.spawn_state
@@ -70,7 +72,7 @@ class GameObjectManager(ObjectManager):
             return None
 
         instance = SpawnsGameobjects()
-        instance.spawn_id = GameObjectManager.LAST_USED_GUID + 1
+        instance.spawn_id = GameObjectManager.CURRENT_HIGHEST_GUID + 1
         instance.spawn_entry = entry
         instance.spawn_map = map_id
         instance.spawn_rotation0 = 0
@@ -89,7 +91,8 @@ class GameObjectManager(ObjectManager):
 
         gameobject = GameObjectManager(
             gobject_template=go_template,
-            gobject_instance=instance
+            gobject_instance=instance,
+            is_summon=True
         )
         if override_faction > 0:
             gameobject.faction = override_faction
