@@ -227,11 +227,13 @@ class SkillManager(object):
         self.build_update()
 
     # Apply armor proficiencies and populate full_proficiency_masks.
+    # noinspection PyUnusedLocal
     def load_proficiencies(self):
         base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.player.race, self.player_mgr.player.class_)
         if not base_info:
             return
 
+        chr_proficiency = base_info.proficiency
         for x in range(1, 17):
             acquire_method = eval(f'chr_proficiency.Proficiency_AcquireMethod_{x}')
             if acquire_method == -1:
