@@ -85,7 +85,7 @@ class CreatureManager(UnitManager):
             self.location = self.spawn_position.copy()
             self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
-        # All creatures can block, parry and dodge by default
+        # All creatures can block, parry and dodge by default.
         # TODO CANT_BLOCK creature extra flag
         self.has_block_passive = True
         self.has_dodge_passive = True

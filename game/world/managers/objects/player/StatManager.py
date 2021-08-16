@@ -140,7 +140,7 @@ class StatManager(object):
         self.base_stats[UnitStats.SPEED_RUNNING] = self.unit_mgr.running_speed
 
         # Players and creatures have an unchanging base 5% chance to block and parry (before defense skill differences).
-        # As block chance also scales with strength, the value is calculated in update_base_block_chance
+        # As block chance also scales with strength, the value is calculated in update_base_block_chance.
         self.base_stats[UnitStats.PARRY_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100
 
         self.send_attributes()
@@ -496,7 +496,7 @@ class StatManager(object):
 
     def get_intellect_stat_gain_chance_bonus(self):
         gain = self.get_total_stat(UnitStats.INTELLECT) * 0.0002
-        return gain if gain <= 0.10 else 0.10  # Cap at 10% (Guessed in vmangos)
+        return gain if gain <= 0.10 else 0.10  # Cap at 10% (Guessed in VMaNGOS)
 
     def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0):
         # TODO Based on vanilla calculations.

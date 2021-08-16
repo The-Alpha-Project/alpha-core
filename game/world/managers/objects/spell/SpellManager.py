@@ -647,7 +647,7 @@ class SpellManager(object):
         # Channeled spells that require persistent targets.
         if casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNEL_TRACK_TARGET:
             if not casting_spell.targeted_unit_on_cast_start:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)  # Arcane missiles cast only sends self as target but expects an unit target to track
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)  # Arcane missiles cast only sends self as target but expects an unit target to track.
                 return False
             if not casting_spell.spell_caster.can_attack_target(casting_spell.targeted_unit_on_cast_start) and casting_spell.requires_hostile_target():
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
@@ -662,7 +662,7 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
             return False
 
-        if casting_spell.initial_target_is_unit_or_player():  # Orientation checks
+        if casting_spell.initial_target_is_unit_or_player():  # Orientation checks.
             target_is_facing_caster = casting_spell.initial_target.location.has_in_arc(self.unit_mgr.location, math.pi)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID, target_is_facing_caster):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?

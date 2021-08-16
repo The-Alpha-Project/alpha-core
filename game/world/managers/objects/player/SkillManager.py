@@ -191,7 +191,7 @@ class ProficiencyAcquireMethod(IntEnum):
 class Proficiency:
     item_class: int
     item_subclass_mask: int
-    related_skill_ids: dict  # {subclass_mask, skill_id}. -1 if no proficiency exists
+    related_skill_ids: dict  # {subclass_mask, skill_id}. -1 if no proficiency exists.
 
     def __init__(self, item_class, item_subclass_mask, skill_id=-1):
         self.item_class = item_class
@@ -226,7 +226,7 @@ class SkillManager(object):
         self.update_skills_max_value()
         self.build_update()
 
-    # Apply armor proficiencies and populate full_proficiency_masks
+    # Apply armor proficiencies and populate full_proficiency_masks.
     def initialize_proficiencies(self):
         base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.player.race, self.player_mgr.player.class_)
         if not base_info:
@@ -335,7 +335,7 @@ class SkillManager(object):
         if current_unmodified_skill >= maximum_skill:
             return False
 
-        # Magic values from vmangos
+        # Magic values from VMaNGOS.
         if maximum_skill * 0.9 > current_unmodified_skill:
             chance = (maximum_skill * 0.9 * 0.05) / current_unmodified_skill
         else:
@@ -347,7 +347,7 @@ class SkillManager(object):
             if skill_diff_from_max <= 3:
                 chance *= (0.5 / (4 - skill_diff_from_max))
 
-        # Can't find information in patch notes on intellect affecting skill gain, but it's implemented in vmangos.
+        # Can't find information in patch notes on intellect affecting skill gain, but it's implemented in VMaNGOS.
         chance += self.player_mgr.stat_manager.get_intellect_stat_gain_chance_bonus()
 
         if random.random() > chance:
@@ -389,7 +389,7 @@ class SkillManager(object):
         self.set_skill(target_skill_type, current_unmodified_skill + 1)
         self.build_update()
 
-        # Dodge/parry/block chance displayed in the player's abilities depends on current defense skill
+        # Dodge / parry / block chance displayed in the player's abilities depends on current defense skill.
         self.player_mgr.stat_manager.send_defense_bonuses()
 
         self.player_mgr.set_dirty()

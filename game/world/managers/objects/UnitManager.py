@@ -400,12 +400,12 @@ class UnitManager(ObjectManager):
         damage_info.attack_type = attack_type
 
         hit_info = victim.stat_manager.get_attack_result_against_self(self, attack_type,
-                                                                      0.19 if self.has_offhand_weapon() else 0)  # Dual wield penalty
+                                                                      0.19 if self.has_offhand_weapon() else 0)  # Dual wield penalty.
 
         damage_info.damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
         damage_info.clean_damage = damage_info.total_damage = damage_info.damage
         damage_info.hit_info = hit_info
-        damage_info.target_state = VictimStates.VS_WOUND  # Default state on successful attack
+        damage_info.target_state = VictimStates.VS_WOUND  # Default state on successful attack.
 
         if hit_info != HitInfo.SUCCESS:
             damage_info.hit_info = HitInfo.MISS
