@@ -83,7 +83,7 @@ class GameObjectManager(ObjectManager):
         instance.spawn_positionX = location.x
         instance.spawn_positionY = location.y
         instance.spawn_positionZ = location.z
-        if despawn_time < 0:
+        if despawn_time < 1:
             despawn_time = 1
         instance.spawn_spawntimemin = despawn_time
         instance.spawn_spawntimemax = despawn_time
