@@ -241,14 +241,11 @@ class SpellEffectHandler(object):
         if target.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        # The value in SkillLineAbility for languages is equal to "language TEMP",
-        # the proper skill is 1 number below.
         skill = target.skill_manager.get_skill_for_spell_id(casting_spell.spell_entry.ID)
         if not skill:
             return
-        skill_id = skill.ID - 1
 
-        target.skill_manager.add_skill(skill_id)
+        target.skill_manager.add_skill(skill.ID)
 
     # Block/parry/dodge/defense passives have their own effects and no aura. Flag the unit here as being able to block/parry/dodge.
     @staticmethod
