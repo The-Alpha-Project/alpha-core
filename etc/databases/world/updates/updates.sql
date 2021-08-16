@@ -2783,5 +2783,43 @@ begin not atomic
 		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 8, 7, 268, "FIST WEAPON (DND)");
         INSERT INTO applied_updates values ('130820211');
     end if;
+
+    -- 16/08/2021 1
+    if (select count(*) from applied_updates where id='160820211') = 0 then
+        -- Stoneclaw Totem -> Agitating Totem
+        UPDATE `creature_template` SET `name` = 'Agitating Totem' WHERE `entry` = 3579;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem II' WHERE `entry` = 3911;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem III' WHERE `entry` = 3912;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem IV' WHERE `entry` = 3913;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem V' WHERE `entry` = 7398;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem VI' WHERE `entry` = 7399;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem TEST' WHERE `entry` = 14870;
+
+        -- Searing Totem -> Serpent Totem
+        UPDATE `creature_template` SET `name` = 'Serpent Totem' WHERE `entry` = 2523;
+        UPDATE `creature_template` SET `name` = 'Serpent Totem II' WHERE `entry` = 3902;
+        UPDATE `creature_template` SET `name` = 'Serpent Totem III' WHERE `entry` = 3903;
+        UPDATE `creature_template` SET `name` = 'Serpent Totem IV' WHERE `entry` = 3904;
+        UPDATE `creature_template` SET `name` = 'Serpent Totem V' WHERE `entry` = 7400;
+        UPDATE `creature_template` SET `name` = 'Serpent Totem VI' WHERE `entry` = 7402;
+
+        -- Mana Spring Totem -> Mana Totem
+        UPDATE `creature_template` SET `name` = 'Mana Totem' WHERE `entry` = 3573;
+        UPDATE `creature_template` SET `name` = 'Mana Totem II' WHERE `entry` = 7414;
+        UPDATE `creature_template` SET `name` = 'Mana Totem III' WHERE `entry` = 7415;
+        UPDATE `creature_template` SET `name` = 'Mana Totem IV' WHERE `entry` = 7416;
+
+        -- Healing Stream Totem -> Healing Totem
+        UPDATE `creature_template` SET `name` = 'Healing Totem' WHERE `entry` = 3527;
+        UPDATE `creature_template` SET `name` = 'Healing Totem II' WHERE `entry` = 3906;
+        UPDATE `creature_template` SET `name` = 'Healing Totem III' WHERE `entry` = 3907;
+        UPDATE `creature_template` SET `name` = 'Healing Totem IV' WHERE `entry` = 3908;
+        UPDATE `creature_template` SET `name` = 'Healing Totem V' WHERE `entry` = 3909;
+
+        -- Earthbind Totem -> Statis Totem
+        UPDATE `creature_template` SET `name` = 'Statis Totem' WHERE `entry` = 2630;
+
+        insert into applied_updates values ('160820211');
+    end if;
 end $
 delimiter ;
