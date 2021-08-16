@@ -2819,6 +2819,14 @@ begin not atomic
         -- Earthbind Totem -> Statis Totem
         UPDATE `creature_template` SET `name` = 'Statis Totem' WHERE `entry` = 2630;
 
+        -- Visual updates.
+        UPDATE `creature_template` SET `display_id1` = 1421 WHERE `display_id1` = 4588;
+        UPDATE `creature_template` SET `display_id1` = 1529 WHERE `display_id1` = 4589;
+        UPDATE `creature_template` SET `display_id1` = 2030 WHERE `display_id1` = 4587;
+        UPDATE `creature_template` SET `display_id1` = 2418 WHERE `entry` IN (3573, 5927, 7414, 7415, 7416, 10467, 11100, 11101, 12141);
+        UPDATE `creature_template` SET `display_id1` = 2419 WHERE `display_id1` = 4590;
+        UPDATE `creature_template` SET `display_id1` = 2420 WHERE `entry` IN (3580, 6112, 7483, 7484, 7486, 7487, 9687, 9688, 9689, 10183);
+
         insert into applied_updates values ('160820211');
     end if;
 end $
