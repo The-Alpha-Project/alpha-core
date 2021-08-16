@@ -4,7 +4,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.player.GroupManager import GroupManager
 from game.world.managers.objects.player.guild.GuildManager import GuildManager

@@ -280,6 +280,10 @@ class MapManager(object):
             return coord
 
     @staticmethod
+    def get_map(map_id):
+        return MAPS.get(map_id)
+
+    @staticmethod
     def get_grid_manager_by_map_id(map_id):
         if map_id in MAPS:
             return MAPS[map_id].grid_manager

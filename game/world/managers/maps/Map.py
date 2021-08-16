@@ -2,11 +2,10 @@ from enum import IntEnum
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.GridManager import GridManager
-from utils.Logger import Logger
 
 
 class MapType(IntEnum):
-    INSTANCE = 0,
+    INSTANCE = 0
     COMMON = 1
 
 

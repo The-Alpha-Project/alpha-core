@@ -2,7 +2,7 @@ import time
 from random import randint, choice
 from struct import unpack, pack
 
-from database.world.WorldModels import TrainerTemplate, SpellChain
+from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatures
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
@@ -11,6 +11,7 @@ from game.world.managers.objects.UnitManager import UnitManager
 from game.world.managers.objects.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
+from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
@@ -24,18 +25,19 @@ from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
 class CreatureManager(UnitManager):
+    LAST_USED_GUID = 0
 
     def __init__(self,
                  creature_template,
                  creature_instance=None,
+                 is_summon=False,
                  **kwargs):
         super().__init__(**kwargs)
 
         self.creature_template = creature_template
         self.creature_instance = creature_instance
         self.killed_by = None
-
-        self.guid = self.generate_object_guid(creature_instance.spawn_id if creature_instance else 0)
+        self.is_summon = is_summon
 
         if self.creature_template:
             self.entry = self.creature_template.entry
@@ -76,6 +78,10 @@ class CreatureManager(UnitManager):
             self.loot_manager = CreatureLootManager(self)
 
         if self.creature_instance:
+            if CreatureManager.LAST_USED_GUID < creature_instance.spawn_id:
+                CreatureManager.LAST_USED_GUID = creature_instance.spawn_id
+
+            self.guid = self.generate_object_guid(creature_instance.spawn_id)
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
             self.map_ = self.creature_instance.map
             self.spawn_position = Vector(self.creature_instance.position_x,
@@ -93,6 +99,41 @@ class CreatureManager(UnitManager):
 
     def load(self):
         MapManager.update_object(self)
+
+    @staticmethod
+    def spawn(entry, location, map_id, override_faction=0, despawn_time=1):
+        creature_template = WorldDatabaseManager.creature_get_by_entry(entry)
+
+        if not creature_template:
+            return None
+
+        instance = SpawnsCreatures()
+        instance.spawn_id = CreatureManager.LAST_USED_GUID + 1
+        instance.spawn_entry1 = entry
+        instance.map = map_id
+        instance.orientation = location.o
+        instance.position_x = location.x
+        instance.position_y = location.y
+        instance.position_z = location.z
+        instance.health_percent = 100
+        instance.mana_percent = 100
+        if despawn_time < 1:
+            despawn_time = 1
+        instance.spawntimesecsmin = despawn_time
+        instance.spawntimesecsmax = despawn_time
+
+        creature = CreatureManager(
+            creature_template=creature_template,
+            creature_instance=instance,
+            is_summon=True
+        )
+        if override_faction > 0:
+            creature.faction = override_faction
+
+        creature.load()
+        creature.send_update_surrounding()
+
+        return creature
 
     def generate_display_id(self):
         display_id_list = list(filter((0).__ne__, [self.creature_template.display_id1,
@@ -430,12 +471,15 @@ class CreatureManager(UnitManager):
             # Dead
             else:
                 self.respawn_timer += elapsed
-                if self.respawn_timer >= self.respawn_time:
+                if self.respawn_timer >= self.respawn_time and not self.is_summon:
                     self.respawn()
                 # Destroy body when creature is about to respawn
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
                     self.is_spawned = False
-                    MapManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
+                    if self.is_summon:
+                        MapManager.remove_object(self)
+                    else:
+                        MapManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
 
             # Check "dirtiness" to determine if this creature object should be updated yet or not.
             if self.dirty:
@@ -507,6 +551,12 @@ class CreatureManager(UnitManager):
         else:
             self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+
+    def send_update_surrounding(self):
+        update_packet = UpdatePacketFactory.compress_if_needed(
+            PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                    self.get_full_update_packet(is_self=False)))
+        MapManager.send_surrounding(update_packet, self, include_self=False)
 
     # override
     def has_offhand_weapon(self):

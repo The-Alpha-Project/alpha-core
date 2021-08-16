@@ -3,6 +3,7 @@ from math import pi, cos, sin
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager, SpawnsGameobjects
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
@@ -17,6 +18,8 @@ from utils.constants.UpdateFields import ObjectFields, GameObjectFields
 
 
 class GameObjectManager(ObjectManager):
+    LAST_USED_GUID = 0
+
     def __init__(self,
                  gobject_template,
                  gobject_instance=None,
@@ -25,8 +28,6 @@ class GameObjectManager(ObjectManager):
 
         self.gobject_template = gobject_template
         self.gobject_instance = gobject_instance
-
-        self.guid = self.generate_object_guid(gobject_instance.spawn_id if gobject_instance else 0)
 
         if self.gobject_template:
             self.entry = self.gobject_template.entry
@@ -37,6 +38,10 @@ class GameObjectManager(ObjectManager):
             self.faction = self.gobject_template.faction
 
         if gobject_instance:
+            if GameObjectManager.LAST_USED_GUID < gobject_instance.spawn_id:
+                GameObjectManager.LAST_USED_GUID = gobject_instance.spawn_id
+
+            self.guid = self.generate_object_guid(gobject_instance.spawn_id)
             self.state = self.gobject_instance.spawn_state
             self.location.x = self.gobject_instance.spawn_positionX
             self.location.y = self.gobject_instance.spawn_positionY
@@ -55,6 +60,44 @@ class GameObjectManager(ObjectManager):
 
     def load(self):
         MapManager.update_object(self)
+
+    @staticmethod
+    def spawn(entry, location, map_id, override_faction=0, despawn_time=1):
+        go_template, session = WorldDatabaseManager.gameobject_template_get_by_entry(entry)
+        session.close()
+
+        if not go_template:
+            return None
+
+        instance = SpawnsGameobjects()
+        instance.spawn_id = GameObjectManager.LAST_USED_GUID + 1
+        instance.spawn_entry = entry
+        instance.spawn_map = map_id
+        instance.spawn_rotation0 = 0
+        instance.spawn_orientation = 0
+        instance.spawn_rotation2 = 0
+        instance.spawn_rotation1 = 0
+        instance.spawn_rotation3 = 0
+        instance.spawn_positionX = location.x
+        instance.spawn_positionY = location.y
+        instance.spawn_positionZ = location.z
+        if despawn_time < 0:
+            despawn_time = 1
+        instance.spawn_spawntimemin = despawn_time
+        instance.spawn_spawntimemax = despawn_time
+        instance.spawn_state = True
+
+        gameobject = GameObjectManager(
+            gobject_template=go_template,
+            gobject_instance=instance
+        )
+        if override_faction > 0:
+            gameobject.faction = override_faction
+
+        gameobject.load()
+        gameobject.send_update_surrounding()
+
+        return gameobject
 
     def use(self, player):
         if self.gobject_template.type == GameObjectTypes.TYPE_DOOR or \

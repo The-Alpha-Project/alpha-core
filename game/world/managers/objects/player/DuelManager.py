@@ -1,14 +1,11 @@
 from struct import pack
 
-from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import SpawnsGameobjects
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.ConfigManager import config
 from utils.constants.DuelCodes import *
-from utils.constants.MiscCodes import HighGuid
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import PlayerFields, UnitFields
 
@@ -25,7 +22,6 @@ class PlayerDuelInformation(object):
 # TODO: Need to figure a way to make both players hostile to each other while duel is ongoing.
 # TODO: Missing checks before requesting a duel, is the map allow duel, etc.
 class DuelManager(object):
-    ARBITERS_GUID = 4000000  # TODO: Hackfix, We need a way to dynamically generate valid guids for go's
     BOUNDARY_RADIUS = 50
 
     # Both players will share this DuelManager instance.
@@ -201,37 +197,6 @@ class DuelManager(object):
 
     @staticmethod
     def create_arbiter(requester, target, arbiter_entry):
-        go_template, session = WorldDatabaseManager.gameobject_template_get_by_entry(arbiter_entry)
-        session.close()
-
-        if not go_template:
-            return None
-
         in_between_pos = requester.location.get_point_in_middle(target.location)
-
-        # TODO: Need a factory for GO's that also handles guids.
-        instance = SpawnsGameobjects()
-        instance.spawn_id = DuelManager.ARBITERS_GUID
-        instance.spawn_entry = arbiter_entry
-        instance.spawn_map = requester.map_
-        instance.spawn_rotation0 = 0
-        instance.spawn_orientation = 0
-        instance.spawn_rotation2 = 0
-        instance.spawn_rotation1 = 0
-        instance.spawn_rotation3 = 0
-        instance.spawn_positionX = in_between_pos.x
-        instance.spawn_positionY = in_between_pos.y
-        instance.spawn_positionZ = in_between_pos.z
-        instance.spawn_state = True
-        DuelManager.ARBITERS_GUID += 1
-
-        go_arbiter = GameObjectManager(
-            gobject_template=go_template,
-            gobject_instance=instance
-        )
-        go_arbiter.faction = requester.faction
-
-        go_arbiter.load()
-        go_arbiter.send_update_surrounding()  # spawn arbiter
-
-        return go_arbiter
+        return GameObjectManager.spawn(arbiter_entry, in_between_pos, requester.map_,
+                                       override_faction=requester.faction, despawn_time=3600)
