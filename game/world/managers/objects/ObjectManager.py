@@ -79,16 +79,16 @@ class ObjectManager(object):
     def get_object_create_packet(self, is_self=True):
         from game.world.managers.objects import UnitManager
 
-        # Base structure
+        # Base structure.
         data = self._get_base_structure(UpdateTypes.CREATE_OBJECT)
 
-        # Object type
+        # Object type.
         data += pack('<B', self.get_type_id())
 
-        # Movement fields
+        # Movement fields.
         data += self._get_movement_fields()
 
-        # Misc fields
+        # Misc fields.
         combat_unit = UnitManager.UnitManager(self).combat_target if ObjectTypes.TYPE_UNIT in self.object_type else None
         data += pack(
             '<3IQ',
@@ -98,25 +98,25 @@ class ObjectManager(object):
             combat_unit.guid if combat_unit else 0,  # Victim GUID
         )
 
-        # Normal update fields
+        # Normal update fields.
         data += self._get_fields_update()
 
         return data
 
     def get_partial_update_packet(self):
-        # Base structure
+        # Base structure.
         data = self._get_base_structure(UpdateTypes.PARTIAL)
 
-        # Normal update fields
+        # Normal update fields.
         data += self._get_fields_update()
 
         return data
 
     def get_movement_update_packet(self):
-        # Base structure
+        # Base structure.
         data = self._get_base_structure(UpdateTypes.MOVEMENT)
 
-        # Normal update fields
+        # Movement update fields.
         data += self._get_movement_fields()
 
         return data
