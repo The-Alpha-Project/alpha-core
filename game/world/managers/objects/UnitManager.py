@@ -252,9 +252,6 @@ class UnitManager(ObjectManager):
         return True
 
     def attack_stop(self, target_switch=False):
-        if self.combat_target and self.guid in self.combat_target.attackers:
-            self.combat_target.attackers.pop(self.guid, None)
-
         # Clear target
         self.set_current_target(self.guid)
         victim = self.combat_target
