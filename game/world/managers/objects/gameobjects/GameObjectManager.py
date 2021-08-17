@@ -98,8 +98,6 @@ class GameObjectManager(ObjectManager):
             gameobject.faction = override_faction
 
         gameobject.load()
-        gameobject.send_update_surrounding()
-
         return gameobject
 
     def use(self, player):

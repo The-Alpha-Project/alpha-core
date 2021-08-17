@@ -50,8 +50,6 @@ class GridManager(object):
         cell = self.cells.get(world_object.current_cell)
         if cell:
             cell.remove(world_object)
-            cell.send_all_in_range(
-                world_object.get_destroy_packet(), source=world_object, range_=CELL_SIZE)
 
     # TODO: Should cleanup loaded tiles for deactivated cells.
     def deactivate_cells(self):
@@ -247,18 +245,11 @@ class Cell(object):
         return False
 
     def add(self, grid_manager, world_object):
+        world_object.current_cell = self.key
+
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players[world_object.guid] = world_object
-            # Player entered a new cell, notify self with surrounding world_objects.
-            world_object.update_surrounding_on_me()
-
-            # Notify others about self.
-            world_object.send_update_surrounding(world_object.generate_proper_update_packet(
-                create=True if not world_object.is_relocating else False),
-                include_self=False,
-                create=True if not world_object.is_relocating else False,
-                force_inventory_update=True if not world_object.is_relocating else False)
-
+            print(f'{world_object.player.name} entered a new cell.')
             # Set this Cell and surrounding ones as Active
             for cell_key in list(grid_manager.get_surrounding_cell_keys(world_object)):
                 # Do not trigger active cell events and tile loading if this cell was already active.
@@ -274,11 +265,17 @@ class Cell(object):
         elif world_object.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects[world_object.guid] = world_object
 
-        world_object.current_cell = self.key
+        # Player entered a new cell, notify all interested parties.
+        self.update_players(world_object)
 
         # Always trigger cell changed event for players.
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             self.active_cell_callback(world_object)
+
+    def update_players(self, world_object):
+        for player in self.players.values():
+            print(f'Trigger update surrounding on player: {player.player.name}')
+            player.update_surrounding_on_me()
 
     def remove(self, world_object):
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
@@ -287,6 +284,8 @@ class Cell(object):
             self.creatures.pop(world_object.guid, None)
         elif world_object.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects.pop(world_object.guid, None)
+
+        self.update_players(world_object)
 
     def send_all(self, packet, source=None, exclude=None, use_ignore=False):
         for guid, player_mgr in list(self.players.items()):
