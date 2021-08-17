@@ -328,7 +328,8 @@ class EffectTargets:
             position.o = casting_spell.spell_caster.location.o
             return [position]
 
-        return []
+        # Default to initial (self) target position.
+        return [casting_spell.initial_target.location]
 
     # Only used with TARGET_ALL_AROUND_CASTER in A
     @staticmethod
@@ -408,7 +409,6 @@ FRIENDLY_IMPLICIT_TARGETS = [
 
 # Vanilla has separate spell effects for different totem positions
 # Shamans were still a work-in-progress in 0.5.3
-#
 TOTEM_INDICES_BY_TOOL = {
     5176: TotemSlots.TOTEM_SLOT_FIRE,
     5175: TotemSlots.TOTEM_SLOT_EARTH,
