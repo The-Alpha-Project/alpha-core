@@ -15,6 +15,7 @@ from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
+from utils.constants import MiscFlags
 from utils.constants.ItemCodes import InventoryError, InventoryTypes
 from utils.constants.MiscCodes import ObjectTypes, HitInfo
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
@@ -519,7 +520,7 @@ class SpellManager(object):
 
         if self.unit_mgr.channel_object:
             channel_object = MapManager.get_surrounding_gameobject_by_guid(self.unit_mgr, self.unit_mgr.channel_object)
-            if channel_object and channel_object.gobject_template.flags & 64:
+            if channel_object and channel_object.gobject_template.flags & MiscFlags.GameObjectFlags.TRIGGERED:
                 MapManager.remove_object(channel_object)
 
         self.unit_mgr.set_channel_object(0)
