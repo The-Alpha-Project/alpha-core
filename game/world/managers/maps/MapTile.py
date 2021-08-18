@@ -32,7 +32,7 @@ class MapTile(object):
         Logger.debug(f'[Maps] Loading map file: {filename}')
 
         if not path.exists(maps_path):
-            Logger.warning(f'Unable to locate map file: {filename}')
+            Logger.warning(f'Unable to locate map file: {filename}, Map:{self.cell_map} Tile:{self.cell_x},{self.cell_y}')
             return
         else:
             with open(maps_path, "rb") as map_tiles:
