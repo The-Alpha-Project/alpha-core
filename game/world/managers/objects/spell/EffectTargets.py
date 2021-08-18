@@ -4,6 +4,7 @@ from typing import Union, Optional
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.spell.ExtendedSpellData import SummonedObjectPositions
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypes
@@ -313,22 +314,21 @@ class EffectTargets:
     # Positioning depends on effect
     @staticmethod
     def resolve_minion(casting_spell, target_effect):
+        caster_location = casting_spell.spell_caster.location
         if target_effect.effect_type == SpellEffects.SPELL_EFFECT_DUEL:
-            target_player = target_effect.targets.resolved_targets_a[0]
-            position = casting_spell.spell_caster.location.get_point_in_middle(target_player.location)
-            return [position]  # TODO flag is spawned by DuelManager for now
+            target_location = target_effect.targets.resolved_targets_a[0]
+            # TODO flag is spawned by DuelManager for now
+            return [SummonedObjectPositions.get_position_for_duel_flag(caster_location, target_location)]
 
         elif target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_TOTEM:
-            totem_slot = TOTEM_INDICES_BY_TOOL[casting_spell.get_required_tools()[0]]
-            totem_angle = math.pi / float(TotemSlots.MAX_TOTEM_SLOT) - (
-                        totem_slot * 2 * math.pi / float(TotemSlots.MAX_TOTEM_SLOT))
+            totem_id = casting_spell.get_required_tools()[0]
+            return [SummonedObjectPositions.get_position_for_totem(totem_id, caster_location)]
 
-            totem_angle += casting_spell.spell_caster.location.o  # Orientation
-            position = Vector(2 * math.cos(totem_angle), 2 * math.sin(totem_angle)) + casting_spell.spell_caster.location
-            position.o = casting_spell.spell_caster.location.o
-            return [position]
+        elif target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_OBJECT:
+            return SummonedObjectPositions.get_position_for_object(target_effect.misc_value, caster_location)
 
-        return []
+        # Default to initial (self) target position.
+        return [casting_spell.initial_target.location]
 
     # Only used with TARGET_ALL_AROUND_CASTER in A
     @staticmethod
@@ -405,13 +405,3 @@ FRIENDLY_IMPLICIT_TARGETS = [
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY,  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
     # SpellImplicitTargets.TARGET_SCRIPT = 38  # Resolved separately
 ]
-
-# Vanilla has separate spell effects for different totem positions
-# Shamans were still a work-in-progress in 0.5.3
-#
-TOTEM_INDICES_BY_TOOL = {
-    5176: TotemSlots.TOTEM_SLOT_FIRE,
-    5175: TotemSlots.TOTEM_SLOT_EARTH,
-    5177: TotemSlots.TOTEM_SLOT_WATER,
-    5178: TotemSlots.TOTEM_SLOT_AIR,
-}

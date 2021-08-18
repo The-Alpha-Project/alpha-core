@@ -1,6 +1,8 @@
+import math
 from typing import Optional
 
-from utils.constants.SpellCodes import ShapeshiftForms
+from game.world.managers.abstractions.Vector import Vector
+from utils.constants.SpellCodes import ShapeshiftForms, TotemSlots
 from utils.constants.UnitCodes import Teams
 
 
@@ -95,3 +97,51 @@ class CastPositionRestrictions:
         if spell_id in CastPositionRestrictions.CASTABLE_FROM_FRONT:
             return facing_target
         return True
+
+
+class SummonedObjectPositions:
+    # Vanilla has separate spell effects for different totem positions.
+    # Shamans were still a work-in-progress in 0.5.3.
+    TOTEM_INDICES_BY_TOOL = {
+        5176: TotemSlots.TOTEM_SLOT_FIRE,
+        5175: TotemSlots.TOTEM_SLOT_EARTH,
+        5177: TotemSlots.TOTEM_SLOT_WATER,
+        5178: TotemSlots.TOTEM_SLOT_AIR,
+    }
+
+    FRONT_SUMMONED_OBJECTS = (
+        36727,  # Ritual of Summoning
+        29784,  # Basic Campfire
+        31511  # Bright Campfire
+    )
+
+    @staticmethod
+    def get_position_for_object(object_id, caster_location):
+        if object_id in SummonedObjectPositions.FRONT_SUMMONED_OBJECTS:
+            return SummonedObjectPositions.get_position_in_front(caster_location)
+        return caster_location
+
+    @staticmethod
+    def get_position_for_totem(totem_tool_id, caster_location):
+        totem_slot = SummonedObjectPositions.TOTEM_INDICES_BY_TOOL.get(totem_tool_id, -1)
+        if totem_slot == -1:
+            return
+
+        totem_angle = math.pi / float(TotemSlots.MAX_TOTEM_SLOT) - (
+                totem_slot * 2 * math.pi / float(TotemSlots.MAX_TOTEM_SLOT))
+
+        totem_angle += caster_location.o  # Orientation
+        position = Vector(2 * math.cos(totem_angle), 2 * math.sin(totem_angle)) + caster_location
+        position.o = caster_location.o
+        return position
+
+    @staticmethod
+    def get_position_for_duel_flag(caster_location, target_location):
+        return caster_location.get_point_in_middle(target_location)
+
+    @staticmethod
+    def get_position_in_front(caster_location):
+        orientation = caster_location.o
+        position = Vector(math.cos(orientation) * 2, math.sin(orientation) * 2) + caster_location
+        position.o = orientation
+        return position

@@ -119,10 +119,11 @@ class SpellManager(object):
             return spell
         return spell if self.validate_cast(spell) else None
 
-    def start_spell_cast(self, spell, caster, spell_target, target_mask, source_item=None,
-                         initialized_spell=None, is_trigger=False, force_cast=False):
-        casting_spell = self.try_initialize_spell(spell, caster, spell_target, target_mask, source_item,
-                                                  validate=not force_cast) if not initialized_spell else initialized_spell
+    def start_spell_cast(self, spell=None, caster=None, spell_target=None, target_mask=SpellTargetMask.SELF, source_item=None,
+                         initialized_spell=None, is_trigger=False):
+        casting_spell = self.try_initialize_spell(spell, caster, spell_target, target_mask, source_item) \
+            if not initialized_spell else initialized_spell
+
         if not casting_spell:
             return
 
@@ -375,7 +376,8 @@ class SpellManager(object):
         for casting_spell in list(self.casting_spells):
             if spell_id != casting_spell.spell_entry.ID:
                 continue
-            self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted)
+            result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED if interrupted else SpellCheckCastResult.SPELL_NO_ERROR
+            self.remove_cast(casting_spell, result, interrupted)
 
     def remove_all_casts(self, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
         for casting_spell in list(self.casting_spells):
@@ -515,6 +517,11 @@ class SpellManager(object):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
+        if self.unit_mgr.channel_object:
+            channel_object = MapManager.get_surrounding_gameobject_by_guid(self.unit_mgr, self.unit_mgr.channel_object)
+            if channel_object and channel_object.gobject_template.flags & 64:
+                MapManager.remove_object(channel_object)
+
         self.unit_mgr.set_channel_object(0)
         self.unit_mgr.set_channel_spell(0)
         self.unit_mgr.set_dirty()
@@ -630,7 +637,8 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
 
-        if not casting_spell.source_item and self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
+        if not casting_spell.source_item and casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING and \
+                self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
                 (not casting_spell.spell_entry or casting_spell.spell_entry.ID not in self.spells):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
             return False
@@ -667,6 +675,20 @@ class SpellManager(object):
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID, target_is_facing_caster):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
                 return False
+
+        # The spell triggered by ritual of summoning has no attributes. Check for known restrictions here.
+        # Note that summoning didn't have many restrictions in 0.5.3. See SpellEffectHandler.handle_summon_player for notes.
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+            target_guid = self.unit_mgr.current_selection
+            target_unit = MapManager.get_surrounding_unit_by_guid(self.unit_mgr, target_guid)
+            if target_unit:
+                if target_unit.get_type() != ObjectTypes.TYPE_PLAYER:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_PLAYER)
+                    return False
+                if not target_unit.group_manager or target_unit.group_manager.is_party_member(self.unit_mgr.guid):
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
+                    return False
+
 
         if not self.meets_casting_requisites(casting_spell):
             return False

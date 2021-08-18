@@ -37,7 +37,11 @@ class TrainerBuySpellHandler(object):
                 else:
                     # TODO Only remove money/points if spell cast was successful.
                     spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_id)
-                    world_session.player_mgr.spell_manager.start_spell_cast(spell=spell_to_cast, caster=world_session.player_mgr, spell_target=world_session.player_mgr, target_mask=0, force_cast=True)
+
+                    initialized_spell = world_session.player_mgr.spell_manager.try_initialize_spell(spell=spell_to_cast, caster_obj=world_session.player_mgr,
+                                                                                                    spell_target=world_session.player_mgr, target_mask=SpellTargetMask.SELF,
+                                                                                                    validate=False)
+                    world_session.player_mgr.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
 
                     world_session.player_mgr.remove_talent_points(talent_cost)
                     world_session.player_mgr.send_update_self(
