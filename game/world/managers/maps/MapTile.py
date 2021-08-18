@@ -33,6 +33,7 @@ class MapTile(object):
 
         if not path.exists(maps_path):
             Logger.warning(f'Unable to locate map file: {filename}')
+            return
         else:
             with open(maps_path, "rb") as map_tiles:
                 version = PacketReader.read_string(map_tiles.read(10), 0)
