@@ -161,7 +161,7 @@ class CommandManager(object):
         try:
             split_args = args.split()
             entry = int(split_args[0])
-            if len(args) > 1:
+            if len(split_args) > 1:
                 count = int(split_args[1])
             else:
                 count = 1
