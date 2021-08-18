@@ -29,7 +29,7 @@ class MapTile(object):
 
         filename = f'{self.cell_map:03}{self.cell_x:02}{self.cell_y:02}.map'
         maps_path = PathManager.get_map_file_path(filename)
-        Logger.debug(f'[Maps] Loading map file: {filename}')
+        Logger.debug(f'[Maps] Loading map file: {filename}, Map:{self.cell_map} Tile:{self.cell_x},{self.cell_y}')
 
         if not path.exists(maps_path):
             Logger.warning(f'Unable to locate map file: {filename}, Map:{self.cell_map} Tile:{self.cell_x},{self.cell_y}')
