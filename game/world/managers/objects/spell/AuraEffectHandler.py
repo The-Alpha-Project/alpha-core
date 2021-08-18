@@ -58,7 +58,7 @@ class AuraEffectHandler:
         new_spell_entry = aura.spell_effect.trigger_spell_entry
         spell = effect_target.spell_manager.try_initialize_spell(new_spell_entry, effect_target, aura.source_spell.initial_target,
                                                                  aura.source_spell.spell_target_mask, validate=False)
-        effect_target.spell_manager.start_spell_cast(None, None, None, None, initialized_spell=spell, is_trigger=True)
+        effect_target.spell_manager.start_spell_cast(initialized_spell=spell, is_trigger=True)
 
     @staticmethod
     def handle_periodic_healing(aura, effect_target, remove):
@@ -119,7 +119,7 @@ class AuraEffectHandler:
                 spell.initial_target = effect_target
                 break
 
-        effect_target.spell_manager.start_spell_cast(None, None, None, None, initialized_spell=spell, is_trigger=True)
+        effect_target.spell_manager.start_spell_cast(initialized_spell=spell, is_trigger=True)
 
     @staticmethod
     def handle_proc_trigger_damage(aura, effect_target, remove):

@@ -1,11 +1,13 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.player.DuelManager import DuelManager
 from game.world.managers.objects.player.SkillManager import SkillTypes, SkillManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes, HighGuid
+from utils.constants.MiscCodes import ObjectTypes, HighGuid, GameObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
 from utils.constants.UnitCodes import PowerTypes, UnitFlags, MovementTypes
 from utils.constants.UpdateFields import UnitFields
@@ -183,6 +185,34 @@ class SpellEffectHandler(object):
             creature_manager.spell_manager.handle_cast_attempt(spell_id, creature_manager, creature_manager, 0)
 
     @staticmethod
+    def handle_summon_object(casting_spell, effect, caster, target):
+        object_entry = effect.misc_value
+        go_manager = GameObjectManager.spawn(object_entry, target, caster.map_, override_faction=caster.faction)
+        casting_spell.spell_caster.set_channel_object(go_manager.guid)
+        casting_spell.spell_caster.set_dirty()
+
+        if go_manager.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
+            go_manager.ritual_caster = caster
+        pass
+
+    @staticmethod
+    def handle_summon_player(casting_spell, effect, caster, target):
+        # Restrictions implemented later:
+        # 0.9: A failed [Ritual of Summoning] should no longer cost a soul shard.
+        # 1.1: Target of summoning ritual must already be in the same instance if caster is in an instance.
+        # 1.1: Summoning gives a confirmation dialog to person being summoned.
+        # 1.3: You can no longer accept a warlock summoning while you are in combat.
+
+        if not caster.group_manager:
+            return
+        summon_target_guid = caster.current_selection
+        if not caster.group_manager.is_party_member(summon_target_guid):
+            return
+
+        player = WorldSessionStateHandler.find_player_by_guid(summon_target_guid)
+        player.teleport(caster.map_, caster.location)
+
+    @staticmethod
     def handle_script_effect(casting_spell, effect, caster, target):
         arcane_missiles = [5143, 5144, 5145, 6125]  # Only arcane missiles and group astral recall.
         group_astral_recall = 966
@@ -279,6 +309,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA: SpellEffectHandler.handle_apply_area_aura,
     SpellEffects.SPELL_EFFECT_SUMMON_TOTEM: SpellEffectHandler.handle_summon_totem,
     SpellEffects.SPELL_EFFECT_SCRIPT_EFFECT: SpellEffectHandler.handle_script_effect,
+    SpellEffects.SPELL_EFFECT_SUMMON_OBJECT: SpellEffectHandler.handle_summon_object,
+    SpellEffects.SPELL_EFFECT_SUMMON_PLAYER: SpellEffectHandler.handle_summon_player,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,
