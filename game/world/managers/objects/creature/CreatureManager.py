@@ -236,9 +236,9 @@ class CreatureManager(UnitManager):
         data = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, train_spell_count) + train_spell_bytes + greeting_bytes
         world_session.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
 
-    def finish_loading(self):
+    def finish_loading(self, reload=False):
         if self.creature_template and self.creature_instance:
-            if not self.fully_loaded:
+            if not self.fully_loaded or reload:
                 creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)
                 if creature_model_info:
                     self.bounding_radius = creature_model_info.bounding_radius
@@ -246,7 +246,7 @@ class CreatureManager(UnitManager):
                     self.gender = creature_model_info.gender
 
                 if self.creature_template.scale == 0:
-                    display_scale = DbcDatabaseManager.creature_display_info_get_by_id(self.current_display_id)
+                    display_scale = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(self.current_display_id)
                     if display_scale and display_scale.CreatureModelScale > 0:
                         self.native_scale = display_scale.CreatureModelScale
                     else:
@@ -256,7 +256,7 @@ class CreatureManager(UnitManager):
                 self.current_scale = self.native_scale
 
                 if self.creature_template.equipment_id > 0:
-                    creature_equip_template = WorldDatabaseManager.creature_get_equipment_by_id(
+                    creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
                         self.creature_template.equipment_id
                     )
                     if creature_equip_template:

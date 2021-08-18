@@ -2829,5 +2829,22 @@ begin not atomic
 
         insert into applied_updates values ('160820211');
     end if;
+
+    -- 18/08/2021 1
+    if (select count(*) from applied_updates where id='180820211') = 0 then
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_entry1` in (4783, 4784, 4786, 10839, 10840, 10856, 10857, 11099, 11102, 11194, 11536);
+
+        insert into applied_updates values ('180820211');
+    end if;
+
+    -- 18/08/2021 2
+    if (select count(*) from applied_updates where id='180820212') = 0 then
+        -- Make all trolls belong to Orgrimmar since Faction 876 doesn't exist and 126 in 0.5.3 means Thunder Bluff, not Darkspear Trolls.
+        UPDATE `creature_template` SET `faction` = 29 WHERE `faction` = 876;
+        -- Same faction template as Vol'jin, Orgrimmar too.
+        UPDATE `creature_template` SET `faction` = 125 WHERE `faction` = 126;
+
+        insert into applied_updates values ('180820212');
+    end if;
 end $
 delimiter ;
