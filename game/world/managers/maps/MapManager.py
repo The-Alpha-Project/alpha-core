@@ -216,7 +216,7 @@ class MapManager(object):
         tile = MAPS[map_id].tiles[map_tile_x][map_tile_y]
 
         # Tile exists and has been initialized, return if it's already valid (finished loading) or not.
-        if tile is not None and tile.initialized and not tile.is_valid:
+        if tile is not None and tile.initialized:
             return tile.is_valid
 
         # Tile does not exist, try to load it.
