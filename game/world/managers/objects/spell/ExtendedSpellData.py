@@ -111,8 +111,8 @@ class SummonedObjectPositions:
 
     FRONT_SUMMONED_OBJECTS = (
         36727,  # Ritual of Summoning
-        818,  # Basic Campfire
-        7359  # Bright Campfire
+        29784,  # Basic Campfire
+        31511  # Bright Campfire
     )
 
     @staticmethod
