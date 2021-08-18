@@ -159,12 +159,13 @@ class CommandManager(object):
     @staticmethod
     def additem(world_session, args):
         try:
-            arguments = args.split()
-            entry = int(arguments[0])
-            try:
-                count = int(arguments[1])
-            except IndexError:
+            split_args = args.split()
+            entry = int(split_args[0])
+            if len(args) > 1:
+                count = int(split_args[1])
+            else:
                 count = 1
+
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             item_mgr = player_mgr.inventory.add_item(entry=entry, count=count)
             if item_mgr:

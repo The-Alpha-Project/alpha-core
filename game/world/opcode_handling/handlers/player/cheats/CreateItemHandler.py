@@ -12,6 +12,6 @@ class CreateItemHandler(object):
                 return 0
 
             item_entry = unpack('<I', reader.data[:4])[0]
-            CommandManager.additem(world_session, item_entry)
+            CommandManager.additem(world_session, str(item_entry))
 
         return 0
