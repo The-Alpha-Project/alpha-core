@@ -1,5 +1,6 @@
 import os
 from collections import defaultdict
+from typing import Optional
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -266,10 +267,22 @@ class DbcDatabaseManager(object):
 
     # CreatureDisplayInfo
 
+    class CreatureDisplayInfoHolder:
+        CREATURE_DISPLAY_INFOS: [int, CreatureDisplayInfo] = {}
+
+        @staticmethod
+        def load_creature_display_info(creature_display_info):
+            DbcDatabaseManager.CreatureDisplayInfoHolder.CREATURE_DISPLAY_INFOS[creature_display_info.ID] \
+                = creature_display_info
+
+        @staticmethod
+        def creature_display_info_get_by_id(display_id) -> Optional[CreatureDisplayInfo]:
+            return DbcDatabaseManager.CreatureDisplayInfoHolder.CREATURE_DISPLAY_INFOS.get(display_id)
+
     @staticmethod
-    def creature_display_info_get_by_id(display_id):
+    def creature_display_info_get_all():
         dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(CreatureDisplayInfo).filter_by(ID=display_id).first()
+        res = dbc_db_session.query(CreatureDisplayInfo).all()
         dbc_db_session.close()
         return res
 
