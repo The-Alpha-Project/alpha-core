@@ -2829,5 +2829,13 @@ begin not atomic
 
         insert into applied_updates values ('160820211');
     end if;
+
+    -- 18/08/2021 1
+    if (select count(*) from applied_updates where id='180820211') = 0 then
+        -- Stoneclaw Totem -> Agitating Totem
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_entry` in (4783, 4784, 4786, 10839, 10840, 10856, 10857, 11099, 11102, 11194, 11536);
+
+        insert into applied_updates values ('180820211');
+    end if;
 end $
 delimiter ;
