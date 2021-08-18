@@ -207,7 +207,7 @@ class MapManager(object):
     def _check_tile_load(map_id, location_x, location_y, map_tile_x, map_tile_y):
         if not config.Server.Settings.use_map_tiles:
             return False
-        
+
         # Check if valid map first.
         if map_id not in MAPS:
             Logger.warning(f'Wrong map, {map_id} not found.')
