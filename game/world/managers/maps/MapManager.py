@@ -208,20 +208,16 @@ class MapManager(object):
         if not config.Server.Settings.use_map_tiles:
             return False
 
-        # Check if valid map first.
+        # Check if the map is valid first.
         if map_id not in MAPS:
             Logger.warning(f'Wrong map, {map_id} not found.')
             return False
 
         tile = MAPS[map_id].tiles[map_tile_x][map_tile_y]
 
-        # Tile exist, has been initialized but its not a valid tile.
+        # Tile exists and has been initialized, return if it's already valid (finished loading) or not.
         if tile is not None and tile.initialized and not tile.is_valid:
-            return False
-
-        # Tile exist, its initialized and it has finished loading its internals.
-        if tile is not None and tile.initialized and tile.is_valid:
-            return True
+            return tile.is_valid
 
         # Tile does not exist, try to load it.
         if tile is None:
