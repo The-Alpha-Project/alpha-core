@@ -155,9 +155,6 @@ class MapManager(object):
     @staticmethod
     def calculate_z(map_id, x, y, current_z=0.0):
         try:
-            if not config.Server.Settings.use_map_tiles:
-                return current_z if current_z else 0.0
-
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, (RESOLUTION_ZMAP - 1))
             x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / SIZE) - map_tile_x) - tile_local_x
             y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / SIZE) - map_tile_y) - tile_local_y
@@ -182,9 +179,6 @@ class MapManager(object):
     @staticmethod
     def get_area_information(map_id, x, y):
         try:
-            if not config.Server.Settings.use_map_tiles:
-                return None
-
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
 
             if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
@@ -198,9 +192,6 @@ class MapManager(object):
     @staticmethod
     def get_liquid_information(map_id, x, y, z):
         try:
-            if not config.Server.Settings.use_map_tiles:
-                return None
-
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
 
             if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
@@ -214,10 +205,13 @@ class MapManager(object):
 
     @staticmethod
     def _check_tile_load(map_id, location_x, location_y, map_tile_x, map_tile_y):
+        if not config.Server.Settings.use_map_tiles:
+            return False
+        
         # Check if valid map first.
         if map_id not in MAPS:
             Logger.warning(f'Wrong map, {map_id} not found.')
-            return None
+            return False
 
         tile = MAPS[map_id].tiles[map_tile_x][map_tile_y]
 
