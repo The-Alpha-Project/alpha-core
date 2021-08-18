@@ -388,6 +388,10 @@ class PlayerManager(UnitManager):
         # If another teleport triggers from a client message, then it will proceed once this TP is done.
         self.update_lock = True
 
+        # Make sure to end duel before starting the teleport process.
+        if self.duel_manager:
+            self.duel_manager.force_duel_end(self)
+
         # New destination we will use when we receive an acknowledge message from client.
         self.teleport_destination_map = map_
         self.teleport_destination = Vector(location.x, location.y, location.z, location.o)
@@ -465,8 +469,6 @@ class PlayerManager(UnitManager):
         self.friends_manager.send_update_to_friends()
         if self.group_manager and self.group_manager.is_party_formed():
             self.group_manager.send_update()
-        if self.duel_manager:
-            self.duel_manager.force_duel_end(self)
 
     def set_root(self, active):
         if not self.session:
