@@ -1,6 +1,7 @@
 import math
 
 from utils.ConfigManager import config
+from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypes
 
 TOLERANCE = 0.00001
@@ -22,7 +23,6 @@ class GridManager(object):
         cell = self.cells.get(cell_coords)
         if not cell:
             cell = Cell(self.active_cell_callback, min_x, min_y, max_x, max_y, world_object.map_)
-            print(f'Adding new cell: {cell.key}')
             self.cells[cell.key] = cell
 
         if store:
@@ -39,17 +39,23 @@ class GridManager(object):
             # If the old cell exist, remove this world object from it.
             if old_cell:
                 old_cell.remove(world_object)
-            # If the old cell belongs to a different map, notify the old gridmanager.
+            # If the old cell belongs to a different GridManager
+            # and we have a cell key, try to remove world_object from old location.
             elif world_object.current_cell:
                 old_map = world_object.current_cell.split(':')[-1]
-                print(f'Cell not found {world_object.current_cell} OldMap {old_map}')
                 old_gridmanager = map_manager.get_grid_manager_by_map_id(int(old_map))
-                old_gridmanager.remove_object(world_object)
+                if old_gridmanager:
+                    old_gridmanager.remove_object(world_object)
+                else:
+                    Logger.warning(f'Unable to locate GridManager for cell: {world_object.current_cell}.')
+            else:
+                Logger.warning(f'Unable to locate cell: {world_object.current_cell}.')
 
             new_cell = self.cells.get(cell_coords)
-            # If the new cell already exists, add this world object, else create the cell and add the world object.
+            # If the new cell already exists, add this world object.
             if new_cell:
                 new_cell.add(self, world_object)
+            # Create the new cell and add the world object.
             else:
                 self.add_or_get(world_object, store=True)
 
@@ -59,8 +65,6 @@ class GridManager(object):
         cell = self.cells.get(world_object.current_cell)
         if cell:
             cell.remove(world_object)
-        else:
-            print('Cell not found.')
 
     # TODO: Should cleanup loaded tiles for deactivated cells.
     def deactivate_cells(self):
@@ -256,12 +260,11 @@ class Cell(object):
         return False
 
     def add(self, grid_manager, world_object):
+        # Update world_object cell so the below messages affect the new cell surroundings.
         world_object.current_cell = self.key
-
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players[world_object.guid] = world_object
-            print(f'Player {world_object.player.name} entered a new cell.')
-            # Set this Cell and surrounding ones as Active
+            # Set this Cell and surrounding ones as Active if needed.
             for cell_key in list(grid_manager.get_surrounding_cell_keys(world_object)):
                 # Do not trigger active cell events and tile loading if this cell was already active.
                 if cell_key not in grid_manager.active_cell_keys:
@@ -276,7 +279,7 @@ class Cell(object):
         elif world_object.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects[world_object.guid] = world_object
 
-        # Player entered a new cell, notify all interested parties.
+        # A world_object entered this cell, notify players.
         self.update_players(world_object)
 
         # Always trigger cell changed event for players.
@@ -284,14 +287,11 @@ class Cell(object):
             self.active_cell_callback(world_object)
 
     def update_players(self, world_object):
-        print(f'Update players on cell: {self.key}')
         for player in self.players.values():
-            print(f'Trigger update surrounding on player: {player.player.name}')
             player.update_surrounding_on_me()
 
     def remove(self, world_object):
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
-            print(f'Removing player {world_object.player.name} from cell.')
             self.players.pop(world_object.guid, None)
         elif world_object.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures.pop(world_object.guid, None)

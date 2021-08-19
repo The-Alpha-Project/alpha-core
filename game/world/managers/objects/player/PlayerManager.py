@@ -306,28 +306,33 @@ class PlayerManager(UnitManager):
             )
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
+    # Notify self with surrounding objects or destroy objects that are no longer in range.
+    # Range = This player current active cell plus its adjacent cells.
     def update_surrounding_on_me(self):
         players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER,
-                                                                                 ObjectTypes.TYPE_UNIT,
-                                                                                 ObjectTypes.TYPE_GAMEOBJECT])
+                                                                              ObjectTypes.TYPE_UNIT,
+                                                                              ObjectTypes.TYPE_GAMEOBJECT])
 
+        # Which objects were found in self surroundings.
         active_objects = dict()
 
-        print(f'{self.player.name} update_surrounding_on_me')
+        # Surrounding players.
         for guid, player in players.items():
             if self.guid != guid:
                 active_objects[guid] = player
                 if guid not in self.known_objects or not self.known_objects[guid]:
-                    print(f'{self.player.name} Requesting update packet from player {player.player.name}')
+                    # We don't know this player, notify self with its update packet.
                     update_packet = player.generate_proper_update_packet(create=True if not player.is_relocating else False)
                     self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
                     self.enqueue_packet(update_packet)
                 self.known_objects[guid] = player
 
+        # Surrounding creatures.
         for guid, creature in creatures.items():
             if creature.is_spawned:
                 active_objects[guid] = creature
                 if guid not in self.known_objects or not self.known_objects[guid]:
+                    # We don't know this creature, notify self with its update packet.
                     update_packet = UpdatePacketFactory.compress_if_needed(
                         PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                 creature.get_full_update_packet(is_self=False)))
@@ -335,10 +340,11 @@ class PlayerManager(UnitManager):
                     self.enqueue_packet(creature.query_details())
             self.known_objects[guid] = creature
 
+        # Surrounding game objects..
         for guid, gobject in game_objects.items():
             active_objects[guid] = gobject
             if guid not in self.known_objects or not self.known_objects[guid]:
-                print('Notifying object.')
+                # We don't know this game object, notify self with its update packet.
                 update_packet = UpdatePacketFactory.compress_if_needed(
                     PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                             gobject.get_full_update_packet(is_self=False)))
@@ -346,14 +352,17 @@ class PlayerManager(UnitManager):
                 self.enqueue_packet(gobject.query_details())
             self.known_objects[guid] = gobject
 
+        # World objects which are known but no longer active to self should be destroyed.
         for guid, known_object in list(self.known_objects.items()):
             if guid not in active_objects:
                 self.destroy_near_object(guid, skip_check=True)
 
+        # Cleanup.
+        active_objects.clear()
+
     def destroy_near_object(self, guid, skip_check=False):
         if skip_check or guid in self.known_objects:
             if self.known_objects[guid] is not None:
-                print(f'Destroying {ObjectTypes(self.known_objects[guid].get_type()).name} from player {self.player.name}')
                 self.enqueue_packet(self.known_objects[guid].get_destroy_packet())
                 del self.known_objects[guid]
                 return True
