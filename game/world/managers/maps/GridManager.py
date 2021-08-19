@@ -280,14 +280,15 @@ class Cell(object):
             self.gameobjects[world_object.guid] = world_object
 
         # A world_object entered this cell, notify players.
-        self.update_players(world_object)
+        self.update_players()
 
         # Always trigger cell changed event for players.
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             self.active_cell_callback(world_object)
 
-    def update_players(self, world_object):
-        for player in self.players.values():
+    # Make each player update its surroundings, adding or removing world objects.
+    def update_players(self):
+        for player in list(self.players.values()):
             player.update_surrounding_on_me()
 
     def remove(self, world_object):
@@ -298,7 +299,7 @@ class Cell(object):
         elif world_object.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects.pop(world_object.guid, None)
 
-        self.update_players(world_object)
+        self.update_players()
 
     def send_all(self, packet, source=None, exclude=None, use_ignore=False):
         for guid, player_mgr in list(self.players.items()):
