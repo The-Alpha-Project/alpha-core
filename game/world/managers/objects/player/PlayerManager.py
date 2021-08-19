@@ -1351,6 +1351,7 @@ class PlayerManager(UnitManager):
                 self.send_update_surrounding(self.generate_proper_update_packet())
                 if self.reset_fields_older_than(now):
                     self.set_dirty(is_dirty=False, dirty_inventory=False)
+            # Not dirty and pending teleport.
             elif not self.dirty and self.pending_teleport_destination:
                 self.trigger_teleport()
 
