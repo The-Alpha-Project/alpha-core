@@ -679,7 +679,7 @@ class SpellManager(object):
 
         # The spell triggered by ritual of summoning has no attributes. Check for known restrictions here.
         # Note that summoning didn't have many restrictions in 0.5.3. See SpellEffectHandler.handle_summon_player for notes.
-        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+        if casting_spell.is_summon_spell() and self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
             target_guid = self.unit_mgr.current_selection
             target_unit = MapManager.get_surrounding_unit_by_guid(self.unit_mgr, target_guid)
             if target_unit:

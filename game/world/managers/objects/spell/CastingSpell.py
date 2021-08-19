@@ -140,6 +140,14 @@ class CastingSpell(object):
 
         return has_sitting_attribute and is_regen_buff
 
+    def is_summon_spell(self):
+        if len(self.effects) == 0:
+            return False
+        for effect in self.effects:
+            if effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_PLAYER:
+                return True
+        return False
+
     def trigger_cooldown_on_aura_remove(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE == SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE
 
