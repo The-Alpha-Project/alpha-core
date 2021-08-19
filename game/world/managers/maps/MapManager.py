@@ -292,7 +292,7 @@ class MapManager(object):
     @staticmethod
     def update_object(world_object):
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
-        grid_manager.update_object(world_object)
+        grid_manager.update_object(world_object, MapManager)
 
     @staticmethod
     def remove_object(world_object):
