@@ -141,8 +141,6 @@ class CastingSpell(object):
         return has_sitting_attribute and is_regen_buff
 
     def is_summon_spell(self):
-        if len(self.effects) == 0:
-            return False
         for effect in self.effects:
             if effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_PLAYER:
                 return True
