@@ -30,24 +30,18 @@ class GridManager(object):
 
         return cell
 
-    def update_object(self, world_object, map_manager):
+    def update_object(self, world_object, old_grid_manager):
         cell_coords = GridManager.get_cell_key(
             world_object.location.x, world_object.location.y, world_object.map_)
 
         if cell_coords != world_object.current_cell:
             old_cell = self.cells.get(world_object.current_cell)
-            # If the old cell exist, remove this world object from it.
+            # If the old cell exists on this GridManager, remove this world object from it.
             if old_cell:
                 old_cell.remove(world_object)
-            # If the old cell belongs to a different GridManager
-            # and we have a cell key, try to remove world_object from old location.
-            elif world_object.current_cell:
-                old_map = world_object.current_cell.split(':')[-1]
-                old_gridmanager = map_manager.get_grid_manager_by_map_id(int(old_map))
-                if old_gridmanager:
-                    old_gridmanager.remove_object(world_object)
-                else:
-                    Logger.warning(f'Unable to locate GridManager for cell: {world_object.current_cell}.')
+            # If the old cell belongs to a different GridManager, try to remove world_object from old location.
+            elif old_grid_manager:
+                old_grid_manager.remove_object(world_object)
 
             new_cell = self.cells.get(cell_coords)
             # If the new cell already exists, add this world object.
