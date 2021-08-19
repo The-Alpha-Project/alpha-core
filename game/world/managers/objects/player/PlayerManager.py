@@ -226,11 +226,14 @@ class PlayerManager(UnitManager):
     def complete_login(self, first_login=False):
         self.online = True
 
+        # Place player in a world cell.
+        MapManager.update_object(self)
+
+        # Calculate stat bonuses at this point.
+        self.stat_manager.apply_bonuses(replenish=first_login)
+
         # Join default channels.
         ChannelManager.join_default_channels(self)
-
-        # Apply stat bonuses
-        self.stat_manager.apply_bonuses(replenish=first_login)
 
         # Init faction status.
         self.reputation_manager.send_initialize_factions()
