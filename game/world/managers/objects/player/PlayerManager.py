@@ -466,9 +466,9 @@ class PlayerManager(UnitManager):
         MapManager.update_object(self)
 
         self.reset_fields_older_than(time.time())
-        self.update_lock = False
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None
+        self.update_lock = False
         self.is_relocating = False
 
         # Update managers.
