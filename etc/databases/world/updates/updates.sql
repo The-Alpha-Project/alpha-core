@@ -2725,5 +2725,241 @@ begin not atomic
         insert into applied_updates values ('070820211');
     end if;
 	
+	-- 13/08/2021 1
+	if (select count(*) from applied_updates where id='130820211') = 0 then
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 1, 1, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 1, 1, 1180, "Daggers");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 1, 2, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 1, 4, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 1, 5, 227, "Staves");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 2, 1, 198, "One-Handed Maces");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 2, 1, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 2, 1, 1180, "Daggers");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 2, 3, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 2, 3, 1180, "Daggers");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 2, 4, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 2, 7, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 3, 1, 201, "One-Handed Swords");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 3, 1, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 3, 1, 1180, "Daggers");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 3, 2, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 3, 3, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 3, 3, 1180, "Daggers");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 3, 5, 227, "Staves");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 4, 1, 196, "One-Handed Axes");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 4, 1, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 4, 3, 196, "One-Handed Axes");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 4, 3, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 4, 4, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 6, 1, 201, "One-Handed Swords");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 6, 1, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 6, 1, 1180, "Daggers");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 6, 3, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 6, 3, 1180, "Daggers");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 6, 7, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 5, 1, 196, "One-Handed Axes");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 5, 1, 198, "One-Handed Maces");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 5, 1, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 5, 4, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 5, 5, 227, "Staves");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 4, 5, 227, "Staves");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 4, 11, 197, "Two-Handed Axes");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 4, 11, 199, "Two-Handed Maces");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 4, 11, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 6, 11, 197, "Two-Handed Axes");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 6, 11, 199, "Two-Handed Maces");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 6, 11, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 3, 4, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 7, 1, 196, "One-Handed Axes");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 7, 1, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 8, 1, 198, "One-Handed Maces");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 8, 1, 201, "One-Handed Swords");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 8, 1, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 7, 4, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 8, 4, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 8, 3, 268, "FIST WEAPON (DND)");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 8, 3, 1180, "Daggers");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 8, 5, 227, "Staves");
+		INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES (default, 8, 7, 268, "FIST WEAPON (DND)");
+        INSERT INTO applied_updates values ('130820211');
+    end if;
+
+    -- 16/08/2021 1
+    if (select count(*) from applied_updates where id='160820211') = 0 then
+        -- Stoneclaw Totem -> Agitating Totem
+        UPDATE `creature_template` SET `name` = 'Agitating Totem' WHERE `entry` = 3579;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem II' WHERE `entry` = 3911;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem III' WHERE `entry` = 3912;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem IV' WHERE `entry` = 3913;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem V' WHERE `entry` = 7398;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem VI' WHERE `entry` = 7399;
+        UPDATE `creature_template` SET `name` = 'Agitating Totem TEST' WHERE `entry` = 14870;
+
+        -- Searing Totem -> Serpent Totem
+        UPDATE `creature_template` SET `name` = 'Serpent Totem' WHERE `entry` = 2523;
+        UPDATE `creature_template` SET `name` = 'Serpent Totem II' WHERE `entry` = 3902;
+        UPDATE `creature_template` SET `name` = 'Serpent Totem III' WHERE `entry` = 3903;
+        UPDATE `creature_template` SET `name` = 'Serpent Totem IV' WHERE `entry` = 3904;
+        UPDATE `creature_template` SET `name` = 'Serpent Totem V' WHERE `entry` = 7400;
+        UPDATE `creature_template` SET `name` = 'Serpent Totem VI' WHERE `entry` = 7402;
+
+        -- Mana Spring Totem -> Mana Totem
+        UPDATE `creature_template` SET `name` = 'Mana Totem' WHERE `entry` = 3573;
+        UPDATE `creature_template` SET `name` = 'Mana Totem II' WHERE `entry` = 7414;
+        UPDATE `creature_template` SET `name` = 'Mana Totem III' WHERE `entry` = 7415;
+        UPDATE `creature_template` SET `name` = 'Mana Totem IV' WHERE `entry` = 7416;
+
+        -- Healing Stream Totem -> Healing Totem
+        UPDATE `creature_template` SET `name` = 'Healing Totem' WHERE `entry` = 3527;
+        UPDATE `creature_template` SET `name` = 'Healing Totem II' WHERE `entry` = 3906;
+        UPDATE `creature_template` SET `name` = 'Healing Totem III' WHERE `entry` = 3907;
+        UPDATE `creature_template` SET `name` = 'Healing Totem IV' WHERE `entry` = 3908;
+        UPDATE `creature_template` SET `name` = 'Healing Totem V' WHERE `entry` = 3909;
+
+        -- Earthbind Totem -> Statis Totem
+        UPDATE `creature_template` SET `name` = 'Statis Totem' WHERE `entry` = 2630;
+
+        -- Visual updates.
+        UPDATE `creature_template` SET `display_id1` = 1421 WHERE `display_id1` = 4588;
+        UPDATE `creature_template` SET `display_id1` = 1529 WHERE `display_id1` = 4589;
+        UPDATE `creature_template` SET `display_id1` = 2030 WHERE `display_id1` = 4587;
+        UPDATE `creature_template` SET `display_id1` = 2418 WHERE `entry` IN (3573, 5927, 7414, 7415, 7416, 10467, 11100, 11101, 12141);
+        UPDATE `creature_template` SET `display_id1` = 2419 WHERE `display_id1` = 4590;
+        UPDATE `creature_template` SET `display_id1` = 2420 WHERE `entry` IN (3580, 6112, 7483, 7484, 7486, 7487, 9687, 9688, 9689, 10183);
+
+        insert into applied_updates values ('160820211');
+    end if;
+
+    -- 18/08/2021 1
+    if (select count(*) from applied_updates where id='180820211') = 0 then
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_entry1` in (4783, 4784, 4786, 10839, 10840, 10856, 10857, 11099, 11102, 11194, 11536);
+
+        insert into applied_updates values ('180820211');
+    end if;
+
+    -- 18/08/2021 2
+    if (select count(*) from applied_updates where id='180820212') = 0 then
+        -- Make all trolls belong to Orgrimmar since Faction 876 doesn't exist and 126 in 0.5.3 means Thunder Bluff, not Darkspear Trolls.
+        UPDATE `creature_template` SET `faction` = 29 WHERE `faction` = 876;
+        -- Same faction template as Vol'jin, Orgrimmar too.
+        UPDATE `creature_template` SET `faction` = 125 WHERE `faction` = 126;
+
+        insert into applied_updates values ('180820212');
+    end if;
+
+ -- 19/08/2021 1
+    if (select count(*) from applied_updates where id ="190820211") = 0 then 
+
+        -- STORMWIND NPC & Spawn & GameObjects fix
+
+        -- # NPC DISPLAY FIX
+          -- Fixing missing displayID of SW NPC, that's not 100% accurate, 
+          -- Based on all screenshots and videos founded in Alpha-Project-Archives
+          -- Some NPC are fom patch 1.12 and dont have her unique displayId (maybe we need remove them ?)
+
+        UPDATE `creature_template` SET `display_id1` = 20 WHERE `entry`=279;
+        UPDATE `creature_template` SET `display_id1` = 2438 WHERE `entry`=1432;
+        UPDATE `creature_template` SET `display_id1`=21 WHERE `entry`=4981;
+        UPDATE `creature_template` SET `display_id1`=375 WHERE `entry`=483;
+        UPDATE `creature_template` SET `display_id1`=3366 WHERE `entry`=6174;
+        UPDATE `creature_template` SET `display_id1`=213 WHERE `entry`=6740;
+        UPDATE `creature_template` SET `display_id1`=3629 WHERE `entry`=11867;
+        UPDATE `creature_template` SET `display_id1`=19 WHERE `entry`=1427;
+        UPDATE `creature_template` SET `display_id1`=86 WHERE `entry`=11096;
+        UPDATE `creature_template` SET `display_id1`=1357 WHERE `entry`=1320;
+        UPDATE `creature_template` SET `display_id1`=2048 WHERE `entry`=6089;
+        UPDATE `creature_template` SET `display_id1`=2032 WHERE `entry`=6090;
+        UPDATE `creature_template` SET `display_id1`=19 WHERE `entry`=340;
+        UPDATE `creature_template` SET `display_id1`=23 WHERE `entry`=1319;
+        UPDATE `creature_template` SET `display_id1`=1688 WHERE `entry`=2439;
+        UPDATE `creature_template` SET `display_id1`=103 WHERE `entry`=2285;
+        UPDATE `creature_template` SET `display_id1`=2197 WHERE `entry`=1752;
+        UPDATE `creature_template` SET `display_id1`=3112 WHERE `entry`=7766;
+        UPDATE `creature_template` SET `display_id1`=3077 WHERE `entry`=5384;
+        UPDATE `creature_template` SET `display_id1`=3047 WHERE `entry`=5413;
+        UPDATE `creature_template` SET `display_id1`=17 WHERE `entry`=7798;
+        UPDATE `creature_template` SET `display_id1`=3121 WHERE `entry`=6579;
+        UPDATE `creature_template` SET `display_id1`=3135 WHERE `entry`=11026;
+        UPDATE `creature_template` SET `display_id1`=3097 WHERE `entry`=7232;
+        UPDATE `creature_template` SET `display_id1`=3093 WHERE `entry`=1416;
+        UPDATE `creature_template` SET `display_id1`=3056 WHERE `entry`=2879;
+        UPDATE `creature_template` SET `display_id1`=3075 WHERE `entry`=1472;
+        UPDATE `creature_template` SET `display_id1`=1498 WHERE `entry`=7779;
+        UPDATE `creature_template` SET `display_id1`=23 WHERE `entry`=1440;
+        UPDATE `creature_template` SET `display_id1`=1435 WHERE `entry`=1141;
+        UPDATE `creature_template` SET `display_id1`=198 WHERE `entry`=5694;
+        UPDATE `creature_template` SET `display_id1`=263 WHERE `entry`=6122;
+        UPDATE `creature_template` SET `display_id1`=2452 WHERE `entry`=1733;
+        UPDATE `creature_template` SET `display_id1`=2518 WHERE `entry`=9584;
+        UPDATE `creature_template` SET `display_id1`=1526 WHERE `entry`=11068;
+        UPDATE `creature_template` SET `display_id1`=1723 WHERE `entry`=7295;
+        UPDATE `creature_template` SET `display_id1`=2245 WHERE `entry`=4984;
+        UPDATE `creature_template` SET `display_id1`=1447 WHERE `entry`=11828;
+        UPDATE `creature_template` SET `display_id1`=1439 WHERE `entry`=11827;
+        UPDATE `creature_template` SET `display_id1`=2216 WHERE `entry`=11397;
+        UPDATE `creature_template` SET `display_id1`=79 WHERE `entry`=8666;
+        UPDATE `creature_template` SET `display_id1`=1573 WHERE `entry`=1444;
+        UPDATE `creature_template` SET `display_id1`=190 WHERE `entry`=1212;
+        UPDATE `creature_template` SET `display_id1`=190 WHERE `entry`=1284;
+        UPDATE `creature_template` SET `display_id1`=1622 WHERE `entry`=6173;
+        UPDATE `creature_template` SET `display_id1`=3702 WHERE `entry`=7917;
+        UPDATE `creature_template` SET `display_id1`=2048 WHERE `entry`=6171;
+        UPDATE `creature_template` SET `display_id1`=20 WHERE `entry`=10782;
+        UPDATE `creature_template` SET `display_id1`=3283 WHERE `entry`=5489;
+        UPDATE `creature_template` SET `display_id1`=18 WHERE `entry`=1257;
+        UPDATE `creature_template` SET `display_id1`=1296 WHERE `entry`=1428;
+        UPDATE `creature_template` SET `display_id1`=2583 WHERE `entry`=1431;
+        UPDATE `creature_template` SET `display_id1`=1855 WHERE `entry`=1750;
+        UPDATE `creature_template` SET `display_id1`=3053 WHERE `entry`=1751;
+        UPDATE `creature_template` SET `display_id1`=3272 WHERE `entry`=4959;
+
+        -- # NPC SPAWN FIX
+            -- SW Inkeeper Alisson 
+        UPDATE `spawns_creatures` SET `position_y`=658.784,`position_x`=-8861.12,`position_z`=96.721 WHERE `spawn_id`=79841;
+
+            -- Guard near SW jail
+        UPDATE `spawns_creatures` SET `position_y`=803.746,`position_z`=99.1425,`position_x`=-8812.03 WHERE `spawn_id`=79819;
+
+
+        -- # NPC SPAWN IGNORED
+           -- White kitten (cat not in 0.5.3 right ? not found any cat model)
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_entry1`=7386;
+        -- DELETE FROM `spawns_creatures` WHERE `spawn_entry1`=7386;
+
+        
+
+        -- # GAMEOBJECTS DISPLAY FIX
+            -- Books from SW Keep library
+        UPDATE `gameobject_template` SET `displayId`=558 WHERE `entry`=175735;
+        
+
+        -- # GAMEOBJECTS SPAWN FIX
+
+            -- TODO : SW Bank left side 
+                -- SW bank structure changed a bit from 1.12 so gameobjects are not in right place
+                -- gameobjects from left side are probably located in the wall because of that
+
+        -- This is right side gameobjects of SW Bank
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8921.01,`spawn_positionY`=649.624 WHERE `spawn_id`=26670;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=645.852,`spawn_positionX`=-8923.88 WHERE `spawn_id`=26669;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8921.88,`spawn_positionY`=646.693 WHERE `spawn_id`=26671;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8927.6,`spawn_positionY`=645.73 WHERE `spawn_id`=26672;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=639.08,`spawn_positionX`=-8935.2 WHERE `spawn_id`=26682;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8937.54,`spawn_positionY`=637.9 WHERE `spawn_id`=26681;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8930.69,`spawn_positionY`=644.002 WHERE `spawn_id`=26668;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=642.4,`spawn_positionX`=-8933.83 WHERE `spawn_id`=26680;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8940.44,`spawn_positionY`=638.97 WHERE `spawn_id`=26678;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=633.937,`spawn_positionX`=-8911.27 WHERE `spawn_id`=26298;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8916.1,`spawn_positionY`=642.515 WHERE `spawn_id`=26293;
+
+
+        -- # GAMEOBJECTS SPAWNS IGNORED 
+            -- Those gameobjects spawns are not part of 0.5.3, so we hide or delete
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_entry` IN (140911, 103795, 2123, 2190, 160444, 164908, 179731, 179728, 24469, 24470, 160442, 24653, 24654, 24686, 160443, 179730, 179733, 179727,179729, 179726, 179734, 179735, 176576, 179737, 179738);
+        -- DELETE FROM `spawns_gameobjects` WHERE `spawn_entry` IN (140911, 103795, 2123, 2190, 160444, 164908, 179731, 179728, 24469, 24470, 160442, 24653, 24654, 24686, 160443, 179730, 179733, 179727,179729, 179726, 179734, 179735, 176576, 179737, 179738);
+
+        insert into applied_updates values('190820211');
+    end if;
+
 end $
 delimiter ;
