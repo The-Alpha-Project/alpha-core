@@ -166,7 +166,7 @@ class SpellEffectHandler(object):
         totem_entry = effect.misc_value
         # TODO Refactor to avoid circular import?
         from game.world.managers.objects.creature.CreatureManager import CreatureManager
-        creature_manager = CreatureManager.spawn(totem_entry, caster.location, caster.map_,
+        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_,
                                                  override_faction=caster.faction)
 
         if not creature_manager:

@@ -125,7 +125,7 @@ class SummonedObjectPositions:
     def get_position_for_totem(totem_tool_id, caster_location):
         totem_slot = SummonedObjectPositions.TOTEM_INDICES_BY_TOOL.get(totem_tool_id, -1)
         if totem_slot == -1:
-            return
+            return caster_location
 
         totem_angle = math.pi / float(TotemSlots.MAX_TOTEM_SLOT) - (
                 totem_slot * 2 * math.pi / float(TotemSlots.MAX_TOTEM_SLOT))
