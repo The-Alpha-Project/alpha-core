@@ -229,13 +229,7 @@ class PlayerManager(UnitManager):
         # Join default channels.
         ChannelManager.join_default_channels(self)
 
-        # Initialize stats first to have existing base stats for further calculations.
-        self.stat_manager.init_stats()
-
-        # Passive spells contain skill and proficiency learning.
-        # Perform passive spell casts after loading skills to avoid duplicate database entries.
-        self.spell_manager.cast_passive_spells()
-        self.skill_manager.init_proficiencies()
+        # Apply stat bonuses
         self.stat_manager.apply_bonuses(replenish=first_login)
 
         # Init faction status.
