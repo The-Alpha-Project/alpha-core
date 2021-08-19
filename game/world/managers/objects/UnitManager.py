@@ -724,7 +724,7 @@ class UnitManager(ObjectManager):
         return True
 
     def mount(self, mount_display_id):
-        if mount_display_id > 0 and DbcDatabaseManager.creature_display_info_get_by_id(mount_display_id):
+        if mount_display_id > 0 and DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):
             self.mount_display_id = mount_display_id
             self.unit_flags |= UnitFlags.UNIT_MASK_MOUNTED
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
@@ -910,7 +910,7 @@ class UnitManager(ObjectManager):
     def set_display_id(self, display_id):
         super().set_display_id(display_id)
         if display_id <= 0 or not \
-                DbcDatabaseManager.creature_display_info_get_by_id(display_id):
+                DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id):
             return
 
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)

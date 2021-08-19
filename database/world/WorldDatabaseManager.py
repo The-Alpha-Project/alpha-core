@@ -281,10 +281,22 @@ class WorldDatabaseManager(object):
         res = world_db_session.query(NpcVendor).filter_by(entry=entry, item=item).first()
         return res, world_db_session
 
+    class CreatureEquipmentHolder:
+        CREATURE_EQUIPMENT: [int, CreatureEquipTemplate] = {}
+
+        @staticmethod
+        def load_creature_equip_template(creature_equip_template):
+            WorldDatabaseManager.CreatureEquipmentHolder.CREATURE_EQUIPMENT[creature_equip_template.entry] \
+                = creature_equip_template
+
+        @staticmethod
+        def creature_get_equipment_by_id(equipment_id) -> Optional[CreatureEquipTemplate]:
+            return WorldDatabaseManager.CreatureEquipmentHolder.CREATURE_EQUIPMENT.get(equipment_id)
+
     @staticmethod
-    def creature_get_equipment_by_id(equipment_id) -> Optional[CreatureEquipTemplate]:
+    def creature_equip_template_get_all() -> Optional[list[CreatureEquipTemplate]]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureEquipTemplate).filter_by(entry=equipment_id).first()
+        res = world_db_session.query(CreatureEquipTemplate).all()
         world_db_session.close()
         return res
 

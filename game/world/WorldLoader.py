@@ -21,23 +21,25 @@ class WorldLoader:
         MapManager.initialize_area_tables()
 
         # Gameobject spawns
-        # if config.Server.Settings.load_gameobjects:
-        #     WorldLoader.load_gameobjects()
-        #     WorldLoader.load_gameobject_loot_templates()
-        # else:
-        #     Logger.info('Skipped game object loading.')
-        #
-        # # Creature spawns
-        # if config.Server.Settings.load_creatures:
-        #     WorldLoader.load_creature_loot_templates()
-        #     WorldLoader.load_creatures()
-        #     WorldLoader.load_creature_quest_starters()
-        #     WorldLoader.load_creature_quest_finishers()
-        #     WorldLoader.load_creature_model_info()
-        #     WorldLoader.load_npc_gossip()
-        #     WorldLoader.load_npc_text()
-        # else:
-        #     Logger.info('Skipped creature loading.')
+        if config.Server.Settings.load_gameobjects:
+            WorldLoader.load_gameobjects()
+            WorldLoader.load_gameobject_loot_templates()
+        else:
+            Logger.info('Skipped game object loading.')
+
+        # Creature spawns
+        if config.Server.Settings.load_creatures:
+            WorldLoader.load_creature_loot_templates()
+            WorldLoader.load_creature_equip_templates()
+            WorldLoader.load_creatures()
+            WorldLoader.load_creature_quest_starters()
+            WorldLoader.load_creature_quest_finishers()
+            WorldLoader.load_creature_display_info()
+            WorldLoader.load_creature_model_info()
+            WorldLoader.load_npc_gossip()
+            WorldLoader.load_npc_text()
+        else:
+            Logger.info('Skipped creature loading.')
 
         WorldLoader.load_item_templates()
         WorldLoader.load_quests()
@@ -75,6 +77,19 @@ class WorldLoader:
             Logger.progress('Spawning gameobjects...', count, length)
 
         session.close()
+        return length
+
+    @staticmethod
+    def load_creature_equip_templates():
+        creature_equip_templates = WorldDatabaseManager.creature_equip_template_get_all()
+        length = len(creature_equip_templates)
+        count = 0
+
+        for creature_equip_template in creature_equip_templates:
+            WorldDatabaseManager.CreatureEquipmentHolder.load_creature_equip_template(creature_equip_template)
+            count += 1
+            Logger.progress('Loading creature equipment templates...', count, length)
+
         return length
 
     @staticmethod
@@ -315,6 +330,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading creature quest finishers...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_display_info():
+        creature_display_infos = DbcDatabaseManager.creature_display_info_get_all()
+        length = len(creature_display_infos)
+        count = 0
+
+        for creature_display_info in creature_display_infos:
+            DbcDatabaseManager.CreatureDisplayInfoHolder.load_creature_display_info(creature_display_info)
+
+            count += 1
+            Logger.progress('Loading creature display info...', count, length)
 
         return length
 
