@@ -406,6 +406,10 @@ class PlayerManager(UnitManager):
         # If another teleport triggers from a client message, then it will proceed once this TP is done.
         self.update_lock = True
 
+        # Make sure to end duel before starting the teleport process.
+        if self.duel_manager:
+            self.duel_manager.force_duel_end(self)
+
         # New destination we will use when we receive an acknowledge message from client.
         self.teleport_destination_map = map_
         self.teleport_destination = Vector(location.x, location.y, location.z, location.o)
@@ -450,10 +454,6 @@ class PlayerManager(UnitManager):
         return True
 
     def spawn_player_from_teleport(self):
-        # Cancel any duel before updating player cell position.
-        if self.duel_manager:
-            self.duel_manager.force_duel_end(self)
-
         # Update new coordinates and map.
         if self.teleport_destination_map != -1 and self.teleport_destination:
             self.map_ = self.teleport_destination_map
