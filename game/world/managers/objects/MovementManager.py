@@ -4,6 +4,7 @@ from typing import NamedTuple
 
 from game.world import WorldManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
@@ -157,6 +158,12 @@ class MovementManager(object):
         # TODO: Below check might not be needed once better path finding is implemented
         # Don't move if the new Z is very different to original Z.
         if math.fabs(start_position.z - random_point.z) > 1.5:
+            return
+
+        # Don't move if the destination is not an active cell.
+        new_cell_coords = GridManager.get_cell_key(random_point.x, random_point.y, self.unit.map_)
+        if self.unit.current_cell != new_cell_coords and not \
+                MapManager.get_grid_manager_by_map_id(self.unit.map_).is_active_cell(new_cell_coords):
             return
 
         self.send_move_to([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)

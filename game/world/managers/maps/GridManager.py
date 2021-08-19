@@ -1,7 +1,6 @@
 import math
 
 from utils.ConfigManager import config
-from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypes
 
 TOLERANCE = 0.00001
@@ -57,6 +56,9 @@ class GridManager(object):
         cell = self.cells.get(world_object.current_cell)
         if cell:
             cell.remove(world_object)
+
+    def is_active_cell(self, cell_key):
+        return cell_key in self.active_cell_keys
 
     # TODO: Should cleanup loaded tiles for deactivated cells.
     def deactivate_cells(self):
