@@ -48,8 +48,6 @@ class GridManager(object):
                     old_gridmanager.remove_object(world_object)
                 else:
                     Logger.warning(f'Unable to locate GridManager for cell: {world_object.current_cell}.')
-            else:
-                Logger.warning(f'Unable to locate cell: {world_object.current_cell}.')
 
             new_cell = self.cells.get(cell_coords)
             # If the new cell already exists, add this world object.
