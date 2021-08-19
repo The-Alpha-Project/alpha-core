@@ -65,9 +65,9 @@ class PlayerManager(UnitManager):
         super().__init__(**kwargs)
 
         self.session = session
-        self.update_lock = False
         self.pending_teleport_destination = None
         self.pending_teleport_destination_map = -1
+        self.update_lock = False
         self.is_relocating = False
         self.known_objects = dict()
 
