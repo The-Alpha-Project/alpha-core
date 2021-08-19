@@ -286,7 +286,7 @@ class Cell(object):
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             self.active_cell_callback(world_object)
 
-    # Make each player update its surroundings, adding or removing world objects.
+    # Make each player update its surroundings, adding or removing world objects as needed.
     def update_players(self):
         for player in list(self.players.values()):
             player.update_surrounding_on_me()
