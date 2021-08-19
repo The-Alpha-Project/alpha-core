@@ -246,14 +246,6 @@ class PlayerManager(UnitManager):
         if self.group_manager:
             self.group_manager.send_update()
 
-        # Notify player with create packet.
-        self.send_update_self(create=True if not self.is_relocating else False,
-                              force_inventory_update=True if not self.is_relocating else False,
-                              reset_fields=True)
-
-        # Place player in a world cell.
-        MapManager.update_object(self)
-
     def logout(self):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
         self.online = False
