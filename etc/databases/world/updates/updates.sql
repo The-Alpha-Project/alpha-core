@@ -2847,7 +2847,7 @@ begin not atomic
         insert into applied_updates values ('180820212');
     end if;
 
-    -- 19/08/2021 1
+    -- 21/08/2021 1
     if (select count(*) from applied_updates where id ="190820211") = 0 then 
 
         -- STORMWIND NPC & Spawn & GameObjects fix
@@ -2859,7 +2859,7 @@ begin not atomic
 
         UPDATE `creature_template` SET `display_id1` = 20 WHERE `entry`=279;
         UPDATE `creature_template` SET `display_id1` = 2438 WHERE `entry`=1432;
-        UPDATE `creature_template` SET `display_id1`=21 WHERE `entry`=4981;
+        UPDATE `creature_template` SET `display_id1`=23 WHERE `entry`=4981;
         UPDATE `creature_template` SET `display_id1`=375 WHERE `entry`=483;
         UPDATE `creature_template` SET `display_id1`=3366 WHERE `entry`=6174;
         UPDATE `creature_template` SET `display_id1`=213 WHERE `entry`=6740;
@@ -2906,12 +2906,13 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1`=2048 WHERE `entry`=6171;
         UPDATE `creature_template` SET `display_id1`=20 WHERE `entry`=10782;
         UPDATE `creature_template` SET `display_id1`=3283 WHERE `entry`=5489;
-        UPDATE `creature_template` SET `display_id1`=18 WHERE `entry`=1257;
         UPDATE `creature_template` SET `display_id1`=1296 WHERE `entry`=1428;
         UPDATE `creature_template` SET `display_id1`=2583 WHERE `entry`=1431;
         UPDATE `creature_template` SET `display_id1`=1855 WHERE `entry`=1750;
         UPDATE `creature_template` SET `display_id1`=3053 WHERE `entry`=1751;
         UPDATE `creature_template` SET `display_id1`=3272 WHERE `entry`=4959;
+        UPDATE `creature_template` SET `display_id1`=1480 WHERE `entry`=1307;
+
 
         -- # NPC SPAWN FIX
             -- SW Inkeeper Alisson 
@@ -2958,7 +2959,7 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_entry` IN (140911, 103795, 2123, 2190, 160444, 164908, 179731, 179728, 24469, 24470, 160442, 24653, 24654, 24686, 160443, 179730, 179733, 179727,179729, 179726, 179734, 179735, 176576, 179737, 179738);
         -- DELETE FROM `spawns_gameobjects` WHERE `spawn_entry` IN (140911, 103795, 2123, 2190, 160444, 164908, 179731, 179728, 24469, 24470, 160442, 24653, 24654, 24686, 160443, 179730, 179733, 179727,179729, 179726, 179734, 179735, 176576, 179737, 179738);
 
-        insert into applied_updates values('190820211');
+        insert into applied_updates values('210820211');
     end if;
 
 end $
