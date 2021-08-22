@@ -16,8 +16,7 @@ from utils import Formulas
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, \
-    TrainerTypes
+from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
 from utils.constants.UpdateFields import ObjectFields, UnitFields
@@ -446,7 +445,15 @@ class CreatureManager(UnitManager):
             if len(self.movement_manager.pending_waypoints) > 0 and self.movement_manager.pending_waypoints[0].location == combat_location:
                 return
 
-            self.movement_manager.send_move_to([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+            if self.is_on_water():
+                # Force destination Z to target Z.
+                combat_location.z = self.combat_target.location.z
+                # TODO: Find how to actually trigger swim animation and which spline flag to use.
+                #  VMangos uses UNIT_FLAG_USE_SWIM_ANIMATION, we don't have that.
+                #  Also, we should check if this creature is able to swim, which flag is that?
+                self.movement_manager.send_move_to([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
+            else:
+                self.movement_manager.send_move_to([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # override
     def update(self):
@@ -591,3 +598,4 @@ class CreatureManager(UnitManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
+

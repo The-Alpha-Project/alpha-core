@@ -1,10 +1,11 @@
 from struct import pack, unpack
 
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid
+from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields \
     import ObjectFields
@@ -272,6 +273,25 @@ class ObjectManager(object):
     # override
     def generate_object_guid(self, low_guid):
         pass
+
+    # override
+    def is_on_water(self):
+        liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
+                                                               self.location.z)
+        map_z = MapManager.calculate_z_for_object(self)
+        return liquid_information and map_z < liquid_information.height
+
+    # override
+    def is_under_water(self):
+        liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
+                                                               self.location.z)
+        return liquid_information and self.location.z + (self.current_scale * 2) < liquid_information.height
+
+    # override
+    def is_in_deep_water(self):
+        liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
+                                                               self.location.z)
+        return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
 
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)
