@@ -773,6 +773,20 @@ class GameobjectLootTemplate(Base):
     item_template = relationship('ItemTemplate')
 
 
+class FishingLootTemplate(Base):
+    __tablename__ = 'fishing_loot_template'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
+    groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
+    maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+    item_template = relationship('ItemTemplate')
+
+
 class ItemLootTemplate(Base):
     __tablename__ = 'item_loot_template'
 
@@ -784,8 +798,8 @@ class ItemLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    item_template = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.entry == ItemTemplate.entry')
-    item_template1 = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.item == ItemTemplate.entry')
+    container = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.entry == ItemTemplate.entry')
+    item_loot = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.item == ItemTemplate.entry')
 
 
 class TrainerTemplate(Base):
@@ -837,22 +851,6 @@ class PickpocketingLootTemplate(Base):
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
     creature = relationship('CreatureTemplate')
-    item_template = relationship('ItemTemplate')
-
-
-class ReferenceLoot(Base):
-    __tablename__ = 'reference_loot'
-
-    entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
-    item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
-    ChanceOrQuestChance = Column(Float, nullable=False, server_default=text("'100'"))
-    groupid = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
-    mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
-    maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
-    lootcondition = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
-    condition_value1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    condition_value2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-
     item_template = relationship('ItemTemplate')
 
 

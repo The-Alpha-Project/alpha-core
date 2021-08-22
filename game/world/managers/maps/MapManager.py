@@ -291,8 +291,14 @@ class MapManager(object):
 
     @staticmethod
     def update_object(world_object):
+        if world_object.current_cell:
+            old_map = int(world_object.current_cell.split(':')[-1])
+            old_grid_manager = MapManager.get_grid_manager_by_map_id(old_map)
+        else:
+            old_grid_manager = None
+
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
-        grid_manager.update_object(world_object)
+        grid_manager.update_object(world_object, old_grid_manager)
 
     @staticmethod
     def remove_object(world_object):

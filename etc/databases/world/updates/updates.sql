@@ -19,7 +19,6 @@ begin not atomic
                (2088, 2784, 0, 3597, -4592.550, -1095.895, 449.043, 2.362, 0, 86400, 86400);
 
         insert into applied_updates values ('210820211');
-    end if;
 
     -- 20/08/2021 2
     if (select count(*) from applied_updates where id='200820212') = 0 then

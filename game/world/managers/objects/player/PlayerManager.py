@@ -65,11 +65,11 @@ class PlayerManager(UnitManager):
         super().__init__(**kwargs)
 
         self.session = session
+        self.pending_teleport_destination = None
+        self.pending_teleport_destination_map = -1
         self.update_lock = False
-        self.teleport_destination = None
-        self.teleport_destination_map = -1
         self.is_relocating = False
-        self.objects_in_range = dict()
+        self.known_objects = dict()
 
         self.player = player
         self.online = online
@@ -226,9 +226,6 @@ class PlayerManager(UnitManager):
     def complete_login(self, first_login=False):
         self.online = True
 
-        # Place player in a world cell.
-        MapManager.update_object(self)
-
         # Calculate stat bonuses at this point.
         self.stat_manager.apply_bonuses(replenish=first_login)
 
@@ -248,6 +245,14 @@ class PlayerManager(UnitManager):
         # If group, notify group members.
         if self.group_manager:
             self.group_manager.send_update()
+
+        # Notify player with create packet.
+        self.send_update_self(create=True if not self.is_relocating else False,
+                              force_inventory_update=True if not self.is_relocating else False,
+                              reset_fields=True)
+
+        # Place player in a world cell.
+        MapManager.update_object(self)
 
     def logout(self):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
@@ -301,51 +306,66 @@ class PlayerManager(UnitManager):
             )
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
+    # Notify self with surrounding objects or destroy objects that are no longer in range.
+    # Range = This player current active cell plus its adjacent cells.
     def update_surrounding_on_me(self):
-        players, creatures, gobjects = MapManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER,
-                                                                                 ObjectTypes.TYPE_UNIT,
-                                                                                 ObjectTypes.TYPE_GAMEOBJECT])
+        players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER,
+                                                                              ObjectTypes.TYPE_UNIT,
+                                                                              ObjectTypes.TYPE_GAMEOBJECT])
 
-        # At this point, all objects aren't synced unless proven otherwise
-        for guid, object_info in list(self.objects_in_range.items()):
-            self.objects_in_range[guid]['synced'] = False
+        # Which objects were found in self surroundings.
+        active_objects = dict()
 
+        # Surrounding players.
         for guid, player in players.items():
             if self.guid != guid:
-                if guid not in self.objects_in_range:
-                    update_packet = player.generate_proper_update_packet(create=True)
-                    self.enqueue_packet(update_packet)
+                active_objects[guid] = player
+                if guid not in self.known_objects or not self.known_objects[guid]:
+                    # We don't know this player, notify self with its update packet.
+                    update_packet = player.generate_proper_update_packet(create=True if not player.is_relocating else False)
                     self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
-                self.objects_in_range[guid] = {'object': player, 'synced': True}
+                    self.enqueue_packet(update_packet)
+                self.known_objects[guid] = player
 
+        # Surrounding creatures.
         for guid, creature in creatures.items():
             if creature.is_spawned:
-                if guid not in self.objects_in_range:
+                active_objects[guid] = creature
+                if guid not in self.known_objects or not self.known_objects[guid]:
+                    # We don't know this creature, notify self with its update packet.
                     update_packet = UpdatePacketFactory.compress_if_needed(
                         PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                 creature.get_full_update_packet(is_self=False)))
                     self.enqueue_packet(update_packet)
                     self.enqueue_packet(creature.query_details())
-            self.objects_in_range[guid] = {'object': creature, 'synced': True}
+            self.known_objects[guid] = creature
 
-        for guid, gobject in gobjects.items():
-            if guid not in self.objects_in_range:
+        # Surrounding game objects..
+        for guid, gobject in game_objects.items():
+            active_objects[guid] = gobject
+            if guid not in self.known_objects or not self.known_objects[guid]:
+                # We don't know this game object, notify self with its update packet.
                 update_packet = UpdatePacketFactory.compress_if_needed(
                     PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                             gobject.get_full_update_packet(is_self=False)))
                 self.enqueue_packet(update_packet)
                 self.enqueue_packet(gobject.query_details())
-            self.objects_in_range[guid] = {'object': gobject, 'synced': True}
+            self.known_objects[guid] = gobject
 
-        for guid, object_info in list(self.objects_in_range.items()):
-            if not object_info['synced']:
+        # World objects which are known but no longer active to self should be destroyed.
+        for guid, known_object in list(self.known_objects.items()):
+            if guid not in active_objects:
                 self.destroy_near_object(guid, skip_check=True)
 
+        # Cleanup.
+        active_objects.clear()
+
     def destroy_near_object(self, guid, skip_check=False):
-        if skip_check or guid in self.objects_in_range:
-            self.enqueue_packet(self.objects_in_range[guid]['object'].get_destroy_packet())
-            del self.objects_in_range[guid]
-            return True
+        if skip_check or guid in self.known_objects:
+            if self.known_objects[guid] is not None:
+                self.enqueue_packet(self.known_objects[guid].get_destroy_packet())
+                del self.known_objects[guid]
+                return True
         return False
 
     def sync_player(self):
@@ -378,21 +398,25 @@ class PlayerManager(UnitManager):
         if not MapManager.validate_teleport_destination(map_, location.x, location.y):
             return False
 
-        # From here on, the update is blocked until the player teleports to a new location.
-        # If another teleport triggers from a client message, then it will proceed once this TP is done.
-        self.update_lock = True
-
         # Make sure to end duel before starting the teleport process.
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
 
+        # TODO: Stop any movement, cancel spell cast, etc.
         # New destination we will use when we receive an acknowledge message from client.
-        self.teleport_destination_map = map_
-        self.teleport_destination = Vector(location.x, location.y, location.z, location.o)
+        self.pending_teleport_destination_map = map_
+        self.pending_teleport_destination = Vector(location.x, location.y, location.z, location.o)
+
+        return True
+
+    def trigger_teleport(self):
+        # From here on, the update is blocked until the player teleports to a new location.
+        # If another teleport triggers from a client message, then it will proceed once this TP is done.
+        self.update_lock = True
 
         # Same map and not inside instance
-        if self.map_ == map_ and self.map_ <= 1:
-            if MapManager.should_relocate(self, self.teleport_destination, map_):
+        if self.map_ == self.pending_teleport_destination_map and self.map_ <= 1:
+            if MapManager.should_relocate(self, self.pending_teleport_destination, self.pending_teleport_destination_map):
                 self.is_relocating = True
 
             data = pack(
@@ -402,10 +426,10 @@ class PlayerManager(UnitManager):
                 self.transport.y,
                 self.transport.z,
                 self.transport.o,
-                location.x,
-                location.y,
-                location.z,
-                location.o,
+                self.pending_teleport_destination.x,
+                self.pending_teleport_destination.y,
+                self.pending_teleport_destination.z,
+                self.pending_teleport_destination.o,
                 0,  # ?
                 MoveFlags.MOVEFLAG_NONE,
             )
@@ -418,45 +442,33 @@ class PlayerManager(UnitManager):
 
             data = pack(
                 '<B4f',
-                map_,
-                location.x,
-                location.y,
-                location.z,
-                location.o
+                self.pending_teleport_destination_map,
+                self.pending_teleport_destination.x,
+                self.pending_teleport_destination.y,
+                self.pending_teleport_destination.z,
+                self.pending_teleport_destination.o
             )
 
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
 
-        return True
-
     def spawn_player_from_teleport(self):
-        if not self.is_relocating:
-            # Remove ourselves from the old location.
-            for guid, player in list(MapManager.get_surrounding_players(self).items()):
-                if self.guid == guid:
-                    continue
-
-                # Always make sure self is destroyed for others
-                if not player.destroy_near_object(self.guid):
-                    player.enqueue_packet(self.get_destroy_packet())
-
         # Update new coordinates and map.
-        if self.teleport_destination_map != -1 and self.teleport_destination:
-            self.map_ = self.teleport_destination_map
-            self.location = Vector(self.teleport_destination.x, self.teleport_destination.y, self.teleport_destination.z, self.teleport_destination.o)
+        if self.pending_teleport_destination_map != -1 and self.pending_teleport_destination:
+            self.map_ = self.pending_teleport_destination_map
+            self.location = Vector(self.pending_teleport_destination.x, self.pending_teleport_destination.y, self.pending_teleport_destination.z, self.pending_teleport_destination.o)
+
+        # Notify player with create packet.
+        self.send_update_self(create=True if not self.is_relocating else False,
+                              force_inventory_update=True if not self.is_relocating else False,
+                              reset_fields=True)
 
         # Get us in a new grid.
         MapManager.update_object(self)
 
-        # Get us in world again.
-        self.send_update_self(create=True if not self.is_relocating else False,
-                              force_inventory_update=True if not self.is_relocating else False,
-                              reset_fields=False)
-
         self.reset_fields_older_than(time.time())
+        self.pending_teleport_destination_map = -1
+        self.pending_teleport_destination = None
         self.update_lock = False
-        self.teleport_destination_map = -1
-        self.teleport_destination = None
         self.is_relocating = False
 
         # Update managers.
@@ -1292,9 +1304,6 @@ class PlayerManager(UnitManager):
         if not self.online:
             return
 
-        # Specify that the player is being updated.
-        self.update_lock = True
-
         now = time.time()
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
@@ -1340,14 +1349,13 @@ class PlayerManager(UnitManager):
             if self.dirty and self.online:
                 self.send_update_self(reset_fields=False)
                 self.send_update_surrounding(self.generate_proper_update_packet())
-                MapManager.update_object(self)
                 if self.reset_fields_older_than(now):
                     self.set_dirty(is_dirty=False, dirty_inventory=False)
+            # Not dirty, has a pending teleport and a teleport is not ongoing.
+            elif not self.dirty and self.pending_teleport_destination and not self.update_lock:
+                self.trigger_teleport()
 
         self.last_tick = now
-
-        # Player object finished being updated.
-        self.update_lock = False
 
     def send_update_self(self, update_packet=None, create=False, force_inventory_update=False, reset_fields=True):
         if not create and (self.dirty_inventory or force_inventory_update):
