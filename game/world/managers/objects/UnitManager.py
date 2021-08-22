@@ -703,7 +703,7 @@ class UnitManager(ObjectManager):
     # override
     def change_speed(self, speed=0):
         # Assign new base speed.
-        self.stat_manager.base_stats[UnitStats.SPEED_RUNNING] = speed
+        self.stat_manager.base_stats[UnitStats.SPEED_RUNNING] = speed if speed > 0 else config.Unit.Defaults.run_speed
         # Get new total speed.
         speed = self.stat_manager.get_total_stat(UnitStats.SPEED_RUNNING)
         # Limit to 0-56 and assign object field.
