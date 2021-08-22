@@ -19,6 +19,7 @@ begin not atomic
                (2088, 2784, 0, 3597, -4592.550, -1095.895, 449.043, 2.362, 0, 86400, 86400);
 
         insert into applied_updates values ('210820211');
+    end if;
 
     -- 20/08/2021 2
     if (select count(*) from applied_updates where id='200820212') = 0 then
@@ -35,8 +36,11 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1`=328 WHERE `entry`=1419;
         UPDATE `creature_template` SET `display_id1`=4449 WHERE `entry`=173;
         UPDATE `creature_template` SET `display_id1`=580 WHERE `entry`=1733;
+        UPDATE `creature_template` SET `display_id1`=213 WHERE `entry`=6740;
 
         -- # NPC SPAWN FIX
+        -- Innkeeper Allison? https://i.imgur.com/6zNt0SK.png
+        UPDATE `spawns_creatures` SET `position_y`=658.784,`position_x`=-8861.12,`position_z`=96.721, `orientation`=5.331 WHERE `spawn_id`=79841;
         -- Jail Guards Z fix
         UPDATE `spawns_creatures` SET `position_z`=99.193 WHERE `spawn_id`=79819;
         UPDATE `spawns_creatures` SET `position_z`=99.126 WHERE `spawn_id`=19272;
@@ -47,7 +51,7 @@ begin not atomic
         -- Lil Timmy
         UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_entry1`=8666;
         -- Innkeepr Allison
-        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=79841;
+        UPDATE `spawns_creatures` SET `ignored`=0 WHERE `spawn_id`=79841;
         -- Lil Timmy
         UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_entry1`=11867;
         -- Woo Ping
@@ -77,5 +81,6 @@ begin not atomic
 
         insert into applied_updates values ('200820212');
     end if;
+
 end $
 delimiter ;
