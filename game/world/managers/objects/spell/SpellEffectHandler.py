@@ -121,7 +121,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
-        # Teleport targets should follow the format (map, Vector)
+        # Teleport targets should follow the format (map, Vector).
         teleport_targets = effect.targets.get_resolved_effect_targets_by_type(tuple)
         if len(teleport_targets) == 0:
             return
@@ -129,11 +129,11 @@ class SpellEffectHandler(object):
         if len(teleport_info) != 2 or not isinstance(teleport_info[1], Vector):
             return
 
-        target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved
+        target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved.
         # TODO Die sides are assigned for at least Word of Recall (ID 1)
 
     @staticmethod
-    def handle_persistent_area_aura(casting_spell, effect, caster, target):  # Ground-targeted aoe
+    def handle_persistent_area_aura(casting_spell, effect, caster, target):  # Ground-targeted aoe.
         if target is not None:
             return
 
