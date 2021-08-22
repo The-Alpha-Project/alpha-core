@@ -50,8 +50,6 @@ begin not atomic
         UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_entry1`=7386;
         -- Lil Timmy
         UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_entry1`=8666;
-        -- Innkeepr Allison
-        UPDATE `spawns_creatures` SET `ignored`=0 WHERE `spawn_id`=79841;
         -- Lil Timmy
         UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_entry1`=11867;
         -- Woo Ping
