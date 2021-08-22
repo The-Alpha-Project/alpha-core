@@ -437,6 +437,13 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    @staticmethod
+    def spell_target_position_get_by_spell(spell_id) -> Optional[SpellTargetPosition]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(SpellTargetPosition).filter_by(id=spell_id).first()
+        world_db_session.close()
+        return res
+
     # Gossip
 
     class QuestGossipHolder:
