@@ -1,6 +1,7 @@
 import math
 from typing import Union, Optional
 
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
@@ -221,7 +222,15 @@ class EffectTargets:
 
     @staticmethod
     def resolve_table_coordinates(casting_spell, target_effect):
-        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        target_position = WorldDatabaseManager.spell_target_position_get_by_spell(casting_spell.spell_entry.ID)
+        if not target_position:
+            Logger.warning(f'Unimplemented target spell position for spell {casting_spell.spell_entry.ID}.')
+            return []
+
+        return target_position.target_map, Vector(target_position.target_position_x,
+                                                  target_position.target_position_y,
+                                                  target_position.target_position_z,
+                                                  target_position.target_orientation)
 
     @staticmethod
     def resolve_effect_select(casting_spell, target_effect):

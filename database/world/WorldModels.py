@@ -826,6 +826,17 @@ class SpellChain(Base):
     req_spell = Column(MEDIUMINT(8), primary_key=False, nullable=False, server_default=text("'0'"))
 
 
+class SpellTargetPosition(Base):
+    __tablename__ = 'spell_target_position'
+
+    id = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("0"))
+    target_map = Column(SMALLINT(5), primary_key=True, nullable=False, server_default=text("0"))
+    target_position_x = Column(Float, nullable=False, server_default=text("0"))
+    target_position_y = Column(Float, nullable=False, server_default=text("0"))
+    target_position_z = Column(Float, nullable=False, server_default=text("0"))
+    target_orientation = Column(Float, nullable=False, server_default=text("0"))
+
+
 class NpcVendor(Base):
     __tablename__ = 'npc_vendor'
 

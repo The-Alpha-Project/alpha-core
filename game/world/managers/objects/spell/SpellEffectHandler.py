@@ -121,7 +121,8 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
-        teleport_targets = effect.targets.get_resolved_effect_targets_by_type(tuple)  # Teleport targets should follow the format (map, Vector)
+        # Teleport targets should follow the format (map, Vector)
+        teleport_targets = effect.targets.get_resolved_effect_targets_by_type(tuple)
         if len(teleport_targets) == 0:
             return
         teleport_info = teleport_targets[0]
@@ -263,7 +264,8 @@ class SpellEffectHandler(object):
 
         target.skill_manager.add_skill(skill.ID)
 
-    # Block/parry/dodge/defense passives have their own effects and no aura. Flag the unit here as being able to block/parry/dodge.
+    # Block/parry/dodge/defense passives have their own effects and no aura.
+    # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
     def handle_block_passive(casting_spell, effect, caster, target):
         target.has_block_passive = True
