@@ -273,6 +273,18 @@ class ObjectManager(object):
     def generate_object_guid(self, low_guid):
         pass
 
+    # override
+    def is_on_water(self):
+        pass
+
+    # override
+    def is_under_water(self):
+        pass
+
+    # override
+    def is_in_deep_water(self):
+        pass
+
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)
         return PacketWriter.get_packet(OpCode.SMSG_DESTROY_OBJECT, data)

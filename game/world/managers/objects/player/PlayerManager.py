@@ -848,11 +848,19 @@ class PlayerManager(UnitManager):
     def is_swimming(self):
         return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING and self.is_alive
 
+    # override
+    def is_on_water(self):
+        self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
+        map_z = MapManager.calculate_z_for_object(self)
+        return self.liquid_information and map_z < self.liquid_information.height
+
+    # override
     def is_under_water(self):
         if self.liquid_information is None or not self.is_swimming():
             return False
         return self.location.z + (self.current_scale * 2) < self.liquid_information.height
 
+    # override
     def is_in_deep_water(self):
         if self.liquid_information is None or not self.is_swimming():
             return False
