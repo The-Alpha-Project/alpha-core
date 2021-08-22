@@ -186,14 +186,21 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_summon_object(casting_spell, effect, caster, target):
+        # If target is a world object instead of a Vector, make sure to use its location instead.
+        if isinstance(target, ObjectManager):
+            target = target.location
+
         object_entry = effect.misc_value
         go_manager = GameObjectManager.spawn(object_entry, target, caster.map_, override_faction=caster.faction)
+        if not go_manager:
+            Logger.error(f'Gameobject with entry {object_entry} not found for spell {casting_spell.spell_entry.ID}.')
+            return
+
         casting_spell.spell_caster.set_channel_object(go_manager.guid)
         casting_spell.spell_caster.set_dirty()
 
         if go_manager.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
             go_manager.ritual_caster = caster
-        pass
 
     @staticmethod
     def handle_summon_player(casting_spell, effect, caster, target):
@@ -311,6 +318,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCRIPT_EFFECT: SpellEffectHandler.handle_script_effect,
     SpellEffects.SPELL_EFFECT_SUMMON_OBJECT: SpellEffectHandler.handle_summon_object,
     SpellEffects.SPELL_EFFECT_SUMMON_PLAYER: SpellEffectHandler.handle_summon_player,
+    SpellEffects.SPELL_EFFECT_CREATE_HOUSE: SpellEffectHandler.handle_summon_object,
+    SpellEffects.SPELL_EFFECT_PORTAL: SpellEffectHandler.handle_summon_object,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,
@@ -322,4 +331,5 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_PROFICIENCY: SpellEffectHandler.handle_add_proficiency,
     SpellEffects.SPELL_EFFECT_LANGUAGE: SpellEffectHandler.handle_add_language
 }
+
 
