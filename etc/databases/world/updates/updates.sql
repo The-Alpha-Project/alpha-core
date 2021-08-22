@@ -35,12 +35,8 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1`=328 WHERE `entry`=1419;
         UPDATE `creature_template` SET `display_id1`=4449 WHERE `entry`=173;
         UPDATE `creature_template` SET `display_id1`=580 WHERE `entry`=1733;
-        UPDATE `creature_template` SET `display_id1`=213 WHERE `entry`=483;
 
         -- # NPC SPAWN FIX
-        -- Elaine Trias was not present in the shop in 0.5.3, and Innkeeper Alliston didn't exist in 0.5.3, so because of
-        -- this screenshot: https://i.imgur.com/6zNt0SK.png we can *guess* that NPC might be Elaine Trias.
-        UPDATE `spawns_creatures` SET `position_y`=658.784,`position_x`=-8861.12,`position_z`=96.721, `orientation`=5.331 WHERE `spawn_id`=79665;
         -- Jail Guards Z fix
         UPDATE `spawns_creatures` SET `position_z`=99.193 WHERE `spawn_id`=79819;
         UPDATE `spawns_creatures` SET `position_z`=99.126 WHERE `spawn_id`=19272;
