@@ -16,8 +16,7 @@ from utils import Formulas
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, \
-    TrainerTypes, LiquidTypes, MoveFlags
+from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
 from utils.constants.UpdateFields import ObjectFields, UnitFields
@@ -600,18 +599,3 @@ class CreatureManager(UnitManager):
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
 
-    # override
-    def is_on_water(self):
-        liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
-        map_z = MapManager.calculate_z_for_object(self)
-        return liquid_information and map_z < liquid_information.height
-
-    # override
-    def is_under_water(self):
-        liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
-        return liquid_information and self.location.z + (self.current_scale * 2) < liquid_information.height
-
-    # override
-    def is_in_deep_water(self):
-        liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
-        return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP

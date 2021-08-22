@@ -1000,18 +1000,6 @@ class UnitManager(ObjectManager):
     def generate_object_guid(self, low_guid):
         return low_guid | HighGuid.HIGHGUID_UNIT
 
-    # override
-    def is_on_water(self):
-        pass
-
-    # override
-    def is_under_water(self):
-        pass
-
-    # override
-    def is_in_deep_water(self):
-        pass
-
     def _allegiance_status_checker(self, target, check_friendly=True):
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)
         target_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(target.faction)
