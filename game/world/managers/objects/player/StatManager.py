@@ -137,7 +137,8 @@ class StatManager(object):
             self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100  # Players don't have a flat dodge/block chance.
             self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100  # Players have block scaling, assign flat 5% to creatures.
 
-        self.base_stats[UnitStats.SPEED_RUNNING] = self.unit_mgr.running_speed
+        # Don't overwrite base speed if it has been modified.
+        self.base_stats[UnitStats.SPEED_RUNNING] = self.base_stats.get(UnitStats.SPEED_RUNNING, config.Unit.Defaults.run_speed)
 
         # Players and creatures have an unchanging base 5% chance to block and parry (before defense skill differences).
         # As block chance also scales with strength, the value is calculated in update_base_block_chance.
