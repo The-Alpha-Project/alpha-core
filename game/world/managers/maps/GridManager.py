@@ -82,10 +82,10 @@ class GridManager(object):
             if update_players:
                 self.update_players(cell.key)
 
-    def update_players(self, cell_key, exclude_cells=()):
+    def update_players(self, cell_key, exclude_cells=set()):
         # Avoid update calls if no players are present.
         if len(self.active_cell_keys) == 0:
-            return ()
+            return set()
 
         affected_cells = set()
         source_cell = self.cells.get(cell_key)
