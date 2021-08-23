@@ -15,60 +15,82 @@ class GridManager(object):
         self.cells = dict()
         self.active_cell_callback = active_cell_callback
 
-    def add_or_get(self, world_object, store=False):
-        min_x, min_y, max_x, max_y = GridManager.generate_coord_data(world_object.location.x, world_object.location.y)
-        cell_coords = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
-        
-        cell = self.cells.get(cell_coords)
+    def get_create_cell(self, world_object):
+        cell_key = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
+        cell = self.cells.get(cell_key)
         if not cell:
-            cell = Cell(self.active_cell_callback, min_x, min_y, max_x, max_y, world_object.map_)
+            min_x, min_y, max_x, max_y = GridManager.generate_coord_data(world_object.location.x, world_object.location.y)
+            cell = Cell(min_x, min_y, max_x, max_y, world_object.map_)
             self.cells[cell.key] = cell
-
-        if store:
-            cell.add(self, world_object)
-
         return cell
 
     def update_object(self, world_object, old_grid_manager):
-        cell_coords = GridManager.get_cell_key(
-            world_object.location.x, world_object.location.y, world_object.map_)
-
         source_cell_key = world_object.current_cell
-        if cell_coords != source_cell_key:
-            old_cell = self.cells.get(world_object.current_cell)
-            # If the old cell exists on this GridManager, remove this world object from it.
-            if old_cell:
-                old_cell.remove(world_object)
-            # If the old cell belongs to a different GridManager, try to remove world_object from old location.
-            elif old_grid_manager:
-                old_grid_manager.remove_object(world_object)
+        current_cell_key = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
 
-            new_cell = self.cells.get(cell_coords)
-            # If the new cell already exists, add this world object.
-            if new_cell:
-                new_cell.add(self, world_object)
-            # Create the new cell and add the world object.
-            else:
-                self.add_or_get(world_object, store=True)
+        # Handle teleport between different maps.
+        if old_grid_manager and old_grid_manager != self:
+            # Remove from old location.
+            old_grid_manager.remove_object(world_object)
+            # Add to new location.
+            self.add_object(world_object)
+        # Handle cell change within the same map.
+        elif current_cell_key != source_cell_key:
+            # Remove from old location and Add to new location.
+            self.remove_object(world_object, update_players=False)
+            self.add_object(world_object, update_players=False)
+            # Update old location surroundings, even if in the same grid, both cells quadrants might not see each other.
+            self.update_players(source_cell_key)
+            # Update new location surroundings.
+            self.update_players(current_cell_key)
 
-            # Update old GridManager if needed using the original cell key.
-            if old_grid_manager:
-                old_grid_manager.update_players(source_cell_key)
-            # Update current GridManager using the new cell key.
-            self.update_players(cell_coords)
-
+        # Notify cell changed if needed.
+        if old_grid_manager and old_grid_manager != self or current_cell_key != source_cell_key:
             world_object.on_cell_change()
 
+    def add_object(self, world_object, update_players=True):
+        cell = self.get_create_cell(world_object)
+        cell.add(self, world_object)
+
+        # Notify surrounding players.
+        if update_players:
+            self.update_players(cell.key)
+
+        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
+            affected_cells = list(self.get_surrounding_cells_by_object(world_object))
+            # Try to load tile maps for affected cells if needed.
+            self.load_maps_for_cells(affected_cells)
+            # Set affected cells as active cells if needed.
+            self.activate_cells(affected_cells)
+
+    def activate_cells(self, cells):
+        for cell in cells:
+            if cell.key not in self.active_cell_keys:
+                self.active_cell_keys.add(cell.key)
+
+    def load_maps_for_cells(self, cells):
+        for cell in cells:
+            if cell.key not in self.active_cell_keys:
+                for creature in list(cell.creatures.values()):
+                    self.active_cell_callback(creature)
+
+    def remove_object(self, world_object, update_players=True):
+        cell = self.cells.get(world_object.current_cell)
+        if cell:
+            cell.remove(world_object)
+            # Notify surrounding players.
+            if update_players:
+                self.update_players(cell.key)
+
     def update_players(self, cell_key):
+        # Avoid update calls if no players are present.
+        if len(self.active_cell_keys) == 0:
+            return
+
         source_cell = self.cells.get(cell_key)
         if source_cell:
             for cell in self.get_surrounding_cells_by_cell(source_cell):
                 cell.update_players()
-
-    def remove_object(self, world_object):
-        cell = self.cells.get(world_object.current_cell)
-        if cell:
-            cell.remove(world_object)
 
     def is_active_cell(self, cell_key):
         return cell_key in self.active_cell_keys
@@ -230,9 +252,8 @@ class GridManager(object):
 
 
 class Cell(object):
-    def __init__(self, active_cell_callback, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, gameobjects=None,
+    def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, gameobjects=None,
                  creatures=None, players=None, key=''):
-        self.active_cell_callback = active_cell_callback
         self.min_x = min_x
         self.min_y = min_y
         self.max_x = max_x
@@ -269,26 +290,13 @@ class Cell(object):
     def add(self, grid_manager, world_object):
         # Update world_object cell so the below messages affect the new cell surroundings.
         world_object.current_cell = self.key
+
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             self.players[world_object.guid] = world_object
-            # Set this Cell and surrounding ones as Active if needed.
-            for cell_key in list(grid_manager.get_surrounding_cell_keys(world_object)):
-                # Do not trigger active cell events and tile loading if this cell was already active.
-                if cell_key not in grid_manager.active_cell_keys:
-                    # Load tile maps of adjacent cells if there's at least one creature on them.
-                    creatures = list(grid_manager.cells[cell_key].creatures.values())
-                    for creature in creatures:
-                        self.active_cell_callback(creature)
-                    grid_manager.active_cell_keys.add(cell_key)
-
         elif world_object.get_type() == ObjectTypes.TYPE_UNIT:
             self.creatures[world_object.guid] = world_object
         elif world_object.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects[world_object.guid] = world_object
-
-        # Always trigger cell changed event for players.
-        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
-            self.active_cell_callback(world_object)
 
     # Make each player update its surroundings, adding or removing world objects as needed.
     def update_players(self):
