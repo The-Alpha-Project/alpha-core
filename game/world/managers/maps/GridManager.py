@@ -40,9 +40,9 @@ class GridManager(object):
             self.remove_object(world_object, update_players=False)
             self.add_object(world_object, update_players=False)
             # Update old location surroundings, even if in the same grid, both cells quadrants might not see each other.
-            self.update_players(source_cell_key)
-            # Update new location surroundings.
-            self.update_players(current_cell_key)
+            affected_cells = self.update_players(source_cell_key)
+            # Update new location surroundings, excluding intersecting cells from previous call.
+            self.update_players(current_cell_key, exclude_cells=affected_cells)
 
         # Notify cell changed if needed.
         if old_grid_manager and old_grid_manager != self or current_cell_key != source_cell_key:
@@ -82,15 +82,20 @@ class GridManager(object):
             if update_players:
                 self.update_players(cell.key)
 
-    def update_players(self, cell_key):
+    def update_players(self, cell_key, exclude_cells=set()):
         # Avoid update calls if no players are present.
         if len(self.active_cell_keys) == 0:
-            return
+            return set()
 
+        affected_cells = set()
         source_cell = self.cells.get(cell_key)
         if source_cell:
             for cell in self.get_surrounding_cells_by_cell(source_cell):
-                cell.update_players()
+                if cell not in exclude_cells:
+                    cell.update_players()
+                    affected_cells.add(cell)
+
+        return affected_cells
 
     def is_active_cell(self, cell_key):
         return cell_key in self.active_cell_keys
