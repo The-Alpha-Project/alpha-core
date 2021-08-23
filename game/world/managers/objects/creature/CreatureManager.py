@@ -449,7 +449,7 @@ class CreatureManager(UnitManager):
                 # Force destination Z to target Z.
                 combat_location.z = self.combat_target.location.z
                 # TODO: Find how to actually trigger swim animation and which spline flag to use.
-                #  VMangos uses UNIT_FLAG_USE_SWIM_ANIMATION, we don't have that.
+                #  VMaNGOS uses UNIT_FLAG_USE_SWIM_ANIMATION, we don't have that.
                 #  Also, we should check if this creature is able to swim, which flag is that?
                 self.movement_manager.send_move_to([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
             else:

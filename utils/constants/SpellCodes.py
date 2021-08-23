@@ -371,7 +371,7 @@ class SpellChannelInterruptFlags(IntEnum):
     CHANNEL_INTERRUPT_FLAG_DAMAGE = 0x04  # Set for all non-zero values
     CHANNEL_INTERRUPT_FLAG_MOVEMENT = 0x08  # Set for all non-zero values
     CHANNEL_INTERRUPT_FLAG_TURNING = 0x10
-    CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT = 0x20  # Set for some - aoe abilites, seduction, fishing etc. Vmangos defines partial interrupt with 0x4000 (CHANNEL_FLAG_DELAY) which doesn't exist in 0.5.3.
+    CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT = 0x20  # Set for some - aoe abilites, seduction, fishing etc. VMaNGOS defines partial interrupt with 0x4000 (CHANNEL_FLAG_DELAY) which doesn't exist in 0.5.3.
 
 
 class SpellAuraInterruptFlags(IntEnum):

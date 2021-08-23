@@ -311,7 +311,7 @@ class AuraEffectHandler:
         misc_value = aura.spell_effect.misc_value  # Spell school
 
         # Fatigued (3271) is the only spell with a negative misc value (-2).
-        # There are no descriptions, but in Vmangos this is handled as all schools.
+        # There are no descriptions, but in VMaNGOS this is handled as all schools.
         # -1 is handled as all magic schools, but doesn't exist in the database.
         if misc_value == -2:
             spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL

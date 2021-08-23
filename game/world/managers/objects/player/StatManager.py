@@ -806,7 +806,7 @@ CLASS_BASE_REGEN_MANA = {
     Classes.CLASS_DRUID: 15.0
 }
 
-# Vmangos
+# VMaNGOS
 CLASS_BASE_DODGE = {
     Classes.CLASS_DRUID: 0.9,
     Classes.CLASS_MAGE: 3.2,
@@ -816,7 +816,7 @@ CLASS_BASE_DODGE = {
     Classes.CLASS_WARLOCK: 2.0
 }
 
-# Vmangos (level 1, level 60)
+# VMaNGOS (level 1, level 60)
 CLASS_AGILITY_SCALING_DODGE = {
     Classes.CLASS_DRUID: (4.6, 20.0),
     Classes.CLASS_PALADIN: (4.6, 20.0),
