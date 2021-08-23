@@ -43,7 +43,7 @@ class GridManager(object):
             # Remove from old location and Add to new location.
             self.remove_object(world_object, update_players=False)
             self.add_object(world_object, update_players=False)
-            # Update old location surroundings, even if in the same grid, both cells might not see each other.
+            # Update old location surroundings, even if in the same grid, both cells quadrants might not see each other.
             self.update_players(source_cell_key)
             # Update new location surroundings.
             self.update_players(current_cell_key)
