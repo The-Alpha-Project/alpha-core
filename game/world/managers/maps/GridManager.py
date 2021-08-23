@@ -57,8 +57,9 @@ class GridManager(object):
         cell.add(self, world_object)
 
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
-            # Initialize map tiles for this player.
-            self.active_cell_callback(world_object)
+            # Initialize map tiles for this player if needed.
+            if cell.key not in self.active_cell_keys:
+                self.active_cell_callback(world_object)
             # Set this Cell and surrounding ones as Active if needed.
             for cell in list(self.get_surrounding_cells_by_object(world_object)):
                 if cell.key not in self.active_cell_keys:
