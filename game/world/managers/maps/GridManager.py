@@ -34,10 +34,6 @@ class GridManager(object):
             old_grid_manager.remove_object(world_object)
             # Add to new location.
             self.add_object(world_object)
-            # Update old location surrounding players.
-            old_grid_manager.update_players(source_cell_key)
-            # Update new location surrounding players.
-            self.update_players(current_cell_key)
         # Handle cell change within the same map.
         elif current_cell_key != source_cell_key:
             # Remove from old location and Add to new location.
