@@ -172,7 +172,7 @@ class CommandManager(object):
                 return 0, ''
             else:
                 return -1, f'unable to find and / or add item id {entry}.'
-        except ValueError:
+        except (IndexError, ValueError):
             return -1, 'please specify a valid item entry and the quantity (optional).'
 
     @staticmethod
