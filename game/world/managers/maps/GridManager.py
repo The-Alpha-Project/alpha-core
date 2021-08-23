@@ -52,21 +52,27 @@ class GridManager(object):
         cell = self.get_create_cell(world_object)
         cell.add(self, world_object)
 
-        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
-            # Initialize map tiles for this player if needed.
-            if cell.key not in self.active_cell_keys:
-                self.active_cell_callback(world_object)
-            # Set this Cell and surrounding ones as Active if needed.
-            for cell in list(self.get_surrounding_cells_by_object(world_object)):
-                if cell.key not in self.active_cell_keys:
-                    # Load tile maps of adjacent cells if there's at least one creature on them.
-                    for creature in list(cell.creatures.values()):
-                        self.active_cell_callback(creature)
-                    self.active_cell_keys.add(cell.key)
-
         # Notify surrounding players.
         if update_players:
             self.update_players(cell.key)
+
+        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
+            affected_cells = list(self.get_surrounding_cells_by_object(world_object))
+            # Try to load tile maps for affected cells if needed.
+            self.load_maps_for_cells(affected_cells)
+            # Set affected cells as active cells if needed.
+            self.activate_cells(affected_cells)
+
+    def activate_cells(self, cells):
+        for cell in cells:
+            if cell.key not in self.active_cell_keys:
+                self.active_cell_keys.add(cell.key)
+
+    def load_maps_for_cells(self, cells):
+        for cell in cells:
+            if cell.key not in self.active_cell_keys:
+                for creature in list(cell.creatures.values()):
+                    self.active_cell_callback(creature)
 
     def remove_object(self, world_object, update_players=True):
         cell = self.cells.get(world_object.current_cell)
