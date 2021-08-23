@@ -438,6 +438,9 @@ class PlayerManager(UnitManager):
 
         # Loading screen
         else:
+            # Always remove the player from world before sending a Loading Screen, preventing unexpected packets
+            # while the screen is still present.
+            MapManager.remove_object(self)
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
 
             data = pack(
