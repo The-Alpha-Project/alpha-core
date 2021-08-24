@@ -199,7 +199,7 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (42931, 42857);
         
 
-        insert into applied_updates values('222211111');
+        insert into applied_updates values('240820211');
     end if;
 end $
 delimiter ;
