@@ -96,5 +96,110 @@ begin not atomic
 
         insert into applied_updates values ('230820211');
     end if;
+
+    -- 24/08/2021 1
+    if (select count(*) from applied_updates where id='240820211') = 0 then
+
+        -- # SW NPC Display Fix
+
+        -- Riding Gryphon
+        UPDATE `creature_template` SET `display_id1`=935 WHERE `entry`=541;
+
+        -- Brother Kristoff, We already solved this but display_id was not good https://ibb.co/SXwYDRF
+        UPDATE `creature_template` SET `display_id1`=190 WHERE `entry`=1444;
+        -- Angus Stern https://ibb.co/vQBTGzM
+        UPDATE `creature_template` SET `display_id1`=1485 WHERE `entry`=1141;
+        -- Milton Sheaf https://ibb.co/Sxxhrny
+        UPDATE `creature_template` SET `display_id1`=20 WHERE `entry`=1440;
+        
+        -- Ardwyn Cailen, It appears that the display_id 1477 is unused although it is Ardwyn Cailen's model
+        UPDATE `creature_template` SET `display_id1`=1477 WHERE `entry`=1312;
+        -- Wynne Larson, It appears that display_id 1483 is unused although it is Wynne Larson's model
+        UPDATE `creature_template` SET `display_id1`=1483 WHERE `entry`=1309;
+        -- Seoman Griffith, It appears that display_id 1517 is unused although it is Seoman's model
+        UPDATE `creature_template` SET `display_id1`=1517 WHERE `entry`=1320;
+        -- Elly Langston, It appears that display id 1521 is unused although it is Elly's model, she had warlock placeholder model for some reasons
+        UPDATE `creature_template`SET `display_id1`=1521 WHERE `entry`=1328;
+        -- Adair Gilfroy, He has same Display_id than 1.12
+        UPDATE `creature_template` SET `display_id1`=1485 WHERE `entry`=1316;
+        -- Bryan Cross, It appears that display_id 1510 is unused although it is Bryan's model
+        UPDATE `creature_template` SET `display_id1`=1510 WHERE `entry`=1319;
+        -- Jessara Cordell, It appears that display_id 1481 is unused although it is Jessara's model
+        UPDATE `creature_template` SET `display_id1`=1481 WHERE `entry`=1318;
+        
+        -- Gaken the DarkBinder, by deduction there is a 95% chance that it is him, display 263 is warlock placeholder and this guy has no unique one yet
+        -- We also already saw his model at same location https://ibb.co/kKw2Vrn
+        UPDATE `creature_template` SET `display_id1`=263 WHERE `entry`=6122;
+        -- Harlan Bagley, 95% chance that is him, his display id from 1.12 is a copy of old display id https://ibb.co/9T4sKhX
+        UPDATE `creature_template` SET `display_id1`=19 WHERE `entry`=1427;
+        -- Mazen Mac'Nadir, this guy a high mage and dont have unique model, his entry is very low, 90% sure it's mage placeholder
+        UPDATE `creature_template` SET `display_id1`=198 WHERE `entry`=338;
+
+
+        -- # SW NPC hide
+
+        -- Stephanie Turner https://ibb.co/sFvw61t (Stephanie is not spawned on screenshot)
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=79680;
+        -- Kelly Grant, we dispawned her sister but forgot to despawn her
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=90482;
+        -- Hank the hammer, https://ibb.co/64Hr10P (Hank is not spawned)
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=43705;
+        
+
+        --#  SW NPC Spawn
+
+        -- Riding Gryphon, near flymaster https://ibb.co/GVJ0ggq
+        INSERT INTO `spawns_creatures` values(NULL, 541, 0, 0, 0, 0, 0, 0, -8844.82, 504.81, 109.609, 4.056, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+        INSERT INTO `spawns_creatures` values(NULL, 541, 0, 0, 0, 0, 0, 0, -8827, 484.63, 109.62, 3.766, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+
+        -- # SW NPC Spawn location Fix
+
+        -- Guards near Jail https://ibb.co/X8LSqdt
+        UPDATE `spawns_creatures` SET `position_y`=792.17,`position_z`=96.0788,`position_x`=-8838.84 WHERE `spawn_id`=19272;
+        UPDATE `spawns_creatures` SET `position_y`=785.599,`position_z`=95.8423,`position_x`=-8833.54 WHERE `spawn_id`=79819;
+        -- Jenn Langston https://ibb.co/sFvw61t (Jenn is in background)
+        UPDATE `spawns_creatures` SET `position_x`=-8842.2,`position_y`=597.97,`position_z`=93.7,`orientation`=2.38 WHERE `spawn_id`=79746;
+    
+
+        -- # SW GameObjects location Fix
+       
+        -- This is left side gameobjects of SW Bank
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=626.274, `spawn_positionX`=-8908.71 WHERE `spawn_id`=26294;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=622.906,`spawn_positionX`=-8914.63 WHERE `spawn_id`=26295;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=620.87,`spawn_positionX`=-8918.31 WHERE `spawn_id`=26296;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=619.005,`spawn_positionX`=-8921.69 WHERE `spawn_id`=26310;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=615.636,`spawn_positionX`=-8927.79 WHERE `spawn_id`=26316;
+
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=619.229,`spawn_positionX`=-8924.32 WHERE `spawn_id`=26305;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=618.096,`spawn_positionX`=-8926.74 WHERE `spawn_id`=26306;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=626.809,`spawn_positionX`=-8910.99 WHERE `spawn_id`=26307;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=625.519,`spawn_positionX`=-8913.54 WHERE `spawn_id`=26308;
+
+        -- This is right side gameobjects of SW Bank
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8920.91,`spawn_positionY`=649.544 WHERE `spawn_id`=26670;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=645.323,`spawn_positionX`=-8924.35 WHERE `spawn_id`=26669;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8921.88,`spawn_positionY`=646.693 WHERE `spawn_id`=26671;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8927.12,`spawn_positionY`=646.016 WHERE `spawn_id`=26672;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=639.325,`spawn_positionX`=-8935.47 WHERE `spawn_id`=26682;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8937.54,`spawn_positionY`=638.255 WHERE `spawn_id`=26681;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8930.52,`spawn_positionY`=644.106 WHERE `spawn_id`=26668;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=642.105,`spawn_positionX`=-8934.08 WHERE `spawn_id`=26680;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8940.23,`spawn_positionY`=638.654 WHERE `spawn_id`=26678;
+        UPDATE `spawns_gameobjects` SET `spawn_positionY`=633.937,`spawn_positionX`=-8911.27 WHERE `spawn_id`=26298;
+        UPDATE `spawns_gameobjects` SET `spawn_positionX`=-8916.1,`spawn_positionY`=642.515 WHERE `spawn_id`=26293;
+        
+        -- Flying chair in canal
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ`=96.7839 WHERE `spawn_id` IN (42809, 42810, 42811, 42812, 42852, 42923);
+
+
+        -- # GameObjects Hide
+
+        -- Flying Milk tank
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (42931, 42857);
+        
+
+        insert into applied_updates values('222211111');
+    end if;
 end $
 delimiter ;
