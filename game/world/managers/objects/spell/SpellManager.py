@@ -690,7 +690,6 @@ class SpellManager(object):
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
                     return False
 
-
         if not self.meets_casting_requisites(casting_spell):
             return False
 

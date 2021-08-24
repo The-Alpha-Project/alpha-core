@@ -105,6 +105,7 @@ begin not atomic
         insert into applied_updates values ('240820211');
     end if;
 
+
     -- 24/08/2021 2
     if (select count(*) from applied_updates where id='240820212') = 0 then
         -- # SW NPC Display Fix
@@ -207,5 +208,6 @@ begin not atomic
 
         insert into applied_updates values('240820212');
     end if;
+
 end $
 delimiter ;
