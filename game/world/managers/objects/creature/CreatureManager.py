@@ -109,10 +109,10 @@ class CreatureManager(UnitManager):
         instance.spawn_id = CreatureManager.CURRENT_HIGHEST_GUID + 1
         instance.spawn_entry1 = entry
         instance.map = map_id
-        instance.orientation = location.o
         instance.position_x = location.x
         instance.position_y = location.y
         instance.position_z = location.z
+        instance.orientation = location.o
         instance.health_percent = 100
         instance.mana_percent = 100
         if despawn_time < 1:
