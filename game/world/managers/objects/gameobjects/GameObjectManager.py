@@ -82,13 +82,13 @@ class GameObjectManager(ObjectManager):
         instance.spawn_entry = entry
         instance.spawn_map = map_id
         instance.spawn_rotation0 = 0
-        instance.spawn_orientation = 0
         instance.spawn_rotation2 = 0
         instance.spawn_rotation1 = 0
         instance.spawn_rotation3 = 0
         instance.spawn_positionX = location.x
         instance.spawn_positionY = location.y
         instance.spawn_positionZ = location.z
+        instance.spawn_orientation = location.o
         if despawn_time < 1:
             despawn_time = 1
         instance.spawn_spawntimemin = despawn_time
