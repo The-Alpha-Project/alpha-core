@@ -104,5 +104,14 @@ begin not atomic
 
         insert into applied_updates values ('240820211');
     end if;
+
+    -- 24/08/2021 2
+    if (select count(*) from applied_updates where id='240820212') = 0 then
+        -- Fix wooden chair names.
+        UPDATE `gameobject_template` SET `name` = 'Wooden Chair' WHERE BINARY `name` = 'wooden chair';
+        UPDATE `gameobject_template` SET `name` = 'Wooden Chair' WHERE `entry` = 2413;
+
+        insert into applied_updates values ('240820212');
+    end if;
 end $
 delimiter ;
