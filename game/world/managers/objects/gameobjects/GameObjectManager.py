@@ -162,28 +162,25 @@ class GameObjectManager(ObjectManager):
                         self.ritual_participants.remove(participant)
 
                 if player is not self.ritual_caster and player not in self.ritual_participants:
+                    channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
+                    spell = player.spell_manager.try_initialize_spell(channel_spell_entry, player, self, SpellTargetMask.GAMEOBJECT, validate=False)
+
+                    # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
+                    player.spell_manager.remove_colliding_casts(spell)
+                    player.spell_manager.casting_spells.append(spell)
+                    player.spell_manager.handle_channel_start(spell)
                     self.ritual_participants.append(player)
 
                 required_participants = self.gobject_template.data0 - 1  # -1 to include caster.
                 if len(self.ritual_participants) >= required_participants:
                     ritual_finish_spell_id = self.gobject_template.data1
 
-                    # Finish ritual channel.
-                    self.ritual_caster.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
-
                     # Cast the finishing spell.
                     spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
                     spell_cast = self.ritual_caster.spell_manager.try_initialize_spell(spell_entry, self.ritual_caster, self.ritual_caster,
                                                                                        SpellTargetMask.SELF, validate=False)
-                    self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast)
-                else:
-                    # If there aren't enough participants, make the player channel instead.
-                    channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
-                    spell = player.spell_manager.try_initialize_spell(channel_spell_entry, player, self, SpellTargetMask.GAMEOBJECT, validate=False)
-                    # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
-                    player.spell_manager.remove_colliding_casts(spell)
-                    player.spell_manager.casting_spells.append(spell)
-                    player.spell_manager.handle_channel_start(spell)
+                    self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast, is_trigger=True)
+
 
     def set_ready(self):
         if self.state != GameObjectStates.GO_STATE_READY:

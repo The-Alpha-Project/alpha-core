@@ -143,7 +143,8 @@ class SpellManager(object):
         casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
 
         if not casting_spell.is_instant_cast():
-            self.send_cast_start(casting_spell)
+            if not is_trigger:
+                self.send_cast_start(casting_spell)
             return
 
         # Spell is instant, perform cast
