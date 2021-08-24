@@ -96,5 +96,13 @@ begin not atomic
 
         insert into applied_updates values ('230820211');
     end if;
+
+    -- 24/08/2021 1
+    if (select count(*) from applied_updates where id='240820211') = 0 then
+        -- Summoning Portal display fix.
+        UPDATE `gameobject_template` SET `displayId` = 672 WHERE `entry` = 36727;
+
+        insert into applied_updates values ('240820211');
+    end if;
 end $
 delimiter ;
