@@ -64,7 +64,7 @@ class GameObjectManager(ObjectManager):
         # Ritual initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
             self.ritual_caster = None
-            self.ritual_participants = set()
+            self.ritual_participants = []
 
     def load(self):
         MapManager.update_object(self)
@@ -154,13 +154,21 @@ class GameObjectManager(ObjectManager):
             player.send_loot(self)
         elif self.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
             if not self.faction or player.is_friendly_to(self):
-                if player is not self.ritual_caster:
-                    self.ritual_participants.add(player.guid)
+                ritual_channel_spell_id = self.gobject_template.data2
+                if player is not self.ritual_caster and player not in self.ritual_participants:
+                    self.ritual_participants.append(player)
+                    channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
+                    spell = player.spell_manager.try_initialize_spell(channel_spell_entry, player, self, SpellTargetMask.GAMEOBJECT, validate=False)
+                    player.spell_manager.casting_spells.append(spell)
+                    player.spell_manager.handle_channel_start(spell)
+
+                for participant in list(self.ritual_participants):
+                    if not participant.spell_manager.is_casting_spell(ritual_channel_spell_id):
+                        self.ritual_participants.remove(participant)
 
                 required_participants = self.gobject_template.data0 - 1  # -1 to include caster.
                 if len(self.ritual_participants) >= required_participants:
                     ritual_finish_spell_id = self.gobject_template.data1
-                    ritual_channel_spell_id = self.gobject_template.data2
 
                     # Finish ritual channel.
                     self.ritual_caster.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
