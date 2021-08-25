@@ -265,7 +265,7 @@ class CreatureManager(UnitManager):
                         self.set_virtual_item(2, creature_equip_template.equipentry3)
 
                 self.stat_manager.init_stats()
-                self.stat_manager.apply_bonuses()
+                self.stat_manager.apply_bonuses(set_dirty=False)
 
                 self.fully_loaded = True
 

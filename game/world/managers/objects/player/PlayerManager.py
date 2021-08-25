@@ -227,7 +227,7 @@ class PlayerManager(UnitManager):
         self.online = True
 
         # Calculate stat bonuses at this point.
-        self.stat_manager.apply_bonuses(replenish=first_login)
+        self.stat_manager.apply_bonuses(replenish=first_login, set_dirty=False)
 
         # Join default channels.
         ChannelManager.join_default_channels(self)
@@ -739,7 +739,7 @@ class PlayerManager(UnitManager):
                 self.player.leveltime = 0
 
                 self.stat_manager.init_stats()
-                hp_diff, mana_diff = self.stat_manager.apply_bonuses()
+                hp_diff, mana_diff = self.stat_manager.apply_bonuses(set_dirty=False)
                 self.set_health(self.max_health)
                 self.set_mana(self.max_power_1)
 

@@ -596,9 +596,9 @@ class InventoryManager(object):
             self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
 
         # Bonus application.
-        self.owner.stat_manager.apply_bonuses()
-
-        self.owner.set_dirty(dirty_inventory=True)  # Mark as dirty to update equipment for other players.
+        self.owner.stat_manager.apply_bonuses(set_dirty=False)
+        # Mark as dirty to update equipment for other players.
+        self.owner.set_dirty(dirty_inventory=True)
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \

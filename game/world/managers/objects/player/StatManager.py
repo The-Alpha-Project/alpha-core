@@ -187,7 +187,7 @@ class StatManager(object):
     def get_stat_skill_bonus(self, skill_type):  # Avoids circular import with SkillManager
         return self.get_total_stat(UnitStats.SKILL, misc_value=skill_type)
 
-    def apply_bonuses(self, replenish=False):
+    def apply_bonuses(self, replenish=False, set_dirty=True):
         self.calculate_item_stats()
 
         # Always update base attack since unarmed damage should update.
@@ -224,7 +224,8 @@ class StatManager(object):
             if self.unit_mgr.power_type != PowerTypes.TYPE_RAGE:
                 self.unit_mgr.recharge_power()
 
-        self.unit_mgr.set_dirty()
+        if set_dirty:
+            self.unit_mgr.set_dirty()
 
         return hp_diff, mana_diff
 
