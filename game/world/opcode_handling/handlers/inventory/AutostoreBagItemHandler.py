@@ -20,7 +20,7 @@ class AutostoreBagItemHandler(object):
             if not dest_container or not source_container:
                 return 0
 
-            source_item = dest_container.get_item(source_slot)
+            source_item = source_container.get_item(source_slot)
             if not source_item:
                 return 0
 
