@@ -85,7 +85,7 @@ class ObjectManager(object):
             self.get_full_update_packet(is_self=is_self) if create else self.get_partial_update_packet()))
         return update_packet
 
-    def send_create_packet_surroundings(self):
+    def send_create_packet_surroundings(self, **kwargs):
         update_packet = self.generate_proper_update_packet(False, True)
         MapManager.send_surrounding(update_packet, self, include_self=False)
 
