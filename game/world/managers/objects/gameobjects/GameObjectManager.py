@@ -107,15 +107,12 @@ class GameObjectManager(ObjectManager):
         return gameobject
 
     def _handle_use_door(self, player):
-        # TODO: Merge both methods?
         # TODO: Check locks etc.
-        self._handle_use_button(player)
+        self.set_active()
 
     def _handle_use_button(self, player):
-        if self.state == GameObjectStates.GO_STATE_READY:
-            self.state = GameObjectStates.GO_STATE_ACTIVE
-            # TODO: Trigger scripts / events on cooldown restart.
-            self.send_update_surrounding()
+        # TODO: Trigger scripts / events on cooldown restart.
+        self.set_active()
 
     def _handle_use_camera(self, player):
         cinematic_id = self.gobject_template.data1
@@ -209,10 +206,19 @@ class GameObjectManager(ObjectManager):
         elif self.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
             self._handle_use_goober(player)
 
+    def set_active(self):
+        if self.state == GameObjectStates.GO_STATE_READY:
+            self.state = GameObjectStates.GO_STATE_ACTIVE
+            self.send_update_surrounding()
+            return True
+        return False
+
     def set_ready(self):
         if self.state != GameObjectStates.GO_STATE_READY:
             self.state = GameObjectStates.GO_STATE_READY
             self.send_update_surrounding()
+            return True
+        return False
 
     # override
     def set_display_id(self, display_id):
