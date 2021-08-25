@@ -130,7 +130,7 @@ class CreatureManager(UnitManager):
             creature.faction = override_faction
 
         creature.load()
-        creature.notify_create_surrounding()
+        creature.send_create_packet_surroundings()
 
         return creature
 

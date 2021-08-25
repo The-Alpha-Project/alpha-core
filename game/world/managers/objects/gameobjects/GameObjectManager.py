@@ -152,7 +152,7 @@ class GameObjectManager(ObjectManager):
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.state == GameObjectStates.GO_STATE_READY:
             self.state = GameObjectStates.GO_STATE_ACTIVE
-            self.notify_create_surrounding()
+            self.send_create_packet_surroundings()
 
         # Generate loot if it's empty.
         if not self.loot_manager.has_loot():
@@ -301,7 +301,7 @@ class GameObjectManager(ObjectManager):
         self.respawn_time = randint(self.gobject_instance.spawntimesecsmin,
                                     self.gobject_instance.spawntimesecsmax)
 
-        self.notify_create_surrounding()
+        self.send_create_packet_surroundings()
 
     # override
     def update(self):
