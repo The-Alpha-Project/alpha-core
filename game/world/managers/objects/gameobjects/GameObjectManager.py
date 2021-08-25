@@ -98,7 +98,7 @@ class GameObjectManager(ObjectManager):
             despawn_time = 1
         instance.spawn_spawntimemin = despawn_time
         instance.spawn_spawntimemax = despawn_time
-        instance.spawn_state = True
+        instance.spawn_state = GameObjectStates.GO_STATE_READY
 
         gameobject = GameObjectManager(
             gobject_template=go_template,
