@@ -106,81 +106,108 @@ class GameObjectManager(ObjectManager):
         gameobject.load()
         return gameobject
 
+    def _handle_use_door(self, player):
+        # TODO: Merge both methods?
+        # TODO: Check locks etc.
+        self._handle_use_button(player)
+
+    def _handle_use_button(self, player):
+        if self.state == GameObjectStates.GO_STATE_READY:
+            self.state = GameObjectStates.GO_STATE_ACTIVE
+            # TODO: Trigger scripts / events on cooldown restart.
+            self.send_update_surrounding()
+
+    def _handle_use_camera(self, player):
+        cinematic_id = self.gobject_template.data1
+        if DbcDatabaseManager.cinematic_sequences_get_by_id(cinematic_id):
+            data = pack('<I', cinematic_id)
+            player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
+
+    def _handle_use_chair(self, player):
+        slots = self.gobject_template.data0
+        height = self.gobject_template.data1
+
+        lowest_distance = 90.0
+        x_lowest = self.location.x
+        y_lowest = self.location.y
+
+        if slots > 0:
+            orthogonal_orientation = self.location.o + pi * 0.5
+            for x in range(0, slots):
+                relative_distance = (self.current_scale * x) - (self.current_scale * (slots - 1) / 2.0)
+                x_i = self.location.x + relative_distance * cos(orthogonal_orientation)
+                y_i = self.location.y + relative_distance * sin(orthogonal_orientation)
+
+                player_slot_distance = player.location.distance(Vector(x_i, y_i, player.location.z))
+                if player_slot_distance <= lowest_distance:
+                    lowest_distance = player_slot_distance
+                    x_lowest = x_i
+                    y_lowest = y_i
+            player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
+            player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
+
+    def _handle_use_chest(self, player):
+        # Activate chest open animation, while active, it won't let any other player loot.
+        if self.state == GameObjectStates.GO_STATE_READY:
+            self.state = GameObjectStates.GO_STATE_ACTIVE
+            self.send_update_surrounding()
+
+        # Generate loot if it's empty.
+        if not self.loot_manager.has_loot():
+            self.loot_manager.generate_loot(player)
+
+        player.send_loot(self)
+
+    def _handle_use_ritual(self, player):
+        # Participant group limitations.
+        if self.ritual_caster.group_manager and self.ritual_caster.group_manager.is_party_member(player.guid):
+            ritual_channel_spell_id = self.gobject_template.data2
+
+            # Clear participants who have interrupted their channel.
+            for participant in list(self.ritual_participants):
+                if not participant.spell_manager.is_casting_spell(ritual_channel_spell_id):
+                    self.ritual_participants.remove(participant)
+
+            if player is not self.ritual_caster and player not in self.ritual_participants:
+                channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
+                spell = player.spell_manager.try_initialize_spell(channel_spell_entry, player, self,
+                                                                  SpellTargetMask.GAMEOBJECT, validate=False)
+
+                # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
+                player.spell_manager.remove_colliding_casts(spell)
+                player.spell_manager.casting_spells.append(spell)
+                player.spell_manager.handle_channel_start(spell)
+                self.ritual_participants.append(player)
+
+            required_participants = self.gobject_template.data0 - 1  # -1 to include caster.
+            if len(self.ritual_participants) >= required_participants:
+                ritual_finish_spell_id = self.gobject_template.data1
+
+                # Cast the finishing spell.
+                spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
+                spell_cast = self.ritual_caster.spell_manager.try_initialize_spell(spell_entry, self.ritual_caster,
+                                                                                   self.ritual_caster,
+                                                                                   SpellTargetMask.SELF, validate=False)
+                self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast, is_trigger=True)
+
+    def _handle_use_goober(self, player):
+        pass
+
     def use(self, player):
-        if self.gobject_template.type == GameObjectTypes.TYPE_DOOR or \
-                self.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
-            # TODO: Check locks for doors
-            if self.state == GameObjectStates.GO_STATE_READY:
-                self.state = GameObjectStates.GO_STATE_ACTIVE
-                # TODO: Trigger sripts / events on cooldown restart
-                self.send_update_surrounding()
+        if self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
+            self._handle_use_door(player)
+        if self.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
+            self._handle_use_button(player)
         elif self.gobject_template.type == GameObjectTypes.TYPE_CAMERA:
-            cinematic_id = self.gobject_template.data1
-            if DbcDatabaseManager.cinematic_sequences_get_by_id(cinematic_id):
-                data = pack('<I', cinematic_id)
-                player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
+            self._handle_use_camera(player)
         elif self.gobject_template.type == GameObjectTypes.TYPE_CHAIR:
-            slots = self.gobject_template.data0
-            height = self.gobject_template.data1
-
-            lowest_distance = 90.0
-            x_lowest = self.location.x
-            y_lowest = self.location.y
-
-            if slots > 0:
-                orthogonal_orientation = self.location.o + pi * 0.5
-                for x in range(0, slots):
-                    relative_distance = (self.current_scale * x) - (self.current_scale * (slots - 1) / 2.0)
-                    x_i = self.location.x + relative_distance * cos(orthogonal_orientation)
-                    y_i = self.location.y + relative_distance * sin(orthogonal_orientation)
-
-                    player_slot_distance = player.location.distance(Vector(x_i, y_i, player.location.z))
-                    if player_slot_distance <= lowest_distance:
-                        lowest_distance = player_slot_distance
-                        x_lowest = x_i
-                        y_lowest = y_i
-                player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
-                player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
+            self._handle_use_chair(player)
         elif self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
-            # Activate chest open animation, while active, it won't let any other player loot.
-            if self.state == GameObjectStates.GO_STATE_READY:
-                self.state = GameObjectStates.GO_STATE_ACTIVE
-                self.send_update_surrounding()
-
-            # Generate loot if it's empty.
-            if not self.loot_manager.has_loot():
-                self.loot_manager.generate_loot(player)
-
-            player.send_loot(self)
+            self._handle_use_chest(player)
         elif self.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
-            # Participant group limitations
-            if self.ritual_caster.group_manager and self.ritual_caster.group_manager.is_party_member(player.guid):
-                ritual_channel_spell_id = self.gobject_template.data2
-
-                # Clear participants who have interrupted their channel.
-                for participant in list(self.ritual_participants):
-                    if not participant.spell_manager.is_casting_spell(ritual_channel_spell_id):
-                        self.ritual_participants.remove(participant)
-
-                if player is not self.ritual_caster and player not in self.ritual_participants:
-                    channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
-                    spell = player.spell_manager.try_initialize_spell(channel_spell_entry, player, self, SpellTargetMask.GAMEOBJECT, validate=False)
-
-                    # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
-                    player.spell_manager.remove_colliding_casts(spell)
-                    player.spell_manager.casting_spells.append(spell)
-                    player.spell_manager.handle_channel_start(spell)
-                    self.ritual_participants.append(player)
-
-                required_participants = self.gobject_template.data0 - 1  # -1 to include caster.
-                if len(self.ritual_participants) >= required_participants:
-                    ritual_finish_spell_id = self.gobject_template.data1
-
-                    # Cast the finishing spell.
-                    spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
-                    spell_cast = self.ritual_caster.spell_manager.try_initialize_spell(spell_entry, self.ritual_caster, self.ritual_caster,
-                                                                                       SpellTargetMask.SELF, validate=False)
-                    self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast, is_trigger=True)
+            self._handle_use_ritual(player)
+        elif self.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
+            self._handle_use_goober(player)
 
     def set_ready(self):
         if self.state != GameObjectStates.GO_STATE_READY:
