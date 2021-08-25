@@ -1,5 +1,7 @@
 import math
+import time
 from math import pi, cos, sin
+from random import randint
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -51,10 +53,13 @@ class GameObjectManager(ObjectManager):
             self.location.z = self.gobject_instance.spawn_positionZ
             self.location.o = self.gobject_instance.spawn_orientation
             self.map_ = self.gobject_instance.spawn_map
+            self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
+                                        self.gobject_instance.spawn_spawntimemax)
 
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
 
+        self.respawn_timer = 0
         self.loot_manager = None
 
         # Chest only initializations.
@@ -289,6 +294,27 @@ class GameObjectManager(ObjectManager):
             PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                     self.get_full_update_packet(is_self=False)))
         MapManager.send_surrounding(update_packet, self, include_self=False)
+
+    # override
+    def respawn(self):
+        self.is_spawned = True
+        self.state = GameObjectStates.GO_STATE_READY
+        self.respawn_timer = 0
+        self.respawn_time = randint(self.gobject_instance.spawntimesecsmin,
+                                    self.gobject_instance.spawntimesecsmax)
+
+        self.send_update_surrounding()
+
+    # override
+    def update(self):
+        now = time.time()
+        if now > self.last_tick > 0:
+            elapsed = now - self.last_tick
+
+            if not self.is_spawned:
+                self.respawn_timer += elapsed
+                if self.respawn_timer >= self.respawn_time and not self.is_summon:
+                    self.respawn()
 
     # override
     def on_cell_change(self):

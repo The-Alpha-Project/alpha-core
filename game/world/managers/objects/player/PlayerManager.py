@@ -329,26 +329,27 @@ class PlayerManager(UnitManager):
 
         # Surrounding creatures.
         for guid, creature in creatures.items():
-            if creature.is_spawned:
-                active_objects[guid] = creature
-                if guid not in self.known_objects or not self.known_objects[guid]:
-                    # We don't know this creature, notify self with its update packet.
+            active_objects[guid] = creature
+            if guid not in self.known_objects or not self.known_objects[guid]:
+                # We don't know this creature, notify self with its update packet.
+                if creature.is_spawned:
                     update_packet = UpdatePacketFactory.compress_if_needed(
                         PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                 creature.get_full_update_packet(is_self=False)))
                     self.enqueue_packet(update_packet)
-                    self.enqueue_packet(creature.query_details())
+                self.enqueue_packet(creature.query_details())
             self.known_objects[guid] = creature
 
-        # Surrounding game objects..
+        # Surrounding game objects.
         for guid, gobject in game_objects.items():
             active_objects[guid] = gobject
             if guid not in self.known_objects or not self.known_objects[guid]:
                 # We don't know this game object, notify self with its update packet.
-                update_packet = UpdatePacketFactory.compress_if_needed(
-                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                            gobject.get_full_update_packet(is_self=False)))
-                self.enqueue_packet(update_packet)
+                if gobject.is_spawned:
+                    update_packet = UpdatePacketFactory.compress_if_needed(
+                        PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                                gobject.get_full_update_packet(is_self=False)))
+                    self.enqueue_packet(update_packet)
                 self.enqueue_packet(gobject.query_details())
             self.known_objects[guid] = gobject
 
@@ -603,7 +604,10 @@ class PlayerManager(UnitManager):
         elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
             game_object = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
             if game_object:
-                game_object.set_ready()
+                if game_object.loot_manager.has_loot():
+                    game_object.set_ready()
+                else:
+                    game_object.despawn()
         else:
             Logger.warning(f'Unhandled loot release for type {HighGuid(high_guid).name}')
 

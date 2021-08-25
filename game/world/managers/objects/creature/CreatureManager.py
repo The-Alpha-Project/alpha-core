@@ -87,7 +87,8 @@ class CreatureManager(UnitManager):
                                          self.creature_instance.position_z,
                                          self.creature_instance.orientation)
             self.location = self.spawn_position.copy()
-            self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
+            self.respawn_time = randint(self.creature_instance.spawntimesecsmin,
+                                        self.creature_instance.spawntimesecsmax)
 
         # All creatures can block, parry and dodge by default.
         # TODO CANT_BLOCK creature extra flag
@@ -481,11 +482,7 @@ class CreatureManager(UnitManager):
                     self.respawn()
                 # Destroy body when creature is about to respawn
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
-                    self.is_spawned = False
-                    if self.is_summon:
-                        MapManager.remove_object(self)
-                    else:
-                        MapManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
+                    self.despawn()
 
             # Check "dirtiness" to determine if this creature object should be updated yet or not.
             if self.dirty:

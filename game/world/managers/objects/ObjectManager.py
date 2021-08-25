@@ -58,6 +58,8 @@ class ObjectManager(object):
         self.object_type = [ObjectTypes.TYPE_OBJECT]
         self.update_packet_factory = UpdatePacketFactory()
 
+        self.is_spawned = True
+        self.is_summon = False
         self.dirty = False
         self.current_cell = ''
         self.last_tick = 0
@@ -243,11 +245,23 @@ class ObjectManager(object):
         return unpack('<f', self.update_packet_factory.update_values[index])[0]
 
     # override
+    def despawn(self):
+        self.is_spawned = False
+        if self.is_summon:
+            MapManager.remove_object(self)
+        else:
+            MapManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
+
+    # override
     def update(self):
         pass
 
     # override
     def get_full_update_packet(self, is_self=True):
+        pass
+
+    # override
+    def respawn(self):
         pass
 
     # override
