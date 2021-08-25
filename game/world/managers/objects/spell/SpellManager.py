@@ -15,9 +15,8 @@ from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants import MiscFlags
 from utils.constants.ItemCodes import InventoryError, InventoryTypes
-from utils.constants.MiscCodes import ObjectTypes, HitInfo
+from utils.constants.MiscCodes import ObjectTypes, HitInfo, GameObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, SpellEffects, SpellSchools, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellImplicitTargets
@@ -144,7 +143,8 @@ class SpellManager(object):
         casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
 
         if not casting_spell.is_instant_cast():
-            self.send_cast_start(casting_spell)
+            if not is_trigger:
+                self.send_cast_start(casting_spell)
             return
 
         # Spell is instant, perform cast
@@ -520,7 +520,12 @@ class SpellManager(object):
 
         if self.unit_mgr.channel_object:
             channel_object = MapManager.get_surrounding_gameobject_by_guid(self.unit_mgr, self.unit_mgr.channel_object)
-            if channel_object and channel_object.gobject_template.flags & MiscFlags.GameObjectFlags.TRIGGERED:
+            if channel_object and \
+                    channel_object.gobject_template.type == GameObjectTypes.TYPE_RITUAL and \
+                    channel_object.ritual_caster is self.unit_mgr:
+                for player in channel_object.ritual_participants:
+                    ritual_channel_spell_id = channel_object.gobject_template.data2
+                    player.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
                 MapManager.remove_object(channel_object)
 
         self.unit_mgr.set_channel_object(0)
@@ -630,6 +635,14 @@ class SpellManager(object):
         for spell in list(self.casting_spells):
             if spell.cast_state == SpellState.SPELL_STATE_CASTING or \
                     (spell.is_channeled() and spell.cast_state == SpellState.SPELL_STATE_ACTIVE):
+                return True
+        return False
+
+    def is_casting_spell(self, spell_id):
+        for spell in list(self.casting_spells):
+            if spell.spell_entry.ID == spell_id and \
+                    (spell.cast_state == SpellState.SPELL_STATE_CASTING or
+                        (spell.is_channeled() and spell.cast_state == SpellState.SPELL_STATE_ACTIVE)):
                 return True
         return False
 

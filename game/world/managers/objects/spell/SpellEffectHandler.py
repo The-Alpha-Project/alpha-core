@@ -207,6 +207,12 @@ class SpellEffectHandler(object):
         # 1.1: Summoning gives a confirmation dialog to person being summoned.
         # 1.3: You can no longer accept a warlock summoning while you are in combat.
 
+        # Finish ritual channeling.
+        for spell in list(caster.spell_manager.casting_spells):
+            if spell.is_channeled():
+                caster.spell_manager.remove_cast(spell)
+                break
+
         if not caster.group_manager:
             return
         summon_target_guid = caster.current_selection
