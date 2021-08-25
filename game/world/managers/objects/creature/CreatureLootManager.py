@@ -13,6 +13,8 @@ class CreatureLootManager(LootManager):
 
     # override
     def generate_loot(self, requester):
+        self.clear_money()
+
         money = randint(self.world_object.creature_template.gold_min, self.world_object.creature_template.gold_max)
         self.current_money = money
 
