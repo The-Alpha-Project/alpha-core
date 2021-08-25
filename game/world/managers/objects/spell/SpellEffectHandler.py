@@ -211,6 +211,7 @@ class SpellEffectHandler(object):
         for spell in list(caster.spell_manager.casting_spells):
             if spell.is_channeled():
                 caster.spell_manager.remove_cast(spell)
+                break
 
         if not caster.group_manager:
             return
