@@ -182,7 +182,6 @@ class GameObjectManager(ObjectManager):
                                                                                        SpellTargetMask.SELF, validate=False)
                     self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast, is_trigger=True)
 
-
     def set_ready(self):
         if self.state != GameObjectStates.GO_STATE_READY:
             self.state = GameObjectStates.GO_STATE_READY
