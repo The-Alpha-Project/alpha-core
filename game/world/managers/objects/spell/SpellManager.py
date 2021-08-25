@@ -6,6 +6,7 @@ from typing import Optional
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
@@ -694,14 +695,23 @@ class SpellManager(object):
         # Note that summoning didn't have many restrictions in 0.5.3. See SpellEffectHandler.handle_summon_player for notes.
         if casting_spell.is_summon_spell() and self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
             target_guid = self.unit_mgr.current_selection
-            target_unit = MapManager.get_surrounding_unit_by_guid(self.unit_mgr, target_guid)
-            if target_unit:
-                if target_unit.get_type() != ObjectTypes.TYPE_PLAYER:
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_PLAYER)
-                    return False
-                if not target_unit.group_manager or target_unit.group_manager.is_party_member(self.unit_mgr.guid):
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
-                    return False
+
+            if not target_guid:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
+
+            target_unit = WorldSessionStateHandler.find_player_by_guid(target_guid)
+            if not target_unit:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET)
+                return False
+
+            if target_unit.get_type() != ObjectTypes.TYPE_PLAYER:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_PLAYER)
+                return False
+
+            if not self.unit_mgr.group_manager or not self.unit_mgr.group_manager.is_party_member(self.unit_mgr.guid):
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
+                return False
 
         if not self.meets_casting_requisites(casting_spell):
             return False

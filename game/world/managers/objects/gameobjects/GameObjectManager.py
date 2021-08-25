@@ -157,34 +157,40 @@ class GameObjectManager(ObjectManager):
 
     def _handle_use_ritual(self, player):
         # Participant group limitations.
-        if self.ritual_caster.group_manager and self.ritual_caster.group_manager.is_party_member(player.guid):
-            ritual_channel_spell_id = self.gobject_template.data2
+        if not self.ritual_caster.group_manager or not self.ritual_caster.group_manager.is_party_member(player.guid):
+            return
 
-            # Clear participants who have interrupted their channel.
-            for participant in list(self.ritual_participants):
-                if not participant.spell_manager.is_casting_spell(ritual_channel_spell_id):
-                    self.ritual_participants.remove(participant)
+        ritual_channel_spell_id = self.gobject_template.data2
 
-            if player is not self.ritual_caster and player not in self.ritual_participants:
-                channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
-                spell = player.spell_manager.try_initialize_spell(channel_spell_entry, player, self,
-                                                                  SpellTargetMask.GAMEOBJECT, validate=False)
+        # Clear participants who have interrupted their channel.
+        for participant in list(self.ritual_participants):
+            if not participant.spell_manager.is_casting_spell(ritual_channel_spell_id):
+                self.ritual_participants.remove(participant)
 
-                # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
-                player.spell_manager.remove_colliding_casts(spell)
-                player.spell_manager.casting_spells.append(spell)
-                player.spell_manager.handle_channel_start(spell)
-                self.ritual_participants.append(player)
+        if player is self.ritual_caster or player in self.ritual_participants:
+            return  # No action needed for this player.
 
-            required_participants = self.gobject_template.data0 - 1  # -1 to include caster.
-            if len(self.ritual_participants) >= required_participants:
-                ritual_finish_spell_id = self.gobject_template.data1
+        # Make the player channel for summoning.
+        channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
+        spell = player.spell_manager.try_initialize_spell(channel_spell_entry, player, self,
+                                                          SpellTargetMask.GAMEOBJECT, validate=False)
 
-                # Cast the finishing spell.
-                spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
-                spell_cast = self.ritual_caster.spell_manager.try_initialize_spell(spell_entry, self.ritual_caster,
-                                                                                   self.ritual_caster,
-                                                                                   SpellTargetMask.SELF, validate=False)
+        # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
+        player.spell_manager.remove_colliding_casts(spell)
+        player.spell_manager.casting_spells.append(spell)
+        player.spell_manager.handle_channel_start(spell)
+        self.ritual_participants.append(player)
+
+        # Check if the ritual can be completed with the current participants.
+        required_participants = self.gobject_template.data0 - 1  # -1 to include caster.
+        if len(self.ritual_participants) >= required_participants:
+            ritual_finish_spell_id = self.gobject_template.data1
+
+            # Cast the finishing spell.
+            spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
+            spell_cast = self.ritual_caster.spell_manager.try_initialize_spell(spell_entry, self.ritual_caster,
+                                                                               self.ritual_caster, SpellTargetMask.SELF)
+            if spell_cast:
                 self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast, is_trigger=True)
 
     def _handle_use_goober(self, player):
