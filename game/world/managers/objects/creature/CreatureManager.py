@@ -130,7 +130,7 @@ class CreatureManager(UnitManager):
             creature.faction = override_faction
 
         creature.load()
-        creature.send_update_surrounding()
+        creature.notify_create_surrounding()
 
         return creature
 
@@ -554,12 +554,6 @@ class CreatureManager(UnitManager):
         else:
             self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
-
-    def send_update_surrounding(self):
-        update_packet = UpdatePacketFactory.compress_if_needed(
-            PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                    self.get_full_update_packet(is_self=False)))
-        MapManager.send_surrounding(update_packet, self, include_self=False)
 
     # override
     def has_offhand_weapon(self):

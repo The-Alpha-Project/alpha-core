@@ -152,7 +152,7 @@ class GameObjectManager(ObjectManager):
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.state == GameObjectStates.GO_STATE_READY:
             self.state = GameObjectStates.GO_STATE_ACTIVE
-            self.send_update_surrounding()
+            self.notify_create_surrounding()
 
         # Generate loot if it's empty.
         if not self.loot_manager.has_loot():
@@ -211,17 +211,21 @@ class GameObjectManager(ObjectManager):
         elif self.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
             self._handle_use_goober(player)
 
+    def set_state(self, state, set_dirty=False):
+        self.state = state
+        self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
+        if set_dirty:
+            self.set_dirty()
+
     def set_active(self):
         if self.state == GameObjectStates.GO_STATE_READY:
-            self.state = GameObjectStates.GO_STATE_ACTIVE
-            self.send_update_surrounding()
+            self.set_state(GameObjectStates.GO_STATE_ACTIVE, True)
             return True
         return False
 
     def set_ready(self):
         if self.state != GameObjectStates.GO_STATE_READY:
-            self.state = GameObjectStates.GO_STATE_READY
-            self.send_update_surrounding()
+            self.set_state(GameObjectStates.GO_STATE_READY, True)
             return True
         return False
 
@@ -289,12 +293,6 @@ class GameObjectManager(ObjectManager):
         )
         return PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_QUERY_RESPONSE, data)
 
-    def send_update_surrounding(self):
-        update_packet = UpdatePacketFactory.compress_if_needed(
-            PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                    self.get_full_update_packet(is_self=False)))
-        MapManager.send_surrounding(update_packet, self, include_self=False)
-
     # override
     def respawn(self):
         self.is_spawned = True
@@ -303,7 +301,7 @@ class GameObjectManager(ObjectManager):
         self.respawn_time = randint(self.gobject_instance.spawntimesecsmin,
                                     self.gobject_instance.spawntimesecsmax)
 
-        self.send_update_surrounding()
+        self.notify_create_surrounding()
 
     # override
     def update(self):
@@ -311,10 +309,21 @@ class GameObjectManager(ObjectManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            if not self.is_spawned:
+            if self.is_spawned:
+                # Check "dirtiness" to determine if this game object should be updated yet or not.
+                if self.dirty:
+                    MapManager.send_surrounding(self.generate_proper_update_packet(create=False), self,
+                                                include_self=False)
+                    MapManager.update_object(self)
+                    if self.reset_fields_older_than(now):
+                        self.set_dirty(is_dirty=False)
+            # Not spawned.
+            else:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time and not self.is_summon:
                     self.respawn()
+
+        self.last_tick = now
 
     # override
     def on_cell_change(self):

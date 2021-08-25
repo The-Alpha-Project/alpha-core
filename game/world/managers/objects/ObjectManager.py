@@ -79,6 +79,16 @@ class ObjectManager(object):
             type_value |= type_
         return type_value
 
+    def generate_proper_update_packet(self, is_self=False, create=False):
+        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT,
+            self.get_full_update_packet(is_self=is_self) if create else self.get_partial_update_packet()))
+        return update_packet
+
+    def notify_create_surrounding(self):
+        update_packet = self.generate_proper_update_packet(False, True)
+        MapManager.send_surrounding(update_packet, self, include_self=False)
+
     def get_object_create_packet(self, is_self=True):
         from game.world.managers.objects import UnitManager
 

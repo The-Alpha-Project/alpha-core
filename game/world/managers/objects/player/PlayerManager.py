@@ -1363,7 +1363,7 @@ class PlayerManager(UnitManager):
             # Check "dirtiness" to determine if this player object should be updated yet or not.
             if self.dirty and self.online:
                 self.send_update_self(reset_fields=False)
-                self.send_update_surrounding(self.generate_proper_update_packet())
+                self.notify_player_surroundings(self.generate_proper_update_packet())
                 if self.reset_fields_older_than(now):
                     self.set_dirty(is_dirty=False, dirty_inventory=False)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
@@ -1385,7 +1385,7 @@ class PlayerManager(UnitManager):
         if reset_fields:
             self.reset_fields_older_than(time.time())
 
-    def send_update_surrounding(self, update_packet, include_self=False, create=False, force_inventory_update=False):
+    def notify_player_surroundings(self, update_packet, include_self=False, create=False, force_inventory_update=False):
         if not create and (self.dirty_inventory or force_inventory_update):
             self.inventory.send_inventory_update(is_self=False)
             self.inventory.build_update()
