@@ -153,7 +153,8 @@ class GameObjectManager(ObjectManager):
 
             player.send_loot(self)
         elif self.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
-            if not self.faction or player.is_friendly_to(self):
+            # Participant group limitations
+            if self.ritual_caster.group_manager and self.ritual_caster.group_manager.is_party_member(player.guid):
                 ritual_channel_spell_id = self.gobject_template.data2
 
                 # Clear participants who have interrupted their channel.
