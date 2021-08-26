@@ -189,9 +189,12 @@ class GameObjectManager(ObjectManager):
             # Cast the finishing spell.
             spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
             spell_cast = self.ritual_caster.spell_manager.try_initialize_spell(spell_entry, self.ritual_caster,
-                                                                               self.ritual_caster, SpellTargetMask.SELF)
+                                                                               self.ritual_caster, SpellTargetMask.SELF,
+                                                                               triggered=True, validate=False)
             if spell_cast:
-                self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast, is_trigger=True)
+                self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast)
+            else:
+                self.ritual_caster.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
 
     def _handle_use_goober(self, player):
         pass

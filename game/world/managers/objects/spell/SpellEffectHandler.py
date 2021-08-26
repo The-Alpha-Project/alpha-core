@@ -207,19 +207,11 @@ class SpellEffectHandler(object):
         # 1.1: Summoning gives a confirmation dialog to person being summoned.
         # 1.3: You can no longer accept a warlock summoning while you are in combat.
 
-        # Finish ritual channeling.
-        for spell in list(caster.spell_manager.casting_spells):
-            if spell.is_channeled():
-                caster.spell_manager.remove_cast(spell)
-                break
+        # Since this handler is ONLY used by the ritual of summoning effect, directly check for that spell here (ID 698).
+        if not caster.spell_manager.remove_cast_by_id(698):
+            return  # Don't summon if the player interrupted the ritual channeling (couldn't remove the cast).
 
-        if not caster.group_manager:
-            return
-        summon_target_guid = caster.current_selection
-        if not caster.group_manager.is_party_member(summon_target_guid):
-            return
-
-        player = WorldSessionStateHandler.find_player_by_guid(summon_target_guid)
+        player = WorldSessionStateHandler.find_player_by_guid(caster.current_selection)
         player.teleport(caster.map_, caster.location)
 
     @staticmethod
