@@ -227,7 +227,7 @@ class PlayerManager(UnitManager):
         self.online = True
 
         # Calculate stat bonuses at this point.
-        self.stat_manager.apply_bonuses(replenish=first_login)
+        self.stat_manager.apply_bonuses(replenish=first_login, set_dirty=False)
 
         # Join default channels.
         ChannelManager.join_default_channels(self)
@@ -329,26 +329,27 @@ class PlayerManager(UnitManager):
 
         # Surrounding creatures.
         for guid, creature in creatures.items():
-            if creature.is_spawned:
-                active_objects[guid] = creature
-                if guid not in self.known_objects or not self.known_objects[guid]:
-                    # We don't know this creature, notify self with its update packet.
+            active_objects[guid] = creature
+            if guid not in self.known_objects or not self.known_objects[guid]:
+                # We don't know this creature, notify self with its update packet.
+                if creature.is_spawned:
                     update_packet = UpdatePacketFactory.compress_if_needed(
                         PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                 creature.get_full_update_packet(is_self=False)))
                     self.enqueue_packet(update_packet)
-                    self.enqueue_packet(creature.query_details())
+                self.enqueue_packet(creature.query_details())
             self.known_objects[guid] = creature
 
-        # Surrounding game objects..
+        # Surrounding game objects.
         for guid, gobject in game_objects.items():
             active_objects[guid] = gobject
             if guid not in self.known_objects or not self.known_objects[guid]:
                 # We don't know this game object, notify self with its update packet.
-                update_packet = UpdatePacketFactory.compress_if_needed(
-                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                            gobject.get_full_update_packet(is_self=False)))
-                self.enqueue_packet(update_packet)
+                if gobject.is_spawned:
+                    update_packet = UpdatePacketFactory.compress_if_needed(
+                        PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
+                                                gobject.get_full_update_packet(is_self=False)))
+                    self.enqueue_packet(update_packet)
                 self.enqueue_packet(gobject.query_details())
             self.known_objects[guid] = gobject
 
@@ -603,7 +604,10 @@ class PlayerManager(UnitManager):
         elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
             game_object = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
             if game_object:
-                game_object.set_ready()
+                if game_object.loot_manager.has_loot():
+                    game_object.set_ready()
+                else:
+                    game_object.despawn()
         else:
             Logger.warning(f'Unhandled loot release for type {HighGuid(high_guid).name}')
 
@@ -735,7 +739,7 @@ class PlayerManager(UnitManager):
                 self.player.leveltime = 0
 
                 self.stat_manager.init_stats()
-                hp_diff, mana_diff = self.stat_manager.apply_bonuses()
+                hp_diff, mana_diff = self.stat_manager.apply_bonuses(set_dirty=False)
                 self.set_health(self.max_health)
                 self.set_mana(self.max_power_1)
 
@@ -1359,7 +1363,7 @@ class PlayerManager(UnitManager):
             # Check "dirtiness" to determine if this player object should be updated yet or not.
             if self.dirty and self.online:
                 self.send_update_self(reset_fields=False)
-                self.send_update_surrounding(self.generate_proper_update_packet())
+                self.send_create_packet_surroundings(self.generate_proper_update_packet())
                 if self.reset_fields_older_than(now):
                     self.set_dirty(is_dirty=False, dirty_inventory=False)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
@@ -1381,7 +1385,9 @@ class PlayerManager(UnitManager):
         if reset_fields:
             self.reset_fields_older_than(time.time())
 
-    def send_update_surrounding(self, update_packet, include_self=False, create=False, force_inventory_update=False):
+    # override
+    def send_create_packet_surroundings(self, update_packet, include_self=False, create=False,
+                                        force_inventory_update=False):
         if not create and (self.dirty_inventory or force_inventory_update):
             self.inventory.send_inventory_update(is_self=False)
             self.inventory.build_update()

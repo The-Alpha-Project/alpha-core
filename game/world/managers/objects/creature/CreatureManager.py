@@ -87,7 +87,8 @@ class CreatureManager(UnitManager):
                                          self.creature_instance.position_z,
                                          self.creature_instance.orientation)
             self.location = self.spawn_position.copy()
-            self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
+            self.respawn_time = randint(self.creature_instance.spawntimesecsmin,
+                                        self.creature_instance.spawntimesecsmax)
 
         # All creatures can block, parry and dodge by default.
         # TODO CANT_BLOCK creature extra flag
@@ -109,10 +110,10 @@ class CreatureManager(UnitManager):
         instance.spawn_id = CreatureManager.CURRENT_HIGHEST_GUID + 1
         instance.spawn_entry1 = entry
         instance.map = map_id
-        instance.orientation = location.o
         instance.position_x = location.x
         instance.position_y = location.y
         instance.position_z = location.z
+        instance.orientation = location.o
         instance.health_percent = 100
         instance.mana_percent = 100
         if despawn_time < 1:
@@ -129,7 +130,7 @@ class CreatureManager(UnitManager):
             creature.faction = override_faction
 
         creature.load()
-        creature.send_update_surrounding()
+        creature.send_create_packet_surroundings()
 
         return creature
 
@@ -264,7 +265,7 @@ class CreatureManager(UnitManager):
                         self.set_virtual_item(2, creature_equip_template.equipentry3)
 
                 self.stat_manager.init_stats()
-                self.stat_manager.apply_bonuses()
+                self.stat_manager.apply_bonuses(set_dirty=False)
 
                 self.fully_loaded = True
 
@@ -481,11 +482,7 @@ class CreatureManager(UnitManager):
                     self.respawn()
                 # Destroy body when creature is about to respawn
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
-                    self.is_spawned = False
-                    if self.is_summon:
-                        MapManager.remove_object(self)
-                    else:
-                        MapManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
+                    self.despawn()
 
             # Check "dirtiness" to determine if this creature object should be updated yet or not.
             if self.dirty:
@@ -557,12 +554,6 @@ class CreatureManager(UnitManager):
         else:
             self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
-
-    def send_update_surrounding(self):
-        update_packet = UpdatePacketFactory.compress_if_needed(
-            PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                    self.get_full_update_packet(is_self=False)))
-        MapManager.send_surrounding(update_packet, self, include_self=False)
 
     # override
     def has_offhand_weapon(self):

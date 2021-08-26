@@ -923,12 +923,6 @@ class UnitManager(ObjectManager):
         self.channel_spell = spell_id
         self.set_uint64(UnitFields.UNIT_CHANNEL_SPELL, spell_id)
 
-    def generate_proper_update_packet(self, is_self=False, create=False):
-        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT,
-            self.get_full_update_packet(is_self=is_self) if create else self.get_partial_update_packet()))
-        return update_packet
-
     def die(self, killer=None):
         if not self.is_alive:
             return False
