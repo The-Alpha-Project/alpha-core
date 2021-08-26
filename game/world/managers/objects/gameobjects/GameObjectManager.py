@@ -161,12 +161,6 @@ class GameObjectManager(ObjectManager):
             return
 
         ritual_channel_spell_id = self.gobject_template.data2
-
-        # Clear participants who have interrupted their channel.
-        for participant in list(self.ritual_participants):
-            if not participant.spell_manager.is_casting_spell(ritual_channel_spell_id):
-                self.ritual_participants.remove(participant)
-
         if player is self.ritual_caster or player in self.ritual_participants:
             return  # No action needed for this player.
 
