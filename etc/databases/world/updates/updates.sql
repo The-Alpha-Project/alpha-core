@@ -105,7 +105,6 @@ begin not atomic
         insert into applied_updates values ('240820211');
     end if;
 
-
     -- 24/08/2021 2
     if (select count(*) from applied_updates where id='240820212') = 0 then
         -- # SW NPC Display Fix
@@ -207,6 +206,15 @@ begin not atomic
 
 
         insert into applied_updates values('240820212');
+    end if;
+
+    -- 27/08/2021 1
+    if (select count(*) from applied_updates where id='270820211') = 0 then
+        -- Delete Small Shield that was added later in game and use the old, proper one.
+        UPDATE `npc_vendor` SET `item` = 2133 WHERE `item` = 17184;
+        DELETE FROM `item_template` WHERE `entry` = 17184;
+
+        insert into applied_updates values ('270820211');
     end if;
 
 end $
