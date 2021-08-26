@@ -240,15 +240,9 @@ begin not atomic
         -- Celmoridan Trainer https://ibb.co/41n7Z4H
         INSERT INTO `spawns_creatures` values(NULL, 5507, 0, 0, 0, 0, 0, 0, -8788.12, 1119.264, 90.75, 2.797, 300, 300, 0, 100, 0, 0, 0, 0, 0);
         UPDATE `creature_template` SET `level_min`=35, `level_max`=35 WHERE `entry`=5507;
-        -- Celmoridan's Minion
-        INSERT INTO `spawns_creatures` values(NULL, 5447, 0, 0, 0, 0, 0, 0, -8789.09, 1115.75, 90.7, 2.797, 300, 300, 0, 100, 0, 0, 0, 0, 0);
-        UPDATE `creature_template` SET `subname`="Celmoridan's Minion", `level_min`=35, `level_max`=35 WHERE `entry`=5447;
 
         -- Strumner Flintheel Trainer https://ibb.co/pzpckG8
         UPDATE `spawns_creatures` SET `position_y`=645.884,`position_z`=95.129,`orientation`=0.027,`position_x`=-8398.23 WHERE `spawn_id`=2701;
-        -- Flintheel's Minion
-        INSERT INTO `spawns_creatures` values(NULL, 5444, 0, 0, 0, 0, 0, 0, -8398.17, 648.70, 95.2365, 0.027, 300, 300, 0, 100, 0, 0, 0, 0, 0);
-        UPDATE `creature_template` SET `subname`="Strumner Flintheel's Minion", `level_min`=40, `level_max`=40 WHERE `entry`=5444;
 
 
         -- # NPC HIDE NOT PRESENTS IN 0.5.3 (set one by one to be more readable)
