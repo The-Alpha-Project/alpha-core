@@ -222,7 +222,7 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1`=832, `level_min`=90, `level_max`=90 WHERE `entry`=1751;
 
         -- Argos Nightwhisper, the only unused night elf male model is 2192, but it's not a 100% proof
-        UPDATE `creature_template` SET `display_id1`=2192, `level_min`=90, `level_max`=90 WHERE `entry`=4984;
+        UPDATE `creature_template` SET `display_id1`=2192 WHERE `entry`=4984;
 
 
         -- # NPC SPAWN FIX
