@@ -523,16 +523,8 @@ class SpellManager(object):
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
 
-        # Specific handling of ritual of summoning interrupting.
-        if self.unit_mgr.channel_object:
-            channel_object = MapManager.get_surrounding_gameobject_by_guid(self.unit_mgr, self.unit_mgr.channel_object)
-            if channel_object and \
-                    channel_object.gobject_template.type == GameObjectTypes.TYPE_RITUAL and \
-                    channel_object.ritual_caster is self.unit_mgr:
-                for player in channel_object.ritual_participants:
-                    ritual_channel_spell_id = channel_object.gobject_template.data2
-                    player.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
-                MapManager.remove_object(channel_object)
+        if self.unit_mgr.channel_object:  # Interrupting Ritual of Summoning required special handling.
+            self._handle_summoning_channel_end()
 
         self.unit_mgr.set_channel_object(0)
         self.unit_mgr.set_channel_spell(0)
@@ -697,7 +689,9 @@ class SpellManager(object):
                 return False
 
         if not self._validate_summon_cast(casting_spell):
-            self.remove_cast_by_id(698)
+            # If the summon effect fails, the channel must be interrupted.
+            summoning_channel_id = 698
+            self.remove_cast_by_id(summoning_channel_id)
             return False
 
         if not self.meets_casting_requisites(casting_spell):
@@ -707,12 +701,22 @@ class SpellManager(object):
 
     def _validate_summon_cast(self, casting_spell) -> bool:
         # The spell triggered by ritual of summoning has no attributes. Check for known restrictions here.
+        # This method also interrupts the summoning channel when necessary.
         # Note that summoning didn't have many restrictions in 0.5.3. See SpellEffectHandler.handle_summon_player for notes.
         if not casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PLAYER) or self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return True
 
-        target_guid = self.unit_mgr.current_selection
+        if not self.unit_mgr.channel_object:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
+            return False
 
+        channel_object = MapManager.get_surrounding_gameobject_by_guid(self.unit_mgr,
+                                                                       self.unit_mgr.channel_object)
+        if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL or channel_object.ritual_caster is not self.unit_mgr:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
+            return False
+
+        target_guid = self.unit_mgr.current_selection
         if not target_guid:
             self.send_cast_result(casting_spell.spell_entry.ID,
                                   SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
@@ -726,27 +730,6 @@ class SpellManager(object):
         if not self.unit_mgr.group_manager or not self.unit_mgr.group_manager.is_party_member(target_guid):
             self.send_cast_result(casting_spell.spell_entry.ID,
                                   SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
-            return False
-
-        if not self.unit_mgr.channel_object:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
-            return False
-        # Validate that the ritual has the required participants still casting
-        channel_object = MapManager.get_surrounding_gameobject_by_guid(self.unit_mgr,
-                                                                       self.unit_mgr.channel_object)
-        if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL or channel_object.ritual_caster is not self.unit_mgr:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
-            return False
-
-        required_participants = channel_object.gobject_template.data0 - 1
-        participant_count = 0
-        for player in channel_object.ritual_participants:
-            ritual_channel_spell_id = channel_object.gobject_template.data2
-            if player.spell_manager.is_casting_spell(ritual_channel_spell_id):
-                participant_count += 1
-
-        if participant_count < required_participants:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
             return False
 
         return True
@@ -816,6 +799,31 @@ class SpellManager(object):
                     return False
 
         return True
+
+    def _handle_summoning_channel_end(self):
+        # Specific handling of ritual of summoning interrupting.
+        if not self.unit_mgr.channel_object:
+            return
+        channel_object = MapManager.get_surrounding_gameobject_by_guid(self.unit_mgr, self.unit_mgr.channel_object)
+        if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL:
+            return
+
+        # If the ritual caster interrupts channeling, interrupt others and remove the portal.
+        if channel_object.ritual_caster is self.unit_mgr:
+            MapManager.remove_object(channel_object)
+
+            ritual_channel_spell_id = channel_object.gobject_template.data2
+            for player in channel_object.ritual_participants:
+                # Note that this call will lead to _handle_summoning_channel_end() calls from the participants.
+                player.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
+
+        # If a participant interrupts their channeling, remove from participants and interrupt summoning if necessary.
+        elif self.unit_mgr in channel_object.ritual_participants:
+            channel_object.ritual_participants.remove(self.unit_mgr)
+            required_participants = channel_object.gobject_template.data0
+            if len(channel_object.ritual_participants) < required_participants - 1:  # -1 to include ritual caster.
+                ritual_summon_spell_id = channel_object.gobject_template.data1
+                channel_object.ritual_caster.spell_manager.remove_cast_by_id(ritual_summon_spell_id)
 
     def consume_resources_for_cast(self, casting_spell):  # This method assumes that the reagents exist (meets_casting_requisites was run).
         power_type = casting_spell.spell_entry.PowerType
