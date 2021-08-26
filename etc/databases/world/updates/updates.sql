@@ -80,22 +80,22 @@ begin not atomic
         insert into applied_updates values ('200820212');
     end if;
 
-    -- 23/08/2021 1
-    if (select count(*) from applied_updates where id='230820211') = 0 then
-        CREATE TABLE `spell_target_position` (
-          `id` mediumint(8) unsigned NOT NULL DEFAULT 0,
-          `target_map` smallint(5) unsigned NOT NULL DEFAULT 0,
-          `target_position_x` float NOT NULL DEFAULT 0,
-          `target_position_y` float NOT NULL DEFAULT 0,
-          `target_position_z` float NOT NULL DEFAULT 0,
-          `target_orientation` float NOT NULL DEFAULT 0,
-          PRIMARY KEY (`id`,`target_map`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    -- -- 23/08/2021 1
+    -- if (select count(*) from applied_updates where id='230820211') = 0 then
+    --     CREATE TABLE `spell_target_position` (
+    --       `id` mediumint(8) unsigned NOT NULL DEFAULT 0,
+    --       `target_map` smallint(5) unsigned NOT NULL DEFAULT 0,
+    --       `target_position_x` float NOT NULL DEFAULT 0,
+    --       `target_position_y` float NOT NULL DEFAULT 0,
+    --       `target_position_z` float NOT NULL DEFAULT 0,
+    --       `target_orientation` float NOT NULL DEFAULT 0,
+    --       PRIMARY KEY (`id`,`target_map`)
+    --     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-        INSERT INTO `spell_target_position` VALUES (442,129,2592.55,1107.5,51.29,4.74),(444,1,-4658.12,-2526.35,82.9671,0),(446,109,-319.24,99.9,-131.85,3.19),(3561,0,-9003.46,870.031,29.6206,5.28),(3562,0,-4613.62,-915.38,501.062,3.88),(3563,0,1773.47,61.121,-46.3207,0.54),(3565,1,9660.81,2513.64,1331.66,3.06),(3566,1,-964.98,283.433,111.187,3.02),(3567,1,1469.85,-4221.52,58.9939,5.98),(33,0,-10643,1052,34,0),(31,0,-9464,62,56,0),(34,0,-10368,-422,66,0),(35,0,-9104,-70,83,0),(427,189,1688.99,1053.48,18.6775,0.00117),(428,0,-11020,1436,44,0),(445,0,-10566,-1189,28,0),(4996,1,1552.5,-4420.66,8.94802,0),(4997,0,-14457,496.45,39.1392,0),(4998,0,-12415,207.618,31.5017,0.124875),(4999,1,-998.359,-3827.52,5.44507,4.16654),(6348,0,-3752.81,-851.558,10.1153,0),(6349,1,6581.05,767.5,5.78428,6.01616),(6483,1,5483.9,-749.881,334.621,0),(6719,1,-3615.49,-4467.34,24.3141,0),(447,0,16229,16265,14,3.19),(3721,0,16229,16265,14,3.19),(1936,0,16229,16265,14,0),(443,0,16229,16265,14,4.74),(6766,1,-2354.03,-1902.07,95.78,4.6),(6714,1,-4884.49,-1596.2,101.2,3.17),(7587,33,-102.933,2124.29,155.648,1.08944),(7586,33,-105.88,2154.87,156.445,5.82146),(7136,33,-85.767,2150.22,155.607,3.97629);
+    --     INSERT INTO `spell_target_position` VALUES (442,129,2592.55,1107.5,51.29,4.74),(444,1,-4658.12,-2526.35,82.9671,0),(446,109,-319.24,99.9,-131.85,3.19),(3561,0,-9003.46,870.031,29.6206,5.28),(3562,0,-4613.62,-915.38,501.062,3.88),(3563,0,1773.47,61.121,-46.3207,0.54),(3565,1,9660.81,2513.64,1331.66,3.06),(3566,1,-964.98,283.433,111.187,3.02),(3567,1,1469.85,-4221.52,58.9939,5.98),(33,0,-10643,1052,34,0),(31,0,-9464,62,56,0),(34,0,-10368,-422,66,0),(35,0,-9104,-70,83,0),(427,189,1688.99,1053.48,18.6775,0.00117),(428,0,-11020,1436,44,0),(445,0,-10566,-1189,28,0),(4996,1,1552.5,-4420.66,8.94802,0),(4997,0,-14457,496.45,39.1392,0),(4998,0,-12415,207.618,31.5017,0.124875),(4999,1,-998.359,-3827.52,5.44507,4.16654),(6348,0,-3752.81,-851.558,10.1153,0),(6349,1,6581.05,767.5,5.78428,6.01616),(6483,1,5483.9,-749.881,334.621,0),(6719,1,-3615.49,-4467.34,24.3141,0),(447,0,16229,16265,14,3.19),(3721,0,16229,16265,14,3.19),(1936,0,16229,16265,14,0),(443,0,16229,16265,14,4.74),(6766,1,-2354.03,-1902.07,95.78,4.6),(6714,1,-4884.49,-1596.2,101.2,3.17),(7587,33,-102.933,2124.29,155.648,1.08944),(7586,33,-105.88,2154.87,156.445,5.82146),(7136,33,-85.767,2150.22,155.607,3.97629);
 
-        insert into applied_updates values ('230820211');
-    end if;
+    --     insert into applied_updates values ('230820211');
+    -- end if;
 
     -- 24/08/2021 1
     if (select count(*) from applied_updates where id='240820211') = 0 then
@@ -209,5 +209,90 @@ begin not atomic
         insert into applied_updates values('240820212');
     end if;
 
+
+    -- 26/08/2021 1
+    if (select count(*) from applied_updates where id='260820211') = 0 then
+
+        -- # NPC DISPLAY FIX
+
+        -- Grand Admiral Jes-Tereth https://ibb.co/XyvCj5C
+        UPDATE `creature_template` SET `display_id1`=224, `level_min`=90, `level_max`=90 WHERE `entry`=1750;
+
+        -- Mithras Ironhill https://ibb.co/bjVCWfj
+        UPDATE `creature_template` SET `display_id1`=832, `level_min`=90, `level_max`=90 WHERE `entry`=1751;
+
+        -- Argos Nightwhisper, the only unused night elf male model is 2192, but it's not a 100% proof
+        UPDATE `creature_template` SET `display_id1`=2192, `level_min`=90, `level_max`=90 WHERE `entry`=4984;
+
+
+        -- # NPC SPAWN FIX
+
+        -- Larimaine Purdue, portal trainer https://ibb.co/5rHtY4w
+        UPDATE `spawns_creatures` SET `position_z`=148.618,`position_x`=-9000.5,`position_y`=872.164,`orientation`=3.239 WHERE `spawn_id`=90441;
+
+        -- Elsharin, mage trainer https://ibb.co/nBTt9GT
+        UPDATE `spawns_creatures` SET `position_z`=148.61,`position_x`=-9010.84,`position_y`=880.065,`orientation`=4.158 WHERE `spawn_id`=90463;
+
+        -- Tanyssa Tailoring Trainer https://ibb.co/yQdwJBL
+        UPDATE `spawns_creatures` SET `position_z`=104.946,`position_x`=-8776.7,`position_y`=1005.04,`orientation`=5.811 WHERE `spawn_id`=79825;
+        UPDATE `creature_template` SET `subname`="Tailoring Trainer" WHERE `entry`=5566;
+
+        -- Celmoridan Trainer https://ibb.co/41n7Z4H
+        INSERT INTO `spawns_creatures` values(NULL, 5507, 0, 0, 0, 0, 0, 0, -8788.12, 1119.264, 90.75, 2.797, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+        UPDATE `creature_template` SET `level_min`=35, `level_max`=35 WHERE `entry`=5507;
+        -- Celmoridan's Minion
+        INSERT INTO `spawns_creatures` values(NULL, 5447, 0, 0, 0, 0, 0, 0, -8789.09, 1115.75, 90.7, 2.797, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+        UPDATE `creature_template` SET `subname`="Celmoridan's Minion", `level_min`=35, `level_max`=35 WHERE `entry`=5447;
+
+        -- Strumner Flintheel Trainer https://ibb.co/pzpckG8
+        UPDATE `spawns_creatures` SET `position_y`=645.884,`position_z`=95.129,`orientation`=0.027,`position_x`=-8398.23 WHERE `spawn_id`=2701;
+        -- Flintheel's Minion
+        INSERT INTO `spawns_creatures` values(NULL, 5444, 0, 0, 0, 0, 0, 0, -8398.17, 648.70, 95.2365, 0.027, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+        UPDATE `creature_template` SET `subname`="Strumner Flintheel's Minion", `level_min`=40, `level_max`=40 WHERE `entry`=5444;
+
+
+        -- # NPC HIDE NOT PRESENTS IN 0.5.3 (set one by one to be more readable)
+
+        -- ################################################
+        -- #  The highest entry I have seen in Stormwind  #
+        -- #    on an NPC probably present in 0.5.3 is    #
+        -- #                  [ 5566 ]                    #
+        -- #           (with unique display id)           #
+        -- #  So all that is above entry must be despawn  #
+        -- ################################################
+
+        -- Shailiea entry 7295
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=90477;
+        -- Brother Sarno entry 7917
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=44022;
+        -- Duthorian Rail entry 6171
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=39536;
+        -- Gazin Tenorm entry 6173
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=39538;
+        -- Shoni the shilent 6579
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=41677;
+        -- Borgus Steelhand 7232
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=42580;
+        -- Tyrion 7766
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=43667;
+        -- Tyion's Spybot 8856
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=45707;
+        -- Priestess Tyriona 7779
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=43690;
+        -- Bartleby 6090 
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=79750;
+        -- Harry Burlguard 6089
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=79773;
+        -- High Sorcerer Andromath 5694, we can see on mage trainer screenshot, he is despawn
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=90470;
+
+        -- # GAMEOBJECTS HIDE
+        -- Those chairs are not part of 0.5.3
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (26470, 26471, 26472, 26472, 26473, 26474, 26475, 26476, 26477, 26478);
+        -- Those chairs in Wizard's Sanctum are not part of 0.5.3
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (42890, 42891, 42892, 42893, 42896);
+
+        insert into applied_updates values('260820211');
+    end if;
 end $
 delimiter ;
