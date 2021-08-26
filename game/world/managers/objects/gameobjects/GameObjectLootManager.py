@@ -37,6 +37,9 @@ class GameObjectLootManager(LootManager):
                 if item_chance >= 100 or chance - item_chance < 0 or loot_item.ChanceOrQuestChance == 0:
                     item = ItemManager.generate_item_from_entry(item_template.entry)
                     if item:
+                        # TODO Not handling references to other templates at this moment (mincountOrRef < 0), ignore.
+                        if loot_item.mincountOrRef < 0:
+                            continue
                         self.current_loot.append(LootHolder(item, randint(loot_item.mincountOrRef, loot_item.maxcount)))
 
     # override
