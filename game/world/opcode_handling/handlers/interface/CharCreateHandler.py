@@ -3,15 +3,12 @@ from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import *
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.player.ReputationManager import ReputationManager
-from game.world.managers.objects.player.SkillManager import SkillManager, SkillTypes
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils import TextUtils
 from utils.ConfigManager import config
 from utils.constants.CharCodes import *
 from utils.constants.ItemCodes import InventorySlots
-from utils.constants.MiscCodes import SkillCategories
-from utils.constants.SpellCodes import SpellEffects
 from utils.constants.UnitCodes import Classes
 
 
@@ -108,11 +105,9 @@ class CharCreateHandler(object):
             button = CharacterButton()
             button.owner = guid
             button.index = action.button
-            # if type is 128, action is an item and we need negative number
-            button.action = action.action*-1 if action.type else action.action 
+            button.action = action.action
 
             RealmDatabaseManager.character_add_button(button)
-
 
     @staticmethod
     def generate_starting_taxi_nodes(character, race):

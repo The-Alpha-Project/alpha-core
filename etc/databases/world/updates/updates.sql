@@ -219,10 +219,9 @@ begin not atomic
 
     -- 28/08/2021 1
     if (select count(*) from applied_updates where id='280820211') = 0 then
-
         -- # Fix default buttons for new characters
 
-       -- Dwarf Racial not in game (stoneform)
+        -- Dwarf Racial not in game (stoneform)
         DELETE FROM `playercreateinfo_action`
         WHERE `action`= 20594;
 
@@ -266,6 +265,10 @@ begin not atomic
                 (1,	3,	8,	2,	168,	0), -- frost armor
                 (1,	3,	8,	10,	159,	128), -- food
                 (1,	3,	8,	11,	4540,	128); -- drink
+
+        ALTER TABLE `playercreateinfo_action` CHANGE COLUMN `action` `action` int(11) NOT NULL DEFAULT 0;
+        UPDATE `playercreateinfo_action` SET `action` = `action` * -1 WHERE `type` = 128;
+        UPDATE `playercreateinfo_action` SET `type` = 255 WHERE `type` = 128;
 
         insert into applied_updates values ('280820211');
     end if;
