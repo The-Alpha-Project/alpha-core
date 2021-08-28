@@ -270,12 +270,14 @@ class PlayerManager(UnitManager):
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
 
+        MapManager.remove_object(self)
+
         if self.group_manager:
             self.group_manager.send_update()
 
         self.friends_manager.send_offline_notification()
         self.session.save_character()
-        MapManager.remove_object(self)
+
         WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
         self.session = None
