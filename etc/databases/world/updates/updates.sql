@@ -217,5 +217,58 @@ begin not atomic
         insert into applied_updates values ('270820211');
     end if;
 
+    -- 28/08/2021 1
+    if (select count(*) from applied_updates where id='280820211') = 0 then
+
+        -- # Fix default buttons for new characters
+
+       -- Dwarf Racial not in game (stoneform)
+        DELETE FROM `playercreateinfo_action`
+        WHERE `action`= 20594;
+
+        -- Orc Racial not in game
+        DELETE FROM `playercreateinfo_action`
+        WHERE `action`= 20572;
+
+        -- Undead Racial not in game
+        DELETE FROM `playercreateinfo_action`
+        WHERE `action`= 20577;
+
+        -- Elf Racial not in game
+        DELETE FROM `playercreateinfo_action`
+        WHERE `action`= 20580;
+
+        -- Tauren Racial not in game
+        DELETE FROM `playercreateinfo_action`
+        WHERE `action`= 20549;
+
+        -- Troll Racial not in game
+        DELETE FROM `playercreateinfo_action`
+        WHERE `action`= 26296;
+
+        -- Paladin's seal not in game
+        DELETE FROM `playercreateinfo_action`
+        WHERE `action`= 21084;
+
+        -- we replace button index of Holy Light for paladins all race (cause we deleted seal)
+        UPDATE `playercreateinfo_action`
+        SET `button`=1 WHERE `action`=635;
+
+        -- we decrease by 1 'Find treasure' index for dwarf paladins (cause we moved holy light)
+        UPDATE `playercreateinfo_action`
+        SET `button`=button-1
+        WHERE `action`=2481 AND `race`=3 AND `class`=2;
+
+        -- Dwarf mage was not in 1.12, so we create buttons
+        INSERT INTO `playercreateinfo_action`
+        VALUES  (1,	3,	8,	0,	6603,	0), -- attack
+                (1,	3,	8,	1,	133,	0), -- fireball
+                (1,	3,	8,	2,	168,	0), -- frost armor
+                (1,	3,	8,	10,	159,	128), -- food
+                (1,	3,	8,	11,	4540,	128); -- drink
+
+        insert into applied_updates values ('280820211');
+    end if;
+
 end $
 delimiter ;
