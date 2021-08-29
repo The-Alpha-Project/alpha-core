@@ -351,5 +351,15 @@ begin not atomic
 
         insert into applied_updates values('290820211');
     end if;
+
+    -- 29/08/2021 2
+    if (select count(*) from applied_updates where id='290820212') = 0 then
+        -- Fixes for Stormwind pet trainers.
+        update creature_template set faction = 11, health_min = 992, health_max = 992, mana_max = 992, mana_min = 992, armor = 751, dmg_min = 92, dmg_max = 109, attack_power = 138, base_attack_time = 2000, ranged_attack_time = 2000, ranged_dmg_min = 53.8384, ranged_dmg_max = 74.0278, ranged_attack_power = 100 where entry = 5507;
+        update creature_template set trainer_type = 3, npc_flags = 8 where entry in (5507, 5508);
+        delete from npc_vendor where entry = 5508;
+
+        insert into applied_updates values ('290820212');
+    end if;
 end $
 delimiter ;
