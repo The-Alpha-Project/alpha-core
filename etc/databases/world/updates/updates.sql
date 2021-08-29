@@ -273,5 +273,83 @@ begin not atomic
         insert into applied_updates values ('280820211');
     end if;
 
+    -- 29/08/2021 1
+    if (select count(*) from applied_updates where id='290820211') = 0 then
+
+        -- # NPC DISPLAY FIX
+
+        -- Grand Admiral Jes-Tereth https://ibb.co/XyvCj5C
+        UPDATE `creature_template` SET `display_id1`=224, `level_min`=90, `level_max`=90 WHERE `entry`=1750;
+
+        -- Mithras Ironhill https://ibb.co/bjVCWfj
+        UPDATE `creature_template` SET `display_id1`=832, `level_min`=90, `level_max`=90 WHERE `entry`=1751;
+
+        -- Argos Nightwhisper, the only unused night elf male model is 2192, but it's not a 100% proof
+        UPDATE `creature_template` SET `display_id1`=2192 WHERE `entry`=4984;
+
+
+        -- # NPC SPAWN FIX
+
+        -- Larimaine Purdue, portal trainer https://ibb.co/5rHtY4w
+        UPDATE `spawns_creatures` SET `position_z`=148.618,`position_x`=-9000.5,`position_y`=872.164,`orientation`=3.239 WHERE `spawn_id`=90441;
+
+        -- Elsharin, mage trainer https://ibb.co/nBTt9GT
+        UPDATE `spawns_creatures` SET `position_z`=148.61,`position_x`=-9010.84,`position_y`=880.065,`orientation`=4.158 WHERE `spawn_id`=90463;
+
+        -- Tannysa Tailoring Trainer https://ibb.co/yQdwJBL
+        UPDATE `spawns_creatures` SET `position_z`=104.946,`position_x`=-8776.7,`position_y`=1005.04,`orientation`=5.811 WHERE `spawn_id`=79825;
+        UPDATE `creature_template` SET `subname`="Tailoring Trainer" WHERE `entry`=5566;
+
+        -- Celmoridan Trainer https://ibb.co/41n7Z4H
+        INSERT INTO `spawns_creatures` values(NULL, 5507, 0, 0, 0, 0, 0, 0, -8788.12, 1119.264, 90.75, 2.797, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+        UPDATE `creature_template` SET `level_min`=35, `level_max`=35 WHERE `entry`=5507;
+
+        -- Strumner Flintheel Trainer https://ibb.co/pzpckG8
+        UPDATE `spawns_creatures` SET `position_y`=645.884,`position_z`=95.129,`orientation`=0.027,`position_x`=-8398.23 WHERE `spawn_id`=2701;
+
+
+        -- # NPC HIDE NOT PRESENTS IN 0.5.3 (set one by one to be more readable)
+
+        -- ################################################
+        -- #  The highest entry I have seen in Stormwind  #
+        -- #    on an NPC probably present in 0.5.3 is    #
+        -- #                  [ 5566 ]                    #
+        -- #           (with unique display id)           #
+        -- #  So all that is above entry must be despawn  #
+        -- ################################################
+
+        -- Shailiea entry 7295
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=90477;
+        -- Brother Sarno entry 7917
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=44022;
+        -- Duthorian Rail entry 6171
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=39536;
+        -- Gazin Tenorm entry 6173
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=39538;
+        -- Shoni the shilent 6579
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=41677;
+        -- Borgus Steelhand 7232
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=42580;
+        -- Tyrion 7766
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=43667;
+        -- Tyrion's Spybot 8856
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=45707;
+        -- Priestess Tyriona 7779
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=43690;
+        -- Bartleby 6090 
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=79750;
+        -- Harry Burlguard 6089
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=79773;
+        -- High Sorcerer Andromath 5694, we can see on mage trainer screenshot, he is despawned
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_id`=90470;
+
+        -- # GAMEOBJECTS HIDE
+        -- Those chairs are not part of 0.5.3
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (26470, 26471, 26472, 26472, 26473, 26474, 26475, 26476, 26477, 26478);
+        -- Those chairs in Wizard's Sanctum are not part of 0.5.3
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (42890, 42891, 42892, 42893, 42896);
+
+        insert into applied_updates values('290820211');
+    end if;
 end $
 delimiter ;
