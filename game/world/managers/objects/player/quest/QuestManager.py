@@ -34,7 +34,12 @@ class QuestManager(object):
             if quest_db_state.rewarded > 0:
                 self.completed_quests.add(quest_db_state.quest)
             elif quest_db_state.state == QuestState.QUEST_ACCEPTED or quest_db_state.state == QuestState.QUEST_REWARD:
-                active_quest = ActiveQuest(quest_db_state, self.player_mgr)
+                quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_db_state.quest)
+                # If this quest no longer exists, make sure to delete it from player's log.
+                if not quest:
+                    RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_db_state.quest)
+                    continue
+                active_quest = ActiveQuest(quest_db_state, self.player_mgr, quest)
                 self.active_quests[quest_db_state.quest] = active_quest
                 # Needed in case the WDB has been deleted, otherwise non cached quests won't appear in the log.
                 self.send_quest_query_response(active_quest.quest)
