@@ -551,14 +551,18 @@ class QuestManager(object):
             self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ONLY_ONE_TIMED)
             return
 
-        active_quest = self._create_db_quest_status(quest_id)
-        active_quest.save(is_new=True)
+        quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
+        if not quest:
+            return
 
-        req_src_item = active_quest.quest.SrcItemId
-        req_src_item_count = active_quest.quest.SrcItemCount
+        req_src_item = quest.SrcItemId
+        req_src_item_count = quest.SrcItemCount
         if req_src_item != 0:
-            self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count)
+            if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count):
+                return
 
+        active_quest = self._create_db_quest_status(quest)
+        active_quest.save(is_new=True)
         self.add_to_quest_log(quest_id, active_quest)
         self.send_quest_query_response(active_quest.quest)
 
@@ -756,9 +760,9 @@ class QuestManager(object):
         for slot in range(0, MAX_QUEST_LOG):
             self.update_single_quest(active_quest_list[slot] if slot < len(active_quest_list) else 0, slot)
 
-    def _create_db_quest_status(self, quest_id):
+    def _create_db_quest_status(self, quest):
         db_quest_status = CharacterQuestState()
         db_quest_status.guid = self.player_mgr.guid
-        db_quest_status.quest = quest_id
+        db_quest_status.quest = quest.entry
         db_quest_status.state = QuestState.QUEST_ACCEPTED.value
-        return ActiveQuest(db_quest_status, self.player_mgr)
+        return ActiveQuest(db_quest_status, self.player_mgr, quest)

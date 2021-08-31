@@ -113,7 +113,7 @@ class InventoryManager(object):
                     if amount_left <= 0:
                         break
 
-        items_added = (amount_left != count)
+        items_added = amount_left != count
         if items_added:
             if show_item_get:
                 # Default to backpack so we can prefer highest slot ID to receive message (backpack ID is highest).

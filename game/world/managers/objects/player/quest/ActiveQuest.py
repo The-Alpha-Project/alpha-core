@@ -8,10 +8,10 @@ from utils.constants.MiscCodes import QuestState
 
 
 class ActiveQuest:
-    def __init__(self, quest_db_state, player_mgr):
+    def __init__(self, quest_db_state, player_mgr, quest):
         self.owner = player_mgr
         self.db_state = quest_db_state
-        self.quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(self.db_state.quest)
+        self.quest = quest
         self.failed = False
 
     def is_quest_complete(self, quest_giver_guid):
