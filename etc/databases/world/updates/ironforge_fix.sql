@@ -58,11 +58,11 @@ begin not atomic
             WHERE spawn_id IN (5352, 5141, 5205, 1883, 8256, 5203, 5382, 1887, 5396, 5398, 5405, 5424, 5423, 5425, 5422, 5193,5195);
 
         -- Forge SPAWN CREATION 
-            INSERT INTO alpha_world.spawns_gameobjects 
+            INSERT INTO spawns_gameobjects 
             VALUES(NULL, 24745, 0, -4818.97, -1109.22, 477.237, 0, 0, 0, 0 ,0, 0, 0, 0, 1, 0, 0 , 0);
 
         -- Anvil SPAWN CREATION
-            INSERT INTO alpha_world.spawns_gameobjects 
+            INSERT INTO spawns_gameobjects 
             VALUES(NULL, 1744, 0, -4786.69, -1085.23, 477.237, 1.5, 0, 0, 0 ,0, 0, 0, 0, 1, 0, 0 , 0);
 
 
@@ -154,7 +154,7 @@ begin not atomic
             WHERE spawn_id=5018;
 
         -- Stonebrew's clothier
-        UPDATE alpha_world.spawns_gameobjects
+        UPDATE spawns_gameobjects
             SET spawn_positionZ=523.0,spawn_orientation=3.59,spawn_positionX=-4602.71,spawn_rotation3=0.0,spawn_rotation2=0.0,spawn_positionY=-980.07
             WHERE spawn_id=5057;
 
@@ -244,7 +244,7 @@ begin not atomic
             WHERE spawn_id=92;
 
         -- Kelomir Steelhand
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-5037.38,position_z=520.51,position_y=-1206.76
             WHERE spawn_id=61;
 
@@ -429,192 +429,192 @@ begin not atomic
             WHERE spawn_id=99;
 
         -- Golnir
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-4715.49,position_z=494.44,position_y=-1159.96,orientation=0.94
             WHERE spawn_id=1812;
 
         -- Geofram
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-4710.23,position_y=-1149.66,orientation=4.468,position_z=494.44
             WHERE spawn_id=1811;
 
         -- Dolman
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-4933.49,position_y=-999.066,orientation=0.869,position_z=493
             WHERE spawn_id=110;
 
         -- Hjoldir
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-4932.01,position_y=-1000.22,orientation=0.869,position_z=493
             WHERE spawn_id=1786;
 
         -- Grenil
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_y=-1001.27,position_z=493,orientation=0.869,position_x=-4930.66
             WHERE spawn_id=112;
 
         -- Raena
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_y=-1003.93,position_z=494.419,orientation=4.057,position_x=-4845.73
             WHERE spawn_id=1755;
 
         -- Mangorn
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=494.43,position_x=-4854.55,position_y=-1009.37,orientation=0.366
             WHERE spawn_id=1751;
 
         -- Harick
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=521.281
             WHERE spawn_id=1761;
 
         -- Bingus
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=527.08
             WHERE spawn_id=1762;
 
         -- Jormund
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_y=-971.739,orientation=5.151,position_z=527.097,position_x=-4590.48
             WHERE spawn_id=1795;
 
         -- Myra
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-4989.4,position_z=501.66,position_y=-983.935
             WHERE spawn_id=122;
 
         -- Grumnus
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-4819.67,position_z=477.24,position_y=-1114.22,orientation=1.51
             WHERE spawn_id=2030;
 
         -- Soolie (she was already at this location, i just center her a bit)
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=429.5,position_x=-4859.0,position_y=-1231.02,orientation=5.303
             WHERE spawn_id=28;
 
         -- tally (she was already at this location, i just center her a bit)
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-4867.45,orientation=5.433,position_z=429.5,position_y=-1236.5
             WHERE spawn_id=29;
 
         -- Hulfdan
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-4715.64,orientation=5.35,position_z=502.16,position_y=-1001.97
             WHERE spawn_id=1810;
 
         -- Beldruk
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=521.0
             WHERE spawn_id=1769;
 
         -- Brandur
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=521.0
             WHERE spawn_id=1781;
 
         -- Milituus
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=521.0
             WHERE spawn_id=1771;
 
         -- Braenna
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=521.0
             WHERE spawn_id=1770;
 
         -- Braenna
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=521.0
             WHERE spawn_id=1772;
 
         -- Bink
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=521.0
             WHERE spawn_id=1773;
 
         -- Juli
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=521.0
             WHERE spawn_id=1779;
 
         -- Regnus
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=526.0
             WHERE spawn_id=82;
 
         -- Kelstrum
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=526.0
             WHERE spawn_id=83;
 
         -- Bilban
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=526.0
             WHERE spawn_id=84;
 
         -- Olmin
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=526.0
             WHERE spawn_id=87;
 
         -- Daera
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=528.6
             WHERE spawn_id=2020;
 
         -- Longbeard Pilot
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=520.2
             WHERE spawn_id=2022;
 
         -- Bengus
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET orientation=6.23,position_z=477.3,position_y=-1079.53,position_x=-4848.66
             WHERE spawn_id=2013;
 
         -- Brombar
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=477.24,position_x=-4813.87,orientation=4.659,position_y=-1050.88
             WHERE spawn_id=1890;
 
         -- Nissa
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-4909.52,position_z=504.0,orientation=4.172,position_y=-1276.35
             WHERE spawn_id=2015;
             
         -- Bromiir
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-4858.43,position_z=494.5,orientation=0.33,position_y=-1004.47
             WHERE spawn_id=1752;
 
         -- Skolmin
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=-4913.33,position_z=523.5,position_y=-1284.92,orientation=4.318
             WHERE spawn_id=39;
 
         -- Burbik
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_z=512,position_y=-1179.4,position_x=-4697.38,orientation=1
             WHERE spawn_id=1784;
 
         -- Ransin
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET orientation=1.06,position_z=491.883,position_x=-4742.91,position_y=-1019.52
             WHERE spawn_id=1791;
 
         -- Ulthrar
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET orientation=5.179,position_z=527.883,position_x=-4595.265,position_y=-955.457
             WHERE spawn_id=1796;
 
         -- Guard
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET orientation=2.306,position_z=492.197,position_x=-4735.04,position_y=-1162.47
             WHERE spawn_id=1821;
 
         -- Guard
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET orientation=2.306,position_z=492.197,position_x=-4753.14,position_y=-1177.98
             WHERE spawn_id=1893;
 
