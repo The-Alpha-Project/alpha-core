@@ -513,7 +513,7 @@ begin not atomic
             WHERE spawn_id=46903;
 
         -- Deer
-        UPDATE alpha_world.spawns_creatures
+        UPDATE spawns_creatures
             SET position_x=9974.01,position_y=2615.73,position_z=1317.36
             WHERE spawn_id=46443;
 
@@ -522,7 +522,7 @@ begin not atomic
 
         -- Binder
         INSERT INTO spawns_creatures
-            VALUES(NULL, 3777, 0, 0, 0, 1, 0, 0, 9940.15, 2206.46, 1328.96, 5.911, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+            VALUES(NULL, 4340, 0, 0, 0, 1, 0, 0, 9940.15, 2206.46, 1328.96, 5.911, 300, 300, 0, 100, 100, 0, 0, 0, 0);
 
         
 
@@ -535,49 +535,49 @@ begin not atomic
             WHERE spawn_id IN (926, 949);
 
         -- Furnace SPAWN FIX
-        UPDATE alpha_world.spawns_gameobjects 
+        UPDATE spawns_gameobjects 
             SET spawn_positionY=-1154.69,spawn_positionZ=499.40,spawn_positionX=-4773.8,spawn_orientation=3.671,spawn_rotation2=0.0,spawn_rotation3=0.0, ignored=0
             WHERE spawn_id=5319;
 
         -- We fix big shop signs (no more missing ?)
 
         -- Leather Goods
-        UPDATE alpha_world.spawns_gameobjects
+        UPDATE spawns_gameobjects
             SET spawn_positionY=-1204.141,spawn_positionZ=512.0,spawn_positionX=-4944.898,spawn_orientation=3.9
             WHERE spawn_id=6888;
 
         -- Fighting Wizard
-        UPDATE alpha_world.spawns_gameobjects
+        UPDATE spawns_gameobjects
             SET spawn_positionZ=525.0,spawn_positionY=-900.203,spawn_orientation=0.95,spawn_positionX=-4673.338
             WHERE spawn_id=2076;
 
         -- Craghelm's plate
-        UPDATE alpha_world.spawns_gameobjects
+        UPDATE spawns_gameobjects
             SET spawn_positionZ=526.0
             WHERE spawn_id=707;
 
         -- Timberline weapon
-        UPDATE alpha_world.spawns_gameobjects
+        UPDATE spawns_gameobjects
             SET spawn_positionZ=523.0
             WHERE spawn_id=621;
 
         -- Bruuk
-        UPDATE alpha_world.spawns_gameobjects
+        UPDATE spawns_gameobjects
             SET spawn_positionZ=524.0
             WHERE spawn_id=547;
 
         -- Goldfury supplies
-        UPDATE alpha_world.spawns_gameobjects
+        UPDATE spawns_gameobjects
             SET spawn_positionZ=524.0
             WHERE spawn_id=26;
 
         -- Ironforge Physician
-        UPDATE alpha_world.spawns_gameobjects
+        UPDATE spawns_gameobjects
             SET spawn_rotation2=0.0,spawn_rotation3=0.0,spawn_positionZ=512.661,spawn_positionX=-4904.942,spawn_positionY=-1259.135,spawn_orientation=1.18
             WHERE spawn_id=5469;
 
         -- Steelfury weapons
-        UPDATE alpha_world.spawns_gameobjects
+        UPDATE spawns_gameobjects
             SET spawn_positionY=-999.214,spawn_positionZ=494.0,spawn_rotation3=0.0,spawn_positionX=-4913.06,spawn_rotation2=0.0,spawn_orientation=5.58
             WHERE spawn_id=860;
 
