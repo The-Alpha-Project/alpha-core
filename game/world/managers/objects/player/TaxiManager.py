@@ -80,7 +80,6 @@ class TaxiManager(object):
         # Notify player and surroundings.
         self.owner.movement_manager.send_move_to(waypoints, speed, spline)
 
-    # Save partial flight update.
     def update_flight_state(self):
         if self.owner.movement_manager.unit_is_moving():
             self.taxi_path = f'{self.start_node},{self.dest_node},{self.mount_display_id},{len(self.owner.movement_manager.source_waypoints)}'
