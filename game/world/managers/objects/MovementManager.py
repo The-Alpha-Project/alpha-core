@@ -30,6 +30,7 @@ class MovementManager(object):
         self.total_waypoint_time = 0
         self.total_waypoint_timer = 0
         self.waypoint_timer = 0
+        self.source_waypoints = []
 
     def update_pending_waypoints(self, elapsed):
         if not self.should_update_waypoints:
@@ -51,8 +52,8 @@ class MovementManager(object):
                 new_position = current_waypoint.location
                 self.last_position = new_position
                 self.waypoint_timer = 0
-
                 self.pending_waypoints.pop(0)
+                self.source_waypoints.pop(0)
             # Guess current position based on speed and time
             else:
                 guessed_distance = self.speed * self.waypoint_timer
@@ -77,8 +78,10 @@ class MovementManager(object):
                     self.unit.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
                     self.unit.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit.unit_flags)
                     self.unit.unmount()
+                    self.unit.set_dirty()
                     self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination)
                     self.unit.pending_taxi_destination = None
+                    self.unit.taxi_manager.update_flight_state()
                 self.reset()
 
     def reset(self):
@@ -89,13 +92,13 @@ class MovementManager(object):
         self.total_waypoint_timer = 0
         self.waypoint_timer = 0
         self.pending_waypoints.clear()
+        self.source_waypoints.clear()
 
-    def send_move_to(self, waypoints, speed, spline_flag):
-        self.reset()
-        self.speed = speed
+    def unit_is_moving(self):
+        return len(self.source_waypoints) > 0 and len(self.pending_waypoints) > 0
 
+    def try_build_movement_packet(self, is_initial=False):
         start_time = int(WorldManager.get_seconds_since_startup() * 1000)
-
         location_bytes = self.unit.location.to_bytes(include_orientation=False)
         data = pack(
             f'<Q{len(location_bytes)}sIBI',
@@ -103,23 +106,24 @@ class MovementManager(object):
             location_bytes,
             start_time,
             0,
-            spline_flag
+            self.unit.movement_spline.flags
         )
 
         waypoints_data = b''
-        waypoints_length = len(waypoints)
+        waypoints_length = len(self.source_waypoints)
         last_waypoint = self.unit.location
         total_distance = 0
         total_time = 0
         current_id = 0
-        for waypoint in waypoints:
+        for waypoint in self.source_waypoints:
             waypoints_data += waypoint.to_bytes(include_orientation=False)
             current_distance = last_waypoint.distance(waypoint)
-            current_time = current_distance / speed
+            current_time = current_distance / self.speed
             total_distance += current_distance
             total_time += current_time
 
-            self.pending_waypoints.append(PendingWaypoint(current_id, total_time, waypoint))
+            if is_initial:
+                self.pending_waypoints.append(PendingWaypoint(current_id, total_time, waypoint))
             last_waypoint = waypoint
             current_id += 1
 
@@ -130,14 +134,23 @@ class MovementManager(object):
             waypoints_data
         )
 
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data), self.unit,
-                                    include_self=self.is_player)
+        if is_initial:
+            # Player shouldn't instantly dismount after reaching the taxi destination
+            if self.is_player and self.unit.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
+                self.total_waypoint_time = total_time + 1.0  # Add 1 extra second
+            else:
+                self.total_waypoint_time = total_time
 
-        # Player shouldn't instantly dismount after reaching the taxi destination
-        if self.is_player and spline_flag == SplineFlags.SPLINEFLAG_FLYING:
-            self.total_waypoint_time = total_time + 1.0  # Add 1 extra second
-        else:
-            self.total_waypoint_time = total_time
+        # If the state changed while building this update, return None.
+        # This is caused by a race condition between player & creature thread.
+        if len(self.source_waypoints) != waypoints_length:
+            return None
+
+        return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
+
+    def send_move_to(self, waypoints, speed, spline_flag):
+        self.reset()
+        self.speed = speed
 
         # Generate the spline
         spline = MovementSpline()
@@ -148,10 +161,16 @@ class MovementManager(object):
         spline.elapsed = 0
         spline.total_time = int(self.total_waypoint_time * 1000)
         spline.points = waypoints
-        self.unit.movement_spline = spline
 
+        # Set split and save the original waypoints.
+        self.unit.movement_spline = spline
+        self.source_waypoints = waypoints
         self.last_position = self.unit.location
-        self.should_update_waypoints = True
+
+        packet = self.try_build_movement_packet(is_initial=True)
+        if packet:
+            MapManager.send_surrounding(packet, self.unit, include_self=self.is_player)
+            self.should_update_waypoints = True
 
     def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
         random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
