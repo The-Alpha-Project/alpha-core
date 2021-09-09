@@ -361,5 +361,227 @@ begin not atomic
 
         insert into applied_updates values ('290820212');
     end if;
+
+    -- 09/09/2021 1
+    if (select count(*) from applied_updates where id='090920211') = 0 then
+
+        -- ## FIX FOR DARNASSUS
+
+            -- They're no rogue/hunter dedicated houses in 0.5.3,
+            -- and it seems there is a 'generic house' as placeholder.
+            -- Bank is not created in 0.5.3 and NPC are probably at Auctioneer's house 
+            -- There are no shop signs with dispay_id, not even the pillar to hang them
+            -- All wisp and frostsaber missed display_id but models are presents in gamefile
+
+
+                                -- ## GAMEOBJECTS ##
+
+        -- shop big signs, moonwell, books, not part of 0.5.3
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (49708, 49692, 49704, 49619, 49694, 49709, 49710, 49712, 49702, 48530, 49818, 49527, 49530, 49703, 49713, 49693, 49696, 49802, 49714, 49698, 49701, 49521, 49522, 49715, 49716,49524, 49724,49730, 49732, 49728, 49729, 49731, 49726, 49727, 49705, 49707, 49806, 49738, 49831, 49801, 49723, 49523, 49717, 49720, 3996165, 3996168, 3996167);
+
+
+
+                                -- ## NPC ##
+             -- DISPLAY ID     
+
+        -- Fandral display_id, dont know why Fandral has default 1541 (human Thomas Miller), correct display_id is 1542
+        UPDATE `creature_template` SET `display_id1`=1542 WHERE `entry`=3516;
+
+        -- We fix missing display_id of all Wisp
+        UPDATE `creature_template` SET `display_id1`=1825 WHERE `entry`=3681;
+
+        -- We fix missing display_id of all frostsaber
+        UPDATE `creature_template` SET `display_id1`=616 WHERE `entry`=4242;
+
+
+            -- IGNORED
+
+        -- Entries are too high to be part of 0.5.3 (6000+)
+        UPDATE `spawns_creatures` SET `ignored`=1 WHERE `spawn_entry1` IN (7555, 7553, 8665, 11709, 8026, 11050, 11070, 6735, 11083, 11042, 11081, 6392, 10089, 9047, 7322, 12359, 12360, 12358, 10322, 11866, 6142, 7315, 6292, 6034, 10878, 8723, 8669, 8396, 7740, 11401, 7999, 7313, 7316);
+
+
+            -- SPAWN FIX
+
+        -- Turian
+        UPDATE spawns_creatures
+            SET position_x=99772.41,position_y=2277.3,position_z=1339.65
+            WHERE spawn_id=46571;
+
+        -- Mathrengyl
+        UPDATE spawns_creatures
+	        SET position_y=2584.61,position_x=10171.7,position_z=1336.15
+            WHERE spawn_id=46472;
+
+        -- Cyroen
+        UPDATE spawns_creatures
+            SET position_y=2600.7,position_x=10165.8,position_z=1322.06
+            WHERE spawn_id=46477;
+
+        -- Fylerian
+        UPDATE spawns_creatures
+            SET position_z=1322.06,position_x=10173.5,position_y=2605.33
+            WHERE spawn_id=46475;
+
+        -- Denatharion
+        UPDATE spawns_creatures
+            SET position_z=1322.06,position_y=2592.89,position_x=10181.7
+            WHERE spawn_id=46474;
+
+        -- Syurna
+        UPDATE spawns_creatures
+            SET position_z=1337.48,orientation=4.236,position_x=10337.6,position_y=2472.08
+            WHERE spawn_id=46312;
+
+        -- Anishar
+        UPDATE spawns_creatures
+            SET position_z=1337.48,orientation=2.572,position_x=10337.7,position_y=2463.34
+            WHERE spawn_id=46470;
+
+        -- Anishar
+        UPDATE spawns_creatures
+            SET position_z=1337.48,orientation=5.768,position_x=10330.1,position_y=2467.15
+            WHERE spawn_id=46469;
+
+        -- Faelyssa
+        UPDATE spawns_creatures
+            SET position_z=1337.48,orientation=5.741,position_y=2450.86,position_x=10329.5
+            WHERE spawn_id=49540;
+        
+        -- Kyrai
+        UPDATE spawns_creatures
+            SET position_x=10324.4,position_y=2457.49,orientation=5.694,position_z=1337.48
+            WHERE spawn_id=49519;
+
+        -- Dorion
+        UPDATE spawns_creatures
+            SET position_x=10299.8,orientation=2.515,position_z=1337.48,position_y=2401.78
+            WHERE spawn_id=46415;
+
+        -- Dorion's pet
+        UPDATE spawns_creatures
+            SET position_z=1337.48,orientation=2.498,position_y=2399.63,position_x=10298.5
+            WHERE spawn_id=46814;
+
+        -- Jeen'ra
+        UPDATE spawns_creatures
+            SET position_x=10291.4,orientation=0.971,position_z=1337.48,position_y=2396.58
+            WHERE spawn_id=46217;
+
+        -- Jeen ra's pet
+        UPDATE spawns_creatures
+            SET orientation=0.923,position_y=2397.79,position_x=10289.9,position_z=1337.48
+            WHERE spawn_id=46811;
+        
+        -- Jocaste
+        UPDATE spawns_creatures
+            SET position_y=2406.3,orientation=5.703,position_z=1337.48,position_x=10292.6
+            WHERE spawn_id=46221;
+
+        -- Lelanai
+        UPDATE spawns_creatures
+            SET position_y=2537.89,position_z=1317.64,position_x=10121.5
+            WHERE spawn_id=46473;
+
+        -- Banker1
+        UPDATE spawns_creatures
+            SET position_x=9862.16,position_z=1321.57,orientation=4.407,position_y=2349.02
+            WHERE spawn_id=46223;
+
+        -- Banker2
+        UPDATE spawns_creatures
+            SET position_y=2346.53,position_x=9867.09,position_z=1321.57
+            WHERE spawn_id=46418;
+
+        -- Banker3
+        UPDATE spawns_creatures
+            SET position_x=9872.34,position_z=1321.57,position_y=2343.87
+            WHERE spawn_id=46417;
+
+        -- Guard Bank 1
+        UPDATE spawns_creatures
+            SET position_z=1321.58,position_x=9865.91,orientation=4.057,position_y=2326.78
+            WHERE spawn_id=46883;
+
+        -- Guard Bank 1
+        UPDATE spawns_creatures
+            SET position_z=1321.58,position_x=9852.49,orientation=4.057,position_y=2333.18
+            WHERE spawn_id=46841;
+
+        -- Fandral
+        UPDATE spawns_creatures
+            SET position_x=10169.7,position_y=2589.6,orientation=0.95,position_z=1363.03
+            WHERE spawn_id=46903;
+
+        -- Deer
+        UPDATE alpha_world.spawns_creatures
+            SET position_x=9974.01,position_y=2615.73,position_z=1317.36
+            WHERE spawn_id=46443;
+
+
+            -- SPAWN CREATION
+
+        -- Binder
+        INSERT INTO spawns_creatures
+            VALUES(NULL, 3777, 0, 0, 0, 1, 0, 0, 9940.15, 2206.46, 1328.96, 5.911, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+
+        
+
+
+        -- ## FIX FOR IRONFORGE
+
+        -- We remove 2 braziers inside wall, that cause render bug at ironforge entrance
+        UPDATE spawns_gameobjects
+            SET ignored=1
+            WHERE spawn_id IN (926, 949);
+
+        -- Furnace SPAWN FIX
+        UPDATE alpha_world.spawns_gameobjects 
+            SET spawn_positionY=-1154.69,spawn_positionZ=499.40,spawn_positionX=-4773.8,spawn_orientation=3.671,spawn_rotation2=0.0,spawn_rotation3=0.0, ignored=0
+            WHERE spawn_id=5319;
+
+        -- We fix big shop signs (no more missing ?)
+
+        -- Leather Goods
+        UPDATE alpha_world.spawns_gameobjects
+            SET spawn_positionY=-1204.141,spawn_positionZ=512.0,spawn_positionX=-4944.898,spawn_orientation=3.9
+            WHERE spawn_id=6888;
+
+        -- Fighting Wizard
+        UPDATE alpha_world.spawns_gameobjects
+            SET spawn_positionZ=525.0,spawn_positionY=-900.203,spawn_orientation=0.95,spawn_positionX=-4673.338
+            WHERE spawn_id=2076;
+
+        -- Craghelm's plate
+        UPDATE alpha_world.spawns_gameobjects
+            SET spawn_positionZ=526.0
+            WHERE spawn_id=707;
+
+        -- Timberline weapon
+        UPDATE alpha_world.spawns_gameobjects
+            SET spawn_positionZ=523.0
+            WHERE spawn_id=621;
+
+        -- Bruuk
+        UPDATE alpha_world.spawns_gameobjects
+            SET spawn_positionZ=524.0
+            WHERE spawn_id=547;
+
+        -- Goldfury supplies
+        UPDATE alpha_world.spawns_gameobjects
+            SET spawn_positionZ=524.0
+            WHERE spawn_id=26;
+
+        -- Ironforge Physician
+        UPDATE alpha_world.spawns_gameobjects
+            SET spawn_rotation2=0.0,spawn_rotation3=0.0,spawn_positionZ=512.661,spawn_positionX=-4904.942,spawn_positionY=-1259.135,spawn_orientation=1.18
+            WHERE spawn_id=5469;
+
+        -- Steelfury weapons
+        UPDATE alpha_world.spawns_gameobjects
+            SET spawn_positionY=-999.214,spawn_positionZ=494.0,spawn_rotation3=0.0,spawn_positionX=-4913.06,spawn_rotation2=0.0,spawn_orientation=5.58
+            WHERE spawn_id=860;
+
+        insert into applied_updates values ('090920211');
+    end if;  
 end $
 delimiter ;
