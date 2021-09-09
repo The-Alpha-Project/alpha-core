@@ -89,9 +89,6 @@ class PlayerLoginHandler(object):
         GroupManager.set_character_group(world_session.player_mgr)
         PetitionManager.load_petition(world_session.player_mgr)
 
-        # Load self.
-        PlayerLoginHandler._load_self(world_session.player_mgr)
-
         first_login = world_session.player_mgr.player.totaltime == 0
         # Send cinematic.
         if first_login:
@@ -100,10 +97,6 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.complete_login(first_login=first_login)
 
         return 0
-
-    @staticmethod
-    def _load_self(player):
-        player.send_update_self(create=True)
 
     @staticmethod
     def _send_cinematic(world_session, player, socket):

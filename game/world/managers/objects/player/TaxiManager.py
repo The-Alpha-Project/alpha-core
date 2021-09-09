@@ -2,6 +2,7 @@ from struct import pack, unpack
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.constants.UnitCodes import UnitFlags, Teams, SplineFlags
@@ -45,9 +46,13 @@ class TaxiManager(object):
         for i in range(0, len(nodes)):
             waypoints.append(Vector(nodes[i].LocX, nodes[i].LocY, nodes[i].LocZ))
 
+        # If this is a resumed flight, make sure player location is the same as the last known waypoint location.
+        # Else distance / time calculations will be wrong.
         if remaining_wp:
             while len(waypoints) != remaining_wp:
                 waypoints.pop(0)
+            self.owner.location = Vector(waypoints[0].x, waypoints[0].y, waypoints[0].z)
+            MapManager.update_object(self.owner)
 
         # Get mount according to Flight Master if this is an initial flight trigger.
         if flight_master:
