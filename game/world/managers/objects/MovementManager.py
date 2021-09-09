@@ -69,6 +69,9 @@ class MovementManager(object):
                 self.unit.location.z = new_position.z
 
                 MapManager.update_object(self.unit)
+
+                if self.is_player and self.unit.pending_taxi_destination:
+                    self.unit.taxi_manager.update_flight_state()
         else:
             # Path finished
             if self.total_waypoint_timer > self.total_waypoint_time:

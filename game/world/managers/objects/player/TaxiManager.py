@@ -18,6 +18,15 @@ HIPPOGRYPH_MASTERS = (3838, 3841, 4267, 4319, 4407, 6706, 8019, 10897, 11138, 12
 BAT_HANDLERS = (2226, 2389, 3575, 4551, 12636)
 
 
+class ResumeInformation(object):
+    def __init__(self, start_location, start_node, dest_node, mount_display_id, remaining_waypoints):
+        self.start_location = start_location
+        self.start_node = int(start_node)
+        self.dest_node = int(dest_node)
+        self.mount_display_id = int(mount_display_id)
+        self.remaining_waypoints = int(remaining_waypoints)
+
+
 class TaxiManager(object):
     def __init__(self, player_mgr):
         self.owner = player_mgr
@@ -28,16 +37,21 @@ class TaxiManager(object):
         self.mount_display_id = 0
         self.remaining_waypoints = 0
 
-    def resume_taxi_flight(self):
+    def get_resume_information(self):
         data = self.taxi_path.rsplit(',')
-        start_node = int(data[0])
-        dest_node = int(data[1])
-        mount_display_id = int(data[2])
-        waypoints = int(data[3])
+        start_location = Vector(float(data[0]), float(data[1]), float(data[2]))
+        start_node = int(data[3])
+        dest_node = int(data[4])
+        mount_display_id = int(data[5])
+        waypoints = int(data[6])
+        return ResumeInformation(start_location, start_node, dest_node, mount_display_id, waypoints)
 
-        taxi_path = DbcDatabaseManager.taxi_path_get(start_node, dest_node)
+    def resume_taxi_flight(self, resume_info):
+        taxi_path = DbcDatabaseManager.taxi_path_get(resume_info.start_node, resume_info.dest_node)
         if taxi_path:
-            self.begin_taxi_flight(taxi_path, start_node, dest_node, mount_display_id=mount_display_id, remaining_wp=waypoints)
+            self.begin_taxi_flight(taxi_path, resume_info.start_node, resume_info.dest_node,
+                                   mount_display_id=resume_info.mount_display_id,
+                                   remaining_wp=resume_info.remaining_waypoints)
 
     def begin_taxi_flight(self, taxi_path, start_node, dest_node, flight_master=None, mount_display_id=None, remaining_wp=None):
         waypoints = []
@@ -93,7 +107,13 @@ class TaxiManager(object):
 
     def update_flight_state(self):
         if self.owner.movement_manager.unit_is_moving():
-            self.taxi_path = f'{self.start_node},{self.dest_node},{self.mount_display_id},{len(self.owner.movement_manager.pending_waypoints)}'
+            self.taxi_path = f'{self.owner.movement_manager.pending_waypoints[0].location.x},' \
+                             f'{self.owner.movement_manager.pending_waypoints[0].location.y},' \
+                             f'{self.owner.movement_manager.pending_waypoints[0].location.z},' \
+                             f'{self.start_node},' \
+                             f'{self.dest_node},' \
+                             f'{self.mount_display_id},' \
+                             f'{len(self.owner.movement_manager.pending_waypoints)}'
         else:
             self.clear_flight_state()
 
