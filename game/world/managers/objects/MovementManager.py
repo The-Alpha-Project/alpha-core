@@ -162,7 +162,7 @@ class MovementManager(object):
         spline.total_time = int(self.total_waypoint_time * 1000)
         spline.points = waypoints
 
-        # Set split and save the original waypoints.
+        # Set spline and save the original waypoints.
         self.unit.movement_spline = spline
         self.source_waypoints = waypoints
         self.last_position = self.unit.location
