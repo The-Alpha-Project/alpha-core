@@ -78,6 +78,7 @@ class CharCreateHandler(object):
             CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
             CharCreateHandler.generate_starting_buttons(character.guid, race, class_)
             CharCreateHandler.generate_starting_taxi_nodes(character, race)
+            CharCreateHandler.generate_initial_taxi_path(character)
             default_deathbind = CharacterDeathbind(
                 player_guid=character.guid,
                 creature_binder_guid=0,
@@ -113,6 +114,11 @@ class CharCreateHandler(object):
     def generate_starting_taxi_nodes(character, race):
         info = DbcDatabaseManager.chr_races_get_by_race(race)
         character.taximask = bin(info.StartingTaxiNodes)[2:].zfill(64)[::-1]
+        RealmDatabaseManager.character_update(character)
+
+    @staticmethod
+    def generate_initial_taxi_path(character):
+        character.taxi_path = ''
         RealmDatabaseManager.character_update(character)
 
     @staticmethod

@@ -243,6 +243,10 @@ class PlayerManager(UnitManager):
         # Place player in a world cell.
         MapManager.update_object(self)
 
+        # Resume flight.
+        if self.player.taxi_path and len(self.player.taxi_path) > 0:
+            self.taxi_manager.resume_taxi_flight()
+
         # Notify friends about player login.
         self.friends_manager.send_online_notification()
 
@@ -259,6 +263,8 @@ class PlayerManager(UnitManager):
         self.online = False
         self.logout_timer = -1
         self.mirror_timers_manager.stop_all()
+
+        self.taxi_manager.update_flight_state()
 
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
@@ -327,6 +333,10 @@ class PlayerManager(UnitManager):
                     update_packet = player.generate_proper_update_packet(create=True if not player.is_relocating else False)
                     self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
                     self.enqueue_packet(update_packet)
+                    if player.movement_manager.unit_is_moving():
+                        packet = player.movement_manager.try_build_movement_packet(is_initial=False)
+                        if packet:
+                            self.enqueue_packet(packet)
                 self.known_objects[guid] = player
 
         # Surrounding creatures.
@@ -339,6 +349,10 @@ class PlayerManager(UnitManager):
                         PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                 creature.get_full_update_packet(is_self=False)))
                     self.enqueue_packet(update_packet)
+                    if creature.movement_manager.unit_is_moving():
+                        packet = creature.movement_manager.try_build_movement_packet(is_initial=False)
+                        if packet:
+                            self.enqueue_packet(packet)
                 self.enqueue_packet(creature.query_details())
             self.known_objects[guid] = creature
 
@@ -385,6 +399,7 @@ class PlayerManager(UnitManager):
             self.player.zone = self.zone
             self.player.explored_areas = self.explored_areas.to01()
             self.player.taximask = self.taxi_manager.available_taxi_nodes.to01()
+            self.player.taxi_path = self.taxi_manager.taxi_path
             self.player.health = self.health
             self.player.power1 = self.power_1
             self.player.power2 = self.power_2
