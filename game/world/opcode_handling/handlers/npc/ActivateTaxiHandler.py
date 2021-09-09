@@ -36,6 +36,6 @@ class ActivateTaxiHandler(object):
 
             if result == ActivateTaxiReplies.ERR_TAXIOK:
                 world_session.player_mgr.mod_money(-taxi_path.Cost)
-                world_session.player_mgr.taxi_manager.begin_taxi_flight(taxi_path, start_node, dest_node, flight_master)
+                world_session.player_mgr.taxi_manager.begin_taxi_flight(taxi_path, start_node, dest_node, flight_master=flight_master)
 
         return 0
