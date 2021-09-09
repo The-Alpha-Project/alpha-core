@@ -143,23 +143,6 @@ class TaxiManager(object):
     def disable_all_taxi_nodes(self):
         self.available_taxi_nodes.setall(0)
 
-    # Enable all taxi node bits, not persisted.
-    def enable_all_taxi_nodes(self):
-        count = 0
-        for id, node in DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items():
-            if node.custom_team == self.owner.team.value:
-                self.available_taxi_nodes[id - 1] = True
-                count += 1
-        for id, node in DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES.items():
-            if node.custom_team == self.owner.team.value:
-                self.available_taxi_nodes[id - 1] = True
-                count += 1
-        return count
-
-    # Disable all taxi node bits, not persisted.
-    def disable_all_taxi_nodes(self):
-        self.owner.available_taxi_nodes.setall(0)
-
     def has_node(self, node):
         # Apparently nodes start at bit 0, bit 0 = node 1.
         return self.available_taxi_nodes[node - 1]
