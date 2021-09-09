@@ -2,7 +2,6 @@ from struct import pack, unpack
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.constants.UnitCodes import UnitFlags, Teams, SplineFlags
@@ -49,9 +48,9 @@ class TaxiManager(object):
     def resume_taxi_flight(self, resume_info):
         taxi_path = DbcDatabaseManager.taxi_path_get(resume_info.start_node, resume_info.dest_node)
         if taxi_path:
-            self.begin_taxi_flight(taxi_path, resume_info.start_node, resume_info.dest_node,
-                                   mount_display_id=resume_info.mount_display_id,
-                                   remaining_wp=resume_info.remaining_waypoints)
+            return self.begin_taxi_flight(taxi_path, resume_info.start_node, resume_info.dest_node,
+                                          mount_display_id=resume_info.mount_display_id,
+                                          remaining_wp=resume_info.remaining_waypoints)
 
     def begin_taxi_flight(self, taxi_path, start_node, dest_node, flight_master=None, mount_display_id=None, remaining_wp=None):
         waypoints = []
@@ -60,24 +59,26 @@ class TaxiManager(object):
         for i in range(0, len(nodes)):
             waypoints.append(Vector(nodes[i].LocX, nodes[i].LocY, nodes[i].LocZ))
 
-        # If this is a resumed flight, make sure player location is the same as the last known waypoint location.
-        # Else distance / time calculations will be wrong.
         if remaining_wp:
             while len(waypoints) != remaining_wp:
                 waypoints.pop(0)
-            self.owner.location = Vector(waypoints[0].x, waypoints[0].y, waypoints[0].z)
-            MapManager.update_object(self.owner)
+            # If the first waypoint is already the player location, pop.
+            if len(waypoints) > 0 and self.owner.location == waypoints[0]:
+                waypoints.pop(0)
+
+        # Player is already on the last waypoint, do not trigger flight and just move him there.
+        if len(waypoints) == 0:
+            self.clear_flight_state()
+            self.owner.teleport(self.owner.map_, Vector(nodes[-1].LocX, nodes[-1].LocY, nodes[-1].LocZ))
+            return False
 
         # Get mount according to Flight Master if this is an initial flight trigger.
         if flight_master:
             mount_display_id = self.get_mount_display_id(flight_master)
 
-        self.owner.unit_flags |= UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT
-        self.owner.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.owner.unit_flags)
         dest_taxi_node = DbcDatabaseManager.TaxiNodesHolder.taxi_nodes_get_by_map_and_id(self.owner.map_, dest_node)
         self.owner.pending_taxi_destination = Vector(dest_taxi_node.X, dest_taxi_node.Y, dest_taxi_node.Z)
-        self.owner.mount(mount_display_id)
-        self.owner.set_dirty()
+        self.owner.set_flying_state(True, mount_display_id, set_dirty=True)
 
         speed = config.Unit.Player.Defaults.flight_speed
         spline = SplineFlags.SPLINEFLAG_FLYING
@@ -90,6 +91,7 @@ class TaxiManager(object):
         self.taxi_path = f'{self.start_node},{self.dest_node},{self.mount_display_id},{len(waypoints)}'
         # Notify player and surroundings.
         self.owner.movement_manager.send_move_to(waypoints, speed, spline)
+        return True
 
     # Get the proper display_id for the mount.
     # This information is not stored in the dbc like in later versions.
@@ -140,6 +142,23 @@ class TaxiManager(object):
     # Disable all taxi node bits.
     def disable_all_taxi_nodes(self):
         self.available_taxi_nodes.setall(0)
+
+    # Enable all taxi node bits, not persisted.
+    def enable_all_taxi_nodes(self):
+        count = 0
+        for id, node in DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items():
+            if node.custom_team == self.owner.team.value:
+                self.available_taxi_nodes[id - 1] = True
+                count += 1
+        for id, node in DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES.items():
+            if node.custom_team == self.owner.team.value:
+                self.available_taxi_nodes[id - 1] = True
+                count += 1
+        return count
+
+    # Disable all taxi node bits, not persisted.
+    def disable_all_taxi_nodes(self):
+        self.owner.available_taxi_nodes.setall(0)
 
     def has_node(self, node):
         # Apparently nodes start at bit 0, bit 0 = node 1.

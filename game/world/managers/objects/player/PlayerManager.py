@@ -241,7 +241,7 @@ class PlayerManager(UnitManager):
         if self.player.taxi_path and len(self.player.taxi_path) > 0:
             resume_info = self.taxi_manager.get_resume_information()
             self.location = resume_info.start_location
-            self.unit_flags |= UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT
+            self.unit_flags |= (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
             self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
         # Notify player with create packet.
@@ -250,9 +250,11 @@ class PlayerManager(UnitManager):
         # Place player in a world cell.
         MapManager.update_object(self)
 
-        # Resume the pending flight.
-        if resume_info:
-            self.taxi_manager.resume_taxi_flight(resume_info)
+        # Try to resume pending flight.
+        if resume_info and not self.taxi_manager.resume_taxi_flight(resume_info):
+            self.unit_flags &= ~ (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
+            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+            self.set_dirty()
 
         # Notify friends about player login.
         self.friends_manager.send_online_notification()
