@@ -49,17 +49,9 @@ class TaxiManager(object):
             while len(waypoints) != remaining_wp:
                 waypoints.pop(0)
 
-        # Get the proper display_id for the mount.
-        # This information is not stored in the dbc like in later versions.
+        # Get mount according to Flight Master if this is an initial flight trigger.
         if flight_master:
-            if flight_master.entry in HIPPOGRYPH_MASTERS:
-                mount_display_id = HIPPOGRYPH_DISPLAY_ID
-            elif flight_master.entry in BAT_HANDLERS:
-                mount_display_id = BAT_DISPLAY_ID
-            elif self.owner.team == Teams.TEAM_HORDE:
-                mount_display_id = WIND_RIDER_DISPLAY_ID
-            else:
-                mount_display_id = GRYPHON_DISPLAY_ID
+            mount_display_id = self.get_mount_display_id(flight_master)
 
         self.owner.unit_flags |= UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT
         self.owner.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.owner.unit_flags)
@@ -79,6 +71,20 @@ class TaxiManager(object):
         self.taxi_path = f'{self.start_node},{self.dest_node},{self.mount_display_id},{len(waypoints)}'
         # Notify player and surroundings.
         self.owner.movement_manager.send_move_to(waypoints, speed, spline)
+
+    # Get the proper display_id for the mount.
+    # This information is not stored in the dbc like in later versions.
+    def get_mount_display_id(self, flight_master=None):
+        if flight_master:
+            if flight_master.entry in HIPPOGRYPH_MASTERS:
+                return HIPPOGRYPH_DISPLAY_ID
+            elif flight_master.entry in BAT_HANDLERS:
+                return BAT_DISPLAY_ID
+
+        if self.owner.team == Teams.TEAM_HORDE:
+            return WIND_RIDER_DISPLAY_ID
+        else:
+            return GRYPHON_DISPLAY_ID
 
     def update_flight_state(self):
         if self.owner.movement_manager.unit_is_moving():
