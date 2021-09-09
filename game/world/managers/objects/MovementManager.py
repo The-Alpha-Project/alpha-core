@@ -30,7 +30,6 @@ class MovementManager(object):
         self.total_waypoint_time = 0
         self.total_waypoint_timer = 0
         self.waypoint_timer = 0
-        self.source_waypoints = []
 
     def update_pending_waypoints(self, elapsed):
         if not self.should_update_waypoints:
@@ -53,7 +52,6 @@ class MovementManager(object):
                 self.last_position = new_position
                 self.waypoint_timer = 0
                 self.pending_waypoints.pop(0)
-                self.source_waypoints.pop(0)
             # Guess current position based on speed and time
             else:
                 guessed_distance = self.speed * self.waypoint_timer
@@ -92,12 +90,19 @@ class MovementManager(object):
         self.total_waypoint_timer = 0
         self.waypoint_timer = 0
         self.pending_waypoints.clear()
-        self.source_waypoints.clear()
 
     def unit_is_moving(self):
-        return len(self.source_waypoints) > 0 and len(self.pending_waypoints) > 0
+        return len(self.pending_waypoints) > 0
 
-    def try_build_movement_packet(self, is_initial=False):
+    def try_build_movement_packet(self, waypoints=None, is_initial=False):
+        # If this is a partial packet, use pending waypoints.
+        if not waypoints:
+            waypoints = [pending_wp.location for pending_wp in list(self.pending_waypoints)]
+
+        # Sending no waypoints crashes the client.
+        if len(waypoints) == 0:
+            return None
+
         start_time = int(WorldManager.get_seconds_since_startup() * 1000)
         location_bytes = self.unit.location.to_bytes(include_orientation=False)
         data = pack(
@@ -110,12 +115,12 @@ class MovementManager(object):
         )
 
         waypoints_data = b''
-        waypoints_length = len(self.source_waypoints)
+        waypoints_length = len(waypoints)
         last_waypoint = self.unit.location
         total_distance = 0
         total_time = 0
         current_id = 0
-        for waypoint in self.source_waypoints:
+        for waypoint in waypoints:
             waypoints_data += waypoint.to_bytes(include_orientation=False)
             current_distance = last_waypoint.distance(waypoint)
             current_time = current_distance / self.speed
@@ -141,9 +146,8 @@ class MovementManager(object):
             else:
                 self.total_waypoint_time = total_time
 
-        # If the state changed while building this update, return None.
-        # This is caused by a race condition between player & creature thread.
-        if len(self.source_waypoints) != waypoints_length:
+        # Avoid empty move packet.
+        if len(waypoints_data) == 0:
             return None
 
         return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
@@ -164,10 +168,9 @@ class MovementManager(object):
 
         # Set spline and save the original waypoints.
         self.unit.movement_spline = spline
-        self.source_waypoints = waypoints
         self.last_position = self.unit.location
 
-        packet = self.try_build_movement_packet(is_initial=True)
+        packet = self.try_build_movement_packet(waypoints=waypoints, is_initial=True)
         if packet:
             MapManager.send_surrounding(packet, self.unit, include_self=self.is_player)
             self.should_update_waypoints = True

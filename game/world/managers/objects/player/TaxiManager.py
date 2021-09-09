@@ -82,7 +82,7 @@ class TaxiManager(object):
 
     def update_flight_state(self):
         if self.owner.movement_manager.unit_is_moving():
-            self.taxi_path = f'{self.start_node},{self.dest_node},{self.mount_display_id},{len(self.owner.movement_manager.source_waypoints)}'
+            self.taxi_path = f'{self.start_node},{self.dest_node},{self.mount_display_id},{len(self.owner.movement_manager.pending_waypoints)}'
         else:
             self.clear_flight_state()
 
