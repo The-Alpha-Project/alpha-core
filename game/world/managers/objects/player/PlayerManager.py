@@ -236,13 +236,12 @@ class PlayerManager(UnitManager):
         self.reputation_manager.send_initialize_factions()
 
         # If a flight needs to be resumed, make sure create packet uses last known waypoint location.
-        # Also freeze and set flying flag to player.
+        # Also set proper unit flags for player.
         resume_info = None
         if self.player.taxi_path and len(self.player.taxi_path) > 0:
             resume_info = self.taxi_manager.get_resume_information()
             self.location = resume_info.start_location
-            self.unit_flags |= (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
-            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+            self.set_flying_state(True, resume_info.mount_display_id, set_dirty=False)
 
         # Notify player with create packet.
         self.send_update_self(create=True)
@@ -252,9 +251,7 @@ class PlayerManager(UnitManager):
 
         # Try to resume pending flight.
         if resume_info and not self.taxi_manager.resume_taxi_flight(resume_info):
-            self.unit_flags &= ~ (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
-            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-            self.set_dirty()
+            self.set_flying_state(False, set_dirty=True)
 
         # Notify friends about player login.
         self.friends_manager.send_online_notification()

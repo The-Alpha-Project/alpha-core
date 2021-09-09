@@ -906,6 +906,19 @@ class UnitManager(ObjectManager):
     def set_stand_state(self, stand_state):
         self.stand_state = stand_state
 
+    def set_flying_state(self, state, mount_display_id=0, set_dirty=False):
+        if state:
+            self.mount(mount_display_id)
+            self.unit_flags |= (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
+            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        else:
+            self.unmount()
+            self.unit_flags &= ~ (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
+            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+        if set_dirty:
+            self.set_dirty()
+
     # override
     def set_display_id(self, display_id):
         super().set_display_id(display_id)

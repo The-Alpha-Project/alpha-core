@@ -76,10 +76,7 @@ class MovementManager(object):
             # Path finished
             if self.total_waypoint_timer > self.total_waypoint_time:
                 if self.is_player and self.unit.pending_taxi_destination:
-                    self.unit.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
-                    self.unit.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit.unit_flags)
-                    self.unit.unmount()
-                    self.unit.set_dirty()
+                    self.unit.set_flying_state(False, is_dirty=True)
                     self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination)
                     self.unit.pending_taxi_destination = None
                     self.unit.taxi_manager.update_flight_state()
