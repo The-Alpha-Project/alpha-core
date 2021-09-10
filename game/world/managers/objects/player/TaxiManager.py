@@ -113,7 +113,7 @@ class TaxiManager(object):
             waypoints_length = len(self.owner.movement_manager.pending_waypoints)
             self.taxi_path = f'{current_waypoint.x},' \
                              f'{current_waypoint.y},' \
-                             f'{current_waypoint.location.z},' \
+                             f'{current_waypoint.z},' \
                              f'{self.start_node},' \
                              f'{self.dest_node},' \
                              f'{self.mount_display_id},' \
