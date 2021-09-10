@@ -110,13 +110,14 @@ class TaxiManager(object):
     def update_flight_state(self):
         if self.owner.movement_manager.unit_is_moving():
             current_waypoint = self.owner.movement_manager.pending_waypoints[0].location
+            waypoints_length = len(self.owner.movement_manager.pending_waypoints)
             self.taxi_path = f'{current_waypoint.x},' \
                              f'{current_waypoint.y},' \
                              f'{current_waypoint.location.z},' \
                              f'{self.start_node},' \
                              f'{self.dest_node},' \
                              f'{self.mount_display_id},' \
-                             f'{len(self.owner.movement_manager.pending_waypoints)}'
+                             f'{waypoints_length}'
         else:
             self.clear_flight_state()
 
