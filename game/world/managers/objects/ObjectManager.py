@@ -90,7 +90,7 @@ class ObjectManager(object):
         MapManager.send_surrounding(update_packet, self, include_self=False)
 
     def get_object_create_packet(self, is_self=True):
-        from game.world.managers.objects import UnitManager
+        from game.world.managers.objects.units import UnitManager
 
         # Base structure.
         data = self._get_base_structure(UpdateTypes.CREATE_OBJECT)

@@ -5,57 +5,22 @@ from struct import pack, unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.MovementManager import MovementManager
+from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
+from game.world.managers.objects.units.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.player.StatManager import StatManager, UnitStats
 from game.world.managers.objects.spell.AuraManager import AuraManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.DuelCodes import DuelState
-from utils.constants.ItemCodes import ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
-    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
-from utils.constants.SpellCodes import SpellAttributes, SpellMissReason, SpellHitFlags, SpellSchools
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, CreatureTypes
+    HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
+from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes
 from utils.constants.UpdateFields import UnitFields
-
-
-class DamageInfoHolder:
-    def __init__(self,
-                 attacker=None,
-                 target=None,
-                 damage_school_mask=0,
-                 attack_type=AttackTypes.BASE_ATTACK,
-                 total_damage=0,
-                 damage=0,
-                 clean_damage=0,
-                 absorb=0,
-                 resist=0,
-                 blocked_amount=0,
-                 target_state=0,
-                 hit_info=HitInfo.DAMAGE,
-                 proc_attacker=ProcFlags.NONE,
-                 proc_victim=ProcFlags.NONE,
-                 proc_ex=ProcFlagsExLegacy.NONE):
-        self.attacker = attacker
-        self.target = target
-        self.damage_school_mask = damage_school_mask
-        self.attack_type = attack_type
-        self.total_damage = total_damage
-        self.damage = damage
-        self.clean_damage = clean_damage
-        self.absorb = absorb
-        self.resist = resist
-        self.blocked_amount = blocked_amount
-        self.target_state = target_state
-        self.hit_info = hit_info
-        self.proc_attacker = proc_attacker
-        self.proc_victim = proc_victim
-        self.proc_ex = proc_ex
 
 
 class UnitManager(ObjectManager):
@@ -203,7 +168,8 @@ class UnitManager(ObjectManager):
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
 
-        # Defensive passive spells are not handled through the aura system. The effects will instead flag the unit with these fields.
+        # Defensive passive spells are not handled through the aura system.
+        # The effects will instead flag the unit with these fields.
         self.has_block_passive = False
         self.has_parry_passive = False
         self.has_dodge_passive = False
@@ -906,15 +872,27 @@ class UnitManager(ObjectManager):
     def set_stand_state(self, stand_state):
         self.stand_state = stand_state
 
+    def set_teleport_state(self, state, set_dirty=False):
+        if state:
+            self.unit_flags |= (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_DISABLE_ROTATE)
+        else:
+            self.set_flying_state(False)
+            self.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_DISABLE_ROTATE)
+
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+        if set_dirty:
+            self.set_dirty()
+
     def set_flying_state(self, state, mount_display_id=0, set_dirty=False):
         if state:
             self.mount(mount_display_id)
             self.unit_flags |= (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
-            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
         else:
             self.unmount()
-            self.unit_flags &= ~ (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
-            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+            self.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
+
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
         if set_dirty:
             self.set_dirty()

@@ -1,17 +1,15 @@
 import math
-import random
 import time
 from struct import unpack
-
 from bitarray import bitarray
-
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.UnitManager import UnitManager
+from game.world.managers.objects.player.taxi.TaxiManager import TaxiManager
+from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.player.ChannelManager import ChannelManager
 from game.world.managers.objects.player.FriendsManager import FriendsManager
 from game.world.managers.objects.player.InventoryManager import InventoryManager
@@ -19,7 +17,6 @@ from game.world.managers.objects.player.ReputationManager import ReputationManag
 from game.world.managers.objects.player.SkillManager import SkillManager
 from game.world.managers.objects.player.StatManager import UnitStats
 from game.world.managers.objects.player.TalentManager import TalentManager
-from game.world.managers.objects.player.TaxiManager import TaxiManager
 from game.world.managers.objects.player.TradeManager import TradeManager
 from game.world.managers.objects.player.quest.QuestManager import QuestManager
 from game.world.managers.objects.timers.MirrorTimersManager import MirrorTimersManager
@@ -426,6 +423,13 @@ class PlayerManager(UnitManager):
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
 
+        # If unit is being moved by a spline, stop it.
+        if self.movement_manager.unit_is_moving():
+            self.movement_manager.reset()
+
+        # Freeze and disable rotation.
+        self.set_teleport_state(True, set_dirty=True)
+
         # TODO: Stop any movement, cancel spell cast, etc.
         # New destination we will use when we receive an acknowledge message from client.
         self.pending_teleport_destination_map = map_
@@ -493,6 +497,10 @@ class PlayerManager(UnitManager):
         MapManager.update_object(self)
 
         self.reset_fields_older_than(time.time())
+
+        # UnFreeze, enable rotation and unmount.
+        self.set_teleport_state(False, set_dirty=True)
+
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None
         self.update_lock = False

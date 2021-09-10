@@ -2,10 +2,10 @@ from struct import pack, unpack
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects.player.taxi.ResumeInformation import ResumeInformation
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
-from utils.constants.UnitCodes import UnitFlags, Teams, SplineFlags
-from utils.constants.UpdateFields import UnitFields
+from utils.constants.UnitCodes import Teams, SplineFlags
 
 
 GRYPHON_DISPLAY_ID = 1149
@@ -15,15 +15,6 @@ WIND_RIDER_DISPLAY_ID = 2157
 
 HIPPOGRYPH_MASTERS = (3838, 3841, 4267, 4319, 4407, 6706, 8019, 10897, 11138, 12577, 12578)
 BAT_HANDLERS = (2226, 2389, 3575, 4551, 12636)
-
-
-class ResumeInformation(object):
-    def __init__(self, start_location, start_node, dest_node, mount_display_id, remaining_waypoints):
-        self.start_location = start_location
-        self.start_node = int(start_node)
-        self.dest_node = int(dest_node)
-        self.mount_display_id = int(mount_display_id)
-        self.remaining_waypoints = int(remaining_waypoints)
 
 
 class TaxiManager(object):
@@ -38,12 +29,7 @@ class TaxiManager(object):
 
     def get_resume_information(self):
         data = self.taxi_path.rsplit(',')
-        start_location = Vector(float(data[0]), float(data[1]), float(data[2]))
-        start_node = int(data[3])
-        dest_node = int(data[4])
-        mount_display_id = int(data[5])
-        waypoints = int(data[6])
-        return ResumeInformation(start_location, start_node, dest_node, mount_display_id, waypoints)
+        return ResumeInformation(data)
 
     def resume_taxi_flight(self, resume_info):
         taxi_path = DbcDatabaseManager.taxi_path_get(resume_info.start_node, resume_info.dest_node)
