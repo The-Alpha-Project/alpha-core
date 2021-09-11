@@ -488,6 +488,11 @@ class PlayerManager(UnitManager):
             self.map_ = self.pending_teleport_destination_map
             self.location = Vector(self.pending_teleport_destination.x, self.pending_teleport_destination.y, self.pending_teleport_destination.z, self.pending_teleport_destination.o)
 
+        # Unfreeze, enable rotation.
+        self.set_teleport_state(False)
+        # Unmount.
+        self.unmount()
+
         # Notify player with create packet.
         self.send_update_self(create=True if not self.is_relocating else False,
                               force_inventory_update=True if not self.is_relocating else False,
@@ -495,12 +500,6 @@ class PlayerManager(UnitManager):
 
         # Get us in a new grid.
         MapManager.update_object(self)
-
-        self.reset_fields_older_than(time.time())
-
-        # Unfreeze, enable rotation and unmount.
-        self.set_teleport_state(False, set_dirty=True)
-        self.set_taxi_flying_state(False)
 
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None
