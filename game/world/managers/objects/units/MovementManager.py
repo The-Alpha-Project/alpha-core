@@ -71,8 +71,9 @@ class MovementManager(object):
             if self.total_waypoint_timer > self.total_waypoint_time:
                 if self.is_player and self.unit.pending_taxi_destination:
                     self.unit.set_taxi_flying_state(False, set_dirty=True)
-                    self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination)
+                    self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination, is_instant=True)
                     self.unit.pending_taxi_destination = None
+                    self.unit.taxi_manager.update_flight_state()
                 self.reset()
 
     def reset(self):
@@ -83,10 +84,10 @@ class MovementManager(object):
         self.total_waypoint_timer = 0
         self.waypoint_timer = 0
         self.pending_waypoints.clear()
-        if self.is_player:
-            self.unit.taxi_manager.update_flight_state()
 
     def unit_is_moving(self):
+        if self.is_player:
+            return len(self.pending_waypoints) > 0 and self.unit.pending_taxi_destination is not None
         return len(self.pending_waypoints) > 0
 
     def try_build_movement_packet(self, waypoints=None, is_initial=False):

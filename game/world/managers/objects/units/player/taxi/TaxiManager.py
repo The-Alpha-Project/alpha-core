@@ -21,22 +21,18 @@ class TaxiManager(object):
     def __init__(self, player_mgr):
         self.owner = player_mgr
         self.available_taxi_nodes = bitarray(player_mgr.player.taximask, 'little')
-        self.taxi_path = player_mgr.player.taxi_path
-        self.start_node = 0
-        self.dest_node = 0
-        self.mount_display_id = 0
-        self.remaining_waypoints = 0
+        self.taxi_resume_info = TaxiResumeInformation(player_mgr.player.taxi_path)
 
-    def get_resume_information(self):
-        data = self.taxi_path.rsplit(',')
-        return TaxiResumeInformation(data)
-
-    def resume_taxi_flight(self, resume_info):
-        taxi_path = DbcDatabaseManager.taxi_path_get(resume_info.start_node, resume_info.dest_node)
+    def resume_taxi_flight(self):
+        taxi_path = DbcDatabaseManager.taxi_path_get(self.taxi_resume_info.start_node, self.taxi_resume_info.dest_node)
         if taxi_path:
-            return self.begin_taxi_flight(taxi_path, resume_info.start_node, resume_info.dest_node,
-                                          mount_display_id=resume_info.mount_display_id,
-                                          remaining_wp=resume_info.remaining_waypoints)
+            return self.begin_taxi_flight(taxi_path,
+                                          self.taxi_resume_info.start_node,
+                                          self.taxi_resume_info.dest_node,
+                                          mount_display_id=self.taxi_resume_info.mount_display_id,
+                                          remaining_wp=self.taxi_resume_info.remaining_waypoints)
+        else:
+            return False
 
     def begin_taxi_flight(self, taxi_path, start_node, dest_node, flight_master=None, mount_display_id=None, remaining_wp=None):
         waypoints = []
@@ -54,8 +50,8 @@ class TaxiManager(object):
 
         # Player is already on the last waypoint, do not trigger flight and just move him there.
         if len(waypoints) == 0:
-            self.clear_flight_state()
-            self.owner.teleport(self.owner.map_, Vector(nodes[-1].LocX, nodes[-1].LocY, nodes[-1].LocZ))
+            self.taxi_resume_info.flush()
+            self.owner.teleport(self.owner.map_, Vector(nodes[-1].LocX, nodes[-1].LocY, nodes[-1].LocZ), is_instant=True)
             return False
 
         # Get mount according to Flight Master if this is an initial flight trigger.
@@ -69,12 +65,13 @@ class TaxiManager(object):
         speed = config.Unit.Player.Defaults.flight_speed
         spline = SplineFlags.SPLINEFLAG_FLYING
 
-        # Set current flight state.
-        self.start_node = start_node
-        self.dest_node = dest_node
-        self.mount_display_id = mount_display_id
-        self.remaining_waypoints = len(waypoints)
-        self.taxi_path = f'{self.start_node},{self.dest_node},{self.mount_display_id},{len(waypoints)}'
+        # Update current flight state.
+        self.taxi_resume_info.update_fields(start_location=waypoints[0].copy(),
+                                            start_node=start_node,
+                                            dest_node=dest_node,
+                                            mount_id=mount_display_id,
+                                            remaining_wp=len(waypoints))
+
         # Notify player and surroundings.
         self.owner.movement_manager.send_move_to(waypoints, speed, spline)
         return True
@@ -97,22 +94,9 @@ class TaxiManager(object):
         if self.owner.movement_manager.unit_is_moving():
             current_waypoint = self.owner.movement_manager.pending_waypoints[0].location
             waypoints_length = len(self.owner.movement_manager.pending_waypoints)
-            self.taxi_path = f'{current_waypoint.x},' \
-                             f'{current_waypoint.y},' \
-                             f'{current_waypoint.z},' \
-                             f'{self.start_node},' \
-                             f'{self.dest_node},' \
-                             f'{self.mount_display_id},' \
-                             f'{waypoints_length}'
+            self.taxi_resume_info.update_fields(start_location=current_waypoint, remaining_wp=waypoints_length)
         else:
-            self.clear_flight_state()
-
-    def clear_flight_state(self):
-        self.start_node = 0
-        self.dest_node = 0
-        self.mount_display_id = 0
-        self.remaining_waypoints = 0
-        self.taxi_path = ''
+            self.taxi_resume_info.flush()
 
     # Enable all taxi node bits.
     def enable_all_taxi_nodes(self):

@@ -26,7 +26,7 @@ class MovementHandler(object):
                         x=x, y=y, z=z) > 64:
                     Logger.anticheat(f'Preventing coordinate desync from player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}).')
                     world_session.player_mgr.teleport(world_session.player_mgr.map_,
-                                                      world_session.player_mgr.location)
+                                                      world_session.player_mgr.location, is_instant=True)
 
                     return 0
 
