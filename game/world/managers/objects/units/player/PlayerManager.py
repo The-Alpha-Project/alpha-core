@@ -436,8 +436,8 @@ class PlayerManager(UnitManager):
         # If another teleport triggers from a client message, then it will proceed once this TP is done.
         self.update_lock = True
 
-        # Same map and not inside instance
-        if self.map_ == self.pending_teleport_destination_map and self.map_ <= 1:
+        # Same map.
+        if self.map_ == self.pending_teleport_destination_map:
             if MapManager.should_relocate(self, self.pending_teleport_destination, self.pending_teleport_destination_map):
                 self.is_relocating = True
 
@@ -458,7 +458,7 @@ class PlayerManager(UnitManager):
 
             self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
 
-        # Loading screen
+        # Different map, send loading screen.
         else:
             # Always remove the player from world before sending a Loading Screen, preventing unexpected packets
             # while the screen is still present.
