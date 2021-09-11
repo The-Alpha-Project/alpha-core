@@ -1,5 +1,4 @@
 import math
-from typing import Optional
 
 from game.world.managers.abstractions.Vector import Vector
 from utils.constants.SpellCodes import ShapeshiftForms, TotemSlots

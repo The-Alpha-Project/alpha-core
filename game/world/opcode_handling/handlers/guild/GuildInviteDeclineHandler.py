@@ -1,4 +1,4 @@
-from game.world.managers.objects.units.player.guild import GuildManager
+from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import *
 
 

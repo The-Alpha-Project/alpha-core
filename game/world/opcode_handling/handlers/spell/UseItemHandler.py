@@ -1,7 +1,5 @@
-from struct import unpack, pack
-from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpellHandler
+from struct import unpack
 from utils.constants.ItemCodes import InventorySlots
-from utils.constants.SpellCodes import SpellTargetMask
 
 
 class UseItemHandler(object):

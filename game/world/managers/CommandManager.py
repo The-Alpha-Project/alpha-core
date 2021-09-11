@@ -6,7 +6,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.ChatManager import ChatManager
-from game.world.managers.objects.units.player.guild import GuildManager
+from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import HighGuid
