@@ -1,5 +1,5 @@
 from struct import unpack
-from game.world.managers.objects.player.taxi.TaxiManager import TaxiManager
+from game.world.managers.objects.units.player.taxi import TaxiManager
 
 
 class TaxiQueryNodesHandler(object):

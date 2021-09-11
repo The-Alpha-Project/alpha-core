@@ -1,14 +1,14 @@
 import random
-from enum import IntEnum, auto, IntFlag
+from enum import auto, IntFlag
 from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
-from game.world.managers.objects.player.SkillManager import SkillTypes, SkillManager
+from game.world.managers.objects.units.player.SkillManager import SkillTypes, SkillManager
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import AttackTypes, ObjectTypes, HitInfo
 from utils.constants.SpellCodes import SpellSchools
-from utils.constants.UnitCodes import PowerTypes, Classes, CreatureTypes
+from utils.constants.UnitCodes import PowerTypes, Classes
 
 
 # Stats that are modified aura effects. Used in StatManager and when accessing stats.

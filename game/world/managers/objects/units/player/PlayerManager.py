@@ -8,17 +8,17 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.player.taxi.TaxiManager import TaxiManager
+from game.world.managers.objects.units.player.taxi import TaxiManager
 from game.world.managers.objects.units.UnitManager import UnitManager
-from game.world.managers.objects.player.ChannelManager import ChannelManager
-from game.world.managers.objects.player.FriendsManager import FriendsManager
-from game.world.managers.objects.player.InventoryManager import InventoryManager
-from game.world.managers.objects.player.ReputationManager import ReputationManager
-from game.world.managers.objects.player.SkillManager import SkillManager
-from game.world.managers.objects.player.StatManager import UnitStats
-from game.world.managers.objects.player.TalentManager import TalentManager
-from game.world.managers.objects.player.TradeManager import TradeManager
-from game.world.managers.objects.player.quest.QuestManager import QuestManager
+from game.world.managers.objects.units.player import ChannelManager
+from game.world.managers.objects.units.player.FriendsManager import FriendsManager
+from game.world.managers.objects.units.player.InventoryManager import InventoryManager
+from game.world.managers.objects.units.player.ReputationManager import ReputationManager
+from game.world.managers.objects.units.player.SkillManager import SkillManager
+from game.world.managers.objects.units.player.StatManager import UnitStats
+from game.world.managers.objects.units.player import TalentManager
+from game.world.managers.objects.units.player.TradeManager import TradeManager
+from game.world.managers.objects.units.player.quest import QuestManager
 from game.world.managers.objects.timers.MirrorTimersManager import MirrorTimersManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
@@ -238,7 +238,7 @@ class PlayerManager(UnitManager):
         if self.player.taxi_path and len(self.player.taxi_path) > 0:
             resume_info = self.taxi_manager.get_resume_information()
             self.location = resume_info.start_location
-            self.set_flying_state(True, resume_info.mount_display_id, set_dirty=False)
+            self.set_taxi_flying_state(True, resume_info.mount_display_id, set_dirty=False)
 
         # Notify player with create packet.
         self.send_update_self(create=True)
@@ -248,7 +248,7 @@ class PlayerManager(UnitManager):
 
         # Try to resume pending flight.
         if resume_info and not self.taxi_manager.resume_taxi_flight(resume_info):
-            self.set_flying_state(False, set_dirty=True)
+            self.set_taxi_flying_state(False, set_dirty=True)
 
         # Notify friends about player login.
         self.friends_manager.send_online_notification()
@@ -498,8 +498,9 @@ class PlayerManager(UnitManager):
 
         self.reset_fields_older_than(time.time())
 
-        # UnFreeze, enable rotation and unmount.
+        # Unfreeze, enable rotation and unmount.
         self.set_teleport_state(False, set_dirty=True)
+        self.set_taxi_flying_state(False)
 
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None

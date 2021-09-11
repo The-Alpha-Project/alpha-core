@@ -2,7 +2,7 @@ from struct import unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 
 
 class CreatureQueryHandler(object):

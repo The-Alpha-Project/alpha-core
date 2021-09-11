@@ -2,7 +2,7 @@ from struct import pack, unpack
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.objects.player.taxi.ResumeInformation import ResumeInformation
+from game.world.managers.objects.units.player.taxi.TaxiResumeInformation import ResumeInformation
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.constants.UnitCodes import Teams, SplineFlags
@@ -64,7 +64,7 @@ class TaxiManager(object):
 
         dest_taxi_node = DbcDatabaseManager.TaxiNodesHolder.taxi_nodes_get_by_map_and_id(self.owner.map_, dest_node)
         self.owner.pending_taxi_destination = Vector(dest_taxi_node.X, dest_taxi_node.Y, dest_taxi_node.Z)
-        self.owner.set_flying_state(True, mount_display_id, set_dirty=True)
+        self.owner.set_taxi_flying_state(True, mount_display_id, set_dirty=True)
 
         speed = config.Unit.Player.Defaults.flight_speed
         spline = SplineFlags.SPLINEFLAG_FLYING

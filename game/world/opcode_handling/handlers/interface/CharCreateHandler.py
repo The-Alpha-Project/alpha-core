@@ -2,7 +2,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import *
 from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.player.ReputationManager import ReputationManager
+from game.world.managers.objects.units.player.ReputationManager import ReputationManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils import TextUtils

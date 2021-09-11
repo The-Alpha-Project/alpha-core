@@ -8,7 +8,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
-from game.world.managers.objects.creature.CreatureLootManager import CreatureLootManager
+from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas

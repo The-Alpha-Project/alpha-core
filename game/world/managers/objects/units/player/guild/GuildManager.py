@@ -4,7 +4,7 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, Guild, GuildMember
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.player.guild.GuildPendingInvite import GuildPendingInvite
+from game.world.managers.objects.units.player.guild import GuildPendingInvite
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.TextUtils import TextChecker
 from utils.constants.MiscCodes import GuildRank, GuildCommandResults, GuildTypeCommand, GuildEvents, \

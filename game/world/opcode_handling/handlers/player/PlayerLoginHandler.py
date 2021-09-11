@@ -5,16 +5,15 @@ from struct import unpack
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import *
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.objects.player.ChatManager import ChatManager
-from game.world.managers.objects.player.GroupManager import GroupManager
-from game.world.managers.objects.player.PlayerManager import PlayerManager
-from game.world.managers.objects.player.guild.GuildManager import GuildManager
-from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
+from game.world.managers.objects.units.player.ChatManager import ChatManager
+from game.world.managers.objects.units.player.GroupManager import GroupManager
+from game.world.managers.objects.units.player.PlayerManager import PlayerManager
+from game.world.managers.objects.units.player.guild import GuildManager
+from game.world.managers.objects.units.player.guild import PetitionManager
 from network.packet.PacketWriter import *
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.CharCodes import CharLogin
-from utils.constants.UnitCodes import PowerTypes
 
 
 class PlayerLoginHandler(object):

@@ -1,4 +1,4 @@
-from game.world.managers.objects.player.ChannelManager import ChannelManager
+from game.world.managers.objects.units.player import ChannelManager
 from network.packet.PacketReader import *
 
 

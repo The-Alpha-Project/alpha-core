@@ -4,14 +4,14 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQ
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.player.quest.ActiveQuest import ActiveQuest
-from game.world.managers.objects.player.quest.QuestHelpers import QuestHelpers
-from game.world.managers.objects.player.quest.QuestMenu import QuestMenu
+from game.world.managers.objects.units.player.quest import ActiveQuest
+from game.world.managers.objects.units.player.quest import QuestHelpers
+from game.world.managers.objects.units.player.quest.QuestMenu import QuestMenu
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants import UnitCodes
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes, QuestMethod, \
-    QuestFlags, HighGuid
+    QuestFlags
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
