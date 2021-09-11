@@ -2,7 +2,7 @@ from struct import pack, unpack
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.objects.units.player.taxi.TaxiResumeInformation import ResumeInformation
+from game.world.managers.objects.units.player.taxi.TaxiResumeInformation import TaxiResumeInformation
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.constants.UnitCodes import Teams, SplineFlags
@@ -29,7 +29,7 @@ class TaxiManager(object):
 
     def get_resume_information(self):
         data = self.taxi_path.rsplit(',')
-        return ResumeInformation(data)
+        return TaxiResumeInformation(data)
 
     def resume_taxi_flight(self, resume_info):
         taxi_path = DbcDatabaseManager.taxi_path_get(resume_info.start_node, resume_info.dest_node)

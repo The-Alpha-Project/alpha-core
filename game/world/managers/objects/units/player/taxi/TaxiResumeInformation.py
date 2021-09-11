@@ -1,7 +1,7 @@
 from game.world.managers.abstractions.Vector import Vector
 
 
-class ResumeInformation(object):
+class TaxiResumeInformation(object):
     def __init__(self, data):
         self.start_location = Vector(float(data[0]), float(data[1]), float(data[2]))
         self.start_node = int(data[3])
