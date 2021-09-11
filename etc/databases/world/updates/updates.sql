@@ -582,6 +582,14 @@ begin not atomic
             WHERE spawn_id=860;
 
         insert into applied_updates values ('090920211');
-    end if;  
+    end if;
+
+    -- 12/09/2021 1
+    if (select count(*) from applied_updates where id='120920211') = 0 then
+        -- Dalaran Shield Guard non existent model.
+        update creature_template set display_id2 = 0 where entry = 2271;
+
+        insert into applied_updates values ('120920211');
+    end if;
 end $
 delimiter ;
