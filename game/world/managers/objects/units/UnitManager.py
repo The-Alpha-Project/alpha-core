@@ -872,17 +872,6 @@ class UnitManager(ObjectManager):
     def set_stand_state(self, stand_state):
         self.stand_state = stand_state
 
-    def set_teleport_state(self, is_teleporting, set_dirty=False):
-        if is_teleporting:
-            self.unit_flags |= (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_DISABLE_ROTATE)
-        else:
-            self.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_DISABLE_ROTATE)
-
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-
-        if set_dirty:
-            self.set_dirty()
-
     def set_taxi_flying_state(self, is_flying, mount_display_id=0, set_dirty=False):
         if is_flying:
             self.mount(mount_display_id)
