@@ -1405,9 +1405,12 @@ class PlayerManager(UnitManager):
         self.last_tick = now
 
     def send_update_self(self, update_packet=None, create=False, force_inventory_update=False, reset_fields=True):
-        if not create and (self.dirty_inventory or force_inventory_update):
-            self.inventory.send_inventory_update(is_self=True)
-            self.inventory.build_update()
+        if create:
+            self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
+        else:
+            if self.dirty_inventory or force_inventory_update:
+                self.inventory.send_inventory_update(is_self=True)
+                self.inventory.build_update()
 
         if not update_packet:
             update_packet = self.generate_proper_update_packet(is_self=True, create=create)
@@ -1420,13 +1423,15 @@ class PlayerManager(UnitManager):
     # override
     def send_create_packet_surroundings(self, update_packet, include_self=False, create=False,
                                         force_inventory_update=False):
-        if not create and (self.dirty_inventory or force_inventory_update):
-            self.inventory.send_inventory_update(is_self=False)
-            self.inventory.build_update()
+        if create:
+            MapManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self,
+                                        include_self=include_self)
+        else:
+            if self.dirty_inventory or force_inventory_update:
+                self.inventory.send_inventory_update(is_self=False)
+                self.inventory.build_update()
 
         MapManager.send_surrounding(update_packet, self, include_self=include_self)
-        if create:
-            MapManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
 
     def teleport_deathbind(self):
         self.teleport(self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,
