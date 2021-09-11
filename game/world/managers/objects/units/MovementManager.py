@@ -1,22 +1,15 @@
 import math
-from struct import pack, unpack
-from typing import NamedTuple
+from struct import pack
 
 from game.world import WorldManager
-from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.units.MovementSpline import MovementSpline
+from game.world.managers.objects.units.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypes
-from utils.constants.UnitCodes import UnitFlags, SplineFlags
-from utils.constants.UpdateFields import UnitFields
-
-
-class PendingWaypoint(NamedTuple):
-    id_: int
-    expected_timestamp: int
-    location: Vector
+from utils.constants.UnitCodes import SplineFlags
 
 
 class MovementManager(object):
@@ -37,7 +30,7 @@ class MovementManager(object):
 
         self.total_waypoint_timer += elapsed
         self.waypoint_timer += elapsed
-        # Set elapsed time to the current movement spline data
+        # Set elapsed time to the current movement spline data.
         if self.unit.movement_spline:
             if self.unit.movement_spline.elapsed < self.unit.movement_spline.total_time:
                 self.unit.movement_spline.elapsed += elapsed * 1000
@@ -52,11 +45,12 @@ class MovementManager(object):
                 self.last_position = new_position
                 self.waypoint_timer = 0
                 self.pending_waypoints.pop(0)
-            # Guess current position based on speed and time
+            # Guess current position based on speed and time.
             else:
                 guessed_distance = self.speed * self.waypoint_timer
                 # If player is flying, don't take terrain Z into account to generate the position.
-                if self.is_player and self.unit.movement_spline and self.unit.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
+                if self.is_player and self.unit.movement_spline and \
+                        self.unit.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
                     map_id = -1
                 else:
                     map_id = self.unit.map_
@@ -69,17 +63,16 @@ class MovementManager(object):
                 self.unit.location.z = new_position.z
 
                 MapManager.update_object(self.unit)
+
+                if self.is_player and self.unit.pending_taxi_destination:
+                    self.unit.taxi_manager.update_flight_state()
         else:
-            # Path finished
+            # Path finished.
             if self.total_waypoint_timer > self.total_waypoint_time:
                 if self.is_player and self.unit.pending_taxi_destination:
-                    self.unit.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
-                    self.unit.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit.unit_flags)
-                    self.unit.unmount()
-                    self.unit.set_dirty()
+                    self.unit.set_flying_state(False, set_dirty=True)
                     self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination)
                     self.unit.pending_taxi_destination = None
-                    self.unit.taxi_manager.update_flight_state()
                 self.reset()
 
     def reset(self):
@@ -90,6 +83,8 @@ class MovementManager(object):
         self.total_waypoint_timer = 0
         self.waypoint_timer = 0
         self.pending_waypoints.clear()
+        if self.is_player:
+            self.unit.taxi_manager.update_flight_state()
 
     def unit_is_moving(self):
         return len(self.pending_waypoints) > 0
@@ -189,70 +184,3 @@ class MovementManager(object):
             return
 
         self.send_move_to([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
-
-
-class MovementSpline(object):
-    def __init__(self, flags=0, spot=None, guid=0, facing=0, elapsed=0, total_time=0, points=None):
-        self.flags = flags
-        self.spot = spot
-        self.guid = guid
-        self.facing = facing
-        self.elapsed = elapsed
-        self.total_time = total_time
-        self.points = points
-        if not points:
-            self.points = []
-
-    @staticmethod
-    def from_bytes(spline_bytes):
-        if len(spline_bytes < 42):
-            return None
-
-        bytes_read = 0
-
-        spline = MovementSpline()
-        spline.flags = unpack('<I', spline_bytes[:4])[0]
-        bytes_read += 4
-
-        if spline.flags & SplineFlags.SPLINEFLAG_SPOT:
-            spline.spot = Vector.from_bytes(spline_bytes[bytes_read:12])
-            bytes_read += 12
-        if spline.flags & SplineFlags.SPLINEFLAG_TARGET:
-            spline.guid = unpack('<Q', spline_bytes[bytes_read:8])[0]
-            bytes_read += 8
-        if spline.flags & SplineFlags.SPLINEFLAG_FACING:
-            spline.facing = unpack('<f', spline_bytes[bytes_read:4])[0]
-            bytes_read += 4
-
-        spline.elapsed, spline.total_time = unpack('<2I', spline_bytes[bytes_read:8])
-        bytes_read += 8
-
-        points_length = unpack('<I', spline_bytes[bytes_read:4])[0]
-        bytes_read += 4
-        for i in range(points_length):
-            spline.points.append(Vector.from_bytes(spline_bytes[bytes_read:12]))
-            bytes_read += 12
-
-        return spline
-
-    def to_bytes(self):
-        data = pack('<I', self.flags)
-
-        if self.flags & SplineFlags.SPLINEFLAG_SPOT:
-            data += self.spot.to_bytes(include_orientation=False)
-        if self.flags & SplineFlags.SPLINEFLAG_TARGET:
-            data += pack('<Q', self.guid)
-        if self.flags & SplineFlags.SPLINEFLAG_FACING:
-            data += pack('<f', self.facing)
-
-        data += pack(
-            '<2Ii',
-            int(self.elapsed),
-            self.total_time,
-            len(self.points)
-        )
-
-        for point in self.points:
-            data += point.to_bytes(include_orientation=False)
-
-        return data

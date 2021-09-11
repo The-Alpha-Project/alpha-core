@@ -1,7 +1,8 @@
 from random import randint, uniform
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.LootManager import LootManager, LootHolder
+from game.world.managers.objects.units.LootHolder import LootHolder
+from game.world.managers.objects.units.LootManager import LootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from utils.constants.ItemCodes import ItemClasses
 from utils.constants.MiscCodes import LootTypes

@@ -1,7 +1,7 @@
-from struct import unpack, error
+from struct import error
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects import MovementManager
+from game.world.managers.objects.units import MovementManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
