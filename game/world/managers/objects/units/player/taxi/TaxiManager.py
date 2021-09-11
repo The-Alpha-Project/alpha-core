@@ -32,7 +32,6 @@ class TaxiManager(object):
                                           mount_display_id=self.taxi_resume_info.mount_display_id,
                                           remaining_wp=self.taxi_resume_info.remaining_waypoints)
         else:
-            print('Unable to locate taxi_path')
             return False
 
     def begin_taxi_flight(self, taxi_path, start_node, dest_node, flight_master=None, mount_display_id=None, remaining_wp=None):
