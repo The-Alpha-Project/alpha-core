@@ -907,9 +907,8 @@ class UnitManager(ObjectManager):
             return False
         self.is_alive = False
 
-        # Stop movement on death
-        if len(self.movement_manager.pending_waypoints) > 0:
-            self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_NONE)
+        # Clear any pending waypoints.
+        self.movement_manager.reset()
 
         self.set_health(0)
         self.set_stand_state(StandState.UNIT_DEAD)
@@ -930,9 +929,6 @@ class UnitManager(ObjectManager):
                 killer.remove_combo_points()
                 killer.set_dirty()
 
-        # Clear all pending waypoint movement
-        self.movement_manager.reset()
-
         if killer:
             killer.spell_manager.remove_unit_from_all_cast_targets(self.guid)  # Interrupt casting on target death
             killer.aura_manager.check_aura_procs(killed_unit=True)
@@ -942,6 +938,9 @@ class UnitManager(ObjectManager):
 
         self.leave_combat()
         return True
+
+    def despawn(self):
+        pass
 
     def respawn(self):
         # Force leave combat just in case.

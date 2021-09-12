@@ -74,6 +74,21 @@ class GridManager(object):
                 for creature in list(cell.creatures.values()):
                     self.active_cell_callback(creature)
 
+    # Make a world object not visible to its surroundings but keep it inside a cell.
+    def despawn_object(self, world_object, update_player=True):
+        world_object.is_spawned = False
+        cell = self.cells.get(world_object.current_cell)
+        if update_player and cell:
+            self.update_players(cell.key)
+
+    # Turn an existing world object visible to its surroundings.
+    def respawn_object(self, world_object, update_players=True):
+        world_object.is_spawned = True
+        cell = self.cells.get(world_object.current_cell)
+        if update_players and cell:
+            self.update_players(cell.key)
+
+    # Destroy a world_object from others and remove it from its cell.
     def remove_object(self, world_object, update_players=True):
         cell = self.cells.get(world_object.current_cell)
         if cell:
