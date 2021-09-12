@@ -40,7 +40,7 @@ class MovementManager(object):
         waypoint_length = len(self.pending_waypoints)
         if waypoint_length > 0:
             current_waypoint = self.pending_waypoints[0]
-            if self.total_waypoint_timer > current_waypoint.expected_timestamp:
+            if self.total_waypoint_timer >= current_waypoint.expected_timestamp:
                 new_position = current_waypoint.location
                 self.last_position = new_position
                 self.waypoint_timer = 0
