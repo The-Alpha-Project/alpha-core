@@ -9,7 +9,7 @@ from game.world.managers.objects.units.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypes
-from utils.constants.UnitCodes import SplineFlags
+from utils.constants.UnitCodes import SplineFlags, SplineType
 
 
 class MovementManager(object):
@@ -104,13 +104,23 @@ class MovementManager(object):
         start_time = int(WorldManager.get_seconds_since_startup() * 1000)
         location_bytes = self.unit.location.to_bytes(include_orientation=False)
         data = pack(
-            f'<Q{len(location_bytes)}sIBI',
+            f'<Q{len(location_bytes)}sIB',
             self.unit.guid,
             location_bytes,
             start_time,
-            0,
-            self.unit.movement_spline.flags
+            self.unit.movement_spline.spline_type
         )
+
+        if self.unit.movement_spline.spline_type == SplineType.SPLINE_TYPE_STOP:
+            return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
+        elif self.unit.movement_spline.spline_type == SplineType.SPLINE_TYPE_FACING_SPOT:
+            data += pack('<3f', self.unit.location.x, self.unit.location.y, self.unit.location.z)
+        elif self.unit.movement_spline.spline_type == SplineType.SPLINE_TYPE_FACING_TARGET:
+            data += pack('<Q', self.unit.guid)
+        elif self.unit.movement_spline.spline_type == SplineType.SPLINE_TYPE_FACING_ANGLE:
+            data += pack('<f', self.unit.location.o)
+
+        data += pack('<I', self.unit.movement_spline.flags)
 
         waypoints_data = b''
         waypoints_length = len(waypoints)
@@ -150,12 +160,13 @@ class MovementManager(object):
 
         return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
 
-    def send_move_to(self, waypoints, speed, spline_flag):
+    def send_move_to(self, waypoints, speed, spline_flag, spline_type=SplineType.SPLINE_TYPE_NORMAL):
         self.reset()
         self.speed = speed
 
         # Generate the spline
         spline = MovementSpline()
+        spline.spline_type = spline_type
         spline.flags = spline_flag
         spline.spot = self.unit.location
         spline.guid = self.unit.guid
