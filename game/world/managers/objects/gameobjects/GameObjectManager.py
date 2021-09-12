@@ -300,7 +300,7 @@ class GameObjectManager(ObjectManager):
         self.respawn_time = randint(self.gobject_instance.spawntimesecsmin,
                                     self.gobject_instance.spawntimesecsmax)
 
-        self.respawn()
+        MapManager.respawn_object(self)
 
     # override
     def update(self):
