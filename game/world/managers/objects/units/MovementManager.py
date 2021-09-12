@@ -114,11 +114,12 @@ class MovementManager(object):
         if self.unit.movement_spline.spline_type == SplineType.SPLINE_TYPE_STOP:
             return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
         elif self.unit.movement_spline.spline_type == SplineType.SPLINE_TYPE_FACING_SPOT:
-            data += pack('<3f', self.unit.location.x, self.unit.location.y, self.unit.location.z)
+            spot_bytes = self.unit.movement_spline.spot.to_bytes(include_orientation=False)
+            data += pack(f'<{len(location_bytes)}s', spot_bytes)
         elif self.unit.movement_spline.spline_type == SplineType.SPLINE_TYPE_FACING_TARGET:
-            data += pack('<Q', self.unit.guid)  # TODO: I guess this should be the guid of the target you want the player to face.
+            data += pack('<Q', self.unit.movement_spline.guid)
         elif self.unit.movement_spline.spline_type == SplineType.SPLINE_TYPE_FACING_ANGLE:
-            data += pack('<f', self.unit.location.o)
+            data += pack('<f', self.unit.movement_spline.facing)
 
         data += pack('<I', self.unit.movement_spline.flags)
 
@@ -160,7 +161,7 @@ class MovementManager(object):
 
         return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
 
-    def send_move_to(self, waypoints, speed, spline_flag, spline_type=SplineType.SPLINE_TYPE_NORMAL):
+    def send_move_normal(self, waypoints, speed, spline_flag, spline_type=SplineType.SPLINE_TYPE_NORMAL):
         self.reset()
         self.speed = speed
 
@@ -175,11 +176,65 @@ class MovementManager(object):
         spline.total_time = int(self.total_waypoint_time * 1000)
         spline.points = waypoints
 
+        self._send_move_to(spline)
+
+    def send_move_stop(self):
+        # Generate the spline
+        spline = MovementSpline()
+        spline.spline_type = SplineType.SPLINE_TYPE_STOP
+        spline.flags = SplineFlags.SPLINEFLAG_NONE
+        spline.spot = self.unit.location.copy()
+        spline.guid = self.unit.guid
+        spline.facing = self.unit.location.o
+        spline.points = [self.unit.location]
+
+        self._send_move_to(spline)
+
+    def send_face_spot(self, spot):
+        # Generate the spline
+        spline = MovementSpline()
+        spline.spline_type = SplineType.SPLINE_TYPE_FACING_SPOT
+        spline.flags = SplineFlags.SPLINEFLAG_SPOT
+        spline.spot = spot
+        spline.guid = self.unit.guid
+        spline.facing = spot.o
+        spline.points = [spot]
+
+        self._send_move_to(spline)
+
+    def send_face_target(self, target):
+        if not target:
+            return
+
+        # Generate the spline
+        spline = MovementSpline()
+        spline.spline_type = SplineType.SPLINE_TYPE_FACING_TARGET
+        spline.flags = SplineFlags.SPLINEFLAG_TARGET
+        spline.spot = target.location.copy()
+        spline.guid = target.guid
+        spline.facing = target.location.o
+        spline.points = [target.location]
+
+        self._send_move_to(spline)
+
+    def send_face_angle(self, angle):
+        # Generate the spline
+        spline = MovementSpline()
+        spline.spline_type = SplineType.SPLINE_TYPE_FACING_ANGLE
+        spline.flags = SplineFlags.SPLINEFLAG_FACING
+        spline.spot = self.unit.location.copy()
+        spline.guid = self.unit.guid
+        spline.facing = angle
+        spline.points = [spline.spot]
+
+        self._send_move_to(spline)
+
+    def _send_move_to(self, spline):
         # Set spline and last position.
         self.unit.movement_spline = spline
         self.last_position = self.unit.location
 
-        packet = self.try_build_movement_packet(waypoints=waypoints, is_initial=True)
+        packet = self.try_build_movement_packet(waypoints=spline.points, is_initial=True)
         if packet:
             MapManager.send_surrounding(packet, self.unit, include_self=self.is_player)
             self.should_update_waypoints = True
@@ -197,4 +252,4 @@ class MovementManager(object):
                 MapManager.get_grid_manager_by_map_id(self.unit.map_).is_active_cell(new_cell_coords):
             return
 
-        self.send_move_to([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
+        self.send_move_normal([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)

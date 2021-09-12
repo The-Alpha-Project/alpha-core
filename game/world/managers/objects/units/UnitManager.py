@@ -485,10 +485,7 @@ class UnitManager(ObjectManager):
         if not self.combat_target and not is_player and source and source.get_type() != ObjectTypes.TYPE_GAMEOBJECT:
             # Make sure to first stop any movement right away.
             if len(self.movement_manager.pending_waypoints) > 0:
-                self.movement_manager.send_move_to([self.location],
-                                                   self.running_speed,
-                                                   SplineFlags.SPLINEFLAG_RUNMODE,
-                                                   SplineType.SPLINE_TYPE_STOP)
+                self.movement_manager.send_move_stop()
             # Attack.
             self.attack(source)
 
@@ -917,10 +914,7 @@ class UnitManager(ObjectManager):
         # Stop movement on death.
         if len(self.movement_manager.pending_waypoints) > 0:
             self.movement_manager.reset()
-            self.movement_manager.send_move_to([self.location],
-                                               self.running_speed,
-                                               SplineFlags.SPLINEFLAG_RUNMODE,
-                                               SplineType.SPLINE_TYPE_STOP)
+            self.movement_manager.send_move_stop()
 
         self.set_health(0)
         self.set_stand_state(StandState.UNIT_DEAD)

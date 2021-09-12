@@ -423,7 +423,7 @@ class CreatureManager(UnitManager):
                 self.set_health(self.max_health)
                 self.recharge_power()
                 self.set_dirty()
-                self.movement_manager.send_move_to([self.spawn_position], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+                self.movement_manager.send_move_normal([self.spawn_position], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
                 return
 
             self.location.face_point(self.combat_target.location)
@@ -449,9 +449,9 @@ class CreatureManager(UnitManager):
                 # TODO: Find how to actually trigger swim animation and which spline flag to use.
                 #  VMaNGOS uses UNIT_FLAG_USE_SWIM_ANIMATION, we don't have that.
                 #  Also, we should check if this creature is able to swim, which flag is that?
-                self.movement_manager.send_move_to([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
+                self.movement_manager.send_move_normal([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
             else:
-                self.movement_manager.send_move_to([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+                self.movement_manager.send_move_normal([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # override
     def update(self):

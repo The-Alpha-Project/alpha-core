@@ -73,7 +73,7 @@ class TaxiManager(object):
                                             remaining_wp=len(waypoints))
 
         # Notify player and surroundings.
-        self.owner.movement_manager.send_move_to(waypoints, speed, spline)
+        self.owner.movement_manager.send_move_normal(waypoints, speed, spline)
         return True
 
     # Get the proper display_id for the mount.
