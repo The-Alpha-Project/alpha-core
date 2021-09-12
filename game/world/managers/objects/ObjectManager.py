@@ -287,6 +287,14 @@ class ObjectManager(object):
         pass
 
     # override
+    def despawn(self):
+        MapManager.despawn_object(self)
+
+    # override
+    def respawn(self):
+        pass
+
+    # override
     def is_on_water(self):
         liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
                                                                self.location.z)

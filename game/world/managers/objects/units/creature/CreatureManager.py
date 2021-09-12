@@ -491,8 +491,7 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
     # override
-    def despawn(self):
-        MapManager.despawn_object(self)
+
 
     # override
     def respawn(self):

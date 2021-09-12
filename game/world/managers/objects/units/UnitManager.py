@@ -484,7 +484,9 @@ class UnitManager(ObjectManager):
         # If unit is a creature and it's being attacked by another unit, automatically set combat target.
         if not self.combat_target and not is_player and source and source.get_type() != ObjectTypes.TYPE_GAMEOBJECT:
             # Make sure to first stop any movement right away.
-            self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+            if len(self.movement_manager.pending_waypoints) > 0:
+                self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+            # Attack.
             self.attack(source)
 
         self.set_dirty()
@@ -909,8 +911,10 @@ class UnitManager(ObjectManager):
             return False
         self.is_alive = False
 
-        # Clear any pending waypoints.
-        self.movement_manager.reset()
+        # Stop movement on death.
+        if len(self.movement_manager.pending_waypoints) > 0:
+            self.movement_manager.reset()
+            self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_NONE)
 
         self.set_health(0)
         self.set_stand_state(StandState.UNIT_DEAD)
@@ -940,9 +944,6 @@ class UnitManager(ObjectManager):
 
         self.leave_combat()
         return True
-
-    def despawn(self):
-        pass
 
     def respawn(self):
         # Force leave combat just in case.

@@ -1469,7 +1469,7 @@ class PlayerManager(UnitManager):
     # override
     def respawn(self):
         super().respawn()
-        # Set proper stats before repop.
+        # Set expected stats after respawning.
         self.set_health(int(self.max_health / 2))
         if self.power_type == PowerTypes.TYPE_MANA:
             self.set_mana(int(self.max_power_1 / 2))

@@ -77,16 +77,18 @@ class GridManager(object):
     # Make a world object not visible to its surroundings but keep it inside a cell.
     def despawn_object(self, world_object, update_player=True):
         world_object.is_spawned = False
-        cell = self.cells.get(world_object.current_cell)
-        if update_player and cell:
-            self.update_players(cell.key)
+        if update_player:
+            cell = self.cells.get(world_object.current_cell)
+            if cell:
+                self.update_players(cell.key)
 
     # Turn an existing world object visible to its surroundings.
     def respawn_object(self, world_object, update_players=True):
         world_object.is_spawned = True
-        cell = self.cells.get(world_object.current_cell)
-        if update_players and cell:
-            self.update_players(cell.key)
+        if update_players:
+            cell = self.cells.get(world_object.current_cell)
+            if cell:
+                self.update_players(cell.key)
 
     # Destroy a world_object from others and remove it from its cell.
     def remove_object(self, world_object, update_players=True):
@@ -97,8 +99,10 @@ class GridManager(object):
             if update_players:
                 self.update_players(cell.key)
 
-    def update_players(self, cell_key, exclude_cells=set()):
+    def update_players(self, cell_key, exclude_cells=None):
         # Avoid update calls if no players are present.
+        if exclude_cells is None:
+            exclude_cells = set()
         if len(self.active_cell_keys) == 0:
             return set()
 
