@@ -68,7 +68,6 @@ class CreatureManager(UnitManager):
             self.wearing_offhand_weapon = False
             self.wearing_ranged_weapon = False
             self.respawn_timer = 0
-            self.is_spawned = True
             self.last_random_movement = 0
             self.random_movement_wait_time = randint(1, 12)
 
@@ -86,8 +85,7 @@ class CreatureManager(UnitManager):
                                          self.creature_instance.position_z,
                                          self.creature_instance.orientation)
             self.location = self.spawn_position.copy()
-            self.respawn_time = randint(self.creature_instance.spawntimesecsmin,
-                                        self.creature_instance.spawntimesecsmax)
+            self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
         # All creatures can block, parry and dodge by default.
         # TODO CANT_BLOCK creature extra flag
@@ -461,7 +459,7 @@ class CreatureManager(UnitManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            if self.is_alive:
+            if self.is_alive and self.is_spawned:
                 # Spell/aura updates
                 self.spell_manager.update(now, elapsed)
                 self.aura_manager.update(now)
@@ -475,7 +473,7 @@ class CreatureManager(UnitManager):
                 if self.combat_target and self.is_within_interactable_distance(self.combat_target):
                     self.attack_update(elapsed)
             # Dead
-            else:
+            elif not self.is_alive:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time and not self.is_summon:
                     self.respawn()
@@ -493,9 +491,14 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
     # override
+    def despawn(self):
+        MapManager.despawn_object(self)
+
+    # override
     def respawn(self):
         super().respawn()
-
+        # Set all property values before making this creature visible.
+        self.location = self.spawn_position.copy()
         self.set_health(self.max_health)
         self.set_mana(self.max_power_1)
 
@@ -506,11 +509,13 @@ class CreatureManager(UnitManager):
             self.killed_by.group_manager.clear_looters_for_victim(self)
         self.killed_by = None
 
-        self.is_spawned = True
         self.respawn_timer = 0
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
-        MapManager.send_surrounding(self.generate_proper_update_packet(create=True), self, include_self=False)
+        # Update its cell position if needed (Died far away from spawn location cell)
+        MapManager.update_object(self)
+        # Make this creature visible to its surroundings.
+        MapManager.respawn_object(self)
 
     # override
     def die(self, killer=None):

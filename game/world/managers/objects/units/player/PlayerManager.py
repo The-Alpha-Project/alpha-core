@@ -354,7 +354,11 @@ class PlayerManager(UnitManager):
                         packet = creature.movement_manager.try_build_movement_packet(is_initial=False)
                         if packet:
                             self.enqueue_packet(packet)
-            self.known_objects[guid] = creature
+                    # We only consider 'known' if its spawned, the details query is still sent.
+                    self.known_objects[guid] = creature
+            # Player knows the creature but is not spawned anymore, destroy it for self.
+            elif guid in self.known_objects and not creature.is_spawned:
+                active_objects.pop(guid)
 
         # Surrounding game objects.
         for guid, gobject in game_objects.items():
@@ -364,7 +368,11 @@ class PlayerManager(UnitManager):
                 self.enqueue_packet(gobject.query_details())
                 if gobject.is_spawned:
                     self.enqueue_packet(gobject.generate_proper_update_packet(create=True, is_self=False))
-            self.known_objects[guid] = gobject
+                    # We only consider 'known' if its spawned, the details query is still sent.
+                    self.known_objects[guid] = gobject
+            # Player knows the game object but is not spawned anymore, destroy it for self.
+            elif guid in self.known_objects and not gobject.is_spawned:
+                active_objects.pop(guid)
 
         # World objects which are known but no longer active to self should be destroyed.
         for guid, known_object in list(self.known_objects.items()):
@@ -1461,7 +1469,7 @@ class PlayerManager(UnitManager):
     # override
     def respawn(self):
         super().respawn()
-
+        # Set proper stats before repop.
         self.set_health(int(self.max_health / 2))
         if self.power_type == PowerTypes.TYPE_MANA:
             self.set_mana(int(self.max_power_1 / 2))
@@ -1472,10 +1480,9 @@ class PlayerManager(UnitManager):
         if self.power_type == PowerTypes.TYPE_ENERGY:
             self.set_energy(int(self.max_power_4 / 2))
 
-        self.spirit_release_timer = 0
-
     def repop(self):
         self.respawn()
+        self.spirit_release_timer = 0
         self.teleport_deathbind()
 
     # override

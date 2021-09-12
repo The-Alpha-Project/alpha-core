@@ -293,14 +293,18 @@ class GameObjectManager(ObjectManager):
         return PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_QUERY_RESPONSE, data)
 
     # override
+    def despawn(self):
+        MapManager.despawn_object(self)
+
+    # override
     def respawn(self):
-        self.is_spawned = True
+        # Set properties before making it visible.
         self.state = GameObjectStates.GO_STATE_READY
         self.respawn_timer = 0
         self.respawn_time = randint(self.gobject_instance.spawntimesecsmin,
                                     self.gobject_instance.spawntimesecsmax)
 
-        self.send_create_packet_surroundings()
+        MapManager.respawn_object(self)
 
     # override
     def update(self):
