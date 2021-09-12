@@ -58,6 +58,8 @@ class MovementManager(object):
                                                                        map_id=map_id)
 
             if new_position:
+                self.waypoint_timer = 0
+                self.last_position = new_position.copy()
                 self.unit.location.x = new_position.x
                 self.unit.location.y = new_position.y
                 self.unit.location.z = new_position.z
@@ -68,7 +70,7 @@ class MovementManager(object):
                     self.unit.taxi_manager.update_flight_state()
         else:
             # Path finished.
-            if self.total_waypoint_timer > self.total_waypoint_time:
+            if self.total_waypoint_timer >= self.total_waypoint_time:
                 if self.is_player and self.unit.pending_taxi_destination:
                     self.unit.set_taxi_flying_state(False, set_dirty=True)
                     self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination, is_instant=True)
