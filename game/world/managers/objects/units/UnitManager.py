@@ -484,7 +484,6 @@ class UnitManager(ObjectManager):
         # If unit is a creature and it's being attacked by another unit, automatically set combat target.
         if not self.combat_target and not is_player and source and source.get_type() != ObjectTypes.TYPE_GAMEOBJECT:
             # Make sure to first stop any movement right away.
-            self.movement_manager.reset()
             self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
             self.attack(source)
 
