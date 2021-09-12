@@ -116,7 +116,7 @@ class MovementManager(object):
         elif self.unit.movement_spline.spline_type == SplineType.SPLINE_TYPE_FACING_SPOT:
             data += pack('<3f', self.unit.location.x, self.unit.location.y, self.unit.location.z)
         elif self.unit.movement_spline.spline_type == SplineType.SPLINE_TYPE_FACING_TARGET:
-            data += pack('<Q', self.unit.guid)
+            data += pack('<Q', self.unit.guid)  # TODO: I guess this should be the guid of the target you want the player to face.
         elif self.unit.movement_spline.spline_type == SplineType.SPLINE_TYPE_FACING_ANGLE:
             data += pack('<f', self.unit.location.o)
 
