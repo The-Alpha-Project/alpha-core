@@ -165,40 +165,43 @@ class MovementManager(object):
         self.reset()
         self.speed = speed
 
-        # Generate the spline
-        spline = MovementSpline()
-        spline.spline_type = spline_type
-        spline.flags = spline_flag
-        spline.spot = self.unit.location
-        spline.guid = self.unit.guid
-        spline.facing = self.unit.location.o
-        spline.elapsed = 0
-        spline.total_time = int(self.total_waypoint_time * 1000)
-        spline.points = waypoints
+        # Generate movement spline
+        spline = MovementSpline(
+            spline_type=spline_type,
+            flags=spline_flag,
+            spot=self.unit.location,
+            guid=self.unit.guid,
+            facing=self.unit.location.o,
+            elapsed=0,
+            total_time=int(self.total_waypoint_time * 1000),
+            points=waypoints
+        )
 
         self._send_move_to(spline)
 
     def send_move_stop(self):
-        # Generate the spline
-        spline = MovementSpline()
-        spline.spline_type = SplineType.SPLINE_TYPE_STOP
-        spline.flags = SplineFlags.SPLINEFLAG_NONE
-        spline.spot = self.unit.location.copy()
-        spline.guid = self.unit.guid
-        spline.facing = self.unit.location.o
-        spline.points = [self.unit.location]
+        # Generate stop spline
+        spline = MovementSpline(
+            spline_type=SplineType.SPLINE_TYPE_STOP,
+            flags=SplineFlags.SPLINEFLAG_NONE,
+            spot=self.unit.location,
+            guid=self.unit.guid,
+            facing=self.unit.location.o,
+            points=[self.unit.location]
+        )
 
         self._send_move_to(spline)
 
     def send_face_spot(self, spot):
-        # Generate the spline
-        spline = MovementSpline()
-        spline.spline_type = SplineType.SPLINE_TYPE_FACING_SPOT
-        spline.flags = SplineFlags.SPLINEFLAG_SPOT
-        spline.spot = spot
-        spline.guid = self.unit.guid
-        spline.facing = spot.o
-        spline.points = [spot]
+        # Generate face spot spline
+        spline = MovementSpline(
+            spline_type=SplineType.SPLINE_TYPE_FACING_SPOT,
+            flags=SplineFlags.SPLINEFLAG_SPOT,
+            spot=spot,
+            guid=self.unit.guid,
+            facing=spot.o,
+            points=[spot]
+        )
 
         self._send_move_to(spline)
 
@@ -206,26 +209,28 @@ class MovementManager(object):
         if not target:
             return
 
-        # Generate the spline
-        spline = MovementSpline()
-        spline.spline_type = SplineType.SPLINE_TYPE_FACING_TARGET
-        spline.flags = SplineFlags.SPLINEFLAG_TARGET
-        spline.spot = target.location.copy()
-        spline.guid = target.guid
-        spline.facing = target.location.o
-        spline.points = [target.location]
+        # Generate face target spline
+        spline = MovementSpline(
+            spline_type=SplineType.SPLINE_TYPE_FACING_TARGET,
+            flags=SplineFlags.SPLINEFLAG_TARGET,
+            spot=target.location,
+            guid=target.guid,
+            facing=target.location.o,
+            points=[target.location]
+        )
 
         self._send_move_to(spline)
 
     def send_face_angle(self, angle):
-        # Generate the spline
-        spline = MovementSpline()
-        spline.spline_type = SplineType.SPLINE_TYPE_FACING_ANGLE
-        spline.flags = SplineFlags.SPLINEFLAG_FACING
-        spline.spot = self.unit.location.copy()
-        spline.guid = self.unit.guid
-        spline.facing = angle
-        spline.points = [spline.spot]
+        # Generate face angle spline
+        spline = MovementSpline(
+            spline_type=SplineType.SPLINE_TYPE_FACING_ANGLE,
+            flags=SplineFlags.SPLINEFLAG_FACING,
+            spot=self.unit.location,
+            guid=self.unit.guid,
+            facing=angle,
+            points=[self.unit.location]
+        )
 
         self._send_move_to(spline)
 
