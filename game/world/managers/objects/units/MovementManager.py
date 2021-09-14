@@ -162,7 +162,6 @@ class MovementManager(object):
         return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
 
     def send_move_normal(self, waypoints, speed, spline_flag, spline_type=SplineType.SPLINE_TYPE_NORMAL):
-        self.reset()
         self.speed = speed
 
         # Generate movement spline
@@ -235,6 +234,9 @@ class MovementManager(object):
         self._send_move_to(spline)
 
     def _send_move_to(self, spline):
+        # Reset old waypoints (if any) before sending new waypoints.
+        self.reset()
+
         # Set spline and last position.
         self.unit.movement_spline = spline
         self.last_position = self.unit.location
