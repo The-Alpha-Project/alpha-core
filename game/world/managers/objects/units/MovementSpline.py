@@ -4,12 +4,14 @@ from utils.constants.UnitCodes import SplineFlags
 
 
 class MovementSpline(object):
-    def __init__(self, spline_type=0, flags=0, spot=None, guid=0, facing=0, elapsed=0, total_time=0, points=None):
+    def __init__(self, spline_type=0, flags=0, spot=None, guid=0, facing=0, speed=0, elapsed=0, total_time=0,
+                 points=None):
         self.spline_type = spline_type
         self.flags = flags
         self.spot = spot
         self.guid = guid
         self.facing = facing
+        self.speed = speed
         self.elapsed = elapsed
         self.total_time = total_time
         self.points = points

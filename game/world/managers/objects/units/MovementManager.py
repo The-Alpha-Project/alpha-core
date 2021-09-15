@@ -16,7 +16,6 @@ class MovementManager(object):
     def __init__(self, unit):
         self.unit = unit
         self.is_player = self.unit.get_type() == ObjectTypes.TYPE_PLAYER
-        self.speed = 0
         self.should_update_waypoints = False
         self.last_position = None
         self.pending_waypoints = []
@@ -47,7 +46,7 @@ class MovementManager(object):
                 self.pending_waypoints.pop(0)
             # Guess current position based on speed and time.
             else:
-                guessed_distance = self.speed * self.waypoint_timer
+                guessed_distance = self.unit.movement_spline.speed * self.waypoint_timer
                 # If player is flying, don't take terrain Z into account to generate the position.
                 if self.is_player and self.unit.movement_spline and \
                         self.unit.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
@@ -132,7 +131,7 @@ class MovementManager(object):
         for waypoint in waypoints:
             waypoints_data += waypoint.to_bytes(include_orientation=False)
             current_distance = last_waypoint.distance(waypoint)
-            current_time = current_distance / self.speed
+            current_time = current_distance / self.unit.movement_spline.speed
             total_distance += current_distance
             total_time += current_time
 
@@ -162,8 +161,6 @@ class MovementManager(object):
         return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
 
     def send_move_normal(self, waypoints, speed, spline_flag, spline_type=SplineType.SPLINE_TYPE_NORMAL):
-        self.speed = speed
-
         # Generate movement spline
         spline = MovementSpline(
             spline_type=spline_type,
@@ -171,6 +168,7 @@ class MovementManager(object):
             spot=self.unit.location,
             guid=self.unit.guid,
             facing=self.unit.location.o,
+            speed=speed,
             elapsed=0,
             total_time=int(self.total_waypoint_time * 1000),
             points=waypoints
