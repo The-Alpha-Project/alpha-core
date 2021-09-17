@@ -1229,6 +1229,222 @@ begin not atomic
         UPDATE spawns_gameobjects SET ignored=1
         WHERE spawn_id=11206;
 
+        -- IGNORED spawns_creatures 6622
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=6622;
+
+        -- IGNORED spawns_creatures 4686
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=4686;
+
+        -- FIX spawns_creatures 4683
+        UPDATE spawns_creatures SET 
+        position_x=1725.9793701171875,
+        position_y=-4314.59912109375,
+        position_z=29.07404899597168,
+        orientation=2.1204237937927246
+        WHERE spawn_id=4683;
+
+        -- FIX spawns_creatures 4682
+        UPDATE spawns_creatures SET 
+        position_x=1846.63427734375,
+        position_y=-4564.1015625,
+        position_z=35.8028564453125,
+        orientation=3.872640371322632
+        WHERE spawn_id=4682;
+
+        -- FIX spawns_gameobjects 10033
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=1938.2850341796875,
+        spawn_positionY=-4629.75390625,
+        spawn_positionZ=61.43303680419922,
+        spawn_orientation=2.7464466094970703
+        WHERE spawn_id=10033;
+
+        -- FIX spawns_gameobjects 11788
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=1932.9173583984375,
+        spawn_positionY=-4698.6513671875,
+        spawn_positionZ=58.07524871826172,
+        spawn_orientation=4.716231346130371
+        WHERE spawn_id=11788;
+
+        -- FIX spawns_gameobjects 10035
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=2126.929931640625,
+        spawn_positionY=-4703.3486328125,
+        spawn_positionZ=63.97275924682617,
+        spawn_orientation=4.73900842666626
+        WHERE spawn_id=10035;
+
+        -- FIX spawns_gameobjects 11618
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=2103.091552734375,
+        spawn_positionY=-4742.77294921875,
+        spawn_positionZ=60.56241989135742,
+        spawn_orientation=1.784342646598816
+        WHERE spawn_id=11618;
+
+        -- FIX spawns_creatures 7969
+        UPDATE spawns_creatures SET 
+        position_x=2044.06005859375,
+        position_y=-4752.39990234375,
+        position_z=51.093299865722656,
+        orientation=2.0789499282836914
+        WHERE spawn_id=7969;
+
+        -- IGNORED spawns_creatures 3468
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=3468;
+
+        -- IGNORED spawns_creatures 7970
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=7970;
+
+        -- IGNORED spawns_creatures 3430
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=3430;
+
+        -- IGNORED spawns_creatures 3429
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=3429;
+
+        -- IGNORED spawns_creatures 3428
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=3428;
+
+        -- IGNORED spawns_creatures 3469
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=3469;
+
+        -- IGNORED spawns_creatures 7448
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=7448;
+
+        -- IGNORED spawns_creatures 7463
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=7463;
+
+        -- IGNORED spawns_creatures 3470
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=3470;
+
+        -- IGNORED spawns_creatures 4669
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=4669;
+
+        -- IGNORED spawns_creatures 7446
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=7446;
+
+        -- IGNORED spawns_creatures 7453
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=7453;
+
+        -- IGNORED spawns_creatures 6613
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=6613;
+
+        -- IGNORED spawns_creatures 4675
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=4675;
+
+        -- FIX spawns_gameobjects 11619
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=2092.463623046875,
+        spawn_positionY=-4772.1435546875,
+        spawn_positionZ=44.79734802246094,
+        spawn_orientation=5.693352222442627
+        WHERE spawn_id=11619;
+
+        -- FIX spawns_gameobjects 11618
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=2092.463623046875,
+        spawn_positionY=-4772.1435546875,
+        spawn_positionZ=44.79734802246094,
+        spawn_orientation=3.8775107860565186
+        WHERE spawn_id=11618;
+
+        -- FIX spawns_creatures 3426
+        UPDATE spawns_creatures SET 
+        position_x=2009.07373046875,
+        position_y=-4727.42041015625,
+        position_z=48.21717071533203,
+        orientation=0.6416709423065186
+        WHERE spawn_id=3426;
+
+        -- FIX spawns_creatures 7443
+        UPDATE spawns_creatures SET 
+        position_x=2063.812255859375,
+        position_y=-4595.84619140625,
+        position_z=76.8210220336914,
+        orientation=1.3265374898910522
+        WHERE spawn_id=7443;
+
+        -- FIX spawns_creatures 7445
+        UPDATE spawns_creatures SET 
+        position_x=2110.180908203125,
+        position_y=-4827.0361328125,
+        position_z=46.05913543701172,
+        orientation=3.10624623298645
+        WHERE spawn_id=7445;
+
+        -- FIX spawns_creatures 6612
+        UPDATE spawns_creatures SET 
+        position_x=2098.947998046875,
+        position_y=-4819.548828125,
+        position_z=46.05913543701172,
+        orientation=2.924819231033325
+        WHERE spawn_id=6612;
+
+        -- FIX spawns_creatures 6617
+        UPDATE spawns_creatures SET 
+        position_x=2149.603759765625,
+        position_y=-4643.3349609375,
+        position_z=72.14521789550781,
+        orientation=3.7950429916381836
+        WHERE spawn_id=6617;
+
+        -- FIX spawns_creatures 6615
+        UPDATE spawns_creatures SET 
+        position_x=2139.806884765625,
+        position_y=-4652.40869140625,
+        position_z=71.8532943725586,
+        orientation=0.6958633661270142
+        WHERE spawn_id=6615;
+
+        -- FIX spawns_creatures 6616
+        UPDATE spawns_creatures SET 
+        position_x=2147.634765625,
+        position_y=-4660.70849609375,
+        position_z=72.02195739746094,
+        orientation=0.8191708922386169
+        WHERE spawn_id=6616;
+
+        -- FIX spawns_creatures 6617
+        UPDATE spawns_creatures SET 
+        position_x=2157.276611328125,
+        position_y=-4651.34765625,
+        position_z=72.07571411132812,
+        orientation=3.827247381210327
+        WHERE spawn_id=6617;
+
+        -- FIX spawns_creatures 6619
+        UPDATE spawns_creatures SET 
+        position_x=2143.7861328125,
+        position_y=-4656.17138671875,
+        position_z=71.95398712158203,
+        orientation=0.7924675941467285
+        WHERE spawn_id=6619;
+
+        -- FIX spawns_creatures 6614
+        UPDATE spawns_creatures SET 
+        position_x=2149.73974609375,
+        position_y=-4642.76025390625,
+        position_z=72.14984130859375,
+        orientation=3.892429828643799
+        WHERE spawn_id=6614;
+
         insert into applied_updates values ('170920211');
     end if;  
 end $
