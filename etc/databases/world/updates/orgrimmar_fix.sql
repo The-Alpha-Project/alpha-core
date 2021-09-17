@@ -1205,6 +1205,30 @@ begin not atomic
         orientation=1.2628225088119507
         WHERE spawn_id=11789;
 
+        -- IGNORED spawns_gameobjects 11122
+        UPDATE spawns_gameobjects SET ignored=1
+        WHERE spawn_id=11122;
+
+        -- FIX spawns_gameobjects 4554
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=1794.958740234375,
+        spawn_positionY=-4498.13232421875,
+        spawn_positionZ=45.91668701171875,
+        spawn_orientation=1.6437287330627441
+        WHERE spawn_id=4554;
+
+        -- FIX spawns_gameobjects 4553
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=1794.958740234375,
+        spawn_positionY=-4498.13232421875,
+        spawn_positionZ=45.91668701171875,
+        spawn_orientation=1.6437287330627441
+        WHERE spawn_id=4553;
+
+        -- IGNORED spawns_gameobjects 11206
+        UPDATE spawns_gameobjects SET ignored=1
+        WHERE spawn_id=11206;
+
         insert into applied_updates values ('170920211');
     end if;  
 end $
