@@ -1,6 +1,6 @@
 from struct import unpack
 
-from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
+from game.world.managers.objects.units.player.guild.PetitionManager import PetitionManager
 
 
 class PetitionTurnInHandler(object):

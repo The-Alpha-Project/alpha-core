@@ -1,3 +1,5 @@
+from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.units.player.guild.PetitionManager import PetitionManager
 from network.packet.PacketReader import PacketReader
 import time
 from struct import unpack
@@ -5,16 +7,13 @@ from struct import unpack
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import *
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.objects.player.ChatManager import ChatManager
-from game.world.managers.objects.player.GroupManager import GroupManager
-from game.world.managers.objects.player.PlayerManager import PlayerManager
-from game.world.managers.objects.player.guild.GuildManager import GuildManager
-from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
+from game.world.managers.objects.units.player.ChatManager import ChatManager
+from game.world.managers.objects.units.player.GroupManager import GroupManager
+from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from network.packet.PacketWriter import *
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.CharCodes import CharLogin
-from utils.constants.UnitCodes import PowerTypes
 
 
 class PlayerLoginHandler(object):
@@ -89,9 +88,6 @@ class PlayerLoginHandler(object):
         GroupManager.set_character_group(world_session.player_mgr)
         PetitionManager.load_petition(world_session.player_mgr)
 
-        # Load self.
-        PlayerLoginHandler._load_self(world_session.player_mgr)
-
         first_login = world_session.player_mgr.player.totaltime == 0
         # Send cinematic.
         if first_login:
@@ -100,10 +96,6 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.complete_login(first_login=first_login)
 
         return 0
-
-    @staticmethod
-    def _load_self(player):
-        player.send_update_self(create=True)
 
     @staticmethod
     def _send_cinematic(world_session, player, socket):

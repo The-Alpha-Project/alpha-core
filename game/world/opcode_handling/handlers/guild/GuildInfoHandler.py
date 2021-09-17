@@ -1,5 +1,5 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from game.world.managers.objects.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import *
 from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand
 

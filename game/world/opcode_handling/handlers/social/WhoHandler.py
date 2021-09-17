@@ -1,6 +1,5 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 

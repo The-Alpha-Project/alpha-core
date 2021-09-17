@@ -1,8 +1,8 @@
 from struct import unpack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from game.world.managers.objects.player.guild.GuildManager import GuildManager
-from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
+from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.units.player.guild.PetitionManager import PetitionManager
 from network.packet.PacketReader import PacketReader
 from utils.TextUtils import TextChecker
 from utils.constants.MiscCodes import BuyResults, GuildTypeCommand, GuildCommandResults

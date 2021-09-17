@@ -11,7 +11,6 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from network.packet.PacketWriter import PacketWriter
-from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates
 from utils.constants.OpCodes import OpCode
@@ -145,7 +144,7 @@ class GameObjectManager(ObjectManager):
                     lowest_distance = player_slot_distance
                     x_lowest = x_i
                     y_lowest = y_i
-            player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
+            player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o), is_instant=True)
             player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
     def _handle_use_chest(self, player):
@@ -295,13 +294,13 @@ class GameObjectManager(ObjectManager):
 
     # override
     def respawn(self):
-        self.is_spawned = True
+        # Set properties before making it visible.
         self.state = GameObjectStates.GO_STATE_READY
         self.respawn_timer = 0
         self.respawn_time = randint(self.gobject_instance.spawntimesecsmin,
                                     self.gobject_instance.spawntimesecsmax)
 
-        self.send_create_packet_surroundings()
+        MapManager.respawn_object(self)
 
     # override
     def update(self):

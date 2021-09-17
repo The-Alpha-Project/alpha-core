@@ -1,15 +1,14 @@
-from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
-from game.world.managers.objects.player.DuelManager import DuelManager
-from game.world.managers.objects.player.SkillManager import SkillTypes, SkillManager
+from game.world.managers.objects.units.player.DuelManager import DuelManager
+from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes, HighGuid, GameObjectTypes
+from utils.constants.MiscCodes import ObjectTypes, GameObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
-from utils.constants.UnitCodes import PowerTypes, UnitFlags, MovementTypes
+from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -166,7 +165,7 @@ class SpellEffectHandler(object):
     def handle_summon_totem(casting_spell, effect, caster, target):
         totem_entry = effect.misc_value
         # TODO Refactor to avoid circular import?
-        from game.world.managers.objects.creature.CreatureManager import CreatureManager
+        from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_,
                                                  override_faction=caster.faction)
 

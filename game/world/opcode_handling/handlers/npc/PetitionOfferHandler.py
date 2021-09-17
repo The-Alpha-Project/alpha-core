@@ -1,8 +1,8 @@
 from struct import unpack
 
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.objects.player.guild.GuildManager import GuildManager
-from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
+from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.units.player.guild.PetitionManager import PetitionManager
 from utils.constants.ItemCodes import PetitionError
 from utils.constants.MiscCodes import GuildTypeCommand, GuildCommandResults
 

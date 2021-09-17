@@ -9,7 +9,7 @@ from database.realm.RealmModels import CharacterSkill
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
-from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
+from utils.constants.ItemCodes import ItemClasses
 from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, HitInfo
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields

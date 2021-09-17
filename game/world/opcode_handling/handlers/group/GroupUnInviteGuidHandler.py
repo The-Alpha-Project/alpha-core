@@ -1,5 +1,5 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from game.world.managers.objects.player.GroupManager import GroupManager
+from game.world.managers.objects.units.player.GroupManager import GroupManager
 from network.packet.PacketReader import *
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 

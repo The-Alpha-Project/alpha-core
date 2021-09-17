@@ -25,7 +25,7 @@ class Vector(object):
         return f'{self.x}, {self.y}, {self.z}, {self.o}'
 
     def __eq__(self, other):
-        return self.x == other.x and self.y == other.y and self.z == other.z
+        return other and self.x == other.x and self.y == other.y and self.z == other.z
 
     @staticmethod
     def from_bytes(vector_bytes):

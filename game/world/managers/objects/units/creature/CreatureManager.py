@@ -7,11 +7,10 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.UnitManager import UnitManager
-from game.world.managers.objects.creature.CreatureLootManager import CreatureLootManager
+from game.world.managers.objects.units.UnitManager import UnitManager
+from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
-from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
@@ -69,7 +68,6 @@ class CreatureManager(UnitManager):
             self.wearing_offhand_weapon = False
             self.wearing_ranged_weapon = False
             self.respawn_timer = 0
-            self.is_spawned = True
             self.last_random_movement = 0
             self.random_movement_wait_time = randint(1, 12)
 
@@ -87,8 +85,7 @@ class CreatureManager(UnitManager):
                                          self.creature_instance.position_z,
                                          self.creature_instance.orientation)
             self.location = self.spawn_position.copy()
-            self.respawn_time = randint(self.creature_instance.spawntimesecsmin,
-                                        self.creature_instance.spawntimesecsmax)
+            self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
         # All creatures can block, parry and dodge by default.
         # TODO CANT_BLOCK creature extra flag
@@ -426,7 +423,7 @@ class CreatureManager(UnitManager):
                 self.set_health(self.max_health)
                 self.recharge_power()
                 self.set_dirty()
-                self.movement_manager.send_move_to([self.spawn_position], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+                self.movement_manager.send_move_normal([self.spawn_position], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
                 return
 
             self.location.face_point(self.combat_target.location)
@@ -452,9 +449,9 @@ class CreatureManager(UnitManager):
                 # TODO: Find how to actually trigger swim animation and which spline flag to use.
                 #  VMaNGOS uses UNIT_FLAG_USE_SWIM_ANIMATION, we don't have that.
                 #  Also, we should check if this creature is able to swim, which flag is that?
-                self.movement_manager.send_move_to([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
+                self.movement_manager.send_move_normal([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
             else:
-                self.movement_manager.send_move_to([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+                self.movement_manager.send_move_normal([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # override
     def update(self):
@@ -462,7 +459,7 @@ class CreatureManager(UnitManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            if self.is_alive:
+            if self.is_alive and self.is_spawned:
                 # Spell/aura updates
                 self.spell_manager.update(now, elapsed)
                 self.aura_manager.update(now)
@@ -476,7 +473,7 @@ class CreatureManager(UnitManager):
                 if self.combat_target and self.is_within_interactable_distance(self.combat_target):
                     self.attack_update(elapsed)
             # Dead
-            else:
+            elif not self.is_alive:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time and not self.is_summon:
                     self.respawn()
@@ -494,9 +491,13 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
     # override
+
+
+    # override
     def respawn(self):
         super().respawn()
-
+        # Set all property values before making this creature visible.
+        self.location = self.spawn_position.copy()
         self.set_health(self.max_health)
         self.set_mana(self.max_power_1)
 
@@ -507,11 +508,13 @@ class CreatureManager(UnitManager):
             self.killed_by.group_manager.clear_looters_for_victim(self)
         self.killed_by = None
 
-        self.is_spawned = True
         self.respawn_timer = 0
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
-        MapManager.send_surrounding(self.generate_proper_update_packet(create=True), self, include_self=False)
+        # Update its cell position if needed (Died far away from spawn location cell)
+        MapManager.update_object(self)
+        # Make this creature visible to its surroundings.
+        MapManager.respawn_object(self)
 
     # override
     def die(self, killer=None):

@@ -1,7 +1,7 @@
-from struct import unpack, error
+from struct import error
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects import MovementManager
+from game.world.managers.objects.units import MovementManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
@@ -26,7 +26,7 @@ class MovementHandler(object):
                         x=x, y=y, z=z) > 64:
                     Logger.anticheat(f'Preventing coordinate desync from player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}).')
                     world_session.player_mgr.teleport(world_session.player_mgr.map_,
-                                                      world_session.player_mgr.location)
+                                                      world_session.player_mgr.location, is_instant=True)
 
                     return 0
 

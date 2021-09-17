@@ -1,5 +1,3 @@
-from struct import unpack
-
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 

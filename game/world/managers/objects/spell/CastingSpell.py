@@ -8,13 +8,13 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.player.StatManager import UnitStats
+from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import AttackTypes, ObjectTypes
+from utils.constants.MiscCodes import ObjectTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
-    AuraTypes, SpellSchools, SpellEffects, SpellInterruptFlags
+    AuraTypes, SpellEffects, SpellInterruptFlags
 
 
 class CastingSpell(object):
