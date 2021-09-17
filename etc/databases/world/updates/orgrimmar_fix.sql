@@ -1445,6 +1445,56 @@ begin not atomic
         orientation=3.892429828643799
         WHERE spawn_id=6614;
 
+        -- FIX spawns_gameobjects 3998697
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=2059.6328125,
+        spawn_positionY=-4804.59765625,
+        spawn_positionZ=44.240928649902344,
+        spawn_orientation=2.4606292247772217
+        WHERE spawn_id=3998697;
+
+        -- FIX spawns_gameobjects 3998695
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=2050.63,
+        spawn_positionY=-4834.65,
+        spawn_positionZ=46.4218,
+        spawn_orientation=4.39338
+        WHERE spawn_id=3998695;
+
+        -- FIX spawns_gameobjects 10054
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=2034.4322509765625,
+        spawn_positionY=-4680.76806640625,
+        spawn_positionZ=46.15848922729492,
+        spawn_orientation=6.116678714752197
+        WHERE spawn_id=10054;
+
+        -- FIX spawns_gameobjects 3998697
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=2059.6328125,
+        spawn_positionY=-4804.59765625,
+        spawn_positionZ=44.240928649902344,
+        spawn_orientation=2.4606292247772217
+        WHERE spawn_id=3998697;
+
+        -- FIX spawns_gameobjects 3998695
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=2050.63,
+        spawn_positionY=-4834.65,
+        spawn_positionZ=46.4218,
+        spawn_orientation=4.39338
+        WHERE spawn_id=3998695;
+
+        -- FIX spawns_gameobjects 10054
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=2034.4322509765625,
+        spawn_positionY=-4680.76806640625,
+        spawn_positionZ=46.15848922729492,
+        spawn_orientation=6.116678714752197
+        WHERE spawn_id=10054;
+
+
+
         insert into applied_updates values ('170920211');
     end if;  
 end $
