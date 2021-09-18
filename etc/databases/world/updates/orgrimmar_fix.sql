@@ -1501,6 +1501,10 @@ begin not atomic
         spawn_orientation=1.0909161567687988
         WHERE spawn_id=10187;
 
+        -- IGNORED spawns_gameobjects 6165
+        UPDATE spawns_gameobjects SET ignored=1
+        WHERE spawn_id=6165;
+
         insert into applied_updates values ('170920211');
     end if;  
 end $
