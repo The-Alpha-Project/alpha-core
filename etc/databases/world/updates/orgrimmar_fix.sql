@@ -1493,7 +1493,13 @@ begin not atomic
         spawn_orientation=6.116678714752197
         WHERE spawn_id=10054;
 
-
+        -- FIX spawns_gameobjects 10187
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=2055.056884765625,
+        spawn_positionY=-4836.30517578125,
+        spawn_positionZ=46.28427505493164,
+        spawn_orientation=1.0909161567687988
+        WHERE spawn_id=10187;
 
         insert into applied_updates values ('170920211');
     end if;  
