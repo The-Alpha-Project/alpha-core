@@ -32,7 +32,7 @@ begin not atomic
     if (select count(*) from applied_updates where id='170920211') = 0 then
 
         -- FIX missing display_id ALL GUARDS ORGRIMMAR
-        UPDATE alpha_world.creature_template SET 
+        UPDATE creature_template SET 
         display_id1=3546, display_id2=3564,display_id4=0,display_id3=0
         WHERE entry=3296;
 
