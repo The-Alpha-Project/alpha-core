@@ -1,7 +1,7 @@
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes
+from utils.constants.MiscCodes import ObjectTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import UnitFields
@@ -140,7 +140,6 @@ class AuraEffectHandler:
         # TODO Finish implementing stun effect:
         #    - Interrupt spell casting.
         #    - Prevent units from attacking while stunned.
-        #    - Prevent mobs from moving while stunned (add MOVEFLAG_ROOT? Or just manually control without it?).
         #    - UnitStates in 0.5.3? (UNIT_STAT_STUNNED in VMaNGOS).
 
         # Player specific.
@@ -157,8 +156,10 @@ class AuraEffectHandler:
 
         if not remove:
             effect_target.unit_flags |= UnitFlags.UNIT_FLAG_DISABLE_ROTATE
+            effect_target.movement_flags |= MoveFlags.MOVEFLAG_ROOTED
             effect_target.movement_manager.send_move_stop()
         else:
+            effect_target.movement_flags &= ~MoveFlags.MOVEFLAG_ROOTED
             effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_DISABLE_ROTATE
 
         effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)

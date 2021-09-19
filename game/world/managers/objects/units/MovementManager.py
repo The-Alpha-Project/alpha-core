@@ -8,7 +8,7 @@ from game.world.managers.objects.units.MovementSpline import MovementSpline
 from game.world.managers.objects.units.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypes
+from utils.constants.MiscCodes import ObjectTypes, MoveFlags
 from utils.constants.UnitCodes import SplineFlags, SplineType
 
 
@@ -161,6 +161,9 @@ class MovementManager(object):
         return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
 
     def send_move_normal(self, waypoints, speed, spline_flag, spline_type=SplineType.SPLINE_TYPE_NORMAL):
+        if self.unit.movement_flags & MoveFlags.MOVEFLAG_ROOTED:
+            return
+
         # Generate movement spline
         spline = MovementSpline(
             spline_type=spline_type,

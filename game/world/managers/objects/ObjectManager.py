@@ -5,7 +5,7 @@ from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes
+from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes, MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields \
     import ObjectFields
@@ -292,6 +292,7 @@ class ObjectManager(object):
 
     # override
     def respawn(self):
+        self.movement_flags = MoveFlags.MOVEFLAG_NONE
         pass
 
     # override
