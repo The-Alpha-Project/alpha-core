@@ -159,7 +159,7 @@ class AuraEffectHandler:
             effect_target.unit_flags |= UnitFlags.UNIT_FLAG_DISABLE_ROTATE
             effect_target.movement_manager.send_move_stop()
         else:
-            effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
+            effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_DISABLE_ROTATE
 
         effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
 
