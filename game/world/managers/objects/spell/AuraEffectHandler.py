@@ -146,7 +146,7 @@ class AuraEffectHandler:
         # Player specific.
         if effect_target.get_type() == ObjectTypes.TYPE_PLAYER:
             # Don't stun if player is flying.
-            if not remove and effect_target.pending_taxi_destination:
+            if effect_target.pending_taxi_destination:
                 return
 
             # Root player.
