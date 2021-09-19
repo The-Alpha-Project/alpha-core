@@ -36,6 +36,16 @@ begin not atomic
         display_id1=1908, display_id2=1909,display_id4=0,display_id3=0
         WHERE entry=3296;
 
+        -- FIX missing display_id ALL DEN GUARDS
+        UPDATE creature_template SET 
+        display_id1=1908, display_id2=1909,display_id4=0,display_id3=0
+        WHERE entry=5952;
+
+        -- FIX missing display_id ALL RAZOR HILL GUARDS
+        UPDATE creature_template SET 
+        display_id1=1908, display_id2=1909,display_id4=0,display_id3=0
+        WHERE entry=5953;
+
         -- FIX missing display_ID ALL BONFIRE
         UPDATE gameobject_template SET 
         displayId=200
