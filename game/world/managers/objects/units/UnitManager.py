@@ -946,6 +946,8 @@ class UnitManager(ObjectManager):
         return True
 
     def respawn(self):
+        super().respawn()
+
         # Force leave combat just in case.
         self.leave_combat(force=True)
         self.set_current_target(self.guid)
