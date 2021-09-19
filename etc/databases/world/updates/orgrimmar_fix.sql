@@ -33,7 +33,7 @@ begin not atomic
 
         -- FIX missing display_id ALL GUARDS ORGRIMMAR
         UPDATE creature_template SET 
-        display_id1=3546, display_id2=3564,display_id4=0,display_id3=0
+        display_id1=1908, display_id2=1909,display_id4=0,display_id3=0
         WHERE entry=3296;
 
         -- FIX missing display_ID ALL BONFIRE
