@@ -1,8 +1,10 @@
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes
+from utils.constants.MiscCodes import ObjectTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
+from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UpdateFields import UnitFields
 
 
 class AuraEffectHandler:
@@ -132,6 +134,35 @@ class AuraEffectHandler:
     @staticmethod
     def handle_feign_death(aura, effect_target, remove):
         effect_target.mirror_timers_manager.feign_death = not remove
+
+    @staticmethod
+    def handle_mod_stun(aura, effect_target, remove):
+        # TODO Finish implementing stun effect:
+        #    - Interrupt spell casting.
+        #    - Prevent units from attacking while stunned.
+        #    - UnitStates in 0.5.3? (UNIT_STAT_STUNNED in VMaNGOS).
+
+        # Player specific.
+        if effect_target.get_type() == ObjectTypes.TYPE_PLAYER:
+            # Don't stun if player is flying.
+            if effect_target.pending_taxi_destination:
+                return
+
+            # Root player.
+            effect_target.set_root(not remove)
+            # Release loot if any.
+            if effect_target.current_loot_selection != 0:
+                effect_target.send_loot_release()
+
+        if not remove:
+            effect_target.unit_flags |= UnitFlags.UNIT_FLAG_DISABLE_ROTATE
+            effect_target.movement_flags |= MoveFlags.MOVEFLAG_ROOTED
+            effect_target.movement_manager.send_move_stop()
+        else:
+            effect_target.movement_flags &= ~MoveFlags.MOVEFLAG_ROOTED
+            effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_DISABLE_ROTATE
+
+        effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
 
     @staticmethod
     def handle_mod_resistance(aura, effect_target, remove):
@@ -342,7 +373,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL: AuraEffectHandler.handle_proc_trigger_spell,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE: AuraEffectHandler.handle_proc_trigger_damage,
     AuraTypes.SPELL_AURA_FEIGN_DEATH: AuraEffectHandler.handle_feign_death,
-
+    AuraTypes.SPELL_AURA_MOD_STUN: AuraEffectHandler.handle_mod_stun,
 
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
     AuraTypes.SPELL_AURA_MOD_BASE_RESISTANCE: AuraEffectHandler.handle_mod_base_resistance,
