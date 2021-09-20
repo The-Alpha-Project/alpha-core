@@ -793,6 +793,14 @@ begin not atomic
         spawn_orientation=2.29095
         WHERE spawn_id=3998657;
 
+        -- FIX spawns_creatures 51
+        UPDATE spawns_creatures SET 
+        position_x=-5014.57470703125,
+        position_y=-1109.3367919921875,
+        position_z=501.6736755371094,
+        orientation=1.67908775806427
+        WHERE spawn_id=51;
+        
         insert into applied_updates values ('200920211');
     end if;
 
