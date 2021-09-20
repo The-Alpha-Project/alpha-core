@@ -781,6 +781,18 @@ begin not atomic
         spawn_orientation=1.5258102207183838
         WHERE spawn_id=3998656;
 
+        -- IGNORED spawns_creatures 31
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=31;
+
+        -- FIX spawns_gameobjects 3998657
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=-4885.03,
+        spawn_positionY=-1012.3,
+        spawn_positionZ=495.197,
+        spawn_orientation=2.29095
+        WHERE spawn_id=3998657;
+
         insert into applied_updates values ('200920211');
     end if;
 
