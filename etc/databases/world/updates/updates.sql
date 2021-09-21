@@ -605,7 +605,7 @@ begin not atomic
 
         INSERT INTO creature_template
         VALUES(5118, 3074, 0, 0, 0, "Brogun Stoneshield", "Boar Trainer", 0, 35, 35, 1420, 1420, 0, 0, 2000, 11, 
-        10, 1, 1.143, 0, 18, 5, 0, 0, 1, 78, 156, 0, 200, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+        10, 1, 1.143, 0, 18, 5, 0, 0, 1, 78, 156, 0, 200, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
         0, 0, 0, 0, 0, 0, "EventAI", 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, "");
 
         -- Pithwick Sign
@@ -755,14 +755,6 @@ begin not atomic
         spawn_positionZ=495.0,
         spawn_orientation=5.58
         WHERE spawn_id=860;
-
-        -- -- FIX spawns_gameobjects 3998656
-        -- UPDATE spawns_gameobjects SET 
-        -- spawn_positionX=-4826.677734375,
-        -- spawn_positionY=-1284.7989501953125,
-        -- spawn_positionZ=505.6428527832031,
-        -- spawn_orientation=1.5258102207183838
-        -- WHERE spawn_id=3998656;
 
         -- IGNORED spawns_creatures 31
         UPDATE spawns_creatures SET ignored=1
