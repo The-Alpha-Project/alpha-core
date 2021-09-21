@@ -297,8 +297,8 @@ class GameObjectManager(ObjectManager):
         # Set properties before making it visible.
         self.state = GameObjectStates.GO_STATE_READY
         self.respawn_timer = 0
-        self.respawn_time = randint(self.gobject_instance.spawntimesecsmin,
-                                    self.gobject_instance.spawntimesecsmax)
+        self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
+                                    self.gobject_instance.spawn_spawntimemin)
 
         MapManager.respawn_object(self)
 

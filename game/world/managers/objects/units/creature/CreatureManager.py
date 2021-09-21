@@ -491,9 +491,6 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
     # override
-
-
-    # override
     def respawn(self):
         super().respawn()
         # Set all property values before making this creature visible.
