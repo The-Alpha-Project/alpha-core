@@ -80,7 +80,7 @@ begin not atomic
         insert into applied_updates values ('200820212');
     end if;
 
-    23/08/2021 1
+    -- 23/08/2021 1
     if (select count(*) from applied_updates where id='230820211') = 0 then
         CREATE TABLE `spell_target_position` (
           `id` mediumint(8) unsigned NOT NULL DEFAULT 0,
