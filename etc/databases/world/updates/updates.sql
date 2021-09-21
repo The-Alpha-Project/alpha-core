@@ -81,21 +81,21 @@ begin not atomic
     end if;
 
     -- 23/08/2021 1
-    if (select count(*) from applied_updates where id='230820211') = 0 then
-        CREATE TABLE `spell_target_position` (
-          `id` mediumint(8) unsigned NOT NULL DEFAULT 0,
-          `target_map` smallint(5) unsigned NOT NULL DEFAULT 0,
-          `target_position_x` float NOT NULL DEFAULT 0,
-          `target_position_y` float NOT NULL DEFAULT 0,
-          `target_position_z` float NOT NULL DEFAULT 0,
-          `target_orientation` float NOT NULL DEFAULT 0,
-          PRIMARY KEY (`id`,`target_map`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    -- if (select count(*) from applied_updates where id='230820211') = 0 then
+    --     CREATE TABLE `spell_target_position` (
+    --       `id` mediumint(8) unsigned NOT NULL DEFAULT 0,
+    --       `target_map` smallint(5) unsigned NOT NULL DEFAULT 0,
+    --       `target_position_x` float NOT NULL DEFAULT 0,
+    --       `target_position_y` float NOT NULL DEFAULT 0,
+    --       `target_position_z` float NOT NULL DEFAULT 0,
+    --       `target_orientation` float NOT NULL DEFAULT 0,
+    --       PRIMARY KEY (`id`,`target_map`)
+    --     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-        INSERT INTO `spell_target_position` VALUES (442,129,2592.55,1107.5,51.29,4.74),(444,1,-4658.12,-2526.35,82.9671,0),(446,109,-319.24,99.9,-131.85,3.19),(3561,0,-9003.46,870.031,29.6206,5.28),(3562,0,-4613.62,-915.38,501.062,3.88),(3563,0,1773.47,61.121,-46.3207,0.54),(3565,1,9660.81,2513.64,1331.66,3.06),(3566,1,-964.98,283.433,111.187,3.02),(3567,1,1469.85,-4221.52,58.9939,5.98),(33,0,-10643,1052,34,0),(31,0,-9464,62,56,0),(34,0,-10368,-422,66,0),(35,0,-9104,-70,83,0),(427,189,1688.99,1053.48,18.6775,0.00117),(428,0,-11020,1436,44,0),(445,0,-10566,-1189,28,0),(4996,1,1552.5,-4420.66,8.94802,0),(4997,0,-14457,496.45,39.1392,0),(4998,0,-12415,207.618,31.5017,0.124875),(4999,1,-998.359,-3827.52,5.44507,4.16654),(6348,0,-3752.81,-851.558,10.1153,0),(6349,1,6581.05,767.5,5.78428,6.01616),(6483,1,5483.9,-749.881,334.621,0),(6719,1,-3615.49,-4467.34,24.3141,0),(447,0,16229,16265,14,3.19),(3721,0,16229,16265,14,3.19),(1936,0,16229,16265,14,0),(443,0,16229,16265,14,4.74),(6766,1,-2354.03,-1902.07,95.78,4.6),(6714,1,-4884.49,-1596.2,101.2,3.17),(7587,33,-102.933,2124.29,155.648,1.08944),(7586,33,-105.88,2154.87,156.445,5.82146),(7136,33,-85.767,2150.22,155.607,3.97629);
+    --     INSERT INTO `spell_target_position` VALUES (442,129,2592.55,1107.5,51.29,4.74),(444,1,-4658.12,-2526.35,82.9671,0),(446,109,-319.24,99.9,-131.85,3.19),(3561,0,-9003.46,870.031,29.6206,5.28),(3562,0,-4613.62,-915.38,501.062,3.88),(3563,0,1773.47,61.121,-46.3207,0.54),(3565,1,9660.81,2513.64,1331.66,3.06),(3566,1,-964.98,283.433,111.187,3.02),(3567,1,1469.85,-4221.52,58.9939,5.98),(33,0,-10643,1052,34,0),(31,0,-9464,62,56,0),(34,0,-10368,-422,66,0),(35,0,-9104,-70,83,0),(427,189,1688.99,1053.48,18.6775,0.00117),(428,0,-11020,1436,44,0),(445,0,-10566,-1189,28,0),(4996,1,1552.5,-4420.66,8.94802,0),(4997,0,-14457,496.45,39.1392,0),(4998,0,-12415,207.618,31.5017,0.124875),(4999,1,-998.359,-3827.52,5.44507,4.16654),(6348,0,-3752.81,-851.558,10.1153,0),(6349,1,6581.05,767.5,5.78428,6.01616),(6483,1,5483.9,-749.881,334.621,0),(6719,1,-3615.49,-4467.34,24.3141,0),(447,0,16229,16265,14,3.19),(3721,0,16229,16265,14,3.19),(1936,0,16229,16265,14,0),(443,0,16229,16265,14,4.74),(6766,1,-2354.03,-1902.07,95.78,4.6),(6714,1,-4884.49,-1596.2,101.2,3.17),(7587,33,-102.933,2124.29,155.648,1.08944),(7586,33,-105.88,2154.87,156.445,5.82146),(7136,33,-85.767,2150.22,155.607,3.97629);
 
-        insert into applied_updates values ('230820211');
-    end if;
+    --     insert into applied_updates values ('230820211');
+    -- end if;
 
     -- 24/08/2021 1
     if (select count(*) from applied_updates where id='240820211') = 0 then
@@ -598,37 +598,34 @@ begin not atomic
         -- IRONFORGE IMPROVEMENTS based on Davir's Screenshots 
         -- TODO : We only need to correcly spawn guards and resolve latest display_id
 
-        -- \ / Please Grender, check those 4 creatures creation, I provide some random infos \ /
-        --  v                                                                                 v
-
         INSERT INTO creature_template
-        VALUES(5134, 3061, 0, 0, 0, "Jonivera Farmountain", "Cartography trainer", 0, 55, 55, 2940, 2940, 0, 0, 2000, 11, 
+        VALUES(5139, 3084, 0, 0, 0, "Kurdrum Barleybeard", "Bartender", 0, 50, 50, 2340, 2340, 0, 0, 2000, 11, 
         10, 1, 1.143, 0, 18, 5, 0, 0, 1, 78, 156, 0, 200, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
         0, 0, 0, 0, 0, 0, "EventAI", 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, "");
 
         INSERT INTO creature_template
-        VALUES(5135, 3083, 0, 0, 0, "Svalbrad Farmountain", "Cartography supplier", 0, 55, 55, 2940, 2940, 0, 0, 2000, 11, 
+        VALUES(5118, 3074, 0, 0, 0, "Brogun Stoneshield", "Boar Trainer", 0, 35, 35, 1420, 1420, 0, 0, 2000, 11, 
         10, 1, 1.143, 0, 18, 5, 0, 0, 1, 78, 156, 0, 200, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
         0, 0, 0, 0, 0, 0, "EventAI", 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, "");
 
-        INSERT INTO creature_template
-        VALUES(5139, 3084, 0, 0, 0, "Kurdrum Barleybeard", "Bartender", 0, 50, 50, 1110, 1110, 0, 0, 2000, 11, 
-        10, 1, 1.143, 0, 18, 5, 0, 0, 1, 78, 156, 0, 200, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 0, "EventAI", 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, "");
+        -- Pithwick Sign
+        UPDATE spawns_gameobjects
+            SET spawn_entry=26491
+            WHERE spawn_id=5018;
 
-        INSERT INTO creature_template
-        VALUES(5118, 3074, 0, 0, 0, "Brogun Stoneshield", "Boar trainer", 0, 35, 35, 1420, 1420, 0, 0, 2000, 11, 
-        10, 1, 1.143, 0, 18, 5, 0, 0, 1, 78, 156, 0, 200, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 0, "EventAI", 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, "");
+        -- Herbalist Stonebranch
+        UPDATE spawns_gameobjects
+            SET spawn_entry=26493
+            WHERE spawn_id=5469;
 
+        -- IF Physician
+        UPDATE spawns_gameobjects
+            SET spawn_entry=26494
+            WHERE spawn_id=2008;
 
         -- IGNORED spawns_creatures 1796
         UPDATE spawns_creatures SET ignored=1
         WHERE spawn_id=1796;
-
-        UPDATE gameobject_template
-            SET name='Ironforge Physician'
-            WHERE entry=171770;
 
         -- FIX spawns_creatures 2015
         UPDATE spawns_creatures SET 
@@ -649,14 +646,6 @@ begin not atomic
         position_z=503.890869140625,
         orientation=5.294369697570801
         WHERE spawn_id=94;
-
-        UPDATE gameobject_template
-            SET name='Stonebranch Herbalist'
-            WHERE entry=143336;
-
-        UPDATE gameobject_template
-            SET name="Pithwick's Bags & Suppliers"
-            WHERE entry=150087;
 
         UPDATE spawns_creatures
             SET position_x=-4702.78,orientation=3.964,position_z=505.27,position_y=-1172.28
@@ -742,12 +731,6 @@ begin not atomic
         spawn_orientation=1.5393320322036743
         WHERE spawn_id=3998708;
 
-        -- CREATE spawns_creatures 5134
-        INSERT INTO spawns_creatures VALUES (NULL, 5134, 0, 0, 0, 0, 0, 0, -4822.9873046875, -1300.498291015625, 502.1949157714844, 4.77596378326416, 300, 300, 0, 100, 0, 0, 0, 0, 0);
-
-        -- CREATE spawns_creatures 5135
-        INSERT INTO spawns_creatures VALUES (NULL, 5135, 0, 0, 0, 0, 0, 0, -4818.23095703125, -1297.5941162109375, 502.1949157714844, 0.017237097024917603, 300, 300, 0, 100, 0, 0, 0, 0, 0);
-
         -- CREATE spawns_creatures 5139
         INSERT INTO spawns_creatures VALUES (NULL, 5139, 0, 0, 0, 0, 0, 0, -4961.50634765625, -1284.79345703125, 520.1649169921875, 0.9997727274894714, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
@@ -773,13 +756,13 @@ begin not atomic
         spawn_orientation=5.58
         WHERE spawn_id=860;
 
-        -- FIX spawns_gameobjects 3998656
-        UPDATE spawns_gameobjects SET 
-        spawn_positionX=-4826.677734375,
-        spawn_positionY=-1284.7989501953125,
-        spawn_positionZ=505.6428527832031,
-        spawn_orientation=1.5258102207183838
-        WHERE spawn_id=3998656;
+        -- -- FIX spawns_gameobjects 3998656
+        -- UPDATE spawns_gameobjects SET 
+        -- spawn_positionX=-4826.677734375,
+        -- spawn_positionY=-1284.7989501953125,
+        -- spawn_positionZ=505.6428527832031,
+        -- spawn_orientation=1.5258102207183838
+        -- WHERE spawn_id=3998656;
 
         -- IGNORED spawns_creatures 31
         UPDATE spawns_creatures SET ignored=1
@@ -800,7 +783,65 @@ begin not atomic
         position_z=501.6736755371094,
         orientation=1.67908775806427
         WHERE spawn_id=51;
-        
+
+        -- FIX spawns_creatures 1766
+        UPDATE spawns_creatures SET 
+        position_x=-4684.787109375,
+        position_y=-913.2700805664062,
+        position_z=501.659423828125,
+        orientation=5.605379581451416
+        WHERE spawn_id=1766;
+
+        -- FIX spawns_creatures 1767
+        UPDATE spawns_creatures SET 
+        position_x=-4688.26611328125,
+        position_y=-917.2747802734375,
+        position_z=501.6594543457031,
+        orientation=5.5401930809021
+        WHERE spawn_id=1767;
+
+        -- FIX spawns_gameobjects 2008
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=-4687.306640625,
+        spawn_positionY=-966.571044921875,
+        spawn_positionZ=507.1474304199219,
+        spawn_orientation=0.629,
+        spawn_rotation2=0,
+        spawn_rotation3=0
+        WHERE spawn_id=2008;
+
+        -- FIX spawns_creatures 2015
+        UPDATE spawns_creatures SET 
+        position_x=-4693.49169921875,
+        position_y=-987.7844848632812,
+        position_z=508.8642272949219,
+        orientation=2.2077412605285645
+        WHERE spawn_id=2015;
+                
+        -- FIX spawns_creatures 1758
+        UPDATE spawns_creatures SET 
+        position_x=-4688.6181640625,
+        position_y=-987.349365234375,
+        position_z=502.1968688964844,
+        orientation=2.2674341201782227
+        WHERE spawn_id=1758;
+
+        -- FIX spawns_creatures 45
+        UPDATE spawns_creatures SET 
+        position_x=-4944.54443359375,
+        position_y=-1247.7320556640625,
+        position_z=501.65948486328125,
+        orientation=2.3883779048919678
+        WHERE spawn_id=45;
+
+        -- FIX spawns_creatures 44
+        UPDATE spawns_creatures SET 
+        position_x=-4948.06494140625,
+        position_y=-1251.661865234375,
+        position_z=501.65948486328125,
+        orientation=2.438640594482422
+        WHERE spawn_id=44;
+
         insert into applied_updates values ('200920211');
     end if;
 
