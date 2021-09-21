@@ -80,22 +80,22 @@ begin not atomic
         insert into applied_updates values ('200820212');
     end if;
 
-    -- 23/08/2021 1
-    -- if (select count(*) from applied_updates where id='230820211') = 0 then
-    --     CREATE TABLE `spell_target_position` (
-    --       `id` mediumint(8) unsigned NOT NULL DEFAULT 0,
-    --       `target_map` smallint(5) unsigned NOT NULL DEFAULT 0,
-    --       `target_position_x` float NOT NULL DEFAULT 0,
-    --       `target_position_y` float NOT NULL DEFAULT 0,
-    --       `target_position_z` float NOT NULL DEFAULT 0,
-    --       `target_orientation` float NOT NULL DEFAULT 0,
-    --       PRIMARY KEY (`id`,`target_map`)
-    --     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    23/08/2021 1
+    if (select count(*) from applied_updates where id='230820211') = 0 then
+        CREATE TABLE `spell_target_position` (
+          `id` mediumint(8) unsigned NOT NULL DEFAULT 0,
+          `target_map` smallint(5) unsigned NOT NULL DEFAULT 0,
+          `target_position_x` float NOT NULL DEFAULT 0,
+          `target_position_y` float NOT NULL DEFAULT 0,
+          `target_position_z` float NOT NULL DEFAULT 0,
+          `target_orientation` float NOT NULL DEFAULT 0,
+          PRIMARY KEY (`id`,`target_map`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-    --     INSERT INTO `spell_target_position` VALUES (442,129,2592.55,1107.5,51.29,4.74),(444,1,-4658.12,-2526.35,82.9671,0),(446,109,-319.24,99.9,-131.85,3.19),(3561,0,-9003.46,870.031,29.6206,5.28),(3562,0,-4613.62,-915.38,501.062,3.88),(3563,0,1773.47,61.121,-46.3207,0.54),(3565,1,9660.81,2513.64,1331.66,3.06),(3566,1,-964.98,283.433,111.187,3.02),(3567,1,1469.85,-4221.52,58.9939,5.98),(33,0,-10643,1052,34,0),(31,0,-9464,62,56,0),(34,0,-10368,-422,66,0),(35,0,-9104,-70,83,0),(427,189,1688.99,1053.48,18.6775,0.00117),(428,0,-11020,1436,44,0),(445,0,-10566,-1189,28,0),(4996,1,1552.5,-4420.66,8.94802,0),(4997,0,-14457,496.45,39.1392,0),(4998,0,-12415,207.618,31.5017,0.124875),(4999,1,-998.359,-3827.52,5.44507,4.16654),(6348,0,-3752.81,-851.558,10.1153,0),(6349,1,6581.05,767.5,5.78428,6.01616),(6483,1,5483.9,-749.881,334.621,0),(6719,1,-3615.49,-4467.34,24.3141,0),(447,0,16229,16265,14,3.19),(3721,0,16229,16265,14,3.19),(1936,0,16229,16265,14,0),(443,0,16229,16265,14,4.74),(6766,1,-2354.03,-1902.07,95.78,4.6),(6714,1,-4884.49,-1596.2,101.2,3.17),(7587,33,-102.933,2124.29,155.648,1.08944),(7586,33,-105.88,2154.87,156.445,5.82146),(7136,33,-85.767,2150.22,155.607,3.97629);
+        INSERT INTO `spell_target_position` VALUES (442,129,2592.55,1107.5,51.29,4.74),(444,1,-4658.12,-2526.35,82.9671,0),(446,109,-319.24,99.9,-131.85,3.19),(3561,0,-9003.46,870.031,29.6206,5.28),(3562,0,-4613.62,-915.38,501.062,3.88),(3563,0,1773.47,61.121,-46.3207,0.54),(3565,1,9660.81,2513.64,1331.66,3.06),(3566,1,-964.98,283.433,111.187,3.02),(3567,1,1469.85,-4221.52,58.9939,5.98),(33,0,-10643,1052,34,0),(31,0,-9464,62,56,0),(34,0,-10368,-422,66,0),(35,0,-9104,-70,83,0),(427,189,1688.99,1053.48,18.6775,0.00117),(428,0,-11020,1436,44,0),(445,0,-10566,-1189,28,0),(4996,1,1552.5,-4420.66,8.94802,0),(4997,0,-14457,496.45,39.1392,0),(4998,0,-12415,207.618,31.5017,0.124875),(4999,1,-998.359,-3827.52,5.44507,4.16654),(6348,0,-3752.81,-851.558,10.1153,0),(6349,1,6581.05,767.5,5.78428,6.01616),(6483,1,5483.9,-749.881,334.621,0),(6719,1,-3615.49,-4467.34,24.3141,0),(447,0,16229,16265,14,3.19),(3721,0,16229,16265,14,3.19),(1936,0,16229,16265,14,0),(443,0,16229,16265,14,4.74),(6766,1,-2354.03,-1902.07,95.78,4.6),(6714,1,-4884.49,-1596.2,101.2,3.17),(7587,33,-102.933,2124.29,155.648,1.08944),(7586,33,-105.88,2154.87,156.445,5.82146),(7136,33,-85.767,2150.22,155.607,3.97629);
 
-    --     insert into applied_updates values ('230820211');
-    -- end if;
+        insert into applied_updates values ('230820211');
+    end if;
 
     -- 24/08/2021 1
     if (select count(*) from applied_updates where id='240820211') = 0 then
@@ -367,14 +367,14 @@ begin not atomic
 
         -- ## FIX FOR DARNASSUS
 
-            -- They're no rogue/hunter dedicated houses in 0.5.3,
-            -- and it seems there is a 'generic house' as placeholder.
-            -- Bank is not created in 0.5.3 and NPC are probably at Auctioneer's house 
-            -- There are no shop signs with dispay_id, not even the pillar to hang them
-            -- All wisp and frostsaber missed display_id but models are presents in gamefile
+        --     They're no rogue/hunter dedicated houses in 0.5.3,
+        --     and it seems there is a 'generic house' as placeholder.
+        --     Bank is not created in 0.5.3 and NPC are probably at Auctioneer's house 
+        --     There are no shop signs with dispay_id, not even the pillar to hang them
+        --     All wisp and frostsaber missed display_id but models are presents in gamefile
 
 
-                                -- ## GAMEOBJECTS ##
+        --                         ## GAMEOBJECTS ##
 
         -- shop big signs, moonwell, books, not part of 0.5.3
         UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (49708, 49692, 49704, 49619, 49694, 49709, 49710, 49712, 49702, 48530, 49818, 49527, 49530, 49703, 49713, 49693, 49696, 49802, 49714, 49698, 49701, 49521, 49522, 49715, 49716,49524, 49724,49730, 49732, 49728, 49729, 49731, 49726, 49727, 49705, 49707, 49806, 49738, 49831, 49801, 49723, 49523, 49717, 49720, 3996165, 3996168, 3996167);
