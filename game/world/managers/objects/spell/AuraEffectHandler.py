@@ -156,7 +156,8 @@ class AuraEffectHandler:
             effect_target.set_current_target(effect_target.guid)
             effect_target.unit_state |= UnitStates.STUNNED
             effect_target.unit_flags |= UnitFlags.UNIT_FLAG_DISABLE_ROTATE
-            effect_target.movement_manager.send_move_stop()
+            if len(effect_target.movement_manager.pending_waypoints) > 0:
+                effect_target.movement_manager.send_move_stop()
         else:
             # Restore combat target if any.
             if effect_target.combat_target and effect_target.combat_target.is_alive:

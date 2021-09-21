@@ -931,7 +931,6 @@ class UnitManager(ObjectManager):
 
         # Stop movement on death.
         if len(self.movement_manager.pending_waypoints) > 0:
-            self.movement_manager.reset()
             self.movement_manager.send_move_stop()
 
         self.set_health(0)
