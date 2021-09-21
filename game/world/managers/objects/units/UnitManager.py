@@ -19,7 +19,7 @@ from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, UnitStates
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -168,6 +168,9 @@ class UnitManager(ObjectManager):
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
 
+        # Used to determine the current state of the unit (internal usage).
+        self.unit_state = UnitStates.NONE
+
         # Defensive passive spells are not handled through the aura system.
         # The effects will instead flag the unit with these fields.
         self.has_block_passive = False
@@ -250,6 +253,9 @@ class UnitManager(ObjectManager):
         self.update_melee_attacking_state()
 
     def update_melee_attacking_state(self):
+        if self.unit_state & UnitStates.STUNNED:
+            return
+
         swing_error = AttackSwingError.NONE
         combat_angle = math.pi
 
@@ -679,6 +685,14 @@ class UnitManager(ObjectManager):
         # Limit to 0-56 and assign object field.
         return super().change_speed(speed)
 
+    def set_root(self, active):
+        if active:
+            self.movement_flags |= MoveFlags.MOVEFLAG_ROOTED
+            self.unit_state |= UnitStates.ROOTED
+        else:
+            self.movement_flags &= ~MoveFlags.MOVEFLAG_ROOTED
+            self.unit_state &= ~UnitStates.ROOTED
+
     def play_emote(self, emote):
         if emote != 0:
             data = pack('<IQ', emote, self.guid)
@@ -910,6 +924,10 @@ class UnitManager(ObjectManager):
         if not self.is_alive:
             return False
         self.is_alive = False
+
+        # Reset movement and unit state flags.
+        self.movement_flags = MoveFlags.MOVEFLAG_NONE
+        self.unit_state = UnitStates.NONE
 
         # Stop movement on death.
         if len(self.movement_manager.pending_waypoints) > 0:

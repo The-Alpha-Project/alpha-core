@@ -292,7 +292,6 @@ class ObjectManager(object):
 
     # override
     def respawn(self):
-        self.movement_flags = MoveFlags.MOVEFLAG_NONE
         pass
 
     # override

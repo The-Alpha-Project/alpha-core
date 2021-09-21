@@ -518,6 +518,8 @@ class PlayerManager(UnitManager):
         if not self.session:
             return
 
+        super().set_root(active)
+
         if active:
             opcode = OpCode.SMSG_FORCE_MOVE_ROOT
         else:
