@@ -598,15 +598,15 @@ begin not atomic
         -- IRONFORGE IMPROVEMENTS based on Davir's Screenshots 
         -- TODO : We only need to correcly spawn guards and resolve latest display_id
 
-        INSERT INTO creature_template
-        VALUES(5139, 3084, 0, 0, 0, "Kurdrum Barleybeard", "Bartender", 0, 50, 50, 2340, 2340, 0, 0, 2000, 11, 
+        REPLACE INTO creature_template
+        VALUES(5139, 3084, 0, 0, 0, 'Kurdrum Barleybeard', 'Bartender', 0, 50, 50, 2340, 2340, 0, 0, 2000, 11,
         10, 1, 1.143, 0, 18, 5, 0, 0, 1, 78, 156, 0, 200, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 0, "EventAI", 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, "");
+        0, 0, 0, 0, 0, 0, '', 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, '');
 
-        INSERT INTO creature_template
-        VALUES(5118, 3074, 0, 0, 0, "Brogun Stoneshield", "Boar Trainer", 0, 35, 35, 1420, 1420, 0, 0, 2000, 11, 
+        REPLACE INTO creature_template
+        VALUES(5118, 3074, 0, 0, 0, 'Brogun Stoneshield', 'Boar Trainer', 0, 35, 35, 1420, 1420, 0, 0, 2000, 11,
         10, 1, 1.143, 0, 18, 5, 0, 0, 1, 78, 156, 0, 200, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 0, "EventAI", 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, "");
+        0, 0, 0, 0, 0, 0, '', 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, '');
 
         -- Pithwick Sign
         UPDATE spawns_gameobjects
