@@ -367,14 +367,14 @@ begin not atomic
 
         -- ## FIX FOR DARNASSUS
 
-            -- They're no rogue/hunter dedicated houses in 0.5.3,
-            -- and it seems there is a 'generic house' as placeholder.
-            -- Bank is not created in 0.5.3 and NPC are probably at Auctioneer's house 
-            -- There are no shop signs with dispay_id, not even the pillar to hang them
-            -- All wisp and frostsaber missed display_id but models are presents in gamefile
+        --     They're no rogue/hunter dedicated houses in 0.5.3,
+        --     and it seems there is a 'generic house' as placeholder.
+        --     Bank is not created in 0.5.3 and NPC are probably at Auctioneer's house 
+        --     There are no shop signs with dispay_id, not even the pillar to hang them
+        --     All wisp and frostsaber missed display_id but models are presents in gamefile
 
 
-                                -- ## GAMEOBJECTS ##
+        --                         ## GAMEOBJECTS ##
 
         -- shop big signs, moonwell, books, not part of 0.5.3
         UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (49708, 49692, 49704, 49619, 49694, 49709, 49710, 49712, 49702, 48530, 49818, 49527, 49530, 49703, 49713, 49693, 49696, 49802, 49714, 49698, 49701, 49521, 49522, 49715, 49716,49524, 49724,49730, 49732, 49728, 49729, 49731, 49726, 49727, 49705, 49707, 49806, 49738, 49831, 49801, 49723, 49523, 49717, 49720, 3996165, 3996168, 3996167);
@@ -591,5 +591,251 @@ begin not atomic
 
         insert into applied_updates values ('120920211');
     end if;
+
+    -- 20/09/2021 1
+    if (select count(*) from applied_updates where id='200920211') = 0 then
+
+        -- IRONFORGE IMPROVEMENTS based on Davir's Screenshots 
+        -- TODO : We only need to correcly spawn guards and resolve latest display_id
+
+        INSERT INTO creature_template
+        VALUES(5139, 3084, 0, 0, 0, "Kurdrum Barleybeard", "Bartender", 0, 50, 50, 2340, 2340, 0, 0, 2000, 11, 
+        10, 1, 1.143, 0, 18, 5, 0, 0, 1, 78, 156, 0, 200, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 0, 0, "EventAI", 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, "");
+
+        INSERT INTO creature_template
+        VALUES(5118, 3074, 0, 0, 0, "Brogun Stoneshield", "Boar Trainer", 0, 35, 35, 1420, 1420, 0, 0, 2000, 11, 
+        10, 1, 1.143, 0, 18, 5, 0, 0, 1, 78, 156, 0, 200, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 0, 0, "EventAI", 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, "");
+
+        -- Pithwick Sign
+        UPDATE spawns_gameobjects
+            SET spawn_entry=26491
+            WHERE spawn_id=5018;
+
+        -- Herbalist Stonebranch
+        UPDATE spawns_gameobjects
+            SET spawn_entry=26493
+            WHERE spawn_id=5469;
+
+        -- IF Physician
+        UPDATE spawns_gameobjects
+            SET spawn_entry=26494
+            WHERE spawn_id=2008;
+
+        -- IGNORED spawns_creatures 1796
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=1796;
+
+        -- FIX spawns_creatures 2015
+        UPDATE spawns_creatures SET 
+        position_x=-4714.19873046875,
+        position_y=-952.3878784179688,
+        position_z=511.9549865722656,
+        orientation=4.13355016708374
+        WHERE spawn_id=2015;
+
+        -- IGNORED spawns_creatures 1763
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=1763;
+
+        -- FIX spawns_creatures 94
+        UPDATE spawns_creatures SET 
+        position_x=-4938.8525390625,
+        position_y=-1179.39013671875,
+        position_z=503.890869140625,
+        orientation=5.294369697570801
+        WHERE spawn_id=94;
+
+        UPDATE spawns_creatures
+            SET position_x=-4702.78,orientation=3.964,position_z=505.27,position_y=-1172.28
+            WHERE spawn_id=1761;
+
+        UPDATE spawns_creatures
+            SET orientation=3.297,position_y=-1208.37,position_x=-4798.53,position_z=495.9
+            WHERE spawn_id=40;
+
+        -- FIX spawns_creatures 1784
+        UPDATE spawns_creatures SET 
+        position_x=-4736.2177734375,
+        position_y=-1116.749755859375,
+        position_z=492.8209533691406,
+        orientation=4.369928359985352
+        WHERE spawn_id=1784;
+
+        UPDATE spawns_creatures
+            SET position_z=449.043,position_x=-4595.74,orientation=3.65,position_y=-1081.3
+            WHERE spawn_id=2006;
+
+        -- FIX spawns_creatures 1890
+        UPDATE spawns_creatures SET 
+        position_x=-4606.87255859375,
+        position_y=-1091.2987060546875,
+        position_z=449.0431823730469,
+        orientation=0.669914722442627
+        WHERE spawn_id=1890;
+
+        -- FIX spawns_creatures 1805
+        UPDATE spawns_creatures SET 
+        position_x=-4701.7197265625,
+        position_y=-1016.9811401367188,
+        position_z=492.4388732910156,
+        orientation=5.060286521911621
+        WHERE spawn_id=1805;
+
+        -- CREATE spawns_creatures 5105
+        INSERT INTO spawns_creatures VALUES (NULL, 5105, 0, 0, 0, 0, 0, 0, -4845.44189453125, -1003.7757568359375, 494.4190673828125, 3.5146117210388184, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- FIX spawns_creatures 1755
+        UPDATE spawns_creatures SET 
+        position_x=-4874.59423828125,
+        position_y=-1022.3235473632812,
+        position_z=492.7527160644531,
+        orientation=0.563086748123169
+        WHERE spawn_id=1755;
+
+        -- FIX spawns_creatures 1751
+        UPDATE spawns_creatures SET 
+        position_x=-4868.86572265625,
+        position_y=-1015.4052734375,
+        position_z=492.7527160644531,
+        orientation=3.7887156009674072
+        WHERE spawn_id=1751;
+
+        UPDATE spawns_gameobjects
+            SET spawn_rotation3=0.0,spawn_rotation2=0.0,spawn_positionZ=496.5,spawn_positionX=-4822.56
+            WHERE spawn_id=1499;
+            
+        -- CREATE spawns_creatures 5104
+        INSERT INTO spawns_creatures VALUES (NULL, 5104, 0, 0, 0, 0, 0, 0, -4883.3349609375, -952.1742553710938, 495.8304443359375, 3.6072885990142822, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- CREATE spawns_gameobjects 26485
+        INSERT INTO spawns_gameobjects VALUES (NULL, 26485, 0, -4871.12646484375, -962.2207641601562, 492.2113342285156, 2.083615303039551, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        -- FIX spawns_gameobjects 3998707
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=-4869.72900390625,
+        spawn_positionY=-962.9651489257812,
+        spawn_positionZ=496.2059326171875,
+        spawn_orientation=5.5197343826293945
+        WHERE spawn_id=3998707;
+
+        -- CREATE spawns_gameobjects 26492
+        INSERT INTO spawns_gameobjects VALUES (NULL, 26492, 0, -4826.89306640625, -1286.3348388671875, 501.64111328125, 1.6846309900283813, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        -- FIX spawns_gameobjects 3998708
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=-4826.91650390625,
+        spawn_positionY=-1284.3597412109375,
+        spawn_positionZ=504.6433410644531,
+        spawn_orientation=1.5393320322036743
+        WHERE spawn_id=3998708;
+
+        -- CREATE spawns_creatures 5139
+        INSERT INTO spawns_creatures VALUES (NULL, 5139, 0, 0, 0, 0, 0, 0, -4961.50634765625, -1284.79345703125, 520.1649169921875, 0.9997727274894714, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- CREATE spawns_creatures 5118
+        INSERT INTO spawns_creatures VALUES (NULL, 5118, 0, 0, 0, 0, 0, 0, -5015.90087890625, -1278.3310546875, 525.9461059570312, 2.190439462661743, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- CREATE spawns_gameobjects 143332
+        INSERT INTO spawns_gameobjects VALUES (NULL, 143332, 0, -4885.02587890625, -1012.2951049804688, 492.1971740722656, 2.2909514904022217, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        -- FIX spawns_gameobjects 3998709
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=-4872.33837890625,
+        spawn_positionY=-1003.2520141601562,
+        spawn_positionZ=495.1971740722656,
+        spawn_orientation=2.3035149574279785
+        WHERE spawn_id=3998709;
+
+        -- FIX spawns_gameobjects 860
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=-4913.06,
+        spawn_positionY=-999.214,
+        spawn_positionZ=495.0,
+        spawn_orientation=5.58
+        WHERE spawn_id=860;
+
+        -- IGNORED spawns_creatures 31
+        UPDATE spawns_creatures SET ignored=1
+        WHERE spawn_id=31;
+
+        -- FIX spawns_gameobjects 3998657
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=-4885.03,
+        spawn_positionY=-1012.3,
+        spawn_positionZ=495.197,
+        spawn_orientation=2.29095
+        WHERE spawn_id=3998657;
+
+        -- FIX spawns_creatures 51
+        UPDATE spawns_creatures SET 
+        position_x=-5014.57470703125,
+        position_y=-1109.3367919921875,
+        position_z=501.6736755371094,
+        orientation=1.67908775806427
+        WHERE spawn_id=51;
+
+        -- FIX spawns_creatures 1766
+        UPDATE spawns_creatures SET 
+        position_x=-4684.787109375,
+        position_y=-913.2700805664062,
+        position_z=501.659423828125,
+        orientation=5.605379581451416
+        WHERE spawn_id=1766;
+
+        -- FIX spawns_creatures 1767
+        UPDATE spawns_creatures SET 
+        position_x=-4688.26611328125,
+        position_y=-917.2747802734375,
+        position_z=501.6594543457031,
+        orientation=5.5401930809021
+        WHERE spawn_id=1767;
+
+        -- FIX spawns_gameobjects 2008
+        UPDATE spawns_gameobjects SET 
+        spawn_positionX=-4687.306640625,
+        spawn_positionY=-966.571044921875,
+        spawn_positionZ=507.1474304199219,
+        spawn_orientation=0.629,
+        spawn_rotation2=0,
+        spawn_rotation3=0
+        WHERE spawn_id=2008;
+
+        -- FIX spawns_creatures 2015
+        UPDATE spawns_creatures SET 
+        position_x=-4693.49169921875,
+        position_y=-987.7844848632812,
+        position_z=508.8642272949219,
+        orientation=2.2077412605285645
+        WHERE spawn_id=2015;
+                
+        -- FIX spawns_creatures 1758
+        UPDATE spawns_creatures SET 
+        position_x=-4688.6181640625,
+        position_y=-987.349365234375,
+        position_z=502.1968688964844,
+        orientation=2.2674341201782227
+        WHERE spawn_id=1758;
+
+        -- FIX spawns_creatures 45
+        UPDATE spawns_creatures SET 
+        position_x=-4944.54443359375,
+        position_y=-1247.7320556640625,
+        position_z=501.65948486328125,
+        orientation=2.3883779048919678
+        WHERE spawn_id=45;
+
+        -- FIX spawns_creatures 44
+        UPDATE spawns_creatures SET 
+        position_x=-4948.06494140625,
+        position_y=-1251.661865234375,
+        position_z=501.65948486328125,
+        orientation=2.438640594482422
+        WHERE spawn_id=44;
+
+        insert into applied_updates values ('200920211');
+    end if;
+
 end $
 delimiter ;
