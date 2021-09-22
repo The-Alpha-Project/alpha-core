@@ -222,7 +222,7 @@ class UnitManager(ObjectManager):
 
     def attack_stop(self, target_switch=False):
         # Clear target
-        self.set_current_target(self.guid)
+        self.set_current_target(0)
         victim = self.combat_target
         self.combat_target = None
 
@@ -967,7 +967,7 @@ class UnitManager(ObjectManager):
 
         # Force leave combat just in case.
         self.leave_combat(force=True)
-        self.set_current_target(self.guid)
+        self.set_current_target(0)
         self.is_alive = True
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD

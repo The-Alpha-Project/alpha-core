@@ -153,7 +153,7 @@ class AuraEffectHandler:
         effect_target.set_root(not remove)
 
         if not remove:
-            effect_target.set_current_target(effect_target.guid)
+            effect_target.set_current_target(0)
             effect_target.unit_state |= UnitStates.STUNNED
             effect_target.unit_flags |= UnitFlags.UNIT_FLAG_DISABLE_ROTATE
             if len(effect_target.movement_manager.pending_waypoints) > 0:
