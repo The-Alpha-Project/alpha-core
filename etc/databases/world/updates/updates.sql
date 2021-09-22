@@ -837,5 +837,13 @@ begin not atomic
         insert into applied_updates values ('200920211');
     end if;
 
+    -- 22/09/2021 1
+    if (select count(*) from applied_updates where id='220920211') = 0 then
+        -- Remove Swines
+        update spawns_creatures set ignored = 1 where spawn_entry1 = 10685;
+
+        insert into applied_updates values ('220920211');
+    end if;
+
 end $
 delimiter ;
