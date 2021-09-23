@@ -466,7 +466,7 @@ class StatManager(object):
             weapon_min_damage = self.get_total_stat(UnitStats.RANGED_DAMAGE_MIN)
             weapon_max_damage = self.get_total_stat(UnitStats.RANGED_DAMAGE_MAX)
 
-        return weapon_min_damage, weapon_max_damage
+        return max(1, weapon_min_damage), max(1, weapon_max_damage)
 
     def apply_bonuses_for_damage(self, damage, attack_school: SpellSchools, victim, weapon_type: ItemSubClasses = -1):
         if weapon_type != -1:
