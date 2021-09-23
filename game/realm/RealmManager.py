@@ -3,7 +3,7 @@ import socket
 import socketserver
 import threading
 
-from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.WorldSessionStateHandler import RealmDatabaseManager
 from network.packet.PacketWriter import *
 from utils.ConfigManager import config
 from utils.Logger import Logger
@@ -38,9 +38,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
             1,  # Number of realms
             name_bytes,
             address_bytes,
-            # I assume this number is meant to show current online players since there is
-            # no way of knowing the account yet when realmlist is requested in 0.5.3.
-            WorldSessionStateHandler.get_process_shared_session_number()
+            RealmDatabaseManager.character_get_online_count()
         )
 
         Logger.debug(f'[{sck.getpeername()[0]}] Sending realmlist...')
@@ -53,6 +51,8 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
                                   config.Server.Connection.RealmServer.port), LoginServerSessionHandler) \
                 as login_instance:
             Logger.success(f'Login server started, listening on {login_instance.server_address[0]}:{login_instance.server_address[1]}')
+            # Make sure all characters have online = 0 on realm start.
+            RealmDatabaseManager.character_set_all_offline()
             try:
                 login_session_thread = threading.Thread(target=login_instance.serve_forever())
                 login_session_thread.daemon = True
