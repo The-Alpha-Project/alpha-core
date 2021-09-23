@@ -52,16 +52,16 @@ class GridManager(object):
         cell = self.get_create_cell(world_object)
         cell.add(self, world_object)
 
-        # Notify surrounding players.
-        if update_players:
-            self.update_players(cell.key)
-
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             affected_cells = list(self.get_surrounding_cells_by_object(world_object))
             # Try to load tile maps for affected cells if needed.
             self.load_maps_for_cells(affected_cells)
             # Set affected cells as active cells if needed.
             self.activate_cells(affected_cells)
+
+        # Notify surrounding players.
+        if update_players:
+            self.update_players(cell.key)
 
     def activate_cells(self, cells):
         for cell in cells:
