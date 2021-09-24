@@ -37,6 +37,32 @@ class CreatureTypes(IntEnum):
     NOT_SPECIFIED = 10
 
 
+# Also known as CreatureDifficultyFlags.
+# Used internally but Blizzlike.
+class CreatureStaticFlags(IntEnum):
+    MOUNTABLE = 1
+    NO_XP = 2
+    NO_LOOT = 4
+    UNKILLABLE = 8
+    TAMEABLE = 16
+    IMMUNE_PLAYER = 32
+    IMMUNE_NPC = 64
+    CAN_WIELD_LOOT = 128
+    SESSILE = 256
+    UNSELECTABLE = 512
+    NO_AUTO_REGEN = 1024
+    CORPSE_NONE = 2048
+    CORPSE_RAID = 4096
+    CREATOR_LOOT = 8192
+    NO_DEFENSE = 16384
+    NO_SPELL_DEFENSE = 32768
+    TABARD_VENDOR = 65536
+    COMBAT_PING = 131072
+    AQUATIC = 262144
+    AMPHIBIOUS = 524288
+    NO_MELEE = 1048576
+
+
 class Genders(IntEnum):
     GENDER_MALE = 0
     GENDER_FEMALE = 1
