@@ -174,7 +174,8 @@ class AuraEffectHandler:
                 Logger.error(f'SPELL_AURA_TRANSFORM: Creature template ({creature_entry}) not found in database.')
                 return
 
-            effect_target.set_display_id(creature.display_id1)
+            if not effect_target.set_display_id(creature.display_id1):
+                Logger.error(f'SPELL_AURA_TRANSFORM: Invalid display id ({creature.display_id1}) for creature ({creature_entry}).')
         else:
             effect_target.reset_display_id()
 

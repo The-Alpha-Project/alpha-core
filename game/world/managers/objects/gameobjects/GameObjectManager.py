@@ -233,9 +233,10 @@ class GameObjectManager(ObjectManager):
         super().set_display_id(display_id)
         if display_id <= 0 or not \
                 DbcDatabaseManager.gameobject_display_info_get_by_id(display_id):
-            return
+            return False
 
         self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
+        return True
 
     # override
     def get_full_update_packet(self, is_self=True):

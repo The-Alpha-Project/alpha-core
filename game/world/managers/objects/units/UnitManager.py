@@ -908,9 +908,10 @@ class UnitManager(ObjectManager):
         super().set_display_id(display_id)
         if display_id <= 0 or not \
                 DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id):
-            return
+            return False
 
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
+        return True
 
     def set_channel_object(self, guid):
         self.channel_object = guid

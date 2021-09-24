@@ -142,6 +142,7 @@ class ObjectManager(object):
 
     def set_display_id(self, display_id):
         self.current_display_id = display_id
+        return True
 
     def reset_display_id(self):
         self.set_display_id(self.native_display_id)
