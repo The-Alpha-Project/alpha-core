@@ -40,27 +40,27 @@ class CreatureTypes(IntEnum):
 # Also known as CreatureDifficultyFlags.
 # Used internally but Blizzlike.
 class CreatureStaticFlags(IntEnum):
-    MOUNTABLE = 1
-    NO_XP = 2
-    NO_LOOT = 4
-    UNKILLABLE = 8
-    TAMEABLE = 16
-    IMMUNE_PLAYER = 32
-    IMMUNE_NPC = 64
+    MOUNTABLE = 1  # Has proper mount points?
+    NO_XP = 2  # Gives no XP on death.
+    NO_LOOT = 4  # Generates no loot on death.
+    UNKILLABLE = 8  # Can't be killed.
+    TAMEABLE = 16  # Is tameable.
+    IMMUNE_PLAYER = 32  # Is immune to player attacks.
+    IMMUNE_NPC = 64  # Is immune to other NPC attacks.
     CAN_WIELD_LOOT = 128
-    SESSILE = 256
+    SESSILE = 256  # Creature always rooted?
     UNSELECTABLE = 512
-    NO_AUTO_REGEN = 1024
-    CORPSE_NONE = 2048
+    NO_AUTO_REGEN = 1024  # Shouldn't regenerate health and power on evade?
+    CORPSE_NONE = 2048  # Don't leave corpse?
     CORPSE_RAID = 4096
-    CREATOR_LOOT = 8192
-    NO_DEFENSE = 16384
-    NO_SPELL_DEFENSE = 32768
-    TABARD_VENDOR = 65536
-    COMBAT_PING = 131072
-    AQUATIC = 262144
-    AMPHIBIOUS = 524288
-    NO_MELEE = 1048576
+    CREATOR_LOOT = 8192  # Lootable only by creator (like dummies).
+    NO_DEFENSE = 16384  # No defense to melee attacks?
+    NO_SPELL_DEFENSE = 32768  # No defense to spell attacks?
+    TABARD_VENDOR = 65536  # Flag carried by Tabard Vendor NPCS? Was later reused as "Raid Boss".
+    COMBAT_PING = 131072  # Seems to be only used by Sentry Totem NPC.
+    AQUATIC = 262144  # Can only move in water.
+    AMPHIBIOUS = 524288  # Can enter water and walk on terrain.
+    NO_MELEE = 1048576  # Prevents melee, mostly used by totems.
 
 
 class Genders(IntEnum):

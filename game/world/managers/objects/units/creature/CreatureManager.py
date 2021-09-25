@@ -408,6 +408,21 @@ class CreatureManager(UnitManager):
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
 
+    def can_swim(self):
+        return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) or (self.static_flags & CreatureStaticFlags.AQUATIC)
+
+    def can_exit_water(self):
+        return self.static_flags & CreatureStaticFlags.AQUATIC == 0
+
+    def evade(self):
+        # TODO: Finish implmenting evade mechanic.
+        self.leave_combat(force=True)
+        self.set_health(self.max_health)
+        self.recharge_power()
+        self.set_dirty()
+        self.movement_manager.send_move_normal([self.spawn_position], self.running_speed,
+                                               SplineFlags.SPLINEFLAG_RUNMODE)
+
     def _perform_random_movement(self, now):
         if not self.in_combat and self.creature_instance.movement_type == MovementTypes.WANDER:
             if len(self.movement_manager.pending_waypoints) == 0:
@@ -418,14 +433,22 @@ class CreatureManager(UnitManager):
                     self.last_random_movement = now
 
     def _perform_combat_movement(self):
+        should_evade = False
         if self.combat_target:
-            # TODO Temp, extremely basic evade / runback mechanic based ONLY on distance. Replace later with a proper one.
+            # TODO: Temp, extremely basic evade / runback mechanic based ONLY on distance. Replace later with a proper one.
             if self.location.distance(self.spawn_position) > 50:
-                self.leave_combat(force=True)
-                self.set_health(self.max_health)
-                self.recharge_power()
-                self.set_dirty()
-                self.movement_manager.send_move_normal([self.spawn_position], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+                should_evade = True
+
+            # TODO: Should check if the next waypoint is on water or not, not target location.
+            if self.combat_target.is_on_water():
+                if not self.is_on_water() and not self.can_swim():
+                    should_evade = True
+            else:
+                if not self.can_exit_water():
+                    should_evade = True
+
+            if should_evade:
+                self.evade()
                 return
 
             self.location.face_point(self.combat_target.location)
@@ -450,7 +473,6 @@ class CreatureManager(UnitManager):
                 combat_location.z = self.combat_target.location.z
                 # TODO: Find how to actually trigger swim animation and which spline flag to use.
                 #  VMaNGOS uses UNIT_FLAG_USE_SWIM_ANIMATION, we don't have that.
-                #  Also, we should check if this creature is able to swim, which flag is that?
                 self.movement_manager.send_move_normal([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
             else:
                 self.movement_manager.send_move_normal([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
