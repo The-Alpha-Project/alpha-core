@@ -400,7 +400,7 @@ class CreatureManager(UnitManager):
             self.entry,
             name_bytes, b'\x00', b'\x00', b'\x00',
             subname_bytes,
-            self.creature_template.type_flags,
+            self.creature_template.static_flags,
             self.creature_type,
             self.creature_template.beast_family
         )
