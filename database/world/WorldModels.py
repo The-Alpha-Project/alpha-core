@@ -251,6 +251,7 @@ class CreatureTemplate(Base):
     gold_max = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     ai_name = Column(CHAR(64), nullable=False, server_default=text("''"))
     movement_type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    inhabit_type = Column(TINYINT(3), nullable=False, server_default=text("'3'"))
     civilian = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     racial_leader = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     regeneration = Column(TINYINT(3), nullable=False, server_default=text("'3'"))
