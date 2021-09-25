@@ -17,7 +17,8 @@ from utils.Formulas import UnitFormulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
+    CreatureStaticFlags
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -51,6 +52,7 @@ class CreatureManager(UnitManager):
             self.resistance_4 = self.creature_template.frost_res
             self.resistance_5 = self.creature_template.shadow_res
             self.npc_flags = self.creature_template.npc_flags
+            self.static_flags = self.creature_template.static_flags
             self.mod_cast_speed = 1.0
             self.base_attack_time = self.creature_template.base_attack_time
             self.unit_flags = self.creature_template.unit_flags
@@ -537,8 +539,7 @@ class CreatureManager(UnitManager):
         return True
 
     def reward_kill_xp(self, player):
-        # Critters don't award XP
-        if self.creature_type == CreatureTypes.AMBIENT:
+        if self.static_flags & CreatureStaticFlags.NO_XP:
             return
 
         is_elite = 0 < self.creature_template.rank < 4
