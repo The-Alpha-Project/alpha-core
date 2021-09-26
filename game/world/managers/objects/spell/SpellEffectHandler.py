@@ -282,6 +282,8 @@ class SpellEffectHandler(object):
         # Only save the GUID of the binder if the spell is casted by a creature.
         if caster.get_type() == ObjectTypes.TYPE_UNIT:
             target.deathbind.creature_binder_guid = caster.guid & ~HighGuid.HIGHGUID_UNIT
+        else:
+            target.deathbind.creature_binder_guid = 0
 
         target.deathbind.deathbind_map = target.map_
         target.deathbind.deathbind_zone = target.zone

@@ -4,7 +4,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas
-
+from utils.constants.MiscCodes import HighGuid
 
 BIND_SPELL = 3286
 
@@ -19,10 +19,7 @@ class BinderActivateHandler(object):
             if not binder or binder.location.distance(world_session.player_mgr.location) > Formulas.Distances.MAX_BIND_DISTANCE:
                 return 0
 
-            if binder.location.distance(x=world_session.player_mgr.deathbind.deathbind_position_x,
-                                        y=world_session.player_mgr.deathbind.deathbind_position_y,
-                                        z=world_session.player_mgr.deathbind.deathbind_position_z)\
-                    < Formulas.Distances.MAX_BIND_RADIUS_CHECK:
+            if binder_guid & ~HighGuid.HIGHGUID_UNIT == world_session.player_mgr.deathbind.creature_binder_guid:
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PLAYERBINDERROR))
             else:
                 bind_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(BIND_SPELL)

@@ -63,7 +63,9 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.deathbind = RealmDatabaseManager.character_get_deathbind(world_session.player_mgr.guid)
         world_session.player_mgr.friends_manager.load_from_db(RealmDatabaseManager.character_get_social(world_session.player_mgr.guid))
 
-        world_session.enqueue_packet(world_session.player_mgr.get_deathbind_packet())
+        # Only send the deathbind packet if it's a Binder NPC what bound the player.
+        if world_session.player_mgr.deathbind.creature_binder_guid > 0:
+            world_session.enqueue_packet(world_session.player_mgr.get_deathbind_packet())
         # Tutorials aren't implemented in 0.5.3.
         # world_session.enqueue_packet(world_session.player_mgr.get_tutorial_packet())
         world_session.enqueue_packet(world_session.player_mgr.spell_manager.get_initial_spells())
