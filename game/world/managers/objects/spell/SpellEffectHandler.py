@@ -284,7 +284,7 @@ class SpellEffectHandler(object):
             target.deathbind.creature_binder_guid = caster.guid & ~HighGuid.HIGHGUID_UNIT
 
         # TODO: Most likely the coords used were hardcoded based on zone or binder, instead of saving
-        #  the location of the current player location.
+        #  the location of the current player.
         target.deathbind.deathbind_map = target.map_
         target.deathbind.deathbind_zone = target.zone
         target.deathbind.deathbind_position_x = target.location.x
