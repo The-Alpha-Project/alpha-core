@@ -156,13 +156,13 @@ class CreatureManager(UnitManager):
             for vendor_data_entry in vendor_data:
                 data += pack(
                     '<7I',
-                    1,  # mui
+                    1,  # muid.
                     vendor_data_entry.item,
                     vendor_data_entry.item_template.display_id,
                     0xFFFFFFFF if vendor_data_entry.maxcount <= 0 else vendor_data_entry.maxcount,
                     vendor_data_entry.item_template.buy_price,
-                    0,  # durability
-                    0,  # stack count
+                    0,  # Durability (not implemented in 0.5.3).
+                    0,  # Stack count.
                 )
                 world_session.enqueue_packet(ItemManager(item_template=vendor_data_entry.item_template).query_details())
 
@@ -171,7 +171,6 @@ class CreatureManager(UnitManager):
 
     # TODO Add skills (Two-Handed Swords etc.) to trainers for skill points https://i.imgur.com/tzyDDqL.jpg
     def send_trainer_list(self, world_session):
-
         if not self.can_train(world_session.player_mgr):
             Logger.anticheat(f'send_trainer_list called from NPC {self.entry} by player with GUID {world_session.player_mgr.guid} but this unit does not train that player\'s class. Possible cheating')
             return
@@ -433,25 +432,26 @@ class CreatureManager(UnitManager):
                     self.last_random_movement = now
 
     def _perform_combat_movement(self):
-        should_evade = False
         if self.combat_target:
             # TODO: Temp, extremely basic evade / runback mechanic based ONLY on distance. Replace later with a proper one.
             if self.location.distance(self.spawn_position) > 50:
-                should_evade = True
-
-            # TODO: Should check if the next waypoint is on water or not, not target location.
-            if self.combat_target.is_on_water():
-                if not self.is_on_water() and not self.can_swim():
-                    should_evade = True
-            else:
-                if not self.can_exit_water():
-                    should_evade = True
-
-            if should_evade:
                 self.evade()
                 return
 
-            self.location.face_point(self.combat_target.location)
+            # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
+            #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
+            #  will currently bug out when you try to engage in combat with them. Also seems like a lot of humanoids
+            #  couldn't swim before patch 1.3.0:
+            #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
+            #   - Most humanoids NPCs have gained the ability to swim.
+            if self.is_on_water():
+                if not self.can_swim():
+                    self.evade()
+                    return
+            else:
+                if not self.can_exit_water():
+                    self.evade()
+                    return
 
             current_distance = self.location.distance(self.combat_target.location)
             interactable_distance = UnitFormulas.interactable_distance(self, self.combat_target)
@@ -467,6 +467,9 @@ class CreatureManager(UnitManager):
             # If already going to the correct spot, don't do anything.
             if len(self.movement_manager.pending_waypoints) > 0 and self.movement_manager.pending_waypoints[0].location == combat_location:
                 return
+
+            # Make sure the server knows where the creature is facing.
+            self.location.face_point(self.combat_target.location)
 
             if self.is_on_water():
                 # Force destination Z to target Z.
@@ -612,4 +615,3 @@ class CreatureManager(UnitManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
-
