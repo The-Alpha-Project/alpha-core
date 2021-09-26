@@ -10,7 +10,7 @@ class BuyItemHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         if len(reader.data) >= 13:  # Avoid handling empty buy item packet.
-            vendor_guid, item, count = unpack('<QIB', reader.data[:13])
+            vendor_guid, item, count = unpack('<QI2B', reader.data[:13])
 
             if vendor_guid > 0:
                 if count <= 0:
@@ -35,10 +35,11 @@ class BuyItemHandler(object):
                                                                           vendor_guid)
                         return 0
 
-                    if world_session.player_mgr.inventory.add_item(item_template=item_template, count=count,
+                    real_count = count if item_template.buy_count == 1 else item_template.buy_count
+                    if world_session.player_mgr.inventory.add_item(item_template=item_template, count=real_count,
                                                                    handle_error=False):
                         world_session.player_mgr.mod_money(total_cost * -1)
-                        #vendor_npc.send_inventory_list(world_session)
+                        # vendor_npc.send_inventory_list(world_session)
                     else:
                         world_session.player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_CANT_CARRY_MORE, item,
                                                                           vendor_guid)

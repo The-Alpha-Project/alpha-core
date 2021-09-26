@@ -153,16 +153,16 @@ class CreatureManager(UnitManager):
         if item_count == 0:
             data += pack('<B', 0)
         else:
-            for vendor_data_entry in vendor_data:
+            for count, vendor_data_entry in enumerate(vendor_data):
                 data += pack(
                     '<7I',
-                    1,  # muid.
+                    count + 1,  # m_muid, acts as slot counter.
                     vendor_data_entry.item,
                     vendor_data_entry.item_template.display_id,
                     0xFFFFFFFF if vendor_data_entry.maxcount <= 0 else vendor_data_entry.maxcount,
                     vendor_data_entry.item_template.buy_price,
-                    0,  # Durability (not implemented in 0.5.3).
-                    0,  # Stack count.
+                    vendor_data_entry.item_template.max_durability,  # Max durability (not implemented in 0.5.3).
+                    vendor_data_entry.item_template.buy_count  # Stack count.
                 )
                 world_session.enqueue_packet(ItemManager(item_template=vendor_data_entry.item_template).query_details())
 
