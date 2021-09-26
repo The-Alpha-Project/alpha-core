@@ -24,18 +24,18 @@ class BuyItemInSlotHandler(object):
                     session.close()
 
                     total_cost = item_template.buy_price * count
+                    real_count = count if item_template.buy_count == 1 else item_template.buy_count
 
                     if world_session.player_mgr.coinage < total_cost:
                         world_session.player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_NOT_ENOUGH_MONEY, item,
-                                                                          vendor_guid)
+                                                                          vendor_guid, real_count)
                         return 0
 
                     if 0 < vendor_data.maxcount < count:  # I should be checking here for current count too
                         world_session.player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_ITEM_SOLD_OUT, item,
-                                                                          vendor_guid)
+                                                                          vendor_guid, real_count)
                         return 0
 
-                    real_count = count if item_template.buy_count == 1 else item_template.buy_count
                     bag_slot = world_session.player_mgr.inventory.get_container_slot_by_guid(bag_guid)
                     if world_session.player_mgr.inventory.add_item_to_slot(dest_bag_slot=bag_slot, dest_slot=slot,
                                                                            item_template=item_template, count=real_count):

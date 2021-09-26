@@ -674,18 +674,19 @@ class InventoryManager(object):
             )
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_INVENTORY_CHANGE_FAILURE, data))
 
-    def send_buy_error(self, error, entry, vendor_guid=0):
+    def send_buy_error(self, error, entry, vendor_guid=0, quantity=0):
         data = pack(
-            '<QIB',
+            '<QI2B',
             vendor_guid if vendor_guid > 0 else self.owner.guid,
             entry,
+            quantity,
             error
         )
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_BUY_FAILED, data))
 
     def send_sell_error(self, error, item_guid, vendor_guid=0):
         data = pack(
-            '<QQB',
+            '<2QB',
             vendor_guid if vendor_guid > 0 else self.owner.guid,
             item_guid,
             error

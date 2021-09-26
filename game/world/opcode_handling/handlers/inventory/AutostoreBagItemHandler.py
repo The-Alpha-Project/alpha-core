@@ -34,7 +34,7 @@ class AutostoreBagItemHandler(object):
                     inventory.send_equip_error(InventoryError.BAG_INV_FULL, source_item, dest_container)
                     return 0
             if dest_slot == -1:
-                # Case when there are no available slots but the item can fit in other stacks
+                # Case when there are no available slots but the item can fit in other stacks.
                 source_container.remove_item_in_slot(source_slot)
                 inventory.add_item(item_template=source_item.item_template, count=amount,
                                    looted=False, show_item_get=False)
