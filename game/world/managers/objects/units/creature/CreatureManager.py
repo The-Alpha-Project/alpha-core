@@ -456,12 +456,13 @@ class CreatureManager(UnitManager):
             current_distance = self.location.distance(self.combat_target.location)
             interactable_distance = UnitFormulas.interactable_distance(self, self.combat_target)
 
-            # If target is within interactable distance, don't move yet.
-            if current_distance <= interactable_distance:
-                return
-
             # TODO: Find better formula?
             combat_position_distance = interactable_distance * 0.5
+
+            # If target is within combat distance, don't move.
+            if current_distance <= combat_position_distance:
+                return
+
             combat_location = self.combat_target.location.get_point_in_between(combat_position_distance, vector=self.location)
 
             # If already going to the correct spot, don't do anything.
