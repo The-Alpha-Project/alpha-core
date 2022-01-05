@@ -20,7 +20,7 @@ from utils.constants.ItemCodes import InventoryError, InventoryTypes
 from utils.constants.MiscCodes import ObjectTypes, HitInfo, GameObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
-    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects
 from utils.constants.UnitCodes import PowerTypes, StandState
 
 
@@ -703,7 +703,34 @@ class SpellManager(object):
         # The spell triggered by ritual of summoning has no attributes. Check for known restrictions here.
         # This method also interrupts the summoning channel when necessary.
         # Note that summoning didn't have many restrictions in 0.5.3. See SpellEffectHandler.handle_summon_player for notes.
-        if not casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PLAYER) or self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+
+        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+            return False  # Only players can cast or participate.
+
+        if not casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_OBJECT) and \
+                not casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PLAYER):
+            return False  # Loosely determine if this spell is related to summoning.
+
+        # Target validation
+        target_guid = self.unit_mgr.current_selection
+        if not target_guid:
+            self.send_cast_result(casting_spell.spell_entry.ID,
+                                  SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
+            return False
+
+        if not self.unit_mgr.group_manager or not self.unit_mgr.group_manager.is_party_member(target_guid):
+            self.send_cast_result(casting_spell.spell_entry.ID,
+                                  SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
+            return False  # Only party members can be summoned.
+
+        target_unit = WorldSessionStateHandler.find_player_by_guid(target_guid)
+        if not target_unit:  # Couldn't find player with this guid - not a player.
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_PLAYER)
+            return False
+
+        if casting_spell.cast_state in [SpellState.SPELL_STATE_PREPARING, SpellState.SPELL_STATE_CASTING]:
+            # The checks before this are used during ritual cast initialization and finishing.
+            # The checks after are also used for the summon spell finishing.
             return True
 
         if not self.unit_mgr.channel_object:
@@ -714,22 +741,6 @@ class SpellManager(object):
                                                                        self.unit_mgr.channel_object)
         if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL or channel_object.ritual_caster is not self.unit_mgr:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
-            return False
-
-        target_guid = self.unit_mgr.current_selection
-        if not target_guid:
-            self.send_cast_result(casting_spell.spell_entry.ID,
-                                  SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
-            return False
-
-        target_unit = WorldSessionStateHandler.find_player_by_guid(target_guid)
-        if not target_unit:  # Couldn't find player with this guid - not a player.
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_PLAYER)
-            return False
-
-        if not self.unit_mgr.group_manager or not self.unit_mgr.group_manager.is_party_member(target_guid):
-            self.send_cast_result(casting_spell.spell_entry.ID,
-                                  SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
             return False
 
         return True
