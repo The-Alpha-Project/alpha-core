@@ -723,6 +723,10 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_PLAYER)
             return False
 
+        if not target_unit.is_alive:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
+            return False
+
         if not self.unit_mgr.group_manager or not self.unit_mgr.group_manager.is_party_member(target_guid):
             self.send_cast_result(casting_spell.spell_entry.ID,
                                   SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
