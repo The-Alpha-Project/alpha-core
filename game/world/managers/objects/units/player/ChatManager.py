@@ -1,9 +1,9 @@
 from struct import pack
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.player.ChannelManager import ChannelManager
-from game.world.managers.objects.player.GroupManager import GroupManager
-from game.world.managers.objects.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.units.player.ChannelManager import ChannelManager
+from game.world.managers.objects.units.player.GroupManager import GroupManager
+from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.MiscCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, \

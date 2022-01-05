@@ -1,6 +1,6 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.objects.player.PlayerManager import PlayerManager
+from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.constants.MiscCodes import FriendResults

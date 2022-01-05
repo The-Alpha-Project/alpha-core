@@ -1,5 +1,7 @@
 import math
+import time
 from math import pi, cos, sin
+from random import randint
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -9,7 +11,6 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from network.packet.PacketWriter import PacketWriter
-from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates
 from utils.constants.OpCodes import OpCode
@@ -51,10 +52,13 @@ class GameObjectManager(ObjectManager):
             self.location.z = self.gobject_instance.spawn_positionZ
             self.location.o = self.gobject_instance.spawn_orientation
             self.map_ = self.gobject_instance.spawn_map
+            self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
+                                        self.gobject_instance.spawn_spawntimemax)
 
         self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
 
+        self.respawn_timer = 0
         self.loot_manager = None
 
         # Chest only initializations.
@@ -93,7 +97,7 @@ class GameObjectManager(ObjectManager):
             despawn_time = 1
         instance.spawn_spawntimemin = despawn_time
         instance.spawn_spawntimemax = despawn_time
-        instance.spawn_state = True
+        instance.spawn_state = GameObjectStates.GO_STATE_READY
 
         gameobject = GameObjectManager(
             gobject_template=go_template,
@@ -140,14 +144,14 @@ class GameObjectManager(ObjectManager):
                     lowest_distance = player_slot_distance
                     x_lowest = x_i
                     y_lowest = y_i
-            player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
+            player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o), is_instant=True)
             player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
     def _handle_use_chest(self, player):
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.state == GameObjectStates.GO_STATE_READY:
             self.state = GameObjectStates.GO_STATE_ACTIVE
-            self.send_update_surrounding()
+            self.send_create_packet_surroundings()
 
         # Generate loot if it's empty.
         if not self.loot_manager.has_loot():
@@ -209,17 +213,21 @@ class GameObjectManager(ObjectManager):
         elif self.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
             self._handle_use_goober(player)
 
+    def set_state(self, state, set_dirty=False):
+        self.state = state
+        self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
+        if set_dirty:
+            self.set_dirty()
+
     def set_active(self):
         if self.state == GameObjectStates.GO_STATE_READY:
-            self.state = GameObjectStates.GO_STATE_ACTIVE
-            self.send_update_surrounding()
+            self.set_state(GameObjectStates.GO_STATE_ACTIVE, True)
             return True
         return False
 
     def set_ready(self):
         if self.state != GameObjectStates.GO_STATE_READY:
-            self.state = GameObjectStates.GO_STATE_READY
-            self.send_update_surrounding()
+            self.set_state(GameObjectStates.GO_STATE_READY, True)
             return True
         return False
 
@@ -228,9 +236,10 @@ class GameObjectManager(ObjectManager):
         super().set_display_id(display_id)
         if display_id <= 0 or not \
                 DbcDatabaseManager.gameobject_display_info_get_by_id(display_id):
-            return
+            return False
 
         self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
+        return True
 
     # override
     def get_full_update_packet(self, is_self=True):
@@ -287,11 +296,37 @@ class GameObjectManager(ObjectManager):
         )
         return PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_QUERY_RESPONSE, data)
 
-    def send_update_surrounding(self):
-        update_packet = UpdatePacketFactory.compress_if_needed(
-            PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                    self.get_full_update_packet(is_self=False)))
-        MapManager.send_surrounding(update_packet, self, include_self=False)
+    # override
+    def respawn(self):
+        # Set properties before making it visible.
+        self.state = GameObjectStates.GO_STATE_READY
+        self.respawn_timer = 0
+        self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
+                                    self.gobject_instance.spawn_spawntimemin)
+
+        MapManager.respawn_object(self)
+
+    # override
+    def update(self):
+        now = time.time()
+        if now > self.last_tick > 0:
+            elapsed = now - self.last_tick
+
+            if self.is_spawned:
+                # Check "dirtiness" to determine if this game object should be updated yet or not.
+                if self.dirty:
+                    MapManager.send_surrounding(self.generate_proper_update_packet(create=False), self,
+                                                include_self=False)
+                    MapManager.update_object(self)
+                    if self.reset_fields_older_than(now):
+                        self.set_dirty(is_dirty=False)
+            # Not spawned.
+            else:
+                self.respawn_timer += elapsed
+                if self.respawn_timer >= self.respawn_time and not self.is_summon:
+                    self.respawn()
+
+        self.last_tick = now
 
     # override
     def on_cell_change(self):

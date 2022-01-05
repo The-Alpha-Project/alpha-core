@@ -1,7 +1,8 @@
 from random import randint, uniform
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.LootManager import LootManager, LootHolder
+from game.world.managers.objects.units.LootHolder import LootHolder
+from game.world.managers.objects.units.LootManager import LootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from utils.constants.ItemCodes import ItemClasses
 from utils.constants.MiscCodes import LootTypes
@@ -13,6 +14,8 @@ class CreatureLootManager(LootManager):
 
     # override
     def generate_loot(self, requester):
+        self.clear()
+
         money = randint(self.world_object.creature_template.gold_min, self.world_object.creature_template.gold_max)
         self.current_money = money
 
@@ -32,6 +35,9 @@ class CreatureLootManager(LootManager):
                 if item_chance >= 100 or chance - item_chance < 0:
                     item = ItemManager.generate_item_from_entry(item_template.entry)
                     if item:
+                        # TODO Not handling references to other templates at this moment (mincountOrRef < 0), ignore.
+                        if loot_item.mincountOrRef < 0:
+                            continue
                         self.current_loot.append(LootHolder(item, randint(loot_item.mincountOrRef, loot_item.maxcount)))
 
     # override

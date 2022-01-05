@@ -9,7 +9,7 @@ from game.world.managers.objects.spell.ExtendedSpellData import SummonedObjectPo
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypes
-from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects, TotemSlots
+from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects
 
 
 class TargetMissInfo:

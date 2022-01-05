@@ -1,4 +1,3 @@
-import time
 from struct import pack
 
 from game.world.managers.objects.spell import ExtendedSpellData
@@ -6,8 +5,7 @@ from game.world.managers.objects.spell.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import ObjectTypes, ProcFlags, HitInfo
-from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellEffects, SpellCheckCastResult, \
-    SpellAuraInterruptFlags, SpellAttributes, SpellAttributesEx
+from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, SpellAttributesEx
 from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
 

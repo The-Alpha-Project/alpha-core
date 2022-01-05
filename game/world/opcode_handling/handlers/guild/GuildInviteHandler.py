@@ -1,5 +1,5 @@
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.objects.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand, GuildRank

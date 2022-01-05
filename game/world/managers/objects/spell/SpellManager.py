@@ -19,9 +19,9 @@ from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, InventoryTypes
 from utils.constants.MiscCodes import ObjectTypes, HitInfo, GameObjectTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
-    SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, SpellEffects, SpellSchools, \
-    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellImplicitTargets
-from utils.constants.UnitCodes import CreatureTypes, PowerTypes, StandState
+    SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx
+from utils.constants.UnitCodes import PowerTypes, StandState
 
 
 class SpellManager(object):

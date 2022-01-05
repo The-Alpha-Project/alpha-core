@@ -601,25 +601,20 @@ class MoveFlags(IntEnum):
 
 
 class BuyResults(IntEnum):
-    BUY_ERR_CANT_FIND_ITEM = 0
-    BUY_ERR_ITEM_ALREADY_SOLD = 1
+    BUY_ERR_ITEM_SOLD_OUT = 1
     BUY_ERR_NOT_ENOUGH_MONEY = 2
     BUY_ERR_SELLER_DONT_LIKE_YOU = 4
     BUY_ERR_DISTANCE_TOO_FAR = 5
-    BUY_ERR_ITEM_SOLD_OUT = 7
     BUY_ERR_CANT_CARRY_MORE = 8
-    BUY_ERR_RANK_REQUIRE = 11
-    BUY_ERR_REPUTATION_REQUIRE = 12
+    BUY_ERR_CANT_FIND_ITEM = 11
 
 
 class SellResults(IntEnum):
-    SELL_OK = 0
     SELL_ERR_CANT_FIND_ITEM = 1
-    SELL_ERR_CANT_SELL_ITEM = 2  # merchant doesn't like that item
-    SELL_ERR_CANT_FIND_VENDOR = 3  # merchant doesn't like you
-    SELL_ERR_YOU_DONT_OWN_THAT_ITEM = 4  # you don't own that item
-    SELL_ERR_UNK = 5  # nothing appears...
-    SELL_ERR_ONLY_EMPTY_BAG = 6  # can only do with empty bags
+    SELL_ERR_VENDOR_NOT_INTERESTED = 2
+    SELL_ERR_VENDOR_HATES_YOU = 3
+    SELL_ERR_YOU_DONT_OWN_THAT_ITEM = 4
+    SELL_ERR_ONLY_EMPTY_BAG = 5  # Not actually handled in the client, but needed to unlock the bag.
 
 
 class ItemBondingTypes(IntEnum):

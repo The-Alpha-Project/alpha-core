@@ -62,6 +62,20 @@ class RealmDatabaseManager(object):
     # Character stuff
 
     @staticmethod
+    def character_set_all_offline():
+        realm_db_session = SessionHolder()
+        realm_db_session.query(Character).update({Character.online: 0})
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def character_get_online_count():
+        realm_db_session = SessionHolder()
+        online_count = realm_db_session.query(Character).filter_by(online=1).count()
+        realm_db_session.close()
+        return online_count
+
+    @staticmethod
     def character_get_by_guid(guid):
         realm_db_session = SessionHolder()
         character = realm_db_session.query(Character).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).first()

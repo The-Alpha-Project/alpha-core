@@ -1,14 +1,14 @@
 import random
-from enum import IntEnum, auto, IntFlag
+from enum import auto, IntFlag
 from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
-from game.world.managers.objects.player.SkillManager import SkillTypes, SkillManager
+from game.world.managers.objects.units.player.SkillManager import SkillTypes, SkillManager
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import AttackTypes, ObjectTypes, HitInfo
 from utils.constants.SpellCodes import SpellSchools
-from utils.constants.UnitCodes import PowerTypes, Classes, CreatureTypes
+from utils.constants.UnitCodes import PowerTypes, Classes
 
 
 # Stats that are modified aura effects. Used in StatManager and when accessing stats.
@@ -187,7 +187,7 @@ class StatManager(object):
     def get_stat_skill_bonus(self, skill_type):  # Avoids circular import with SkillManager
         return self.get_total_stat(UnitStats.SKILL, misc_value=skill_type)
 
-    def apply_bonuses(self, replenish=False):
+    def apply_bonuses(self, replenish=False, set_dirty=True):
         self.calculate_item_stats()
 
         # Always update base attack since unarmed damage should update.
@@ -224,7 +224,8 @@ class StatManager(object):
             if self.unit_mgr.power_type != PowerTypes.TYPE_RAGE:
                 self.unit_mgr.recharge_power()
 
-        self.unit_mgr.set_dirty()
+        if set_dirty:
+            self.unit_mgr.set_dirty()
 
         return hp_diff, mana_diff
 
@@ -465,7 +466,7 @@ class StatManager(object):
             weapon_min_damage = self.get_total_stat(UnitStats.RANGED_DAMAGE_MIN)
             weapon_max_damage = self.get_total_stat(UnitStats.RANGED_DAMAGE_MAX)
 
-        return weapon_min_damage, weapon_max_damage
+        return max(1, weapon_min_damage), max(1, weapon_max_damage)
 
     def apply_bonuses_for_damage(self, damage, attack_school: SpellSchools, victim, weapon_type: ItemSubClasses = -1):
         if weapon_type != -1:

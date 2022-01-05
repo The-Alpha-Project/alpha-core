@@ -1,28 +1,25 @@
 import math
-import random
 import time
 from struct import unpack
-
 from bitarray import bitarray
-
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.UnitManager import UnitManager
-from game.world.managers.objects.player.ChannelManager import ChannelManager
-from game.world.managers.objects.player.FriendsManager import FriendsManager
-from game.world.managers.objects.player.InventoryManager import InventoryManager
-from game.world.managers.objects.player.ReputationManager import ReputationManager
-from game.world.managers.objects.player.SkillManager import SkillManager
-from game.world.managers.objects.player.StatManager import UnitStats
-from game.world.managers.objects.player.TalentManager import TalentManager
-from game.world.managers.objects.player.TaxiManager import TaxiManager
-from game.world.managers.objects.player.TradeManager import TradeManager
-from game.world.managers.objects.player.quest.QuestManager import QuestManager
+from game.world.managers.objects.units.player.ChannelManager import ChannelManager
+from game.world.managers.objects.units.player.SkillManager import SkillManager
+from game.world.managers.objects.units.player.StatManager import UnitStats
+from game.world.managers.objects.units.player.TalentManager import TalentManager
+from game.world.managers.objects.units.player.TradeManager import TradeManager
+from game.world.managers.objects.units.player.quest.QuestManager import QuestManager
+from game.world.managers.objects.units.UnitManager import UnitManager
+from game.world.managers.objects.units.player.FriendsManager import FriendsManager
+from game.world.managers.objects.units.player.InventoryManager import InventoryManager
+from game.world.managers.objects.units.player.ReputationManager import ReputationManager
 from game.world.managers.objects.timers.MirrorTimersManager import MirrorTimersManager
+from game.world.managers.objects.units.player.taxi.TaxiManager import TaxiManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
@@ -227,7 +224,7 @@ class PlayerManager(UnitManager):
         self.online = True
 
         # Calculate stat bonuses at this point.
-        self.stat_manager.apply_bonuses(replenish=first_login)
+        self.stat_manager.apply_bonuses(replenish=first_login, set_dirty=False)
 
         # Join default channels.
         ChannelManager.join_default_channels(self)
@@ -235,13 +232,22 @@ class PlayerManager(UnitManager):
         # Init faction status.
         self.reputation_manager.send_initialize_factions()
 
+        # If a flight needs to be resumed, make sure create packet uses last known waypoint location.
+        taxi_resume_info = self.taxi_manager.taxi_resume_info
+        if taxi_resume_info.is_valid():
+            self.location = taxi_resume_info.start_location
+            # Set player flags.
+            self.set_taxi_flying_state(True, taxi_resume_info.mount_display_id, set_dirty=False)
+
         # Notify player with create packet.
-        self.send_update_self(create=True if not self.is_relocating else False,
-                              force_inventory_update=True if not self.is_relocating else False,
-                              reset_fields=True)
+        self.send_update_self(create=True)
 
         # Place player in a world cell.
         MapManager.update_object(self)
+
+        # Try to resume pending flight once player has been created and set on a world cell.
+        if taxi_resume_info.is_valid() and not self.taxi_manager.resume_taxi_flight():
+            self.set_taxi_flying_state(False, set_dirty=True)
 
         # Notify friends about player login.
         self.friends_manager.send_online_notification()
@@ -260,6 +266,8 @@ class PlayerManager(UnitManager):
         self.logout_timer = -1
         self.mirror_timers_manager.stop_all()
 
+        self.taxi_manager.update_flight_state()
+
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
 
@@ -270,12 +278,14 @@ class PlayerManager(UnitManager):
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
 
+        MapManager.remove_object(self)
+
         if self.group_manager:
             self.group_manager.send_update()
 
         self.friends_manager.send_offline_notification()
         self.session.save_character()
-        MapManager.remove_object(self)
+
         WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
         self.session = None
@@ -322,35 +332,47 @@ class PlayerManager(UnitManager):
                 active_objects[guid] = player
                 if guid not in self.known_objects or not self.known_objects[guid]:
                     # We don't know this player, notify self with its update packet.
-                    update_packet = player.generate_proper_update_packet(create=True if not player.is_relocating else False)
                     self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
-                    self.enqueue_packet(update_packet)
+                    self.enqueue_packet(player.generate_proper_update_packet(create=True, is_self=False))
+                    # Get partial movement packet if any.
+                    if player.movement_manager.unit_is_moving():
+                        packet = player.movement_manager.try_build_movement_packet(is_initial=False)
+                        if packet:
+                            self.enqueue_packet(packet)
                 self.known_objects[guid] = player
 
         # Surrounding creatures.
         for guid, creature in creatures.items():
-            if creature.is_spawned:
-                active_objects[guid] = creature
-                if guid not in self.known_objects or not self.known_objects[guid]:
-                    # We don't know this creature, notify self with its update packet.
-                    update_packet = UpdatePacketFactory.compress_if_needed(
-                        PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                creature.get_full_update_packet(is_self=False)))
-                    self.enqueue_packet(update_packet)
-                    self.enqueue_packet(creature.query_details())
-            self.known_objects[guid] = creature
+            active_objects[guid] = creature
+            if guid not in self.known_objects or not self.known_objects[guid]:
+                # We don't know this creature, notify self with its update packet.
+                self.enqueue_packet(creature.query_details())
+                if creature.is_spawned:
+                    self.enqueue_packet(creature.generate_proper_update_packet(create=True, is_self=False))
+                    # Get partial movement packet if any.
+                    if creature.movement_manager.unit_is_moving():
+                        packet = creature.movement_manager.try_build_movement_packet(is_initial=False)
+                        if packet:
+                            self.enqueue_packet(packet)
+                    # We only consider 'known' if its spawned, the details query is still sent.
+                    self.known_objects[guid] = creature
+            # Player knows the creature but is not spawned anymore, destroy it for self.
+            elif guid in self.known_objects and not creature.is_spawned:
+                active_objects.pop(guid)
 
-        # Surrounding game objects..
+        # Surrounding game objects.
         for guid, gobject in game_objects.items():
             active_objects[guid] = gobject
             if guid not in self.known_objects or not self.known_objects[guid]:
                 # We don't know this game object, notify self with its update packet.
-                update_packet = UpdatePacketFactory.compress_if_needed(
-                    PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                            gobject.get_full_update_packet(is_self=False)))
-                self.enqueue_packet(update_packet)
                 self.enqueue_packet(gobject.query_details())
-            self.known_objects[guid] = gobject
+                if gobject.is_spawned:
+                    self.enqueue_packet(gobject.generate_proper_update_packet(create=True, is_self=False))
+                    # We only consider 'known' if its spawned, the details query is still sent.
+                    self.known_objects[guid] = gobject
+            # Player knows the game object but is not spawned anymore, destroy it for self.
+            elif guid in self.known_objects and not gobject.is_spawned:
+                active_objects.pop(guid)
 
         # World objects which are known but no longer active to self should be destroyed.
         for guid, known_object in list(self.known_objects.items()):
@@ -382,6 +404,7 @@ class PlayerManager(UnitManager):
             self.player.zone = self.zone
             self.player.explored_areas = self.explored_areas.to01()
             self.player.taximask = self.taxi_manager.available_taxi_nodes.to01()
+            self.player.taxi_path = self.taxi_manager.taxi_resume_info.taxi_path_db_state
             self.player.health = self.health
             self.player.power1 = self.power_1
             self.player.power2 = self.power_2
@@ -391,7 +414,7 @@ class PlayerManager(UnitManager):
             self.player.online = self.online
 
     # TODO: teleport system needs a complete rework
-    def teleport(self, map_, location):
+    def teleport(self, map_, location, is_instant=False):
         if not DbcDatabaseManager.map_get_by_id(map_):
             return False
 
@@ -402,10 +425,17 @@ class PlayerManager(UnitManager):
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
 
+        # If unit is being moved by a spline, stop it.
+        if self.movement_manager.unit_is_moving():
+            self.movement_manager.reset()
+
         # TODO: Stop any movement, cancel spell cast, etc.
         # New destination we will use when we receive an acknowledge message from client.
         self.pending_teleport_destination_map = map_
         self.pending_teleport_destination = Vector(location.x, location.y, location.z, location.o)
+
+        if is_instant:
+            self.trigger_teleport()
 
         return True
 
@@ -414,8 +444,8 @@ class PlayerManager(UnitManager):
         # If another teleport triggers from a client message, then it will proceed once this TP is done.
         self.update_lock = True
 
-        # Same map and not inside instance
-        if self.map_ == self.pending_teleport_destination_map and self.map_ <= 1:
+        # Same map.
+        if self.map_ == self.pending_teleport_destination_map:
             if MapManager.should_relocate(self, self.pending_teleport_destination, self.pending_teleport_destination_map):
                 self.is_relocating = True
 
@@ -436,7 +466,7 @@ class PlayerManager(UnitManager):
 
             self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
 
-        # Loading screen
+        # Different map, send loading screen.
         else:
             # Always remove the player from world before sending a Loading Screen, preventing unexpected packets
             # while the screen is still present.
@@ -460,15 +490,20 @@ class PlayerManager(UnitManager):
             self.map_ = self.pending_teleport_destination_map
             self.location = Vector(self.pending_teleport_destination.x, self.pending_teleport_destination.y, self.pending_teleport_destination.z, self.pending_teleport_destination.o)
 
-        # Notify player with create packet.
-        self.send_update_self(create=True if not self.is_relocating else False,
-                              force_inventory_update=True if not self.is_relocating else False,
-                              reset_fields=True)
+        # Unmount.
+        self.unmount()
+
+        # Notify player with create packet if not relocating (Changed map).
+        if not self.is_relocating:
+            self.enqueue_packet(self.generate_proper_update_packet(is_self=True, create=True))
 
         # Get us in a new grid.
         MapManager.update_object(self)
 
-        self.reset_fields_older_than(time.time())
+        # Update self and surroundings, map/cell might be the same but states could've changed.
+        if self.is_relocating:
+            MapManager.send_surrounding(self.generate_proper_update_packet(), self)
+
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None
         self.update_lock = False
@@ -482,6 +517,8 @@ class PlayerManager(UnitManager):
     def set_root(self, active):
         if not self.session:
             return
+
+        super().set_root(active)
 
         if active:
             opcode = OpCode.SMSG_FORCE_MOVE_ROOT
@@ -603,7 +640,10 @@ class PlayerManager(UnitManager):
         elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
             game_object = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
             if game_object:
-                game_object.set_ready()
+                if game_object.loot_manager.has_loot():
+                    game_object.set_ready()
+                else:
+                    game_object.despawn()
         else:
             Logger.warning(f'Unhandled loot release for type {HighGuid(high_guid).name}')
 
@@ -735,7 +775,7 @@ class PlayerManager(UnitManager):
                 self.player.leveltime = 0
 
                 self.stat_manager.init_stats()
-                hp_diff, mana_diff = self.stat_manager.apply_bonuses()
+                hp_diff, mana_diff = self.stat_manager.apply_bonuses(set_dirty=False)
                 self.set_health(self.max_health)
                 self.set_mana(self.max_power_1)
 
@@ -786,7 +826,6 @@ class PlayerManager(UnitManager):
             self.coinage += amount
 
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
-
         self.send_update_self(self.generate_proper_update_packet(is_self=True), force_inventory_update=reload_items)
 
     def on_zone_change(self, new_zone):
@@ -1359,7 +1398,7 @@ class PlayerManager(UnitManager):
             # Check "dirtiness" to determine if this player object should be updated yet or not.
             if self.dirty and self.online:
                 self.send_update_self(reset_fields=False)
-                self.send_update_surrounding(self.generate_proper_update_packet())
+                self.send_create_packet_surroundings(self.generate_proper_update_packet())
                 if self.reset_fields_older_than(now):
                     self.set_dirty(is_dirty=False, dirty_inventory=False)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
@@ -1369,9 +1408,12 @@ class PlayerManager(UnitManager):
         self.last_tick = now
 
     def send_update_self(self, update_packet=None, create=False, force_inventory_update=False, reset_fields=True):
-        if not create and (self.dirty_inventory or force_inventory_update):
-            self.inventory.send_inventory_update(is_self=True)
-            self.inventory.build_update()
+        if create:
+            self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
+        else:
+            if self.dirty_inventory or force_inventory_update:
+                self.inventory.send_inventory_update(is_self=True)
+                self.inventory.build_update()
 
         if not update_packet:
             update_packet = self.generate_proper_update_packet(is_self=True, create=create)
@@ -1381,14 +1423,18 @@ class PlayerManager(UnitManager):
         if reset_fields:
             self.reset_fields_older_than(time.time())
 
-    def send_update_surrounding(self, update_packet, include_self=False, create=False, force_inventory_update=False):
-        if not create and (self.dirty_inventory or force_inventory_update):
-            self.inventory.send_inventory_update(is_self=False)
-            self.inventory.build_update()
+    # override
+    def send_create_packet_surroundings(self, update_packet, include_self=False, create=False,
+                                        force_inventory_update=False):
+        if create:
+            MapManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self,
+                                        include_self=include_self)
+        else:
+            if self.dirty_inventory or force_inventory_update:
+                self.inventory.send_inventory_update(is_self=False)
+                self.inventory.build_update()
 
         MapManager.send_surrounding(update_packet, self, include_self=include_self)
-        if create:
-            MapManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self, include_self=True)
 
     def teleport_deathbind(self):
         self.teleport(self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,
@@ -1424,8 +1470,7 @@ class PlayerManager(UnitManager):
 
     # override
     def respawn(self):
-        super().respawn()
-
+        # Set expected HP / Power before respawning.
         self.set_health(int(self.max_health / 2))
         if self.power_type == PowerTypes.TYPE_MANA:
             self.set_mana(int(self.max_power_1 / 2))
@@ -1436,10 +1481,11 @@ class PlayerManager(UnitManager):
         if self.power_type == PowerTypes.TYPE_ENERGY:
             self.set_energy(int(self.max_power_4 / 2))
 
-        self.spirit_release_timer = 0
+        super().respawn()
 
     def repop(self):
         self.respawn()
+        self.spirit_release_timer = 0
         self.teleport_deathbind()
 
     # override

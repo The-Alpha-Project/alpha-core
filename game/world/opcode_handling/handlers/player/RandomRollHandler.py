@@ -1,6 +1,5 @@
-from game.world.managers.objects.player.PlayerManager import PlayerManager
+from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from random import randint
-from struct import unpack
 
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *

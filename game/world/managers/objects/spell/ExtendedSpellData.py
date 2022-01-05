@@ -1,5 +1,4 @@
 import math
-from typing import Optional
 
 from game.world.managers.abstractions.Vector import Vector
 from utils.constants.SpellCodes import ShapeshiftForms, TotemSlots
@@ -106,7 +105,7 @@ class SummonedObjectPositions:
         5176: TotemSlots.TOTEM_SLOT_FIRE,
         5175: TotemSlots.TOTEM_SLOT_EARTH,
         5177: TotemSlots.TOTEM_SLOT_WATER,
-        5178: TotemSlots.TOTEM_SLOT_AIR,
+        5178: TotemSlots.TOTEM_SLOT_AIR
     }
 
     FRONT_SUMMONED_OBJECTS = (

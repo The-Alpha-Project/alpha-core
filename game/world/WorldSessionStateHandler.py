@@ -1,9 +1,6 @@
-from multiprocessing import Value
-
 from database.realm.RealmDatabaseManager import *
 
 WORLD_SESSIONS = []
-CURRENT_SESSIONS = Value('i', 0)
 
 # Storing players and sessions by different parameters to keep searches O(1)
 # TODO Find better way to do this?
@@ -18,7 +15,6 @@ class WorldSessionStateHandler(object):
     @staticmethod
     def add(session):
         if session not in WORLD_SESSIONS:
-            CURRENT_SESSIONS.value += 1
             WORLD_SESSIONS.append(session)
 
     @staticmethod
@@ -49,7 +45,6 @@ class WorldSessionStateHandler(object):
     @staticmethod
     def remove(session):
         if session in WORLD_SESSIONS:
-            CURRENT_SESSIONS.value -= 1
             WORLD_SESSIONS.remove(session)
         if session.player_mgr:
             WorldSessionStateHandler.pop_active_player(session.player_mgr)
@@ -67,10 +62,6 @@ class WorldSessionStateHandler(object):
     @staticmethod
     def get_world_sessions():
         return list(WORLD_SESSIONS)
-
-    @staticmethod
-    def get_process_shared_session_number():
-        return CURRENT_SESSIONS.value
 
     @staticmethod
     def get_session_by_account_id(account_id):

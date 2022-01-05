@@ -1,8 +1,8 @@
 from struct import unpack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from game.world.managers.objects.player.guild.GuildManager import GuildManager
-from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
+from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.units.player.guild.PetitionManager import PetitionManager
 from network.packet.PacketReader import PacketReader
 from utils.TextUtils import TextChecker
 from utils.constants.MiscCodes import BuyResults, GuildTypeCommand, GuildCommandResults
@@ -28,10 +28,10 @@ class PetitionBuyHandler(object):
                                                            GuildCommandResults.GUILD_NAME_EXISTS)
                 elif world_session.player_mgr.inventory.get_item_count(PetitionManager.CHARTER_ENTRY) > 0:
                     world_session.player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_CANT_CARRY_MORE,
-                                                                      PetitionManager.CHARTER_ENTRY, npc_guid)
+                                                                      PetitionManager.CHARTER_ENTRY, npc_guid, 1)
                 elif world_session.player_mgr.coinage <= PetitionManager.CHARTER_COST:
                     world_session.player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_NOT_ENOUGH_MONEY,
-                                                                      PetitionManager.CHARTER_ENTRY, npc_guid)
+                                                                      PetitionManager.CHARTER_ENTRY, npc_guid, 1)
                 elif world_session.player_mgr.inventory.add_item(PetitionManager.CHARTER_ENTRY, handle_error=False):
                     petition_item = world_session.player_mgr.inventory.get_first_item_by_entry(PetitionManager.CHARTER_ENTRY)
                     petition = PetitionManager.create_petition(world_session.player_mgr.guid, guild_name, petition_item.guid)

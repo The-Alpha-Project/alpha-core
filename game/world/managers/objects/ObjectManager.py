@@ -5,7 +5,7 @@ from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes
+from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes, MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields \
     import ObjectFields
@@ -58,6 +58,8 @@ class ObjectManager(object):
         self.object_type = [ObjectTypes.TYPE_OBJECT]
         self.update_packet_factory = UpdatePacketFactory()
 
+        self.is_spawned = True
+        self.is_summon = False
         self.dirty = False
         self.current_cell = ''
         self.last_tick = 0
@@ -77,8 +79,18 @@ class ObjectManager(object):
             type_value |= type_
         return type_value
 
+    def generate_proper_update_packet(self, is_self=False, create=False):
+        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT,
+            self.get_full_update_packet(is_self=is_self) if create else self.get_partial_update_packet()))
+        return update_packet
+
+    def send_create_packet_surroundings(self, **kwargs):
+        update_packet = self.generate_proper_update_packet(False, True)
+        MapManager.send_surrounding(update_packet, self, include_self=False)
+
     def get_object_create_packet(self, is_self=True):
-        from game.world.managers.objects import UnitManager
+        from game.world.managers.objects.units import UnitManager
 
         # Base structure.
         data = self._get_base_structure(UpdateTypes.CREATE_OBJECT)
@@ -130,6 +142,7 @@ class ObjectManager(object):
 
     def set_display_id(self, display_id):
         self.current_display_id = display_id
+        return True
 
     def reset_display_id(self):
         self.set_display_id(self.native_display_id)
@@ -272,6 +285,14 @@ class ObjectManager(object):
 
     # override
     def generate_object_guid(self, low_guid):
+        pass
+
+    # override
+    def despawn(self):
+        MapManager.despawn_object(self)
+
+    # override
+    def respawn(self):
         pass
 
     # override

@@ -1,6 +1,6 @@
 from struct import unpack
 
-from game.world.managers.objects.player.PlayerManager import PlayerManager
+from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import *

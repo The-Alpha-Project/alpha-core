@@ -5,57 +5,22 @@ from struct import pack, unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.MovementManager import MovementManager
+from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
+from game.world.managers.objects.units.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.player.StatManager import StatManager, UnitStats
+from game.world.managers.objects.units.player.StatManager import StatManager, UnitStats
 from game.world.managers.objects.spell.AuraManager import AuraManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.DuelCodes import DuelState
-from utils.constants.ItemCodes import ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
-    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
-from utils.constants.SpellCodes import SpellAttributes, SpellMissReason, SpellHitFlags, SpellSchools
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, CreatureTypes
+    HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
+from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, UnitStates
 from utils.constants.UpdateFields import UnitFields
-
-
-class DamageInfoHolder:
-    def __init__(self,
-                 attacker=None,
-                 target=None,
-                 damage_school_mask=0,
-                 attack_type=AttackTypes.BASE_ATTACK,
-                 total_damage=0,
-                 damage=0,
-                 clean_damage=0,
-                 absorb=0,
-                 resist=0,
-                 blocked_amount=0,
-                 target_state=0,
-                 hit_info=HitInfo.DAMAGE,
-                 proc_attacker=ProcFlags.NONE,
-                 proc_victim=ProcFlags.NONE,
-                 proc_ex=ProcFlagsExLegacy.NONE):
-        self.attacker = attacker
-        self.target = target
-        self.damage_school_mask = damage_school_mask
-        self.attack_type = attack_type
-        self.total_damage = total_damage
-        self.damage = damage
-        self.clean_damage = clean_damage
-        self.absorb = absorb
-        self.resist = resist
-        self.blocked_amount = blocked_amount
-        self.target_state = target_state
-        self.hit_info = hit_info
-        self.proc_attacker = proc_attacker
-        self.proc_victim = proc_victim
-        self.proc_ex = proc_ex
 
 
 class UnitManager(ObjectManager):
@@ -203,7 +168,11 @@ class UnitManager(ObjectManager):
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
 
-        # Defensive passive spells are not handled through the aura system. The effects will instead flag the unit with these fields.
+        # Used to determine the current state of the unit (internal usage).
+        self.unit_state = UnitStates.NONE
+
+        # Defensive passive spells are not handled through the aura system.
+        # The effects will instead flag the unit with these fields.
         self.has_block_passive = False
         self.has_parry_passive = False
         self.has_dodge_passive = False
@@ -253,7 +222,7 @@ class UnitManager(ObjectManager):
 
     def attack_stop(self, target_switch=False):
         # Clear target
-        self.set_current_target(self.guid)
+        self.set_current_target(0)
         victim = self.combat_target
         self.combat_target = None
 
@@ -284,6 +253,9 @@ class UnitManager(ObjectManager):
         self.update_melee_attacking_state()
 
     def update_melee_attacking_state(self):
+        if self.unit_state & UnitStates.STUNNED:
+            return
+
         swing_error = AttackSwingError.NONE
         combat_angle = math.pi
 
@@ -517,6 +489,10 @@ class UnitManager(ObjectManager):
 
         # If unit is a creature and it's being attacked by another unit, automatically set combat target.
         if not self.combat_target and not is_player and source and source.get_type() != ObjectTypes.TYPE_GAMEOBJECT:
+            # Make sure to first stop any movement right away.
+            if len(self.movement_manager.pending_waypoints) > 0:
+                self.movement_manager.send_move_stop()
+            # Attack.
             self.attack(source)
 
         self.set_dirty()
@@ -708,6 +684,14 @@ class UnitManager(ObjectManager):
         speed = self.stat_manager.get_total_stat(UnitStats.SPEED_RUNNING)
         # Limit to 0-56 and assign object field.
         return super().change_speed(speed)
+
+    def set_root(self, active):
+        if active:
+            self.movement_flags |= MoveFlags.MOVEFLAG_ROOTED
+            self.unit_state |= UnitStates.ROOTED
+        else:
+            self.movement_flags &= ~MoveFlags.MOVEFLAG_ROOTED
+            self.unit_state &= ~UnitStates.ROOTED
 
     def play_emote(self, emote):
         if emote != 0:
@@ -906,14 +890,28 @@ class UnitManager(ObjectManager):
     def set_stand_state(self, stand_state):
         self.stand_state = stand_state
 
+    def set_taxi_flying_state(self, is_flying, mount_display_id=0, set_dirty=False):
+        if is_flying:
+            self.mount(mount_display_id)
+            self.unit_flags |= (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
+        else:
+            self.unmount()
+            self.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
+
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+        if set_dirty:
+            self.set_dirty()
+
     # override
     def set_display_id(self, display_id):
         super().set_display_id(display_id)
         if display_id <= 0 or not \
                 DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id):
-            return
+            return False
 
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
+        return True
 
     def set_channel_object(self, guid):
         self.channel_object = guid
@@ -923,20 +921,18 @@ class UnitManager(ObjectManager):
         self.channel_spell = spell_id
         self.set_uint64(UnitFields.UNIT_CHANNEL_SPELL, spell_id)
 
-    def generate_proper_update_packet(self, is_self=False, create=False):
-        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT,
-            self.get_full_update_packet(is_self=is_self) if create else self.get_partial_update_packet()))
-        return update_packet
-
     def die(self, killer=None):
         if not self.is_alive:
             return False
         self.is_alive = False
 
-        # Stop movement on death
+        # Reset movement and unit state flags.
+        self.movement_flags = MoveFlags.MOVEFLAG_NONE
+        self.unit_state = UnitStates.NONE
+
+        # Stop movement on death.
         if len(self.movement_manager.pending_waypoints) > 0:
-            self.movement_manager.send_move_to([self.location], self.running_speed, SplineFlags.SPLINEFLAG_NONE)
+            self.movement_manager.send_move_stop()
 
         self.set_health(0)
         self.set_stand_state(StandState.UNIT_DEAD)
@@ -957,9 +953,6 @@ class UnitManager(ObjectManager):
                 killer.remove_combo_points()
                 killer.set_dirty()
 
-        # Clear all pending waypoint movement
-        self.movement_manager.reset()
-
         if killer:
             killer.spell_manager.remove_unit_from_all_cast_targets(self.guid)  # Interrupt casting on target death
             killer.aura_manager.check_aura_procs(killed_unit=True)
@@ -971,9 +964,11 @@ class UnitManager(ObjectManager):
         return True
 
     def respawn(self):
+        super().respawn()
+
         # Force leave combat just in case.
         self.leave_combat(force=True)
-        self.set_current_target(self.guid)
+        self.set_current_target(0)
         self.is_alive = True
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD

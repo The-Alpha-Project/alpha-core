@@ -1,15 +1,18 @@
-from database.world.WorldDatabaseManager import WorldDatabaseManager
+from struct import pack
+
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
-from game.world.managers.objects.player.DuelManager import DuelManager
-from game.world.managers.objects.player.SkillManager import SkillTypes, SkillManager
+from game.world.managers.objects.units.player.DuelManager import DuelManager
+from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from game.world.managers.objects.spell.AuraManager import AppliedAura
+from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes, HighGuid, GameObjectTypes
+from utils.constants.MiscCodes import ObjectTypes, GameObjectTypes, HighGuid
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
-from utils.constants.UnitCodes import PowerTypes, UnitFlags, MovementTypes
+from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -166,7 +169,7 @@ class SpellEffectHandler(object):
     def handle_summon_totem(casting_spell, effect, caster, target):
         totem_entry = effect.misc_value
         # TODO Refactor to avoid circular import?
-        from game.world.managers.objects.creature.CreatureManager import CreatureManager
+        from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_,
                                                  override_faction=caster.faction)
 
@@ -262,6 +265,29 @@ class SpellEffectHandler(object):
 
         target.skill_manager.add_skill(skill.ID)
 
+    @staticmethod
+    def handle_bind(casting_spell, effect, caster, target):
+        # Only target allowed is a player.
+        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
+
+        # Only save the GUID of the binder if the spell is casted by a creature.
+        if caster.get_type() == ObjectTypes.TYPE_UNIT:
+            target.deathbind.creature_binder_guid = caster.guid & ~HighGuid.HIGHGUID_UNIT
+        else:
+            target.deathbind.creature_binder_guid = 0
+
+        target.deathbind.deathbind_map = target.map_
+        target.deathbind.deathbind_zone = target.zone
+        target.deathbind.deathbind_position_x = target.location.x
+        target.deathbind.deathbind_position_y = target.location.y
+        target.deathbind.deathbind_position_z = target.location.z
+        RealmDatabaseManager.character_update_deathbind(target.deathbind)
+        target.enqueue_packet(target.get_deathbind_packet())
+
+        data = pack('<Q', caster.guid)
+        target.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PLAYERBOUND, data))
+
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
@@ -315,6 +341,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SUMMON_OBJECT: SpellEffectHandler.handle_summon_object,
     SpellEffects.SPELL_EFFECT_SUMMON_PLAYER: SpellEffectHandler.handle_summon_player,
     SpellEffects.SPELL_EFFECT_CREATE_HOUSE: SpellEffectHandler.handle_summon_object,
+    SpellEffects.SPELL_EFFECT_BIND: SpellEffectHandler.handle_bind,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

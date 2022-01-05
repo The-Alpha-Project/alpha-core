@@ -193,6 +193,7 @@ class CreatureTemplate(Base):
     display_id4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     name = Column(CHAR(100), nullable=False, index=True, server_default=text("'0'"))
     subname = Column(CHAR(100))
+    static_flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     gossip_menu_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     level_min = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     level_max = Column(TINYINT(3), nullable=False, server_default=text("'1'"))

@@ -1,11 +1,11 @@
 ITEM_QUALITY_COLOR = {
     0: 'cff9d9d9d',
-    1: 'cffffd200',
+    1: 'cffffc600',
     2: 'cff1eff00',
     3: 'cff0070dd',
     4: 'cffa335ee',
-    5: 'cffff8000',
-    6: 'cffe6cc80'
+    5: 'cffff0000',
+    6: 'cfff1e38a'
 }
 
 CLASS_TEXT = {

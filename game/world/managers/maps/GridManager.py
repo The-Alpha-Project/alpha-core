@@ -52,16 +52,16 @@ class GridManager(object):
         cell = self.get_create_cell(world_object)
         cell.add(self, world_object)
 
-        # Notify surrounding players.
-        if update_players:
-            self.update_players(cell.key)
-
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
             affected_cells = list(self.get_surrounding_cells_by_object(world_object))
             # Try to load tile maps for affected cells if needed.
             self.load_maps_for_cells(affected_cells)
             # Set affected cells as active cells if needed.
             self.activate_cells(affected_cells)
+
+        # Notify surrounding players.
+        if update_players:
+            self.update_players(cell.key)
 
     def activate_cells(self, cells):
         for cell in cells:
@@ -74,6 +74,23 @@ class GridManager(object):
                 for creature in list(cell.creatures.values()):
                     self.active_cell_callback(creature)
 
+    # Make a world object not visible to its surroundings but keep it inside a cell.
+    def despawn_object(self, world_object, update_player=True):
+        world_object.is_spawned = False
+        if update_player:
+            cell = self.cells.get(world_object.current_cell)
+            if cell:
+                self.update_players(cell.key)
+
+    # Turn an existing world object visible to its surroundings.
+    def respawn_object(self, world_object, update_players=True):
+        world_object.is_spawned = True
+        if update_players:
+            cell = self.cells.get(world_object.current_cell)
+            if cell:
+                self.update_players(cell.key)
+
+    # Destroy a world_object from others and remove it from its cell.
     def remove_object(self, world_object, update_players=True):
         cell = self.cells.get(world_object.current_cell)
         if cell:
@@ -82,8 +99,10 @@ class GridManager(object):
             if update_players:
                 self.update_players(cell.key)
 
-    def update_players(self, cell_key, exclude_cells=set()):
+    def update_players(self, cell_key, exclude_cells=None):
         # Avoid update calls if no players are present.
+        if exclude_cells is None:
+            exclude_cells = set()
         if len(self.active_cell_keys) == 0:
             return set()
 

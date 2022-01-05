@@ -1,12 +1,11 @@
-import random
-
-from game.world.managers.objects.player.StatManager import UnitStats
+from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
-from utils.ConfigManager import config
 from utils.Logger import Logger
-from utils.constants.MiscCodes import Factions, ObjectTypes
+from utils.constants.MiscCodes import ObjectTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
-from utils.constants.UnitCodes import Teams
+from utils.constants.UnitCodes import UnitFlags, UnitStates
+from utils.constants.UpdateFields import UnitFields
 
 
 class AuraEffectHandler:
@@ -33,18 +32,15 @@ class AuraEffectHandler:
         if remove or not model_info[0]:
             effect_target.reset_display_id()
             effect_target.reset_scale()
-            effect_target.set_dirty()
             return
 
         effect_target.set_display_id(model_info[0])
         effect_target.set_scale(model_info[1])
-        effect_target.set_dirty()
 
     @staticmethod
     def handle_mounted(aura, effect_target, remove):  # TODO Summon Nightmare (5784) does not apply for other players ?
         if remove:
             effect_target.unmount()
-            effect_target.set_dirty()
             return
 
         creature_entry = aura.spell_effect.misc_value
@@ -138,6 +134,52 @@ class AuraEffectHandler:
     @staticmethod
     def handle_feign_death(aura, effect_target, remove):
         effect_target.mirror_timers_manager.feign_death = not remove
+
+    @staticmethod
+    def handle_mod_stun(aura, effect_target, remove):
+        # TODO Finish implementing stun effect:
+        #    - Interrupt spell casting.
+
+        # Player specific.
+        if effect_target.get_type() == ObjectTypes.TYPE_PLAYER:
+            # Don't stun if player is flying.
+            if effect_target.pending_taxi_destination:
+                return
+            # Release loot if any.
+            if effect_target.current_loot_selection != 0:
+                effect_target.send_loot_release()
+
+        # Root (or unroot) unit.
+        effect_target.set_root(not remove)
+
+        if not remove:
+            effect_target.set_current_target(0)
+            effect_target.unit_state |= UnitStates.STUNNED
+            effect_target.unit_flags |= UnitFlags.UNIT_FLAG_DISABLE_ROTATE
+            if len(effect_target.movement_manager.pending_waypoints) > 0:
+                effect_target.movement_manager.send_move_stop()
+        else:
+            # Restore combat target if any.
+            if effect_target.combat_target and effect_target.combat_target.is_alive:
+                effect_target.set_current_target(effect_target.combat_target.guid)
+            effect_target.unit_state &= ~UnitStates.STUNNED
+            effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_DISABLE_ROTATE
+
+        effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
+
+    @staticmethod
+    def handle_transform(aura, effect_target, remove):
+        if not remove:
+            creature_entry = aura.spell_effect.misc_value
+            creature = WorldDatabaseManager.creature_get_by_entry(creature_entry)
+            if not creature:
+                Logger.error(f'SPELL_AURA_TRANSFORM: Creature template ({creature_entry}) not found in database.')
+                return
+
+            if not effect_target.set_display_id(creature.display_id1):
+                Logger.error(f'SPELL_AURA_TRANSFORM: Invalid display id ({creature.display_id1}) for creature ({creature_entry}).')
+        else:
+            effect_target.reset_display_id()
 
     @staticmethod
     def handle_mod_resistance(aura, effect_target, remove):
@@ -348,7 +390,8 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL: AuraEffectHandler.handle_proc_trigger_spell,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE: AuraEffectHandler.handle_proc_trigger_damage,
     AuraTypes.SPELL_AURA_FEIGN_DEATH: AuraEffectHandler.handle_feign_death,
-
+    AuraTypes.SPELL_AURA_MOD_STUN: AuraEffectHandler.handle_mod_stun,
+    AuraTypes.SPELL_AURA_TRANSFORM: AuraEffectHandler.handle_transform,
 
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
     AuraTypes.SPELL_AURA_MOD_BASE_RESISTANCE: AuraEffectHandler.handle_mod_base_resistance,

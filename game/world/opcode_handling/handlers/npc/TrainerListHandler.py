@@ -1,4 +1,4 @@
-from game.world.managers.objects.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from game.world.managers.maps.MapManager import MapManager
 from struct import unpack
 

@@ -1,17 +1,16 @@
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.player.quest.QuestHelpers import QuestHelpers
+from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas
 from utils.constants.MiscCodes import QuestState
 
 
 class ActiveQuest:
-    def __init__(self, quest_db_state, player_mgr):
+    def __init__(self, quest_db_state, player_mgr, quest):
         self.owner = player_mgr
         self.db_state = quest_db_state
-        self.quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(self.db_state.quest)
+        self.quest = quest
         self.failed = False
 
     def is_quest_complete(self, quest_giver_guid):

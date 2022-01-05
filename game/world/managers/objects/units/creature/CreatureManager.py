@@ -7,18 +7,18 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.UnitManager import UnitManager
-from game.world.managers.objects.creature.CreatureLootManager import CreatureLootManager
+from game.world.managers.objects.units.UnitManager import UnitManager
+from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
-from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
+    CreatureStaticFlags
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -52,6 +52,7 @@ class CreatureManager(UnitManager):
             self.resistance_4 = self.creature_template.frost_res
             self.resistance_5 = self.creature_template.shadow_res
             self.npc_flags = self.creature_template.npc_flags
+            self.static_flags = self.creature_template.static_flags
             self.mod_cast_speed = 1.0
             self.base_attack_time = self.creature_template.base_attack_time
             self.unit_flags = self.creature_template.unit_flags
@@ -69,7 +70,6 @@ class CreatureManager(UnitManager):
             self.wearing_offhand_weapon = False
             self.wearing_ranged_weapon = False
             self.respawn_timer = 0
-            self.is_spawned = True
             self.last_random_movement = 0
             self.random_movement_wait_time = randint(1, 12)
 
@@ -129,7 +129,7 @@ class CreatureManager(UnitManager):
             creature.faction = override_faction
 
         creature.load()
-        creature.send_update_surrounding()
+        creature.send_create_packet_surroundings()
 
         return creature
 
@@ -153,16 +153,16 @@ class CreatureManager(UnitManager):
         if item_count == 0:
             data += pack('<B', 0)
         else:
-            for vendor_data_entry in vendor_data:
+            for count, vendor_data_entry in enumerate(vendor_data):
                 data += pack(
                     '<7I',
-                    1,  # mui
+                    count + 1,  # m_muid, acts as slot counter.
                     vendor_data_entry.item,
                     vendor_data_entry.item_template.display_id,
                     0xFFFFFFFF if vendor_data_entry.maxcount <= 0 else vendor_data_entry.maxcount,
                     vendor_data_entry.item_template.buy_price,
-                    0,  # durability
-                    0,  # stack count
+                    vendor_data_entry.item_template.max_durability,  # Max durability (not implemented in 0.5.3).
+                    vendor_data_entry.item_template.buy_count  # Stack count.
                 )
                 world_session.enqueue_packet(ItemManager(item_template=vendor_data_entry.item_template).query_details())
 
@@ -171,7 +171,6 @@ class CreatureManager(UnitManager):
 
     # TODO Add skills (Two-Handed Swords etc.) to trainers for skill points https://i.imgur.com/tzyDDqL.jpg
     def send_trainer_list(self, world_session):
-
         if not self.can_train(world_session.player_mgr):
             Logger.anticheat(f'send_trainer_list called from NPC {self.entry} by player with GUID {world_session.player_mgr.guid} but this unit does not train that player\'s class. Possible cheating')
             return
@@ -264,7 +263,7 @@ class CreatureManager(UnitManager):
                         self.set_virtual_item(2, creature_equip_template.equipentry3)
 
                 self.stat_manager.init_stats()
-                self.stat_manager.apply_bonuses()
+                self.stat_manager.apply_bonuses(set_dirty=False)
 
                 self.fully_loaded = True
 
@@ -402,11 +401,26 @@ class CreatureManager(UnitManager):
             self.entry,
             name_bytes, b'\x00', b'\x00', b'\x00',
             subname_bytes,
-            self.creature_template.type_flags,
+            self.creature_template.static_flags,
             self.creature_type,
             self.creature_template.beast_family
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
+
+    def can_swim(self):
+        return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) or (self.static_flags & CreatureStaticFlags.AQUATIC)
+
+    def can_exit_water(self):
+        return self.static_flags & CreatureStaticFlags.AQUATIC == 0
+
+    def evade(self):
+        # TODO: Finish implmenting evade mechanic.
+        self.leave_combat(force=True)
+        self.set_health(self.max_health)
+        self.recharge_power()
+        self.set_dirty()
+        self.movement_manager.send_move_normal([self.spawn_position], self.running_speed,
+                                               SplineFlags.SPLINEFLAG_RUNMODE)
 
     def _perform_random_movement(self, now):
         if not self.in_combat and self.creature_instance.movement_type == MovementTypes.WANDER:
@@ -419,41 +433,53 @@ class CreatureManager(UnitManager):
 
     def _perform_combat_movement(self):
         if self.combat_target:
-            # TODO Temp, extremely basic evade / runback mechanic based ONLY on distance. Replace later with a proper one.
+            # TODO: Temp, extremely basic evade / runback mechanic based ONLY on distance. Replace later with a proper one.
             if self.location.distance(self.spawn_position) > 50:
-                self.leave_combat(force=True)
-                self.set_health(self.max_health)
-                self.recharge_power()
-                self.set_dirty()
-                self.movement_manager.send_move_to([self.spawn_position], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+                self.evade()
                 return
 
-            self.location.face_point(self.combat_target.location)
+            # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
+            #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
+            #  will currently bug out when you try to engage in combat with them. Also seems like a lot of humanoids
+            #  couldn't swim before patch 1.3.0:
+            #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
+            #   - Most humanoids NPCs have gained the ability to swim.
+            if self.is_on_water():
+                if not self.can_swim():
+                    self.evade()
+                    return
+            else:
+                if not self.can_exit_water():
+                    self.evade()
+                    return
 
             current_distance = self.location.distance(self.combat_target.location)
             interactable_distance = UnitFormulas.interactable_distance(self, self.combat_target)
 
-            # If target is within interactable distance, don't move yet.
-            if current_distance <= interactable_distance:
-                return
-
             # TODO: Find better formula?
             combat_position_distance = interactable_distance * 0.5
+
+            # If target is within combat distance, don't move.
+            if current_distance <= combat_position_distance:
+                return
+
             combat_location = self.combat_target.location.get_point_in_between(combat_position_distance, vector=self.location)
 
             # If already going to the correct spot, don't do anything.
             if len(self.movement_manager.pending_waypoints) > 0 and self.movement_manager.pending_waypoints[0].location == combat_location:
                 return
 
+            # Make sure the server knows where the creature is facing.
+            self.location.face_point(self.combat_target.location)
+
             if self.is_on_water():
                 # Force destination Z to target Z.
                 combat_location.z = self.combat_target.location.z
                 # TODO: Find how to actually trigger swim animation and which spline flag to use.
                 #  VMaNGOS uses UNIT_FLAG_USE_SWIM_ANIMATION, we don't have that.
-                #  Also, we should check if this creature is able to swim, which flag is that?
-                self.movement_manager.send_move_to([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
+                self.movement_manager.send_move_normal([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
             else:
-                self.movement_manager.send_move_to([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+                self.movement_manager.send_move_normal([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # override
     def update(self):
@@ -461,7 +487,7 @@ class CreatureManager(UnitManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            if self.is_alive:
+            if self.is_alive and self.is_spawned:
                 # Spell/aura updates
                 self.spell_manager.update(now, elapsed)
                 self.aura_manager.update(now)
@@ -475,17 +501,13 @@ class CreatureManager(UnitManager):
                 if self.combat_target and self.is_within_interactable_distance(self.combat_target):
                     self.attack_update(elapsed)
             # Dead
-            else:
+            elif not self.is_alive:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time and not self.is_summon:
                     self.respawn()
                 # Destroy body when creature is about to respawn
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
-                    self.is_spawned = False
-                    if self.is_summon:
-                        MapManager.remove_object(self)
-                    else:
-                        MapManager.send_surrounding(self.get_destroy_packet(), self, include_self=False)
+                    self.despawn()
 
             # Check "dirtiness" to determine if this creature object should be updated yet or not.
             if self.dirty:
@@ -499,7 +521,8 @@ class CreatureManager(UnitManager):
     # override
     def respawn(self):
         super().respawn()
-
+        # Set all property values before making this creature visible.
+        self.location = self.spawn_position.copy()
         self.set_health(self.max_health)
         self.set_mana(self.max_power_1)
 
@@ -510,11 +533,13 @@ class CreatureManager(UnitManager):
             self.killed_by.group_manager.clear_looters_for_victim(self)
         self.killed_by = None
 
-        self.is_spawned = True
         self.respawn_timer = 0
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
-        MapManager.send_surrounding(self.generate_proper_update_packet(create=True), self, include_self=False)
+        # Update its cell position if needed (Died far away from spawn location cell)
+        MapManager.update_object(self)
+        # Make this creature visible to its surroundings.
+        MapManager.respawn_object(self)
 
     # override
     def die(self, killer=None):
@@ -540,8 +565,7 @@ class CreatureManager(UnitManager):
         return True
 
     def reward_kill_xp(self, player):
-        # Critters don't award XP
-        if self.creature_type == CreatureTypes.AMBIENT:
+        if self.static_flags & CreatureStaticFlags.NO_XP:
             return
 
         is_elite = 0 < self.creature_template.rank < 4
@@ -557,12 +581,6 @@ class CreatureManager(UnitManager):
         else:
             self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
-
-    def send_update_surrounding(self):
-        update_packet = UpdatePacketFactory.compress_if_needed(
-            PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                    self.get_full_update_packet(is_self=False)))
-        MapManager.send_surrounding(update_packet, self, include_self=False)
 
     # override
     def has_offhand_weapon(self):
@@ -598,4 +616,3 @@ class CreatureManager(UnitManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
-

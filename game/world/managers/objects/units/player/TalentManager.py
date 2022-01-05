@@ -1,12 +1,11 @@
 from struct import pack
 from typing import Optional
-from database.dbc.DbcModels import SkillLineAbility, Spell
+from database.dbc.DbcModels import Spell
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager, TrainerTemplate
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
-from utils.constants.SpellCodes import SpellTargetMask
 
 TALENT_SKILL_ID = 3
 # Weapon, Attribute, Slayer, Magic, Defensive

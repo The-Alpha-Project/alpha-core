@@ -4,14 +4,14 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQ
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.player.quest.ActiveQuest import ActiveQuest
-from game.world.managers.objects.player.quest.QuestHelpers import QuestHelpers
-from game.world.managers.objects.player.quest.QuestMenu import QuestMenu
+from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
+from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
+from game.world.managers.objects.units.player.quest.QuestMenu import QuestMenu
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants import UnitCodes
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes, QuestMethod, \
-    QuestFlags, HighGuid
+    QuestFlags
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -34,7 +34,12 @@ class QuestManager(object):
             if quest_db_state.rewarded > 0:
                 self.completed_quests.add(quest_db_state.quest)
             elif quest_db_state.state == QuestState.QUEST_ACCEPTED or quest_db_state.state == QuestState.QUEST_REWARD:
-                active_quest = ActiveQuest(quest_db_state, self.player_mgr)
+                quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_db_state.quest)
+                # If this quest no longer exists, make sure to delete it from player's log.
+                if not quest:
+                    RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_db_state.quest)
+                    continue
+                active_quest = ActiveQuest(quest_db_state, self.player_mgr, quest)
                 self.active_quests[quest_db_state.quest] = active_quest
                 # Needed in case the WDB has been deleted, otherwise non cached quests won't appear in the log.
                 self.send_quest_query_response(active_quest.quest)
@@ -551,14 +556,18 @@ class QuestManager(object):
             self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ONLY_ONE_TIMED)
             return
 
-        active_quest = self._create_db_quest_status(quest_id)
-        active_quest.save(is_new=True)
+        quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
+        if not quest:
+            return
 
-        req_src_item = active_quest.quest.SrcItemId
-        req_src_item_count = active_quest.quest.SrcItemCount
+        req_src_item = quest.SrcItemId
+        req_src_item_count = quest.SrcItemCount
         if req_src_item != 0:
-            self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count)
+            if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count):
+                return
 
+        active_quest = self._create_db_quest_status(quest)
+        active_quest.save(is_new=True)
         self.add_to_quest_log(quest_id, active_quest)
         self.send_quest_query_response(active_quest.quest)
 
@@ -756,9 +765,9 @@ class QuestManager(object):
         for slot in range(0, MAX_QUEST_LOG):
             self.update_single_quest(active_quest_list[slot] if slot < len(active_quest_list) else 0, slot)
 
-    def _create_db_quest_status(self, quest_id):
+    def _create_db_quest_status(self, quest):
         db_quest_status = CharacterQuestState()
         db_quest_status.guid = self.player_mgr.guid
-        db_quest_status.quest = quest_id
+        db_quest_status.quest = quest.entry
         db_quest_status.state = QuestState.QUEST_ACCEPTED.value
-        return ActiveQuest(db_quest_status, self.player_mgr)
+        return ActiveQuest(db_quest_status, self.player_mgr, quest)

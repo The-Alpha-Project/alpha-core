@@ -1,3 +1,5 @@
+from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.units.player.guild.PetitionManager import PetitionManager
 from network.packet.PacketReader import PacketReader
 import time
 from struct import unpack
@@ -5,16 +7,13 @@ from struct import unpack
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import *
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.objects.player.ChatManager import ChatManager
-from game.world.managers.objects.player.GroupManager import GroupManager
-from game.world.managers.objects.player.PlayerManager import PlayerManager
-from game.world.managers.objects.player.guild.GuildManager import GuildManager
-from game.world.managers.objects.player.guild.PetitionManager import PetitionManager
+from game.world.managers.objects.units.player.ChatManager import ChatManager
+from game.world.managers.objects.units.player.GroupManager import GroupManager
+from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from network.packet.PacketWriter import *
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.CharCodes import CharLogin
-from utils.constants.UnitCodes import PowerTypes
 
 
 class PlayerLoginHandler(object):
@@ -64,7 +63,9 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.deathbind = RealmDatabaseManager.character_get_deathbind(world_session.player_mgr.guid)
         world_session.player_mgr.friends_manager.load_from_db(RealmDatabaseManager.character_get_social(world_session.player_mgr.guid))
 
-        world_session.enqueue_packet(world_session.player_mgr.get_deathbind_packet())
+        # Only send the deathbind packet if it's a Binder NPC what bound the player.
+        if world_session.player_mgr.deathbind.creature_binder_guid > 0:
+            world_session.enqueue_packet(world_session.player_mgr.get_deathbind_packet())
         # Tutorials aren't implemented in 0.5.3.
         # world_session.enqueue_packet(world_session.player_mgr.get_tutorial_packet())
         world_session.enqueue_packet(world_session.player_mgr.spell_manager.get_initial_spells())
@@ -89,9 +90,6 @@ class PlayerLoginHandler(object):
         GroupManager.set_character_group(world_session.player_mgr)
         PetitionManager.load_petition(world_session.player_mgr)
 
-        # Load self.
-        PlayerLoginHandler._load_self(world_session.player_mgr)
-
         first_login = world_session.player_mgr.player.totaltime == 0
         # Send cinematic.
         if first_login:
@@ -100,10 +98,6 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.complete_login(first_login=first_login)
 
         return 0
-
-    @staticmethod
-    def _load_self(player):
-        player.send_update_self(create=True)
 
     @staticmethod
     def _send_cinematic(world_session, player, socket):
