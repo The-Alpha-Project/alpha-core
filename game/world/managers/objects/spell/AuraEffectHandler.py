@@ -53,8 +53,9 @@ class AuraEffectHandler:
             return
         new_spell_entry = aura.spell_effect.trigger_spell_entry
         spell = effect_target.spell_manager.try_initialize_spell(new_spell_entry, effect_target, aura.source_spell.initial_target,
-                                                                 aura.source_spell.spell_target_mask, validate=False)
-        effect_target.spell_manager.start_spell_cast(initialized_spell=spell, is_trigger=True)
+                                                                 aura.source_spell.spell_target_mask,
+                                                                 validate=False, triggered=True)
+        effect_target.spell_manager.start_spell_cast(initialized_spell=spell)
 
     @staticmethod
     def handle_periodic_healing(aura, effect_target, remove):
@@ -106,7 +107,8 @@ class AuraEffectHandler:
         # This is fine since targets are resolved on cast, not on initialization.
         caster = aura.target
         spell = caster.spell_manager.try_initialize_spell(new_spell_entry, caster, caster,
-                                                          aura.source_spell.spell_target_mask, validate=False)
+                                                          aura.source_spell.spell_target_mask,
+                                                          validate=False, triggered=True)
 
         # If an effect of this spell can't target friendly, set the cast target to the effect target.
         # Effect target will be set to the second (non-self) target in the proc call. (see AuraManager.check_aura_procs)
@@ -115,7 +117,7 @@ class AuraEffectHandler:
                 spell.initial_target = effect_target
                 break
 
-        effect_target.spell_manager.start_spell_cast(initialized_spell=spell, is_trigger=True)
+        effect_target.spell_manager.start_spell_cast(initialized_spell=spell)
 
     @staticmethod
     def handle_proc_trigger_damage(aura, effect_target, remove):

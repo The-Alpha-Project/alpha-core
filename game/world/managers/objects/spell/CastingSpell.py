@@ -40,12 +40,14 @@ class CastingSpell(object):
 
     spell_attack_type: int
 
-    def __init__(self, spell, caster_obj, initial_target, target_mask, source_item=None):
+    def __init__(self, spell, caster_obj, initial_target, target_mask, source_item=None, triggered=False):
         self.spell_entry = spell
         self.spell_caster = caster_obj
         self.source_item = source_item
         self.initial_target = initial_target
         self.spell_target_mask = target_mask
+        self.triggered = triggered
+
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)  # TODO RangeMin is never used
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
@@ -140,9 +142,9 @@ class CastingSpell(object):
 
         return has_sitting_attribute and is_regen_buff
 
-    def is_summon_spell(self):
+    def has_effect_of_type(self, effect_type: SpellEffects):
         for effect in self.effects:
-            if effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_PLAYER:
+            if effect.effect_type == effect_type:
                 return True
         return False
 
