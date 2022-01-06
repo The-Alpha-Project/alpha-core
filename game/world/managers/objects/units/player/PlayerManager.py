@@ -725,16 +725,13 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
 
         if self.xp + total_amount >= self.next_level_xp:  # Level up!
-            total_amount -= (self.next_level_xp - self.xp)
-            level_amount = 1
-            # Keep leveling until it's possible.
-            while True:
-                xp_to_level = Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)
-                if total_amount < xp_to_level:
-                    break
-
-                level_amount += 1
+            xp_to_level = self.next_level_xp - self.xp
+            level_amount = 0
+            # Do the actual XP conversion into level(s).
+            while total_amount >= xp_to_level:
                 total_amount -= xp_to_level
+                level_amount += 1
+                xp_to_level = Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)
 
             self.xp = total_amount  # Set the remaining amount XP as current.
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
