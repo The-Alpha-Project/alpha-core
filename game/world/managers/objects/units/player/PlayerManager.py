@@ -729,8 +729,8 @@ class PlayerManager(UnitManager):
             level_amount = 0
             # Do the actual XP conversion into level(s).
             while total_amount >= xp_to_level:
-                total_amount -= xp_to_level
                 level_amount += 1
+                total_amount -= xp_to_level
                 xp_to_level = Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)
 
             self.xp = total_amount  # Set the remaining amount XP as current.

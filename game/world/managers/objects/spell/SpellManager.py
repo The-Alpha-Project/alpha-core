@@ -277,14 +277,14 @@ class SpellManager(object):
         self.check_spell_cooldowns()
         self.check_spell_interrupts(moved=moved)
         for casting_spell in list(self.casting_spells):
-            # Queued spells cast on swing will be updated on call from attack handling
+            # Queued spells cast on swing will be updated on call from attack handling.
             if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
                     casting_spell.casts_on_swing():
                 continue
 
             cast_finished = casting_spell.cast_end_timestamp <= timestamp
-            if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:  # Channel tick/spells that need updates
-                self.handle_spell_effect_update(casting_spell, timestamp)  # Update effects if the cast wasn't interrupted
+            if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:  # Channel tick/spells that need updates.
+                self.handle_spell_effect_update(casting_spell, timestamp)  # Update effects if the cast wasn't interrupted.
 
                 if casting_spell.is_channeled() and cast_finished:
                     self.remove_cast(casting_spell)
@@ -293,10 +293,10 @@ class SpellManager(object):
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING and not casting_spell.is_instant_cast():
                 if cast_finished:
                     self.perform_spell_cast(casting_spell)
-                    if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED:  # Spell finished after perform (no impact delay)
+                    if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED:  # Spell finished after perform (no impact delay).
                         self.remove_cast(casting_spell)
 
-            if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:  # Waiting for impact delay
+            if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:  # Waiting for impact delay.
                 targets_due = [guid for guid, stamp in casting_spell.spell_impact_timestamps.items() if stamp <= timestamp]
                 if not targets_due:
                     continue
@@ -399,14 +399,14 @@ class SpellManager(object):
 
     def remove_unit_from_all_cast_targets(self, target_guid):
         for casting_spell in list(self.casting_spells):
-            if not casting_spell.initial_target_is_unit_or_player() or (casting_spell.is_instant_cast() and not casting_spell.is_channeled()):  # Don't interrupt instant casts
+            if not casting_spell.initial_target_is_unit_or_player() or (casting_spell.is_instant_cast() and not casting_spell.is_channeled()):  # Don't interrupt instant casts.
                 continue
 
-            if target_guid in casting_spell.object_target_results and len(casting_spell.object_target_results) == 1:  # Only target of this spell
+            if target_guid in casting_spell.object_target_results and len(casting_spell.object_target_results) == 1:  # Only target of this spell.
                 result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
                 if not casting_spell.is_channeled() and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
                         casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
-                    result = SpellCheckCastResult.SPELL_NO_ERROR  # Don't send interrupted error for active/delayed spells
+                    result = SpellCheckCastResult.SPELL_NO_ERROR  # Don't send interrupted error for active/delayed spells.
 
                 self.remove_cast(casting_spell, result, interrupted=True)
                 return
@@ -421,7 +421,7 @@ class SpellManager(object):
                 continue
 
             if ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(casting_spell.spell_entry.ID,
-                                                                            current_cast.spell_entry.ID):  # Paladin auras
+                                                                            current_cast.spell_entry.ID):  # Paladin auras.
                 self.remove_cast(casting_spell, interrupted=True)
                 continue
             if current_cast.casts_on_swing() and casting_spell.casts_on_swing() and casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
@@ -470,7 +470,7 @@ class SpellManager(object):
         signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventorytype).
 
         if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written.
-            target_info = casting_spell.get_initial_target_info()  # ([values], signature)
+            target_info = casting_spell.get_initial_target_info()  # ([values], signature).
             data.extend(target_info[0])
             signature += target_info[1]
 
@@ -572,7 +572,7 @@ class SpellManager(object):
                 signature += 'B'
                 data.append(result)
 
-            if len(guids) > 0:  # Write targets if there are any
+            if len(guids) > 0:  # Write targets if there are any.
                 signature += f'{len(guids)}Q'
             for target_guid in guids:
                 data.append(target_guid)
