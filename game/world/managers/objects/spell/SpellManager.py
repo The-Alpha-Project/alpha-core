@@ -277,8 +277,11 @@ class SpellManager(object):
         self.check_spell_cooldowns()
         self.check_spell_interrupts(moved=moved)
         for casting_spell in list(self.casting_spells):
-            if casting_spell.casts_on_swing():  # spells cast on swing will be updated on call from attack handling
+            # Queued spells cast on swing will be updated on call from attack handling
+            if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
+                    casting_spell.casts_on_swing():
                 continue
+
             cast_finished = casting_spell.cast_end_timestamp <= timestamp
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:  # Channel tick/spells that need updates
                 self.handle_spell_effect_update(casting_spell, timestamp)  # Update effects if the cast wasn't interrupted
