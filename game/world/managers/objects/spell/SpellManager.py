@@ -688,6 +688,14 @@ class SpellManager(object):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
                 return False
 
+        # Aura bounce check
+        if casting_spell.initial_target_is_unit_or_player():
+            target = casting_spell.initial_target
+            if not target.aura_manager.are_spell_effects_applicable(casting_spell):
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED)
+                return False
+
+        # Special case of Ritual of Summoning.
         summoning_channel_id = 698
         if casting_spell.spell_entry.ID == summoning_channel_id and not self._validate_summon_cast(casting_spell):
             # If the summon effect fails, the channel must be interrupted.
