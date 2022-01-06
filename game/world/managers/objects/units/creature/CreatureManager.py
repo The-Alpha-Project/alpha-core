@@ -461,7 +461,7 @@ class CreatureManager(UnitManager):
 
             # If target is within combat distance, don't move but do check creature orientation.
             if current_distance <= combat_position_distance:
-                # If this creature is not facing the attacker, update its orientation. (Server side)
+                # If this creature is not facing the attacker, update its orientation (server-side).
                 if not self.location.has_in_arc(self.combat_target.location, math.pi):
                     self.location.face_point(self.combat_target.location)
                 return
