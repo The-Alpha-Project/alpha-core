@@ -3,6 +3,7 @@ from struct import unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import *
+from utils.Logger import Logger
 
 
 class TriggerCinematicCheatHandler(object):
@@ -11,6 +12,7 @@ class TriggerCinematicCheatHandler(object):
     def handle(world_session, socket, reader: PacketReader) -> int:
         if len(reader.data) >= 4:  # Avoid handling empty trigger cinematic cheat packet.
             if not world_session.player_mgr.is_gm:
+                Logger.anticheat(f'Player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}) tried to force trigger a cinematic.')
                 return 0
 
             cinematic_id = unpack('<I', reader.data[:4])[0]

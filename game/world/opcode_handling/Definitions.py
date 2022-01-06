@@ -172,7 +172,7 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_SET_RUN_SPEED_CHEAT: SpeedCheatHandler.handle,
     OpCode.MSG_MOVE_SET_SWIM_SPEED_CHEAT: SpeedCheatHandler.handle,
     OpCode.MSG_MOVE_SET_ALL_SPEED_CHEAT: SpeedCheatHandler.handle,
-    OpCode.MSG_MOVE_SET_WALK_SPEED: SpeedCheatHandler.handle,
+    OpCode.MSG_MOVE_SET_WALK_SPEED_CHEAT: SpeedCheatHandler.handle,
     OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT: SpeedCheatHandler.handle,
     OpCode.CMSG_ZONEUPDATE: ZoneUpdateHandler.handle,
     OpCode.CMSG_BUG: BugHandler.handle,
