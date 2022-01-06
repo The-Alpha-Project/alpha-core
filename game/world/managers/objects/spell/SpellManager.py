@@ -507,9 +507,13 @@ class SpellManager(object):
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
+            # Auras applied by channels can be independent of targets.
+            # Handle all channeled spells in a way that they don't require an AuraManager tick to update.
+
+            # Update ticks that expired during previous update.
             effect.remove_old_periodic_effect_ticks()
 
-            # Update periodic effects.
+            # Update effect aura duration.
             effect.update_effect_aura(timestamp)
 
             # Area spell effect update.

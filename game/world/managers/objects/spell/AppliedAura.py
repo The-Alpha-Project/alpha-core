@@ -69,5 +69,8 @@ class AppliedAura:
         if self.is_periodic():
             AuraEffectHandler.handle_aura_effect_change(self, self.target)
 
+        # Don't remove periodic ticks for channeled spells.
+        # Channeled spells have special handling for applied auras because of targeting reasons.
+        # See SpellManager::handle_spell_effect_update for more information.
         if self.source_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
             self.spell_effect.remove_old_periodic_effect_ticks()
