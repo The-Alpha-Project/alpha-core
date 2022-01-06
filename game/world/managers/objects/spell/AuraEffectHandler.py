@@ -378,6 +378,33 @@ class AuraEffectHandler:
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DAMAGE_DONE_CREATURE_TYPE, amount,
                                                          percentual=False, misc_value=misc_value)
 
+    @staticmethod
+    def handle_mod_parry_chance(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
+            return
+        amount_percent = aura.get_effect_points() / 100
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.PARRY_CHANCE,
+                                                         amount_percent, percentual=False)
+
+    @staticmethod
+    def handle_mod_dodge_chance(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
+            return
+        amount_percent = aura.get_effect_points() / 100
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DODGE_CHANCE,
+                                                         amount_percent, percentual=False)
+
+    @staticmethod
+    def handle_mod_block_chance(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
+            return
+        amount_percent = aura.get_effect_points() / 100
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.BLOCK_CHANCE,
+                                                         amount_percent, percentual=False)
+
 
 AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
@@ -408,6 +435,10 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_speed,
     AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED: AuraEffectHandler.handle_decrease_speed,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED: AuraEffectHandler.handle_increase_swim_speed,
+
+    AuraTypes.SPELL_AURA_MOD_PARRY_PERCENT: AuraEffectHandler.handle_mod_parry_chance,
+    AuraTypes.SPELL_AURA_MOD_DODGE_PERCENT: AuraEffectHandler.handle_mod_dodge_chance,
+    AuraTypes.SPELL_AURA_MOD_BLOCK_PERCENT: AuraEffectHandler.handle_mod_block_chance,
 
     AuraTypes.SPELL_AURA_MOD_DAMAGE_TAKEN: AuraEffectHandler.handle_mod_damage_taken,
 
