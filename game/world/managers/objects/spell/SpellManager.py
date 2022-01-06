@@ -688,9 +688,9 @@ class SpellManager(object):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
                 return False
 
-        if not self._validate_summon_cast(casting_spell):
+        summoning_channel_id = 698
+        if casting_spell.spell_entry.ID == summoning_channel_id and not self._validate_summon_cast(casting_spell):
             # If the summon effect fails, the channel must be interrupted.
-            summoning_channel_id = 698
             self.remove_cast_by_id(summoning_channel_id)
             return False
 
@@ -706,10 +706,6 @@ class SpellManager(object):
 
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return False  # Only players can cast or participate.
-
-        if not casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_OBJECT) and \
-                not casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PLAYER):
-            return False  # Loosely determine if this spell is related to summoning.
 
         # Target validation
         target_guid = self.unit_mgr.current_selection
