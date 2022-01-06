@@ -9,6 +9,6 @@ class TaxiClearAllNodesHandler(object):
         if world_session.player_mgr.is_gm:  # GM only.
             world_session.player_mgr.taxi_manager.disable_all_taxi_nodes()
         else:
-            Logger.anticheat(f'Player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}) tried to clear all there known taxi nodes.')
+            Logger.anticheat(f'Player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}) tried to clear all known taxi nodes.')
 
         return 0

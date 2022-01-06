@@ -10,7 +10,7 @@ class LevelCheatHandler(object):
         if len(reader.data) >= 4:  # Avoid empty packet level cheat packet.
             new_level = unpack('<I', reader.data[:4])[0]
             if not world_session.player_mgr.is_gm:
-                Logger.anticheat(f'Player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}) tried to set there own level to {new_level}.')
+                Logger.anticheat(f'Player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}) tried to level to {new_level}.')
                 return 0
 
             world_session.player_mgr.mod_level(new_level)
