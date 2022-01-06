@@ -736,7 +736,7 @@ class PlayerManager(UnitManager):
                 level_amount += 1
                 total_amount -= xp_to_level
 
-            self.xp = total_amount  # Set the overload XP as current.
+            self.xp = total_amount  # Set the remaining amount XP as current.
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
             self.mod_level(self.level + level_amount)
         else:
