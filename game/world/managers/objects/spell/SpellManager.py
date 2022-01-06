@@ -90,7 +90,7 @@ class SpellManager(object):
 
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 
-    def handle_item_cast_attempt(self, item, caster):
+    def handle_item_cast_attempt(self, item, caster, spell_target, target_mask):
         for spell_info in item.spell_stats:
             if spell_info.spell_id == 0:
                 break
@@ -99,13 +99,13 @@ class SpellManager(object):
                 Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} ({item.item_template.name}) could not be found in the spell database.')
                 continue
 
-            casting_spell = self.try_initialize_spell(spell, caster, caster, SpellTargetMask.SELF, item)  # TODO item spells targeting others?
+            casting_spell = self.try_initialize_spell(spell, caster, spell_target, target_mask, item)
             if not casting_spell:
                 continue
             if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here
                 caster.set_stand_state(StandState.UNIT_SITTING)
 
-            self.start_spell_cast(spell, caster, caster, SpellTargetMask.SELF, item)
+            self.start_spell_cast(initialized_spell=casting_spell)
 
     def handle_cast_attempt(self, spell_id, caster, spell_target, target_mask):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
