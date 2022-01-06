@@ -166,8 +166,8 @@ class AuraManager:
                     aura.proc_charges -= 1
                     AuraEffectHandler.handle_aura_effect_change(aura, effect_target, is_proc=True)
 
-                if aura.proc_charges == 0:
-                    self.remove_aura(aura)
+                    if aura.proc_charges == 0:
+                        self.remove_aura(aura)
 
     def remove_colliding_effects(self, aura):
         # Special case with SpellEffect mounting and mounting by aura
