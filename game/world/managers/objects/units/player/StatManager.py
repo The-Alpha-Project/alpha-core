@@ -433,7 +433,7 @@ class StatManager(object):
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
 
         # Since players have a base block chance of 5% unlike dodge, subtract this base from the placeholder scaling.
-        strength_scaling = max(0, strength / class_rate / 100 - 5)
+        strength_scaling = max(0, strength / class_rate / 100 - 0.05)
         base_block_chance = BASE_BLOCK_PARRY_CHANCE / 100
 
         self.base_stats[UnitStats.BLOCK_CHANCE] = strength_scaling + base_block_chance
