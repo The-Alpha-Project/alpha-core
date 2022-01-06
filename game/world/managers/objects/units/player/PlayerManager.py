@@ -696,7 +696,6 @@ class PlayerManager(UnitManager):
         if self.level >= config.Unit.Player.Defaults.max_level or not self.is_alive:
             return
 
-        new_xp = self.xp
         """
         0.5.3 supports multiple amounts of XP and then combines them all
 
@@ -709,11 +708,12 @@ class PlayerManager(UnitManager):
         """
 
         amount_bytes = b''
+        total_amount = 0
         for amount in amounts:
             # Adjust XP gaining rates using config
             amount = int(amount * config.Server.Settings.xp_rate)
 
-            new_xp += amount
+            total_amount += amount
             amount_bytes += pack('<QI', self.guid, amount)
 
         if notify:
@@ -724,21 +724,23 @@ class PlayerManager(UnitManager):
             data += amount_bytes
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
 
-        if new_xp >= self.next_level_xp:  # Level up!
+        if self.xp + total_amount >= self.next_level_xp:  # Level up!
+            total_amount -= (self.next_level_xp - self.xp)
             level_amount = 1
-            # Burn off the experience needed to level from the currently gained XP.
-            # If we overshoot double, triple, etc, then add it to the calculation.
-            xp_to_level = Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)
-            while new_xp >= xp_to_level:
-                new_xp -= xp_to_level
+            # Keep leveling until it's possible.
+            while True:
                 xp_to_level = Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)
-                level_amount += 1
+                if total_amount < xp_to_level:
+                    break
 
-            self.xp = new_xp - self.next_level_xp  # Set the overload XP as current.
+                level_amount += 1
+                total_amount -= xp_to_level
+
+            self.xp = total_amount  # Set the overload XP as current.
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
             self.mod_level(self.level + level_amount)
         else:
-            self.xp = new_xp
+            self.xp = self.xp + total_amount
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
             self.send_update_self()
 
