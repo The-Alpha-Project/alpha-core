@@ -874,7 +874,7 @@ class PlayerManager(UnitManager):
                 xp_gain = 0
 
             # Notify client new discovered zone + xp gain.
-            data = pack('<2I', area_information.zone_id, int(xp_gain))
+            data = pack('<2I', area_information.zone_id, int(xp_gain * config.Server.Settings.xp_rate))
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
             self.enqueue_packet(packet)
 

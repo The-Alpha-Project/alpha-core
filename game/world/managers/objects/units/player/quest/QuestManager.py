@@ -8,6 +8,7 @@ from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQue
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from game.world.managers.objects.units.player.quest.QuestMenu import QuestMenu
 from network.packet.PacketWriter import PacketWriter, OpCode
+from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants import UnitCodes
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes, QuestMethod, \
@@ -656,7 +657,7 @@ class QuestManager(object):
             '<4I',
             quest_id,
             3,  # Investigate
-            given_xp,
+            int(given_xp * config.Server.Settings.xp_rate),
             given_gold
         )
 
