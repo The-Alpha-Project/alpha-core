@@ -402,6 +402,9 @@ class SkillManager(object):
         return self.proficiencies[item_class].matches(item_class, item_subclass)
 
     def can_ever_use_equipment(self, item_class, item_subclass_mask):
+        if item_class not in self.proficiencies:
+            return False
+
         if self.proficiencies[item_class].item_subclass_mask & item_subclass_mask:
             return True  # Account for case where the player has learned a proficiency with a command.
 

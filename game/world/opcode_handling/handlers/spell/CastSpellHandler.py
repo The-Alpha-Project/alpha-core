@@ -12,26 +12,32 @@ class CastSpellHandler(object):
         if len(reader.data) >= 6:  # Avoid handling empty cast spell packet.
             spell_id, target_mask = unpack('<IH', reader.data[:6])
 
-            caster = world_session.player_mgr
+            target_bytes = reader.data[6:]  # Remove first 6 bytes to get targeting info.
 
-            if target_mask & SpellTargetMask.CAN_TARGET_TERRAIN != 0 and len(reader.data) >= 18:
-                target_info = Vector.from_bytes(reader.data[-12:])  # Terrain, target is vector
-            elif len(reader.data) == 14:
-                target_info = unpack('<Q', reader.data[-8:])[0]  # some object (read guid)
-            else:
-                target_info = caster  # Self
+            spell_target = CastSpellHandler.get_target_info(world_session, target_mask, target_bytes)
 
-            if target_mask & SpellTargetMask.CAN_TARGET_TERRAIN:
-                spell_target = target_info
-            elif target_mask & SpellTargetMask.UNIT and target_info != caster:
-                spell_target = MapManager.get_surrounding_unit_by_guid(caster, target_info, include_players=True)
-            elif target_mask & SpellTargetMask.ITEM_TARGET_MASK:
-                spell_target = caster.inventory.get_item_info_by_guid(target_info)[3]  # (container_slot, container, slot, item)
-            elif target_mask & SpellTargetMask.CAN_TARGET_OBJECTS:  # Can also include items so we check for that first
-                spell_target = MapManager.get_surrounding_gameobject_by_guid(caster, target_info)
-            else:
-                spell_target = caster  # Assume self cast for now. Invalid target will be resolved later
+            world_session.player_mgr.spell_manager.handle_cast_attempt(spell_id, world_session.player_mgr,
+                                                                       spell_target, target_mask)
+            return 0
 
-            world_session.player_mgr.spell_manager.handle_cast_attempt(spell_id, world_session.player_mgr, spell_target,
-                                                                       target_mask)
-        return 0
+    @staticmethod
+    def get_target_info(world_session, target_mask, target_bytes):
+        caster = world_session.player_mgr
+
+        if target_mask & SpellTargetMask.CAN_TARGET_TERRAIN != 0 and len(target_bytes) == 12:
+            target_info = Vector.from_bytes(target_bytes)  # Terrain, target is vector
+        elif len(target_bytes) == 8:
+            target_info = unpack('<Q', target_bytes)[0]  # some object (read guid)
+        else:
+            target_info = caster  # Self
+
+        if target_mask & SpellTargetMask.CAN_TARGET_TERRAIN:
+            return target_info
+        elif target_mask & SpellTargetMask.UNIT and target_info != caster:
+            return MapManager.get_surrounding_unit_by_guid(caster, target_info, include_players=True)
+        elif target_mask & SpellTargetMask.ITEM_TARGET_MASK:
+            return caster.inventory.get_item_info_by_guid(target_info)[3]  # (container_slot, container, slot, item)
+        elif target_mask & SpellTargetMask.CAN_TARGET_OBJECTS:  # Can also include items so we check for that first
+            return MapManager.get_surrounding_gameobject_by_guid(caster, target_info)
+        else:
+            return caster  # Assume self cast for now. Invalid target will be resolved later

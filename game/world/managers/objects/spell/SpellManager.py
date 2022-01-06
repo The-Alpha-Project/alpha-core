@@ -90,7 +90,7 @@ class SpellManager(object):
 
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 
-    def handle_item_cast_attempt(self, item, caster):
+    def handle_item_cast_attempt(self, item, caster, spell_target, target_mask):
         for spell_info in item.spell_stats:
             if spell_info.spell_id == 0:
                 break
@@ -99,13 +99,13 @@ class SpellManager(object):
                 Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} ({item.item_template.name}) could not be found in the spell database.')
                 continue
 
-            casting_spell = self.try_initialize_spell(spell, caster, caster, SpellTargetMask.SELF, item)  # TODO item spells targeting others?
+            casting_spell = self.try_initialize_spell(spell, caster, spell_target, target_mask, item)
             if not casting_spell:
                 continue
             if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here
                 caster.set_stand_state(StandState.UNIT_SITTING)
 
-            self.start_spell_cast(spell, caster, caster, SpellTargetMask.SELF, item)
+            self.start_spell_cast(initialized_spell=casting_spell)
 
     def handle_cast_attempt(self, spell_id, caster, spell_target, target_mask):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
@@ -277,8 +277,11 @@ class SpellManager(object):
         self.check_spell_cooldowns()
         self.check_spell_interrupts(moved=moved)
         for casting_spell in list(self.casting_spells):
-            if casting_spell.casts_on_swing():  # spells cast on swing will be updated on call from attack handling
+            # Queued spells cast on swing will be updated on call from attack handling
+            if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
+                    casting_spell.casts_on_swing():
                 continue
+
             cast_finished = casting_spell.cast_end_timestamp <= timestamp
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:  # Channel tick/spells that need updates
                 self.handle_spell_effect_update(casting_spell, timestamp)  # Update effects if the cast wasn't interrupted
@@ -507,9 +510,13 @@ class SpellManager(object):
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
+            # Auras applied by channels can be independent of targets.
+            # Handle all channeled spells in a way that they don't require an AuraManager tick to update.
+
+            # Update ticks that expired during previous update.
             effect.remove_old_periodic_effect_ticks()
 
-            # Update periodic effects.
+            # Update effect aura duration.
             effect.update_effect_aura(timestamp)
 
             # Area spell effect update.
@@ -688,6 +695,14 @@ class SpellManager(object):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
                 return False
 
+        # Aura bounce check
+        if casting_spell.initial_target_is_unit_or_player():
+            target = casting_spell.initial_target
+            if not target.aura_manager.are_spell_effects_applicable(casting_spell):
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED)
+                return False
+
+        # Special case of Ritual of Summoning.
         summoning_channel_id = 698
         if casting_spell.spell_entry.ID == summoning_channel_id and not self._validate_summon_cast(casting_spell):
             # If the summon effect fails, the channel must be interrupted.

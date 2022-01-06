@@ -1,11 +1,14 @@
 from struct import pack
+from typing import Optional
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import ObjectTypes, ProcFlags, HitInfo
-from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, SpellAttributesEx
+from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
+    SpellAttributesEx, SpellEffects
 from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
 
@@ -81,6 +84,24 @@ class AuraManager:
         if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED and \
                 aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED == 0:
             return False
+
+        # Stronger effect applied.
+        similar_applied = self.get_similar_applied_aura(aura)
+        if similar_applied:
+            applied_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(similar_applied.source_spell.spell_entry)
+            new_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(aura.source_spell.spell_entry)
+            if applied_rank > new_rank:
+                return False
+
+        return True
+
+    def are_spell_effects_applicable(self, casting_spell):
+        for spell_effect in casting_spell.effects:
+            if spell_effect.effect_type != SpellEffects.SPELL_EFFECT_APPLY_AURA:
+                continue
+            aura = AppliedAura(casting_spell.spell_caster, casting_spell, spell_effect, self.unit_mgr)
+            if not self.can_apply_aura(aura):
+                return False
         return True
 
     def check_aura_interrupts(self, has_moved=False, negative_aura_applied=False, cast_spell=False, received_damage=False):
@@ -127,9 +148,9 @@ class AuraManager:
             ProcFlags.TAKE_COMBAT_DMG: is_receiver and damage_info and damage_info.total_damage > 0,
             ProcFlags.KILL: killed_unit,
             ProcFlags.HEARTBEAT: False,  # Heartbeat effects are handled in their respective places on update - ignore the flag here.
-            ProcFlags.DODGE: is_receiver and damage_info and damage_info.hit_info & HitInfo.DODGE,
-            ProcFlags.PARRY: is_receiver and damage_info and damage_info.hit_info & HitInfo.PARRY,
-            ProcFlags.BLOCK: is_receiver and damage_info and damage_info.hit_info & HitInfo.BLOCK,
+            ProcFlags.DODGE: is_receiver and damage_info and damage_info.proc_victim & ProcFlags.DODGE,
+            ProcFlags.PARRY: is_receiver and damage_info and damage_info.proc_victim & ProcFlags.PARRY,
+            ProcFlags.BLOCK: is_receiver and damage_info and damage_info.proc_victim & ProcFlags.BLOCK,
             ProcFlags.SWING: not is_receiver and is_melee_swing,
             ProcFlags.SPELL_CAST: not is_receiver and involved_cast,  # Only used by zzOLDMind Bomb.
             ProcFlags.SPELL_HIT: is_receiver and involved_cast,
@@ -145,8 +166,8 @@ class AuraManager:
                     aura.proc_charges -= 1
                     AuraEffectHandler.handle_aura_effect_change(aura, effect_target, is_proc=True)
 
-                if aura.proc_charges == 0:
-                    self.remove_aura(aura)
+                    if aura.proc_charges == 0:
+                        self.remove_aura(aura)
 
     def remove_colliding_effects(self, aura):
         # Special case with SpellEffect mounting and mounting by aura
@@ -156,13 +177,23 @@ class AuraManager:
             AuraEffectHandler.handle_mounted(aura, aura.target, remove=True)  # Remove mount effect
 
         aura_spell_template = aura.source_spell.spell_entry
+
+        new_aura_name = aura_spell_template.Name_enUS
+        new_aura_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(aura_spell_template)
+
         aura_effect_index = aura.spell_effect.effect_index
         caster_guid = aura.caster.guid
 
         for applied_aura in list(self.active_auras.values()):
-            # TODO is_similar does not match different spell ranks
-            is_similar = applied_aura.source_spell.spell_entry == aura_spell_template and \
-                         applied_aura.spell_effect.effect_index == aura_effect_index  # Spell and effect are the same
+            applied_spell_entry = applied_aura.source_spell.spell_entry
+            applied_aura_name = applied_spell_entry.Name_enUS
+            applied_aura_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(applied_spell_entry)
+
+            # TODO Same effects but different spells (exclusivity groups)?
+
+            # Note: This method ignores the case of a weaker spell being applied, as that is handled in can_apply_aura.
+            is_similar_or_weaker = applied_aura.spell_effect.effect_index == aura_effect_index and \
+                applied_aura_name == new_aura_name and applied_aura_rank <= new_aura_rank
 
             are_exclusive_by_source = ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(aura.spell_id, applied_aura.spell_id)  # Paladin seals, warlock curses
 
@@ -171,7 +202,7 @@ class AuraManager:
             is_stacking = applied_aura.can_stack
 
             casters_are_same = applied_aura.caster.guid == caster_guid
-            if is_similar and (is_unique or casters_are_same and not is_stacking) or \
+            if is_similar_or_weaker and (is_unique or casters_are_same and not is_stacking) or \
                     are_exclusive_by_source and casters_are_same:
                 self.remove_aura(applied_aura)
                 continue
@@ -196,6 +227,21 @@ class AuraManager:
                 continue
             auras.append(aura)
         return auras
+
+    def get_similar_applied_aura(self, aura) -> Optional[AppliedAura]:
+        aura_spell_template = aura.source_spell.spell_entry
+
+        new_aura_name = aura_spell_template.Name_enUS
+
+        for applied_aura in list(self.active_auras.values()):
+            applied_spell_entry = applied_aura.source_spell.spell_entry
+
+            if applied_spell_entry.ID == aura_spell_template.ID:
+                return applied_aura
+
+            applied_aura_name = applied_spell_entry.Name_enUS
+            if applied_aura_name == new_aura_name:
+                return applied_aura
 
     def remove_auras_by_type(self, aura_type):
         for aura in list(self.active_auras.values()):

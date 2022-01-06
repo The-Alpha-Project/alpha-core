@@ -13,7 +13,7 @@ class SplitItemHandler(object):
             inventory = world_session.player_mgr.inventory
 
             if source_bag_slot == 0xFF:
-                source_slot = InventorySlots.SLOT_INBACKPACK.value
+                source_bag_slot = InventorySlots.SLOT_INBACKPACK.value
             if dest_bag_slot == 0xFF:
                 dest_bag_slot = InventorySlots.SLOT_INBACKPACK.value
 
