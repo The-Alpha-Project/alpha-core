@@ -1,4 +1,4 @@
-import time
+import time, math
 from random import randint, choice
 from struct import unpack, pack
 
@@ -459,8 +459,11 @@ class CreatureManager(UnitManager):
             # TODO: Find better formula?
             combat_position_distance = interactable_distance * 0.5
 
-            # If target is within combat distance, don't move.
+            # If target is within combat distance, don't move but do check creature orientation.
             if current_distance <= combat_position_distance:
+                # If this creature is not facing the attacker, update its orientation. (Server side)
+                if not self.location.has_in_arc(self.combat_target.location, math.pi):
+                    self.location.face_point(self.combat_target.location)
                 return
 
             combat_location = self.combat_target.location.get_point_in_between(combat_position_distance, vector=self.location)
