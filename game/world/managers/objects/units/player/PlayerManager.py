@@ -1446,19 +1446,6 @@ class PlayerManager(UnitManager):
         if reset_fields:
             self.reset_fields_older_than(time.time())
 
-    # override
-    def send_create_packet_surroundings(self, update_packet, include_self=False, create=False,
-                                        force_inventory_update=False):
-        if create:
-            MapManager.send_surrounding(NameQueryHandler.get_query_details(self.player), self,
-                                        include_self=include_self)
-        else:
-            if self.dirty_inventory or force_inventory_update:
-                self.inventory.build_update()
-                self.inventory.send_inventory_update(is_self=False)
-
-        MapManager.send_surrounding(update_packet, self, include_self=include_self)
-
     def teleport_deathbind(self):
         self.teleport(self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,
                                                            self.deathbind.deathbind_position_y,

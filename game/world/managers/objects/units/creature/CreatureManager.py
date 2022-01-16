@@ -129,8 +129,6 @@ class CreatureManager(UnitManager):
             creature.faction = override_faction
 
         creature.load()
-        creature.send_create_packet_surroundings()
-
         return creature
 
     def generate_display_id(self):
