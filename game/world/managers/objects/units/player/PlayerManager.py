@@ -67,7 +67,7 @@ class PlayerManager(UnitManager):
         self.update_lock = False
         self.is_relocating = False
         self.known_objects = dict()
-
+        self.known_interactive_objects = dict()
         self.player = player
         self.online = online
         self.num_inv_slots = num_inv_slots
@@ -322,7 +322,6 @@ class PlayerManager(UnitManager):
         players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER,
                                                                               ObjectTypes.TYPE_UNIT,
                                                                               ObjectTypes.TYPE_GAMEOBJECT])
-
         # Which objects were found in self surroundings.
         active_objects = dict()
 
@@ -339,6 +338,10 @@ class PlayerManager(UnitManager):
                         packet = player.movement_manager.try_build_movement_packet(is_initial=False)
                         if packet:
                             self.enqueue_packet(packet)
+                elif guid in self.known_objects and player.dirty or player.dirty_inventory:
+                    if player.dirty_inventory:
+                        player.inventory.send_inventory_update(is_self=False)
+                    self.enqueue_packet(player.generate_proper_update_packet(create=False, is_self=False))
                 self.known_objects[guid] = player
 
         # Surrounding creatures.
@@ -356,28 +359,52 @@ class PlayerManager(UnitManager):
                             self.enqueue_packet(packet)
                     # We only consider 'known' if its spawned, the details query is still sent.
                     self.known_objects[guid] = creature
+            elif guid in self.known_objects and creature.dirty:
+                self.enqueue_packet(creature.generate_proper_update_packet(create=False, is_self=False))
             # Player knows the creature but is not spawned anymore, destroy it for self.
-            elif guid in self.known_objects and not creature.is_spawned:
+            if guid in self.known_objects and not creature.is_spawned:
                 active_objects.pop(guid)
 
         # Surrounding game objects.
         for guid, gobject in game_objects.items():
             active_objects[guid] = gobject
+            is_interactive = self.quest_manager.should_interact_with_go(gobject)
             if guid not in self.known_objects or not self.known_objects[guid]:
                 # We don't know this game object, notify self with its update packet.
                 self.enqueue_packet(gobject.query_details())
                 if gobject.is_spawned:
-                    self.enqueue_packet(gobject.generate_proper_update_packet(create=True, is_self=False))
+                    self.enqueue_packet(gobject.generate_proper_update_packet(create=True, is_self=False, is_interactive=is_interactive))
                     # We only consider 'known' if its spawned, the details query is still sent.
                     self.known_objects[guid] = gobject
+            # Object is known, spawned and dirty, grab update packet. (Partial update)
+            elif guid in self.known_objects and gobject.dirty and gobject.is_spawned:
+                self.enqueue_packet(
+                    gobject.generate_proper_update_packet(create=False, is_self=False, is_interactive=is_interactive))
+            # Object is known, is interactive and we have not updated its interactive state. (Partial update)
+            elif guid in self.known_objects and is_interactive and gobject.guid not in self.known_interactive_objects:
+                self.enqueue_packet(
+                    gobject.generate_proper_update_packet(create=False, is_self=False, is_interactive=is_interactive))
+            # Object is known, is not interactive but we had it as interactive before. (Partial update)
+            elif guid in self.known_objects and not is_interactive and gobject.guid in self.known_interactive_objects:
+                self.enqueue_packet(
+                    gobject.generate_proper_update_packet(create=False, is_self=False, is_interactive=is_interactive))
+
             # Player knows the game object but is not spawned anymore, destroy it for self.
-            elif guid in self.known_objects and not gobject.is_spawned:
+            if guid in self.known_objects and not gobject.is_spawned:
                 active_objects.pop(guid)
+            # If this was interactive, cache its state, so we don't force recurrent updates based on interactive flag.
+            elif is_interactive and gobject.guid not in self.known_interactive_objects:
+                self.known_interactive_objects[gobject.guid] = gobject
+            # If this is not interactive but had it cached as interactive, pop it.
+            elif not is_interactive and gobject.guid in self.known_interactive_objects:
+                self.known_interactive_objects.pop(gobject.guid)
 
         # World objects which are known but no longer active to self should be destroyed.
         for guid, known_object in list(self.known_objects.items()):
             if guid not in active_objects:
                 self.destroy_near_object(guid, skip_check=True)
+                if guid in self.known_interactive_objects:
+                    self.known_interactive_objects.pop(guid)
 
         # Cleanup.
         active_objects.clear()
@@ -912,7 +939,7 @@ class PlayerManager(UnitManager):
             self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
 
     # override
-    def get_full_update_packet(self, is_self=True):
+    def get_full_update_packet(self, is_self=True, is_interactive=False):
         self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.gender, self.power_type))[0]
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
         self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
@@ -1396,9 +1423,7 @@ class PlayerManager(UnitManager):
             # Check "dirtiness" to determine if this player object should be updated yet or not.
             if self.dirty and self.online:
                 self.send_update_self(reset_fields=False)
-                self.send_create_packet_surroundings(self.generate_proper_update_packet())
-                if self.reset_fields_older_than(now):
-                    self.set_dirty(is_dirty=False, dirty_inventory=False)
+                MapManager.update_object(self, position_only=False)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
             elif not self.dirty and self.pending_teleport_destination and not self.update_lock:
                 self.trigger_teleport()
@@ -1410,8 +1435,8 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
         else:
             if self.dirty_inventory or force_inventory_update:
-                self.inventory.send_inventory_update(is_self=True)
                 self.inventory.build_update()
+                self.inventory.send_inventory_update(is_self=True)
 
         if not update_packet:
             update_packet = self.generate_proper_update_packet(is_self=True, create=create)
@@ -1429,8 +1454,8 @@ class PlayerManager(UnitManager):
                                         include_self=include_self)
         else:
             if self.dirty_inventory or force_inventory_update:
-                self.inventory.send_inventory_update(is_self=False)
                 self.inventory.build_update()
+                self.inventory.send_inventory_update(is_self=False)
 
         MapManager.send_surrounding(update_packet, self, include_self=include_self)
 

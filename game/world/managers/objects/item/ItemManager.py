@@ -320,7 +320,7 @@ class ItemManager(ObjectManager):
         return PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, data)
 
     # override
-    def get_full_update_packet(self, is_self=True):
+    def get_full_update_packet(self, is_self=True, is_interactive=False):
         if self.item_template and self.item_instance:
             from game.world.managers.objects.item.ContainerManager import ContainerManager
 

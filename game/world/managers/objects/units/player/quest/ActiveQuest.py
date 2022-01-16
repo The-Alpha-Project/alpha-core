@@ -13,6 +13,24 @@ class ActiveQuest:
         self.quest = quest
         self.failed = False
 
+    def need_item_from_go(self, go_loot_template):
+        # Quest is complete.
+        if self.is_quest_complete(0):
+            return False
+
+        needed_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
+
+        # Not required items for this quest.
+        if len(needed_items) == 0:
+            return False
+
+        # Check if any needed items match the provided go_loot_template.
+        for entry in go_loot_template:
+            if entry.item in needed_items:
+                return True
+
+        return False
+
     def is_quest_complete(self, quest_giver_guid):
         if self.db_state.state != QuestState.QUEST_REWARD:
             return False

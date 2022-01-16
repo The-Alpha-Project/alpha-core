@@ -1,5 +1,5 @@
 import math
-
+import time
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypes
 
@@ -24,7 +24,7 @@ class GridManager(object):
             self.cells[cell.key] = cell
         return cell
 
-    def update_object(self, world_object, old_grid_manager):
+    def update_object(self, world_object, old_grid_manager, position_only=True):
         source_cell_key = world_object.current_cell
         current_cell_key = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
 
@@ -43,6 +43,15 @@ class GridManager(object):
             affected_cells = self.update_players(source_cell_key)
             # Update new location surroundings, excluding intersecting cells from previous call.
             self.update_players(current_cell_key, exclude_cells=affected_cells)
+        # Check dirtiness in order to trigger proper update packets on players known world objects.
+        elif not position_only and world_object.dirty:
+            affected_cells = self.update_players(source_cell_key)
+            self.update_players(current_cell_key, exclude_cells=affected_cells)
+            if world_object.reset_fields_older_than(time.time()):
+                if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
+                    world_object.set_dirty(is_dirty=False, dirty_inventory=False)
+                else:
+                    world_object.set_dirty(is_dirty=False)
 
         # Notify cell changed if needed.
         if old_grid_manager and old_grid_manager != self or current_cell_key != source_cell_key:

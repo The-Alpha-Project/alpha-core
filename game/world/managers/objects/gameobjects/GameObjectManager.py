@@ -9,6 +9,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager, SpawnsGame
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, GameObjectTypes, \
@@ -150,8 +151,7 @@ class GameObjectManager(ObjectManager):
     def _handle_use_chest(self, player):
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.state == GameObjectStates.GO_STATE_READY:
-            self.state = GameObjectStates.GO_STATE_ACTIVE
-            self.send_create_packet_surroundings()
+            self.set_state(GameObjectStates.GO_STATE_ACTIVE, set_dirty=True)
 
         # Generate loot if it's empty.
         if not self.loot_manager.has_loot():
@@ -242,7 +242,26 @@ class GameObjectManager(ObjectManager):
         return True
 
     # override
-    def get_full_update_packet(self, is_self=True):
+    def generate_proper_update_packet(self, is_self=False, create=False, is_interactive=False):
+        # Set interactive mode based on which player requested this update.
+        if is_interactive:
+            self.set_int32(GameObjectFields.GAMEOBJECT_DYN_FLAGS, 1)
+
+        # Return either full or partial packet.
+        if create:
+            data = self.get_full_update_packet(is_self=is_self, is_interactive=is_interactive)
+        else:
+             data = self.get_partial_update_packet()
+
+        # Restore its state to not interactive.
+        self.set_int32(GameObjectFields.GAMEOBJECT_DYN_FLAGS, 0)
+
+        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,data))
+
+        return update_packet
+
+    # override
+    def get_full_update_packet(self, is_self=True, is_interactive=False):
         if self.gobject_template and self.gobject_instance:
             # Object fields
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
@@ -315,11 +334,7 @@ class GameObjectManager(ObjectManager):
             if self.is_spawned:
                 # Check "dirtiness" to determine if this game object should be updated yet or not.
                 if self.dirty:
-                    MapManager.send_surrounding(self.generate_proper_update_packet(create=False), self,
-                                                include_self=False)
-                    MapManager.update_object(self)
-                    if self.reset_fields_older_than(now):
-                        self.set_dirty(is_dirty=False)
+                    MapManager.update_object(self, position_only=False)
             # Not spawned.
             else:
                 self.respawn_timer += elapsed

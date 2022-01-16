@@ -342,7 +342,7 @@ class CreatureManager(UnitManager):
         return False
 
     # override
-    def get_full_update_packet(self, is_self=True):
+    def get_full_update_packet(self, is_self=True, is_interactive=False):
         self.finish_loading()
 
         # race, class, gender, power_type
@@ -514,10 +514,7 @@ class CreatureManager(UnitManager):
 
             # Check "dirtiness" to determine if this creature object should be updated yet or not.
             if self.dirty:
-                MapManager.send_surrounding(self.generate_proper_update_packet(create=False), self, include_self=False)
-                MapManager.update_object(self)
-                if self.reset_fields_older_than(now):
-                    self.set_dirty(is_dirty=False)
+                MapManager.update_object(self, position_only=False)
 
         self.last_tick = now
 

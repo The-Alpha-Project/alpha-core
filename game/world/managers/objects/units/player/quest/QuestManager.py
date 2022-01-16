@@ -281,6 +281,19 @@ class QuestManager(object):
                 quest_status = self.get_dialog_status(unit)
                 self.send_quest_giver_status(guid, quest_status)
 
+    def should_interact_with_go(self, game_object):
+        if game_object.gobject_template.data1 != 0:
+            loot_template_id = game_object.gobject_template.data1
+            loot_template = WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_entry(loot_template_id)
+            # Empty loot template.
+            if len(loot_template) == 0:
+                return False
+            # Check if any active quests requires this game_object as item source.
+            for active_quest in list(self.active_quests.values()):
+                if active_quest.need_item_from_go(loot_template):
+                    return True
+        return False
+
     # Send item query details and return item struct byte segments.
     def _gen_item_struct(self, item_entry, count):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
@@ -679,11 +692,13 @@ class QuestManager(object):
         self.active_quests.pop(quest_id)
         self.build_update()
         self.player_mgr.send_update_self()
+        self.player_mgr.update_surrounding_on_me()
 
     def add_to_quest_log(self, quest_id, active_quest):
         self.active_quests[quest_id] = active_quest
         self.build_update()
         self.player_mgr.send_update_self()
+        self.player_mgr.update_surrounding_on_me()
 
     def pop_item(self, item_entry, item_count):
         should_update = False
@@ -694,6 +709,7 @@ class QuestManager(object):
 
         if should_update:
             self.update_surrounding_quest_status()
+            self.player_mgr.update_surrounding_on_me()
 
     def reward_item(self, item_entry, item_count):
         for quest_id, active_quest in self.active_quests.items():
