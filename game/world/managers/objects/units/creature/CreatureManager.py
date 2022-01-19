@@ -512,8 +512,7 @@ class CreatureManager(UnitManager):
             # Check "dirtiness" to determine if this creature object should be updated yet or not.
             if self.has_pending_updates():
                 MapManager.update_object(self, check_pending_changes=True)
-                # Reset fields older than NOW. Do not use 'now' since time and new updates could be made in between.
-                self.reset_fields_older_than(time.time())
+                self.reset_fields_older_than(now)
 
         self.last_tick = now
 
