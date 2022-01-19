@@ -494,7 +494,6 @@ class SpellManager(object):
         if casting_spell.initial_target_is_object():
             self.unit_mgr.set_channel_object(casting_spell.initial_target.guid)
         self.unit_mgr.set_channel_spell(casting_spell.spell_entry.ID)
-        self.unit_mgr.set_dirty()
 
         self.apply_spell_effects(casting_spell)
 
@@ -535,7 +534,6 @@ class SpellManager(object):
 
         self.unit_mgr.set_channel_object(0)
         self.unit_mgr.set_channel_spell(0)
-        self.unit_mgr.set_dirty()
 
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return
@@ -870,7 +868,6 @@ class SpellManager(object):
         if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER and \
                 casting_spell.requires_combo_points():
             self.unit_mgr.remove_combo_points()
-            self.unit_mgr.set_dirty()
 
         for reagent_info in casting_spell.get_reagents():  # Reagents.
             if reagent_info[0] == 0:
@@ -887,8 +884,6 @@ class SpellManager(object):
             if charges != 0 and charges != -1:  # don't modify if no charges remain or this item is a consumable.
                 new_charges = charges-1 if charges > 0 else charges+1
                 spell_stats.charges = new_charges
-
-        self.unit_mgr.set_dirty()
 
     def send_cast_result(self, spell_id, error):
         # TODO CAST_SUCCESS_KEEP_TRACKING

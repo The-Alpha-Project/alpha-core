@@ -25,7 +25,7 @@ class DestroyItemHandler(object):
             world_session.player_mgr.inventory.remove_item(bag, source_slot, True)
 
             if world_session.player_mgr.inventory.is_equipment_pos(bag, source_slot):
-                world_session.player_mgr.set_dirty(dirty_inventory=True)
+                world_session.player_mgr.dirty_inventory = True
             else:
-                world_session.player_mgr.send_update_self(force_inventory_update=True)
+                world_session.player_mgr.dirty_inventory = True
         return 0

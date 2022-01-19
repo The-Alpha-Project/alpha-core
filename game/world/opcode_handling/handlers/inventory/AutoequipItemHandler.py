@@ -17,7 +17,7 @@ class AutoequipItemHandler(object):
             source_item = inventory.get_item(source_bag_slot, source_slot)
             if not source_container or not source_item:
                 # Something is really malfunctioning or client sent wrong data, try to reload the inventory
-                world_session.player_mgr.set_dirty(is_dirty=True, dirty_inventory=True)
+                world_session.player_mgr.dirty_inventory = True
                 return 0
 
             inv_type = source_item.item_template.inventory_type

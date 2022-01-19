@@ -60,7 +60,7 @@ class TaxiManager(object):
 
         dest_taxi_node = DbcDatabaseManager.TaxiNodesHolder.taxi_nodes_get_by_map_and_id(self.owner.map_, dest_node)
         self.owner.pending_taxi_destination = Vector(dest_taxi_node.X, dest_taxi_node.Y, dest_taxi_node.Z)
-        self.owner.set_taxi_flying_state(True, mount_display_id, set_dirty=True)
+        self.owner.set_taxi_flying_state(True, mount_display_id)
 
         speed = config.Unit.Player.Defaults.flight_speed
         spline = SplineFlags.SPLINEFLAG_FLYING

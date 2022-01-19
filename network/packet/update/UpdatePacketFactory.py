@@ -22,6 +22,9 @@ class UpdatePacketFactory(object):
     def reset(self):
         self.update_mask.clear()
 
+    def has_pending_updates(self):
+        return not self.update_mask.is_empty()
+
     def reset_older_than(self, timestamp_to_compare):
         all_clear = True
         for index, timestamp in enumerate(self.update_timestamps):

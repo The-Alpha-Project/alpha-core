@@ -51,6 +51,20 @@ class QuestManager(object):
     def is_quest_log_full(self):
         return len(self.active_quests) >= MAX_QUEST_LOG
 
+    # TODO: Cache the return value by GO guid, flush this cache on any QuestManager state change.
+    def should_interact_with_go(self, game_object):
+        if game_object.gobject_template.data1 != 0:
+            loot_template_id = game_object.gobject_template.data1
+            loot_template = WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_entry(loot_template_id)
+            # Empty loot template.
+            if len(loot_template) == 0:
+                return False
+            # Check if any active quests requires this game_object as item source.
+            for active_quest in list(self.active_quests.values()):
+                if active_quest.need_item_from_go(loot_template):
+                    return True
+        return False
+
     def get_dialog_status(self, world_object):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
         new_dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
@@ -584,6 +598,7 @@ class QuestManager(object):
             self.complete_quest(active_quest, update_surrounding=False)
 
         self.update_surrounding_quest_status()
+        self.player_mgr.update_known_world_objects(force_update=True)
 
     def share_quest_event(self, active_quest):
         title_bytes = PacketWriter.string_to_bytes(active_quest.quest.Title)
@@ -612,6 +627,8 @@ class QuestManager(object):
         if quest_id in self.active_quests:
             self.remove_from_quest_log(quest_id)
             RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_id)
+            self.update_surrounding_quest_status()
+            self.player_mgr.update_known_world_objects(force_update=True)
 
     def handle_complete_quest(self, quest_id, quest_giver_guid):
         if quest_id not in self.active_quests:
@@ -674,16 +691,15 @@ class QuestManager(object):
 
         # Update surrounding, NextQuestInChain was not working properly.
         self.update_surrounding_quest_status()
+        self.player_mgr.update_known_world_objects(force_update=True)
 
     def remove_from_quest_log(self, quest_id):
         self.active_quests.pop(quest_id)
         self.build_update()
-        self.player_mgr.send_update_self()
 
     def add_to_quest_log(self, quest_id, active_quest):
         self.active_quests[quest_id] = active_quest
         self.build_update()
-        self.player_mgr.send_update_self()
 
     def pop_item(self, item_entry, item_count):
         should_update = False
@@ -694,6 +710,7 @@ class QuestManager(object):
 
         if should_update:
             self.update_surrounding_quest_status()
+            self.player_mgr.update_known_world_objects(force_update=True)
 
     def reward_item(self, item_entry, item_count):
         for quest_id, active_quest in self.active_quests.items():
@@ -733,6 +750,7 @@ class QuestManager(object):
 
         if update_surrounding:
             self.update_surrounding_quest_status()
+            self.player_mgr.update_known_world_objects(force_update=True)
 
     def creature_go_is_required_by_quest(self, creature_entry):
         for active_quest in list(self.active_quests.values()):

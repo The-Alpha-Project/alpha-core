@@ -31,5 +31,5 @@ class SplitItemHandler(object):
                 return 0
             source_item.item_instance.stackcount -= count
             RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
-            inventory.owner.send_update_self(force_inventory_update=True)
+            inventory.owner.dirty_inventory = True
         return 0

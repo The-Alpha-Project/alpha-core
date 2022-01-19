@@ -270,7 +270,6 @@ class CommandManager(object):
                 return -1, 'The skill was not found.'
 
             world_session.player_mgr.skill_manager.add_skill(skill_id)
-            world_session.player_mgr.set_dirty()
             return 0, 'Skill learned.'
         except ValueError:
             return -1, 'Invalid ID.'
@@ -412,7 +411,6 @@ class CommandManager(object):
             mount_display_id = int(args)
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             player_mgr.mount(mount_display_id)
-            player_mgr.set_dirty()
             return 0, ''
         except ValueError:
             return -1, 'please specify a valid mount display id.'
@@ -421,7 +419,6 @@ class CommandManager(object):
     def unmount(world_session, args):
         player_mgr = CommandManager._target_or_self(world_session, only_players=True)
         player_mgr.unmount()
-        player_mgr.set_dirty()
         return 0, ''
 
     @staticmethod
@@ -430,7 +427,6 @@ class CommandManager(object):
             display_id = int(args)
             unit = CommandManager._target_or_self(world_session)
             unit.set_display_id(display_id)
-            unit.set_dirty()
             return 0, ''
         except ValueError:
             return -1, 'please specify a valid display id.'
@@ -439,7 +435,6 @@ class CommandManager(object):
     def demorph(world_session, args):
         unit = CommandManager._target_or_self(world_session)
         unit.reset_display_id()
-        unit.set_dirty()
         return 0, ''
 
     @staticmethod

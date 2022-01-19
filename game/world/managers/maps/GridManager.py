@@ -24,7 +24,7 @@ class GridManager(object):
             self.cells[cell.key] = cell
         return cell
 
-    def update_object(self, world_object, old_grid_manager):
+    def update_object(self, world_object, old_grid_manager, check_pending_changes=False):
         source_cell_key = world_object.current_cell
         current_cell_key = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
 
@@ -43,6 +43,10 @@ class GridManager(object):
             affected_cells = self.update_players(source_cell_key)
             # Update new location surroundings, excluding intersecting cells from previous call.
             self.update_players(current_cell_key, exclude_cells=affected_cells)
+
+        # If this world object has pending updates, trigger an update on interested players.
+        if check_pending_changes and world_object.has_pending_updates():
+            self.update_players(current_cell_key, world_object=world_object)
 
         # Notify cell changed if needed.
         if old_grid_manager and old_grid_manager != self or current_cell_key != source_cell_key:
@@ -99,7 +103,7 @@ class GridManager(object):
             if update_players:
                 self.update_players(cell.key)
 
-    def update_players(self, cell_key, exclude_cells=None):
+    def update_players(self, cell_key, exclude_cells=None, world_object=None):
         # Avoid update calls if no players are present.
         if exclude_cells is None:
             exclude_cells = set()
@@ -111,7 +115,7 @@ class GridManager(object):
         if source_cell:
             for cell in self.get_surrounding_cells_by_cell(source_cell):
                 if cell not in exclude_cells:
-                    cell.update_players()
+                    cell.update_players(world_object=world_object)
                     affected_cells.add(cell)
 
         return affected_cells
@@ -322,10 +326,13 @@ class Cell(object):
         elif world_object.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
             self.gameobjects[world_object.guid] = world_object
 
-    # Make each player update its surroundings, adding or removing world objects as needed.
-    def update_players(self):
+    # Make each player update its surroundings, adding, removing or updating world objects as needed.
+    def update_players(self, world_object=None):
         for player in list(self.players.values()):
-            player.update_surrounding_on_me()
+            if world_object:
+                player.update_world_object_on_me(world_object)
+            else:
+                player.update_known_world_objects()
 
     def remove(self, world_object):
         if world_object.get_type() == ObjectTypes.TYPE_PLAYER:

@@ -315,14 +315,13 @@ class GroupManager(object):
         surrounding_players = MapManager.get_surrounding_players(player).values()
         surrounding_members = [player for player in surrounding_players if player.guid in self.members]
 
-        # Party kill log packet, not sure how to display on client but it is handled.
+        # Party kill log packet, not sure how to display on client but, it is handled.
         data = pack('<2Q', player.guid, creature.guid)  # Player with killing blow and victim guid.
         kill_log_packet = PacketWriter.get_packet(OpCode.SMSG_PARTYKILLLOG, data)
 
         for member in surrounding_members:
             member.enqueue_packet(kill_log_packet)
             member.quest_manager.reward_creature_or_go(creature)
-            member.send_update_self()
 
     def send_invite_decline(self, player_name):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)
@@ -479,7 +478,6 @@ class GroupManager(object):
             player_mgr.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
             player_mgr.player_bytes_2 = unpack('<I', pack('<4B', player_mgr.player.extra_flags, player_mgr.player.facialhair, player_mgr.player.bankslots, 0))[0]
             player_mgr.set_uint32(PlayerFields.PLAYER_BYTES_2, player_mgr.player_bytes_2)
-            player_mgr.set_dirty()
 
     @staticmethod
     def _remove_leader_flag(member):
@@ -488,7 +486,6 @@ class GroupManager(object):
             player_mgr.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
             player_mgr.player_bytes_2 = unpack('<I', pack('<4B', player_mgr.player.extra_flags, player_mgr.player.facialhair, player_mgr.player.bankslots, 0))[0]
             player_mgr.set_uint32(PlayerFields.PLAYER_BYTES_2, player_mgr.player_bytes_2)
-            player_mgr.set_dirty()
 
     @staticmethod
     def _create_group(player_mgr):

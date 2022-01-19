@@ -357,7 +357,6 @@ class SkillManager(object):
         # TODO Skill gain config value?
         self.set_skill(skill_id, current_unmodified_skill + 1)
         self.build_update()
-        self.player_mgr.set_dirty()
         return True
 
     def handle_defense_skill_gain_chance(self, damage_info):
@@ -393,7 +392,6 @@ class SkillManager(object):
         # Dodge / parry / block chance displayed in the player's abilities depends on current defense skill.
         self.player_mgr.stat_manager.send_defense_bonuses()
 
-        self.player_mgr.set_dirty()
         return True
 
     def can_use_equipment(self, item_class, item_subclass):

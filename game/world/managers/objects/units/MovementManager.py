@@ -71,7 +71,7 @@ class MovementManager(object):
             # Path finished.
             if self.total_waypoint_timer >= self.total_waypoint_time:
                 if self.is_player and self.unit.pending_taxi_destination:
-                    self.unit.set_taxi_flying_state(False, set_dirty=True)
+                    self.unit.set_taxi_flying_state(False)
                     self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination, is_instant=True)
                     self.unit.pending_taxi_destination = None
                     self.unit.taxi_manager.update_flight_state()

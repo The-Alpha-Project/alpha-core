@@ -57,8 +57,10 @@ class MovementHandler(object):
                                      world_session.player_mgr.guid,
                                      reader.data)
 
-                MapManager.send_surrounding(PacketWriter.get_packet(OpCode(reader.opcode), movement_data),
-                                            world_session.player_mgr, include_self=False)
+                movement_packet = PacketWriter.get_packet(OpCode(reader.opcode), movement_data)
+                if world_session.player_mgr.group_manager:
+                    world_session.player_mgr.group_manager.send_packet_to_members(movement_packet, ignore=[world_session.player_mgr.guid])
+                MapManager.send_surrounding(movement_packet, world_session.player_mgr, include_self=False)
                 MapManager.update_object(world_session.player_mgr)
                 world_session.player_mgr.sync_player()
 
@@ -72,8 +74,7 @@ class MovementHandler(object):
                 if reader.opcode == OpCode.MSG_MOVE_JUMP and \
                         world_session.player_mgr.stand_state != StandState.UNIT_DEAD and \
                         world_session.player_mgr.stand_state != StandState.UNIT_STANDING:
-                    world_session.player_mgr.stand_state = StandState.UNIT_STANDING
-                    world_session.player_mgr.set_dirty()
+                    world_session.player_mgr.set_stand_state(StandState.UNIT_STANDING)
 
             except (AttributeError, error):
                 Logger.error(f'Error while handling {OpCode(reader.opcode).name}, skipping. Data: {reader.data}')

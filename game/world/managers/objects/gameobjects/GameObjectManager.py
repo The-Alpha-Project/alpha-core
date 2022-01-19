@@ -1,5 +1,6 @@
 import math
 import time
+from bitarray import bitarray
 from math import pi, cos, sin
 from random import randint
 from struct import pack
@@ -150,8 +151,7 @@ class GameObjectManager(ObjectManager):
     def _handle_use_chest(self, player):
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.state == GameObjectStates.GO_STATE_READY:
-            self.state = GameObjectStates.GO_STATE_ACTIVE
-            self.send_create_packet_surroundings()
+            self.set_state(GameObjectStates.GO_STATE_ACTIVE)
 
         # Generate loot if it's empty.
         if not self.loot_manager.has_loot():
@@ -213,21 +213,19 @@ class GameObjectManager(ObjectManager):
         elif self.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
             self._handle_use_goober(player)
 
-    def set_state(self, state, set_dirty=False):
+    def set_state(self, state):
         self.state = state
         self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
-        if set_dirty:
-            self.set_dirty()
 
     def set_active(self):
         if self.state == GameObjectStates.GO_STATE_READY:
-            self.set_state(GameObjectStates.GO_STATE_ACTIVE, True)
+            self.set_state(GameObjectStates.GO_STATE_ACTIVE)
             return True
         return False
 
     def set_ready(self):
         if self.state != GameObjectStates.GO_STATE_READY:
-            self.set_state(GameObjectStates.GO_STATE_READY, True)
+            self.set_state(GameObjectStates.GO_STATE_READY)
             return True
         return False
 
@@ -242,7 +240,38 @@ class GameObjectManager(ObjectManager):
         return True
 
     # override
-    def get_full_update_packet(self, is_self=True):
+    def _get_fields_update(self, requester):
+        data = pack('<B', self.update_packet_factory.update_mask.block_count)
+
+        # Use a temporal bit mask in case we need to set more bits.
+        temporal_mask = self.update_packet_factory.update_mask.copy()
+        fields_data = b''
+        for index in range(0, self.update_packet_factory.update_mask.field_count):
+            if self.is_dynamic_field(index):
+                fields_data += self.generate_dynamic_field_value(requester)
+                temporal_mask[index] = 1
+            elif self.update_packet_factory.update_mask.is_set(index):
+                fields_data += self.update_packet_factory.update_values[index]
+
+        data += temporal_mask.tobytes()
+        data += fields_data
+
+        return data
+
+    def is_dynamic_field(self, index):
+        # TODO: Check more fields?
+        return index == GameObjectFields.GAMEOBJECT_DYN_FLAGS
+
+    def generate_dynamic_field_value(self, requester):
+        # TODO: Handle more dynamic cases.
+        # CHEST (This include other interactive game objects)
+        if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            if requester.quest_manager.should_interact_with_go(self):
+                return pack('<I', 1)
+        return pack('<I', 0)
+
+    # override
+    def get_full_update_packet(self, requester):
         if self.gobject_template and self.gobject_instance:
             # Object fields
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
@@ -273,7 +302,7 @@ class GameObjectManager(ObjectManager):
             self.set_float(GameObjectFields.GAMEOBJECT_POS_Z, self.location.z)
             self.set_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
 
-            return self.get_object_create_packet(is_self)
+            return self.get_object_create_packet(requester)
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.gobject_template.name)
@@ -314,12 +343,10 @@ class GameObjectManager(ObjectManager):
 
             if self.is_spawned:
                 # Check "dirtiness" to determine if this game object should be updated yet or not.
-                if self.dirty:
-                    MapManager.send_surrounding(self.generate_proper_update_packet(create=False), self,
-                                                include_self=False)
-                    MapManager.update_object(self)
-                    if self.reset_fields_older_than(now):
-                        self.set_dirty(is_dirty=False)
+                if self.has_pending_updates():
+                    MapManager.update_object(self, check_pending_changes=True)
+                    # Reset fields older than NOW. Do not use 'now' since time and new updates could be made in between.
+                    self.reset_fields_older_than(time.time())
             # Not spawned.
             else:
                 self.respawn_timer += elapsed

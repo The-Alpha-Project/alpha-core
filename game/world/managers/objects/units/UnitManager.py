@@ -227,7 +227,6 @@ class UnitManager(ObjectManager):
         self.combat_target = None
 
         self.send_attack_stop(victim.guid if victim else self.guid)
-        self.set_dirty()
 
     def send_attack_start(self, victim_guid):
         data = pack('<2Q', self.guid, victim_guid)
@@ -243,7 +242,6 @@ class UnitManager(ObjectManager):
     def attack_update(self, elapsed):
         if self.combat_target and not self.combat_target.is_alive:
             self.leave_combat()
-            self.set_dirty()
             return
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
@@ -262,7 +260,6 @@ class UnitManager(ObjectManager):
         if not self.combat_target:
             if self.in_combat and len(self.attackers) == 0:
                 self.leave_combat()
-                self.set_dirty()
             return False
 
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK) or self.spell_manager.is_casting():
@@ -466,11 +463,9 @@ class UnitManager(ObjectManager):
 
             if not self.in_combat:
                 self.enter_combat()
-                self.set_dirty()
 
             if not target.in_combat:
                 target.enter_combat()
-                target.set_dirty()
 
         target.receive_damage(damage, source=self, is_periodic=False)
 
@@ -495,16 +490,12 @@ class UnitManager(ObjectManager):
             # Attack.
             self.attack(source)
 
-        self.set_dirty()
-
     def receive_healing(self, amount, source=None):
         new_health = self.health + amount
         if new_health > self.max_health:
             self.set_health(self.max_health)
         else:
             self.set_health(new_health)
-
-        self.set_dirty()
 
     def receive_power(self, amount, power_type, source=None):
         if self.power_type != power_type:
@@ -519,8 +510,6 @@ class UnitManager(ObjectManager):
             self.set_focus(new_power)
         elif power_type == PowerTypes.TYPE_ENERGY:
             self.set_energy(new_power)
-
-        self.set_dirty()
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         if target.guid in casting_spell.object_target_results:
@@ -890,7 +879,7 @@ class UnitManager(ObjectManager):
     def set_stand_state(self, stand_state):
         self.stand_state = stand_state
 
-    def set_taxi_flying_state(self, is_flying, mount_display_id=0, set_dirty=False):
+    def set_taxi_flying_state(self, is_flying, mount_display_id=0):
         if is_flying:
             self.mount(mount_display_id)
             self.unit_flags |= (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
@@ -899,9 +888,6 @@ class UnitManager(ObjectManager):
             self.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
 
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-
-        if set_dirty:
-            self.set_dirty()
 
     # override
     def set_display_id(self, display_id):
@@ -946,12 +932,10 @@ class UnitManager(ObjectManager):
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
             if killer.current_selection == self.guid:
                 killer.set_current_selection(killer.guid)
-                killer.set_dirty()
 
             # Clear combo of killer if this unit was the target
             if killer.combo_target == self.guid:
                 killer.remove_combo_points()
-                killer.set_dirty()
 
         if killer:
             killer.spell_manager.remove_unit_from_all_cast_targets(self.guid)  # Interrupt casting on target death

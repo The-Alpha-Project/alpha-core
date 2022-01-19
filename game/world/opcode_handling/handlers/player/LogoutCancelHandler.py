@@ -9,7 +9,6 @@ class LogoutCancelHandler(object):
     def handle(world_session, socket, reader: PacketReader) -> int:
         world_session.player_mgr.set_stand_state(StandState.UNIT_STANDING)
         world_session.player_mgr.set_root(False)
-        world_session.player_mgr.set_dirty()
         world_session.player_mgr.logout_timer = -1
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_CANCEL_ACK))
 

@@ -60,7 +60,6 @@ class ObjectManager(object):
 
         self.is_spawned = True
         self.is_summon = False
-        self.dirty = False
         self.current_cell = ''
         self.last_tick = 0
         self.movement_spline = None
@@ -73,24 +72,29 @@ class ObjectManager(object):
     def __ne__(self, other):
         return not self == other
 
+    def has_pending_updates(self):
+        return self.update_packet_factory.has_pending_updates()
+
     def get_object_type_value(self):
         type_value = 0
         for type_ in self.object_type:
             type_value |= type_
         return type_value
 
-    def generate_proper_update_packet(self, is_self=False, create=False):
-        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
+    def generate_create_packet(self, requester):
+        return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
-            self.get_full_update_packet(is_self=is_self) if create else self.get_partial_update_packet()))
-        return update_packet
+            self.get_full_update_packet(requester)))
 
-    def send_create_packet_surroundings(self, **kwargs):
-        update_packet = self.generate_proper_update_packet(False, True)
-        MapManager.send_surrounding(update_packet, self, include_self=False)
+    def generate_partial_packet(self, requester):
+        return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT,
+            self.get_partial_update_packet(requester)))
 
-    def get_object_create_packet(self, is_self=True):
+    def get_object_create_packet(self, requester):
         from game.world.managers.objects.units import UnitManager
+
+        is_self = requester.guid == self.guid
 
         # Base structure.
         data = self._get_base_structure(UpdateTypes.CREATE_OBJECT)
@@ -112,16 +116,16 @@ class ObjectManager(object):
         )
 
         # Normal update fields.
-        data += self._get_fields_update()
+        data += self._get_fields_update(requester)
 
         return data
 
-    def get_partial_update_packet(self):
+    def get_partial_update_packet(self, requester):
         # Base structure.
         data = self._get_base_structure(UpdateTypes.PARTIAL)
 
         # Normal update fields.
-        data += self._get_fields_update()
+        data += self._get_fields_update(requester)
 
         return data
 
@@ -133,9 +137,6 @@ class ObjectManager(object):
         data += self._get_movement_fields()
 
         return data
-
-    def set_dirty(self, is_dirty=True):
-        self.dirty = is_dirty
 
     def get_display_id(self):
         return self.current_display_id
@@ -213,7 +214,7 @@ class ObjectManager(object):
 
         return data
 
-    def _get_fields_update(self):
+    def _get_fields_update(self, requester):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
         data += self.update_packet_factory.update_mask.to_bytes()
 
@@ -260,7 +261,7 @@ class ObjectManager(object):
         pass
 
     # override
-    def get_full_update_packet(self, is_self=True):
+    def get_full_update_packet(self, requester):
         pass
 
     # override

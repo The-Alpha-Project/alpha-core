@@ -43,9 +43,6 @@ class TrainerBuySpellHandler(object):
                     world_session.player_mgr.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
 
                     world_session.player_mgr.remove_talent_points(talent_cost)
-                    world_session.player_mgr.send_update_self(
-                        world_session.player_mgr.generate_proper_update_packet(is_self=True),
-                        force_inventory_update=False)
                     TrainerBuySpellHandler.send_trainer_buy_succeeded(world_session, trainer_guid, spell_id)
                     # Send talent list again to refresh it.
                     world_session.player_mgr.talent_manager.send_talent_list()
@@ -101,9 +98,6 @@ class TrainerBuySpellHandler(object):
 
                     if spell_skill_cost > 0:  # Some trainer spells cost skill points in alpha - class trainers trained weapon skills, which cost skill points.
                         world_session.player_mgr.remove_skill_points(spell_skill_cost)
-                        world_session.player_mgr.send_update_self(
-                            world_session.player_mgr.generate_proper_update_packet(is_self=True),
-                            force_inventory_update=False)
 
                     TrainerBuySpellHandler.send_trainer_buy_succeeded(world_session, trainer_guid, spell_id)
                     # TODO Revisit later - re-sending the list is (probably) not the way it should be done,
