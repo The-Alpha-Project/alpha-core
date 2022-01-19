@@ -1415,7 +1415,6 @@ class PlayerManager(UnitManager):
             # Check if player has pending updates.
             if self.has_pending_updates() and self.online:
                 MapManager.update_object(self, check_pending_changes=True)
-                # Reset fields older than NOW. Do not use 'now' since new updates could've been made in between.
                 self.reset_fields_older_than(now)
                 if self.dirty_inventory:
                     self.dirty_inventory = False
