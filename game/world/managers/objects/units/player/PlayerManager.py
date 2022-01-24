@@ -638,6 +638,7 @@ class PlayerManager(UnitManager):
                         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
                         for looter in world_obj_target.loot_manager.get_active_looters():
                             looter.enqueue_packet(packet)
+                        self.set_dirty_inventory()
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
@@ -1373,6 +1374,45 @@ class PlayerManager(UnitManager):
     def update(self, now):
 
         if now > self.last_tick > 0:
+            elapsed = now - self.last_tick
+
+            # Update played time.
+            self.player.totaltime += elapsed
+            self.player.leveltime += elapsed
+
+            # Regeneration.
+            self.regenerate(now)
+            # Attack update.
+            self.attack_update(elapsed)
+            # Waypoints (mostly flying paths) update.
+            self.movement_manager.update_pending_waypoints(elapsed)
+
+            # SpellManager tick.
+            self.spell_manager.update(now, elapsed)
+            # AuraManager tick.
+            self.aura_manager.update(now)
+
+            # Duel tick.
+            if self.duel_manager:
+                self.duel_manager.update(self, elapsed)
+
+            # Release spirit timer.
+            if not self.is_alive:
+                if self.spirit_release_timer < 300:  # 5 min.
+                    self.spirit_release_timer += elapsed
+                else:
+                    self.repop()
+
+            # Update timers (Breath, Fatigue, Feign Death).
+            if self.is_alive:
+                self.mirror_timers_manager.update(elapsed)
+
+            # Logout timer.
+            if self.logout_timer > 0:
+                self.logout_timer -= elapsed
+                if self.logout_timer < 0:
+                    self.logout()
+
             # Check if player has pending updates.
             if self.has_pending_updates() and self.online:
                 MapManager.update_object(self, check_pending_changes=True)
@@ -1382,46 +1422,6 @@ class PlayerManager(UnitManager):
             # Not dirty, has a pending teleport and a teleport is not ongoing.
             elif not self.has_pending_updates() and self.pending_teleport_destination and not self.update_lock:
                 self.trigger_teleport()
-
-            elapsed = now - self.last_tick
-
-            # Update played time.
-            self.player.totaltime += elapsed
-            self.player.leveltime += elapsed
-
-            if not self.update_lock:
-                # Regeneration.
-                self.regenerate(now)
-                # Attack update.
-                self.attack_update(elapsed)
-                # Waypoints (mostly flying paths) update.
-                self.movement_manager.update_pending_waypoints(elapsed)
-
-                # SpellManager tick.
-                self.spell_manager.update(now, elapsed)
-                # AuraManager tick.
-                self.aura_manager.update(now)
-
-                # Duel tick.
-                if self.duel_manager:
-                    self.duel_manager.update(self, elapsed)
-
-                # Release spirit timer.
-                if not self.is_alive:
-                    if self.spirit_release_timer < 300:  # 5 min.
-                        self.spirit_release_timer += elapsed
-                    else:
-                        self.repop()
-
-                # Update timers (Breath, Fatigue, Feign Death).
-                if self.is_alive:
-                    self.mirror_timers_manager.update(elapsed)
-
-                # Logout timer.
-                if self.logout_timer > 0:
-                    self.logout_timer -= elapsed
-                    if self.logout_timer < 0:
-                        self.logout()
 
         self.last_tick = now
 
