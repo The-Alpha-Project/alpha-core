@@ -1,4 +1,4 @@
-import math
+import math, time
 
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypes
@@ -267,16 +267,18 @@ class GridManager(object):
         return self.cells
 
     def update_creatures(self):
+        now = time.time()
         for key in list(self.active_cell_keys):
             cell = self.cells[key]
             for guid, creature in list(cell.creatures.items()):
-                creature.update()
+                creature.update(now)
 
     def update_gameobjects(self):
+        now = time.time()
         for key in list(self.active_cell_keys):
             cell = self.cells[key]
             for guid, gameobject in list(cell.gameobjects.items()):
-                gameobject.update()
+                gameobject.update(now)
 
 
 class Cell(object):

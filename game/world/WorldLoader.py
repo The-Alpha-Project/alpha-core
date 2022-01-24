@@ -28,18 +28,18 @@ class WorldLoader:
             Logger.info('Skipped game object loading.')
 
         # Creature spawns
-        if config.Server.Settings.load_creatures:
-            WorldLoader.load_creature_loot_templates()
-            WorldLoader.load_creature_equip_templates()
-            WorldLoader.load_creatures()
-            WorldLoader.load_creature_quest_starters()
-            WorldLoader.load_creature_quest_finishers()
-            WorldLoader.load_creature_display_info()
-            WorldLoader.load_creature_model_info()
-            WorldLoader.load_npc_gossip()
-            WorldLoader.load_npc_text()
-        else:
-            Logger.info('Skipped creature loading.')
+        # if config.Server.Settings.load_creatures:
+        #     WorldLoader.load_creature_loot_templates()
+        #     WorldLoader.load_creature_equip_templates()
+        #     WorldLoader.load_creatures()
+        #     WorldLoader.load_creature_quest_starters()
+        #     WorldLoader.load_creature_quest_finishers()
+        #     WorldLoader.load_creature_display_info()
+        #     WorldLoader.load_creature_model_info()
+        #     WorldLoader.load_npc_gossip()
+        #     WorldLoader.load_npc_text()
+        # else:
+        #     Logger.info('Skipped creature loading.')
 
         WorldLoader.load_item_templates()
         WorldLoader.load_quests()

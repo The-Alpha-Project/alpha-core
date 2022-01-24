@@ -190,7 +190,6 @@ class SpellManager(object):
                 self.remove_cast(casting_spell)
 
         self.set_on_cooldown(casting_spell)
-
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
     def apply_spell_effects(self, casting_spell, remove=False, update=False, partial_targets=None):
@@ -884,6 +883,9 @@ class SpellManager(object):
             if charges != 0 and charges != -1:  # don't modify if no charges remain or this item is a consumable.
                 new_charges = charges-1 if charges > 0 else charges+1
                 spell_stats.charges = new_charges
+
+        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+            self.unit_mgr.set_dirty_inventory()
 
     def send_cast_result(self, spell_id, error):
         # TODO CAST_SUCCESS_KEEP_TRACKING

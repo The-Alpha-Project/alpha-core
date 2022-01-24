@@ -124,8 +124,6 @@ class InventoryManager(object):
 
             # Update quest item count, if needed.
             self.owner.quest_manager.reward_item(item_template.entry, item_count=count)
-            # Update own inventory.
-            self.owner.dirty_inventory = True
 
         return items_added
 
@@ -165,9 +163,7 @@ class InventoryManager(object):
 
             if remaining > 0:
                 self.add_item(item_template=item_template, count=remaining)  # Overflow to inventory
-            else:
-                # Update if container is modified self.add_item isn't called
-                self.owner.dirty_inventory = True
+
             return True
 
         # Stack handling
@@ -181,7 +177,6 @@ class InventoryManager(object):
                         dest_item.item_instance.stackcount += diff
                         self.add_item(item_template=item_template, count=count-diff, handle_error=False)
 
-                    self.owner.dirty_inventory = True
                     RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
                     return True
                 else:
@@ -202,8 +197,6 @@ class InventoryManager(object):
                 (self.is_equipment_pos(dest_bag_slot, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
             self.handle_equipment_change(generated_item)
             RealmDatabaseManager.character_inventory_update_item(generated_item.item_instance)
-        else:
-            self.owner.dirty_inventory = True
 
         return True
 
@@ -243,15 +236,14 @@ class InventoryManager(object):
                 dest_item.item_instance.stackcount = dest_item.item_template.stackable
                 RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
 
-            self.owner.dirty_inventory = True
             RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
             return
 
         # Remove source and dest item
-        self.remove_item(source_bag, source_slot, False)
+        self.remove_item(source_bag, source_slot, False, dest_item)
 
         if dest_item:
-            self.remove_item(dest_bag, dest_slot, False)
+            self.remove_item(dest_bag, dest_slot, False, source_item)
 
         # Register bags if source/dest are bag slots
         if dest_container.is_backpack and self.is_bag_pos(dest_slot):
@@ -276,8 +268,6 @@ class InventoryManager(object):
                 (self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot)) or \
                 (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
             self.handle_equipment_change(source_item, dest_item)
-        else:
-            self.owner.dirty_inventory = True
 
         # Finally, update items and client
         RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
@@ -317,7 +307,7 @@ class InventoryManager(object):
         return None
 
     # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
-    def remove_item(self, target_bag, target_slot, clear_slot=True):
+    def remove_item(self, target_bag, target_slot, clear_slot=True, swap_item=None):
         target_container = self.get_container(target_bag)
         if not target_container:
             return
@@ -331,8 +321,16 @@ class InventoryManager(object):
         # Update the quest db state if needed.
         self.owner.quest_manager.pop_item(target_item.item_template.entry, target_item.item_instance.stackcount)
 
-        self.mark_as_removed(target_item)
-        target_container.remove_item_in_slot(target_slot)
+        # We are not replacing this item, set is as removed.
+        if not swap_item:
+            self.mark_as_removed(target_item)
+        # We are swapping, swap the update fields between the two items.
+        else:
+            self.mask_as_swapped(target_item, swap_item)
+
+        # We are not really removing this slot, source and destination slots will be replaced by swap_item().
+        if not swap_item:
+            target_container.remove_item_in_slot(target_slot)
 
         if clear_slot:
             RealmDatabaseManager.character_inventory_delete(target_item.item_instance)
@@ -357,7 +355,7 @@ class InventoryManager(object):
                     elif count >= item.item_instance.stackcount:
                         self.remove_item(container_slot, slot, True)
                         count -= item.item_instance.stackcount
-        self.owner.dirty_inventory = True
+
         return count  # Return the amount of items not removed
 
     def get_item_info_by_guid(self, guid):
@@ -597,8 +595,6 @@ class InventoryManager(object):
 
         # Bonus application.
         self.owner.stat_manager.apply_bonuses()
-        # Mark as dirty to update equipment for other players.
-        self.owner.dirty_inventory = True
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
@@ -706,6 +702,10 @@ class InventoryManager(object):
             self.owner.group_manager.send_packet_to_members(packet, source=self.owner, surrounding_only=True)
         else:
             self.owner.enqueue_packet(packet)
+
+    def mask_as_swapped(self, source, destination):
+        if source and source.item_instance.bag == InventorySlots.SLOT_INBACKPACK:
+            self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + source.current_slot * 2, destination.guid)
 
     def mark_as_removed(self, item):
         if item and item.item_instance.bag == InventorySlots.SLOT_INBACKPACK:

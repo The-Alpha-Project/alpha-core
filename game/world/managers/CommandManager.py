@@ -169,6 +169,7 @@ class CommandManager(object):
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             item_mgr = player_mgr.inventory.add_item(entry=entry, count=count)
             if item_mgr:
+                player_mgr.set_dirty_inventory()
                 return 0, ''
             else:
                 return -1, f'unable to find and / or add item id {entry}.'

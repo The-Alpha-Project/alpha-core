@@ -316,7 +316,6 @@ class GuildManager(object):
 
         query_packet = self.build_guild_query()
         MapManager.send_surrounding(query_packet, player_mgr, include_self=True)
-        player_mgr.dirty_inventory = True
 
     def build_guild_query(self):
         data = pack('<I', self.guild.guild_id)

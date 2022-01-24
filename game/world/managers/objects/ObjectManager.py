@@ -257,7 +257,7 @@ class ObjectManager(object):
         return unpack('<f', self.update_packet_factory.update_values[index])[0]
 
     # override
-    def update(self):
+    def update(self, now):
         pass
 
     # override

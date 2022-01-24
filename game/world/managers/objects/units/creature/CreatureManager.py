@@ -482,8 +482,7 @@ class CreatureManager(UnitManager):
                 self.movement_manager.send_move_normal([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # override
-    def update(self):
-        now = time.time()
+    def update(self, now):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 

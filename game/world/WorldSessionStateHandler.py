@@ -1,3 +1,4 @@
+import time
 from database.realm.RealmDatabaseManager import *
 
 WORLD_SESSIONS = []
@@ -88,10 +89,11 @@ class WorldSessionStateHandler(object):
 
     @staticmethod
     def update_players():
+        now = time.time()
         for session in WORLD_SESSIONS:
             if session.player_mgr and session.player_mgr.online:
                 if not session.player_mgr.update_lock:
-                    session.player_mgr.update()
+                    session.player_mgr.update(now)
 
     @staticmethod
     def save_characters():

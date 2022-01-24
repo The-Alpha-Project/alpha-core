@@ -336,8 +336,7 @@ class GameObjectManager(ObjectManager):
         MapManager.respawn_object(self)
 
     # override
-    def update(self):
-        now = time.time()
+    def update(self, now):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
