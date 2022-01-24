@@ -632,13 +632,12 @@ class PlayerManager(UnitManager):
             if world_obj_target and world_obj_target.loot_manager.has_loot():
                 loot = world_obj_target.loot_manager.get_loot_in_slot(slot)
                 if loot and loot.item:
-                    if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
+                    if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True, update_inventory=True):
                         world_obj_target.loot_manager.do_loot(slot)
                         data = pack('<B', slot)
                         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
                         for looter in world_obj_target.loot_manager.get_active_looters():
                             looter.enqueue_packet(packet)
-                        self.set_dirty_inventory()
 
     def send_loot_release(self, guid):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
@@ -837,9 +836,9 @@ class PlayerManager(UnitManager):
         self.player.bankslots += 1
         self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
         self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.player_bytes_2)
-        self.mod_money(-slot_cost, reload_items=True)
+        self.mod_money(-slot_cost, update_inventory=True)
 
-    def mod_money(self, amount, reload_items=False):
+    def mod_money(self, amount, update_inventory=False):
         if self.coinage + amount < 0:
             amount = -self.coinage
 
@@ -851,9 +850,9 @@ class PlayerManager(UnitManager):
 
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
 
-        # If there was a pending dirty inventory, do not override.
-        if not reload_items and not self.dirty_inventory:
-            self.dirty_inventory = False
+        # Only override to True.
+        if update_inventory and not self.dirty_inventory:
+            self.dirty_inventory = True
 
     def on_zone_change(self, new_zone):
         # Update player zone.

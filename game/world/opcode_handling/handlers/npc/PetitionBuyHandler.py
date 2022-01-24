@@ -37,6 +37,6 @@ class PetitionBuyHandler(object):
                     petition = PetitionManager.create_petition(world_session.player_mgr.guid, guild_name, petition_item.guid)
                     # We bind this petition to the charter guild item, else its just a dummy item for the client.
                     petition_item.set_enchantment(0, petition.petition_id, 0, 0)
-                    world_session.player_mgr.mod_money(-PetitionManager.CHARTER_COST, reload_items=True)
+                    world_session.player_mgr.mod_money(-PetitionManager.CHARTER_COST, update_inventory=True)
 
         return 0

@@ -82,7 +82,7 @@ class InventoryManager(object):
         return InventorySlots.SLOT_INBACKPACK.value
 
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False,
-                 send_message=True, show_item_get=True):
+                 send_message=True, show_item_get=True, update_inventory=False):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         amount_left = count
@@ -124,6 +124,9 @@ class InventoryManager(object):
 
             # Update quest item count, if needed.
             self.owner.quest_manager.reward_item(item_template.entry, item_count=count)
+
+            if update_inventory:
+                self.owner.set_dirty_inventory()
 
         return items_added
 

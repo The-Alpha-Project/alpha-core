@@ -53,5 +53,5 @@ class SellItemHandler(object):
                 else:
                     world_session.player_mgr.inventory.remove_item(container_slot, slot)
 
-                world_session.player_mgr.mod_money(price * sell_amount, reload_items=True)
+                world_session.player_mgr.mod_money(price * sell_amount, update_inventory=True)
         return 0

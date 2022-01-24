@@ -578,7 +578,7 @@ class QuestManager(object):
         req_src_item = quest.SrcItemId
         req_src_item_count = quest.SrcItemCount
         if req_src_item != 0:
-            if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count):
+            if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count, update_inventory=True):
                 return
 
         active_quest = self._create_db_quest_status(quest)
@@ -658,7 +658,7 @@ class QuestManager(object):
         # Add the chosen item, if any.
         rew_item_choice_list = QuestHelpers.generate_rew_choice_item_list(active_quest.quest)
         if item_choice < len(rew_item_choice_list) and rew_item_choice_list[item_choice] > 0:
-            self.player_mgr.inventory.add_item(entry=rew_item_choice_list[item_choice], show_item_get=False)
+            self.player_mgr.inventory.add_item(entry=rew_item_choice_list[item_choice], show_item_get=False, update_inventory=True)
 
         given_xp = active_quest.reward_xp()
         given_gold = active_quest.reward_gold()
@@ -684,7 +684,7 @@ class QuestManager(object):
         data += pack('<I', len(rew_item_list))
         for index, rew_item in enumerate(rew_item_list):
             data += pack('<2I', rew_item_list[index], rew_item_count_list[index])
-            self.player_mgr.inventory.add_item(entry=rew_item_list[index], show_item_get=False)
+            self.player_mgr.inventory.add_item(entry=rew_item_list[index], show_item_get=False, update_inventory=True)
 
         # TODO: Handle RewSpell and RewSpellCast upon completion.
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_COMPLETE, data))
