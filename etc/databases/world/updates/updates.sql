@@ -288,20 +288,6 @@ begin not atomic
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '87.223' WHERE (`spawn_id` = '99875'); 
         -- Musty Tome Trap Z placement. 
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.66' WHERE (`spawn_id` = '12342'); 
-        -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '168.787' WHERE (`spawn_id` = '443'); 
-        -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '166.461' WHERE (`spawn_id` = '444'); 
-        -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '172.447' WHERE (`spawn_id` = '449'); 
-        -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '160.752' WHERE (`spawn_id` = '450'); 
-        -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '170.525' WHERE (`spawn_id` = '452'); 
-        -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '168.753' WHERE (`spawn_id` = '454'); 
-        -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '165.485' WHERE (`spawn_id` = '455'); 
         -- Dwarven Brazier Z placement. 
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '519.887' WHERE (`spawn_id` = '512'); 
         -- Campfire Damage Z placement. 
@@ -371,6 +357,273 @@ begin not atomic
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5935.646', `spawn_positionY` = '-2903.753', `spawn_positionZ` = '369.238' WHERE (`spawn_id` = '1183'); 
         -- Burning Embers Z placement. 
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '7.126' WHERE (`spawn_id` = '47504'); 
+        -- Peacebloom Flower Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-2.65' WHERE (`spawn_id` = '1392'); 
+        -- Peacebloom Flower Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-21.168' WHERE (`spawn_id` = '1399'); 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.677' WHERE (`spawn_id` = '47458'); 
+        -- Peacebloom Flower Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.838' WHERE (`spawn_id` = '1475'); 
+        -- Peacebloom Flower Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.913' WHERE (`spawn_id` = '1490'); 
+        -- Greatwood Vale Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '21.42' WHERE (`spawn_id` = '47451'); 
+        -- Peacebloom Flower Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '96.275' WHERE (`spawn_id` = '1513'); 
+        -- Peacebloom Flower Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-17.469' WHERE (`spawn_id` = '1557'); 
+        -- Peacebloom Flower Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '42.99' WHERE (`spawn_id` = '1608'); 
+        -- Peacebloom Flower Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '33.13' WHERE (`spawn_id` = '1609'); 
+        -- Peacebloom Flower Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.349' WHERE (`spawn_id` = '1676'); 
+        -- Peacebloom Flower Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '31.074' WHERE (`spawn_id` = '1690'); 
+        -- Wild Steelbloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '114.355' WHERE (`spawn_id` = '47317'); 
+        -- Wild Steelbloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '145.642' WHERE (`spawn_id` = '47317'); 
+        -- Peacebloom Flower Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '37.011' WHERE (`spawn_id` = '1698'); 
+        -- Deepmoss Eggs Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '47193'); 
+        -- Deepmoss Eggs Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.858' WHERE (`spawn_id` = '47192'); 
+        -- Snakeroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.089' WHERE (`spawn_id` = '1786'); 
+        -- Snakeroot XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '3.716', `spawn_positionY` = '-1831.217', `spawn_positionZ` = '96.578' WHERE (`spawn_id` = '1813'); 
+        -- Snakeroot XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '380.849', `spawn_positionY` = '1152.36', `spawn_positionZ` = '89.758' WHERE (`spawn_id` = '1840'); 
+        -- Snakeroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '92.38' WHERE (`spawn_id` = '1901'); 
+        -- Snakeroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '1.503' WHERE (`spawn_id` = '1925'); 
+        -- Snakeroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '30.935' WHERE (`spawn_id` = '1937'); 
+        -- Snakeroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '10.03' WHERE (`spawn_id` = '1955'); 
+        -- Snakeroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '23.483' WHERE (`spawn_id` = '2003'); 
+        -- Snakeroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '20.166' WHERE (`spawn_id` = '2004'); 
+        -- Snakeroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '26.283' WHERE (`spawn_id` = '2005'); 
+        -- Snakeroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '24.98' WHERE (`spawn_id` = '2009'); 
+        -- Snakeroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '22.561' WHERE (`spawn_id` = '2028'); 
+        -- Snakeroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-0.658' WHERE (`spawn_id` = '2042'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '92.603' WHERE (`spawn_id` = '2088'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.902' WHERE (`spawn_id` = '2096'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.784' WHERE (`spawn_id` = '2098'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.925' WHERE (`spawn_id` = '2108'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.701' WHERE (`spawn_id` = '2158'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '95.836' WHERE (`spawn_id` = '2160'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '107.194' WHERE (`spawn_id` = '2166'); 
+        -- Common Magebloom XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '642.629', `spawn_positionY` = '-1575.349', `spawn_positionZ` = '91.667' WHERE (`spawn_id` = '2179'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '92.064' WHERE (`spawn_id` = '2191'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.355' WHERE (`spawn_id` = '2192'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.876' WHERE (`spawn_id` = '2193'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.712' WHERE (`spawn_id` = '2213'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '81.35' WHERE (`spawn_id` = '2222'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '82.583' WHERE (`spawn_id` = '2229'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '28.848' WHERE (`spawn_id` = '2233'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '327.869' WHERE (`spawn_id` = '2237'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '16.457' WHERE (`spawn_id` = '2240'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '33.891' WHERE (`spawn_id` = '2244'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '21.433' WHERE (`spawn_id` = '2253'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '30.168' WHERE (`spawn_id` = '2283'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.759' WHERE (`spawn_id` = '2285'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '19.253' WHERE (`spawn_id` = '2295'); 
+        -- Common Magebloom XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '561.842', `spawn_positionY` = '-3738.942', `spawn_positionZ` = '17.718' WHERE (`spawn_id` = '2311'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '19.601' WHERE (`spawn_id` = '2327'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '23.601' WHERE (`spawn_id` = '2333'); 
+        -- Deepmoss Eggs Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '44657'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.76' WHERE (`spawn_id` = '2339'); 
+        -- Common Magebloom XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-1028.345', `spawn_positionY` = '-1991.585', `spawn_positionZ` = '79.704' WHERE (`spawn_id` = '2341'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '13.253' WHERE (`spawn_id` = '2346'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '87.728' WHERE (`spawn_id` = '2347'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.406' WHERE (`spawn_id` = '2348'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '90.639' WHERE (`spawn_id` = '2350'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.651' WHERE (`spawn_id` = '2377'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.153' WHERE (`spawn_id` = '2397'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '14.761' WHERE (`spawn_id` = '2398'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '92.971' WHERE (`spawn_id` = '2401'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '29.151' WHERE (`spawn_id` = '2403'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.875' WHERE (`spawn_id` = '2406'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '32.255' WHERE (`spawn_id` = '2407'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.887' WHERE (`spawn_id` = '2423'); 
+        -- Deepmoss Eggs Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.861' WHERE (`spawn_id` = '44655'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '74.319' WHERE (`spawn_id` = '2474'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '15.991' WHERE (`spawn_id` = '2481'); 
+        -- Deepmoss Eggs Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '175.121' WHERE (`spawn_id` = '44654'); 
+        -- Deepmoss Eggs Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '44653'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.329' WHERE (`spawn_id` = '2501'); 
+        -- Deepmoss Eggs Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '44652'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.71' WHERE (`spawn_id` = '2515'); 
+        -- Common Magebloom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.667' WHERE (`spawn_id` = '2537'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '58.858' WHERE (`spawn_id` = '2561'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '15.231' WHERE (`spawn_id` = '2577'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '130.707' WHERE (`spawn_id` = '2579'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '102.218' WHERE (`spawn_id` = '2592'); 
+        -- Thornroot XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-10371.842', `spawn_positionY` = '-1318.831', `spawn_positionZ` = '52.909' WHERE (`spawn_id` = '2608'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '101.945' WHERE (`spawn_id` = '2612'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '150.395' WHERE (`spawn_id` = '2614'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-10.439' WHERE (`spawn_id` = '2619'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.352' WHERE (`spawn_id` = '2625'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '102.397' WHERE (`spawn_id` = '2628'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '32.502' WHERE (`spawn_id` = '2661'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '31.331' WHERE (`spawn_id` = '2671'); 
+        -- Thornroot XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '650.887', `spawn_positionY` = '1382.366', `spawn_positionZ` = '82.77' WHERE (`spawn_id` = '2687'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '44.492' WHERE (`spawn_id` = '2690'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '31.089' WHERE (`spawn_id` = '2706'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '42.293' WHERE (`spawn_id` = '2710'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '5.749' WHERE (`spawn_id` = '2717'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '94.131' WHERE (`spawn_id` = '2725'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '129.152' WHERE (`spawn_id` = '2731'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '21.43' WHERE (`spawn_id` = '2732'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '42.477' WHERE (`spawn_id` = '2740'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '32.451' WHERE (`spawn_id` = '2806'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '98.731' WHERE (`spawn_id` = '2822'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '88.464' WHERE (`spawn_id` = '2835'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '101.467' WHERE (`spawn_id` = '2868'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '55.729' WHERE (`spawn_id` = '2869'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '34.827' WHERE (`spawn_id` = '2899'); 
+        -- Thornroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '49.912' WHERE (`spawn_id` = '2900'); 
+        -- Bruiseweed ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '2931'); 
+        -- Bruiseweed ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '2932'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '86.101' WHERE (`spawn_id` = '3042'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '123.902' WHERE (`spawn_id` = '3078'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.646' WHERE (`spawn_id` = '3109'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '107.369' WHERE (`spawn_id` = '3118'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '92.168' WHERE (`spawn_id` = '3133'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '92.716' WHERE (`spawn_id` = '3138'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.39' WHERE (`spawn_id` = '3159'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '53.212' WHERE (`spawn_id` = '3205'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '53.15' WHERE (`spawn_id` = '3207'); 
+        -- Bruiseweed ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3221'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '20.52' WHERE (`spawn_id` = '3260'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '53.36' WHERE (`spawn_id` = '3262'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.686' WHERE (`spawn_id` = '3289'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '57.602' WHERE (`spawn_id` = '3329'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '117.274' WHERE (`spawn_id` = '3364'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '252.407' WHERE (`spawn_id` = '3394'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.889' WHERE (`spawn_id` = '3395'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.847' WHERE (`spawn_id` = '3401'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.583' WHERE (`spawn_id` = '3469'); 
+        -- Bruiseweed XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-2041.671', `spawn_positionY` = '-3208.335', `spawn_positionZ` = '101.091' WHERE (`spawn_id` = '3478'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '92.175' WHERE (`spawn_id` = '3515'); 
+        -- Bruiseweed XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-2587.874', `spawn_positionY` = '-2382.282', `spawn_positionZ` = '79.878' WHERE (`spawn_id` = '3531'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '33.03' WHERE (`spawn_id` = '3538'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-55.438' WHERE (`spawn_id` = '3587'); 
+        -- Bruiseweed Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '17.642' WHERE (`spawn_id` = '3597'); 
 
         insert into applied_updates values ('190120221');
     end if;
