@@ -624,7 +624,7 @@ begin not atomic
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-55.438' WHERE (`spawn_id` = '3587'); 
         -- Bruiseweed Z placement. 
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '17.642' WHERE (`spawn_id` = '3597'); 
-		        -- Ruins of Stardust Fountain Z placement. 
+		-- Ruins of Stardust Fountain Z placement. 
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '97.061' WHERE (`spawn_id` = '99862'); 
         -- Atal'ai Artifact XYZ placement. 
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-10525.458', `spawn_positionY` = '-3870.514', `spawn_positionZ` = '-17.858' WHERE (`spawn_id` = '30744'); 
@@ -844,7 +844,6 @@ begin not atomic
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '144.217' WHERE (`spawn_id` = '6220'); 
         -- Iron Deposit Z placement. 
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-58.75' WHERE (`spawn_id` = '6229'); 
-
         -- Iron Deposit Z placement. 
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '131.359' WHERE (`spawn_id` = '6241'); 
         -- Iron Deposit Z placement. 
