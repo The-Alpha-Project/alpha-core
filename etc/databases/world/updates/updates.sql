@@ -35,45 +35,6 @@ begin not atomic
         UPDATE `alpha_world`.`spawns_creatures` SET `position_z` = '1321.23' WHERE (`spawn_id` = '47023');
         UPDATE `alpha_world`.`spawns_creatures` SET `position_z` = '1319.51' WHERE (`spawn_id` = '47056');
 
-        -- Ignore Webwood Spiders that have wrong placement in 0.5.3. (Out of reach)
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '46958');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '46971');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '46972');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '46974');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '46981');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '46997');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '46998');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '46999');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47000');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47001');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47004');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47006');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47008');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47009');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47010');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47012');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47016');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47021');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47029');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47030');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47031');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47037');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47038');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47039');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47052');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47053');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47054');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47055');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47057');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47060');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47062');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47208');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47262');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47263');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47266');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47267');
-        UPDATE `alpha_world`.`spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '47268');
-	
         -- Small Thorium Vein ignored, out of reach.
         UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '132');
         -- Small Thorium Vein XYZ placement. 
