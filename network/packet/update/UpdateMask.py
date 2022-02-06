@@ -21,6 +21,9 @@ class UpdateMask(object):
     def to_bytes(self):
         return self.update_mask.tobytes()
 
+    def copy(self):
+        return self.update_mask.copy()
+
     def clear(self):
         self.update_mask.setall(0)
 

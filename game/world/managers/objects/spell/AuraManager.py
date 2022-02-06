@@ -58,8 +58,6 @@ class AuraManager:
                 self.unit_mgr.attack(aura.caster)
             self.check_aura_interrupts(negative_aura_applied=True)
 
-        self.unit_mgr.set_dirty()
-
     has_moved = False  # Set from SpellManager - TODO pass movement info from unit update instead
 
     def update(self, timestamp):
@@ -277,7 +275,6 @@ class AuraManager:
 
         self.write_aura_to_unit(aura, clear=True)
         self.write_aura_flag_to_unit(aura, clear=True)
-        self.unit_mgr.set_dirty()
 
     def remove_all_auras(self):
         for aura in list(self.active_auras.values()):

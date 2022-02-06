@@ -113,7 +113,6 @@ class MirrorTimer(object):
             else:
                 new_health = self.owner.health - damage
                 self.owner.set_health(new_health)
-                self.owner.set_dirty()
 
     def handle_feign_death_timer(self):
         if self.remaining <= 0:

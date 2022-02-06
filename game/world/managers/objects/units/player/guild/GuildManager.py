@@ -64,7 +64,6 @@ class GuildManager(object):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
         if player_mgr:
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, member.rank)
-            player_mgr.set_dirty()
 
     def update_db_guild_members(self):
         for member in self.members.values():
@@ -118,7 +117,6 @@ class GuildManager(object):
         data += pack(f'<{len(name_bytes)}s', name_bytes)
 
         self.build_update(player_mgr)
-        player_mgr.set_dirty()
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
@@ -152,7 +150,6 @@ class GuildManager(object):
         if player_mgr:
             self.build_update(player_mgr, unset=True)
             player_mgr.guild_manager = None
-            player_mgr.set_dirty()
 
     def leave(self, player_guid):
         member = self.members[player_guid]
@@ -173,7 +170,6 @@ class GuildManager(object):
         if player_mgr:
             self.build_update(player_mgr, unset=True)
             player_mgr.guild_manager = None
-            player_mgr.set_dirty()
 
     def disband(self):
         data = pack('<2B', GuildEvents.GUILD_EVENT_DISBANDED, 1)
@@ -191,7 +187,6 @@ class GuildManager(object):
             if player_mgr:
                 self.build_update(player_mgr, unset=True)
                 player_mgr.guild_manager = None
-                player_mgr.set_dirty()
 
         GuildManager.GUILDS.pop(self.guild.name)
         self.members.clear()
@@ -251,7 +246,6 @@ class GuildManager(object):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
         if player_mgr:
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, member.rank)
-            player_mgr.set_dirty()
 
         self.update_db_guild_members()
         return True
@@ -286,7 +280,6 @@ class GuildManager(object):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
         if player_mgr:
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, member.rank)
-            player_mgr.set_dirty()
 
         self.update_db_guild_members()
         return True
@@ -323,7 +316,6 @@ class GuildManager(object):
 
         query_packet = self.build_guild_query()
         MapManager.send_surrounding(query_packet, player_mgr, include_self=True)
-        player_mgr.set_dirty(dirty_inventory=True)
 
     def build_guild_query(self):
         data = pack('<I', self.guild.guild_id)

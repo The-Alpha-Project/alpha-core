@@ -15,5 +15,4 @@ class CreateItemHandler(object):
                 return 0
 
             CommandManager.additem(world_session, str(item_entry))
-
         return 0

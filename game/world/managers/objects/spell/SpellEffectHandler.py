@@ -81,7 +81,6 @@ class SpellEffectHandler(object):
             target.use(caster)
             caster.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
             caster.set_uint32(UnitFields.UNIT_FIELD_FLAGS, caster.unit_flags)
-            caster.set_dirty()
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
@@ -103,7 +102,6 @@ class SpellEffectHandler(object):
             # leave any applied aura).
             if target.mount_display_id > 0:
                 target.unmount()
-                target.set_dirty()
         else:
             creature_entry = effect.misc_value
             if not target.summon_mount(creature_entry):
@@ -120,7 +118,7 @@ class SpellEffectHandler(object):
             return
 
         target.inventory.add_item(effect.item_type,
-                                  count=effect.get_effect_points(casting_spell.caster_effective_level))
+                                  count=effect.get_effect_points(casting_spell.caster_effective_level), update_inventory=True)
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
@@ -197,7 +195,6 @@ class SpellEffectHandler(object):
             return
 
         casting_spell.spell_caster.set_channel_object(go_manager.guid)
-        casting_spell.spell_caster.set_dirty()
 
         if go_manager.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
             go_manager.ritual_caster = caster

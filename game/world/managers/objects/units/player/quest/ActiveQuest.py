@@ -19,6 +19,24 @@ class ActiveQuest:
         # TODO: check that quest_giver_guid is turn-in for quest_id
         return True
 
+    def need_item_from_go(self, go_loot_template):
+        # Quest is complete.
+        if self.is_quest_complete(0):
+            return False
+
+        needed_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
+
+        # Not required items for this quest.
+        if len(needed_items) == 0:
+            return False
+
+        # Check if any needed items match the provided go_loot_template.
+        for entry in go_loot_template:
+            if entry.item in needed_items:
+                return True
+
+        return False
+
     # noinspection PyMethodMayBeStatic
     def has_item_reward(self):
         for index in range(1, 5):

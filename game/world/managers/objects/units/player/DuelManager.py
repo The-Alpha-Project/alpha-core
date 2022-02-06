@@ -58,7 +58,6 @@ class DuelManager(object):
             for entry in duel_manager.players.values():
                 entry.player.duel_manager = duel_manager
                 duel_manager.build_update(entry.player)
-                entry.player.set_dirty()
 
             return 1
         else:
@@ -81,7 +80,6 @@ class DuelManager(object):
         for entry in self.players.values():
             entry.duel_status = DuelStatus.DUEL_STATUS_INBOUNDS
             self.build_update(entry.player, set_hostile=True)
-            entry.player.set_dirty()
 
     def force_duel_end(self, player_mgr, retreat=True):
         if player_mgr.guid in self.players:
@@ -121,7 +119,6 @@ class DuelManager(object):
             entry.player.enqueue_packet(packet)
             entry.player.leave_combat()
             self.build_update(entry.player)
-            entry.player.set_dirty()
 
             entry.player.spell_manager.remove_unit_from_all_cast_targets(entry.target.guid)
             entry.player.aura_manager.remove_harmful_auras_by_caster(entry.target.guid)

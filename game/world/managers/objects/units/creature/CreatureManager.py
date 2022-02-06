@@ -129,8 +129,6 @@ class CreatureManager(UnitManager):
             creature.faction = override_faction
 
         creature.load()
-        creature.send_create_packet_surroundings()
-
         return creature
 
     def generate_display_id(self):
@@ -263,7 +261,7 @@ class CreatureManager(UnitManager):
                         self.set_virtual_item(2, creature_equip_template.equipentry3)
 
                 self.stat_manager.init_stats()
-                self.stat_manager.apply_bonuses(set_dirty=False)
+                self.stat_manager.apply_bonuses()
 
                 self.fully_loaded = True
 
@@ -342,7 +340,7 @@ class CreatureManager(UnitManager):
         return False
 
     # override
-    def get_full_update_packet(self, is_self=True):
+    def get_full_update_packet(self, requester):
         self.finish_loading()
 
         # race, class, gender, power_type
@@ -391,7 +389,7 @@ class CreatureManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
 
-        return self.get_object_create_packet(is_self)
+        return self.get_object_create_packet(requester)
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.creature_template.name)
@@ -418,7 +416,6 @@ class CreatureManager(UnitManager):
         self.leave_combat(force=True)
         self.set_health(self.max_health)
         self.recharge_power()
-        self.set_dirty()
         self.movement_manager.send_move_normal([self.spawn_position], self.running_speed,
                                                SplineFlags.SPLINEFLAG_RUNMODE)
 
@@ -485,8 +482,7 @@ class CreatureManager(UnitManager):
                 self.movement_manager.send_move_normal([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # override
-    def update(self):
-        now = time.time()
+    def update(self, now):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
@@ -513,11 +509,9 @@ class CreatureManager(UnitManager):
                     self.despawn()
 
             # Check "dirtiness" to determine if this creature object should be updated yet or not.
-            if self.dirty:
-                MapManager.send_surrounding(self.generate_proper_update_packet(create=False), self, include_self=False)
-                MapManager.update_object(self)
-                if self.reset_fields_older_than(now):
-                    self.set_dirty(is_dirty=False)
+            if self.has_pending_updates():
+                MapManager.update_object(self, check_pending_changes=True)
+                self.reset_fields_older_than(now)
 
         self.last_tick = now
 
@@ -555,8 +549,10 @@ class CreatureManager(UnitManager):
             # If the player/group requires the kill, reward it to them.
             if self.killed_by.group_manager:
                 self.killed_by.group_manager.reward_group_creature_or_go(self.killed_by, self)
-            elif self.killed_by.quest_manager.reward_creature_or_go(self):
-                self.killed_by.send_update_self()
+            else:
+                # Reward quest creature or go to player with killing blow.
+                self.killed_by.quest_manager.reward_creature_or_go(self)
+
             # If the player is in a group, set the group as allowed looters if needed.
             if self.killed_by.group_manager and self.loot_manager.has_loot():
                 self.killed_by.group_manager.set_allowed_looters(self)
@@ -564,7 +560,6 @@ class CreatureManager(UnitManager):
         if self.loot_manager.has_loot():
             self.set_lootable(True)
 
-        self.set_dirty()
         return True
 
     def reward_kill_xp(self, player):

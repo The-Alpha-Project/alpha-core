@@ -21,6 +21,5 @@ class LootRequestHandler(object):
                 if player.send_loot(enemy):
                     player.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
                     player.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player.unit_flags)
-                    player.set_dirty()
 
         return 0
