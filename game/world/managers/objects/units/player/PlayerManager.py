@@ -320,7 +320,8 @@ class PlayerManager(UnitManager):
         self.inventory.build_update()
         self.dirty_inventory = True
 
-    # Retrieve update packets from world objects, this is called only if object has pending changes. (update_mask bits set)
+    # Retrieve update packets from world objects, this is called only if object has pending changes.
+    # (update_mask bits set).
     def update_world_object_on_me(self, world_object):
         if world_object.guid in self.known_objects:
             if world_object.get_type() == ObjectTypes.TYPE_PLAYER and world_object.dirty_inventory:
@@ -1129,18 +1130,13 @@ class PlayerManager(UnitManager):
 
         # Every 2 seconds
         if current_time > self.last_regen + 2:
-            # Rate calculation per class
-
-            should_update_health = self.health < self.max_health
-            should_update_power = True
-
             # Healing aura increases regeneration "by 2 every second", and base points equal to 10. Calculate 2/5 of hp5/mp5.
             health_regen = self.stat_manager.get_total_stat(UnitStats.HEALTH_REGENERATION_PER_5) * 0.4
             mana_regen = self.stat_manager.get_total_stat(UnitStats.POWER_REGENERATION_PER_5) * 0.4
 
             # Health
 
-            if should_update_health and not self.in_combat or self.player.race == Races.RACE_TROLL:
+            if self.health < self.max_health and not self.in_combat or self.player.race == Races.RACE_TROLL:
                 if self.player.race == Races.RACE_TROLL:
                     health_regen *= 0.1 if self.in_combat else 1.1
                 if self.is_sitting:
@@ -1152,16 +1148,12 @@ class PlayerManager(UnitManager):
                     self.set_health(self.max_health)
                 elif self.health < self.max_health:
                     self.set_health(self.health + int(health_regen))
-            else:
-                should_update_health = False
 
             # Powers
 
             # Mana
             if self.power_type == PowerTypes.TYPE_MANA:
-                if self.power_1 == self.max_power_1:
-                    should_update_power = False
-                else:
+                if self.power_1 < self.max_power_1:
                     if self.in_combat:
                         # 1% per second (5% per 5 seconds)
                         mana_regen = self.base_mana * 0.02
@@ -1174,27 +1166,21 @@ class PlayerManager(UnitManager):
                         self.set_mana(self.power_1 + int(mana_regen))
             # Rage decay
             elif self.power_type == PowerTypes.TYPE_RAGE:
-                if self.power_2 == 0:
-                    should_update_power = False
-                else:
+                if self.power_2 > 0:
                     if not self.in_combat:
                         self.set_rage(self.power_2 - 20)
             # Focus
             elif self.power_type == PowerTypes.TYPE_FOCUS:
                 # Apparently focus didn't regenerate while moving.
                 # Note: Needs source, not 100% confirmed.
-                if self.power_3 == self.max_power_3 or self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK:
-                    should_update_power = False
-                else:
+                if self.power_3 < self.max_power_3 or not (self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK):
                     if self.power_3 + 5 >= self.max_power_3:
                         self.set_focus(self.max_power_3)
                     elif self.power_3 < self.max_power_3:
                         self.set_focus(self.power_3 + 5)
             # Energy
             elif self.power_type == PowerTypes.TYPE_ENERGY:
-                if self.power_4 == self.max_power_4:
-                    should_update_power = False
-                else:
+                if self.power_4 < self.max_power_4:
                     if self.power_4 + 20 >= self.max_power_4:
                         self.set_energy(self.max_power_4)
                     elif self.power_4 < self.max_power_4:

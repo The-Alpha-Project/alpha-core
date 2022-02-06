@@ -508,7 +508,7 @@ class CreatureManager(UnitManager):
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
                     self.despawn()
 
-            # Check "dirtiness" to determine if this creature object should be updated yet or not.
+            # Check if this creature object should be updated yet or not.
             if self.has_pending_updates():
                 MapManager.update_object(self, check_pending_changes=True)
                 self.reset_fields_older_than(now)
@@ -550,7 +550,7 @@ class CreatureManager(UnitManager):
             if self.killed_by.group_manager:
                 self.killed_by.group_manager.reward_group_creature_or_go(self.killed_by, self)
             else:
-                # Reward quest creature or go to player with killing blow.
+                # Reward quest creature to player with killing blow.
                 self.killed_by.quest_manager.reward_creature_or_go(self)
 
             # If the player is in a group, set the group as allowed looters if needed.

@@ -329,7 +329,7 @@ class InventoryManager(object):
             self.mark_as_removed(target_item)
         # We are swapping, swap the update fields between the two items.
         else:
-            self.mask_as_swapped(target_item, swap_item)
+            self.mark_as_swapped(target_item, swap_item)
 
         # We are not really removing this slot, source and destination slots will be replaced by swap_item().
         if not swap_item:
@@ -706,7 +706,7 @@ class InventoryManager(object):
         else:
             self.owner.enqueue_packet(packet)
 
-    def mask_as_swapped(self, source, destination):
+    def mark_as_swapped(self, source, destination):
         if source and source.item_instance.bag == InventorySlots.SLOT_INBACKPACK:
             self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + source.current_slot * 2, destination.guid)
 

@@ -243,7 +243,7 @@ class GameObjectManager(ObjectManager):
     def _get_fields_update(self, requester):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
 
-        # Use a temporal bit mask in case we need to set more bits.
+        # Use a temporary bit mask in case we need to set more bits.
         temporal_mask = self.update_packet_factory.update_mask.copy()
         fields_data = b''
         for index in range(0, self.update_packet_factory.update_mask.field_count):
@@ -264,7 +264,7 @@ class GameObjectManager(ObjectManager):
 
     def generate_dynamic_field_value(self, requester):
         # TODO: Handle more dynamic cases.
-        # CHEST (This include other interactive game objects)
+        # CHEST (This includes other interactive game objects).
         if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             if requester.quest_manager.should_interact_with_go(self):
                 return pack('<I', 1)
@@ -341,7 +341,7 @@ class GameObjectManager(ObjectManager):
             elapsed = now - self.last_tick
 
             if self.is_spawned:
-                # Check "dirtiness" to determine if this game object should be updated yet or not.
+                # Check if this game object should be updated yet or not.
                 if self.has_pending_updates():
                     MapManager.update_object(self, check_pending_changes=True)
                     self.reset_fields_older_than(now)
