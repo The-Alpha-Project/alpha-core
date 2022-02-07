@@ -129,7 +129,7 @@ class MapManager(object):
     @staticmethod
     def get_go_spawn_key(map_id, x, y):
         tile_x, tile_y, local_x, local_y = MapManager.calculate_tile(x, y, RESOLUTION_ENVIRONMENTAL)
-        return f'{map_id}{tile_x}{tile_y}{tile_x}{local_y}'
+        return f'{map_id}{tile_x}{tile_y}{local_x}{local_y}'
 
     @staticmethod
     def get_tile(x, y):
