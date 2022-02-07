@@ -31,7 +31,7 @@ from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, Environ
     EnvironmentalDamageTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
-from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools
+from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools, SpellTargetMask
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
 from utils.constants.UpdateFields import *
 
@@ -1371,17 +1371,16 @@ class PlayerManager(UnitManager):
         self.last_env_damage_check += elapsed
         if self.last_env_damage_check >= 1:
             self.last_env_damage_check = 0
-            spell_id_damage = MapManager.get_environmental_damage(self.map_, self.location)
-            # TODO, Should cast damage spell on self. (e.g. 7897-Campfire Damage which it isn't working)
-            if spell_id_damage:
-                damage = int(self.max_health * 0.04)
-                data = pack('<Q2I', self.guid, EnvironmentalDamageTypes.FIRE, damage)
-                self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ENVIRONMENTALDAMAGELOG, data))
-                if self.health - damage <= 0:
-                    self.die()
-                else:
-                    new_health = self.health - damage
-                    self.set_health(new_health)
+            environment_damage_object = MapManager.get_environmental_damage(self.map_, self.location)
+            # TODO, Should consider spell cooldown for ticking?
+            if environment_damage_object:
+                spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(environment_damage_object.spell_id)
+                initialized_spell = self.spell_manager.try_initialize_spell(spell=spell_to_cast,
+                                                                            caster_obj=environment_damage_object.world_object,
+                                                                            spell_target=self,
+                                                                            target_mask=SpellTargetMask.CAN_TARGET_UNITS,
+                                                                            validate=False)
+                self.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
 
     # override
     def has_pending_updates(self):

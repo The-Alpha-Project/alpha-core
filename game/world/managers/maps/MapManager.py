@@ -105,17 +105,17 @@ class MapManager(object):
 
     @staticmethod
     # Store environmental collision objects given a gameobject.
-    def add_environmental_collision(environmental_go):
-        x = MapManager.validate_map_coord(environmental_go.spawn_positionX)
-        y = MapManager.validate_map_coord(environmental_go.spawn_positionY)
-        z = environmental_go.spawn_positionZ
+    def add_environmental_collision(gameobject):
+        x = MapManager.validate_map_coord(gameobject.location.x)
+        y = MapManager.validate_map_coord(gameobject.location.y)
+        z = gameobject.location.z
 
-        key = MapManager.get_go_spawn_key(environmental_go.spawn_map, x, y)
+        key = MapManager.get_go_spawn_key(gameobject.map_, x, y)
         if key not in ENVIRONMENTAL_COLLISION:
             ENVIRONMENTAL_COLLISION[key] = []
 
         # Template data2 either point to 'Campfire Damage' or 'BoneFire Damage' game objects.
-        damage_source = environmental_go.gameobject.data2
+        damage_source = gameobject.gobject_template.data2
         if damage_source not in ENVIRONMENTAL_SOURCES:
             # Cache this damage templates for reusing.
             ENVIRONMENTAL_SOURCES[damage_source] = WorldDatabaseManager.gameobject_template_get_by_entry(damage_source)[0]
@@ -124,7 +124,7 @@ class MapManager(object):
         radius = ENVIRONMENTAL_SOURCES[damage_source].data2
         spell_id = ENVIRONMENTAL_SOURCES[damage_source].data3
         # Create a new env collision object.
-        ENVIRONMENTAL_COLLISION[key].append(EnvironmentalDamageObject(damage_source, spell_id, x, y, z, radius))
+        ENVIRONMENTAL_COLLISION[key].append(EnvironmentalDamageObject(gameobject, damage_source, spell_id, x, y, z, radius))
 
     @staticmethod
     def get_go_spawn_key(map_id, x, y):
@@ -225,7 +225,7 @@ class MapManager(object):
 
     @staticmethod
     # Return the spell id for damage, else 0.
-    def get_environmental_damage(map_id, vector) -> int:
+    def get_environmental_damage(map_id, vector):
         try:
             x = MapManager.validate_map_coord(vector.x)
             y = MapManager.validate_map_coord(vector.y)
@@ -233,18 +233,18 @@ class MapManager(object):
             collision_key = MapManager.get_go_spawn_key(map_id, x, y)
 
             if collision_key not in ENVIRONMENTAL_COLLISION:
-                return 0
+                return None
 
             for environmental_collision in ENVIRONMENTAL_COLLISION[collision_key]:
                 if environmental_collision.x_min <= x <= environmental_collision.x_max and \
                         environmental_collision.y_min <= y <= environmental_collision.y_max and \
                         environmental_collision.z_min <= z <= environmental_collision.z_max:
-                    return environmental_collision.spell_id
+                    return environmental_collision
 
-            return 0
+            return None
         except:
             Logger.error(traceback.format_exc())
-            return 0
+            return None
 
     @staticmethod
     def get_liquid_information(map_id, x, y, z):

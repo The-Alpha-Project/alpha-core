@@ -35,6 +35,7 @@ class GameObjectManager(ObjectManager):
         self.is_summon = is_summon
 
         if self.gobject_template:
+            self.level = 0 # Used only by SpellManager
             self.entry = self.gobject_template.entry
             self.native_display_id = self.gobject_template.display_id
             self.current_display_id = self.native_display_id
@@ -193,6 +194,16 @@ class GameObjectManager(ObjectManager):
                 self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast)
             else:
                 self.ritual_caster.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
+
+    # TODO, Added just to make SpellManager work with GO's as casters.
+    def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
+        damage_info = target.get_spell_cast_damage_info(target, casting_spell, damage, 0)
+        target.send_spell_cast_debug_info(damage_info, 0, casting_spell.spell_entry.ID, is_periodic=is_periodic)
+        target.deal_damage(target, damage, is_periodic)
+
+    # TODO, Added just to make SpellManager work with GO's as casters.
+    def can_attack_target(self, unit):
+        return True
 
     def _handle_use_goober(self, player):
         pass

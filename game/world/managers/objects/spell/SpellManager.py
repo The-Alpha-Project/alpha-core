@@ -237,7 +237,8 @@ class SpellManager(object):
                     continue
                 if ObjectTypes.TYPE_UNIT in target.object_type:
                     target.aura_manager.check_aura_procs(involved_cast=casting_spell)
-                casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
+                if casting_spell.spell_caster.get_type() != ObjectTypes.TYPE_GAMEOBJECT:
+                    casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
                 applied_targets.append(target.guid)
 
     def cast_queued_melee_ability(self, attack_type) -> bool:
