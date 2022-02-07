@@ -9,6 +9,7 @@ from game.world.managers.objects.units.creature.CreatureManager import CreatureM
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
+from utils.constants.MiscCodes import EnvironmentalDamageSource
 from utils.Logger import Logger
 
 
@@ -66,13 +67,18 @@ class WorldLoader:
         length = len(gobject_spawns)
         count = 0
 
-        for gobject in gobject_spawns:
-            if gobject.gameobject:
+        for gobject_spawn in gobject_spawns:
+            if gobject_spawn.gameobject:
                 gobject_mgr = GameObjectManager(
-                    gobject_template=gobject.gameobject,
-                    gobject_instance=gobject
+                    gobject_template=gobject_spawn.gameobject,
+                    gobject_instance=gobject_spawn
                 )
                 gobject_mgr.load()
+
+                # Check is this go_spawn represents fire environmental damage, store it if it does.
+                if gobject_spawn.gameobject.data2 == EnvironmentalDamageSource.CAMPFIRE or gobject_spawn.gameobject.data2 == EnvironmentalDamageSource.BONEFIRE:
+                    MapManager.add_environmental_collision(gobject_spawn)
+
             count += 1
             Logger.progress('Spawning gameobjects...', count, length)
 

@@ -60,7 +60,9 @@ class GridManager(object):
             affected_cells = list(self.get_surrounding_cells_by_object(world_object))
             # Try to load tile maps for affected cells if needed.
             self.load_maps_for_cells(affected_cells)
-            # Set affected cells as active cells if needed.
+            # Try to activate this player cell.
+            self.active_cell_callback(world_object)
+            # Set affected cells as active cells based on creatures if needed.
             self.activate_cells(affected_cells)
 
         # Notify surrounding players.

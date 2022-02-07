@@ -1,9 +1,13 @@
 import traceback
 import _queue
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
+from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS, \
+    RESOLUTION_ENVIRONMENTAL
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
+from game.world.managers.maps.EnvironmentalDamageObject import EnvironmentalDamageObject
+from utils.constants.MiscCodes import EnvironmentalDamageSource
 from utils.ConfigManager import config
 from utils.Logger import Logger
 
@@ -13,6 +17,8 @@ AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
 PENDING_LOAD = {}
 PENDING_LOAD_QUEUE = _queue.SimpleQueue()
+ENVIRONMENTAL_COLLISION = {}
+ENVIRONMENTAL_SOURCES = {}
 
 
 # noinspection PyBroadException
@@ -75,7 +81,7 @@ class MapManager(object):
         while True:
             key = PENDING_LOAD_QUEUE.get(block=True, timeout=None)
             map_id, x, y = str(key).rsplit(',')
-            MapManager.load_map_tiles(map_id, x, y)
+            MapManager.load_map_tiles(int(map_id), int(x), int(y))
 
     @staticmethod
     def load_map_tiles(map_id, x, y):
@@ -96,6 +102,34 @@ class MapManager(object):
                         MAPS[map_id].tiles[x + i][y + j] = MapTile(map_id, x + i, y + j)
 
         return True
+
+    @staticmethod
+    # Store environmental collision objects given a gameobject.
+    def add_environmental_collision(environmental_go):
+        x = MapManager.validate_map_coord(environmental_go.spawn_positionX)
+        y = MapManager.validate_map_coord(environmental_go.spawn_positionY)
+        z = environmental_go.spawn_positionZ
+
+        key = MapManager.get_go_spawn_key(environmental_go.spawn_map, x, y)
+        if key not in ENVIRONMENTAL_COLLISION:
+            ENVIRONMENTAL_COLLISION[key] = []
+
+        # Template data2 either point to 'Campfire Damage' or 'BoneFire Damage' game objects.
+        damage_source = environmental_go.gameobject.data2
+        if damage_source not in ENVIRONMENTAL_SOURCES:
+            # Cache this damage templates for reusing.
+            ENVIRONMENTAL_SOURCES[damage_source] = WorldDatabaseManager.gameobject_template_get_by_entry(damage_source)[0]
+
+        # Grab the damage radius and the spell_id.
+        radius = ENVIRONMENTAL_SOURCES[damage_source].data2
+        spell_id = ENVIRONMENTAL_SOURCES[damage_source].data3
+        # Create a new env collision object.
+        ENVIRONMENTAL_COLLISION[key].append(EnvironmentalDamageObject(damage_source, spell_id, x, y, z, radius))
+
+    @staticmethod
+    def get_go_spawn_key(map_id, x, y):
+        tile_x, tile_y, local_x, local_y = MapManager.calculate_tile(x, y, RESOLUTION_ENVIRONMENTAL)
+        return f'{map_id}{tile_x}{tile_y}{tile_x}{local_y}'
 
     @staticmethod
     def get_tile(x, y):
@@ -188,6 +222,29 @@ class MapManager(object):
         except:
             Logger.error(traceback.format_exc())
             return None
+
+    @staticmethod
+    # Return the spell id for damage, else 0.
+    def get_environmental_damage(map_id, vector) -> int:
+        try:
+            x = MapManager.validate_map_coord(vector.x)
+            y = MapManager.validate_map_coord(vector.y)
+            z = vector.z
+            collision_key = MapManager.get_go_spawn_key(map_id, x, y)
+
+            if collision_key not in ENVIRONMENTAL_COLLISION:
+                return 0
+
+            for environmental_collision in ENVIRONMENTAL_COLLISION[collision_key]:
+                if environmental_collision.x_min <= x <= environmental_collision.x_max and \
+                        environmental_collision.y_min <= y <= environmental_collision.y_max and \
+                        environmental_collision.z_min <= z <= environmental_collision.z_max:
+                    return environmental_collision.spell_id
+
+            return 0
+        except:
+            Logger.error(traceback.format_exc())
+            return 0
 
     @staticmethod
     def get_liquid_information(map_id, x, y, z):

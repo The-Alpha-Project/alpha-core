@@ -27,7 +27,8 @@ from utils import Formulas
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
-from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
+from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, EnvironmentalDamageSource, \
+    EnvironmentalDamageTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools
@@ -92,6 +93,8 @@ class PlayerManager(UnitManager):
         self.team = Teams.TEAM_NONE  # Set at set_player_variables().
         self.trade_data = None
         self.last_regen = 0
+        self.last_env_damage_check = 0
+        self.last_swimming_check = 0
         self.spirit_release_timer = 0
         self.logout_timer = -1
         self.dirty_inventory = False
@@ -421,7 +424,7 @@ class PlayerManager(UnitManager):
                 return True
         return False
 
-    def sync_player(self):
+    def synchronize_db_player(self):
         if self.player:
             self.player.level = self.level
             self.player.xp = self.xp
@@ -1351,6 +1354,35 @@ class PlayerManager(UnitManager):
         else:
             Logger.warning('Tried to send packet to null session.')
 
+    def check_swimming_state(self, elapsed):
+        if not self.is_alive:
+            return
+        self.last_swimming_check += elapsed
+        if self.last_swimming_check >= 1:
+            self.last_swimming_check = 0
+            if self.is_swimming() and not self.liquid_information:
+                self.update_swimming_state(True)
+            elif not self.is_swimming() and self.liquid_information:
+                self.update_swimming_state(False)
+
+    def check_environment_damage(self, elapsed):
+        if not self.is_alive or self.movement_spline and self.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
+            return
+        self.last_env_damage_check += elapsed
+        if self.last_env_damage_check >= 1:
+            self.last_env_damage_check = 0
+            spell_id_damage = MapManager.get_environmental_damage(self.map_, self.location)
+            # TODO, Should cast damage spell on self. (e.g. 7897-Campfire Damage which it isn't working)
+            if spell_id_damage:
+                damage = int(self.max_health * 0.04)
+                data = pack('<Q2I', self.guid, EnvironmentalDamageTypes.FIRE, damage)
+                self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ENVIRONMENTALDAMAGELOG, data))
+                if self.health - damage <= 0:
+                    self.die()
+                else:
+                    new_health = self.health - damage
+                    self.set_health(new_health)
+
     # override
     def has_pending_updates(self):
         return self.update_packet_factory.has_pending_updates() or self.dirty_inventory
@@ -1371,6 +1403,10 @@ class PlayerManager(UnitManager):
             self.attack_update(elapsed)
             # Waypoints (mostly flying paths) update.
             self.movement_manager.update_pending_waypoints(elapsed)
+            # Check environment damage.
+            self.check_environment_damage(elapsed)
+            # Check swimming state.
+            self.check_swimming_state(elapsed)
 
             # SpellManager tick.
             self.spell_manager.update(now, elapsed)
@@ -1397,6 +1433,7 @@ class PlayerManager(UnitManager):
                 self.logout_timer -= elapsed
                 if self.logout_timer < 0:
                     self.logout()
+                    return
 
             # Check if player has pending updates.
             if self.has_pending_updates() and self.online:
@@ -1407,6 +1444,9 @@ class PlayerManager(UnitManager):
             # Not dirty, has a pending teleport and a teleport is not ongoing.
             elif not self.has_pending_updates() and self.pending_teleport_destination and not self.update_lock:
                 self.trigger_teleport()
+            else:
+                MapManager.update_object(self)
+                self.synchronize_db_player()
 
         self.last_tick = now
 

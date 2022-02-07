@@ -946,7 +946,7 @@ class SpawnsGameobjects(Base):
     spawn_visibility_mod = Column(Float, nullable=True, server_default=text("'0'"))
     ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
-    gameobject = relationship('GameobjectTemplate')
+    gameobject = relationship('GameobjectTemplate', lazy='joined')
 
 
 class NpcGossip(Base):
