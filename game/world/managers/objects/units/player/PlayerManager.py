@@ -1376,7 +1376,7 @@ class PlayerManager(UnitManager):
             if environment_damage_object and environment_damage_object != self.last_env_damage_object:
                 environment_damage_object.add_participant(self)
                 self.last_env_damage_object = environment_damage_object
-            elif self.last_env_damage_object:
+            elif self.last_env_damage_object and not environment_damage_object:
                 self.last_env_damage_object.remove_participant(self)
                 self.last_env_damage_object = None
 
