@@ -75,8 +75,8 @@ class WorldLoader:
                 )
                 gobject_mgr.load()
 
-                # If this go targets environmental damage, generate its collision object.
-                if gobject_spawn.gameobject.data2 == EnvironmentalDamageSource.CAMPFIRE or gobject_spawn.gameobject.data2 == EnvironmentalDamageSource.BONEFIRE:
+                # If this go has environmental damage, add its collision detection to MapManager.
+                if gobject_mgr.has_environmental_damage():
                     MapManager.add_environmental_collision(gobject_mgr)
 
             count += 1

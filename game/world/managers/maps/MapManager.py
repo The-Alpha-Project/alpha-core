@@ -6,10 +6,9 @@ from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION
     RESOLUTION_ENVIRONMENTAL
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
-from game.world.managers.maps.EnvironmentalDamageObject import EnvironmentalDamageObject
-from utils.constants.MiscCodes import EnvironmentalDamageSource
 from utils.ConfigManager import config
 from utils.Logger import Logger
+
 
 MAPS = {}
 MAP_LIST = DbcDatabaseManager.map_get_all_ids()
@@ -18,7 +17,6 @@ AREA_LIST = DbcDatabaseManager.area_get_all_ids()
 PENDING_LOAD = {}
 PENDING_LOAD_QUEUE = _queue.SimpleQueue()
 ENVIRONMENTAL_COLLISION = {}
-ENVIRONMENTAL_SOURCES = {}
 
 
 # noinspection PyBroadException
@@ -108,23 +106,14 @@ class MapManager(object):
     def add_environmental_collision(gameobject):
         x = MapManager.validate_map_coord(gameobject.location.x)
         y = MapManager.validate_map_coord(gameobject.location.y)
-        z = gameobject.location.z
 
         key = MapManager.get_go_spawn_key(gameobject.map_, x, y)
         if key not in ENVIRONMENTAL_COLLISION:
             ENVIRONMENTAL_COLLISION[key] = []
 
-        # Template data2 either point to 'Campfire Damage' or 'BoneFire Damage' game objects.
-        damage_source = gameobject.gobject_template.data2
-        if damage_source not in ENVIRONMENTAL_SOURCES:
-            # Cache this damage templates for reusing.
-            ENVIRONMENTAL_SOURCES[damage_source] = WorldDatabaseManager.gameobject_template_get_by_entry(damage_source)[0]
-
-        # Grab the damage radius and the spell_id.
-        radius = ENVIRONMENTAL_SOURCES[damage_source].data2
-        spell_id = ENVIRONMENTAL_SOURCES[damage_source].data3
-        # Create a new env collision object.
-        ENVIRONMENTAL_COLLISION[key].append(EnvironmentalDamageObject(gameobject, damage_source, spell_id, x, y, z, radius))
+        # Add all collision objects residing within the gameobject.
+        for env_collision_object in gameobject.environmental_damage_objects:
+            ENVIRONMENTAL_COLLISION[key].append(env_collision_object)
 
     @staticmethod
     def get_go_spawn_key(map_id, x, y):
@@ -224,7 +213,7 @@ class MapManager(object):
             return None
 
     @staticmethod
-    # Return the spell id for damage, else 0.
+    # Return an Environmental damage object if collision detected.
     def get_environmental_damage(map_id, vector):
         try:
             x = MapManager.validate_map_coord(vector.x)

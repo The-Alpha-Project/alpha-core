@@ -93,6 +93,7 @@ class PlayerManager(UnitManager):
         self.team = Teams.TEAM_NONE  # Set at set_player_variables().
         self.trade_data = None
         self.last_regen = 0
+        self.last_env_damage_object = None
         self.last_env_damage_check = 0
         self.last_swimming_check = 0
         self.spirit_release_timer = 0
@@ -1372,15 +1373,12 @@ class PlayerManager(UnitManager):
         if self.last_env_damage_check >= 1:
             self.last_env_damage_check = 0
             environment_damage_object = MapManager.get_environmental_damage(self.map_, self.location)
-            # TODO, Should consider spell cooldown for ticking?
-            if environment_damage_object:
-                spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(environment_damage_object.spell_id)
-                initialized_spell = self.spell_manager.try_initialize_spell(spell=spell_to_cast,
-                                                                            caster_obj=environment_damage_object.world_object,
-                                                                            spell_target=self,
-                                                                            target_mask=SpellTargetMask.CAN_TARGET_UNITS,
-                                                                            validate=False)
-                self.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
+            if environment_damage_object and environment_damage_object != self.last_env_damage_object:
+                environment_damage_object.add_participant(self)
+                self.last_env_damage_object = environment_damage_object
+            elif self.last_env_damage_object:
+                self.last_env_damage_object.remove_participant(self)
+                self.last_env_damage_object = None
 
     # override
     def has_pending_updates(self):
