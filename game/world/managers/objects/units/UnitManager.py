@@ -157,7 +157,6 @@ class UnitManager(ObjectManager):
         self.update_packet_factory.init_values(UnitFields.UNIT_END)
 
         self.is_alive = True
-        self.is_sitting = False
         self.in_combat = False
         self.swing_error = AttackSwingError.NONE
         self.extra_attacks = 0
@@ -672,6 +671,12 @@ class UnitManager(ObjectManager):
     def set_attack_timer(self, attack_type, value):
         self.attack_timers[attack_type] = value
 
+    def is_sitting(self):
+        return self.stand_state == StandState.UNIT_SITTING
+
+    def set_stand_state(self, stand_state):
+        self.stand_state = stand_state
+
     # override
     def change_speed(self, speed=0):
         # Assign new base speed.
@@ -882,9 +887,6 @@ class UnitManager(ObjectManager):
     # Implemented by PlayerManager
     def remove_combo_points(self):
         pass
-
-    def set_stand_state(self, stand_state):
-        self.stand_state = stand_state
 
     def set_taxi_flying_state(self, is_flying, mount_display_id=0):
         if is_flying:

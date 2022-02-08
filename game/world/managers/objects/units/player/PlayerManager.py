@@ -1128,12 +1128,14 @@ class PlayerManager(UnitManager):
         self.skill_points = max(0, self.skill_points - skill_points)
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
-    def regenerate(self, current_time):
+    def regenerate(self, elapsed):
         if not self.is_alive or self.health == 0:
             return
 
+        self.last_regen += elapsed
         # Every 2 seconds
-        if current_time > self.last_regen + 2:
+        if self.last_regen >= 2:
+            self.last_regen = 0
             # Healing aura increases regeneration "by 2 every second", and base points equal to 10. Calculate 2/5 of hp5/mp5.
             health_regen = self.stat_manager.get_total_stat(UnitStats.HEALTH_REGENERATION_PER_5) * 0.4
             mana_regen = self.stat_manager.get_total_stat(UnitStats.POWER_REGENERATION_PER_5) * 0.4
@@ -1143,11 +1145,13 @@ class PlayerManager(UnitManager):
             if self.health < self.max_health and not self.in_combat or self.player.race == Races.RACE_TROLL:
                 if self.player.race == Races.RACE_TROLL:
                     health_regen *= 0.1 if self.in_combat else 1.1
-                if self.is_sitting:
-                    health_regen *= 0.33
 
                 if health_regen < 1:
                     health_regen = 1
+                # Apply bonus if sitting.
+                if self.is_sitting():
+                    health_regen += health_regen * 0.33
+
                 if self.health + health_regen >= self.max_health:
                     self.set_health(self.max_health)
                 elif self.health < self.max_health:
@@ -1189,8 +1193,6 @@ class PlayerManager(UnitManager):
                         self.set_energy(self.max_power_4)
                     elif self.power_4 < self.max_power_4:
                         self.set_energy(self.power_4 + 20)
-
-            self.last_regen = current_time
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target: UnitManager, apply_bonuses=True):
         rolled_damage = super().calculate_base_attack_damage(attack_type, attack_school, target, apply_bonuses)
@@ -1395,7 +1397,7 @@ class PlayerManager(UnitManager):
             self.player.leveltime += elapsed
 
             # Regeneration.
-            self.regenerate(now)
+            self.regenerate(elapsed)
             # Attack update.
             self.attack_update(elapsed)
             # Waypoints (mostly flying paths) update.
