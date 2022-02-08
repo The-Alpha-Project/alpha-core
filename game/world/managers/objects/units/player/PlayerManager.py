@@ -218,6 +218,11 @@ class PlayerManager(UnitManager):
         self.current_scale = self.native_scale
         self.race_mask = 1 << self.player.race - 1
         self.class_mask = 1 << self.player.class_ - 1
+
+        # Set default Battle Stance for warriors.
+        if self.class_mask & Classes.CLASS_WARRIOR:
+            self.shapeshift_form = ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE
+
         self.team = PlayerManager.get_team_for_race(self.player.race)
 
     def set_gm(self, on=True):
@@ -1296,7 +1301,6 @@ class PlayerManager(UnitManager):
     def set_weapon_mode(self, weapon_mode):
         super().set_weapon_mode(weapon_mode)
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
-
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
