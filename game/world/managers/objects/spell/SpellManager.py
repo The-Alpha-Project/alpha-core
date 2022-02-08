@@ -16,8 +16,8 @@ from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventoryError, InventoryTypes
-from utils.constants.MiscCodes import ObjectTypes, HitInfo, GameObjectTypes
+from utils.constants.ItemCodes import InventoryError, ItemSubClasses
+from utils.constants.MiscCodes import ObjectTypes, HitInfo, GameObjectTypes, AttackTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects
@@ -475,8 +475,8 @@ class SpellManager(object):
 
         if casting_spell.cast_flags & SpellCastFlags.CAST_FLAG_HAS_AMMO:
             signature += '2I'
-            data.append(5996)  # TODO ammo display ID
-            data.append(InventoryTypes.AMMO)  # TODO ammo inventorytype (thrown too)
+            data.append(casting_spell.used_ranged_attack_item.item_template.display_id)
+            data.append(casting_spell.used_ranged_attack_item.item_template.inventory_type)
 
         data = pack(signature, *data)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.unit_mgr,
@@ -814,6 +814,36 @@ class SpellManager(object):
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_REAGENTS)
                     return False
 
+            # Check if player has required weapon and ammo.
+            if casting_spell.spell_attack_type != -1:
+                required_weapon_mask = casting_spell.spell_entry.EquippedItemSubclass
+                equipped_weapon = self.unit_mgr.get_weapon_for_attack_type(casting_spell.spell_attack_type)
+                if not equipped_weapon:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_EQUIPPED_ITEM)
+                    return False
+                subclass_mask = 1 << equipped_weapon.item_template.subclass
+                if not required_weapon_mask & subclass_mask:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_EQUIPPED_ITEM_CLASS)
+                    return False
+
+                required_ammo = equipped_weapon.item_template.ammo_type
+                # Only check consumable ammo.
+                if required_ammo in [ItemSubClasses.ITEM_SUBCLASS_ARROW, ItemSubClasses.ITEM_SUBCLASS_BULLET]:
+                    target_bag_slot = self.unit_mgr.inventory.get_bag_slot_for_ammo(required_ammo)
+                    if target_bag_slot == -1:
+                        # SPELL_FAILED_NEED_AMMO_POUCH Seems to crash client.
+                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_AMMO)
+                        return False
+
+                    target_bag = self.unit_mgr.inventory.get_container(target_bag_slot)
+                    target_ammo = next(iter(target_bag.sorted_slots.values()))  # Get first item in bag.
+                    if not target_ammo:
+                        # Note: SPELL_FAILED_NEED_AMMO crashes client even though it is present in the code.
+                        # It was used later for "Ammo needs to be in the paper doll ammo slot before it can be fired",
+                        # but the slot does not exist in 0.5.3.
+                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_AMMO)
+                        return False
+
             # Spells cast with consumables.
             if casting_spell.source_item and casting_spell.source_item.has_charges():
                 spell_stats = casting_spell.get_item_spell_stats()
@@ -872,6 +902,17 @@ class SpellManager(object):
             if reagent_info[0] == 0:
                 break
             self.unit_mgr.inventory.remove_items(reagent_info[0], reagent_info[1])
+
+        # Ammo
+        if casting_spell.spell_attack_type == AttackTypes.RANGED_ATTACK:
+            equipped_weapon = self.unit_mgr.get_weapon_for_attack_type(casting_spell.spell_attack_type)
+
+            required_ammo = equipped_weapon.item_template.ammo_type
+            if required_ammo in [ItemSubClasses.ITEM_SUBCLASS_ARROW, ItemSubClasses.ITEM_SUBCLASS_BULLET]:
+                target_bag_slot = self.unit_mgr.inventory.get_bag_slot_for_ammo(required_ammo)
+                target_bag = self.unit_mgr.inventory.get_container(target_bag_slot)
+                target_item = next(iter(target_bag.sorted_slots.values()))  # Get first item in bag.
+                self.unit_mgr.inventory.remove_from_container(target_item.item_template.entry, 1, target_bag_slot)
 
         # Spells cast with consumables.
         if casting_spell.source_item and casting_spell.source_item.has_charges():
