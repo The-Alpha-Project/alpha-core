@@ -2555,5 +2555,18 @@ begin not atomic
 
         insert into applied_updates values ('190120221');
     end if;
+
+    -- 09/02/2022 1
+    if (select count(*) from applied_updates where id='090220221') = 0 then
+        -- Incorrect Auto Shot entry replacement with Shoot.
+        UPDATE `playercreateinfo_spell` SET `Spell` = 1485, `Note` = 'Shoot' WHERE (`Spell` = 75);
+        UPDATE `playercreateinfo_action` SET `action` = 1485, `button` = 1 WHERE (`action` = 75);
+        -- Raptor Strike (zzOLDHunter's Strike).
+        DELETE FROM `playercreateinfo_spell` WHERE `Spell` = 2973;
+        DELETE FROM `playercreateinfo_action` WHERE `action` = 2973;
+
+        insert into applied_updates values ('090220221');
+    end if;
+
 end $
 delimiter ;
