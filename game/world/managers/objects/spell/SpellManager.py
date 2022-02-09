@@ -16,7 +16,7 @@ from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventoryError, ItemSubClasses
+from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses
 from utils.constants.MiscCodes import ObjectTypes, HitInfo, GameObjectTypes, AttackTypes
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
@@ -586,6 +586,11 @@ class SpellManager(object):
             data.extend(target_info[0])
             signature += target_info[1]
 
+        if casting_spell.cast_flags & SpellCastFlags.CAST_FLAG_HAS_AMMO:
+            signature += '2I'
+            data.append(casting_spell.used_ranged_attack_item.item_template.display_id)
+            data.append(casting_spell.used_ranged_attack_item.item_template.inventory_type)
+
         packed = pack(signature, *data)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.unit_mgr,
                                     include_self=self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER)
@@ -836,8 +841,11 @@ class SpellManager(object):
                         return False
 
                     target_bag = self.unit_mgr.inventory.get_container(target_bag_slot)
-                    target_ammo = next(iter(target_bag.sorted_slots.values()))  # Get first item in bag.
-                    if not target_ammo:
+                    target_ammo = next(iter(target_bag.sorted_slots.values()), None)  # Get first item in bag.
+                    if not target_ammo or target_ammo != casting_spell.used_ranged_attack_item:
+                        # Also validate against casting_spell.used_ranged_attack_item,
+                        # the initially selected ammo (inventory manipulation during casting)
+
                         # Note: SPELL_FAILED_NEED_AMMO crashes client even though it is present in the code.
                         # It was used later for "Ammo needs to be in the paper doll ammo slot before it can be fired",
                         # but the slot does not exist in 0.5.3.
@@ -905,14 +913,11 @@ class SpellManager(object):
 
         # Ammo
         if casting_spell.spell_attack_type == AttackTypes.RANGED_ATTACK:
-            equipped_weapon = self.unit_mgr.get_weapon_for_attack_type(casting_spell.spell_attack_type)
-
-            required_ammo = equipped_weapon.item_template.ammo_type
-            if required_ammo in [ItemSubClasses.ITEM_SUBCLASS_ARROW, ItemSubClasses.ITEM_SUBCLASS_BULLET]:
-                target_bag_slot = self.unit_mgr.inventory.get_bag_slot_for_ammo(required_ammo)
-                target_bag = self.unit_mgr.inventory.get_container(target_bag_slot)
-                target_item = next(iter(target_bag.sorted_slots.values()))  # Get first item in bag.
-                self.unit_mgr.inventory.remove_from_container(target_item.item_template.entry, 1, target_bag_slot)
+            # Validation ensures that the initially selected ammo (used_ranged_attack_item) remains the same.
+            used_ammo = casting_spell.used_ranged_attack_item
+            if used_ammo and used_ammo.item_template.class_ == ItemClasses.ITEM_CLASS_PROJECTILE:
+                self.unit_mgr.inventory.remove_from_container(used_ammo.item_template.entry, 1,
+                                                              used_ammo.item_instance.bag)
 
         # Spells cast with consumables.
         if casting_spell.source_item and casting_spell.source_item.has_charges():

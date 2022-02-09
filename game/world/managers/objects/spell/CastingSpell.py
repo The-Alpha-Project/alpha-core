@@ -40,7 +40,7 @@ class CastingSpell(object):
     caster_effective_level: int
 
     spell_attack_type: int
-    used_ranged_attack_item: ItemManager
+    used_ranged_attack_item: ItemManager  # Ammo or thrown.
 
     def __init__(self, spell, caster_obj, initial_target, target_mask, source_item=None, triggered=False):
         self.spell_entry = spell
@@ -71,6 +71,11 @@ class CastingSpell(object):
         self.load_effects()
 
         self.cast_flags = SpellCastFlags.CAST_FLAG_NONE
+
+        # Ammo needs to be resolved on initialization since it's needed for validation and spell cast packets.
+        self.used_ranged_attack_item = self.get_ammo_for_cast()
+        if self.used_ranged_attack_item:
+            self.cast_flags |= SpellCastFlags.CAST_FLAG_HAS_AMMO
 
     def initial_target_is_object(self):
         return isinstance(self.initial_target, ObjectManager)
@@ -124,9 +129,34 @@ class CastingSpell(object):
         effect_info = effect.targets.get_effect_target_miss_results()
         self.object_target_results = {**self.object_target_results, **effect_info}
 
-    def set_ranged_attack_item(self, ranged_item):  # Bullets/arrows/thrown.
-        self.used_ranged_attack_item = ranged_item
-        self.cast_flags |= SpellCastFlags.CAST_FLAG_HAS_AMMO
+    def get_ammo_for_cast(self) -> Optional[ItemManager]:
+        if not self.is_ranged_weapon_attack():
+            return None
+
+        if self.spell_caster.get_type() != ObjectTypes.TYPE_PLAYER:
+            return None  # TODO Ammo type resolving for other units.
+
+        equipped_weapon = self.spell_caster.get_weapon_for_attack_type(AttackTypes.RANGED_ATTACK)
+
+        if not equipped_weapon:
+            return None
+
+        required_ammo = equipped_weapon.item_template.ammo_type
+
+        ranged_attack_item = equipped_weapon  # Default to the weapon used to account for thrown weapon case.
+        if required_ammo in [ItemSubClasses.ITEM_SUBCLASS_ARROW, ItemSubClasses.ITEM_SUBCLASS_BULLET]:
+            target_bag_slot = self.spell_caster.inventory.get_bag_slot_for_ammo(required_ammo)
+            if target_bag_slot == -1:
+                return None  # No ammo pouch/quiver.
+
+            target_bag = self.spell_caster.inventory.get_container(target_bag_slot)
+            target_ammo = next(iter(target_bag.sorted_slots.values()), None)  # Get first item in bag.
+            if not target_ammo:
+                return None  # No required ammo.
+
+            ranged_attack_item = target_ammo
+
+        return ranged_attack_item
 
     def is_instant_cast(self):
         # Due to auto shot not existing yet,
