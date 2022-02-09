@@ -36,7 +36,7 @@ class SpellManager(object):
             self.spells[spell.spell] = spell
 
     def apply_cast_when_learned(self):
-        for spell_id, spell in self.spells.items():
+        for spell_id in self.spells.keys():
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
                 self.start_spell_cast(spell_template, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF)
