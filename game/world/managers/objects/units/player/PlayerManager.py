@@ -219,10 +219,6 @@ class PlayerManager(UnitManager):
         self.race_mask = 1 << self.player.race - 1
         self.class_mask = 1 << self.player.class_ - 1
 
-        # Set default Battle Stance for warriors.
-        if self.class_mask & Classes.CLASS_WARRIOR:
-            self.shapeshift_form = ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE
-
         self.team = PlayerManager.get_team_for_race(self.player.race)
 
     def set_gm(self, on=True):
@@ -231,6 +227,9 @@ class PlayerManager(UnitManager):
 
     def complete_login(self, first_login=False):
         self.online = True
+
+        # Apply any spell with SPELL_ATTR_EX_CAST_WHEN_LEARNED attribute.
+        self.spell_manager.apply_cast_when_learned()
 
         # Calculate stat bonuses at this point.
         self.stat_manager.apply_bonuses(replenish=first_login)

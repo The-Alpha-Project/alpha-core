@@ -35,6 +35,12 @@ class SpellManager(object):
         for spell in RealmDatabaseManager.character_get_spells(self.unit_mgr.guid):
             self.spells[spell.spell] = spell
 
+    def apply_cast_when_learned(self):
+        for spell_id, spell in self.spells.items():
+            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
+                self.start_spell_cast(spell_template, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF)
+
     def learn_spell(self, spell_id, cast_on_learn=False) -> bool:
         if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
             return False

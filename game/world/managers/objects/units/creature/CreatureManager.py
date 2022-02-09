@@ -592,7 +592,6 @@ class CreatureManager(UnitManager):
     def set_weapon_mode(self, weapon_mode):
         super().set_weapon_mode(weapon_mode)
         self.bytes_2 = unpack('<I', pack('<4B', self.sheath_state, 0, 0, 0))[0]
-
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
     # override
