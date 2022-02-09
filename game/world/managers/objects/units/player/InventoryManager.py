@@ -370,7 +370,6 @@ class InventoryManager(object):
                     self.remove_item(container_slot, slot, True)
                     item_count -= item.item_instance.stackcount
 
-        self.owner.send_update_self(force_inventory_update=True)
         return item_count  # Return the amount of items not removed
 
     def get_item_info_by_guid(self, guid):
