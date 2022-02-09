@@ -228,9 +228,6 @@ class PlayerManager(UnitManager):
     def complete_login(self, first_login=False):
         self.online = True
 
-        # Apply any spell with SPELL_ATTR_EX_CAST_WHEN_LEARNED attribute.
-        self.spell_manager.apply_cast_when_learned()
-
         # Calculate stat bonuses at this point.
         self.stat_manager.apply_bonuses(replenish=first_login)
 
