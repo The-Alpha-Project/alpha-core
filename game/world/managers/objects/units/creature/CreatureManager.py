@@ -14,6 +14,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
@@ -259,6 +260,19 @@ class CreatureManager(UnitManager):
                         self.set_virtual_item(0, creature_equip_template.equipentry1)
                         self.set_virtual_item(1, creature_equip_template.equipentry2)
                         self.set_virtual_item(2, creature_equip_template.equipentry3)
+
+                addon_template = self.creature_instance.addon_template
+                if addon_template:
+                    # TODO, Emote, Mount, DisplayID
+                    self.set_stand_state(addon_template.stand_state)
+                    self.set_weapon_mode(addon_template.sheath_state)
+                    # Check auras, 'auras' point to an entry id on Spell dbc.
+                    if addon_template.auras:
+                        spells = str(addon_template.auras).rsplit(' ')
+                        for spell in spells:
+                            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(int(spell))
+                            if spell_template:
+                                self.spell_manager.start_spell_cast(spell_template, self, self, SpellTargetMask.SELF)
 
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses()
