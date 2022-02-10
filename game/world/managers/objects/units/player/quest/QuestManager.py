@@ -80,9 +80,10 @@ class QuestManager(object):
             
             # Check if the gameobject starts a quest that we can take.
             for quest_id in relations_list:
-                quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
-                if quest_template and self.check_quest_requirements(quest_template):
-                    return True
+                if quest_id not in self.active_quests:
+                    quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
+                    if quest_template and self.check_quest_requirements(quest_template):
+                        return True
 
         return False
 
