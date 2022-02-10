@@ -20,16 +20,6 @@ class ActiveQuest:
         # TODO: check that quest_giver_guid is turn-in for quest_id
         return True
 
-    def is_go_starter_finisher(self, relations_list, involved_relations_list):
-        if relations_list:
-            if self.quest.entry in [r.quest for r in relations_list]:
-                return True
-        if involved_relations_list:
-            if self.quest.entry in [ir.quest for ir in involved_relations_list]:
-                return True
-
-        return False
-
     def need_item_from_go(self, go_loot_template):
         # Quest is complete.
         if self.is_quest_complete(0):
