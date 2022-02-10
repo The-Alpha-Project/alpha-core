@@ -20,17 +20,13 @@ class ActiveQuest:
         # TODO: check that quest_giver_guid is turn-in for quest_id
         return True
 
-    def is_go_starter_finisher(self, gameobject):
-        relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(gameobject.gobject_template.entry)
+    def is_go_starter_finisher(self, relations_list, involved_relations_list):
         if relations_list:
-            for relation in relations_list:
-                if relation.quest == self.quest.entry:
-                    return True
-        involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(gameobject.gobject_template.entry)
+            if self.quest.entry in [r.quest for r in relations_list]:
+                return True
         if involved_relations_list:
-            for relation in involved_relations_list:
-                if relation.quest == self.quest.entry:
-                    return True
+            if self.quest.entry in [ir.quest for ir in involved_relations_list]:
+                return True
 
         return False
 
