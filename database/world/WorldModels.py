@@ -730,13 +730,6 @@ class Worldports(Base):
     name = Column(String(255), nullable=False, server_default=text("''"))
 
 
-t_creature_quest_finisher = Table(
-    'creature_quest_finisher', metadata,
-    Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
-    Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
-)
-
-
 class CreatureLootTemplate(Base):
     __tablename__ = 'creature_loot_template'
 
@@ -754,6 +747,27 @@ class CreatureLootTemplate(Base):
 
 t_creature_quest_starter = Table(
     'creature_quest_starter', metadata,
+    Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
+    Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
+)
+
+
+t_creature_quest_finisher = Table(
+    'creature_quest_finisher', metadata,
+    Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
+    Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
+)
+
+
+t_gameobject_quest_starter = Table(
+    'gameobject_questrelation', metadata,
+    Column('entry', ForeignKey('gameobject_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
+    Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
+)
+
+
+t_gameobject_quest_finisher = Table(
+    'gameobject_involvedrelation', metadata,
     Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
     Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
 )
@@ -980,7 +994,6 @@ class CreatureAddonTemplate(Base):
     __tablename__ = 'creature_addon'
 
     guid = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
-    patch = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     display_id = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     mount_display_id = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     equipment_id = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))

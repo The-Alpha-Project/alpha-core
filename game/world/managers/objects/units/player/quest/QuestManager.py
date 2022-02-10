@@ -12,7 +12,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants import UnitCodes
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes, QuestMethod, \
-    QuestFlags
+    QuestFlags, GameObjectTypes
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -53,16 +53,22 @@ class QuestManager(object):
 
     # TODO: Cache the return value by GO guid, flush this cache on any QuestManager state change.
     def should_interact_with_go(self, game_object):
-        if game_object.gobject_template.data1 != 0:
-            loot_template_id = game_object.gobject_template.data1
-            loot_template = WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_entry(loot_template_id)
-            # Empty loot template.
-            if len(loot_template) == 0:
-                return False
-            # Check if any active quests requires this game_object as item source.
+        if game_object.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            if game_object.gobject_template.data1 != 0:
+                loot_template_id = game_object.gobject_template.data1
+                loot_template = WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_entry(loot_template_id)
+                # Empty loot template.
+                if len(loot_template) == 0:
+                    return False
+                # Check if any active quests requires this game_object as item source.
+                for active_quest in list(self.active_quests.values()):
+                    if active_quest.need_item_from_go(loot_template):
+                        return True
+        elif game_object.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             for active_quest in list(self.active_quests.values()):
-                if active_quest.need_item_from_go(loot_template):
+                if active_quest.is_go_starter_finisher(game_object):
                     return True
+
         return False
 
     def get_dialog_status(self, world_object):
@@ -73,8 +79,14 @@ class QuestManager(object):
             return dialog_status
 
         # Relations bounds, the quest giver; Involved relations bounds, the quest completer.
-        relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(world_object.entry)
-        involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(world_object.entry)
+        if world_object.get_type() == ObjectTypes.TYPE_UNIT:
+            relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(world_object.entry)
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(world_object.entry)
+        elif world_object.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
+            relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(world_object.entry)
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(world_object.entry)
+        else:
+            return QuestGiverStatus.QUEST_GIVER_NONE
 
         # Quest finish
         for involved_relation in involved_relations_list:
@@ -121,12 +133,10 @@ class QuestManager(object):
         # Type is unit, but not player.
         if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
             relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
-            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
-                quest_giver.entry)
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
         elif quest_giver.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
-            # TODO: Gameobjects
-            relations_list = []
-            involved_relations_list = []
+            relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(quest_giver.entry)
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(quest_giver.entry)
         else:
             return
 
@@ -185,8 +195,10 @@ class QuestManager(object):
         # Type is unit, but not player.
         if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
             relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
-            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
-                quest_giver.entry)
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
+        elif quest_giver.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
+            relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(quest_giver.entry)
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(quest_giver.entry)
         else:
             return
 
@@ -289,7 +301,8 @@ class QuestManager(object):
         return questgiver_greeting
 
     def update_surrounding_quest_status(self):
-        for guid, unit in list(MapManager.get_surrounding_units(self.player_mgr).items()):
+        units = MapManager.get_surrounding_objects(self.player_mgr, [ObjectTypes.TYPE_UNIT])[0]
+        for guid, unit in list(units.items()):
             if WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
                     unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry):
                 quest_status = self.get_dialog_status(unit)

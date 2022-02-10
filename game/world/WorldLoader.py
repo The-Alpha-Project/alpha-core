@@ -25,6 +25,8 @@ class WorldLoader:
         if config.Server.Settings.load_gameobjects:
             WorldLoader.load_gameobjects()
             WorldLoader.load_gameobject_loot_templates()
+            WorldLoader.load_gameobject_quest_starters()
+            WorldLoader.load_gameobject_quest_finishers()
         else:
             Logger.info('Skipped game object loading.')
 
@@ -83,6 +85,34 @@ class WorldLoader:
             Logger.progress('Spawning gameobjects...', count, length)
 
         session.close()
+        return length
+
+    @staticmethod
+    def load_gameobject_quest_starters():
+        gameobject_quest_starters = WorldDatabaseManager.gameobject_quest_starter_get_all()
+        length = len(gameobject_quest_starters)
+        count = 0
+
+        for gameobject_quest_starter in gameobject_quest_starters:
+            WorldDatabaseManager.QuestRelationHolder.load_gameobject_starter_quest(gameobject_quest_starter)
+
+            count += 1
+            Logger.progress('Loading gameobject quest starters...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_gameobject_quest_finishers():
+        gameobject_quest_finishers = WorldDatabaseManager.gameobject_quest_finisher_get_all()
+        length = len(gameobject_quest_finishers)
+        count = 0
+
+        for gameobject_quest_finisher in gameobject_quest_finishers:
+            WorldDatabaseManager.QuestRelationHolder.load_gameobject_finisher_quest(gameobject_quest_finisher)
+
+            count += 1
+            Logger.progress('Loading gameobject quest finishers...', count, length)
+
         return length
 
     @staticmethod

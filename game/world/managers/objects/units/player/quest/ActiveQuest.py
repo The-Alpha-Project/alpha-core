@@ -1,5 +1,6 @@
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas
@@ -18,6 +19,20 @@ class ActiveQuest:
             return False
         # TODO: check that quest_giver_guid is turn-in for quest_id
         return True
+
+    def is_go_starter_finisher(self, gameobject):
+        relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(gameobject.gobject_template.entry)
+        if relations_list:
+            for relation in relations_list:
+                if relation.quest == self.quest.entry:
+                    return True
+        involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(gameobject.gobject_template.entry)
+        if involved_relations_list:
+            for relation in involved_relations_list:
+                if relation.quest == self.quest.entry:
+                    return True
+
+        return False
 
     def need_item_from_go(self, go_loot_template):
         # Quest is complete.

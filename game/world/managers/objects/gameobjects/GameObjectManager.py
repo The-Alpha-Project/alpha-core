@@ -177,6 +177,10 @@ class GameObjectManager(ObjectManager):
             player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o), is_instant=True)
             player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
+    def _handle_use_quest_giver(self, player, target):
+        if target:
+            player.quest_manager.handle_quest_giver_hello(target, target.guid)
+
     def _handle_use_chest(self, player):
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.state == GameObjectStates.GO_STATE_READY:
@@ -246,7 +250,7 @@ class GameObjectManager(ObjectManager):
     def _handle_use_goober(self, player):
         pass
 
-    def use(self, player):
+    def use(self, player, target=None):
         if self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
             self._handle_use_door(player)
         if self.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
@@ -261,6 +265,8 @@ class GameObjectManager(ObjectManager):
             self._handle_use_ritual(player)
         elif self.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
             self._handle_use_goober(player)
+        elif self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
+            self._handle_use_quest_giver(player, target)
 
     def set_state(self, state):
         self.state = state
@@ -313,10 +319,11 @@ class GameObjectManager(ObjectManager):
 
     def generate_dynamic_field_value(self, requester):
         # TODO: Handle more dynamic cases.
-        # CHEST (This includes other interactive game objects).
-        if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
-            if requester.quest_manager.should_interact_with_go(self):
-                return pack('<I', 1)
+        # QUESTGIVERS and CHESTS (This includes other interactive game objects).
+        if self.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
+                self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
+             if requester.quest_manager.should_interact_with_go(self):
+                 return pack('<I', 1)
         return pack('<I', 0)
 
     # override
