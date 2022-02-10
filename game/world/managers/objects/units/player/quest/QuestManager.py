@@ -65,10 +65,17 @@ class QuestManager(object):
                     if active_quest.need_item_from_go(loot_template):
                         return True
         elif game_object.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
+            # Grab starters/finishers.
             relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(game_object.gobject_template.entry)
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(game_object.gobject_template.entry)
+
+            # Grab quest ids only.
+            relations_list = [r.quest for r in relations_list]
+            involved_relations_list = [ir.quest for ir in involved_relations_list]
+
+            # Compare against active quests ids.
             for active_quest in list(self.active_quests.values()):
-                if active_quest.is_go_starter_finisher(relations_list, involved_relations_list):
+                if active_quest.quest.entry in relations_list or active_quest.quest.entry in involved_relations_list:
                     return True
 
         return False
