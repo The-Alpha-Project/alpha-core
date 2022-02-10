@@ -73,11 +73,12 @@ class QuestManager(object):
             relations_list = [r.quest for r in relations_list]
             involved_relations_list = [ir.quest for ir in involved_relations_list]
 
+            # TODO, Still need some logic here to avoid go's remaiing interactive when the player accepts their quest.
             # Compare against active quests ids.
             for active_quest in list(self.active_quests.values()):
                 if active_quest.quest.entry in relations_list or active_quest.quest.entry in involved_relations_list:
                     return True
-            
+
             # Check if the gameobject starts a quest that we can take.
             for quest_id in relations_list:
                 if quest_id not in self.active_quests:
@@ -98,9 +99,6 @@ class QuestManager(object):
         if world_object.get_type() == ObjectTypes.TYPE_UNIT:
             relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(world_object.entry)
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(world_object.entry)
-        elif world_object.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
-            relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(world_object.entry)
-            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(world_object.entry)
         else:
             return QuestGiverStatus.QUEST_GIVER_NONE
 
@@ -308,17 +306,20 @@ class QuestManager(object):
             text_entry = questgiver_gossip_entry.textid
         questgiver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(text_entry)
 
+        questgiver_greeting = ''
         # Get text based on creature gender.
-        if quest_giver.gender == UnitCodes.Genders.GENDER_MALE:
-            questgiver_greeting: str = questgiver_text_entry.text0_0
-        else:
-            questgiver_greeting: str = questgiver_text_entry.text0_1
+        if quest_giver.get_type() == ObjectTypes.TYPE_UNIT:
+            if quest_giver.gender == UnitCodes.Genders.GENDER_MALE:
+                questgiver_greeting: str = questgiver_text_entry.text0_0
+            else:
+                questgiver_greeting: str = questgiver_text_entry.text0_1
 
         return questgiver_greeting
 
+    # Quest status only works for units, sending a gameobject guid crashes the client.
     def update_surrounding_quest_status(self):
         units = MapManager.get_surrounding_objects(self.player_mgr, [ObjectTypes.TYPE_UNIT])[0]
-        for guid, unit in list(units.items()):
+        for guid, unit in units.items():
             if WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
                     unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry):
                 quest_status = self.get_dialog_status(unit)
