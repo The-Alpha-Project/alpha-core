@@ -73,18 +73,26 @@ class QuestManager(object):
             relations_list = [r.quest for r in relations_list]
             involved_relations_list = [ir.quest for ir in involved_relations_list]
 
-            # TODO, Still need some logic here to avoid go's remaiing interactive when the player accepts their quest.
-            # Compare against active quests ids.
+            # Check if this quest has been already rewarded.
             for active_quest in list(self.active_quests.values()):
-                if active_quest.quest.entry in relations_list or active_quest.quest.entry in involved_relations_list:
+                if active_quest.quest.entry in relations_list:
+                    if active_quest.db_state.rewarded == 1:
+                        # Already rewarded.
+                        return False
+
+            # Check finishers.
+            for active_quest in list(self.active_quests.values()):
+                if active_quest.quest.entry in involved_relations_list:
+                    # This go finishes a quest we have, make it interactive.
                     return True
 
-            # Check if the gameobject starts a quest that we can take.
+            # Check starters.
             for quest_id in relations_list:
-                if quest_id not in self.active_quests:
-                    quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
-                    if quest_template and self.check_quest_requirements(quest_template):
-                        return True
+                if quest_id not in self.active_quests and quest_id not in self.completed_quests:
+                     quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
+                     if quest_template and self.check_quest_requirements(quest_template):
+                         # This go offers a quest we don't have, and we match the requirements for it.
+                         return True
 
         return False
 
