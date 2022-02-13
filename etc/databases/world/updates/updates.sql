@@ -5219,7 +5219,44 @@ begin not atomic
         -- Crate of Elunite XYZ placement. 
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6311.138', `spawn_positionY` = '741.884', `spawn_positionZ` = '-20.746' WHERE (`spawn_id` = '48874');         -- Mighty Blaze ignored, out of reach. 
         UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998657'); 
-
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.32' WHERE (`spawn_id` = '16416'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '119.729' WHERE (`spawn_id` = '16420'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '116.019' WHERE (`spawn_id` = '16425'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '122.201' WHERE (`spawn_id` = '16429'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '123.147' WHERE (`spawn_id` = '16443'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '115.335' WHERE (`spawn_id` = '16445'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '117.848' WHERE (`spawn_id` = '16447'); 
+        -- Officer's Door ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31660'); 
+        -- Deepmoss Eggs trap ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31801'); 
+        -- Deepmoss Eggs trap ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31802'); 
+        -- Deepmoss Eggs trap ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31803'); 
+        -- Deepmoss Eggs trap ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31804'); 
+        -- Deepmoss Eggs trap ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31805'); 
+        -- Deepmoss Eggs trap ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31806'); 
+        -- Food Crate Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '373.081' WHERE (`spawn_id` = '88000'); 
+        -- Food Crate Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '0.925' WHERE (`spawn_id` = '88050'); 
+        -- Food Crate Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '1.471' WHERE (`spawn_id` = '88051'); 
+        -- Water Barrel Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.724' WHERE (`spawn_id` = '88055'); 
+        -- Mighty Blaze ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998657'); 
         insert into applied_updates values ('08020221');
     end if;
 	
