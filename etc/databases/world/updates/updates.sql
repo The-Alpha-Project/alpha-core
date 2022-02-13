@@ -2602,2661 +2602,2662 @@ begin not atomic
         UNLOCK TABLES;
         
         -- ignore James' Journal (No gossip in 0.5.3)
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '27022');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '27022');
 		
         -- Gameobject placements.
         -- Ooze Covered Rich Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-27.365' WHERE (`spawn_id` = '20552'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-27.365' WHERE (`spawn_id` = '20552'); 
         -- Ooze Covered Rich Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-38.341' WHERE (`spawn_id` = '20554'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-38.341' WHERE (`spawn_id` = '20554'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.446' WHERE (`spawn_id` = '11918'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.446' WHERE (`spawn_id` = '11918'); 
         -- Doodad_SmallFirePit76 ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11924'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11924'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '11918'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '11918'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.437' WHERE (`spawn_id` = '11919'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.437' WHERE (`spawn_id` = '11919'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.737' WHERE (`spawn_id` = '11915'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '45.737' WHERE (`spawn_id` = '11915'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.608' WHERE (`spawn_id` = '11914'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '46.608' WHERE (`spawn_id` = '11914'); 
         -- High Back Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12771'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12771'); 
         -- Nogg's Machine Shop Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '47.842' WHERE (`spawn_id` = '11798'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '47.842' WHERE (`spawn_id` = '11798'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.533' WHERE (`spawn_id` = '11793'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.533' WHERE (`spawn_id` = '11793'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.535' WHERE (`spawn_id` = '11792'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.535' WHERE (`spawn_id` = '11792'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '49.559' WHERE (`spawn_id` = '11789'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '49.559' WHERE (`spawn_id` = '11789'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '86.703' WHERE (`spawn_id` = '11778'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '86.703' WHERE (`spawn_id` = '11778'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '86.688' WHERE (`spawn_id` = '11777'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '86.688' WHERE (`spawn_id` = '11777'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1945.052', `spawn_positionY` = '-4178.507', `spawn_positionZ` = '41.885' WHERE (`spawn_id` = '11776'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1945.052', `spawn_positionY` = '-4178.507', `spawn_positionZ` = '41.885' WHERE (`spawn_id` = '11776'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1944.574', `spawn_positionY` = '-4178.472', `spawn_positionZ` = '41.894' WHERE (`spawn_id` = '11775'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1944.574', `spawn_positionY` = '-4178.472', `spawn_positionZ` = '41.894' WHERE (`spawn_id` = '11775'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11774'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11774'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11739'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11739'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '48.374' WHERE (`spawn_id` = '11734'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '48.374' WHERE (`spawn_id` = '11734'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '48.374' WHERE (`spawn_id` = '11733'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '48.374' WHERE (`spawn_id` = '11733'); 
         -- High Back Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12769'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12769'); 
         -- Doodad_SmallFirePit75 ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11732'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11732'); 
         -- Arms of Legend Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.734' WHERE (`spawn_id` = '11731'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '45.734' WHERE (`spawn_id` = '11731'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.204' WHERE (`spawn_id` = '11634'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '51.204' WHERE (`spawn_id` = '11634'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.205' WHERE (`spawn_id` = '11633'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '51.205' WHERE (`spawn_id` = '11633'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.415' WHERE (`spawn_id` = '11625'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.415' WHERE (`spawn_id` = '11625'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.406' WHERE (`spawn_id` = '11624'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.406' WHERE (`spawn_id` = '11624'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11617'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11617'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1948.004', `spawn_positionY` = '-4229.348', `spawn_positionZ` = '41.886' WHERE (`spawn_id` = '11608'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1948.004', `spawn_positionY` = '-4229.348', `spawn_positionZ` = '41.886' WHERE (`spawn_id` = '11608'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1948.004', `spawn_positionY` = '-4229.348', `spawn_positionZ` = '41.886' WHERE (`spawn_id` = '11607'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1948.004', `spawn_positionY` = '-4229.348', `spawn_positionZ` = '41.886' WHERE (`spawn_id` = '11607'); 
         -- Meat Rack Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '27.519' WHERE (`spawn_id` = '11606'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '27.519' WHERE (`spawn_id` = '11606'); 
         -- The Burning Anvil Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.518' WHERE (`spawn_id` = '11601'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '45.518' WHERE (`spawn_id` = '11601'); 
         -- Kodohide Leatherworkers Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.643' WHERE (`spawn_id` = '11600'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '36.643' WHERE (`spawn_id` = '11600'); 
         -- Wooden Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12768'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12768'); 
         -- Doodad_SmallFirePit71 ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11599'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11599'); 
         -- Forge Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '44.492' WHERE (`spawn_id` = '11598'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '44.492' WHERE (`spawn_id` = '11598'); 
         -- Wooden Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12765'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12765'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '56.02' WHERE (`spawn_id` = '11592'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '56.02' WHERE (`spawn_id` = '11592'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '55.994' WHERE (`spawn_id` = '11591'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '55.994' WHERE (`spawn_id` = '11591'); 
         -- Doodad_SmallFirePit74 ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11590'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11590'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.093' WHERE (`spawn_id` = '11589'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '51.093' WHERE (`spawn_id` = '11589'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.093' WHERE (`spawn_id` = '11588'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '51.093' WHERE (`spawn_id` = '11588'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12763'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12763'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1935.353', `spawn_positionY` = '-4512.7', `spawn_positionZ` = '41.144' WHERE (`spawn_id` = '11587'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1935.353', `spawn_positionY` = '-4512.7', `spawn_positionZ` = '41.144' WHERE (`spawn_id` = '11587'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1935.353', `spawn_positionY` = '-4512.7', `spawn_positionZ` = '41.144' WHERE (`spawn_id` = '11585'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1935.353', `spawn_positionY` = '-4512.7', `spawn_positionZ` = '41.144' WHERE (`spawn_id` = '11585'); 
         -- Fiery Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12720'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12720'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1794.459', `spawn_positionY` = '-4554.564', `spawn_positionZ` = '30.309' WHERE (`spawn_id` = '11583'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1794.459', `spawn_positionY` = '-4554.564', `spawn_positionZ` = '30.309' WHERE (`spawn_id` = '11583'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12718'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12718'); 
         -- Fiery Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12714'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12714'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1794.459', `spawn_positionY` = '-4554.564', `spawn_positionZ` = '30.309' WHERE (`spawn_id` = '11582'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1794.459', `spawn_positionY` = '-4554.564', `spawn_positionZ` = '30.309' WHERE (`spawn_id` = '11582'); 
         -- Red Canyon Mining XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '2012.51', `spawn_positionY` = '-4709.56', `spawn_positionZ` = '47.509' WHERE (`spawn_id` = '11580'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '2012.51', `spawn_positionY` = '-4709.56', `spawn_positionZ` = '47.509' WHERE (`spawn_id` = '11580'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1901.62', `spawn_positionY` = '-4593.54', `spawn_positionZ` = '61.459' WHERE (`spawn_id` = '11579'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1901.62', `spawn_positionY` = '-4593.54', `spawn_positionZ` = '61.459' WHERE (`spawn_id` = '11579'); 
         -- Wooden Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12713'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12713'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12712'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12712'); 
         -- Fiery Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12709'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12709'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1901.62', `spawn_positionY` = '-4593.54', `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '11578'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1901.62', `spawn_positionY` = '-4593.54', `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '11578'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1920.649', `spawn_positionY` = '-4591.083', `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '11577'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1920.649', `spawn_positionY` = '-4591.083', `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '11577'); 
         -- High Back Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12706'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12706'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1920.58', `spawn_positionY` = '-4591.22', `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '11576'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1920.58', `spawn_positionY` = '-4591.22', `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '11576'); 
         -- The Drag XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1917.91', `spawn_positionY` = '-4659.26', `spawn_positionZ` = '60.873' WHERE (`spawn_id` = '11572'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1917.91', `spawn_positionY` = '-4659.26', `spawn_positionZ` = '60.873' WHERE (`spawn_id` = '11572'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '2061.894', `spawn_positionY` = '-4801.309', `spawn_positionZ` = '44.174' WHERE (`spawn_id` = '11569'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '2061.894', `spawn_positionY` = '-4801.309', `spawn_positionZ` = '44.174' WHERE (`spawn_id` = '11569'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '2061.894', `spawn_positionY` = '-4801.309', `spawn_positionZ` = '44.174' WHERE (`spawn_id` = '11568'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '2061.894', `spawn_positionY` = '-4801.309', `spawn_positionZ` = '44.174' WHERE (`spawn_id` = '11568'); 
         -- Potbelly Stove ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12703'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12703'); 
         -- High Back Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12700'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12700'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1919.875', `spawn_positionY` = '-4570.01', `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '11558'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1919.875', `spawn_positionY` = '-4570.01', `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '11558'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1920.069', `spawn_positionY` = '-4570.224', `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '11557'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1920.069', `spawn_positionY` = '-4570.224', `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '11557'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '35.803' WHERE (`spawn_id` = '11556'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '35.803' WHERE (`spawn_id` = '11556'); 
         -- Wooden Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12698'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12698'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12697'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12697'); 
         -- Fiery Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12693'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12693'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '35.803' WHERE (`spawn_id` = '11555'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '35.803' WHERE (`spawn_id` = '11555'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11551'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11551'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11549'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11549'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11548'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11548'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11547'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11547'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11546'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11546'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1925.753', `spawn_positionY` = '-4523.184', `spawn_positionZ` = '41.144' WHERE (`spawn_id` = '11334'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1925.753', `spawn_positionY` = '-4523.184', `spawn_positionZ` = '41.144' WHERE (`spawn_id` = '11334'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1913.872', `spawn_positionY` = '-4547.774', `spawn_positionZ` = '57.026' WHERE (`spawn_id` = '11332'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1913.872', `spawn_positionY` = '-4547.774', `spawn_positionZ` = '57.026' WHERE (`spawn_id` = '11332'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1913.872', `spawn_positionY` = '-4547.774', `spawn_positionZ` = '57.026' WHERE (`spawn_id` = '11331'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1913.872', `spawn_positionY` = '-4547.774', `spawn_positionZ` = '57.026' WHERE (`spawn_id` = '11331'); 
         -- Forge Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.285' WHERE (`spawn_id` = '11324'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '46.285' WHERE (`spawn_id` = '11324'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11316'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11316'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11315'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11315'); 
         -- Peacebloom Flower Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '60.374' WHERE (`spawn_id` = '26813'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '60.374' WHERE (`spawn_id` = '26813'); 
         -- Campfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.574' WHERE (`spawn_id` = '26854'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.574' WHERE (`spawn_id` = '26854'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.574' WHERE (`spawn_id` = '26855'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.574' WHERE (`spawn_id` = '26855'); 
         -- Wooden Chair Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '34.216' WHERE (`spawn_id` = '12688'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '34.216' WHERE (`spawn_id` = '12688'); 
         -- Wooden Chair Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '33.84' WHERE (`spawn_id` = '12685'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '33.84' WHERE (`spawn_id` = '12685'); 
         -- Wooden Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12685'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12685'); 
         -- Wooden Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12683'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12683'); 
         -- High Back Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12682'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12682'); 
         -- High Back Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12681'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12681'); 
         -- High Back Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12676'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12676'); 
         -- Forge Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '65.056' WHERE (`spawn_id` = '12642'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '65.056' WHERE (`spawn_id` = '12642'); 
         -- Anvil Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '65.327' WHERE (`spawn_id` = '12641'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '53.409' WHERE (`spawn_id` = '12634'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '65.327' WHERE (`spawn_id` = '12641'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '53.409' WHERE (`spawn_id` = '12634'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12451'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12451'); 
         -- Cauldron ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12450'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12450'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12449'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12449'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12448'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12448'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12348'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12348'); 
         -- Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12347'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12347'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12210'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12210'); 
         -- Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12209'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12209'); 
         -- TEMP Darrowshire Town Square Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.457' WHERE (`spawn_id` = '99891'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.457' WHERE (`spawn_id` = '99891'); 
         -- TEMP Andorhal Tower Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '76.527' WHERE (`spawn_id` = '99889'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '76.527' WHERE (`spawn_id` = '99889'); 
         -- TEMP Andorhal Tower Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '74.61' WHERE (`spawn_id` = '99888'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '74.61' WHERE (`spawn_id` = '99888'); 
         -- TEMP Andorhal Tower Z placement. 
-         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '76.395' WHERE (`spawn_id` = '99887'); 
+         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '76.395' WHERE (`spawn_id` = '99887'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1736.025', `spawn_positionY` = '-4476.9', `spawn_positionZ` = '38.075' WHERE (`spawn_id` = '11233'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1736.025', `spawn_positionY` = '-4476.9', `spawn_positionZ` = '38.075' WHERE (`spawn_id` = '11233'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1736.025', `spawn_positionY` = '-4476.9', `spawn_positionZ` = '38.075' WHERE (`spawn_id` = '11231'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1736.025', `spawn_positionY` = '-4476.9', `spawn_positionZ` = '38.075' WHERE (`spawn_id` = '11231'); 
         -- Heated Forge Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.667' WHERE (`spawn_id` = '30175'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '91.667' WHERE (`spawn_id` = '30175'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11228'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11228'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11227'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11227'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '23.203' WHERE (`spawn_id` = '11209'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '23.203' WHERE (`spawn_id` = '11209'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '23.203' WHERE (`spawn_id` = '11207'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '23.203' WHERE (`spawn_id` = '11207'); 
         -- Kiro's Harnesses Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.231' WHERE (`spawn_id` = '11142'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '59.231' WHERE (`spawn_id` = '11142'); 
         -- Hunter's Hall Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '73.09' WHERE (`spawn_id` = '11098'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '73.09' WHERE (`spawn_id` = '11098'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5314.83', `spawn_positionY` = '-98.967', `spawn_positionZ` = '404.886' WHERE (`spawn_id` = '29332'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5314.83', `spawn_positionY` = '-98.967', `spawn_positionZ` = '404.886' WHERE (`spawn_id` = '29332'); 
         -- Battered Chest XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5599.642', `spawn_positionY` = '-292.389', `spawn_positionZ` = '370.904' WHERE (`spawn_id` = '29334'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5599.642', `spawn_positionY` = '-292.389', `spawn_positionZ` = '370.904' WHERE (`spawn_id` = '29334'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5530.295', `spawn_positionY` = '-254.096', `spawn_positionZ` = '375.417' WHERE (`spawn_id` = '29335'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5530.295', `spawn_positionY` = '-254.096', `spawn_positionZ` = '375.417' WHERE (`spawn_id` = '29335'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5575.805', `spawn_positionY` = '-183.241', `spawn_positionZ` = '368.744' WHERE (`spawn_id` = '29338'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5575.805', `spawn_positionY` = '-183.241', `spawn_positionZ` = '368.744' WHERE (`spawn_id` = '29338'); 
         -- Battered Chest XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5592.48', `spawn_positionY` = '-1728.708', `spawn_positionZ` = '360.95' WHERE (`spawn_id` = '29343'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5592.48', `spawn_positionY` = '-1728.708', `spawn_positionZ` = '360.95' WHERE (`spawn_id` = '29343'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5650.181', `spawn_positionY` = '-1647.678', `spawn_positionZ` = '357.849' WHERE (`spawn_id` = '29345'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5650.181', `spawn_positionY` = '-1647.678', `spawn_positionZ` = '357.849' WHERE (`spawn_id` = '29345'); 
         -- TEMP Andorhal Tower XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1481.41', `spawn_positionY` = '-1414.8', `spawn_positionZ` = '79.883' WHERE (`spawn_id` = '99886'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1481.41', `spawn_positionY` = '-1414.8', `spawn_positionZ` = '79.883' WHERE (`spawn_id` = '99886'); 
         -- Half-Buried Bottle Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '0.621' WHERE (`spawn_id` = '12052'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '0.621' WHERE (`spawn_id` = '12052'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5682.196', `spawn_positionY` = '-1666.166', `spawn_positionZ` = '358.156' WHERE (`spawn_id` = '29619'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5682.196', `spawn_positionY` = '-1666.166', `spawn_positionZ` = '358.156' WHERE (`spawn_id` = '29619'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '357.358' WHERE (`spawn_id` = '29619'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '357.358' WHERE (`spawn_id` = '29619'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5647.197', `spawn_positionY` = '-1600.753', `spawn_positionZ` = '349.983' WHERE (`spawn_id` = '29620'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5647.197', `spawn_positionY` = '-1600.753', `spawn_positionZ` = '349.983' WHERE (`spawn_id` = '29620'); 
         -- Battered Chest XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5539.059', `spawn_positionY` = '-125.07', `spawn_positionZ` = '366.837' WHERE (`spawn_id` = '29633'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5539.059', `spawn_positionY` = '-125.07', `spawn_positionZ` = '366.837' WHERE (`spawn_id` = '29633'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5578.714', `spawn_positionY` = '-107.502', `spawn_positionZ` = '358.981' WHERE (`spawn_id` = '29635'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5578.714', `spawn_positionY` = '-107.502', `spawn_positionZ` = '358.981' WHERE (`spawn_id` = '29635'); 
         -- Battered Chest XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5170.031', `spawn_positionY` = '22.734', `spawn_positionZ` = '386.111' WHERE (`spawn_id` = '29638'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5170.031', `spawn_positionY` = '22.734', `spawn_positionZ` = '386.111' WHERE (`spawn_id` = '29638'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11409'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11409'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11408'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11408'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11407'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11407'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11406'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11406'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11405'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11405'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11404'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11404'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11403'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11403'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11402'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11402'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11401'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11401'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11400'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11400'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11399'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11399'); 
         -- Dwarven Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11398'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11398'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11397'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11397'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11396'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11396'); 
         -- Dwarven Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11395'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11395'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11394'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11394'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11393'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11393'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11392'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11392'); 
         -- Dwarven Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11391'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11391'); 
         -- Short Wooden Seat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11390'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11390'); 
         -- Tin Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-6028.824', `spawn_positionY` = '-2775.034', `spawn_positionZ` = '391.971' WHERE (`spawn_id` = '30083'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-6028.824', `spawn_positionY` = '-2775.034', `spawn_positionZ` = '391.971' WHERE (`spawn_id` = '30083'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '390.876' WHERE (`spawn_id` = '30083'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '390.876' WHERE (`spawn_id` = '30083'); 
         -- TEMP Hatetalon Stones Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '63.471' WHERE (`spawn_id` = '99876'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '63.471' WHERE (`spawn_id` = '99876'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '401.192' WHERE (`spawn_id` = '30090'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '401.192' WHERE (`spawn_id` = '30090'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '76.844' WHERE (`spawn_id` = '11095'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '76.844' WHERE (`spawn_id` = '11095'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '76.844' WHERE (`spawn_id` = '11091'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '76.844' WHERE (`spawn_id` = '11091'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11073'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11073'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11072'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11072'); 
         -- Spirit Lodge Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '52.111' WHERE (`spawn_id` = '11005'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '52.111' WHERE (`spawn_id` = '11005'); 
         -- Spirit Lodge ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11005'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11005'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '11.356' WHERE (`spawn_id` = '10996'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '11.356' WHERE (`spawn_id` = '10996'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '11.627' WHERE (`spawn_id` = '10995'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '11.627' WHERE (`spawn_id` = '10995'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.437' WHERE (`spawn_id` = '10988'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.437' WHERE (`spawn_id` = '10988'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.446' WHERE (`spawn_id` = '10986'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.446' WHERE (`spawn_id` = '10986'); 
         -- Darkbriar Lodge ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10984'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10984'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '0.741' WHERE (`spawn_id` = '30180'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '0.741' WHERE (`spawn_id` = '30180'); 
         -- Stranglekelp Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '50.53' WHERE (`spawn_id` = '30181'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '50.53' WHERE (`spawn_id` = '30181'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.253' WHERE (`spawn_id` = '10972'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '51.253' WHERE (`spawn_id` = '10972'); 
         -- TEMP Swamplight Manor Dock Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '33.063' WHERE (`spawn_id` = '99867'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '55.26' WHERE (`spawn_id` = '10968'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '33.063' WHERE (`spawn_id` = '99867'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '55.26' WHERE (`spawn_id` = '10968'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '57.642' WHERE (`spawn_id` = '10965'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '57.642' WHERE (`spawn_id` = '10965'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '57.642' WHERE (`spawn_id` = '10962'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '57.642' WHERE (`spawn_id` = '10962'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.4' WHERE (`spawn_id` = '10961'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '36.4' WHERE (`spawn_id` = '10961'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.39' WHERE (`spawn_id` = '10960'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '36.39' WHERE (`spawn_id` = '10960'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '87.539' WHERE (`spawn_id` = '10959'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '87.539' WHERE (`spawn_id` = '10959'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '2212.254', `spawn_positionY` = '-4784.732', `spawn_positionZ` = '86.706' WHERE (`spawn_id` = '10958'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '2212.254', `spawn_positionY` = '-4784.732', `spawn_positionZ` = '86.706' WHERE (`spawn_id` = '10958'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '30.309' WHERE (`spawn_id` = '10957'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '30.309' WHERE (`spawn_id` = '10957'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '30.309' WHERE (`spawn_id` = '10956'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '30.309' WHERE (`spawn_id` = '10956'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '10955'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '10955'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '10954'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '61.458' WHERE (`spawn_id` = '10954'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.488' WHERE (`spawn_id` = '10725'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '51.488' WHERE (`spawn_id` = '10725'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.488' WHERE (`spawn_id` = '10724'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '51.488' WHERE (`spawn_id` = '10724'); 
         -- Lumak's Fishing Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '52.098' WHERE (`spawn_id` = '10680'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '52.098' WHERE (`spawn_id` = '10680'); 
         -- Magar's Cloth Goods Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '30.644' WHERE (`spawn_id` = '10641'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '30.644' WHERE (`spawn_id` = '10641'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '24.379' WHERE (`spawn_id` = '10226'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '24.379' WHERE (`spawn_id` = '10226'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '24.379' WHERE (`spawn_id` = '10226'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '24.379' WHERE (`spawn_id` = '10226'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '24.379' WHERE (`spawn_id` = '10224'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '24.379' WHERE (`spawn_id` = '10224'); 
         -- Hall of the Brave Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.148' WHERE (`spawn_id` = '10221'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.148' WHERE (`spawn_id` = '10221'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.674' WHERE (`spawn_id` = '10220'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.674' WHERE (`spawn_id` = '10220'); 
         -- Stranglekelp Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.653' WHERE (`spawn_id` = '29255'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.653' WHERE (`spawn_id` = '29255'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-13235.893', `spawn_positionY` = '-495.292', `spawn_positionZ` = '16.298' WHERE (`spawn_id` = '11696'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-13235.893', `spawn_positionY` = '-495.292', `spawn_positionZ` = '16.298' WHERE (`spawn_id` = '11696'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '15.694' WHERE (`spawn_id` = '11696'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '15.694' WHERE (`spawn_id` = '11696'); 
         -- Solid Chest Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '16.715' WHERE (`spawn_id` = '11695'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '16.715' WHERE (`spawn_id` = '11695'); 
         -- Half-Buried Bottle Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-0.34' WHERE (`spawn_id` = '11666'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-0.34' WHERE (`spawn_id` = '11666'); 
         -- Food Crate XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-13659.181', `spawn_positionY` = '539.731', `spawn_positionZ` = '-0.169' WHERE (`spawn_id` = '11664'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-13659.181', `spawn_positionY` = '539.731', `spawn_positionZ` = '-0.169' WHERE (`spawn_id` = '11664'); 
         -- Stranglekelp Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-9.213' WHERE (`spawn_id` = '11659'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-9.213' WHERE (`spawn_id` = '11659'); 
         -- Cortello's Riddle XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-14912.45', `spawn_positionY` = '75.34', `spawn_positionZ` = '12.873' WHERE (`spawn_id` = '11652'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14912.45', `spawn_positionY` = '75.34', `spawn_positionZ` = '12.873' WHERE (`spawn_id` = '11652'); 
         -- Solid Chest XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-14919.862', `spawn_positionY` = '38.781', `spawn_positionZ` = '12.376' WHERE (`spawn_id` = '11651'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14919.862', `spawn_positionY` = '38.781', `spawn_positionZ` = '12.376' WHERE (`spawn_id` = '11651'); 
         -- Stranglekelp Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-9.311' WHERE (`spawn_id` = '11646'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-9.311' WHERE (`spawn_id` = '11646'); 
         -- Stranglekelp Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-12.347' WHERE (`spawn_id` = '11642'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-12.347' WHERE (`spawn_id` = '11642'); 
         -- Stranglekelp Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-28.121' WHERE (`spawn_id` = '11641'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-28.121' WHERE (`spawn_id` = '11641'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-14826.271', `spawn_positionY` = '439.81', `spawn_positionZ` = '-0.4' WHERE (`spawn_id` = '11164'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14826.271', `spawn_positionY` = '439.81', `spawn_positionZ` = '-0.4' WHERE (`spawn_id` = '11164'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-9089.001', `spawn_positionY` = '-548.076', `spawn_positionZ` = '61.75' WHERE (`spawn_id` = '30674'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-9089.001', `spawn_positionY` = '-548.076', `spawn_positionZ` = '61.75' WHERE (`spawn_id` = '30674'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '60.344' WHERE (`spawn_id` = '30674'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '60.344' WHERE (`spawn_id` = '30674'); 
         -- Wild Steelbloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '97.582' WHERE (`spawn_id` = '11157'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '97.582' WHERE (`spawn_id` = '11157'); 
         -- Half-Buried Bottle XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-14437.365', `spawn_positionY` = '-190.023', `spawn_positionZ` = '-0.341' WHERE (`spawn_id` = '11152'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14437.365', `spawn_positionY` = '-190.023', `spawn_positionZ` = '-0.341' WHERE (`spawn_id` = '11152'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-14929.399', `spawn_positionY` = '354.65', `spawn_positionZ` = '-21.902' WHERE (`spawn_id` = '11144'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14929.399', `spawn_positionY` = '354.65', `spawn_positionZ` = '-21.902' WHERE (`spawn_id` = '11144'); 
         -- Iron Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-13235.095', `spawn_positionY` = '-482.867', `spawn_positionZ` = '15.431' WHERE (`spawn_id` = '11134'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-13235.095', `spawn_positionY` = '-482.867', `spawn_positionZ` = '15.431' WHERE (`spawn_id` = '11134'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.865' WHERE (`spawn_id` = '10217'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.865' WHERE (`spawn_id` = '10217'); 
         -- Cortello's Riddle XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-14972.03', `spawn_positionY` = '298.739', `spawn_positionZ` = '13.071' WHERE (`spawn_id` = '11133'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14972.03', `spawn_positionY` = '298.739', `spawn_positionZ` = '13.071' WHERE (`spawn_id` = '11133'); 
         -- Half-Buried Bottle XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-13868.527', `spawn_positionY` = '-208.718', `spawn_positionZ` = '-0.124' WHERE (`spawn_id` = '11035'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-13868.527', `spawn_positionY` = '-208.718', `spawn_positionZ` = '-0.124' WHERE (`spawn_id` = '11035'); 
         -- Half-Buried Bottle Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-0.316' WHERE (`spawn_id` = '11034'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-0.316' WHERE (`spawn_id` = '11034'); 
         -- Half-Buried Bottle XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-14131.288', `spawn_positionY` = '-108.939', `spawn_positionZ` = '-0.376' WHERE (`spawn_id` = '11032'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14131.288', `spawn_positionY` = '-108.939', `spawn_positionZ` = '-0.376' WHERE (`spawn_id` = '11032'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-14008.071', `spawn_positionY` = '595.676', `spawn_positionZ` = '-10.377' WHERE (`spawn_id` = '30881'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14008.071', `spawn_positionY` = '595.676', `spawn_positionZ` = '-10.377' WHERE (`spawn_id` = '30881'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-13989.25', `spawn_positionY` = '660.401', `spawn_positionZ` = '-13.666' WHERE (`spawn_id` = '30882'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-13989.25', `spawn_positionY` = '660.401', `spawn_positionZ` = '-13.666' WHERE (`spawn_id` = '30882'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-14135.451', `spawn_positionY` = '882.894', `spawn_positionZ` = '-42.934' WHERE (`spawn_id` = '30883'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14135.451', `spawn_positionY` = '882.894', `spawn_positionZ` = '-42.934' WHERE (`spawn_id` = '30883'); 
         -- Orgrimmar Bowyer Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '55.769' WHERE (`spawn_id` = '10212'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '55.769' WHERE (`spawn_id` = '10212'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.429' WHERE (`spawn_id` = '10210'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.429' WHERE (`spawn_id` = '10210'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.429' WHERE (`spawn_id` = '10209'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.429' WHERE (`spawn_id` = '10209'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.857' WHERE (`spawn_id` = '10200'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.857' WHERE (`spawn_id` = '10200'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.843' WHERE (`spawn_id` = '10198'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.843' WHERE (`spawn_id` = '10198'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '66.438' WHERE (`spawn_id` = '10194'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '66.438' WHERE (`spawn_id` = '10194'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '66.438' WHERE (`spawn_id` = '10191'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '66.438' WHERE (`spawn_id` = '10191'); 
         -- Anvil Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '44.329' WHERE (`spawn_id` = '10189'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '44.329' WHERE (`spawn_id` = '10189'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.459' WHERE (`spawn_id` = '10186'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '61.459' WHERE (`spawn_id` = '10186'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.459' WHERE (`spawn_id` = '10185'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '61.459' WHERE (`spawn_id` = '10185'); 
         -- Zandalar Cage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-1.559' WHERE (`spawn_id` = '11027'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-1.559' WHERE (`spawn_id` = '11027'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.7' WHERE (`spawn_id` = '10723'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.7' WHERE (`spawn_id` = '10723'); 
         -- Blazing Fire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.715' WHERE (`spawn_id` = '10722'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.715' WHERE (`spawn_id` = '10722'); 
         -- Heated Forge Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.191' WHERE (`spawn_id` = '10720'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.191' WHERE (`spawn_id` = '10720'); 
         -- Valley of Wisdom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.329' WHERE (`spawn_id` = '10172'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '45.329' WHERE (`spawn_id` = '10172'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '4797.729', `spawn_positionY` = '747.689', `spawn_positionZ` = '8.694' WHERE (`spawn_id` = '31358'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '4797.729', `spawn_positionY` = '747.689', `spawn_positionZ` = '8.694' WHERE (`spawn_id` = '31358'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '6.608' WHERE (`spawn_id` = '31358'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '6.608' WHERE (`spawn_id` = '31358'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10162'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10162'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10160'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10160'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '4359.799', `spawn_positionY` = '970.59', `spawn_positionZ` = '13.097' WHERE (`spawn_id` = '31366'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '4359.799', `spawn_positionY` = '970.59', `spawn_positionZ` = '13.097' WHERE (`spawn_id` = '31366'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '11.679' WHERE (`spawn_id` = '31366'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '11.679' WHERE (`spawn_id` = '31366'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10155'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10155'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10152'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10152'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '57.068' WHERE (`spawn_id` = '10151'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '57.068' WHERE (`spawn_id` = '10151'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '57.068' WHERE (`spawn_id` = '10150'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '57.068' WHERE (`spawn_id` = '10150'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.755' WHERE (`spawn_id` = '10149'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.755' WHERE (`spawn_id` = '10149'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.743' WHERE (`spawn_id` = '10148'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.743' WHERE (`spawn_id` = '10148'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.294' WHERE (`spawn_id` = '10147'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.294' WHERE (`spawn_id` = '10147'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.294' WHERE (`spawn_id` = '10145'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.294' WHERE (`spawn_id` = '10145'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '48.414' WHERE (`spawn_id` = '10144'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '48.414' WHERE (`spawn_id` = '10144'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '48.414' WHERE (`spawn_id` = '10143'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '48.414' WHERE (`spawn_id` = '10143'); 
         -- Cooking Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '30185'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '30185'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '50.037' WHERE (`spawn_id` = '10138'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '50.037' WHERE (`spawn_id` = '10138'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '63.824' WHERE (`spawn_id` = '10123'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '63.824' WHERE (`spawn_id` = '10123'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '70.324' WHERE (`spawn_id` = '10115'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10107'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '70.324' WHERE (`spawn_id` = '10115'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10107'); 
         -- Stranglekelp Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-9.261' WHERE (`spawn_id` = '32084'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-9.261' WHERE (`spawn_id` = '32084'); 
         -- Cauldron ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10195'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10195'); 
         -- Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10192'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10192'); 
         -- Arthas' Tears Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.172' WHERE (`spawn_id` = '32208'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '59.172' WHERE (`spawn_id` = '32208'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1682.83', `spawn_positionY` = '-1010.24', `spawn_positionZ` = '68.6' WHERE (`spawn_id` = '32207'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1682.83', `spawn_positionY` = '-1010.24', `spawn_positionZ` = '68.6' WHERE (`spawn_id` = '32207'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '67.365' WHERE (`spawn_id` = '32207'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '67.365' WHERE (`spawn_id` = '32207'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '519.209', `spawn_positionY` = '439.944', `spawn_positionZ` = '16.801' WHERE (`spawn_id` = '32204'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '519.209', `spawn_positionY` = '439.944', `spawn_positionZ` = '16.801' WHERE (`spawn_id` = '32204'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '5.286' WHERE (`spawn_id` = '10109'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '5.286' WHERE (`spawn_id` = '10109'); 
         -- Brazier Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '6.465' WHERE (`spawn_id` = '10100'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '6.465' WHERE (`spawn_id` = '10100'); 
         -- Bloodsail Correspondence Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '1.268' WHERE (`spawn_id` = '10096'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.63' WHERE (`spawn_id` = '10011'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '1.268' WHERE (`spawn_id` = '10096'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.63' WHERE (`spawn_id` = '10011'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.13' WHERE (`spawn_id` = '9954'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.13' WHERE (`spawn_id` = '9954'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.648' WHERE (`spawn_id` = '9948'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.648' WHERE (`spawn_id` = '9948'); 
         -- Anvil Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '50.751' WHERE (`spawn_id` = '9946'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '50.751' WHERE (`spawn_id` = '9946'); 
         -- Firebloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '16.173' WHERE (`spawn_id` = '32360'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '16.173' WHERE (`spawn_id` = '32360'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '58.89' WHERE (`spawn_id` = '10098'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '58.89' WHERE (`spawn_id` = '10098'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.083' WHERE (`spawn_id` = '10097'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '59.083' WHERE (`spawn_id` = '10097'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '41.94' WHERE (`spawn_id` = '10085'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '41.94' WHERE (`spawn_id` = '10085'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10085'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10085'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10077'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10077'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10075'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10075'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '27.82' WHERE (`spawn_id` = '10065'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '27.82' WHERE (`spawn_id` = '10065'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10059'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10059'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10057'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10057'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.619' WHERE (`spawn_id` = '10040'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '61.619' WHERE (`spawn_id` = '10040'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.619' WHERE (`spawn_id` = '10038'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '61.619' WHERE (`spawn_id` = '10038'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '60.654' WHERE (`spawn_id` = '10036'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '60.654' WHERE (`spawn_id` = '10036'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '63.417' WHERE (`spawn_id` = '10034'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '63.417' WHERE (`spawn_id` = '10034'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.446' WHERE (`spawn_id` = '10024'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.446' WHERE (`spawn_id` = '10024'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.437' WHERE (`spawn_id` = '10022'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.437' WHERE (`spawn_id` = '10022'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10021'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10021'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10019'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '10019'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '76.844' WHERE (`spawn_id` = '10016'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '76.844' WHERE (`spawn_id` = '10016'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '76.845' WHERE (`spawn_id` = '10010'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '76.845' WHERE (`spawn_id` = '10010'); 
         -- Thornroot Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '12.256' WHERE (`spawn_id` = '32590'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '12.256' WHERE (`spawn_id` = '32590'); 
         -- Droffers And Sons Salvage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '40.309' WHERE (`spawn_id` = '10002'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '40.309' WHERE (`spawn_id` = '10002'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '86.706' WHERE (`spawn_id` = '10001'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '86.706' WHERE (`spawn_id` = '10001'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '86.705' WHERE (`spawn_id` = '9998'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '86.705' WHERE (`spawn_id` = '9998'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.059' WHERE (`spawn_id` = '9965'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '46.059' WHERE (`spawn_id` = '9965'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.059' WHERE (`spawn_id` = '9963'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '46.059' WHERE (`spawn_id` = '9963'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1932.217', `spawn_positionY` = '-4175.007', `spawn_positionZ` = '41.927' WHERE (`spawn_id` = '9962'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1932.217', `spawn_positionY` = '-4175.007', `spawn_positionZ` = '41.927' WHERE (`spawn_id` = '9962'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1932.217', `spawn_positionY` = '-4175.007', `spawn_positionZ` = '41.927' WHERE (`spawn_id` = '9959'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1932.217', `spawn_positionY` = '-4175.007', `spawn_positionZ` = '41.927' WHERE (`spawn_id` = '9959'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.429' WHERE (`spawn_id` = '9952'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.429' WHERE (`spawn_id` = '9952'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.429' WHERE (`spawn_id` = '9950'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.429' WHERE (`spawn_id` = '9950'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '4466.345', `spawn_positionY` = '740.475', `spawn_positionZ` = '3.222' WHERE (`spawn_id` = '32677'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '4466.345', `spawn_positionY` = '740.475', `spawn_positionZ` = '3.222' WHERE (`spawn_id` = '32677'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '1.028' WHERE (`spawn_id` = '32677'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '1.028' WHERE (`spawn_id` = '32677'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '40.324' WHERE (`spawn_id` = '9944'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '40.324' WHERE (`spawn_id` = '9944'); 
         -- Gromsblood ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '32758'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '32758'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '40.324' WHERE (`spawn_id` = '9943'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '40.324' WHERE (`spawn_id` = '9943'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-13442.397', `spawn_positionY` = '860.223', `spawn_positionZ` = '-15.908' WHERE (`spawn_id` = '32846'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-13442.397', `spawn_positionY` = '860.223', `spawn_positionZ` = '-15.908' WHERE (`spawn_id` = '32846'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '76.844' WHERE (`spawn_id` = '9942'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '76.844' WHERE (`spawn_id` = '9942'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '76.844' WHERE (`spawn_id` = '9936'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '76.844' WHERE (`spawn_id` = '9936'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1902.471', `spawn_positionY` = '-4180.818', `spawn_positionZ` = '41.814' WHERE (`spawn_id` = '9935'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1902.471', `spawn_positionY` = '-4180.818', `spawn_positionZ` = '41.814' WHERE (`spawn_id` = '9935'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1902.471', `spawn_positionY` = '-4180.818', `spawn_positionZ` = '41.814' WHERE (`spawn_id` = '9933'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1902.471', `spawn_positionY` = '-4180.818', `spawn_positionZ` = '41.814' WHERE (`spawn_id` = '9933'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1915.611', `spawn_positionY` = '-4105.622', `spawn_positionZ` = '41.938' WHERE (`spawn_id` = '9927'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1915.611', `spawn_positionY` = '-4105.622', `spawn_positionZ` = '41.938' WHERE (`spawn_id` = '9927'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1915.611', `spawn_positionY` = '-4105.622', `spawn_positionZ` = '41.938' WHERE (`spawn_id` = '9925'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1915.611', `spawn_positionY` = '-4105.622', `spawn_positionZ` = '41.938' WHERE (`spawn_id` = '9925'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '9922'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '9922'); 
         -- TEMP Corrupted Moonwell ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '99882'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '99882'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-6611.599', `spawn_positionY` = '-794.751', `spawn_positionZ` = '246.246' WHERE (`spawn_id` = '10197'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-6611.599', `spawn_positionY` = '-794.751', `spawn_positionZ` = '246.246' WHERE (`spawn_id` = '10197'); 
         -- Solid Chest XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-7017.064', `spawn_positionY` = '-1301.346', `spawn_positionZ` = '242.921' WHERE (`spawn_id` = '10163'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-7017.064', `spawn_positionY` = '-1301.346', `spawn_positionZ` = '242.921' WHERE (`spawn_id` = '10163'); 
         -- Solid Chest XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-6748.211', `spawn_positionY` = '-1220.7', `spawn_positionZ` = '180.037' WHERE (`spawn_id` = '10157'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-6748.211', `spawn_positionY` = '-1220.7', `spawn_positionZ` = '180.037' WHERE (`spawn_id` = '10157'); 
         -- Small Thorium Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-6865.7', `spawn_positionY` = '-1100.086', `spawn_positionZ` = '193.319' WHERE (`spawn_id` = '10103'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-6865.7', `spawn_positionY` = '-1100.086', `spawn_positionZ` = '193.319' WHERE (`spawn_id` = '10103'); 
         -- Solid Chest XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-7001.361', `spawn_positionY` = '-1128.083', `spawn_positionZ` = '257.345' WHERE (`spawn_id` = '10093'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-7001.361', `spawn_positionY` = '-1128.083', `spawn_positionZ` = '257.345' WHERE (`spawn_id` = '10093'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-6627.523', `spawn_positionY` = '-780.807', `spawn_positionZ` = '246.072' WHERE (`spawn_id` = '9993'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-6627.523', `spawn_positionY` = '-780.807', `spawn_positionZ` = '246.072' WHERE (`spawn_id` = '9993'); 
         -- Sentry Brazier XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-6992.976', `spawn_positionY` = '-1133.18', `spawn_positionZ` = '263.884' WHERE (`spawn_id` = '7050'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-6992.976', `spawn_positionY` = '-1133.18', `spawn_positionZ` = '263.884' WHERE (`spawn_id` = '7050'); 
         -- Sentry Brazier XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-6932.618', `spawn_positionY` = '-1428.594', `spawn_positionZ` = '261.811' WHERE (`spawn_id` = '7048'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-6932.618', `spawn_positionY` = '-1428.594', `spawn_positionZ` = '261.811' WHERE (`spawn_id` = '7048'); 
         -- Altar of Suntara ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7034'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7034'); 
         -- Tin Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3881.178', `spawn_positionY` = '-2522.35', `spawn_positionZ` = '44.232' WHERE (`spawn_id` = '33513'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3881.178', `spawn_positionY` = '-2522.35', `spawn_positionZ` = '44.232' WHERE (`spawn_id` = '33513'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '43.097' WHERE (`spawn_id` = '33513'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '43.097' WHERE (`spawn_id` = '33513'); 
         -- Incendicite Mineral Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3918.653', `spawn_positionY` = '-2483.288', `spawn_positionZ` = '42.579' WHERE (`spawn_id` = '33514'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3918.653', `spawn_positionY` = '-2483.288', `spawn_positionZ` = '42.579' WHERE (`spawn_id` = '33514'); 
         -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '40.333' WHERE (`spawn_id` = '33514'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '40.333' WHERE (`spawn_id` = '33514'); 
         -- Tin Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3857.083', `spawn_positionY` = '-2451.677', `spawn_positionZ` = '46.806' WHERE (`spawn_id` = '33515'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3857.083', `spawn_positionY` = '-2451.677', `spawn_positionZ` = '46.806' WHERE (`spawn_id` = '33515'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.36' WHERE (`spawn_id` = '33515'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '45.36' WHERE (`spawn_id` = '33515'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.533' WHERE (`spawn_id` = '9921'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.533' WHERE (`spawn_id` = '9921'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '47.716' WHERE (`spawn_id` = '9913'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '47.716' WHERE (`spawn_id` = '9913'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '47.716' WHERE (`spawn_id` = '9912'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '47.716' WHERE (`spawn_id` = '9912'); 
         -- Valley of Honor Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.475' WHERE (`spawn_id` = '9909'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '45.475' WHERE (`spawn_id` = '9909'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.059' WHERE (`spawn_id` = '7042'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '46.059' WHERE (`spawn_id` = '7042'); 
         -- Anvil ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '30177'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '30177'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-7195.405', `spawn_positionY` = '-796.389', `spawn_positionZ` = '321.643' WHERE (`spawn_id` = '33845'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-7195.405', `spawn_positionY` = '-796.389', `spawn_positionZ` = '321.643' WHERE (`spawn_id` = '33845'); 
         -- Sentry Brazier XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-6897.726', `spawn_positionY` = '-1090.737', `spawn_positionZ` = '261.72' WHERE (`spawn_id` = '6955'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-6897.726', `spawn_positionY` = '-1090.737', `spawn_positionZ` = '261.72' WHERE (`spawn_id` = '6955'); 
         -- Purple Lotus Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '155.357' WHERE (`spawn_id` = '33857'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '155.357' WHERE (`spawn_id` = '33857'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '116.392' WHERE (`spawn_id` = '33858'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '116.392' WHERE (`spawn_id` = '33858'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '439.186', `spawn_positionY` = '-3801.766', `spawn_positionZ` = '115.972' WHERE (`spawn_id` = '33859'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '439.186', `spawn_positionY` = '-3801.766', `spawn_positionZ` = '115.972' WHERE (`spawn_id` = '33859'); 
         -- Sentry Brazier Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '267.012' WHERE (`spawn_id` = '6948'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '267.012' WHERE (`spawn_id` = '6948'); 
         -- Quarry Gate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '179.023' WHERE (`spawn_id` = '6942'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '179.023' WHERE (`spawn_id` = '6942'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.059' WHERE (`spawn_id` = '7041'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '46.059' WHERE (`spawn_id` = '7041'); 
         -- TEMP Witherbark Village Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '130.88' WHERE (`spawn_id` = '99874'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '34036'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '130.88' WHERE (`spawn_id` = '99874'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '34036'); 
         -- Liferoot Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '11.13' WHERE (`spawn_id` = '34041'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '11.13' WHERE (`spawn_id` = '34041'); 
         -- Anvil ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6928'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6928'); 
         -- Tin Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3895.637', `spawn_positionY` = '-2478.491', `spawn_positionZ` = '44.162' WHERE (`spawn_id` = '34116'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3895.637', `spawn_positionY` = '-2478.491', `spawn_positionZ` = '44.162' WHERE (`spawn_id` = '34116'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '42.698' WHERE (`spawn_id` = '34116'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '42.698' WHERE (`spawn_id` = '34116'); 
         -- Incendicite Mineral Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3887.454', `spawn_positionY` = '-2537.169', `spawn_positionZ` = '44.854' WHERE (`spawn_id` = '34117'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3887.454', `spawn_positionY` = '-2537.169', `spawn_positionZ` = '44.854' WHERE (`spawn_id` = '34117'); 
         -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '43.295' WHERE (`spawn_id` = '34117'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '43.295' WHERE (`spawn_id` = '34117'); 
         -- Tin Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3879.892', `spawn_positionY` = '-2569.867', `spawn_positionZ` = '48.236' WHERE (`spawn_id` = '34118'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3879.892', `spawn_positionY` = '-2569.867', `spawn_positionZ` = '48.236' WHERE (`spawn_id` = '34118'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.336' WHERE (`spawn_id` = '34118'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '46.336' WHERE (`spawn_id` = '34118'); 
         -- Incendicite Mineral Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3944.899', `spawn_positionY` = '-2480.338', `spawn_positionZ` = '45.243' WHERE (`spawn_id` = '34120'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3944.899', `spawn_positionY` = '-2480.338', `spawn_positionZ` = '45.243' WHERE (`spawn_id` = '34120'); 
         -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '42.202' WHERE (`spawn_id` = '34120'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '42.202' WHERE (`spawn_id` = '34120'); 
         -- Incendicite Mineral Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-4008.366', `spawn_positionY` = '-2417.85', `spawn_positionZ` = '31.328' WHERE (`spawn_id` = '34121'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4008.366', `spawn_positionY` = '-2417.85', `spawn_positionZ` = '31.328' WHERE (`spawn_id` = '34121'); 
         -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '29.794' WHERE (`spawn_id` = '34121'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '29.794' WHERE (`spawn_id` = '34121'); 
         -- Incendicite Mineral Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3888.207', `spawn_positionY` = '-2559.789', `spawn_positionZ` = '45.604' WHERE (`spawn_id` = '34124'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3888.207', `spawn_positionY` = '-2559.789', `spawn_positionZ` = '45.604' WHERE (`spawn_id` = '34124'); 
         -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '44.025' WHERE (`spawn_id` = '34124'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '44.025' WHERE (`spawn_id` = '34124'); 
         -- Incendicite Mineral Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3964.805', `spawn_positionY` = '-2475.013', `spawn_positionZ` = '36.675' WHERE (`spawn_id` = '34125'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3964.805', `spawn_positionY` = '-2475.013', `spawn_positionZ` = '36.675' WHERE (`spawn_id` = '34125'); 
         -- Incendicite Mineral Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '35.058' WHERE (`spawn_id` = '34125'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '35.058' WHERE (`spawn_id` = '34125'); 
         -- Tin Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3874.717', `spawn_positionY` = '-2554.865', `spawn_positionZ` = '46.302' WHERE (`spawn_id` = '34126'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3874.717', `spawn_positionY` = '-2554.865', `spawn_positionZ` = '46.302' WHERE (`spawn_id` = '34126'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '44.761' WHERE (`spawn_id` = '34126'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '44.761' WHERE (`spawn_id` = '34126'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '261.028' WHERE (`spawn_id` = '6886'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '261.028' WHERE (`spawn_id` = '6886'); 
         -- Tin Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3004.818', `spawn_positionY` = '-3257.265', `spawn_positionZ` = '63.535' WHERE (`spawn_id` = '34143'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3004.818', `spawn_positionY` = '-3257.265', `spawn_positionZ` = '63.535' WHERE (`spawn_id` = '34143'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.182' WHERE (`spawn_id` = '34143'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.182' WHERE (`spawn_id` = '34143'); 
         -- Iron Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3076.427', `spawn_positionY` = '-3289.054', `spawn_positionZ` = '65.185' WHERE (`spawn_id` = '34144'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3076.427', `spawn_positionY` = '-3289.054', `spawn_positionZ` = '65.185' WHERE (`spawn_id` = '34144'); 
         -- Iron Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '64.507' WHERE (`spawn_id` = '34144'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '64.507' WHERE (`spawn_id` = '34144'); 
         -- Iron Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-3063.308', `spawn_positionY` = '-3243.97', `spawn_positionZ` = '66.239' WHERE (`spawn_id` = '34145'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-3063.308', `spawn_positionY` = '-3243.97', `spawn_positionZ` = '66.239' WHERE (`spawn_id` = '34145'); 
         -- Iron Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '64.656' WHERE (`spawn_id` = '34145'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '64.656' WHERE (`spawn_id` = '34145'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.699' WHERE (`spawn_id` = '7038'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.699' WHERE (`spawn_id` = '7038'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.699' WHERE (`spawn_id` = '7037'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.699' WHERE (`spawn_id` = '7037'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '35.746' WHERE (`spawn_id` = '7035'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '35.746' WHERE (`spawn_id` = '7035'); 
         -- Meat Rack Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '27.519' WHERE (`spawn_id` = '7030'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '27.519' WHERE (`spawn_id` = '7030'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '21.379' WHERE (`spawn_id` = '6998'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '21.379' WHERE (`spawn_id` = '6998'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '21.652' WHERE (`spawn_id` = '6989');         -- Anvil XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '2058.49', `spawn_positionY` = '-4836.811', `spawn_positionZ` = '46.284' WHERE (`spawn_id` = '6981'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '21.652' WHERE (`spawn_id` = '6989');         -- Anvil XYZ placement. 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '2058.49', `spawn_positionY` = '-4836.811', `spawn_positionZ` = '46.284' WHERE (`spawn_id` = '6981'); 
         -- Iron Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-1391.156', `spawn_positionY` = '2937.5', `spawn_positionZ` = '120.248' WHERE (`spawn_id` = '34213'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1391.156', `spawn_positionY` = '2937.5', `spawn_positionZ` = '120.248' WHERE (`spawn_id` = '34213'); 
         -- Iron Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '118.757' WHERE (`spawn_id` = '34213'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '118.757' WHERE (`spawn_id` = '34213'); 
         -- Campfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '261.029' WHERE (`spawn_id` = '6885'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '261.029' WHERE (`spawn_id` = '6885'); 
         -- Forge ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6880'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6880'); 
         -- Solid Chest Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '133.521' WHERE (`spawn_id` = '6871'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '133.521' WHERE (`spawn_id` = '6871'); 
         -- Tin Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-818.53', `spawn_positionY` = '23.347', `spawn_positionZ` = '34.625' WHERE (`spawn_id` = '34263'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-818.53', `spawn_positionY` = '23.347', `spawn_positionZ` = '34.625' WHERE (`spawn_id` = '34263'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '32.376' WHERE (`spawn_id` = '34263'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '32.376' WHERE (`spawn_id` = '34263'); 
         -- Tin Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-703.857', `spawn_positionY` = '56.853', `spawn_positionZ` = '39.77' WHERE (`spawn_id` = '34264'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-703.857', `spawn_positionY` = '56.853', `spawn_positionZ` = '39.77' WHERE (`spawn_id` = '34264'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.726' WHERE (`spawn_id` = '34264'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.726' WHERE (`spawn_id` = '34264'); 
         -- TEMP Miblon Snarltooth Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.856' WHERE (`spawn_id` = '99878'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '36.856' WHERE (`spawn_id` = '99878'); 
         -- Small Thorium Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-8042.74', `spawn_positionY` = '-4665.4', `spawn_positionZ` = '19.495' WHERE (`spawn_id` = '34864'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-8042.74', `spawn_positionY` = '-4665.4', `spawn_positionZ` = '19.495' WHERE (`spawn_id` = '34864'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6980'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6980'); 
         -- Ghost Mushroom XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-584.04', `spawn_positionY` = '-3795.049', `spawn_positionZ` = '231.733' WHERE (`spawn_id` = '35003'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-584.04', `spawn_positionY` = '-3795.049', `spawn_positionZ` = '231.733' WHERE (`spawn_id` = '35003'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6979'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6979'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6953'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6953'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6952'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6952'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6949'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6949'); 
         -- Mighty Blaze XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1927.046', `spawn_positionY` = '-4155.514', `spawn_positionZ` = '41.929' WHERE (`spawn_id` = '6920'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1927.046', `spawn_positionY` = '-4155.514', `spawn_positionZ` = '41.929' WHERE (`spawn_id` = '6920'); 
         -- Purple Lotus Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '8.877' WHERE (`spawn_id` = '35028'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '8.877' WHERE (`spawn_id` = '35028'); 
         -- Flame of Uzel Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '145.64' WHERE (`spawn_id` = '31338'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '145.64' WHERE (`spawn_id` = '31338'); 
         -- Musty Tome Trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.253' WHERE (`spawn_id` = '12211'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.253' WHERE (`spawn_id` = '12211'); 
         --  ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '434'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '434'); 
         -- Musty Tome Trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.844' WHERE (`spawn_id` = '12337'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.844' WHERE (`spawn_id` = '12337'); 
         -- Musty Tome Trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.813' WHERE (`spawn_id` = '12338'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.813' WHERE (`spawn_id` = '12338'); 
         --  ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '430'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '430'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '424'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '424'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '422'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '422'); 
         --  ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '421'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '421'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '420'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '420'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '419'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '419'); 
         -- Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '35696'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '35696'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '35697'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '35697'); 
         -- ward Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '63.435' WHERE (`spawn_id` = '35698'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '63.435' WHERE (`spawn_id` = '35698'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '6918'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '6918'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.505' WHERE (`spawn_id` = '6917'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.505' WHERE (`spawn_id` = '6917'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6914'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6914'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6913'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6913'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.088' WHERE (`spawn_id` = '6822'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '51.088' WHERE (`spawn_id` = '6822'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.093' WHERE (`spawn_id` = '6816'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '51.093' WHERE (`spawn_id` = '6816'); 
         --  ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '418'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '418'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.284' WHERE (`spawn_id` = '6806'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '46.284' WHERE (`spawn_id` = '6806'); 
         --  ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '417'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '417'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.285' WHERE (`spawn_id` = '6805'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '46.285' WHERE (`spawn_id` = '6805'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '48.737' WHERE (`spawn_id` = '6801'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '48.737' WHERE (`spawn_id` = '6801'); 
         -- Golden Sansam ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '39951'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '39951'); 
         --  ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '416'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '416'); 
         --  ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '415'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '415'); 
         -- Iron Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '65.169' WHERE (`spawn_id` = '39985'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '65.169' WHERE (`spawn_id` = '39985'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-12337.507', `spawn_positionY` = '-1083.664', `spawn_positionZ` = '75.123' WHERE (`spawn_id` = '40013'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-12337.507', `spawn_positionY` = '-1083.664', `spawn_positionZ` = '75.123' WHERE (`spawn_id` = '40013'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '73.064' WHERE (`spawn_id` = '40013'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '73.064' WHERE (`spawn_id` = '40013'); 
         -- TEMP Underground Water Source ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '99923'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '99923'); 
         -- TEMP Foulweald Totem Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.218' WHERE (`spawn_id` = '99996'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '93.218' WHERE (`spawn_id` = '99996'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '414'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '414'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '413'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '413'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '48.737' WHERE (`spawn_id` = '6800'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '48.737' WHERE (`spawn_id` = '6800'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '58.253' WHERE (`spawn_id` = '6798'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '58.253' WHERE (`spawn_id` = '6798'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '58.253' WHERE (`spawn_id` = '6796'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '58.253' WHERE (`spawn_id` = '6796'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '412'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '412'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '411'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '411'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '43.697' WHERE (`spawn_id` = '6795'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '43.697' WHERE (`spawn_id` = '6795'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '43.697' WHERE (`spawn_id` = '6792'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '43.697' WHERE (`spawn_id` = '6792'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.438' WHERE (`spawn_id` = '6780'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.438' WHERE (`spawn_id` = '6780'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.438' WHERE (`spawn_id` = '6776'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.438' WHERE (`spawn_id` = '6776'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '6775'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '6775'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '6772'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.445' WHERE (`spawn_id` = '6772'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4622'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4622'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4621'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4621'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '57.256' WHERE (`spawn_id` = '4586'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '57.256' WHERE (`spawn_id` = '4586'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '57.253' WHERE (`spawn_id` = '4585');         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4584'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '57.253' WHERE (`spawn_id` = '4585');         -- Campfire Damage Z placement. 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4584'); 
         -- Gold Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-2714.971', `spawn_positionY` = '-3905.595', `spawn_positionZ` = '45.344' WHERE (`spawn_id` = '40744'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-2714.971', `spawn_positionY` = '-3905.595', `spawn_positionZ` = '45.344' WHERE (`spawn_id` = '40744'); 
         -- Gold Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '44.224' WHERE (`spawn_id` = '40744'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '44.224' WHERE (`spawn_id` = '40744'); 
         -- Solid Chest ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '40758'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '40758'); 
         -- Iron Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '39.803' WHERE (`spawn_id` = '40793'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '39.803' WHERE (`spawn_id` = '40793'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4582'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4582'); 
         -- Truesilver Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-10810.042', `spawn_positionY` = '-3671.329', `spawn_positionZ` = '23.302' WHERE (`spawn_id` = '30814'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-10810.042', `spawn_positionY` = '-3671.329', `spawn_positionZ` = '23.302' WHERE (`spawn_id` = '30814'); 
         -- Iron Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-10943.089', `spawn_positionY` = '-3760.101', `spawn_positionZ` = '9.309' WHERE (`spawn_id` = '30827'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-10943.089', `spawn_positionY` = '-3760.101', `spawn_positionZ` = '9.309' WHERE (`spawn_id` = '30827'); 
         -- Stove Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '32.469' WHERE (`spawn_id` = '32483'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '32.469' WHERE (`spawn_id` = '32483'); 
         -- Chair Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '32.16' WHERE (`spawn_id` = '32487'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '32.16' WHERE (`spawn_id` = '32487'); 
         -- Chair Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '32.216' WHERE (`spawn_id` = '32488'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '32.216' WHERE (`spawn_id` = '32488'); 
         -- The Last Guardian Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '31.223' WHERE (`spawn_id` = '42651'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '31.223' WHERE (`spawn_id` = '42651'); 
         -- Barrel of Milk Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '34.188' WHERE (`spawn_id` = '42733'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '34.188' WHERE (`spawn_id` = '42733'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4580'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4580'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4579'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4579'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4578'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4578'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4577'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.698' WHERE (`spawn_id` = '4577'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4574'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4574'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4573'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4573'); 
         -- Yelmak's Alchemy and Potions Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '41.982' WHERE (`spawn_id` = '4570'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '41.982' WHERE (`spawn_id` = '4570'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.222' WHERE (`spawn_id` = '4566'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '61.222' WHERE (`spawn_id` = '4566'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.223' WHERE (`spawn_id` = '4565'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '61.223' WHERE (`spawn_id` = '4565'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '40.547' WHERE (`spawn_id` = '4556'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '40.547' WHERE (`spawn_id` = '4556'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '40.546' WHERE (`spawn_id` = '4555'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '40.546' WHERE (`spawn_id` = '4555'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4552'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4552'); 
         -- Doodad_SmallFirePit72 ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4550'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4550'); 
         -- Anvil ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4549'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4549'); 
         -- Anvil Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.06' WHERE (`spawn_id` = '4548'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '46.06' WHERE (`spawn_id` = '4548'); 
         -- Musty Tome Trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.022' WHERE (`spawn_id` = '12201'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.022' WHERE (`spawn_id` = '12201'); 
         -- Musty Tome Trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '73.199' WHERE (`spawn_id` = '12196'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '73.199' WHERE (`spawn_id` = '12196'); 
         -- Musty Tome Trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '73.199' WHERE (`spawn_id` = '12195'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '73.199' WHERE (`spawn_id` = '12195'); 
 		        -- Stranglekelp Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '8.421' WHERE (`spawn_id` = '45113'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '8.421' WHERE (`spawn_id` = '45113'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '41.62' WHERE (`spawn_id` = '4545'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '41.62' WHERE (`spawn_id` = '4545'); 
         -- Mighty Blaze Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '41.62' WHERE (`spawn_id` = '4544'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '41.62' WHERE (`spawn_id` = '4544'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '163.335' WHERE (`spawn_id` = '20557'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '163.335' WHERE (`spawn_id` = '20557'); 
         -- Dire Pool Spell Focus ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '150000'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '150000'); 
         -- Campfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.274' WHERE (`spawn_id` = '45299'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '59.274' WHERE (`spawn_id` = '45299'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.287' WHERE (`spawn_id` = '45300'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '59.287' WHERE (`spawn_id` = '45300'); 
         -- Tirisfal Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '60.533' WHERE (`spawn_id` = '45316'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '60.533' WHERE (`spawn_id` = '45316'); 
         -- Torch ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '45428'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '45428'); 
         -- Andorhal Silo Temporal Rift Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '73.712' WHERE (`spawn_id` = '45439'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '73.712' WHERE (`spawn_id` = '45439'); 
         -- Andorhal Silo Temporal Rift Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.716' WHERE (`spawn_id` = '45441'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.716' WHERE (`spawn_id` = '45441'); 
         -- Andorhal Silo Temporal Rift Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '76.341' WHERE (`spawn_id` = '45443'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '76.341' WHERE (`spawn_id` = '45443'); 
         -- Andorhal Silo Temporal Rift Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '80.167' WHERE (`spawn_id` = '45446'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '80.167' WHERE (`spawn_id` = '45446'); 
         -- Andorhal Silo Temporal Rift Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.058' WHERE (`spawn_id` = '45447'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.058' WHERE (`spawn_id` = '45447'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '76.571' WHERE (`spawn_id` = '45448'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '76.571' WHERE (`spawn_id` = '45448'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '70.891' WHERE (`spawn_id` = '45449'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '70.891' WHERE (`spawn_id` = '45449'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.273' WHERE (`spawn_id` = '45450'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.273' WHERE (`spawn_id` = '45450'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.044' WHERE (`spawn_id` = '45451'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.044' WHERE (`spawn_id` = '45451'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '70.687' WHERE (`spawn_id` = '45452'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '70.687' WHERE (`spawn_id` = '45452'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.101' WHERE (`spawn_id` = '45453'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.101' WHERE (`spawn_id` = '45453'); 
         -- Small Lockbox XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1303.468', `spawn_positionY` = '-1380.219', `spawn_positionZ` = '72.814' WHERE (`spawn_id` = '45454'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1303.468', `spawn_positionY` = '-1380.219', `spawn_positionZ` = '72.814' WHERE (`spawn_id` = '45454'); 
         -- Small Lockbox XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1378.498', `spawn_positionY` = '-1239.792', `spawn_positionZ` = '72.016' WHERE (`spawn_id` = '45455'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1378.498', `spawn_positionY` = '-1239.792', `spawn_positionZ` = '72.016' WHERE (`spawn_id` = '45455'); 
         -- Small Lockbox XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1480.537', `spawn_positionY` = '-1571.094', `spawn_positionZ` = '75.59' WHERE (`spawn_id` = '45456'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1480.537', `spawn_positionY` = '-1571.094', `spawn_positionZ` = '75.59' WHERE (`spawn_id` = '45456'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.956' WHERE (`spawn_id` = '45457'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.956' WHERE (`spawn_id` = '45457'); 
         -- Musty Tome Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.427' WHERE (`spawn_id` = '45459'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.427' WHERE (`spawn_id` = '45459'); 
         -- Musty Tome Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.264' WHERE (`spawn_id` = '45460'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.264' WHERE (`spawn_id` = '45460'); 
         -- Musty Tome XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1373.177', `spawn_positionY` = '-1446.708', `spawn_positionZ` = '71.996' WHERE (`spawn_id` = '45461'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1373.177', `spawn_positionY` = '-1446.708', `spawn_positionZ` = '71.996' WHERE (`spawn_id` = '45461'); 
         -- Musty Tome Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.844' WHERE (`spawn_id` = '45462'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.844' WHERE (`spawn_id` = '45462'); 
         -- Musty Tome Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.253' WHERE (`spawn_id` = '45463'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.253' WHERE (`spawn_id` = '45463'); 
         -- Musty Tome XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1398.748', `spawn_positionY` = '-1448.656', `spawn_positionZ` = '73.433' WHERE (`spawn_id` = '45464'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1398.748', `spawn_positionY` = '-1448.656', `spawn_positionZ` = '73.433' WHERE (`spawn_id` = '45464'); 
         -- Musty Tome Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.022' WHERE (`spawn_id` = '45465'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.022' WHERE (`spawn_id` = '45465'); 
         -- Musty Tome Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '73.199' WHERE (`spawn_id` = '45466'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '73.199' WHERE (`spawn_id` = '45466'); 
         -- Musty Tome Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.429' WHERE (`spawn_id` = '45467'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.429' WHERE (`spawn_id` = '45467'); 
         -- Musty Tome Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '73.199' WHERE (`spawn_id` = '45468'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '73.199' WHERE (`spawn_id` = '45468'); 
         -- Plaguebloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.256' WHERE (`spawn_id` = '45472'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.256' WHERE (`spawn_id` = '45472'); 
         -- Solid Chest Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '70.328' WHERE (`spawn_id` = '45484'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '70.328' WHERE (`spawn_id` = '45484'); 
         -- Food Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '70.814' WHERE (`spawn_id` = '45491'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '70.814' WHERE (`spawn_id` = '45491'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1832.74', `spawn_positionY` = '-1031.8', `spawn_positionZ` = '79.4' WHERE (`spawn_id` = '45496'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1832.74', `spawn_positionY` = '-1031.8', `spawn_positionZ` = '79.4' WHERE (`spawn_id` = '45496'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.235' WHERE (`spawn_id` = '45496'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.235' WHERE (`spawn_id` = '45496'); 
         -- Small Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '70.64' WHERE (`spawn_id` = '45498'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '70.64' WHERE (`spawn_id` = '45498'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1228.091', `spawn_positionY` = '-969.696', `spawn_positionZ` = '76.672' WHERE (`spawn_id` = '45500'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1228.091', `spawn_positionY` = '-969.696', `spawn_positionZ` = '76.672' WHERE (`spawn_id` = '45500'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '74.539' WHERE (`spawn_id` = '45500'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '74.539' WHERE (`spawn_id` = '45500'); 
         -- Rich Thorium Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '2403.889', `spawn_positionY` = '-2346.683', `spawn_positionZ` = '105.489' WHERE (`spawn_id` = '45504'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '2403.889', `spawn_positionY` = '-2346.683', `spawn_positionZ` = '105.489' WHERE (`spawn_id` = '45504'); 
         -- Rich Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '104.579' WHERE (`spawn_id` = '45504'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '104.579' WHERE (`spawn_id` = '45504'); 
         -- Small Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.266' WHERE (`spawn_id` = '45505'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.266' WHERE (`spawn_id` = '45505'); 
         -- Northridge Lumber Mill Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.791' WHERE (`spawn_id` = '45507'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '59.791' WHERE (`spawn_id` = '45507'); 
         -- Blood of Heroes Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '66.342' WHERE (`spawn_id` = '45512'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '66.342' WHERE (`spawn_id` = '45512'); 
         -- Blood of Heroes Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '66.349' WHERE (`spawn_id` = '45513'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '66.349' WHERE (`spawn_id` = '45513'); 
         -- Andorhal Silo Temporal Rift Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.361' WHERE (`spawn_id` = '45517'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.361' WHERE (`spawn_id` = '45517'); 
         -- Andorhal Silo Temporal Rift Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '70.741' WHERE (`spawn_id` = '45518'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '70.741' WHERE (`spawn_id` = '45518'); 
         -- Andorhal Silo Temporal Rift ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '45522'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '45522'); 
         -- Andorhal Silo Temporal Rift Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '79.646' WHERE (`spawn_id` = '45525'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '79.646' WHERE (`spawn_id` = '45525'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.211' WHERE (`spawn_id` = '45527'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.211' WHERE (`spawn_id` = '45527'); 
         -- Small Lockbox XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1413.569', `spawn_positionY` = '-1315.386', `spawn_positionZ` = '72.972' WHERE (`spawn_id` = '45528'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1413.569', `spawn_positionY` = '-1315.386', `spawn_positionZ` = '72.972' WHERE (`spawn_id` = '45528'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '73.063' WHERE (`spawn_id` = '45529'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '73.063' WHERE (`spawn_id` = '45529'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.816' WHERE (`spawn_id` = '45530'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.816' WHERE (`spawn_id` = '45530'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.588' WHERE (`spawn_id` = '45531'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.588' WHERE (`spawn_id` = '45531'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '70.351' WHERE (`spawn_id` = '45532'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '70.351' WHERE (`spawn_id` = '45532'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.266' WHERE (`spawn_id` = '45533'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.266' WHERE (`spawn_id` = '45533'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '70.852' WHERE (`spawn_id` = '45534'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '70.852' WHERE (`spawn_id` = '45534'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.741' WHERE (`spawn_id` = '45535'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.741' WHERE (`spawn_id` = '45535'); 
         -- Small Lockbox Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '73.67' WHERE (`spawn_id` = '45536'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '73.67' WHERE (`spawn_id` = '45536'); 
         -- Dreamfoil Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.301' WHERE (`spawn_id` = '45538'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '59.301' WHERE (`spawn_id` = '45538'); 
         -- Sungrass Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.681' WHERE (`spawn_id` = '45539'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '59.681' WHERE (`spawn_id` = '45539'); 
         -- Arthas' Tears Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.648' WHERE (`spawn_id` = '45544'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.648' WHERE (`spawn_id` = '45544'); 
         -- Food Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '28.995' WHERE (`spawn_id` = '45547'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '28.995' WHERE (`spawn_id` = '45547'); 
         -- Food Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '72.035' WHERE (`spawn_id` = '45550'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '72.035' WHERE (`spawn_id` = '45550'); 
         -- Arthas' Tears Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '60.971' WHERE (`spawn_id` = '45555'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '60.971' WHERE (`spawn_id` = '45555'); 
         -- Plaguebloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '84.407' WHERE (`spawn_id` = '45556'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '84.407' WHERE (`spawn_id` = '45556'); 
         -- Campfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '83.995' WHERE (`spawn_id` = '45567'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '83.995' WHERE (`spawn_id` = '45567'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '83.995' WHERE (`spawn_id` = '45568'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '83.995' WHERE (`spawn_id` = '45568'); 
         -- Tyr's Hand Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '89.106' WHERE (`spawn_id` = '45569'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.106' WHERE (`spawn_id` = '45569'); 
         -- Symbol of Lost Honor Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '99.411' WHERE (`spawn_id` = '45581'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '99.411' WHERE (`spawn_id` = '45581'); 
         -- Campfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '134.787' WHERE (`spawn_id` = '45590'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '134.787' WHERE (`spawn_id` = '45590'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '134.737' WHERE (`spawn_id` = '45591'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '134.737' WHERE (`spawn_id` = '45591'); 
         --  ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '45625'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '45625'); 
         -- Elders' Square Service Entrance ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '45626'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '45626'); 
         -- Doodad_SmallPortcullis05 ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '45627'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '45627'); 
         -- Mark of Detonation Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '105.118' WHERE (`spawn_id` = '45698'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '105.118' WHERE (`spawn_id` = '45698'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '102.293' WHERE (`spawn_id` = '45732'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '102.293' WHERE (`spawn_id` = '45732'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '114.332' WHERE (`spawn_id` = '45760'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '114.332' WHERE (`spawn_id` = '45760'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '102.458' WHERE (`spawn_id` = '45763'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '102.458' WHERE (`spawn_id` = '45763'); 
         -- Mark of Detonation Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '137.122' WHERE (`spawn_id` = '45772'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '137.122' WHERE (`spawn_id` = '45772'); 
         -- Mark of Detonation Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '140.006' WHERE (`spawn_id` = '45773'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '140.006' WHERE (`spawn_id` = '45773'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '130.308' WHERE (`spawn_id` = '45789'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '130.308' WHERE (`spawn_id` = '45789'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '100.612' WHERE (`spawn_id` = '45795'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '100.612' WHERE (`spawn_id` = '45795'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '109.668' WHERE (`spawn_id` = '45798'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '109.668' WHERE (`spawn_id` = '45798'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '102.369' WHERE (`spawn_id` = '45799'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '102.369' WHERE (`spawn_id` = '45799'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '100.952' WHERE (`spawn_id` = '45800'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '100.952' WHERE (`spawn_id` = '45800'); 
         -- Mark of Detonation Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '127.669' WHERE (`spawn_id` = '45801'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '127.669' WHERE (`spawn_id` = '45801'); 
         -- Mountain Silversage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '139.263' WHERE (`spawn_id` = '45814'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '139.263' WHERE (`spawn_id` = '45814'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '105.279' WHERE (`spawn_id` = '45817'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '105.279' WHERE (`spawn_id` = '45817'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '99.884' WHERE (`spawn_id` = '45818'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '99.884' WHERE (`spawn_id` = '45818'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '113.077' WHERE (`spawn_id` = '45819'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '113.077' WHERE (`spawn_id` = '45819'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '101.051' WHERE (`spawn_id` = '45820'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '101.051' WHERE (`spawn_id` = '45820'); 
         -- Mountain Silversage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '159.214' WHERE (`spawn_id` = '45826'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '159.214' WHERE (`spawn_id` = '45826'); 
         -- Terrordale Haunting Spirit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '3108.237', `spawn_positionY` = '-2822.39', `spawn_positionZ` = '105.503' WHERE (`spawn_id` = '45829'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '3108.237', `spawn_positionY` = '-2822.39', `spawn_positionZ` = '105.503' WHERE (`spawn_id` = '45829'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '101.617' WHERE (`spawn_id` = '45830'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '101.617' WHERE (`spawn_id` = '45830'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '111.096' WHERE (`spawn_id` = '45831'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '111.096' WHERE (`spawn_id` = '45831'); 
         -- Plaguebloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '104.447' WHERE (`spawn_id` = '45833'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '104.447' WHERE (`spawn_id` = '45833'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '81.056' WHERE (`spawn_id` = '45846'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '81.056' WHERE (`spawn_id` = '45846'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '79.799' WHERE (`spawn_id` = '45846'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '79.799' WHERE (`spawn_id` = '45846'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '135.854' WHERE (`spawn_id` = '45848'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '135.854' WHERE (`spawn_id` = '45848'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '137.422' WHERE (`spawn_id` = '45849'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '137.422' WHERE (`spawn_id` = '45849'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '149.152' WHERE (`spawn_id` = '45850'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '149.152' WHERE (`spawn_id` = '45850'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '112.573' WHERE (`spawn_id` = '45852'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '112.573' WHERE (`spawn_id` = '45852'); 
         -- Blood of Heroes Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.22' WHERE (`spawn_id` = '45853'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '121.22' WHERE (`spawn_id` = '45853'); 
         -- Blood of Heroes Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.68' WHERE (`spawn_id` = '45854'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '121.68' WHERE (`spawn_id` = '45854'); 
         -- Large Termite Mound XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '3103.807', `spawn_positionY` = '-3902.939', `spawn_positionZ` = '122.409' WHERE (`spawn_id` = '45858'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '3103.807', `spawn_positionY` = '-3902.939', `spawn_positionZ` = '122.409' WHERE (`spawn_id` = '45858'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '136.742' WHERE (`spawn_id` = '45859'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '136.742' WHERE (`spawn_id` = '45859'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '100.775' WHERE (`spawn_id` = '45865'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '100.775' WHERE (`spawn_id` = '45865'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '114.734' WHERE (`spawn_id` = '45866'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '114.734' WHERE (`spawn_id` = '45866'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '122.073' WHERE (`spawn_id` = '45867'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '122.073' WHERE (`spawn_id` = '45867'); 
         -- Blood of Heroes Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '106.301' WHERE (`spawn_id` = '45868'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '106.301' WHERE (`spawn_id` = '45868'); 
         -- Blood of Heroes Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '106.298' WHERE (`spawn_id` = '45869'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '106.298' WHERE (`spawn_id` = '45869'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '128.461' WHERE (`spawn_id` = '45871'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '128.461' WHERE (`spawn_id` = '45871'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.078' WHERE (`spawn_id` = '45872'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '121.078' WHERE (`spawn_id` = '45872'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '140.15' WHERE (`spawn_id` = '45873'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '140.15' WHERE (`spawn_id` = '45873'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '129.798' WHERE (`spawn_id` = '45874'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '129.798' WHERE (`spawn_id` = '45874'); 
         -- Augustus' Receipt Book Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '99.758' WHERE (`spawn_id` = '45879'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '99.758' WHERE (`spawn_id` = '45879'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '140.905' WHERE (`spawn_id` = '45888'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '140.905' WHERE (`spawn_id` = '45888'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.025' WHERE (`spawn_id` = '45889'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '121.025' WHERE (`spawn_id` = '45889'); 
         -- Large Termite Mound Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.006' WHERE (`spawn_id` = '45890'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '121.006' WHERE (`spawn_id` = '45890'); 
         -- Small Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '125.564' WHERE (`spawn_id` = '45893'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '125.564' WHERE (`spawn_id` = '45893'); 
         -- Terrordale Haunting Spirit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '104.675' WHERE (`spawn_id` = '45902'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '104.675' WHERE (`spawn_id` = '45902'); 
         -- Mark of Detonation Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '124.511' WHERE (`spawn_id` = '45907'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '124.511' WHERE (`spawn_id` = '45907'); 
         -- Mark of Detonation Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '152.096' WHERE (`spawn_id` = '45911'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '152.096' WHERE (`spawn_id` = '45911'); 
         -- Arthas' Tears Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '127.165' WHERE (`spawn_id` = '45912'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '127.165' WHERE (`spawn_id` = '45912'); 
         -- Mark of Detonation Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '151.116' WHERE (`spawn_id` = '45913'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '151.116' WHERE (`spawn_id` = '45913'); 
         -- Small Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '123.623' WHERE (`spawn_id` = '45970'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '123.623' WHERE (`spawn_id` = '45970'); 
         -- Rin'ji's Secret XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '41.403', `spawn_positionY` = '-4700.057', `spawn_positionZ` = '3.86' WHERE (`spawn_id` = '46007'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '41.403', `spawn_positionY` = '-4700.057', `spawn_positionZ` = '3.86' WHERE (`spawn_id` = '46007'); 
         -- Campfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '5.99' WHERE (`spawn_id` = '46037'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '5.99' WHERE (`spawn_id` = '46037'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '6.603' WHERE (`spawn_id` = '46038'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '6.603' WHERE (`spawn_id` = '46038'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '122.249' WHERE (`spawn_id` = '46044'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '122.249' WHERE (`spawn_id` = '46044'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '122.249' WHERE (`spawn_id` = '46045'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '122.249' WHERE (`spawn_id` = '46045'); 
         -- Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46050'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46050'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46051'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46051'); 
         -- Anvil ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46052'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46052'); 
         -- Forge ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46082'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46082'); 
         -- Wooden Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46173'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46173'); 
         -- Wooden Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46174'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46174'); 
         -- Wooden Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46175'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46175'); 
         -- Dwarven Fire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46176'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46176'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46177'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46177'); 
         -- Call to Arms! ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46197'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46197'); 
         -- Goldthorn ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46205'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46205'); 
         -- Troll Drum Sound Object ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46214'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46214'); 
         -- Wildkin Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46215'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46215'); 
         -- Food Crate XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-259.857', `spawn_positionY` = '-4474.603', `spawn_positionZ` = '-0.215' WHERE (`spawn_id` = '46226'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-259.857', `spawn_positionY` = '-4474.603', `spawn_positionZ` = '-0.215' WHERE (`spawn_id` = '46226'); 
         -- Wildkin Feather Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '117.543' WHERE (`spawn_id` = '46243'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '117.543' WHERE (`spawn_id` = '46243'); 
         -- Horde Supply Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '117.283' WHERE (`spawn_id` = '46245'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '117.283' WHERE (`spawn_id` = '46245'); 
         -- Wildkin Feather Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '120.22' WHERE (`spawn_id` = '46250'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '120.22' WHERE (`spawn_id` = '46250'); 
         -- Mithril Deposit ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46257'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46257'); 
         -- Food Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '122.532' WHERE (`spawn_id` = '46275'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '122.532' WHERE (`spawn_id` = '46275'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46286'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46286'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46287'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46287'); 
         -- Ghost Mushroom XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-585.659', `spawn_positionY` = '-3828.295', `spawn_positionZ` = '227.271' WHERE (`spawn_id` = '46299'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-585.659', `spawn_positionY` = '-3828.295', `spawn_positionZ` = '227.271' WHERE (`spawn_id` = '46299'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '224.316' WHERE (`spawn_id` = '46301'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '224.316' WHERE (`spawn_id` = '46301'); 
         -- Ghost Mushroom XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-590.659', `spawn_positionY` = '-3848.295', `spawn_positionZ` = '227.271' WHERE (`spawn_id` = '46303'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-590.659', `spawn_positionY` = '-3848.295', `spawn_positionZ` = '227.271' WHERE (`spawn_id` = '46303'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46307'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46307'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46308'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46308'); 
         -- Purple Lotus Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '117.175' WHERE (`spawn_id` = '46311'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '117.175' WHERE (`spawn_id` = '46311'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46314'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46314'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46315'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46315'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46318'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46318'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46319'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46319'); 
         -- Violet Tragan Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '122.77' WHERE (`spawn_id` = '46327'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '122.77' WHERE (`spawn_id` = '46327'); 
         -- Violet Tragan Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '126.72' WHERE (`spawn_id` = '46339'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '126.72' WHERE (`spawn_id` = '46339'); 
         -- Violet Tragan Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.453' WHERE (`spawn_id` = '46340'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '121.453' WHERE (`spawn_id` = '46340'); 
         -- Solid Chest Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '154.948' WHERE (`spawn_id` = '46345'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '154.948' WHERE (`spawn_id` = '46345'); 
         -- Violet Tragan Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '126.462' WHERE (`spawn_id` = '46347'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '126.462' WHERE (`spawn_id` = '46347'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46348'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46348'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46349'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46349'); 
         -- Pupellyverbos Port XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '164.261', `spawn_positionY` = '-4741.482', `spawn_positionZ` = '-0.384' WHERE (`spawn_id` = '46351'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '164.261', `spawn_positionY` = '-4741.482', `spawn_positionZ` = '-0.384' WHERE (`spawn_id` = '46351'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46352'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46352'); 
         -- Horde Supply Crate XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '388.588', `spawn_positionY` = '-3781.106', `spawn_positionZ` = '118.27' WHERE (`spawn_id` = '46355'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '388.588', `spawn_positionY` = '-3781.106', `spawn_positionZ` = '118.27' WHERE (`spawn_id` = '46355'); 
         -- Horde Supply Crate XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '352.642', `spawn_positionY` = '-3786.515', `spawn_positionZ` = '99.569' WHERE (`spawn_id` = '46356'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '352.642', `spawn_positionY` = '-3786.515', `spawn_positionZ` = '99.569' WHERE (`spawn_id` = '46356'); 
         -- Horde Supply Crate XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '442.992', `spawn_positionY` = '-3768.702', `spawn_positionZ` = '117.949' WHERE (`spawn_id` = '46357'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '442.992', `spawn_positionY` = '-3768.702', `spawn_positionZ` = '117.949' WHERE (`spawn_id` = '46357'); 
         -- Horde Supply Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '117.649' WHERE (`spawn_id` = '46358'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '117.649' WHERE (`spawn_id` = '46358'); 
         -- Ghost Mushroom XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '391.796', `spawn_positionY` = '-3823.509', `spawn_positionZ` = '111.889' WHERE (`spawn_id` = '46364'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '391.796', `spawn_positionY` = '-3823.509', `spawn_positionZ` = '111.889' WHERE (`spawn_id` = '46364'); 
         -- Ghost Mushroom XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '382.405', `spawn_positionY` = '-3792.384', `spawn_positionZ` = '110.115' WHERE (`spawn_id` = '46365'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '382.405', `spawn_positionY` = '-3792.384', `spawn_positionZ` = '110.115' WHERE (`spawn_id` = '46365'); 
         -- Ghost Mushroom XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '328.388', `spawn_positionY` = '-3823.624', `spawn_positionZ` = '103.504' WHERE (`spawn_id` = '46366'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '328.388', `spawn_positionY` = '-3823.624', `spawn_positionZ` = '103.504' WHERE (`spawn_id` = '46366'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46372'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46372'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46374'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46374'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46375'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46375'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46376'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46376'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46378'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46378'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46379'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46379'); 
         -- Pupellyverbos Port Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.838' WHERE (`spawn_id` = '46381'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.838' WHERE (`spawn_id` = '46381'); 
         -- Truesilver Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-49.91', `spawn_positionY` = '-4537.59', `spawn_positionZ` = '11.151' WHERE (`spawn_id` = '46403'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-49.91', `spawn_positionY` = '-4537.59', `spawn_positionZ` = '11.151' WHERE (`spawn_id` = '46403'); 
         -- Truesilver Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '8.582' WHERE (`spawn_id` = '46403'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '8.582' WHERE (`spawn_id` = '46403'); 
         -- Violet Tragan Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '123.238' WHERE (`spawn_id` = '46404'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '123.238' WHERE (`spawn_id` = '46404'); 
         -- Violet Tragan Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '128.452' WHERE (`spawn_id` = '46406'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '128.452' WHERE (`spawn_id` = '46406'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46407'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46407'); 
         -- Pupellyverbos Port Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '0.065' WHERE (`spawn_id` = '46408'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '0.065' WHERE (`spawn_id` = '46408'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46409'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46409'); 
         -- Pupellyverbos Port Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '5.144' WHERE (`spawn_id` = '46410'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '5.144' WHERE (`spawn_id` = '46410'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46411'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46411'); 
         -- Pupellyverbos Port Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '14.251' WHERE (`spawn_id` = '46412'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '14.251' WHERE (`spawn_id` = '46412'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46414'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46414'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46415'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46415'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46416'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46416'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46417'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46417'); 
         -- Sungrass Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '119.046' WHERE (`spawn_id` = '46429'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '119.046' WHERE (`spawn_id` = '46429'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '416.316', `spawn_positionY` = '-3757.77', `spawn_positionZ` = '119.386' WHERE (`spawn_id` = '46432'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '416.316', `spawn_positionY` = '-3757.77', `spawn_positionZ` = '119.386' WHERE (`spawn_id` = '46432'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '118.323' WHERE (`spawn_id` = '46432'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '118.323' WHERE (`spawn_id` = '46432'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '463.839', `spawn_positionY` = '-3794.34', `spawn_positionZ` = '119.291' WHERE (`spawn_id` = '46433'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '463.839', `spawn_positionY` = '-3794.34', `spawn_positionZ` = '119.291' WHERE (`spawn_id` = '46433'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '116.934' WHERE (`spawn_id` = '46433'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '116.934' WHERE (`spawn_id` = '46433'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46435'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46435'); 
         -- Pupellyverbos Port ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46436'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46436'); 
         -- Pupellyverbos Port Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.107' WHERE (`spawn_id` = '46437'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.107' WHERE (`spawn_id` = '46437'); 
         -- Small Thorium Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-661.488', `spawn_positionY` = '-3785.557', `spawn_positionZ` = '216.708' WHERE (`spawn_id` = '46438'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-661.488', `spawn_positionY` = '-3785.557', `spawn_positionZ` = '216.708' WHERE (`spawn_id` = '46438'); 
         -- Sungrass Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '116.724' WHERE (`spawn_id` = '46440'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '116.724' WHERE (`spawn_id` = '46440'); 
         -- Benedict's Chest Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '49.131' WHERE (`spawn_id` = '1746'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '49.131' WHERE (`spawn_id` = '1746'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '312.711', `spawn_positionY` = '-4655.437', `spawn_positionZ` = '16.079' WHERE (`spawn_id` = '1739'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '312.711', `spawn_positionY` = '-4655.437', `spawn_positionZ` = '16.079' WHERE (`spawn_id` = '1739'); 
         -- Bubbling Cauldron XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '316.298', `spawn_positionY` = '-4655.536', `spawn_positionZ` = '16.101' WHERE (`spawn_id` = '1733'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '316.298', `spawn_positionY` = '-4655.536', `spawn_positionZ` = '16.101' WHERE (`spawn_id` = '1733'); 
         -- TEMP Grimtotem Tent Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '41.324' WHERE (`spawn_id` = '99859'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '41.324' WHERE (`spawn_id` = '99859'); 
         -- TEMP Grimtotem Tent Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.147' WHERE (`spawn_id` = '99858'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.147' WHERE (`spawn_id` = '99858'); 
         -- TEMP Hyjal Family Monument Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '6.784' WHERE (`spawn_id` = '99857'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '6.784' WHERE (`spawn_id` = '99857'); 
         -- TEMP Entrance to Onyxia's Lair Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.075' WHERE (`spawn_id` = '99855'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '14.039' WHERE (`spawn_id` = '1620'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '36.075' WHERE (`spawn_id` = '99855'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '14.039' WHERE (`spawn_id` = '1620'); 
         -- Stone Door ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '30161'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1379');         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '29216'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '30161'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1379');         -- Campfire Damage ignored, out of reach. 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '29216'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '29214'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '29214'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '29213'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '29213'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '29212'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '29212'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '29215'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '29215'); 
         -- Darkmoon Faire Music Doodad Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-21.6' WHERE (`spawn_id` = '21'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-21.6' WHERE (`spawn_id` = '21'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '323.466', `spawn_positionY` = '-4657.013', `spawn_positionZ` = '16.242' WHERE (`spawn_id` = '402'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '323.466', `spawn_positionY` = '-4657.013', `spawn_positionZ` = '16.242' WHERE (`spawn_id` = '402'); 
         -- Campfire XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '323.466', `spawn_positionY` = '-4657.013', `spawn_positionZ` = '16.242' WHERE (`spawn_id` = '401'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '323.466', `spawn_positionY` = '-4657.013', `spawn_positionZ` = '16.242' WHERE (`spawn_id` = '401'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '313.717', `spawn_positionY` = '-4655.008', `spawn_positionZ` = '16.166' WHERE (`spawn_id` = '400'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '313.717', `spawn_positionY` = '-4655.008', `spawn_positionZ` = '16.166' WHERE (`spawn_id` = '400'); 
         -- Cooking Table XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '313.717', `spawn_positionY` = '-4655.008', `spawn_positionZ` = '16.166' WHERE (`spawn_id` = '399'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '313.717', `spawn_positionY` = '-4655.008', `spawn_positionZ` = '16.166' WHERE (`spawn_id` = '399'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.956' WHERE (`spawn_id` = '15'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.956' WHERE (`spawn_id` = '15'); 
         -- Fire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.956' WHERE (`spawn_id` = '14'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.956' WHERE (`spawn_id` = '14'); 
         -- Venture Co. Wagon Trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-0.438' WHERE (`spawn_id` = '47592'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-0.438' WHERE (`spawn_id` = '47592'); 
         -- Venture Co. Wagon (Blue) Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-0.291' WHERE (`spawn_id` = '47594'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-0.291' WHERE (`spawn_id` = '47594'); 
         -- Venture Co. Copter Pad Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '25.856' WHERE (`spawn_id` = '47596'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '25.856' WHERE (`spawn_id` = '47596'); 
         -- Sleepers' Cache ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47599'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47599'); 
         -- Druids' Cache Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '355.897' WHERE (`spawn_id` = '47600'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '355.897' WHERE (`spawn_id` = '47600'); 
         -- Barrow Cache XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '2449.52', `spawn_positionY` = '1788.413', `spawn_positionZ` = '348.378' WHERE (`spawn_id` = '47602'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '2449.52', `spawn_positionY` = '1788.413', `spawn_positionZ` = '348.378' WHERE (`spawn_id` = '47602'); 
         -- Forge Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-2.245' WHERE (`spawn_id` = '47603'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-2.245' WHERE (`spawn_id` = '47603'); 
         -- Venture Co. Wagon (Red) Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.884' WHERE (`spawn_id` = '47605'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.884' WHERE (`spawn_id` = '47605'); 
         -- Venture Co. Engineering Plans Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-5.923' WHERE (`spawn_id` = '47606'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-5.923' WHERE (`spawn_id` = '47606'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47608'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47608'); 
         -- Windshear Crag ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47609'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47609'); 
         -- Stonetalon Peak ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47610'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47610'); 
         -- Desolace ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47611'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47611'); 
         -- The Charred Vale ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47612'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47612'); 
         -- Sun Rock Retreat ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47613'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47613'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47625'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47625'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47626'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47626'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47627'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47627'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47628'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47628'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47629'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47629'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47630'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47630'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47631'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47631'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47632'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47632'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47633'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47633'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47634'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47634'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47635'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47635'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47636'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47636'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47637'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47637'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47638'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47638'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47639'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47639'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47640'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47640'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47641'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47641'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47642'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47642'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47643'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47643'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47645'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47645'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47646'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47646'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47647'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47647'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47648'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47648'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47649'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47649'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47650'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47650'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47651'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47651'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47652'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47652'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47653'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47653'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47654'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47654'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47655'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47655'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47656'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47656'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47657'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47657'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47658'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47658'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47659'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47659'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47660'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47660'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47661'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47661'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47662'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47662'); 
         -- Resonite Crystal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47663'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47663'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '1480.048', `spawn_positionY` = '-16.667', `spawn_positionZ` = '17.125' WHERE (`spawn_id` = '47675'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '1480.048', `spawn_positionY` = '-16.667', `spawn_positionZ` = '17.125' WHERE (`spawn_id` = '47675'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '14.88' WHERE (`spawn_id` = '47675'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '14.88' WHERE (`spawn_id` = '47675'); 
         -- Tin Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47678'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47678'); 
         -- Tin Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47682'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47682'); 
         -- Resonite Cask ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47691'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47691'); 
         -- Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47694'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47694'); 
         -- Heartswood Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '5.983' WHERE (`spawn_id` = '47699'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '5.983' WHERE (`spawn_id` = '47699'); 
         -- Sapphire of Aku'Mai ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47700'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47700'); 
         -- Sapphire of Aku'Mai ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47701'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47701'); 
         -- Sapphire of Aku'Mai ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47702'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47702'); 
         -- Sapphire of Aku'Mai ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47703'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47703'); 
         -- Sapphire of Aku'Mai ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47704'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47704'); 
         -- Sapphire of Aku'Mai ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47705'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47705'); 
         -- Sapphire of Aku'Mai ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47706'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47706'); 
         -- Sapphire of Aku'Mai ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47708'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47708'); 
         -- Sapphire of Aku'Mai ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47709'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47709'); 
         -- Sapphire of Aku'Mai ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47710'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47710'); 
         -- Sapphire of Aku'Mai ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47711'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47711'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '102.438' WHERE (`spawn_id` = '47718'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '102.438' WHERE (`spawn_id` = '47718'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '105.388' WHERE (`spawn_id` = '47736'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '105.388' WHERE (`spawn_id` = '47736'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47751'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47751'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47752'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47752'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47753'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47753'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47754'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47754'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47755'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47755'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47756'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47756'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47757'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47757'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '2358.406', `spawn_positionY` = '-2577.023', `spawn_positionZ` = '102.402' WHERE (`spawn_id` = '47790'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '2358.406', `spawn_positionY` = '-2577.023', `spawn_positionZ` = '102.402' WHERE (`spawn_id` = '47790'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '2358.406', `spawn_positionY` = '-2577.023', `spawn_positionZ` = '102.402' WHERE (`spawn_id` = '47791'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '2358.406', `spawn_positionY` = '-2577.023', `spawn_positionZ` = '102.402' WHERE (`spawn_id` = '47791'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '88.452' WHERE (`spawn_id` = '47792'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '88.452' WHERE (`spawn_id` = '47792'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47793'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47793'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47794'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47794'); 
         -- Table Cooker Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '93.062' WHERE (`spawn_id` = '47854'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '93.062' WHERE (`spawn_id` = '47854'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '105.846' WHERE (`spawn_id` = '47893'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '105.846' WHERE (`spawn_id` = '47893'); 
         -- Giant Clam XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47894'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47894'); 
         -- Barrel of Melon Juice Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '102.881' WHERE (`spawn_id` = '47897'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '102.881' WHERE (`spawn_id` = '47897'); 
         -- Barrel of Melon Juice Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '102.288' WHERE (`spawn_id` = '47898'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '102.288' WHERE (`spawn_id` = '47898'); 
         -- Bruiseweed Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '48.882' WHERE (`spawn_id` = '47931'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '48.882' WHERE (`spawn_id` = '47931'); 
         -- Bruiseweed XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '4018.277', `spawn_positionY` = '579.733', `spawn_positionZ` = '19.191' WHERE (`spawn_id` = '47937'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '4018.277', `spawn_positionY` = '579.733', `spawn_positionZ` = '19.191' WHERE (`spawn_id` = '47937'); 
         -- Blazing Fire XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '2358.686', `spawn_positionY` = '-2577.604', `spawn_positionZ` = '102.427' WHERE (`spawn_id` = '47940'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '2358.686', `spawn_positionY` = '-2577.604', `spawn_positionZ` = '102.427' WHERE (`spawn_id` = '47940'); 
         -- Blazing Fire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '88.452' WHERE (`spawn_id` = '47963'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '88.452' WHERE (`spawn_id` = '47963'); 
         -- Charge of the Dragonflights Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '120.495' WHERE (`spawn_id` = '47975'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '120.495' WHERE (`spawn_id` = '47975'); 
         -- Food Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '5.326' WHERE (`spawn_id` = '47979'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '5.326' WHERE (`spawn_id` = '47979'); 
         -- Moonwell Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '175.219' WHERE (`spawn_id` = '47991'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '175.219' WHERE (`spawn_id` = '47991'); 
         -- Plant Bundle Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '8.047' WHERE (`spawn_id` = '47995'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '8.047' WHERE (`spawn_id` = '47995'); 
         -- Plant Bundle Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-2.093' WHERE (`spawn_id` = '47996'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-2.093' WHERE (`spawn_id` = '47996'); 
         -- Plant Bundle Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '1.383' WHERE (`spawn_id` = '47998'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '1.383' WHERE (`spawn_id` = '47998'); 
         -- Plant Bundle Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '5.778' WHERE (`spawn_id` = '47999'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '5.778' WHERE (`spawn_id` = '47999'); 
         -- Sunwell - The Fall of Quel'Thalas Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '111.108' WHERE (`spawn_id` = '48008'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '111.108' WHERE (`spawn_id` = '48008'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '119.214' WHERE (`spawn_id` = '48215'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '119.214' WHERE (`spawn_id` = '48215'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '111.16' WHERE (`spawn_id` = '48218'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '111.16' WHERE (`spawn_id` = '48218'); 
         -- Makeshift Helipad Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '11.649' WHERE (`spawn_id` = '48357'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '11.649' WHERE (`spawn_id` = '48357'); 
         -- Solid Chest Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '101.105' WHERE (`spawn_id` = '48366'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '101.105' WHERE (`spawn_id` = '48366'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48388'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48388'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48389'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48389'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48390'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48390'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48391'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48391'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48394'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48394'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48395'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48395'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48397'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48397'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48399'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48399'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48400'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48400'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48402'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48402'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48403'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48403'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48404'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48404'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48405'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48405'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48406'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48406'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48416'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48416'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48428'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48428'); 
         -- Mountain Silversage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48434'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48434'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48436'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48436'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48437'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48437'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48438'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48438'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48440'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48440'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48446'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48446'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48448'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48448'); 
         -- Brazier Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '119.214' WHERE (`spawn_id` = '48457'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '119.214' WHERE (`spawn_id` = '48457'); 
         -- Chair ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48458'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48458'); 
         -- Brazier Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '111.16' WHERE (`spawn_id` = '48462'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '111.16' WHERE (`spawn_id` = '48462'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '4316.012', `spawn_positionY` = '575.773', `spawn_positionZ` = '61.92' WHERE (`spawn_id` = '48502'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '4316.012', `spawn_positionY` = '575.773', `spawn_positionZ` = '61.92' WHERE (`spawn_id` = '48502'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.928' WHERE (`spawn_id` = '48502'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '59.928' WHERE (`spawn_id` = '48502'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '5120.971', `spawn_positionY` = '637.447', `spawn_positionZ` = '-7.375' WHERE (`spawn_id` = '48518'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '5120.971', `spawn_positionY` = '637.447', `spawn_positionZ` = '-7.375' WHERE (`spawn_id` = '48518'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '4818.588', `spawn_positionY` = '941.648', `spawn_positionZ` = '-19.097' WHERE (`spawn_id` = '48520'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '4818.588', `spawn_positionY` = '941.648', `spawn_positionZ` = '-19.097' WHERE (`spawn_id` = '48520'); 
         -- Beached Sea Turtle ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48521'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48521'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '4572.592', `spawn_positionY` = '824.633', `spawn_positionZ` = '-3.232' WHERE (`spawn_id` = '48524'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '4572.592', `spawn_positionY` = '824.633', `spawn_positionZ` = '-3.232' WHERE (`spawn_id` = '48524'); 
         -- Beached Sea Creature ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48526'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48526'); 
         -- Sapphire of Aku'Mai XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '4403.399', `spawn_positionY` = '907.177', `spawn_positionZ` = '1.197' WHERE (`spawn_id` = '48527'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '4403.399', `spawn_positionY` = '907.177', `spawn_positionZ` = '1.197' WHERE (`spawn_id` = '48527'); 
         -- Giant Clam XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '4363.887', `spawn_positionY` = '1003.109', `spawn_positionZ` = '4.508' WHERE (`spawn_id` = '48528'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '4363.887', `spawn_positionY` = '1003.109', `spawn_positionZ` = '4.508' WHERE (`spawn_id` = '48528'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '5578.997', `spawn_positionY` = '586.996', `spawn_positionZ` = '-2.833' WHERE (`spawn_id` = '48542'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '5578.997', `spawn_positionY` = '586.996', `spawn_positionZ` = '-2.833' WHERE (`spawn_id` = '48542'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '5919.008', `spawn_positionY` = '637.43', `spawn_positionZ` = '-1.527' WHERE (`spawn_id` = '48553'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '5919.008', `spawn_positionY` = '637.43', `spawn_positionZ` = '-1.527' WHERE (`spawn_id` = '48553'); 
         -- Tin Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '5907.53', `spawn_positionY` = '615.816', `spawn_positionZ` = '1.088' WHERE (`spawn_id` = '48554'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '5907.53', `spawn_positionY` = '615.816', `spawn_positionZ` = '1.088' WHERE (`spawn_id` = '48554'); 
         -- Barrel of Milk Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '24.18' WHERE (`spawn_id` = '48560'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '24.18' WHERE (`spawn_id` = '48560'); 
         -- Barrel of Milk Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '23.423' WHERE (`spawn_id` = '48561'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '23.423' WHERE (`spawn_id` = '48561'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '27.143' WHERE (`spawn_id` = '48568'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '27.143' WHERE (`spawn_id` = '48568'); 
         -- Moonkin Stone Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '27.12' WHERE (`spawn_id` = '48565'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '27.12' WHERE (`spawn_id` = '48565'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '27.46' WHERE (`spawn_id` = '48566'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '27.46' WHERE (`spawn_id` = '48566'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '28.648' WHERE (`spawn_id` = '48567'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '28.648' WHERE (`spawn_id` = '48567'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '27.143' WHERE (`spawn_id` = '48568'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '27.143' WHERE (`spawn_id` = '48568'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '35.831' WHERE (`spawn_id` = '48569'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '35.831' WHERE (`spawn_id` = '48569'); 
         -- Mysterious Red Crystal Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '86.179' WHERE (`spawn_id` = '48571'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '86.179' WHERE (`spawn_id` = '48571'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.245' WHERE (`spawn_id` = '48573'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.245' WHERE (`spawn_id` = '48573'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.433' WHERE (`spawn_id` = '48574'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.433' WHERE (`spawn_id` = '48574'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '63.517' WHERE (`spawn_id` = '48575'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '63.517' WHERE (`spawn_id` = '48575'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.898' WHERE (`spawn_id` = '48576'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.898' WHERE (`spawn_id` = '48576'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '34.161' WHERE (`spawn_id` = '48577'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '34.161' WHERE (`spawn_id` = '48577'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6149.422', `spawn_positionY` = '-113.045', `spawn_positionZ` = '60.004' WHERE (`spawn_id` = '48578'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6149.422', `spawn_positionY` = '-113.045', `spawn_positionZ` = '60.004' WHERE (`spawn_id` = '48578'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '56.845' WHERE (`spawn_id` = '48578'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '56.845' WHERE (`spawn_id` = '48578'); 
         -- Common Magebloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '37.045' WHERE (`spawn_id` = '48579'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '37.045' WHERE (`spawn_id` = '48579'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '58.803' WHERE (`spawn_id` = '48581'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '58.803' WHERE (`spawn_id` = '48581'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '32.897' WHERE (`spawn_id` = '48582'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '32.897' WHERE (`spawn_id` = '48582'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.196' WHERE (`spawn_id` = '48583'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.196' WHERE (`spawn_id` = '48583'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.562' WHERE (`spawn_id` = '48584'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '36.562' WHERE (`spawn_id` = '48584'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '5984.068', `spawn_positionY` = '-127.752', `spawn_positionZ` = '70.309' WHERE (`spawn_id` = '48585'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '5984.068', `spawn_positionY` = '-127.752', `spawn_positionZ` = '70.309' WHERE (`spawn_id` = '48585'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '67.38' WHERE (`spawn_id` = '48585'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '67.38' WHERE (`spawn_id` = '48585'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '30.531' WHERE (`spawn_id` = '48586'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '30.531' WHERE (`spawn_id` = '48586'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '29.353' WHERE (`spawn_id` = '48589'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '29.353' WHERE (`spawn_id` = '48589'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '28.97' WHERE (`spawn_id` = '48590'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '28.97' WHERE (`spawn_id` = '48590'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '29.797' WHERE (`spawn_id` = '48591'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '29.797' WHERE (`spawn_id` = '48591'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '28.758' WHERE (`spawn_id` = '48592'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '28.758' WHERE (`spawn_id` = '48592'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '31.412' WHERE (`spawn_id` = '48593'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '31.412' WHERE (`spawn_id` = '48593'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '34.788' WHERE (`spawn_id` = '48594'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '34.788' WHERE (`spawn_id` = '48594'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '32.678' WHERE (`spawn_id` = '48595'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '32.678' WHERE (`spawn_id` = '48595'); 
         -- Lunar Fungal Bloom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '32.987' WHERE (`spawn_id` = '48596'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '32.987' WHERE (`spawn_id` = '48596'); 
         -- Campfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '37.945' WHERE (`spawn_id` = '48608'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '37.945' WHERE (`spawn_id` = '48608'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '37.9' WHERE (`spawn_id` = '48609'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '37.9' WHERE (`spawn_id` = '48609'); 
         -- Forge Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '7.065' WHERE (`spawn_id` = '48632'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '7.065' WHERE (`spawn_id` = '48632'); 
         -- Anvil Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '7.063' WHERE (`spawn_id` = '48634'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '7.063' WHERE (`spawn_id` = '48634'); 
         -- The Founding of Quel'Thalas Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '13.769' WHERE (`spawn_id` = '48635'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '13.769' WHERE (`spawn_id` = '48635'); 
         -- Mount Hyjal and Illidan's Gift Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '13.77' WHERE (`spawn_id` = '48636'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '13.77' WHERE (`spawn_id` = '48636'); 
         -- Crate of Elunite Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-20.471' WHERE (`spawn_id` = '48637'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-20.471' WHERE (`spawn_id` = '48637'); 
         -- Crate of Elunite Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-20.856' WHERE (`spawn_id` = '48639'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-20.856' WHERE (`spawn_id` = '48639'); 
         -- Boat to Teldrassil ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48640'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48640'); 
         -- Boat to Menethil ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48642'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48642'); 
         -- Crate of Elunite XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6403.617', `spawn_positionY` = '830.175', `spawn_positionZ` = '-18.114' WHERE (`spawn_id` = '48643'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6403.617', `spawn_positionY` = '830.175', `spawn_positionZ` = '-18.114' WHERE (`spawn_id` = '48643'); 
         -- Giant Clam XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6663.932', `spawn_positionY` = '635.165', `spawn_positionZ` = '-17.567' WHERE (`spawn_id` = '48644'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6663.932', `spawn_positionY` = '635.165', `spawn_positionZ` = '-17.567' WHERE (`spawn_id` = '48644'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6777.487', `spawn_positionY` = '567.054', `spawn_positionZ` = '-11.636' WHERE (`spawn_id` = '48645'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6777.487', `spawn_positionY` = '567.054', `spawn_positionZ` = '-11.636' WHERE (`spawn_id` = '48645'); 
         -- Armor Crate XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '7043.019', `spawn_positionY` = '269.217', `spawn_positionZ` = '-12.449' WHERE (`spawn_id` = '48651'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7043.019', `spawn_positionY` = '269.217', `spawn_positionZ` = '-12.449' WHERE (`spawn_id` = '48651'); 
         -- Silver Dawning's Lockbox XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '7355.317', `spawn_positionY` = '440.012', `spawn_positionZ` = '-20.863' WHERE (`spawn_id` = '48652'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7355.317', `spawn_positionY` = '440.012', `spawn_positionZ` = '-20.863' WHERE (`spawn_id` = '48652'); 
         -- Mist Veil's Lockbox XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '7231.495', `spawn_positionY` = '391.104', `spawn_positionZ` = '-11.268' WHERE (`spawn_id` = '48653'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7231.495', `spawn_positionY` = '391.104', `spawn_positionZ` = '-11.268' WHERE (`spawn_id` = '48653'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '7294.913', `spawn_positionY` = '238.012', `spawn_positionZ` = '0.575' WHERE (`spawn_id` = '48654'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7294.913', `spawn_positionY` = '238.012', `spawn_positionZ` = '0.575' WHERE (`spawn_id` = '48654'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6812.457', `spawn_positionY` = '-682.23', `spawn_positionZ` = '96.775' WHERE (`spawn_id` = '48672'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6812.457', `spawn_positionY` = '-682.23', `spawn_positionZ` = '96.775' WHERE (`spawn_id` = '48672'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6855.092', `spawn_positionY` = '-678.293', `spawn_positionZ` = '90.794' WHERE (`spawn_id` = '48673'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6855.092', `spawn_positionY` = '-678.293', `spawn_positionZ` = '90.794' WHERE (`spawn_id` = '48673'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6853.986', `spawn_positionY` = '-679.434', `spawn_positionZ` = '91.131' WHERE (`spawn_id` = '48674'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6853.986', `spawn_positionY` = '-679.434', `spawn_positionZ` = '91.131' WHERE (`spawn_id` = '48674'); 
         -- Copper Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6803.008', `spawn_positionY` = '-661.921', `spawn_positionZ` = '92.802' WHERE (`spawn_id` = '48676'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6803.008', `spawn_positionY` = '-661.921', `spawn_positionZ` = '92.802' WHERE (`spawn_id` = '48676'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '91.818' WHERE (`spawn_id` = '48676'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '91.818' WHERE (`spawn_id` = '48676'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6819.424', `spawn_positionY` = '-702.626', `spawn_positionZ` = '102.242' WHERE (`spawn_id` = '48677'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6819.424', `spawn_positionY` = '-702.626', `spawn_positionZ` = '102.242' WHERE (`spawn_id` = '48677'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6826.058', `spawn_positionY` = '-711.323', `spawn_positionZ` = '101.243' WHERE (`spawn_id` = '48678'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6826.058', `spawn_positionY` = '-711.323', `spawn_positionZ` = '101.243' WHERE (`spawn_id` = '48678'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6843.657', `spawn_positionY` = '-735.073', `spawn_positionZ` = '101.396' WHERE (`spawn_id` = '48679'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6843.657', `spawn_positionY` = '-735.073', `spawn_positionZ` = '101.396' WHERE (`spawn_id` = '48679'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6797.157', `spawn_positionY` = '-766.064', `spawn_positionZ` = '103.898' WHERE (`spawn_id` = '48680'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6797.157', `spawn_positionY` = '-766.064', `spawn_positionZ` = '103.898' WHERE (`spawn_id` = '48680'); 
         -- Copper Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '100.916' WHERE (`spawn_id` = '48681'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '100.916' WHERE (`spawn_id` = '48681'); 
         -- Death Cap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '103.301' WHERE (`spawn_id` = '48682'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '103.301' WHERE (`spawn_id` = '48682'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6819.619', `spawn_positionY` = '-759.863', `spawn_positionZ` = '101.932' WHERE (`spawn_id` = '48683'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6819.619', `spawn_positionY` = '-759.863', `spawn_positionZ` = '101.932' WHERE (`spawn_id` = '48683'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6838.698', `spawn_positionY` = '-721.251', `spawn_positionZ` = '99.127' WHERE (`spawn_id` = '48684'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6838.698', `spawn_positionY` = '-721.251', `spawn_positionZ` = '99.127' WHERE (`spawn_id` = '48684'); 
         -- Death Cap XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6791.46', `spawn_positionY` = '-749.952', `spawn_positionZ` = '93.126' WHERE (`spawn_id` = '48685'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6791.46', `spawn_positionY` = '-749.952', `spawn_positionZ` = '93.126' WHERE (`spawn_id` = '48685'); 
         -- Death Cap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '92.157' WHERE (`spawn_id` = '48685'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '92.157' WHERE (`spawn_id` = '48685'); 
         -- Silver Vein XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6780.667', `spawn_positionY` = '-755.485', `spawn_positionZ` = '98.257' WHERE (`spawn_id` = '48686'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6780.667', `spawn_positionY` = '-755.485', `spawn_positionZ` = '98.257' WHERE (`spawn_id` = '48686'); 
         -- Silver Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '97.172' WHERE (`spawn_id` = '48686'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '97.172' WHERE (`spawn_id` = '48686'); 
         -- Death Cap XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6764.558', `spawn_positionY` = '-747.073', `spawn_positionZ` = '100.41' WHERE (`spawn_id` = '48687'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6764.558', `spawn_positionY` = '-747.073', `spawn_positionZ` = '100.41' WHERE (`spawn_id` = '48687'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6825.443', `spawn_positionY` = '-717.098', `spawn_positionZ` = '101.556' WHERE (`spawn_id` = '48688'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6825.443', `spawn_positionY` = '-717.098', `spawn_positionZ` = '101.556' WHERE (`spawn_id` = '48688'); 
         -- Death Cap XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6830.116', `spawn_positionY` = '-747.674', `spawn_positionZ` = '103.196' WHERE (`spawn_id` = '48689'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6830.116', `spawn_positionY` = '-747.674', `spawn_positionZ` = '103.196' WHERE (`spawn_id` = '48689'); 
         -- Death Cap XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6774.765', `spawn_positionY` = '-787.959', `spawn_positionZ` = '111.496' WHERE (`spawn_id` = '48690'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6774.765', `spawn_positionY` = '-787.959', `spawn_positionZ` = '111.496' WHERE (`spawn_id` = '48690'); 
         -- Death Cap XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6786.634', `spawn_positionY` = '-737.235', `spawn_positionZ` = '94.218' WHERE (`spawn_id` = '48690'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6786.634', `spawn_positionY` = '-737.235', `spawn_positionZ` = '94.218' WHERE (`spawn_id` = '48690'); 
         -- Death Cap XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6773.873', `spawn_positionY` = '-767.832', `spawn_positionZ` = '105.289' WHERE (`spawn_id` = '48691'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6773.873', `spawn_positionY` = '-767.832', `spawn_positionZ` = '105.289' WHERE (`spawn_id` = '48691'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6776.774', `spawn_positionY` = '-779.124', `spawn_positionZ` = '108.69' WHERE (`spawn_id` = '48692'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6776.774', `spawn_positionY` = '-779.124', `spawn_positionZ` = '108.69' WHERE (`spawn_id` = '48692'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6778.436', `spawn_positionY` = '-780.857', `spawn_positionZ` = '110.254' WHERE (`spawn_id` = '48693'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6778.436', `spawn_positionY` = '-780.857', `spawn_positionZ` = '110.254' WHERE (`spawn_id` = '48693'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6777.286', `spawn_positionY` = '-789.138', `spawn_positionZ` = '111.569' WHERE (`spawn_id` = '48694'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6777.286', `spawn_positionY` = '-789.138', `spawn_positionZ` = '111.569' WHERE (`spawn_id` = '48694'); 
         -- Battered Chest XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6773.572', `spawn_positionY` = '-782.779', `spawn_positionZ` = '110.532' WHERE (`spawn_id` = '48695'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6773.572', `spawn_positionY` = '-782.779', `spawn_positionZ` = '110.532' WHERE (`spawn_id` = '48695'); 
         -- Scaber Stalk XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6799.984', `spawn_positionY` = '-771.001', `spawn_positionZ` = '104.547' WHERE (`spawn_id` = '48696'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6799.984', `spawn_positionY` = '-771.001', `spawn_positionZ` = '104.547' WHERE (`spawn_id` = '48696'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '47.648' WHERE (`spawn_id` = '48699'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '47.648' WHERE (`spawn_id` = '48699'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '46.968' WHERE (`spawn_id` = '48700'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '46.968' WHERE (`spawn_id` = '48700'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '41.832' WHERE (`spawn_id` = '48739'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '41.832' WHERE (`spawn_id` = '48739'); 
         -- Armor Crate XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '7790.352', `spawn_positionY` = '-773.146', `spawn_positionZ` = '2.994' WHERE (`spawn_id` = '48765'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7790.352', `spawn_positionY` = '-773.146', `spawn_positionZ` = '2.994' WHERE (`spawn_id` = '48765'); 
         -- Giant Clam XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '7840.744', `spawn_positionY` = '-710.23', `spawn_positionZ` = '-13.254' WHERE (`spawn_id` = '48769'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7840.744', `spawn_positionY` = '-710.23', `spawn_positionZ` = '-13.254' WHERE (`spawn_id` = '48769'); 
         -- Strange Lockbox XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '7747.718', `spawn_positionY` = '-494.348', `spawn_positionZ` = '-20.928' WHERE (`spawn_id` = '48785'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7747.718', `spawn_positionY` = '-494.348', `spawn_positionZ` = '-20.928' WHERE (`spawn_id` = '48785'); 
         -- Skeletal Sea Turtle ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48788'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48788'); 
         -- Giant Clam XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '5838.243', `spawn_positionY` = '1010.658', `spawn_positionZ` = '-20.844' WHERE (`spawn_id` = '48789'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '5838.243', `spawn_positionY` = '1010.658', `spawn_positionZ` = '-20.844' WHERE (`spawn_id` = '48789'); 
         -- Giant Clam XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6105.452', `spawn_positionY` = '915.6', `spawn_positionZ` = '-14.791' WHERE (`spawn_id` = '48790'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6105.452', `spawn_positionY` = '915.6', `spawn_positionZ` = '-14.791' WHERE (`spawn_id` = '48790'); 
         -- Giant Clam XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6938.99', `spawn_positionY` = '538.852', `spawn_positionZ` = '-14.318' WHERE (`spawn_id` = '48791'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6938.99', `spawn_positionY` = '538.852', `spawn_positionZ` = '-14.318' WHERE (`spawn_id` = '48791'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48792'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48792'); 
         -- Crate of Elunite XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6302.605', `spawn_positionY` = '805.341', `spawn_positionZ` = '-0.665' WHERE (`spawn_id` = '48793'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6302.605', `spawn_positionY` = '805.341', `spawn_positionZ` = '-0.665' WHERE (`spawn_id` = '48793'); 
         -- Crate of Elunite XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6446.758', `spawn_positionY` = '661.872', `spawn_positionZ` = '-9.241' WHERE (`spawn_id` = '48794'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6446.758', `spawn_positionY` = '661.872', `spawn_positionZ` = '-9.241' WHERE (`spawn_id` = '48794'); 
         -- Crate of Elunite XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6306.316', `spawn_positionY` = '925.734', `spawn_positionZ` = '-16.457' WHERE (`spawn_id` = '48795'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6306.316', `spawn_positionY` = '925.734', `spawn_positionZ` = '-16.457' WHERE (`spawn_id` = '48795'); 
         -- Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48797'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48797'); 
         -- Stranglekelp ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48798'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48798'); 
         -- Moonwell ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48817');         -- Termite Barrel Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '80.193' WHERE (`spawn_id` = '257528'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48817');         -- Termite Barrel Z placement. 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '80.193' WHERE (`spawn_id` = '257528'); 
         -- Small Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48901'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48901'); 
         -- Everlook ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48974'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48974'); 
         -- Moonglade ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48975'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48975'); 
         -- Felwood ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48976'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48976'); 
         -- Fire of Elune ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48977'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48977'); 
         -- Fire of Elune ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48978'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48978'); 
         -- Fire of Elune ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48979'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48979'); 
         -- Fire of Elune ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48980'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48980'); 
         -- Fire of Elune ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48981'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48981'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48984'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48984'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48988'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48988'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48989'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48989'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48990'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48990'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48992'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48992'); 
         -- Highborne Relic Fragment ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48993'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48993'); 
         -- Highborne Relic Fragment ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48993'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48996'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48993'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48996'); 
         -- Highborne Relic Fragment ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48998'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48998'); 
         -- Highborne Relic Fragment ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48999'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48999'); 
         -- Rune of Mazthoril ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49000'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49000'); 
         -- Rune of Mazthoril LT ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49001'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49001'); 
         -- Rich Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49004'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49004'); 
         -- Rich Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49005'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49005'); 
         -- Rich Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49010'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49010'); 
         -- Rich Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49011'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49011'); 
         -- Rich Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49012'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49012'); 
         -- Rich Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49013'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49013'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49015'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49015'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49016'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49016'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49017'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49017'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49018'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49018'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49019'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49019'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49022'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49022'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49023'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49023'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49024'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49024'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49026'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49026'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49030'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49030'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49031'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49031'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49032'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49032'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49034'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49034'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49035'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49035'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49036'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49036'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49037'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49037'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49038'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49038'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49039'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49039'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49040'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49040'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49041'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49041'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49042'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49042'); 
         -- Moontouched Feather XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '7239.76', `spawn_positionY` = '-4459.723', `spawn_positionZ` = '616.634' WHERE (`spawn_id` = '49045'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7239.76', `spawn_positionY` = '-4459.723', `spawn_positionZ` = '616.634' WHERE (`spawn_id` = '49045'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49047'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49047'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49048'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49048'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49049'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49049'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49050'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49050'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49051'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49051'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49052'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49052'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49054'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49054'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49055'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49055'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49064'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49064'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49067'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49067'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49068'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49068'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49069'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49069'); 
         -- Moontouched Feather ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49073'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49073'); 
         -- Malyfous's Catalogue ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49074'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49074'); 
         -- Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49078'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49078'); 
         -- Small Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49079'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49079'); 
         -- Small Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49080'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49080'); 
         -- Small Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49081'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49081'); 
         -- Small Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49085'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49085'); 
         -- Bench ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49086'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49086'); 
         -- Bench ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49087'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49087'); 
         -- Solid Chest ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49088'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49088'); 
         -- Solid Chest ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49089'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49089'); 
         -- Solid Chest ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49091'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49091'); 
         -- Forge ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49092'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49092'); 
         -- Anvil ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49093'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49093'); 
         -- Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49099'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49099'); 
         -- Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49100'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49100'); 
         -- Izzy's Holdings ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49101'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49101'); 
         -- Stove ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49102'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49102'); 
         -- Mountain Silversage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49105'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49105'); 
         -- Mountain Silversage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49107'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49107'); 
         -- Mountain Silversage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49108'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49108'); 
         -- Mountain Silversage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49110'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49110'); 
         -- Mountain Silversage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49111'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49111'); 
         -- Mountain Silversage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49112'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49112'); 
         -- Mountain Silversage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49113'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49113'); 
         -- Mountain Silversage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49114'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49114'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49115'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49115'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49116'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49116'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49117'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49117'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49118'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49118'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49119'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49119'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49120'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49120'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49121'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49121'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49123'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49123'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49125'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49125'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49126'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49126'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49127'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49127'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49133'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49133'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49134'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49134'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49135'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49135'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49136'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49136'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49137'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49137'); 
         -- Icecap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49138'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49138'); 
         -- Frostmaul Shards ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49140'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49140'); 
         -- Frostmaul Shards ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49142'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49142'); 
         -- Frostmaul Shards ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49143'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49143'); 
         -- Frostmaul Shards ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49144'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49144'); 
         -- Frostmaul Shards ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49150'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49150'); 
         -- Frostmaul Shards ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49151'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49151'); 
         -- Frostmaul Shards ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49153'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49153'); 
         -- Frostmaul Shards ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49154'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49154'); 
         -- Frostmaul Shards ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49155'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49155'); 
         -- Frostmaul Shards ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49157'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49157'); 
         -- Frostmaul Shards ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49158'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49158'); 
         -- Kel'Theril ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49161'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49161'); 
         -- Starfall Village ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49162'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49162'); 
         -- Everlook ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49163'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49163'); 
         -- Moonglade ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49164'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49164'); 
         -- Felwood ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49165'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49165'); 
         -- Starfall Village ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49166'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49166'); 
         -- Everlook ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49167'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49167'); 
         -- Kel'Theril ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49168'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49168'); 
         -- Mithril Deposit ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49176'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49176'); 
         -- Mithril Deposit ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49177'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49177'); 
         -- Altar of Elune ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49182'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49182'); 
         -- Mount Hyjal ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49184'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49184'); 
         -- Starfall Village ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49185'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49185'); 
         -- Truesilver Deposit ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49186'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49186'); 
         -- Truesilver Deposit ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49187'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49187'); 
         -- Truesilver Deposit ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49188'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49188'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49272'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49272'); 
         -- Campfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49274'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49274'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.976' WHERE (`spawn_id` = '49277'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.976' WHERE (`spawn_id` = '49277'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.607' WHERE (`spawn_id` = '49278'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.607' WHERE (`spawn_id` = '49278'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '5.489' WHERE (`spawn_id` = '49279'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '5.489' WHERE (`spawn_id` = '49279'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.709' WHERE (`spawn_id` = '49280'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.709' WHERE (`spawn_id` = '49280'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.459' WHERE (`spawn_id` = '49281'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.459' WHERE (`spawn_id` = '49281'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49283'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49283'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.068' WHERE (`spawn_id` = '49284'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.068' WHERE (`spawn_id` = '49284'); 
         -- Sandy Cookbook Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.737' WHERE (`spawn_id` = '49310'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.737' WHERE (`spawn_id` = '49310'); 
         -- AQDOORSOUND Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.635' WHERE (`spawn_id` = '49315'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.635' WHERE (`spawn_id` = '49315'); 
         -- Small Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.083' WHERE (`spawn_id` = '49323'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.083' WHERE (`spawn_id` = '49323'); 
         -- Small Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-1.767' WHERE (`spawn_id` = '49331'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-1.767' WHERE (`spawn_id` = '49331'); 
         -- Twilight Tablet Fragment Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.681' WHERE (`spawn_id` = '49354'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.681' WHERE (`spawn_id` = '49354'); 
         -- Twilight Tablet Fragment Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '1.673' WHERE (`spawn_id` = '49360'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '1.673' WHERE (`spawn_id` = '49360'); 
         -- Twilight Tablet Fragment Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '19.416' WHERE (`spawn_id` = '49361'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '19.416' WHERE (`spawn_id` = '49361'); 
         -- Twilight Tablet Fragment Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '16.958' WHERE (`spawn_id` = '49362'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '16.958' WHERE (`spawn_id` = '49362'); 
         -- Twilight Tablet Fragment Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '15.624' WHERE (`spawn_id` = '49363'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '15.624' WHERE (`spawn_id` = '49363'); 
         -- Twilight Tablet Fragment Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '13.234' WHERE (`spawn_id` = '49365'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '13.234' WHERE (`spawn_id` = '49365'); 
         -- Twilight Tablet Fragment Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '1.016' WHERE (`spawn_id` = '49366'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '1.016' WHERE (`spawn_id` = '49366'); 
         -- Twilight Tablet Fragment Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '7.84' WHERE (`spawn_id` = '49367'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '7.84' WHERE (`spawn_id` = '49367'); 
         -- Twilight Tablet Fragment ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49369'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49369'); 
         -- Hive'Ashi Pod Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '5.661' WHERE (`spawn_id` = '49376'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '5.661' WHERE (`spawn_id` = '49376'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.459' WHERE (`spawn_id` = '49377'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.459' WHERE (`spawn_id` = '49377'); 
         -- Moonwell Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.942' WHERE (`spawn_id` = '49378'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.942' WHERE (`spawn_id` = '49378'); 
         -- Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49379'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49379'); 
         -- Event Generator Saurfang Pre-War Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.874' WHERE (`spawn_id` = '49380'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.874' WHERE (`spawn_id` = '49380'); 
         -- Campfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49381'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49381'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.709' WHERE (`spawn_id` = '49382'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.709' WHERE (`spawn_id` = '49382'); 
         -- AQRUNE Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.083' WHERE (`spawn_id` = '49390'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.083' WHERE (`spawn_id` = '49390'); 
         -- AQROOT Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.096' WHERE (`spawn_id` = '49391'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.096' WHERE (`spawn_id` = '49391'); 
         -- Ancient Door Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.082' WHERE (`spawn_id` = '49392'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.082' WHERE (`spawn_id` = '49392'); 
         -- Golden Sansam Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.535' WHERE (`spawn_id` = '49397'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.535' WHERE (`spawn_id` = '49397'); 
         -- Golden Sansam Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '7.235' WHERE (`spawn_id` = '49398'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '7.235' WHERE (`spawn_id` = '49398'); 
         -- Dreamfoil Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.66' WHERE (`spawn_id` = '49401'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.66' WHERE (`spawn_id` = '49401'); 
         -- Dreamfoil Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.983' WHERE (`spawn_id` = '49405'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.983' WHERE (`spawn_id` = '49405'); 
         -- Mountain Silversage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.942' WHERE (`spawn_id` = '49406'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.942' WHERE (`spawn_id` = '49406'); 
         -- Mountain Silversage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.47' WHERE (`spawn_id` = '49409'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '45.47' WHERE (`spawn_id` = '49409'); 
         -- Mountain Silversage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49410'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49410'); 
         -- Mountain Silversage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49411'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49411'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.976' WHERE (`spawn_id` = '49423'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.976' WHERE (`spawn_id` = '49423'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49424'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49424'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.302' WHERE (`spawn_id` = '49425'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.302' WHERE (`spawn_id` = '49425'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.068' WHERE (`spawn_id` = '49426'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.068' WHERE (`spawn_id` = '49426'); 
         -- Ooze Covered Rich Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-41.595' WHERE (`spawn_id` = '49435'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-41.595' WHERE (`spawn_id` = '49435'); 
         -- Ooze Covered Rich Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-66.085' WHERE (`spawn_id` = '49445'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-66.085' WHERE (`spawn_id` = '49445'); 
         -- Ooze Covered Rich Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '3.543' WHERE (`spawn_id` = '49447'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.543' WHERE (`spawn_id` = '49447'); 
         -- Ooze Covered Rich Thorium Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-37.233' WHERE (`spawn_id` = '49449'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-37.233' WHERE (`spawn_id` = '49449'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.685' WHERE (`spawn_id` = '49457'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.685' WHERE (`spawn_id` = '49457'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '12.719' WHERE (`spawn_id` = '49458'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '12.719' WHERE (`spawn_id` = '49458'); 
         -- Feralas: A History Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '16.082' WHERE (`spawn_id` = '49695');         -- Ravenwind Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.983' WHERE (`spawn_id` = '49843'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '16.082' WHERE (`spawn_id` = '49695');         -- Ravenwind Z placement. 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '45.983' WHERE (`spawn_id` = '49843'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '64.06' WHERE (`spawn_id` = '49849'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '64.06' WHERE (`spawn_id` = '49849'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '31.797' WHERE (`spawn_id` = '49851'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '31.797' WHERE (`spawn_id` = '49851'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '21.742' WHERE (`spawn_id` = '49856'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '21.742' WHERE (`spawn_id` = '49856'); 
         -- Campfire Damage XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49859'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49859'); 
         -- Campfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '79.255' WHERE (`spawn_id` = '49862'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '79.255' WHERE (`spawn_id` = '49862'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '78.743' WHERE (`spawn_id` = '49863'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '78.743' WHERE (`spawn_id` = '49863'); 
         -- Campfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '20.92' WHERE (`spawn_id` = '49882'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '20.92' WHERE (`spawn_id` = '49882'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '66.954' WHERE (`spawn_id` = '49918'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '66.954' WHERE (`spawn_id` = '49918'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '64.06' WHERE (`spawn_id` = '49922'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '64.06' WHERE (`spawn_id` = '49922'); 
         -- Bonfire Damage Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '75.143' WHERE (`spawn_id` = '49925'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '75.143' WHERE (`spawn_id` = '49925'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49926'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49926'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49927'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49927'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49928'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49928'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49929'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49929'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49931'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49931'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49932'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49932'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49937'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49937'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49938'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49938'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49939'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49939'); 
         -- Bonfire Damage ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49940'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49940'); 
         -- Cauldron ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49942'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49942'); 
         -- Cauldron Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '20.921' WHERE (`spawn_id` = '49944'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '20.921' WHERE (`spawn_id` = '49944'); 
         -- Door ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49945'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49945'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '75.143' WHERE (`spawn_id` = '49946'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '75.143' WHERE (`spawn_id` = '49946'); 
         -- Door ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49948'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49948'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '21.414' WHERE (`spawn_id` = '49954'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '21.414' WHERE (`spawn_id` = '49954'); 
         -- Dire Pool ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49957'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49957'); 
         -- Torch ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49958'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49958'); 
         -- Torch ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49960'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49960'); 
         -- Torch ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49961'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49961'); 
         -- Torch ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49962'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49962'); 
         -- Purple Lotus Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '169.09' WHERE (`spawn_id` = '49972'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '169.09' WHERE (`spawn_id` = '49972'); 
         -- Purple Lotus ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49973'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '49973'); 
         -- Purple Lotus Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '0.587' WHERE (`spawn_id` = '49975'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '0.587' WHERE (`spawn_id` = '49975'); 
         -- Purple Lotus Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '63.339' WHERE (`spawn_id` = '49982'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '63.339' WHERE (`spawn_id` = '49982'); 
         -- Purple Lotus Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '63.329' WHERE (`spawn_id` = '49982'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '63.329' WHERE (`spawn_id` = '49982'); 
         -- Sungrass Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '167.889' WHERE (`spawn_id` = '49987'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '167.889' WHERE (`spawn_id` = '49987'); 
         -- Sungrass Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '90.429' WHERE (`spawn_id` = '49988'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '90.429' WHERE (`spawn_id` = '49988'); 
         -- Sungrass Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '33.6' WHERE (`spawn_id` = '50004'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '33.6' WHERE (`spawn_id` = '50004'); 
         -- Small Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50009'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50009'); 
         -- Small Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50010'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50010'); 
         -- Large Leather Backpacks XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-4975.43', `spawn_positionY` = '346.748', `spawn_positionZ` = '24.033' WHERE (`spawn_id` = '50014'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4975.43', `spawn_positionY` = '346.748', `spawn_positionZ` = '24.033' WHERE (`spawn_id` = '50014'); 
         -- Solarsal Gazebo XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-4791.125', `spawn_positionY` = '3614.471', `spawn_positionZ` = '13.519' WHERE (`spawn_id` = '50016'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4791.125', `spawn_positionY` = '3614.471', `spawn_positionZ` = '13.519' WHERE (`spawn_id` = '50016'); 
         -- Flame of Byltan ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50020'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50020'); 
         -- Flame of Imbel ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50028'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50028'); 
         -- Hippogryph Egg XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5870.186', `spawn_positionY` = '1381.034', `spawn_positionZ` = '117.012' WHERE (`spawn_id` = '50030'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5870.186', `spawn_positionY` = '1381.034', `spawn_positionZ` = '117.012' WHERE (`spawn_id` = '50030'); 
         -- Hippogryph Egg XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5873.398', `spawn_positionY` = '1400.173', `spawn_positionZ` = '115.821' WHERE (`spawn_id` = '50037'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5873.398', `spawn_positionY` = '1400.173', `spawn_positionZ` = '115.821' WHERE (`spawn_id` = '50037'); 
         -- The Sentinels and the Long Vigil Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '18.668' WHERE (`spawn_id` = '50050'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '18.668' WHERE (`spawn_id` = '50050'); 
         -- Moonwell ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50054'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50054'); 
         -- Bonfire Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '66.954' WHERE (`spawn_id` = '50061'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '66.954' WHERE (`spawn_id` = '50061'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50062'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50062'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50064'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50064'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50066'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50066'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50068'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50068'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50070'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50070'); 
         -- Cauldron ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50071'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50071'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50073'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50073'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50074'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50074'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50075'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50075'); 
         -- Bonfire ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50076'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50076'); 
         -- Ooze Covered Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '33.102' WHERE (`spawn_id` = '50077'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '33.102' WHERE (`spawn_id` = '50077'); 
         -- Ooze Covered Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '24.22' WHERE (`spawn_id` = '50078'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '24.22' WHERE (`spawn_id` = '50078'); 
         -- Gordunni Trap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50123'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50123'); 
         -- Gordunni Trap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50125'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50125'); 
         -- Gordunni Trap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50126'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50126'); 
         -- Gordunni Trap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50152'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50152'); 
         -- Evoroot Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.863' WHERE (`spawn_id` = '50155'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '36.863' WHERE (`spawn_id` = '50155'); 
         -- Evoroot Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.863' WHERE (`spawn_id` = '50156'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '36.863' WHERE (`spawn_id` = '50156'); 
         -- Evoroot Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.863' WHERE (`spawn_id` = '50157'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '36.863' WHERE (`spawn_id` = '50157'); 
         -- Golden Sansam Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '101.01' WHERE (`spawn_id` = '50163'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '101.01' WHERE (`spawn_id` = '50163'); 
         -- Iron Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5046.495', `spawn_positionY` = '1804.026', `spawn_positionZ` = '60.215' WHERE (`spawn_id` = '50164'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5046.495', `spawn_positionY` = '1804.026', `spawn_positionZ` = '60.215' WHERE (`spawn_id` = '50164'); 
         -- Iron Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '58.45' WHERE (`spawn_id` = '50164'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '58.45' WHERE (`spawn_id` = '50164'); 
         -- Iron Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5036.883', `spawn_positionY` = '1782.182', `spawn_positionZ` = '63.741' WHERE (`spawn_id` = '50165'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5036.883', `spawn_positionY` = '1782.182', `spawn_positionZ` = '63.741' WHERE (`spawn_id` = '50165'); 
         -- Iron Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.204' WHERE (`spawn_id` = '50165'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.204' WHERE (`spawn_id` = '50165'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5068.92', `spawn_positionY` = '1759.155', `spawn_positionZ` = '59.842' WHERE (`spawn_id` = '50195'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5068.92', `spawn_positionY` = '1759.155', `spawn_positionZ` = '59.842' WHERE (`spawn_id` = '50195'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '57.932' WHERE (`spawn_id` = '50195'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '57.932' WHERE (`spawn_id` = '50195'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5056.328', `spawn_positionY` = '1769.839', `spawn_positionZ` = '60.6' WHERE (`spawn_id` = '50196'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5056.328', `spawn_positionY` = '1769.839', `spawn_positionZ` = '60.6' WHERE (`spawn_id` = '50196'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.409' WHERE (`spawn_id` = '50196'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '59.409' WHERE (`spawn_id` = '50196'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5532.419', `spawn_positionY` = '3501.979', `spawn_positionZ` = '-13.584' WHERE (`spawn_id` = '50197'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5532.419', `spawn_positionY` = '3501.979', `spawn_positionZ` = '-13.584' WHERE (`spawn_id` = '50197'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-15.008' WHERE (`spawn_id` = '50197'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-15.008' WHERE (`spawn_id` = '50197'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5559.325', `spawn_positionY` = '3493.217', `spawn_positionZ` = '-14.287' WHERE (`spawn_id` = '50199'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5559.325', `spawn_positionY` = '3493.217', `spawn_positionZ` = '-14.287' WHERE (`spawn_id` = '50199'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-15.408' WHERE (`spawn_id` = '50199'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-15.408' WHERE (`spawn_id` = '50199'); 
         -- Mithril Deposit ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50200'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50200'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5121.493', `spawn_positionY` = '1808.844', `spawn_positionZ` = '50.757' WHERE (`spawn_id` = '50201'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5121.493', `spawn_positionY` = '1808.844', `spawn_positionZ` = '50.757' WHERE (`spawn_id` = '50201'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '48.953' WHERE (`spawn_id` = '50201'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '48.953' WHERE (`spawn_id` = '50201'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5033.54', `spawn_positionY` = '1782.944', `spawn_positionZ` = '65.78' WHERE (`spawn_id` = '50202'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5033.54', `spawn_positionY` = '1782.944', `spawn_positionZ` = '65.78' WHERE (`spawn_id` = '50202'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '65.357' WHERE (`spawn_id` = '50202'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '65.357' WHERE (`spawn_id` = '50202'); 
         -- Mithril Deposit XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5064.575', `spawn_positionY` = '1822.521', `spawn_positionZ` = '46.191' WHERE (`spawn_id` = '50202'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5064.575', `spawn_positionY` = '1822.521', `spawn_positionZ` = '46.191' WHERE (`spawn_id` = '50202'); 
         -- Mithril Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.66' WHERE (`spawn_id` = '50202'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '45.66' WHERE (`spawn_id` = '50202'); 
         -- Mithril Deposit ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50204'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50204'); 
         -- Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50207'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50207'); 
         -- Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50214'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50214'); 
         -- Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50215'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50215'); 
         -- Khadgar's Whisker Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '214.152' WHERE (`spawn_id` = '50216'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '214.152' WHERE (`spawn_id` = '50216'); 
         -- Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50230'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50230'); 
         -- Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50231'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50231'); 
         -- Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50237'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50237'); 
         -- Goldthorn Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '107.136' WHERE (`spawn_id` = '50240'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '107.136' WHERE (`spawn_id` = '50240'); 
         -- Goldthorn ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50243'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50243'); 
         -- Goldthorn Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '79.938' WHERE (`spawn_id` = '50247'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '79.938' WHERE (`spawn_id` = '50247'); 
         -- Goldthorn Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '67.926' WHERE (`spawn_id` = '50248'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '67.926' WHERE (`spawn_id` = '50248'); 
         -- Goldthorn Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '35.058' WHERE (`spawn_id` = '50253'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '35.058' WHERE (`spawn_id` = '50253'); 
         -- Goldthorn Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '70.725' WHERE (`spawn_id` = '50254'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '70.725' WHERE (`spawn_id` = '50254'); 
         -- Goldthorn Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.943' WHERE (`spawn_id` = '50255'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '45.943' WHERE (`spawn_id` = '50255'); 
         -- Brazier ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50257'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50257'); 
         -- Truesilver Deposit ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50258'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50258'); 
         -- Ooze Covered Rich Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50348'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50348'); 
         -- Troll Drum Sound Object ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50453'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50453'); 
         -- Cauldron ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50454'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50454'); 
         -- Freshly Dug Dirt ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50475'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '23.918' WHERE (`spawn_id` = '21841'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '23207'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-7.673' WHERE (`spawn_id` = '27594'); 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '30545'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50475'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '23.918' WHERE (`spawn_id` = '21841'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '23207'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-7.673' WHERE (`spawn_id` = '27594'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '30545'); 
         -- Cooking Table XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '319.954', `spawn_positionY` = '-4654.964', `spawn_positionZ` = '16.301' WHERE (`spawn_id` = '99805'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '319.954', `spawn_positionY` = '-4654.964', `spawn_positionZ` = '16.301' WHERE (`spawn_id` = '99805'); 
         -- Rich Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '397162'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '397162'); 
         -- Rich Thorium Vein ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '397163'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '397163'); 
         -- Resonating Crystal Formation Glow ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399419'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399419'); 
         -- Summoning Circle ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3996127'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3996127'); 
         -- Blueleaf Tuber Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.522' WHERE (`spawn_id` = '632459'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.522' WHERE (`spawn_id` = '632459'); 
         -- Black Lotus Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '125.776' WHERE (`spawn_id` = '3998148'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '125.776' WHERE (`spawn_id` = '3998148'); 
         -- Black Lotus XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '3032.34', `spawn_positionY` = '-3219.78', `spawn_positionZ` = '124.859' WHERE (`spawn_id` = '3998149'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '3032.34', `spawn_positionY` = '-3219.78', `spawn_positionZ` = '124.859' WHERE (`spawn_id` = '3998149'); 
         -- Black Lotus ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998193'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998193'); 
         -- Black Lotus ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998194'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998194'); 
         -- Black Lotus ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998203'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998203'); 
         -- Black Lotus ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998205'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998205'); 
         -- Black Lotus ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998221'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998221'); 
         -- Black Lotus ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998224'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998224'); 
         -- TEMP Nearby Tubers Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.229' WHERE (`spawn_id` = '3998428'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '61.229' WHERE (`spawn_id` = '3998428'); 
         -- TEMP Nearby Tubers Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '53.865' WHERE (`spawn_id` = '3998429'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '53.865' WHERE (`spawn_id` = '3998429'); 
         -- TEMP Nearby Tubers Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '55.568' WHERE (`spawn_id` = '3998430'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '55.568' WHERE (`spawn_id` = '3998430'); 
         -- TEMP Nearby Tubers Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '60.029' WHERE (`spawn_id` = '3998431'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '60.029' WHERE (`spawn_id` = '3998431'); 
         -- TEMP Nearby Tubers Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '55.632' WHERE (`spawn_id` = '3998432'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '55.632' WHERE (`spawn_id` = '3998432'); 
         -- TEMP Nearby Tubers Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '49.31' WHERE (`spawn_id` = '3998433'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '49.31' WHERE (`spawn_id` = '3998433'); 
         -- TEMP Nearby Tubers Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.264' WHERE (`spawn_id` = '3998435'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.264' WHERE (`spawn_id` = '3998435'); 
         -- TEMP Nearby Tubers Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '49.967' WHERE (`spawn_id` = '3998436'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '49.967' WHERE (`spawn_id` = '3998436'); 
         -- TEMP Nearby Tubers Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '56.146' WHERE (`spawn_id` = '3998437'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '56.146' WHERE (`spawn_id` = '3998437'); 
         -- TEMP Nearby Tubers Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.988' WHERE (`spawn_id` = '3998438'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '59.988' WHERE (`spawn_id` = '3998438'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.32' WHERE (`spawn_id` = '16416'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '121.32' WHERE (`spawn_id` = '16416'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '119.903' WHERE (`spawn_id` = '16420'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '119.903' WHERE (`spawn_id` = '16420'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '116.019' WHERE (`spawn_id` = '16425'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '116.019' WHERE (`spawn_id` = '16425'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.486' WHERE (`spawn_id` = '16429'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '121.486' WHERE (`spawn_id` = '16429'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '123.147' WHERE (`spawn_id` = '16443'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '123.147' WHERE (`spawn_id` = '16443'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '117.396' WHERE (`spawn_id` = '16445'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '117.396' WHERE (`spawn_id` = '16445'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '118.42' WHERE (`spawn_id` = '16447'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '118.42' WHERE (`spawn_id` = '16447'); 
         -- Officer's Door ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31660'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31660'); 
         -- Deepmoss Eggs trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31801'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31801'); 
         -- Deepmoss Eggs trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31802'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31802'); 
         -- Deepmoss Eggs trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '180.232' WHERE (`spawn_id` = '31803'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '180.232' WHERE (`spawn_id` = '31803'); 
         -- Deepmoss Eggs trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.854' WHERE (`spawn_id` = '31803'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '178.854' WHERE (`spawn_id` = '31803'); 
         -- Deepmoss Eggs trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '175.515' WHERE (`spawn_id` = '31804'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '175.515' WHERE (`spawn_id` = '31804'); 
         -- Deepmoss Eggs trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31805'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31805'); 
         -- Deepmoss Eggs trap Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31806'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31806'); 
         -- Food Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '373.081' WHERE (`spawn_id` = '88000'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '373.081' WHERE (`spawn_id` = '88000'); 
         -- Food Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '1.471' WHERE (`spawn_id` = '88051'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '1.471' WHERE (`spawn_id` = '88051'); 
         -- Water Barrel Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.724' WHERE (`spawn_id` = '88055'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.724' WHERE (`spawn_id` = '88055'); 
         -- Food Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '11.629' WHERE (`spawn_id` = '88057'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '11.629' WHERE (`spawn_id` = '88057'); 
         -- Water Barrel Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '11.629' WHERE (`spawn_id` = '88058'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '11.629' WHERE (`spawn_id` = '88058'); 
         -- Water Barrel Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.106' WHERE (`spawn_id` = '88068'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.106' WHERE (`spawn_id` = '88068'); 
         -- Water Barrel Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '26.999' WHERE (`spawn_id` = '88071'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '26.999' WHERE (`spawn_id` = '88071'); 
         -- Water Barrel XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-1931.969', `spawn_positionY` = '387.993', `spawn_positionZ` = '133.457' WHERE (`spawn_id` = '88077'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1931.969', `spawn_positionY` = '387.993', `spawn_positionZ` = '133.457' WHERE (`spawn_id` = '88077'); 
         -- Water Barrel ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88080'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88080'); 
         -- Water Barrel ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88081'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88081'); 
         -- Food Crate ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88082'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88082'); 
         -- Food Crate ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88083'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88083'); 
         -- Buccaneer's Strongbox ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '55911'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '55911'); 
         -- Rat Bomb Trap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '55913'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '55913'); 
         -- Weapon Crate XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-1621.618', `spawn_positionY` = '-3952.514', `spawn_positionZ` = '-0.487' WHERE (`spawn_id` = '55916'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1621.618', `spawn_positionY` = '-3952.514', `spawn_positionZ` = '-0.487' WHERE (`spawn_id` = '55916'); 
         -- Iron Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '48.465' WHERE (`spawn_id` = '55938'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '48.465' WHERE (`spawn_id` = '55938'); 
         -- Iron Deposit Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.603' WHERE (`spawn_id` = '55954'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.603' WHERE (`spawn_id` = '55954'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '60.211' WHERE (`spawn_id` = '55955'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '60.211' WHERE (`spawn_id` = '55955'); 
         -- Stranglekelp XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-2632.237', `spawn_positionY` = '-4239.708', `spawn_positionZ` = '-0.01' WHERE (`spawn_id` = '55964'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-2632.237', `spawn_positionY` = '-4239.708', `spawn_positionZ` = '-0.01' WHERE (`spawn_id` = '55964'); 
         -- Goldthorn Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.984' WHERE (`spawn_id` = '55971'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '51.984' WHERE (`spawn_id` = '55971'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.918' WHERE (`spawn_id` = '56024'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '61.918' WHERE (`spawn_id` = '56024'); 
         -- Tin Vein Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '60.034' WHERE (`spawn_id` = '56024'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '60.034' WHERE (`spawn_id` = '56024'); 
         -- Khadgar's Whisker Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '41.065' WHERE (`spawn_id` = '56029'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '41.065' WHERE (`spawn_id` = '56029'); 
         -- Talon Den ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42110'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42110'); 
         -- Talon Den ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42111'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42111'); 
         -- Talon Den Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '356.473' WHERE (`spawn_id` = '42112'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '356.473' WHERE (`spawn_id` = '42112'); 
         -- Talon Den ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42113'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42113'); 
         -- Talon Den ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42114'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42114'); 
         -- Talon Den ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42115'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42115'); 
         -- Talon Den ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42116'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42116'); 
         -- Crate of Elunite XYZ placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6311.138', `spawn_positionY` = '741.884', `spawn_positionZ` = '-20.746' WHERE (`spawn_id` = '48874');         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998657'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '6311.138', `spawn_positionY` = '741.884', `spawn_positionZ` = '-20.746' WHERE (`spawn_id` = '48874');         -- Mighty Blaze ignored, out of reach. 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998657'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.32' WHERE (`spawn_id` = '16416'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '121.32' WHERE (`spawn_id` = '16416'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '119.729' WHERE (`spawn_id` = '16420'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '119.729' WHERE (`spawn_id` = '16420'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '116.019' WHERE (`spawn_id` = '16425'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '116.019' WHERE (`spawn_id` = '16425'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '122.201' WHERE (`spawn_id` = '16429'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '122.201' WHERE (`spawn_id` = '16429'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '123.147' WHERE (`spawn_id` = '16443'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '123.147' WHERE (`spawn_id` = '16443'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '115.335' WHERE (`spawn_id` = '16445'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '115.335' WHERE (`spawn_id` = '16445'); 
         -- Ghost Mushroom Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '117.848' WHERE (`spawn_id` = '16447'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '117.848' WHERE (`spawn_id` = '16447'); 
         -- Officer's Door ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31660'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31660'); 
         -- Deepmoss Eggs trap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31801'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31801'); 
         -- Deepmoss Eggs trap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31802'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31802'); 
         -- Deepmoss Eggs trap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31803'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31803'); 
         -- Deepmoss Eggs trap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31804'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31804'); 
         -- Deepmoss Eggs trap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31805'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31805'); 
         -- Deepmoss Eggs trap ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31806'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31806'); 
         -- Food Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '373.081' WHERE (`spawn_id` = '88000'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '373.081' WHERE (`spawn_id` = '88000'); 
         -- Food Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '0.925' WHERE (`spawn_id` = '88050'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '0.925' WHERE (`spawn_id` = '88050'); 
         -- Food Crate Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '1.471' WHERE (`spawn_id` = '88051'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '1.471' WHERE (`spawn_id` = '88051'); 
         -- Water Barrel Z placement. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.724' WHERE (`spawn_id` = '88055'); 
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '2.724' WHERE (`spawn_id` = '88055'); 
         -- Mighty Blaze ignored, out of reach. 
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998657'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998657');
+		
         insert into applied_updates values ('08020221');
     end if;
 	
