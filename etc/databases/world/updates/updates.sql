@@ -4924,6 +4924,301 @@ begin not atomic
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '0.587' WHERE (`spawn_id` = '49975'); 
         -- Purple Lotus Z placement. 
         UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '63.339' WHERE (`spawn_id` = '49982'); 
+        -- Purple Lotus Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '63.329' WHERE (`spawn_id` = '49982'); 
+        -- Sungrass Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '167.889' WHERE (`spawn_id` = '49987'); 
+        -- Sungrass Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '90.429' WHERE (`spawn_id` = '49988'); 
+        -- Sungrass Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '33.6' WHERE (`spawn_id` = '50004'); 
+        -- Small Thorium Vein ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50009'); 
+        -- Small Thorium Vein ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50010'); 
+        -- Large Leather Backpacks XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-4975.43', `spawn_positionY` = '346.748', `spawn_positionZ` = '24.033' WHERE (`spawn_id` = '50014'); 
+        -- Solarsal Gazebo XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-4791.125', `spawn_positionY` = '3614.471', `spawn_positionZ` = '13.519' WHERE (`spawn_id` = '50016'); 
+        -- Flame of Byltan ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50020'); 
+        -- Flame of Imbel ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50028'); 
+        -- Hippogryph Egg XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5870.186', `spawn_positionY` = '1381.034', `spawn_positionZ` = '117.012' WHERE (`spawn_id` = '50030'); 
+        -- Hippogryph Egg XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5873.398', `spawn_positionY` = '1400.173', `spawn_positionZ` = '115.821' WHERE (`spawn_id` = '50037'); 
+        -- The Sentinels and the Long Vigil Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '18.668' WHERE (`spawn_id` = '50050'); 
+        -- Moonwell ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50054'); 
+        -- Bonfire Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '66.954' WHERE (`spawn_id` = '50061'); 
+        -- Bonfire ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50062'); 
+        -- Bonfire ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50064'); 
+        -- Bonfire ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50066'); 
+        -- Bonfire ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50068'); 
+        -- Bonfire ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50070'); 
+        -- Cauldron ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50071'); 
+        -- Bonfire ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50073'); 
+        -- Bonfire ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50074'); 
+        -- Bonfire ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50075'); 
+        -- Bonfire ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50076'); 
+        -- Ooze Covered Mithril Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '33.102' WHERE (`spawn_id` = '50077'); 
+        -- Ooze Covered Mithril Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '24.22' WHERE (`spawn_id` = '50078'); 
+        -- Gordunni Trap ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50123'); 
+        -- Gordunni Trap ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50125'); 
+        -- Gordunni Trap ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50126'); 
+        -- Gordunni Trap ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50152'); 
+        -- Evoroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.863' WHERE (`spawn_id` = '50155'); 
+        -- Evoroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.863' WHERE (`spawn_id` = '50156'); 
+        -- Evoroot Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '36.863' WHERE (`spawn_id` = '50157'); 
+        -- Golden Sansam Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '101.01' WHERE (`spawn_id` = '50163'); 
+        -- Iron Deposit XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5046.495', `spawn_positionY` = '1804.026', `spawn_positionZ` = '60.215' WHERE (`spawn_id` = '50164'); 
+        -- Iron Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '58.45' WHERE (`spawn_id` = '50164'); 
+        -- Iron Deposit XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5036.883', `spawn_positionY` = '1782.182', `spawn_positionZ` = '63.741' WHERE (`spawn_id` = '50165'); 
+        -- Iron Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.204' WHERE (`spawn_id` = '50165'); 
+        -- Mithril Deposit XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5068.92', `spawn_positionY` = '1759.155', `spawn_positionZ` = '59.842' WHERE (`spawn_id` = '50195'); 
+        -- Mithril Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '57.932' WHERE (`spawn_id` = '50195'); 
+        -- Mithril Deposit XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5056.328', `spawn_positionY` = '1769.839', `spawn_positionZ` = '60.6' WHERE (`spawn_id` = '50196'); 
+        -- Mithril Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.409' WHERE (`spawn_id` = '50196'); 
+        -- Mithril Deposit XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5532.419', `spawn_positionY` = '3501.979', `spawn_positionZ` = '-13.584' WHERE (`spawn_id` = '50197'); 
+        -- Mithril Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-15.008' WHERE (`spawn_id` = '50197'); 
+        -- Mithril Deposit XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5559.325', `spawn_positionY` = '3493.217', `spawn_positionZ` = '-14.287' WHERE (`spawn_id` = '50199'); 
+        -- Mithril Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-15.408' WHERE (`spawn_id` = '50199'); 
+        -- Mithril Deposit ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50200'); 
+        -- Mithril Deposit XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5121.493', `spawn_positionY` = '1808.844', `spawn_positionZ` = '50.757' WHERE (`spawn_id` = '50201'); 
+        -- Mithril Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '48.953' WHERE (`spawn_id` = '50201'); 
+        -- Mithril Deposit XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5033.54', `spawn_positionY` = '1782.944', `spawn_positionZ` = '65.78' WHERE (`spawn_id` = '50202'); 
+        -- Mithril Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '65.357' WHERE (`spawn_id` = '50202'); 
+        -- Mithril Deposit XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-5064.575', `spawn_positionY` = '1822.521', `spawn_positionZ` = '46.191' WHERE (`spawn_id` = '50202'); 
+        -- Mithril Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.66' WHERE (`spawn_id` = '50202'); 
+        -- Mithril Deposit ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50204'); 
+        -- Brazier ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50207'); 
+        -- Brazier ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50214'); 
+        -- Brazier ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50215'); 
+        -- Khadgar's Whisker Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '214.152' WHERE (`spawn_id` = '50216'); 
+        -- Brazier ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50230'); 
+        -- Brazier ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50231'); 
+        -- Brazier ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50237'); 
+        -- Goldthorn Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '107.136' WHERE (`spawn_id` = '50240'); 
+        -- Goldthorn ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50243'); 
+        -- Goldthorn Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '79.938' WHERE (`spawn_id` = '50247'); 
+        -- Goldthorn Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '67.926' WHERE (`spawn_id` = '50248'); 
+        -- Goldthorn Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '35.058' WHERE (`spawn_id` = '50253'); 
+        -- Goldthorn Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '70.725' WHERE (`spawn_id` = '50254'); 
+        -- Goldthorn Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '45.943' WHERE (`spawn_id` = '50255'); 
+        -- Brazier ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50257'); 
+        -- Truesilver Deposit ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50258'); 
+        -- Ooze Covered Rich Thorium Vein ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50348'); 
+        -- Troll Drum Sound Object ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50453'); 
+        -- Cauldron ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50454'); 
+        -- Freshly Dug Dirt ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50475'); 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '23.918' WHERE (`spawn_id` = '21841'); 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '23207'); 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '-7.673' WHERE (`spawn_id` = '27594'); 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '30545'); 
+        -- Cooking Table XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '319.954', `spawn_positionY` = '-4654.964', `spawn_positionZ` = '16.301' WHERE (`spawn_id` = '99805'); 
+        -- Rich Thorium Vein ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '397162'); 
+        -- Rich Thorium Vein ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '397163'); 
+        -- Resonating Crystal Formation Glow ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399419'); 
+        -- Summoning Circle ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3996127'); 
+        -- Blueleaf Tuber Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '71.522' WHERE (`spawn_id` = '632459'); 
+        -- Black Lotus Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '125.776' WHERE (`spawn_id` = '3998148'); 
+        -- Black Lotus XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '3032.34', `spawn_positionY` = '-3219.78', `spawn_positionZ` = '124.859' WHERE (`spawn_id` = '3998149'); 
+        -- Black Lotus ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998193'); 
+        -- Black Lotus ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998194'); 
+        -- Black Lotus ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998203'); 
+        -- Black Lotus ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998205'); 
+        -- Black Lotus ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998221'); 
+        -- Black Lotus ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998224'); 
+        -- TEMP Nearby Tubers Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.229' WHERE (`spawn_id` = '3998428'); 
+        -- TEMP Nearby Tubers Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '53.865' WHERE (`spawn_id` = '3998429'); 
+        -- TEMP Nearby Tubers Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '55.568' WHERE (`spawn_id` = '3998430'); 
+        -- TEMP Nearby Tubers Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '60.029' WHERE (`spawn_id` = '3998431'); 
+        -- TEMP Nearby Tubers Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '55.632' WHERE (`spawn_id` = '3998432'); 
+        -- TEMP Nearby Tubers Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '49.31' WHERE (`spawn_id` = '3998433'); 
+        -- TEMP Nearby Tubers Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '62.264' WHERE (`spawn_id` = '3998435'); 
+        -- TEMP Nearby Tubers Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '49.967' WHERE (`spawn_id` = '3998436'); 
+        -- TEMP Nearby Tubers Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '56.146' WHERE (`spawn_id` = '3998437'); 
+        -- TEMP Nearby Tubers Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '59.988' WHERE (`spawn_id` = '3998438'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.32' WHERE (`spawn_id` = '16416'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '119.903' WHERE (`spawn_id` = '16420'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '116.019' WHERE (`spawn_id` = '16425'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '121.486' WHERE (`spawn_id` = '16429'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '123.147' WHERE (`spawn_id` = '16443'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '117.396' WHERE (`spawn_id` = '16445'); 
+        -- Ghost Mushroom Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '118.42' WHERE (`spawn_id` = '16447'); 
+        -- Officer's Door ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '31660'); 
+        -- Deepmoss Eggs trap Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31801'); 
+        -- Deepmoss Eggs trap Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31802'); 
+        -- Deepmoss Eggs trap Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '180.232' WHERE (`spawn_id` = '31803'); 
+        -- Deepmoss Eggs trap Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.854' WHERE (`spawn_id` = '31803'); 
+        -- Deepmoss Eggs trap Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '175.515' WHERE (`spawn_id` = '31804'); 
+        -- Deepmoss Eggs trap Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31805'); 
+        -- Deepmoss Eggs trap Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '178.876' WHERE (`spawn_id` = '31806'); 
+        -- Food Crate Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '373.081' WHERE (`spawn_id` = '88000'); 
+        -- Food Crate Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '1.471' WHERE (`spawn_id` = '88051'); 
+        -- Water Barrel Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '2.724' WHERE (`spawn_id` = '88055'); 
+        -- Food Crate Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '11.629' WHERE (`spawn_id` = '88057'); 
+        -- Water Barrel Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '11.629' WHERE (`spawn_id` = '88058'); 
+        -- Water Barrel Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '4.106' WHERE (`spawn_id` = '88068'); 
+        -- Water Barrel Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '26.999' WHERE (`spawn_id` = '88071'); 
+        -- Water Barrel XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-1931.969', `spawn_positionY` = '387.993', `spawn_positionZ` = '133.457' WHERE (`spawn_id` = '88077'); 
+        -- Water Barrel ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88080'); 
+        -- Water Barrel ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88081'); 
+        -- Food Crate ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88082'); 
+        -- Food Crate ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '88083'); 
+        -- Buccaneer's Strongbox ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '55911'); 
+        -- Rat Bomb Trap ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '55913'); 
+        -- Weapon Crate XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-1621.618', `spawn_positionY` = '-3952.514', `spawn_positionZ` = '-0.487' WHERE (`spawn_id` = '55916'); 
+        -- Iron Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '48.465' WHERE (`spawn_id` = '55938'); 
+        -- Iron Deposit Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '38.603' WHERE (`spawn_id` = '55954'); 
+        -- Tin Vein Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '60.211' WHERE (`spawn_id` = '55955'); 
+        -- Stranglekelp XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '-2632.237', `spawn_positionY` = '-4239.708', `spawn_positionZ` = '-0.01' WHERE (`spawn_id` = '55964'); 
+        -- Goldthorn Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '51.984' WHERE (`spawn_id` = '55971'); 
+        -- Tin Vein Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '61.918' WHERE (`spawn_id` = '56024'); 
+        -- Tin Vein Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '60.034' WHERE (`spawn_id` = '56024'); 
+        -- Khadgar's Whisker Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '41.065' WHERE (`spawn_id` = '56029'); 
+        -- Talon Den ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42110'); 
+        -- Talon Den ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42111'); 
+        -- Talon Den Z placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionZ` = '356.473' WHERE (`spawn_id` = '42112'); 
+        -- Talon Den ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42113'); 
+        -- Talon Den ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42114'); 
+        -- Talon Den ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42115'); 
+        -- Talon Den ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42116'); 
+        -- Crate of Elunite XYZ placement. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `spawn_positionX` = '6311.138', `spawn_positionY` = '741.884', `spawn_positionZ` = '-20.746' WHERE (`spawn_id` = '48874');         -- Mighty Blaze ignored, out of reach. 
+        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3998657'); 
 
         insert into applied_updates values ('08020221');
     end if;
