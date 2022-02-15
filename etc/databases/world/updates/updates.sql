@@ -9109,6 +9109,1050 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_z` = '37.975' WHERE (`spawn_id` = '15696'); 
         -- Hillsbrad Miner, Z placement., Index: 13970 
         UPDATE `spawns_creatures` SET `position_z` = '34.967' WHERE (`spawn_id` = '15697'); 
+        -- Hillsbrad Councilman, Z placement., Index: 14021 
+        UPDATE `spawns_creatures` SET `position_z` = '53.15' WHERE (`spawn_id` = '15751'); 
+        -- Torn Fin Muckdweller, Z placement., Index: 14024 
+        UPDATE `spawns_creatures` SET `position_z` = '2.655' WHERE (`spawn_id` = '15754'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14025 
+        UPDATE `spawns_creatures` SET `position_x` = '-784.957', `position_y` = '116.151', `position_z` = '23.558' WHERE (`spawn_id` = '15755'); 
+        -- Hillsbrad Peasant, Z placement., Index: 14056 
+        UPDATE `spawns_creatures` SET `position_z` = '53.15' WHERE (`spawn_id` = '15786'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14061 
+        UPDATE `spawns_creatures` SET `position_z` = '65.876' WHERE (`spawn_id` = '15791'); 
+        -- Daggerspine Shorehunter, XYZ placement., Index: 14068 
+        UPDATE `spawns_creatures` SET `position_x` = '-993.509', `position_y` = '-594.693', `position_z` = '-4.113' WHERE (`spawn_id` = '15798'); 
+        -- Hillsbrad Miner, Z placement., Index: 14076 
+        UPDATE `spawns_creatures` SET `position_z` = '0.315' WHERE (`spawn_id` = '15806'); 
+        -- Hillsbrad Foreman, XYZ placement., Index: 14079 
+        UPDATE `spawns_creatures` SET `position_x` = '-808.738', `position_y` = '149.834', `position_z` = '1.739' WHERE (`spawn_id` = '15809'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14080 
+        UPDATE `spawns_creatures` SET `position_x` = '-777.991', `position_y` = '143.471', `position_z` = '0.586' WHERE (`spawn_id` = '15810'); 
+        -- Hillsbrad Miner, Z placement., Index: 14081 
+        UPDATE `spawns_creatures` SET `position_z` = '1.333' WHERE (`spawn_id` = '15811'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14082 
+        UPDATE `spawns_creatures` SET `position_x` = '-771.218', `position_y` = '123.789', `position_z` = '2.775' WHERE (`spawn_id` = '15812'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14084 
+        UPDATE `spawns_creatures` SET `position_x` = '-749.403', `position_y` = '120.726', `position_z` = '8.008' WHERE (`spawn_id` = '15814'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14085 
+        UPDATE `spawns_creatures` SET `position_x` = '-730.886', `position_y` = '129.034', `position_z` = '7.604' WHERE (`spawn_id` = '15815'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14086 
+        UPDATE `spawns_creatures` SET `position_x` = '-737.168', `position_y` = '144.698', `position_z` = '7.633' WHERE (`spawn_id` = '15816'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14091 
+        UPDATE `spawns_creatures` SET `position_x` = '-758.244', `position_y` = '151.594', `position_z` = '10.727' WHERE (`spawn_id` = '15821'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14092 
+        UPDATE `spawns_creatures` SET `position_x` = '-750.652', `position_y` = '162.121', `position_z` = '11.268' WHERE (`spawn_id` = '15822'); 
+        -- Syndicate Watchman, XYZ placement., Index: 14099 
+        UPDATE `spawns_creatures` SET `position_x` = '-424.438', `position_y` = '-1399.415', `position_z` = '51.854' WHERE (`spawn_id` = '15829'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14102 
+        UPDATE `spawns_creatures` SET `position_z` = '63.044' WHERE (`spawn_id` = '15832'); 
+        -- Syndicate Rogue, Z placement., Index: 14108 
+        UPDATE `spawns_creatures` SET `position_z` = '58.785' WHERE (`spawn_id` = '15838'); 
+        -- Hillsbrad Foreman, XYZ placement., Index: 14165 
+        UPDATE `spawns_creatures` SET `position_x` = '-827.802', `position_y` = '204.545', `position_z` = '17.314' WHERE (`spawn_id` = '15895'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14167 
+        UPDATE `spawns_creatures` SET `position_x` = '-810.908', `position_y` = '195.561', `position_z` = '19.237' WHERE (`spawn_id` = '15897');  
+        -- Foreman Bonds, XYZ placement., Index: 14168 
+        UPDATE `spawns_creatures` SET `position_x` = '-790.145', `position_y` = '115.666', `position_z` = '23.125' WHERE (`spawn_id` = '15898'); 
+		-- Dun Garok Rifleman, Z placement., Index: 14128 
+        UPDATE `spawns_creatures` SET `position_x` = '-789.315', `position_y` = '116.66', `position_z` = '23.094' WHERE (`spawn_id` = '15858'); 
+        -- Dun Garok Mountaineer, Z placement., Index: 14135 
+        UPDATE `spawns_creatures` SET `position_x` = '-778.594', `position_y` = '129.878', `position_z` = '23.395' WHERE (`spawn_id` = '15865'); 
+        -- Hillsbrad Miner, Z placement., Index: 14169 
+        UPDATE `spawns_creatures` SET `position_z` = '-1.765' WHERE (`spawn_id` = '15899'); 
+        -- Hillsbrad Miner, Z placement., Index: 14171 
+        UPDATE `spawns_creatures` SET `position_z` = '-1.211' WHERE (`spawn_id` = '15901'); 
+        -- Hillsbrad Foreman, Z placement., Index: 14173 
+        UPDATE `spawns_creatures` SET `position_z` = '-0.472' WHERE (`spawn_id` = '15903'); 
+        -- Hillsbrad Foreman, XYZ placement., Index: 14174 
+        UPDATE `spawns_creatures` SET `position_x` = '-831.456', `position_y` = '128.705', `position_z` = '0.779' WHERE (`spawn_id` = '15904'); 
+        -- Giant Moss Creeper, Z placement., Index: 14175 
+        UPDATE `spawns_creatures` SET `position_z` = '72.611' WHERE (`spawn_id` = '15905'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14177 
+        UPDATE `spawns_creatures` SET `position_x` = '-840.73', `position_y` = '191.459', `position_z` = '18.578' WHERE (`spawn_id` = '15907'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14178 
+        UPDATE `spawns_creatures` SET `position_x` = '-829.345', `position_y` = '203.973', `position_z` = '17.438' WHERE (`spawn_id` = '15908'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14179 
+        UPDATE `spawns_creatures` SET `position_x` = '-821.137', `position_y` = '196.108', `position_z` = '17.803' WHERE (`spawn_id` = '15909'); 
+        -- Hillsbrad Foreman, Z placement., Index: 14180 
+        UPDATE `spawns_creatures` SET `position_z` = '1.059' WHERE (`spawn_id` = '15910'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14181 
+        UPDATE `spawns_creatures` SET `position_x` = '-784.809', `position_y` = '139.809', `position_z` = '-0.54' WHERE (`spawn_id` = '15911'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14182 
+        UPDATE `spawns_creatures` SET `position_x` = '-763.781', `position_y` = '135.875', `position_z` = '3.086' WHERE (`spawn_id` = '15912'); 
+        -- Hillsbrad Foreman, XYZ placement., Index: 14183 
+        UPDATE `spawns_creatures` SET `position_x` = '-734.512', `position_y` = '123.472', `position_z` = '8.505' WHERE (`spawn_id` = '15913'); 
+        -- Hillsbrad Miner, Z placement., Index: 14185 
+        UPDATE `spawns_creatures` SET `position_z` = '7.719' WHERE (`spawn_id` = '15915'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14186 
+        UPDATE `spawns_creatures` SET `position_x` = '-744.579', `position_y` = '148.209', `position_z` = '8.942' WHERE (`spawn_id` = '15916'); 
+        -- Hillsbrad Miner, Z placement., Index: 14187 
+        UPDATE `spawns_creatures` SET `position_z` = '14.115' WHERE (`spawn_id` = '15917'); 
+        -- Hillsbrad Foreman, XYZ placement., Index: 14188 
+        UPDATE `spawns_creatures` SET `position_x` = '-745.569', `position_y` = '182.463', `position_z` = '14.127' WHERE (`spawn_id` = '15918'); 
+        -- Hillsbrad Foreman, Z placement., Index: 14189 
+        UPDATE `spawns_creatures` SET `position_z` = '-0.016' WHERE (`spawn_id` = '15919'); 
+        -- Hillsbrad Miner, Z placement., Index: 14191 
+        UPDATE `spawns_creatures` SET `position_z` = '18.338' WHERE (`spawn_id` = '15921'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14192 
+        UPDATE `spawns_creatures` SET `position_x` = '-819.172', `position_y` = '206.203', `position_z` = '18.045' WHERE (`spawn_id` = '15922'); 
+        -- Hillsbrad Miner, Z placement., Index: 14196 
+        UPDATE `spawns_creatures` SET `position_z` = '20.243' WHERE (`spawn_id` = '15926'); 
+        -- Hillsbrad Miner, XYZ placement., Index: 14201 
+        UPDATE `spawns_creatures` SET `position_x` = '-788.278', `position_y` = '117.685', `position_z` = '-0.28' WHERE (`spawn_id` = '15931'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14237 
+        UPDATE `spawns_creatures` SET `position_z` = '52.803' WHERE (`spawn_id` = '15969'); 
+        -- Hillsbrad Councilman, Z placement., Index: 14254 
+        UPDATE `spawns_creatures` SET `position_z` = '59.055' WHERE (`spawn_id` = '15986'); 
+        -- Hillsbrad Footman, Z placement., Index: 14262 
+        UPDATE `spawns_creatures` SET `position_z` = '53.15' WHERE (`spawn_id` = '15994'); 
+        -- Hillsbrad Councilman, Z placement., Index: 14263 
+        UPDATE `spawns_creatures` SET `position_z` = '53.15' WHERE (`spawn_id` = '15995'); 
+        -- Daggerspine Shorehunter, XYZ placement., Index: 14267 
+        UPDATE `spawns_creatures` SET `position_x` = '-983.952', `position_y` = '-620.635', `position_z` = '-0.995' WHERE (`spawn_id` = '15999'); 
+        -- Daggerspine Shorehunter, XYZ placement., Index: 14278 
+        UPDATE `spawns_creatures` SET `position_x` = '-1057.959', `position_y` = '-698.131', `position_z` = '-2.306' WHERE (`spawn_id` = '16010'); 
+        -- Miner Hackett, XYZ placement., Index: 14285 
+        UPDATE `spawns_creatures` SET `position_x` = '-738.776', `position_y` = '136.201', `position_z` = '7.395' WHERE (`spawn_id` = '16017'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14292 
+        UPDATE `spawns_creatures` SET `position_z` = '51.293' WHERE (`spawn_id` = '16024'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14296 
+        UPDATE `spawns_creatures` SET `position_z` = '58.941' WHERE (`spawn_id` = '16028'); 
+        -- Syndicate Watchman, Z placement., Index: 14297 
+        UPDATE `spawns_creatures` SET `position_z` = '56.912' WHERE (`spawn_id` = '16029'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14298 
+        UPDATE `spawns_creatures` SET `position_z` = '50.971' WHERE (`spawn_id` = '16030'); 
+        -- Syndicate Rogue, Z placement., Index: 14299 
+        UPDATE `spawns_creatures` SET `position_z` = '51.503' WHERE (`spawn_id` = '16031'); 
+        -- Rat, Z placement., Index: 14303 
+        UPDATE `spawns_creatures` SET `position_z` = '51.06' WHERE (`spawn_id` = '16035'); 
+        -- Lady Zephris, XYZ placement., Index: 14315 
+        UPDATE `spawns_creatures` SET `position_x` = '-1298.308', `position_y` = '-1002.086', `position_z` = '-0.316' WHERE (`spawn_id` = '16047'); 
+        -- Syndicate Rogue, XYZ placement., Index: 14320 
+        UPDATE `spawns_creatures` SET `position_x` = '-554.351', `position_y` = '-1524.186', `position_z` = '55.9' WHERE (`spawn_id` = '16052'); 
+        -- Syndicate Watchman, Z placement., Index: 14321 
+        UPDATE `spawns_creatures` SET `position_z` = '50.967' WHERE (`spawn_id` = '16053'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14322 
+        UPDATE `spawns_creatures` SET `position_z` = '52.736' WHERE (`spawn_id` = '16054'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14324 
+        UPDATE `spawns_creatures` SET `position_z` = '58.925' WHERE (`spawn_id` = '16056'); 
+        -- Syndicate Watchman, XYZ placement., Index: 14325 
+        UPDATE `spawns_creatures` SET `position_x` = '-454.533', `position_y` = '-1409.452', `position_z` = '54.624' WHERE (`spawn_id` = '16057'); 
+        -- Syndicate Watchman, XYZ placement., Index: 14326 
+        UPDATE `spawns_creatures` SET `position_x` = '-474.386', `position_y` = '-1398.495', `position_z` = '53.122' WHERE (`spawn_id` = '16058'); 
+        -- Syndicate Watchman, Z placement., Index: 14327 
+        UPDATE `spawns_creatures` SET `position_z` = '50.967' WHERE (`spawn_id` = '16059'); 
+        -- Syndicate Watchman, Z placement., Index: 14328 
+        UPDATE `spawns_creatures` SET `position_z` = '53.179' WHERE (`spawn_id` = '16060'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14329 
+        UPDATE `spawns_creatures` SET `position_z` = '55.316' WHERE (`spawn_id` = '16061'); 
+        -- Syndicate Watchman, Z placement., Index: 14330 
+        UPDATE `spawns_creatures` SET `position_z` = '51.759' WHERE (`spawn_id` = '16062'); 
+        -- Jailor Marlgen, Z placement., Index: 14331 
+        UPDATE `spawns_creatures` SET `position_z` = '53.354' WHERE (`spawn_id` = '16063'); 
+        -- Syndicate Watchman, Z placement., Index: 14332 
+        UPDATE `spawns_creatures` SET `position_z` = '51.89' WHERE (`spawn_id` = '16064'); 
+        -- Syndicate Watchman, XYZ placement., Index: 14333 
+        UPDATE `spawns_creatures` SET `position_x` = '-451.267', `position_y` = '-1344.793', `position_z` = '51.543' WHERE (`spawn_id` = '16065'); 
+        -- Syndicate Watchman, Z placement., Index: 14335 
+        UPDATE `spawns_creatures` SET `position_z` = '54.483' WHERE (`spawn_id` = '16067'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14337 
+        UPDATE `spawns_creatures` SET `position_z` = '51.835' WHERE (`spawn_id` = '16069'); 
+        -- Syndicate Shadow Mage, XYZ placement., Index: 14338 
+        UPDATE `spawns_creatures` SET `position_x` = '-481.227', `position_y` = '-1473.462', `position_z` = '53.165' WHERE (`spawn_id` = '16070'); 
+        -- Syndicate Rogue, Z placement., Index: 14339 
+        UPDATE `spawns_creatures` SET `position_z` = '50.967' WHERE (`spawn_id` = '16071'); 
+        -- Syndicate Watchman, Z placement., Index: 14345 
+        UPDATE `spawns_creatures` SET `position_z` = '50.967' WHERE (`spawn_id` = '16077'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14346 
+        UPDATE `spawns_creatures` SET `position_z` = '53.385' WHERE (`spawn_id` = '16078'); 
+        -- Syndicate Watchman, XYZ placement., Index: 14345 
+        UPDATE `spawns_creatures` SET `position_x` = '-551.458', `position_y` = '-1435.144', `position_z` = '52.443' WHERE (`spawn_id` = '16077'); 
+        -- Syndicate Rogue, XYZ placement., Index: 14347 
+        UPDATE `spawns_creatures` SET `position_x` = '-555.796', `position_y` = '-1446.831', `position_z` = '52.443' WHERE (`spawn_id` = '16079'); 
+        -- Syndicate Watchman, Z placement., Index: 14349 
+        UPDATE `spawns_creatures` SET `position_z` = '51.034' WHERE (`spawn_id` = '16081'); 
+        -- Syndicate Watchman, Z placement., Index: 14350 
+        UPDATE `spawns_creatures` SET `position_z` = '50.971' WHERE (`spawn_id` = '16082'); 
+        -- Syndicate Watchman, Z placement., Index: 14352 
+        UPDATE `spawns_creatures` SET `position_z` = '50.967' WHERE (`spawn_id` = '16084'); 
+        -- Snapjaw, XYZ placement., Index: 14358 
+        UPDATE `spawns_creatures` SET `position_x` = '-554.598', `position_y` = '-827.135', `position_z` = '4.103' WHERE (`spawn_id` = '16090'); 
+        -- Dun Garok Mountaineer, Z placement., Index: 14360 
+        UPDATE `spawns_creatures` SET `position_z` = '38.79' WHERE (`spawn_id` = '16092'); 
+        -- Jailor Eston, Z placement., Index: 14368 
+        UPDATE `spawns_creatures` SET `position_z` = '53.102' WHERE (`spawn_id` = '16100'); 
+        -- Syndicate Watchman, Z placement., Index: 14369 
+        UPDATE `spawns_creatures` SET `position_z` = '51.12' WHERE (`spawn_id` = '16101'); 
+        -- Dun Garok Mountaineer, Z placement., Index: 14372 
+        UPDATE `spawns_creatures` SET `position_z` = '40.179' WHERE (`spawn_id` = '16104'); 
+        -- Dun Garok Rifleman, Z placement., Index: 14373 
+        UPDATE `spawns_creatures` SET `position_z` = '49.902' WHERE (`spawn_id` = '16105'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14374 
+        UPDATE `spawns_creatures` SET `position_z` = '51.804' WHERE (`spawn_id` = '16106'); 
+        -- Syndicate Rogue, Z placement., Index: 14375 
+        UPDATE `spawns_creatures` SET `position_z` = '50.995' WHERE (`spawn_id` = '16107'); 
+        -- Torn Fin Tidehunter, XYZ placement., Index: 14378 
+        UPDATE `spawns_creatures` SET `position_x` = '-1013.116', `position_y` = '-417.832', `position_z` = '-1.154' WHERE (`spawn_id` = '16110'); 
+        -- Torn Fin Oracle, Z placement., Index: 14386 
+        UPDATE `spawns_creatures` SET `position_z` = '0.491' WHERE (`spawn_id` = '16118'); 
+        -- Syndicate Watchman, XYZ placement., Index: 14387 
+        UPDATE `spawns_creatures` SET `position_x` = '-530.641', `position_y` = '-1382.627', `position_z` = '50.967' WHERE (`spawn_id` = '16119'); 
+        -- Torn Fin Tidehunter, XYZ placement., Index: 14398 
+        UPDATE `spawns_creatures` SET `position_x` = '-1057.524', `position_y` = '-372.82', `position_z` = '-2.762' WHERE (`spawn_id` = '16130'); 
+        -- Syndicate Watchman, Z placement., Index: 14413 
+        UPDATE `spawns_creatures` SET `position_z` = '54.701' WHERE (`spawn_id` = '16145'); 
+        -- Syndicate Watchman, Z placement., Index: 14414 
+        UPDATE `spawns_creatures` SET `position_z` = '52.705' WHERE (`spawn_id` = '16146'); 
+        -- Syndicate Watchman, XYZ placement., Index: 14419 
+        UPDATE `spawns_creatures` SET `position_x` = '-557.943', `position_y` = '-1403.94', `position_z` = '51.089' WHERE (`spawn_id` = '16151'); 
+        -- Syndicate Watchman, Z placement., Index: 14423 
+        UPDATE `spawns_creatures` SET `position_z` = '51.129' WHERE (`spawn_id` = '16155'); 
+        -- Syndicate Watchman, XYZ placement., Index: 14425 
+        UPDATE `spawns_creatures` SET `position_x` = '-587.018', `position_y` = '-1425.886', `position_z` = '52.775' WHERE (`spawn_id` = '16157'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14427 
+        UPDATE `spawns_creatures` SET `position_z` = '51.119' WHERE (`spawn_id` = '16159'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14430 
+        UPDATE `spawns_creatures` SET `position_z` = '52.934' WHERE (`spawn_id` = '16162'); 
+        -- Syndicate Watchman, Z placement., Index: 14431 
+        UPDATE `spawns_creatures` SET `position_z` = '52.415' WHERE (`spawn_id` = '16163'); 
+        -- Dun Garok Priest, Z placement., Index: 14432 
+        UPDATE `spawns_creatures` SET `position_z` = '40.178' WHERE (`spawn_id` = '16164'); 
+        -- Syndicate Watchman, XYZ placement., Index: 14434 
+        UPDATE `spawns_creatures` SET `position_x` = '-500.57', `position_y` = '-1522.244', `position_z` = '55.094' WHERE (`spawn_id` = '16166'); 
+        -- Syndicate Watchman, XYZ placement., Index: 14436 
+        UPDATE `spawns_creatures` SET `position_x` = '-481.072', `position_y` = '-1553.678', `position_z` = '71.514' WHERE (`spawn_id` = '16168'); 
+        -- Syndicate Watchman, Z placement., Index: 14441 
+        UPDATE `spawns_creatures` SET `position_z` = '53.074' WHERE (`spawn_id` = '16173'); 
+        -- Syndicate Shadow Mage, XYZ placement., Index: 14443 
+        UPDATE `spawns_creatures` SET `position_x` = '-555.231', `position_y` = '-1521.402', `position_z` = '55.22' WHERE (`spawn_id` = '16175'); 
+        -- Syndicate Watchman, Z placement., Index: 14446 
+        UPDATE `spawns_creatures` SET `position_z` = '58.056' WHERE (`spawn_id` = '16178'); 
+        -- Syndicate Rogue, Z placement., Index: 14453 
+        UPDATE `spawns_creatures` SET `position_z` = '59.723' WHERE (`spawn_id` = '16185'); 
+        -- Syndicate Watchman, Z placement., Index: 14454 
+        UPDATE `spawns_creatures` SET `position_z` = '59.804' WHERE (`spawn_id` = '16186'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14455 
+        UPDATE `spawns_creatures` SET `position_z` = '57.915' WHERE (`spawn_id` = '16187'); 
+        -- Syndicate Watchman, Z placement., Index: 14456 
+        UPDATE `spawns_creatures` SET `position_z` = '65.639' WHERE (`spawn_id` = '16188'); 
+        -- Syndicate Watchman, Z placement., Index: 14457 
+        UPDATE `spawns_creatures` SET `position_z` = '62.062' WHERE (`spawn_id` = '16189'); 
+        -- Syndicate Rogue, Z placement., Index: 14458 
+        UPDATE `spawns_creatures` SET `position_z` = '63.208' WHERE (`spawn_id` = '16190'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14538 
+        UPDATE `spawns_creatures` SET `position_z` = '57.188' WHERE (`spawn_id` = '16303'); 
+        -- Syndicate Rogue, Z placement., Index: 14539 
+        UPDATE `spawns_creatures` SET `position_z` = '57.686' WHERE (`spawn_id` = '16304'); 
+        -- Syndicate Shadow Mage, Z placement., Index: 14540 
+        UPDATE `spawns_creatures` SET `position_z` = '56.837' WHERE (`spawn_id` = '16305'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14546 
+        UPDATE `spawns_creatures` SET `position_x` = '-246.441', `position_y` = '-395.598', `position_z` = '65.61' WHERE (`spawn_id` = '16311'); 
+        -- Cave Yeti, XYZ placement., Index: 14563 
+        UPDATE `spawns_creatures` SET `position_x` = '-215.677', `position_y` = '-373.309', `position_z` = '67.106' WHERE (`spawn_id` = '16328'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14565 
+        UPDATE `spawns_creatures` SET `position_x` = '-233.572', `position_y` = '-364.328', `position_z` = '68.154' WHERE (`spawn_id` = '16330'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14581 
+        UPDATE `spawns_creatures` SET `position_x` = '-231.41', `position_y` = '-348.771', `position_z` = '68.189' WHERE (`spawn_id` = '16346'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14595 
+        UPDATE `spawns_creatures` SET `position_x` = '-270.596', `position_y` = '-330.534', `position_z` = '62.436' WHERE (`spawn_id` = '16360'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14602 
+        UPDATE `spawns_creatures` SET `position_x` = '-266.928', `position_y` = '-313.053', `position_z` = '59.415' WHERE (`spawn_id` = '16367'); 
+        -- Cave Yeti, XYZ placement., Index: 14604 
+        UPDATE `spawns_creatures` SET `position_x` = '-256.857', `position_y` = '-302.71', `position_z` = '55.435' WHERE (`spawn_id` = '16369'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14615 
+        UPDATE `spawns_creatures` SET `position_x` = '-249.913', `position_y` = '-288.506', `position_z` = '53.696' WHERE (`spawn_id` = '16380'); 
+        -- Southshore Guard, Z placement., Index: 14618 
+        UPDATE `spawns_creatures` SET `position_z` = '11.46' WHERE (`spawn_id` = '16383'); 
+        -- Ferocious Yeti, Z placement., Index: 14623 
+        UPDATE `spawns_creatures` SET `position_z` = '54.006' WHERE (`spawn_id` = '16388'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14716 
+        UPDATE `spawns_creatures` SET `position_x` = '-239.79', `position_y` = '-290.531', `position_z` = '52.703' WHERE (`spawn_id` = '16491'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14722 
+        UPDATE `spawns_creatures` SET `position_x` = '-238.901', `position_y` = '-271.321', `position_z` = '53.226' WHERE (`spawn_id` = '16497'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14724 
+        UPDATE `spawns_creatures` SET `position_x` = '-244.342', `position_y` = '-340.424', `position_z` = '64.649' WHERE (`spawn_id` = '16499'); 
+        -- Cave Yeti, XYZ placement., Index: 14728 
+        UPDATE `spawns_creatures` SET `position_x` = '-225.733', `position_y` = '-258.71', `position_z` = '52.569' WHERE (`spawn_id` = '16503'); 
+        -- Cave Yeti, XYZ placement., Index: 14729 
+        UPDATE `spawns_creatures` SET `position_x` = '-225.472', `position_y` = '-281.457', `position_z` = '49.106' WHERE (`spawn_id` = '16504'); 
+        -- Cave Yeti, XYZ placement., Index: 14730 
+        UPDATE `spawns_creatures` SET `position_x` = '-208.328', `position_y` = '-284.968', `position_z` = '50.859' WHERE (`spawn_id` = '16505'); 
+        -- Cave Yeti, XYZ placement., Index: 14737 
+        UPDATE `spawns_creatures` SET `position_x` = '-206.002', `position_y` = '-302.648', `position_z` = '49.663' WHERE (`spawn_id` = '16512'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14740 
+        UPDATE `spawns_creatures` SET `position_x` = '-209.625', `position_y` = '-315.705', `position_z` = '48.202' WHERE (`spawn_id` = '16515'); 
+        -- Cave Yeti, XYZ placement., Index: 14746 
+        UPDATE `spawns_creatures` SET `position_x` = '-215.402', `position_y` = '-305.886', `position_z` = '49.518' WHERE (`spawn_id` = '16521'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14753 
+        UPDATE `spawns_creatures` SET `position_x` = '-249.039', `position_y` = '-298.66', `position_z` = '53.574' WHERE (`spawn_id` = '16528'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14758 
+        UPDATE `spawns_creatures` SET `position_x` = '-259.762', `position_y` = '-308.238', `position_z` = '57.791' WHERE (`spawn_id` = '16533'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14762 
+        UPDATE `spawns_creatures` SET `position_x` = '-263.813', `position_y` = '-318.568', `position_z` = '60.392' WHERE (`spawn_id` = '16537'); 
+        -- Cave Yeti, XYZ placement., Index: 14765 
+        UPDATE `spawns_creatures` SET `position_x` = '-210.274', `position_y` = '-379.441', `position_z` = '65.699' WHERE (`spawn_id` = '16540'); 
+        -- Ferocious Yeti, Z placement., Index: 14767 
+        UPDATE `spawns_creatures` SET `position_z` = '62.639' WHERE (`spawn_id` = '16542'); 
+        -- Ferocious Yeti, Z placement., Index: 14771 
+        UPDATE `spawns_creatures` SET `position_z` = '66.872' WHERE (`spawn_id` = '16546'); 
+        -- Cave Yeti, Z placement., Index: 14773 
+        UPDATE `spawns_creatures` SET `position_z` = '65.543' WHERE (`spawn_id` = '16548'); 
+        -- Cave Yeti, XYZ placement., Index: 14775 
+        UPDATE `spawns_creatures` SET `position_x` = '-268.202', `position_y` = '-398.125', `position_z` = '66.876' WHERE (`spawn_id` = '16550'); 
+        -- Ferocious Yeti, XYZ placement., Index: 14777 
+        UPDATE `spawns_creatures` SET `position_x` = '-303.362', `position_y` = '-429.301', `position_z` = '61.68' WHERE (`spawn_id` = '16552'); 
+        -- Snapjaw, XYZ placement., Index: 14794 
+        UPDATE `spawns_creatures` SET `position_x` = '1305.144', `position_y` = '-165.002', `position_z` = '31.715' WHERE (`spawn_id` = '16569'); 
+        -- Tarren Mill Deathguard, Z placement., Index: 14799 
+        UPDATE `spawns_creatures` SET `position_z` = '116.049' WHERE (`spawn_id` = '16600'); 
+        -- Tarren Mill Deathguard, Z placement., Index: 14801 
+        UPDATE `spawns_creatures` SET `position_z` = '118.354' WHERE (`spawn_id` = '16602'); 
+        -- Lake Frenzy, XYZ placement., Index: 14806 
+        UPDATE `spawns_creatures` SET `position_x` = '1214.317', `position_y` = '-151.296', `position_z` = '23.151' WHERE (`spawn_id` = '16615'); 
+        -- Snapjaw, XYZ placement., Index: 14807 
+        UPDATE `spawns_creatures` SET `position_x` = '1382.628', `position_y` = '-48.008', `position_z` = '29.06' WHERE (`spawn_id` = '16616'); 
+        -- Snapjaw, XYZ placement., Index: 14808 
+        UPDATE `spawns_creatures` SET `position_x` = '501.71', `position_y` = '367.273', `position_z` = '32.092' WHERE (`spawn_id` = '16617'); 
+        -- Lake Frenzy, XYZ placement., Index: 14814 
+        UPDATE `spawns_creatures` SET `position_x` = '585.87', `position_y` = '548.639', `position_z` = '30.924' WHERE (`spawn_id` = '16623'); 
+        -- Snapjaw, XYZ placement., Index: 14819 
+        UPDATE `spawns_creatures` SET `position_x` = '522.449', `position_y` = '287.346', `position_z` = '31.376' WHERE (`spawn_id` = '16628'); 
+        -- Snapjaw, XYZ placement., Index: 14820 
+        UPDATE `spawns_creatures` SET `position_x` = '1107.052', `position_y` = '-245.07', `position_z` = '31.518' WHERE (`spawn_id` = '16629'); 
+        -- Snapjaw, XYZ placement., Index: 14822 
+        UPDATE `spawns_creatures` SET `position_x` = '1083.793', `position_y` = '-233.505', `position_z` = '31.873' WHERE (`spawn_id` = '16631'); 
+        -- Snapjaw, XYZ placement., Index: 14824 
+        UPDATE `spawns_creatures` SET `position_x` = '1276.193', `position_y` = '-173.948', `position_z` = '32.26' WHERE (`spawn_id` = '16633'); 
+        -- Snapjaw, XYZ placement., Index: 14825 
+        UPDATE `spawns_creatures` SET `position_x` = '989.906', `position_y` = '-182.861', `position_z` = '32.318' WHERE (`spawn_id` = '16634'); 
+        -- Snapjaw, XYZ placement., Index: 14826 
+        UPDATE `spawns_creatures` SET `position_x` = '643.507', `position_y` = '-1759.37', `position_z` = '35.255' WHERE (`spawn_id` = '16635'); 
+        -- Snapjaw, XYZ placement., Index: 14827 
+        UPDATE `spawns_creatures` SET `position_x` = '627.497', `position_y` = '351.656', `position_z` = '32.973' WHERE (`spawn_id` = '16636'); 
+        -- Snapjaw, XYZ placement., Index: 14828 
+        UPDATE `spawns_creatures` SET `position_x` = '1098.032', `position_y` = '-239.337', `position_z` = '31.408' WHERE (`spawn_id` = '16637'); 
+        -- Snapjaw, XYZ placement., Index: 14829 
+        UPDATE `spawns_creatures` SET `position_x` = '771.679', `position_y` = '61.923', `position_z` = '31.09' WHERE (`spawn_id` = '16638'); 
+        -- Snapjaw, XYZ placement., Index: 14830 
+        UPDATE `spawns_creatures` SET `position_x` = '692.105', `position_y` = '222.504', `position_z` = '30.788' WHERE (`spawn_id` = '16639'); 
+        -- Snapjaw, XYZ placement., Index: 14832 
+        UPDATE `spawns_creatures` SET `position_x` = '464.305', `position_y` = '458.728', `position_z` = '31.448' WHERE (`spawn_id` = '16641'); 
+        -- Snapjaw, XYZ placement., Index: 14834 
+        UPDATE `spawns_creatures` SET `position_x` = '537.292', `position_y` = '252.91', `position_z` = '31.146' WHERE (`spawn_id` = '16645'); 
+        -- Vile Fin Tidecaller, XYZ placement., Index: 14836 
+        UPDATE `spawns_creatures` SET `position_x` = '795.1', `position_y` = '47.382', `position_z` = '32.73' WHERE (`spawn_id` = '16647'); 
+        -- Vile Fin Tidecaller, XYZ placement., Index: 14837 
+        UPDATE `spawns_creatures` SET `position_x` = '846.522', `position_y` = '45.209', `position_z` = '29.448' WHERE (`spawn_id` = '16648'); 
+        -- Snapjaw, XYZ placement., Index: 14840 
+        UPDATE `spawns_creatures` SET `position_x` = '996.828', `position_y` = '-183.086', `position_z` = '31.21' WHERE (`spawn_id` = '16651'); 
+        -- Snapjaw, XYZ placement., Index: 14841 
+        UPDATE `spawns_creatures` SET `position_x` = '782.688', `position_y` = '-46.53', `position_z` = '32.774' WHERE (`spawn_id` = '16652'); 
+        -- Snapjaw, XYZ placement., Index: 14842 
+        UPDATE `spawns_creatures` SET `position_x` = '757.872', `position_y` = '97.118', `position_z` = '31.082' WHERE (`spawn_id` = '16653'); 
+        -- Snapjaw, XYZ placement., Index: 14843 
+        UPDATE `spawns_creatures` SET `position_x` = '758.471', `position_y` = '-7.942', `position_z` = '29.354' WHERE (`spawn_id` = '16654'); 
+        -- Snapjaw, XYZ placement., Index: 14845 
+        UPDATE `spawns_creatures` SET `position_x` = '526.512', `position_y` = '317.447', `position_z` = '28.928' WHERE (`spawn_id` = '16656'); 
+        -- Snapjaw, XYZ placement., Index: 14846 
+        UPDATE `spawns_creatures` SET `position_x` = '531.549', `position_y` = '356.939', `position_z` = '23.545' WHERE (`spawn_id` = '16657'); 
+        -- Snapjaw, XYZ placement., Index: 14851 
+        UPDATE `spawns_creatures` SET `position_x` = '483.717', `position_y` = '437.453', `position_z` = '24.762' WHERE (`spawn_id` = '16662'); 
+        -- Snapjaw, XYZ placement., Index: 14852 
+        UPDATE `spawns_creatures` SET `position_x` = '477.272', `position_y` = '417.999', `position_z` = '30.783' WHERE (`spawn_id` = '16663'); 
+        -- Snapjaw, XYZ placement., Index: 14865 
+        UPDATE `spawns_creatures` SET `position_x` = '930.129', `position_y` = '-113.634', `position_z` = '32.018' WHERE (`spawn_id` = '16676'); 
+        -- Snapjaw, XYZ placement., Index: 14868 
+        UPDATE `spawns_creatures` SET `position_x` = '841.197', `position_y` = '-58.457', `position_z` = '29.115' WHERE (`spawn_id` = '16679'); 
+        -- Snapjaw, XYZ placement., Index: 14871 
+        UPDATE `spawns_creatures` SET `position_x` = '898.499', `position_y` = '-85.499', `position_z` = '32.216' WHERE (`spawn_id` = '16682'); 
+        -- Snapjaw, XYZ placement., Index: 14873 
+        UPDATE `spawns_creatures` SET `position_x` = '815.594', `position_y` = '-66.103', `position_z` = '32.532' WHERE (`spawn_id` = '16684'); 
+        -- Mug'thol, Z placement., Index: 14959 
+        UPDATE `spawns_creatures` SET `position_z` = '167.735' WHERE (`spawn_id` = '16770'); 
+        -- Snapjaw, XYZ placement., Index: 14966 
+        UPDATE `spawns_creatures` SET `position_x` = '1149.132', `position_y` = '-254.463', `position_z` = '30.377' WHERE (`spawn_id` = '16777'); 
+        -- Snapjaw, XYZ placement., Index: 15008 
+        UPDATE `spawns_creatures` SET `position_x` = '569.215', `position_y` = '233.347', `position_z` = '28.891' WHERE (`spawn_id` = '16819'); 
+        -- Snapjaw, XYZ placement., Index: 15009 
+        UPDATE `spawns_creatures` SET `position_x` = '544.797', `position_y` = '260.476', `position_z` = '28.611' WHERE (`spawn_id` = '16820'); 
+        -- Snapjaw, XYZ placement., Index: 15014 
+        UPDATE `spawns_creatures` SET `position_x` = '675.248', `position_y` = '104.815', `position_z` = '30.684' WHERE (`spawn_id` = '16825'); 
+        -- Crushridge Brute, Z placement., Index: 15034 
+        UPDATE `spawns_creatures` SET `position_z` = '152.979' WHERE (`spawn_id` = '16845'); 
+        -- Crushridge Ogre, Z placement., Index: 15035 
+        UPDATE `spawns_creatures` SET `position_z` = '153.809' WHERE (`spawn_id` = '16846'); 
+        -- Southshore Guard, XYZ placement., Index: 15177 
+        UPDATE `spawns_creatures` SET `position_x` = '-17.184', `position_y` = '-320.317', `position_z` = '136.433' WHERE (`spawn_id` = '16988'); 
+        -- Gol'dir, Z placement., Index: 15195 
+        UPDATE `spawns_creatures` SET `position_z` = '171.637' WHERE (`spawn_id` = '17009'); 
+        -- Giant Yeti, Z placement., Index: 15265 
+        UPDATE `spawns_creatures` SET `position_z` = '144.902' WHERE (`spawn_id` = '17079'); 
+        -- Blackrock Champion, Z placement., Index: 15338 
+        UPDATE `spawns_creatures` SET `position_z` = '158.358' WHERE (`spawn_id` = '17323'); 
+        -- Dalaran Shield Guard, Z placement., Index: 15350 
+        UPDATE `spawns_creatures` SET `position_z` = '55.189' WHERE (`spawn_id` = '17340'); 
+        -- Zhevra Runner, Z placement., Index: 15458 
+        UPDATE `spawns_creatures` SET `position_z` = '91.663' WHERE (`spawn_id` = '17450'); 
+        -- Hulking Mountain Lion, Z placement., Index: 15556 
+        UPDATE `spawns_creatures` SET `position_z` = '139.658' WHERE (`spawn_id` = '17589'); 
+        -- Vile Fin Lakestalker, Z placement., Index: 15573 
+        UPDATE `spawns_creatures` SET `position_z` = '45.573' WHERE (`spawn_id` = '17606'); 
+        -- Sebastian Meloche, Z placement., Index: 15590 
+        UPDATE `spawns_creatures` SET `position_z` = '104.808' WHERE (`spawn_id` = '17623'); 
+        -- Tiev Mordune, XYZ placement., Index: 15594 
+        UPDATE `spawns_creatures` SET `position_x` = '432.112', `position_y` = '1875.829', `position_z` = '-0.47' WHERE (`spawn_id` = '17627'); 
+        -- Vile Fin Lakestalker, XYZ placement., Index: 15602 
+        UPDATE `spawns_creatures` SET `position_x` = '1181.32', `position_y` = '622.016', `position_z` = '17.398' WHERE (`spawn_id` = '17638'); 
+        -- Vile Fin Lakestalker, XYZ placement., Index: 15603 
+        UPDATE `spawns_creatures` SET `position_x` = '1221.534', `position_y` = '379.877', `position_z` = '29.672' WHERE (`spawn_id` = '17639'); 
+        -- Vile Fin Tidehunter, XYZ placement., Index: 15604 
+        UPDATE `spawns_creatures` SET `position_x` = '1154.678', `position_y` = '951.789', `position_z` = '31.459' WHERE (`spawn_id` = '17640'); 
+        -- Vile Fin Lakestalker, XYZ placement., Index: 15617 
+        UPDATE `spawns_creatures` SET `position_x` = '1243.498', `position_y` = '293.449', `position_z` = '25.358' WHERE (`spawn_id` = '17656'); 
+        -- Vile Fin Tidecaller, XYZ placement., Index: 15628 
+        UPDATE `spawns_creatures` SET `position_x` = '760.772', `position_y` = '157.149', `position_z` = '27.85' WHERE (`spawn_id` = '17667'); 
+        -- Vile Fin Tidecaller, XYZ placement., Index: 15648 
+        UPDATE `spawns_creatures` SET `position_x` = '852.568', `position_y` = '24.143', `position_z` = '22.612' WHERE (`spawn_id` = '17688'); 
+        -- Vile Fin Lakestalker, XYZ placement., Index: 15666 
+        UPDATE `spawns_creatures` SET `position_x` = '1047.456', `position_y` = '486.856', `position_z` = '14.574' WHERE (`spawn_id` = '17706'); 
+        -- Vile Fin Lakestalker, XYZ placement., Index: 15667 
+        UPDATE `spawns_creatures` SET `position_x` = '1046.535', `position_y` = '511.789', `position_z` = '15.797' WHERE (`spawn_id` = '17707'); 
+        -- Vile Fin Lakestalker, XYZ placement., Index: 15668 
+        UPDATE `spawns_creatures` SET `position_x` = '1057.992', `position_y` = '452.42', `position_z` = '15.242' WHERE (`spawn_id` = '17708'); 
+        -- Vile Fin Shredder, XYZ placement., Index: 15674 
+        UPDATE `spawns_creatures` SET `position_x` = '1312.766', `position_y` = '780.662', `position_z` = '29.42' WHERE (`spawn_id` = '17714'); 
+        -- Vile Fin Tidehunter, XYZ placement., Index: 15675 
+        UPDATE `spawns_creatures` SET `position_x` = '1311.443', `position_y` = '806.777', `position_z` = '32.525' WHERE (`spawn_id` = '17715'); 
+        -- Vile Fin Shredder, XYZ placement., Index: 15680 
+        UPDATE `spawns_creatures` SET `position_x` = '1321.487', `position_y` = '769.029', `position_z` = '31.051' WHERE (`spawn_id` = '17720'); 
+        -- Vile Fin Shredder, XYZ placement., Index: 15682 
+        UPDATE `spawns_creatures` SET `position_x` = '1316.059', `position_y` = '769.444', `position_z` = '29.313' WHERE (`spawn_id` = '17722'); 
+        -- Vile Fin Lakestalker, XYZ placement., Index: 15694 
+        UPDATE `spawns_creatures` SET `position_x` = '1144.295', `position_y` = '667.152', `position_z` = '29.449' WHERE (`spawn_id` = '17734'); 
+        -- Vile Fin Lakestalker, XYZ placement., Index: 15695 
+        UPDATE `spawns_creatures` SET `position_x` = '1138.888', `position_y` = '714.99', `position_z` = '23.736' WHERE (`spawn_id` = '17735'); 
+        -- Vile Fin Tidehunter, XYZ placement., Index: 15697 
+        UPDATE `spawns_creatures` SET `position_x` = '1121.94', `position_y` = '1027.39', `position_z` = '30.084' WHERE (`spawn_id` = '17737'); 
+        -- Vile Fin Tidehunter, XYZ placement., Index: 15726 
+        UPDATE `spawns_creatures` SET `position_x` = '1297.92', `position_y` = '655.729', `position_z` = '31.43' WHERE (`spawn_id` = '17766'); 
+        -- Vile Fin Shredder, XYZ placement., Index: 15727 
+        UPDATE `spawns_creatures` SET `position_x` = '1226.503', `position_y` = '879.756', `position_z` = '31.331' WHERE (`spawn_id` = '17767'); 
+        -- Vile Fin Shredder, XYZ placement., Index: 15743 
+        UPDATE `spawns_creatures` SET `position_x` = '1278.916', `position_y` = '843.34', `position_z` = '31.314' WHERE (`spawn_id` = '17783'); 
+        -- Mist Creeper, Z placement., Index: 15745 
+        UPDATE `spawns_creatures` SET `position_z` = '8.866' WHERE (`spawn_id` = '17785'); 
+        -- Mist Creeper, Z placement., Index: 15746 
+        UPDATE `spawns_creatures` SET `position_z` = '14.027' WHERE (`spawn_id` = '17786'); 
+        -- Vile Fin Oracle, XYZ placement., Index: 15817 
+        UPDATE `spawns_creatures` SET `position_x` = '1184.144', `position_y` = '469.548', `position_z` = '25.323' WHERE (`spawn_id` = '17857'); 
+        -- Reef Frenzy, XYZ placement., Index: 16041 
+        UPDATE `spawns_creatures` SET `position_x` = '978.858', `position_y` = '2029.353', `position_z` = '-8.68' WHERE (`spawn_id` = '18085'); 
+        -- Fenwick Thatros, XYZ placement., Index: 16213 
+        UPDATE `spawns_creatures` SET `position_x` = '704.804', `position_y` = '950.552', `position_z` = '34.885' WHERE (`spawn_id` = '18259'); 
+        -- Corrupt Water Spirit, Z placement., Index: 16216 
+        UPDATE `spawns_creatures` SET `position_z` = '7.58' WHERE (`spawn_id` = '18262'); 
+        -- Corrupt Water Spirit, XYZ placement., Index: 16217 
+        UPDATE `spawns_creatures` SET `position_x` = '421.307', `position_y` = '1850.87', `position_z` = '16.61' WHERE (`spawn_id` = '18263'); 
+        -- Corrupt Water Spirit, XYZ placement., Index: 16218 
+        UPDATE `spawns_creatures` SET `position_x` = '392.81', `position_y` = '1875.452', `position_z` = '2.553' WHERE (`spawn_id` = '18264'); 
+        -- Corrupt Water Spirit, XYZ placement., Index: 16219 
+        UPDATE `spawns_creatures` SET `position_x` = '423.137', `position_y` = '1866.577', `position_z` = '5.121' WHERE (`spawn_id` = '18265'); 
+        -- Raging Rot Hide, Z placement., Index: 16224 
+        UPDATE `spawns_creatures` SET `position_z` = '76.19' WHERE (`spawn_id` = '18270'); 
+        -- Corrupt Water Spirit, XYZ placement., Index: 16227 
+        UPDATE `spawns_creatures` SET `position_x` = '437.831', `position_y` = '1832.0', `position_z` = '25.323' WHERE (`spawn_id` = '18273'); 
+        -- Corrupt Water Spirit, XYZ placement., Index: 16228 
+        UPDATE `spawns_creatures` SET `position_x` = '456.907', `position_y` = '1859.906', `position_z` = '6.201' WHERE (`spawn_id` = '18274'); 
+        -- Corrupt Water Spirit, XYZ placement., Index: 16229 
+        UPDATE `spawns_creatures` SET `position_x` = '435.625', `position_y` = '1859.557', `position_z` = '5.965' WHERE (`spawn_id` = '18275'); 
+        -- Corrupt Water Spirit, XYZ placement., Index: 16230 
+        UPDATE `spawns_creatures` SET `position_x` = '435.772', `position_y` = '1851.651', `position_z` = '9.878' WHERE (`spawn_id` = '18276'); 
+        -- Pyrewood Elder, Z placement., Index: 16262 
+        UPDATE `spawns_creatures` SET `position_z` = '19.536' WHERE (`spawn_id` = '18310'); 
+        -- Zhevra Runner, Z placement., Index: 16493 
+        UPDATE `spawns_creatures` SET `position_z` = '92.895' WHERE (`spawn_id` = '18544'); 
+        -- Darkfang Venomspitter, Z placement., Index: 16526 
+        UPDATE `spawns_creatures` SET `position_z` = '61.375' WHERE (`spawn_id` = '18621'); 
+        -- Strashaz Myrmidon, ignored, out of reach., Index: 16529 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '18624'); 
+        -- Strashaz Myrmidon, ignored, out of reach., Index: 16530 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '18625'); 
+        -- Strashaz Sorceress, ignored, out of reach., Index: 16531 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '18626'); 
+        -- Mudrock Spikeshell, ignored, out of reach., Index: 16539 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '18641'); 
+        -- Pyrewood Sentry, Z placement., Index: 16680 
+        UPDATE `spawns_creatures` SET `position_z` = '24.278' WHERE (`spawn_id` = '19015'); 
+        -- Moonrage Darkrunner, Z placement., Index: 16742 
+        UPDATE `spawns_creatures` SET `position_z` = '52.596' WHERE (`spawn_id` = '19077'); 
+        -- Horde Guard, Z placement., Index: 17015 
+        UPDATE `spawns_creatures` SET `position_z` = '94.212' WHERE (`spawn_id` = '19358'); 
+        -- Horde Guard, Z placement., Index: 17037 
+        UPDATE `spawns_creatures` SET `position_z` = '93.102' WHERE (`spawn_id` = '19380'); 
+        -- Horde Guard, Z placement., Index: 17041 
+        UPDATE `spawns_creatures` SET `position_z` = '94.787' WHERE (`spawn_id` = '19384'); 
+        -- Horde Guard, Z placement., Index: 17060 
+        UPDATE `spawns_creatures` SET `position_z` = '91.667' WHERE (`spawn_id` = '19403'); 
+        -- Horde Guard, ignored, out of reach., Index: 17079 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '19422'); 
+        -- Horde Guard, Z placement., Index: 17085 
+        UPDATE `spawns_creatures` SET `position_z` = '91.667' WHERE (`spawn_id` = '19428'); 
+        -- Horde Guard, Z placement., Index: 17095 
+        UPDATE `spawns_creatures` SET `position_z` = '91.679' WHERE (`spawn_id` = '19438'); 
+        -- Ratchet Bruiser, XYZ placement., Index: 17127 
+        UPDATE `spawns_creatures` SET `position_x` = '-979.019', `position_y` = '-3761.561', `position_z` = '3.459' WHERE (`spawn_id` = '19470'); 
+        -- Ratchet Bruiser, XYZ placement., Index: 17145 
+        UPDATE `spawns_creatures` SET `position_x` = '-978.619', `position_y` = '-3765.318', `position_z` = '3.459' WHERE (`spawn_id` = '19488'); 
+        -- Ratchet Bruiser, XYZ placement., Index: 17163 
+        UPDATE `spawns_creatures` SET `position_x` = '-974.061', `position_y` = '-3793.54', `position_z` = '13.332' WHERE (`spawn_id` = '19506'); 
+        -- Fleeting Plainstrider, Z placement., Index: 17204 
+        UPDATE `spawns_creatures` SET `position_z` = '92.6' WHERE (`spawn_id` = '19547'); 
+        -- Fleeting Plainstrider, Z placement., Index: 17205 
+        UPDATE `spawns_creatures` SET `position_z` = '92.717' WHERE (`spawn_id` = '19548'); 
+        -- Fleeting Plainstrider, XYZ placement., Index: 17207 
+        UPDATE `spawns_creatures` SET `position_x` = '322.817', `position_y` = '-2277.672', `position_z` = '243.187' WHERE (`spawn_id` = '19550'); 
+        -- Fleeting Plainstrider, Z placement., Index: 17219 
+        UPDATE `spawns_creatures` SET `position_z` = '94.6' WHERE (`spawn_id` = '19562'); 
+        -- Barrens Giraffe, Z placement., Index: 17353 
+        UPDATE `spawns_creatures` SET `position_z` = '92.309' WHERE (`spawn_id` = '19696'); 
+        -- Mannoroc Lasher, Z placement., Index: 17373 
+        UPDATE `spawns_creatures` SET `position_z` = '149.54' WHERE (`spawn_id` = '19716'); 
+        -- Sunscale Screecher, Z placement., Index: 17600 
+        UPDATE `spawns_creatures` SET `position_z` = '91.949' WHERE (`spawn_id` = '19944'); 
+        -- Sunscale Scytheclaw, ignored, out of reach., Index: 17645 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '19989'); 
+        -- Sunscale Scytheclaw, XYZ placement., Index: 17660 
+        UPDATE `spawns_creatures` SET `position_x` = '-2042.17', `position_y` = '-3219.589', `position_z` = '97.687' WHERE (`spawn_id` = '20004'); 
+        -- Sunscale Scytheclaw, Z placement., Index: 17661 
+        UPDATE `spawns_creatures` SET `position_z` = '96.743' WHERE (`spawn_id` = '20005'); 
+        -- Sunscale Scytheclaw, ignored, out of reach., Index: 17718 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20062'); 
+        -- Sunscale Scytheclaw, XYZ placement., Index: 17719 
+        UPDATE `spawns_creatures` SET `position_x` = '-2003.632', `position_y` = '-3243.813', `position_z` = '93.0' WHERE (`spawn_id` = '20063'); 
+        -- Sunscale Scytheclaw, XYZ placement., Index: 17720 
+        UPDATE `spawns_creatures` SET `position_x` = '-2004.618', `position_y` = '-3217.342', `position_z` = '92.966' WHERE (`spawn_id` = '20064'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17896 
+        UPDATE `spawns_creatures` SET `position_x` = '-4315.102', `position_y` = '-2024.813', `position_z` = '86.391' WHERE (`spawn_id` = '20251'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17897 
+        UPDATE `spawns_creatures` SET `position_x` = '-4295.661', `position_y` = '-1985.031', `position_z` = '86.571' WHERE (`spawn_id` = '20252'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17898 
+        UPDATE `spawns_creatures` SET `position_x` = '-4314.57', `position_y` = '-2012.007', `position_z` = '87.544' WHERE (`spawn_id` = '20253'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17899 
+        UPDATE `spawns_creatures` SET `position_x` = '-4336.604', `position_y` = '-2008.25', `position_z` = '86.786' WHERE (`spawn_id` = '20254'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17900 
+        UPDATE `spawns_creatures` SET `position_x` = '-4346.2', `position_y` = '-2025.786', `position_z` = '86.374' WHERE (`spawn_id` = '20255'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17901 
+        UPDATE `spawns_creatures` SET `position_x` = '-4358.468', `position_y` = '-2026.358', `position_z` = '88.429' WHERE (`spawn_id` = '20256'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17902 
+        UPDATE `spawns_creatures` SET `position_x` = '-4356.51', `position_y` = '-2039.313', `position_z` = '86.9' WHERE (`spawn_id` = '20257'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17904 
+        UPDATE `spawns_creatures` SET `position_x` = '-4343.382', `position_y` = '-2040.479', `position_z` = '86.76' WHERE (`spawn_id` = '20259'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17905 
+        UPDATE `spawns_creatures` SET `position_x` = '-4345.741', `position_y` = '-2053.965', `position_z` = '86.832' WHERE (`spawn_id` = '20260'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17906 
+        UPDATE `spawns_creatures` SET `position_x` = '-4327.415', `position_y` = '-2054.402', `position_z` = '85.978' WHERE (`spawn_id` = '20261'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17907 
+        UPDATE `spawns_creatures` SET `position_x` = '-4319.994', `position_y` = '-2070.332', `position_z` = '85.079' WHERE (`spawn_id` = '20262'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17908 
+        UPDATE `spawns_creatures` SET `position_x` = '-4310.84', `position_y` = '-2063.666', `position_z` = '86.913' WHERE (`spawn_id` = '20263'); 
+        -- Death's Head Cultist, XYZ placement., Index: 17909 
+        UPDATE `spawns_creatures` SET `position_x` = '-4333.717', `position_y` = '-2088.401', `position_z` = '82.805' WHERE (`spawn_id` = '20264'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17911 
+        UPDATE `spawns_creatures` SET `position_x` = '-4343.865', `position_y` = '-2114.018', `position_z` = '79.439' WHERE (`spawn_id` = '20266'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17912 
+        UPDATE `spawns_creatures` SET `position_x` = '-4335.273', `position_y` = '-2117.041', `position_z` = '81.153' WHERE (`spawn_id` = '20267'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17914 
+        UPDATE `spawns_creatures` SET `position_x` = '-4315.843', `position_y` = '-2114.122', `position_z` = '81.857' WHERE (`spawn_id` = '20269'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17916 
+        UPDATE `spawns_creatures` SET `position_x` = '-4312.545', `position_y` = '-2103.06', `position_z` = '82.132' WHERE (`spawn_id` = '20271'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17917 
+        UPDATE `spawns_creatures` SET `position_x` = '-4303.379', `position_y` = '-2090.799', `position_z` = '85.888' WHERE (`spawn_id` = '20272'); 
+        -- Razorfen Battleguard, Z placement., Index: 17918 
+        UPDATE `spawns_creatures` SET `position_z` = '79.844' WHERE (`spawn_id` = '20273'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17919 
+        UPDATE `spawns_creatures` SET `position_x` = '-4301.052', `position_y` = '-2085.527', `position_z` = '87.05' WHERE (`spawn_id` = '20274'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17920 
+        UPDATE `spawns_creatures` SET `position_x` = '-4290.655', `position_y` = '-2073.753', `position_z` = '88.425' WHERE (`spawn_id` = '20275'); 
+        -- Razorfen Battleguard, Z placement., Index: 17921 
+        UPDATE `spawns_creatures` SET `position_z` = '85.772' WHERE (`spawn_id` = '20276'); 
+        -- Razorfen Battleguard, Z placement., Index: 17922 
+        UPDATE `spawns_creatures` SET `position_z` = '83.448' WHERE (`spawn_id` = '20277'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17923 
+        UPDATE `spawns_creatures` SET `position_x` = '-4301.311', `position_y` = '-2058.726', `position_z` = '89.36' WHERE (`spawn_id` = '20278'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17924 
+        UPDATE `spawns_creatures` SET `position_x` = '-4303.472', `position_y` = '-2046.198', `position_z` = '91.345' WHERE (`spawn_id` = '20279'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17925 
+        UPDATE `spawns_creatures` SET `position_x` = '-4311.367', `position_y` = '-2051.179', `position_z` = '90.966' WHERE (`spawn_id` = '20280'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17926 
+        UPDATE `spawns_creatures` SET `position_x` = '-4323.896', `position_y` = '-2044.931', `position_z` = '93.163' WHERE (`spawn_id` = '20281'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17927 
+        UPDATE `spawns_creatures` SET `position_x` = '-4333.03', `position_y` = '-2039.983', `position_z` = '93.451' WHERE (`spawn_id` = '20282'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17928 
+        UPDATE `spawns_creatures` SET `position_x` = '-4321.826', `position_y` = '-2034.481', `position_z` = '93.438' WHERE (`spawn_id` = '20283'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17929 
+        UPDATE `spawns_creatures` SET `position_x` = '-4329.795', `position_y` = '-2032.191', `position_z` = '93.206' WHERE (`spawn_id` = '20284'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17930 
+        UPDATE `spawns_creatures` SET `position_x` = '-4313.77', `position_y` = '-2000.614', `position_z` = '93.191' WHERE (`spawn_id` = '20285'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17931 
+        UPDATE `spawns_creatures` SET `position_x` = '-4321.653', `position_y` = '-2000.163', `position_z` = '93.334' WHERE (`spawn_id` = '20286'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17932 
+        UPDATE `spawns_creatures` SET `position_x` = '-4335.344', `position_y` = '-1990.462', `position_z` = '95.193' WHERE (`spawn_id` = '20287'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17934 
+        UPDATE `spawns_creatures` SET `position_x` = '-4340.82', `position_y` = '-1979.995', `position_z` = '94.685' WHERE (`spawn_id` = '20289'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17935 
+        UPDATE `spawns_creatures` SET `position_x` = '-4346.737', `position_y` = '-1972.314', `position_z` = '97.294' WHERE (`spawn_id` = '20290'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17936 
+        UPDATE `spawns_creatures` SET `position_x` = '-4344.58', `position_y` = '-1970.156', `position_z` = '97.335' WHERE (`spawn_id` = '20291'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17937 
+        UPDATE `spawns_creatures` SET `position_x` = '-4359.362', `position_y` = '-1957.201', `position_z` = '101.165' WHERE (`spawn_id` = '20292'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17938 
+        UPDATE `spawns_creatures` SET `position_x` = '-4366.459', `position_y` = '-1960.436', `position_z` = '102.142' WHERE (`spawn_id` = '20293'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17939 
+        UPDATE `spawns_creatures` SET `position_x` = '-4363.907', `position_y` = '-1954.312', `position_z` = '101.392' WHERE (`spawn_id` = '20294'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17940 
+        UPDATE `spawns_creatures` SET `position_x` = '-4349.243', `position_y` = '-1961.929', `position_z` = '99.191' WHERE (`spawn_id` = '20295'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17941 
+        UPDATE `spawns_creatures` SET `position_x` = '-4303.784', `position_y` = '-1982.755', `position_z` = '86.175' WHERE (`spawn_id` = '20296'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17942 
+        UPDATE `spawns_creatures` SET `position_x` = '-4313.031', `position_y` = '-1985.682', `position_z` = '86.753' WHERE (`spawn_id` = '20300'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17952 
+        UPDATE `spawns_creatures` SET `position_x` = '-4320.493', `position_y` = '-1976.158', `position_z` = '86.013' WHERE (`spawn_id` = '20310'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17953 
+        UPDATE `spawns_creatures` SET `position_x` = '-4336.141', `position_y` = '-1973.161', `position_z` = '85.33' WHERE (`spawn_id` = '20311'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17954 
+        UPDATE `spawns_creatures` SET `position_x` = '-4343.833', `position_y` = '-1967.176', `position_z` = '86.018' WHERE (`spawn_id` = '20312'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17955 
+        UPDATE `spawns_creatures` SET `position_x` = '-4352.412', `position_y` = '-1970.452', `position_z` = '88.018' WHERE (`spawn_id` = '20313'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17956 
+        UPDATE `spawns_creatures` SET `position_x` = '-4367.917', `position_y` = '-1952.416', `position_z` = '87.977' WHERE (`spawn_id` = '20314'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17957 
+        UPDATE `spawns_creatures` SET `position_x` = '-4374.302', `position_y` = '-1958.404', `position_z` = '86.778' WHERE (`spawn_id` = '20315'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17958 
+        UPDATE `spawns_creatures` SET `position_x` = '-4316.681', `position_y` = '-1976.238', `position_z` = '86.469' WHERE (`spawn_id` = '20316'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17959 
+        UPDATE `spawns_creatures` SET `position_x` = '-4292.369', `position_y` = '-1987.724', `position_z` = '86.779' WHERE (`spawn_id` = '20317'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17960 
+        UPDATE `spawns_creatures` SET `position_x` = '-4289.998', `position_y` = '-2005.487', `position_z` = '86.696' WHERE (`spawn_id` = '20318'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17961 
+        UPDATE `spawns_creatures` SET `position_x` = '-4302.699', `position_y` = '-2023.78', `position_z` = '86.631' WHERE (`spawn_id` = '20319'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17962 
+        UPDATE `spawns_creatures` SET `position_x` = '-4332.984', `position_y` = '-2017.995', `position_z` = '86.58' WHERE (`spawn_id` = '20320'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17963 
+        UPDATE `spawns_creatures` SET `position_x` = '-4347.065', `position_y` = '-2028.707', `position_z` = '86.384' WHERE (`spawn_id` = '20321'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17964 
+        UPDATE `spawns_creatures` SET `position_x` = '-4344.284', `position_y` = '-2041.469', `position_z` = '86.502' WHERE (`spawn_id` = '20322'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17965 
+        UPDATE `spawns_creatures` SET `position_x` = '-4327.342', `position_y` = '-2053.533', `position_z` = '86.012' WHERE (`spawn_id` = '20323'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17966 
+        UPDATE `spawns_creatures` SET `position_x` = '-4321.109', `position_y` = '-2071.597', `position_z` = '84.845' WHERE (`spawn_id` = '20324'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17967 
+        UPDATE `spawns_creatures` SET `position_x` = '-4309.473', `position_y` = '-2066.518', `position_z` = '86.325' WHERE (`spawn_id` = '20325'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17968 
+        UPDATE `spawns_creatures` SET `position_x` = '-4303.894', `position_y` = '-2096.134', `position_z` = '85.609' WHERE (`spawn_id` = '20326'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17969 
+        UPDATE `spawns_creatures` SET `position_x` = '-4307.463', `position_y` = '-2100.557', `position_z` = '84.922' WHERE (`spawn_id` = '20327'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17970 
+        UPDATE `spawns_creatures` SET `position_x` = '-4310.819', `position_y` = '-2104.006', `position_z` = '83.543' WHERE (`spawn_id` = '20328'); 
+        -- Razorfen Battleguard, XYZ placement., Index: 17971 
+        UPDATE `spawns_creatures` SET `position_x` = '-4345.073', `position_y` = '-2116.563', `position_z` = '80.051' WHERE (`spawn_id` = '20329'); 
+        -- Razorfen Thornweaver, XYZ placement., Index: 17972 
+        UPDATE `spawns_creatures` SET `position_x` = '-4339.279', `position_y` = '-2112.792', `position_z` = '79.447' WHERE (`spawn_id` = '20330'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 17974 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20332'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 17975 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20333'); 
+        -- Razorfen Thornweaver, Z placement., Index: 17976 
+        UPDATE `spawns_creatures` SET `position_z` = '86.024' WHERE (`spawn_id` = '20334'); 
+        -- Razorfen Thornweaver, Z placement., Index: 17979 
+        UPDATE `spawns_creatures` SET `position_z` = '50.715' WHERE (`spawn_id` = '20337'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 17979 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20337'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 17980 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20338'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 17981 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20339'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 17983 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20341'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18002 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20360'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18004 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20362'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18005 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20363'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18006 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20364'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18007 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20365'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18008 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20366'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18009 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20367'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18010 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20368'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18011 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20369'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18012 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20370'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18013 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20371'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18014 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20372'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18015 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20373'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18016 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20374'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18017 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20375'); 
+        -- Razorfen Thornweaver, ignored, out of reach., Index: 18018 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20376'); 
+        -- Kolkar Wrangler, Z placement., Index: 18089 
+        UPDATE `spawns_creatures` SET `position_z` = '93.246' WHERE (`spawn_id` = '20450'); 
+        -- Kolkar Wrangler, Z placement., Index: 18093 
+        UPDATE `spawns_creatures` SET `position_z` = '91.875' WHERE (`spawn_id` = '20454'); 
+        -- Kolkar Wrangler, Z placement., Index: 18121 
+        UPDATE `spawns_creatures` SET `position_z` = '94.278' WHERE (`spawn_id` = '20482'); 
+        -- Kolkar Wrangler, Z placement., Index: 18128 
+        UPDATE `spawns_creatures` SET `position_z` = '83.328' WHERE (`spawn_id` = '20489'); 
+        -- Kolkar Wrangler, Z placement., Index: 18130 
+        UPDATE `spawns_creatures` SET `position_z` = '90.641' WHERE (`spawn_id` = '20491'); 
+        -- Kolkar Wrangler, Z placement., Index: 18134 
+        UPDATE `spawns_creatures` SET `position_z` = '91.833' WHERE (`spawn_id` = '20495'); 
+        -- Kolkar Wrangler, Z placement., Index: 18139 
+        UPDATE `spawns_creatures` SET `position_z` = '93.074' WHERE (`spawn_id` = '20500'); 
+        -- Kolkar Wrangler, Z placement., Index: 18140 
+        UPDATE `spawns_creatures` SET `position_z` = '81.619' WHERE (`spawn_id` = '20501'); 
+        -- Kolkar Wrangler, Z placement., Index: 18144 
+        UPDATE `spawns_creatures` SET `position_z` = '97.74' WHERE (`spawn_id` = '20505'); 
+        -- Kolkar Stormer, Z placement., Index: 18147 
+        UPDATE `spawns_creatures` SET `position_z` = '93.393' WHERE (`spawn_id` = '20508'); 
+        -- Kolkar Stormer, ignored, out of reach., Index: 18150 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '20511'); 
+        -- Kolkar Stormer, Z placement., Index: 18166 
+        UPDATE `spawns_creatures` SET `position_z` = '104.157' WHERE (`spawn_id` = '20527'); 
+        -- Kolkar Stormer, Z placement., Index: 18173 
+        UPDATE `spawns_creatures` SET `position_z` = '91.845' WHERE (`spawn_id` = '20534'); 
+        -- Kolkar Stormer, Z placement., Index: 18180 
+        UPDATE `spawns_creatures` SET `position_z` = '94.151' WHERE (`spawn_id` = '20541'); 
+        -- Kolkar Stormer, Z placement., Index: 18188 
+        UPDATE `spawns_creatures` SET `position_z` = '82.308' WHERE (`spawn_id` = '20549'); 
+        -- Kolkar Stormer, Z placement., Index: 18190 
+        UPDATE `spawns_creatures` SET `position_z` = '92.568' WHERE (`spawn_id` = '20551'); 
+        -- Kolkar Stormer, Z placement., Index: 18192 
+        UPDATE `spawns_creatures` SET `position_z` = '84.734' WHERE (`spawn_id` = '20553'); 
+        -- Kolkar Stormer, Z placement., Index: 18194 
+        UPDATE `spawns_creatures` SET `position_z` = '90.331' WHERE (`spawn_id` = '20555'); 
+        -- Kolkar Stormer, Z placement., Index: 18197 
+        UPDATE `spawns_creatures` SET `position_z` = '97.919' WHERE (`spawn_id` = '20559'); 
+        -- Kolkar Pack Runner, Z placement., Index: 18204 
+        UPDATE `spawns_creatures` SET `position_z` = '95.011' WHERE (`spawn_id` = '20566'); 
+        -- Kolkar Marauder, Z placement., Index: 18215 
+        UPDATE `spawns_creatures` SET `position_z` = '88.382' WHERE (`spawn_id` = '20577'); 
+        -- Witchwing Slayer, Z placement., Index: 18311 
+        UPDATE `spawns_creatures` SET `position_z` = '91.824' WHERE (`spawn_id` = '20673'); 
+        -- Venture Co. Enforcer, Z placement., Index: 18399 
+        UPDATE `spawns_creatures` SET `position_z` = '93.955' WHERE (`spawn_id` = '20761'); 
+        -- Venture Co. Drudger, Z placement., Index: 18404 
+        UPDATE `spawns_creatures` SET `position_z` = '91.667' WHERE (`spawn_id` = '20766'); 
+        -- Venture Co. Drudger, Z placement., Index: 18414 
+        UPDATE `spawns_creatures` SET `position_z` = '91.732' WHERE (`spawn_id` = '20776'); 
+        -- Venture Co. Drudger, Z placement., Index: 18415 
+        UPDATE `spawns_creatures` SET `position_z` = '97.853' WHERE (`spawn_id` = '20777'); 
+        -- Venture Co. Drudger, Z placement., Index: 18417 
+        UPDATE `spawns_creatures` SET `position_z` = '94.981' WHERE (`spawn_id` = '20779'); 
+        -- Venture Co. Peon, Z placement., Index: 18457 
+        UPDATE `spawns_creatures` SET `position_z` = '92.659' WHERE (`spawn_id` = '20819'); 
+        -- Venture Co. Peon, Z placement., Index: 18459 
+        UPDATE `spawns_creatures` SET `position_z` = '91.677' WHERE (`spawn_id` = '20821'); 
+        -- Venture Co. Peon, Z placement., Index: 18466 
+        UPDATE `spawns_creatures` SET `position_z` = '91.667' WHERE (`spawn_id` = '20828'); 
+        -- Venture Co. Peon, Z placement., Index: 18467 
+        UPDATE `spawns_creatures` SET `position_z` = '91.694' WHERE (`spawn_id` = '20829'); 
+        -- Venture Co. Peon, Z placement., Index: 18468 
+        UPDATE `spawns_creatures` SET `position_z` = '91.667' WHERE (`spawn_id` = '20830'); 
+        -- Venture Co. Peon, Z placement., Index: 18469 
+        UPDATE `spawns_creatures` SET `position_z` = '92.89' WHERE (`spawn_id` = '20831'); 
+        -- Kolkar Packhound, Z placement., Index: 18496 
+        UPDATE `spawns_creatures` SET `position_z` = '95.118' WHERE (`spawn_id` = '20858'); 
+        -- Kolkar Packhound, Z placement., Index: 18497 
+        UPDATE `spawns_creatures` SET `position_z` = '94.84' WHERE (`spawn_id` = '20859'); 
+        -- Adder, Z placement., Index: 18573 
+        UPDATE `spawns_creatures` SET `position_z` = '96.475' WHERE (`spawn_id` = '20936'); 
+        -- Biletoad, Z placement., Index: 18593 
+        UPDATE `spawns_creatures` SET `position_z` = '17.867' WHERE (`spawn_id` = '20961'); 
+        -- Biletoad, Z placement., Index: 18594 
+        UPDATE `spawns_creatures` SET `position_z` = '50.2' WHERE (`spawn_id` = '20962'); 
+        -- Biletoad, Z placement., Index: 18595 
+        UPDATE `spawns_creatures` SET `position_z` = '67.77' WHERE (`spawn_id` = '20963'); 
+        -- Biletoad, Z placement., Index: 18596 
+        UPDATE `spawns_creatures` SET `position_z` = '51.123' WHERE (`spawn_id` = '20964'); 
+        -- Biletoad, Z placement., Index: 18597 
+        UPDATE `spawns_creatures` SET `position_z` = '66.444' WHERE (`spawn_id` = '20965'); 
+        -- Galak Mauler, Z placement., Index: 18600 
+        UPDATE `spawns_creatures` SET `position_z` = '-51.13' WHERE (`spawn_id` = '20970'); 
+        -- Galak Mauler, XYZ placement., Index: 18601 
+        UPDATE `spawns_creatures` SET `position_x` = '-4924.899', `position_y` = '-2299.586', `position_z` = '-67.935' WHERE (`spawn_id` = '20971'); 
+        -- Galak Windchaser, XYZ placement., Index: 18605 
+        UPDATE `spawns_creatures` SET `position_x` = '-4937.41', `position_y` = '-2303.186', `position_z` = '-69.821' WHERE (`spawn_id` = '20975'); 
+        -- Galak Windchaser, XYZ placement., Index: 18607 
+        UPDATE `spawns_creatures` SET `position_x` = '-5035.393', `position_y` = '-2399.149', `position_z` = '-55.305' WHERE (`spawn_id` = '20977'); 
+        -- Galak Windchaser, Z placement., Index: 18615 
+        UPDATE `spawns_creatures` SET `position_z` = '-53.797' WHERE (`spawn_id` = '20985'); 
+        -- Galak Windchaser, Z placement., Index: 18616 
+        UPDATE `spawns_creatures` SET `position_z` = '-55.793' WHERE (`spawn_id` = '20986'); 
+        -- Galak Windchaser, Z placement., Index: 18624 
+        UPDATE `spawns_creatures` SET `position_z` = '-53.639' WHERE (`spawn_id` = '20994'); 
+        -- Galak Windchaser, Z placement., Index: 18627 
+        UPDATE `spawns_creatures` SET `position_z` = '-41.739' WHERE (`spawn_id` = '20997'); 
+        -- Galak Stormer, XYZ placement., Index: 18640 
+        UPDATE `spawns_creatures` SET `position_x` = '-4966.771', `position_y` = '-2278.22', `position_z` = '-64.233' WHERE (`spawn_id` = '21010'); 
+        -- Galak Stormer, Z placement., Index: 18641 
+        UPDATE `spawns_creatures` SET `position_z` = '-51.3' WHERE (`spawn_id` = '21011'); 
+        -- Galak Stormer, Z placement., Index: 18642 
+        UPDATE `spawns_creatures` SET `position_z` = '-57.519' WHERE (`spawn_id` = '21012'); 
+        -- Galak Stormer, Z placement., Index: 18645 
+        UPDATE `spawns_creatures` SET `position_z` = '-60.154' WHERE (`spawn_id` = '21015'); 
+        -- Galak Stormer, XYZ placement., Index: 18646 
+        UPDATE `spawns_creatures` SET `position_x` = '-5006.146', `position_y` = '-2373.506', `position_z` = '-56.496' WHERE (`spawn_id` = '21016'); 
+        -- Elder Mottled Boar, Z placement., Index: 18656 
+        UPDATE `spawns_creatures` SET `position_z` = '27.236' WHERE (`spawn_id` = '21026'); 
+        -- Galak Marauder, Z placement., Index: 18658 
+        UPDATE `spawns_creatures` SET `position_z` = '-67.971' WHERE (`spawn_id` = '21028'); 
+        -- Galak Marauder, Z placement., Index: 18659 
+        UPDATE `spawns_creatures` SET `position_z` = '-71.211' WHERE (`spawn_id` = '21029'); 
+        -- Galak Marauder, Z placement., Index: 18661 
+        UPDATE `spawns_creatures` SET `position_z` = '-52.284' WHERE (`spawn_id` = '21031'); 
+        -- Galak Marauder, Z placement., Index: 18662 
+        UPDATE `spawns_creatures` SET `position_z` = '-56.05' WHERE (`spawn_id` = '21032'); 
+        -- Galak Marauder, XYZ placement., Index: 18665 
+        UPDATE `spawns_creatures` SET `position_x` = '-4887.575', `position_y` = '-2307.391', `position_z` = '-57.89' WHERE (`spawn_id` = '21035'); 
+        -- Galak Marauder, Z placement., Index: 18667 
+        UPDATE `spawns_creatures` SET `position_z` = '-55.08' WHERE (`spawn_id` = '21037'); 
+        -- Scalding Elemental, Z placement., Index: 18675 
+        UPDATE `spawns_creatures` SET `position_z` = '-53.409' WHERE (`spawn_id` = '21045'); 
+        -- Scalding Elemental, ignored, out of reach., Index: 18676 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21046'); 
+        -- Scalding Elemental, Z placement., Index: 18677 
+        UPDATE `spawns_creatures` SET `position_z` = '-35.179' WHERE (`spawn_id` = '21047'); 
+        -- Scalding Elemental, Z placement., Index: 18678 
+        UPDATE `spawns_creatures` SET `position_z` = '-44.394' WHERE (`spawn_id` = '21048'); 
+        -- Scalding Elemental, Z placement., Index: 18679 
+        UPDATE `spawns_creatures` SET `position_z` = '-53.722' WHERE (`spawn_id` = '21049'); 
+        -- Boiling Elemental, Z placement., Index: 18687 
+        UPDATE `spawns_creatures` SET `position_z` = '-45.71' WHERE (`spawn_id` = '21058'); 
+        -- Boiling Elemental, Z placement., Index: 18688 
+        UPDATE `spawns_creatures` SET `position_z` = '-46.467' WHERE (`spawn_id` = '21059'); 
+        -- Boiling Elemental, Z placement., Index: 18691 
+        UPDATE `spawns_creatures` SET `position_z` = '-50.766' WHERE (`spawn_id` = '21062'); 
+        -- Boiling Elemental, Z placement., Index: 18692 
+        UPDATE `spawns_creatures` SET `position_z` = '-53.955' WHERE (`spawn_id` = '21063'); 
+        -- Boiling Elemental, Z placement., Index: 18697 
+        UPDATE `spawns_creatures` SET `position_z` = '-46.784' WHERE (`spawn_id` = '21068'); 
+        -- Boiling Elemental, Z placement., Index: 18698 
+        UPDATE `spawns_creatures` SET `position_z` = '-47.751' WHERE (`spawn_id` = '21069'); 
+        -- Boiling Elemental, Z placement., Index: 18699 
+        UPDATE `spawns_creatures` SET `position_z` = '-37.143' WHERE (`spawn_id` = '21070'); 
+        -- Boiling Elemental, Z placement., Index: 18700 
+        UPDATE `spawns_creatures` SET `position_z` = '-35.945' WHERE (`spawn_id` = '21071'); 
+        -- Grimtotem Bandit, Z placement., Index: 18705 
+        UPDATE `spawns_creatures` SET `position_z` = '80.53' WHERE (`spawn_id` = '21076'); 
+        -- Grimtotem Stomper, ignored, out of reach., Index: 18711 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21082'); 
+        -- Grimtotem Stomper, ignored, out of reach., Index: 18716 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21087'); 
+        -- Grimtotem Stomper, ignored, out of reach., Index: 18718 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21089'); 
+        -- Grimtotem Geomancer, ignored, out of reach., Index: 18734 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21105'); 
+        -- Grimtotem Geomancer, ignored, out of reach., Index: 18740 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21111'); 
+        -- Grimtotem Reaver, ignored, out of reach., Index: 18748 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21119'); 
+        -- Grimtotem Reaver, ignored, out of reach., Index: 18749 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21120'); 
+        -- Grimtotem Reaver, ignored, out of reach., Index: 18750 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21121'); 
+        -- Grimtotem Reaver, ignored, out of reach., Index: 18753 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21124'); 
+        -- Crag Stalker, Z placement., Index: 18914 
+        UPDATE `spawns_creatures` SET `position_z` = '-43.588' WHERE (`spawn_id` = '21286'); 
+        -- Crag Stalker, Z placement., Index: 18917 
+        UPDATE `spawns_creatures` SET `position_z` = '-50.694' WHERE (`spawn_id` = '21289'); 
+        -- Saltstone Basilisk, Z placement., Index: 19077 
+        UPDATE `spawns_creatures` SET `position_z` = '-58.75' WHERE (`spawn_id` = '21449'); 
+        -- Saltstone Basilisk, Z placement., Index: 19086 
+        UPDATE `spawns_creatures` SET `position_z` = '-58.75' WHERE (`spawn_id` = '21458'); 
+        -- Saltstone Basilisk, Z placement., Index: 19092 
+        UPDATE `spawns_creatures` SET `position_z` = '-58.762' WHERE (`spawn_id` = '21464'); 
+        -- Freewind Brave, Z placement., Index: 19106 
+        UPDATE `spawns_creatures` SET `position_z` = '-48.917' WHERE (`spawn_id` = '21478'); 
+        -- Galak Flame Guard, Z placement., Index: 19328 
+        UPDATE `spawns_creatures` SET `position_z` = '-70.195' WHERE (`spawn_id` = '21702'); 
+        -- Galak Flame Guard, Z placement., Index: 19329 
+        UPDATE `spawns_creatures` SET `position_z` = '-59.766' WHERE (`spawn_id` = '21703'); 
+        -- Highperch Soarer, Z placement., Index: 19332 
+        UPDATE `spawns_creatures` SET `position_z` = '-5.012' WHERE (`spawn_id` = '21706'); 
+        -- Highperch Soarer, Z placement., Index: 19333 
+        UPDATE `spawns_creatures` SET `position_z` = '-5.436' WHERE (`spawn_id` = '21707'); 
+        -- Highperch Soarer, Z placement., Index: 19334 
+        UPDATE `spawns_creatures` SET `position_z` = '-51.848' WHERE (`spawn_id` = '21708'); 
+        -- Galak Mauler, Z placement., Index: 19385 
+        UPDATE `spawns_creatures` SET `position_z` = '-54.28' WHERE (`spawn_id` = '21759'); 
+        -- Galak Mauler, Z placement., Index: 19386 
+        UPDATE `spawns_creatures` SET `position_z` = '-50.583' WHERE (`spawn_id` = '21760'); 
+        -- Galak Mauler, XYZ placement., Index: 19388 
+        UPDATE `spawns_creatures` SET `position_x` = '-4959.59', `position_y` = '-2390.537', `position_z` = '-54.496' WHERE (`spawn_id` = '21762'); 
+        -- Galak Mauler, Z placement., Index: 19389 
+        UPDATE `spawns_creatures` SET `position_z` = '-55.923' WHERE (`spawn_id` = '21763'); 
+        -- Galak Mauler, Z placement., Index: 19390 
+        UPDATE `spawns_creatures` SET `position_z` = '-51.927' WHERE (`spawn_id` = '21764'); 
+        -- Galak Mauler, Z placement., Index: 19391 
+        UPDATE `spawns_creatures` SET `position_z` = '-64.037' WHERE (`spawn_id` = '21765'); 
+        -- Galak Mauler, Z placement., Index: 19392 
+        UPDATE `spawns_creatures` SET `position_z` = '-54.24' WHERE (`spawn_id` = '21766'); 
+        -- Galak Mauler, Z placement., Index: 19395 
+        UPDATE `spawns_creatures` SET `position_z` = '-59.933' WHERE (`spawn_id` = '21769'); 
+        -- Galak Mauler, Z placement., Index: 19396 
+        UPDATE `spawns_creatures` SET `position_z` = '-69.224' WHERE (`spawn_id` = '21770'); 
+        -- Sandfury Firecaller, Z placement., Index: 19432 
+        UPDATE `spawns_creatures` SET `position_z` = '12.279' WHERE (`spawn_id` = '21808'); 
+        -- Narain Soothfancy, Z placement., Index: 19445 
+        UPDATE `spawns_creatures` SET `position_z` = '16.919' WHERE (`spawn_id` = '21822'); 
+        -- Krinkle Goodsteel, Z placement., Index: 19446 
+        UPDATE `spawns_creatures` SET `position_z` = '10.919' WHERE (`spawn_id` = '21823'); 
+        -- Steeljaw Snapper, XYZ placement., Index: 19459 
+        UPDATE `spawns_creatures` SET `position_x` = '-7425.146', `position_y` = '-4943.318', `position_z` = '-1.899' WHERE (`spawn_id` = '21836'); 
+        -- Steeljaw Snapper, XYZ placement., Index: 19460 
+        UPDATE `spawns_creatures` SET `position_x` = '-7705.95', `position_y` = '-5075.358', `position_z` = '-6.016' WHERE (`spawn_id` = '21837'); 
+        -- Steeljaw Snapper, ignored, out of reach., Index: 19464 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21841'); 
+        -- Glasshide Basilisk, Z placement., Index: 19491 
+        UPDATE `spawns_creatures` SET `position_z` = '48.509' WHERE (`spawn_id` = '21868'); 
+        -- Steeljaw Snapper, XYZ placement., Index: 19494 
+        UPDATE `spawns_creatures` SET `position_x` = '-7218.449', `position_y` = '-4930.962', `position_z` = '-1.844' WHERE (`spawn_id` = '21871'); 
+        -- Steeljaw Snapper, XYZ placement., Index: 19495 
+        UPDATE `spawns_creatures` SET `position_x` = '-7509.162', `position_y` = '-4900.164', `position_z` = '-0.997' WHERE (`spawn_id` = '21872'); 
+        -- Steeljaw Snapper, XYZ placement., Index: 19496 
+        UPDATE `spawns_creatures` SET `position_x` = '-7154.929', `position_y` = '-4897.575', `position_z` = '-0.57' WHERE (`spawn_id` = '21873'); 
+        -- Steeljaw Snapper, XYZ placement., Index: 19499 
+        UPDATE `spawns_creatures` SET `position_x` = '-6906.128', `position_y` = '-4888.409', `position_z` = '-3.991' WHERE (`spawn_id` = '21876'); 
+        -- Steeljaw Snapper, XYZ placement., Index: 19500 
+        UPDATE `spawns_creatures` SET `position_x` = '-6767.384', `position_y` = '-4865.444', `position_z` = '-2.484' WHERE (`spawn_id` = '21877'); 
+        -- Steeljaw Snapper, XYZ placement., Index: 19502 
+        UPDATE `spawns_creatures` SET `position_x` = '-7722.635', `position_y` = '-5134.36', `position_z` = '-2.411' WHERE (`spawn_id` = '21879'); 
+        -- Glasshide Basilisk, XYZ placement., Index: 19510 
+        UPDATE `spawns_creatures` SET `position_x` = '-7570.64', `position_y` = '-3028.03', `position_z` = '12.267' WHERE (`spawn_id` = '21887'); 
+        -- Steeljaw Snapper, XYZ placement., Index: 19512 
+        UPDATE `spawns_creatures` SET `position_x` = '-7692.832', `position_y` = '-4927.265', `position_z` = '-1.799' WHERE (`spawn_id` = '21889'); 
+        -- Steeljaw Snapper, XYZ placement., Index: 19515 
+        UPDATE `spawns_creatures` SET `position_x` = '-7016.877', `position_y` = '-4864.125', `position_z` = '-1.605' WHERE (`spawn_id` = '21892'); 
+        -- Steeljaw Snapper, ignored, out of reach., Index: 19531 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21908'); 
+        -- Steeljaw Snapper, ignored, out of reach., Index: 19532 
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '21909'); 
+        -- Glasshide Basilisk, Z placement., Index: 19550 
+        UPDATE `spawns_creatures` SET `position_z` = '28.576' WHERE (`spawn_id` = '21927'); 
+        -- Glasshide Gazer, Z placement., Index: 19573 
+        UPDATE `spawns_creatures` SET `position_z` = '18.885' WHERE (`spawn_id` = '21950'); 
+        -- Glasshide Gazer, Z placement., Index: 19574 
+        UPDATE `spawns_creatures` SET `position_z` = '8.628' WHERE (`spawn_id` = '21951'); 
+        -- Glasshide Gazer, Z placement., Index: 19588 
+        UPDATE `spawns_creatures` SET `position_z` = '18.335' WHERE (`spawn_id` = '21965'); 
+        -- Glasshide Gazer, Z placement., Index: 19590 
+        UPDATE `spawns_creatures` SET `position_z` = '20.354' WHERE (`spawn_id` = '21967'); 
+        -- Glasshide Gazer, Z placement., Index: 19591 
+        UPDATE `spawns_creatures` SET `position_z` = '17.643' WHERE (`spawn_id` = '21968'); 
+        -- Glasshide Gazer, Z placement., Index: 19606 
+        UPDATE `spawns_creatures` SET `position_z` = '21.509' WHERE (`spawn_id` = '21983'); 
+        -- Glasshide Gazer, Z placement., Index: 19615 
+        UPDATE `spawns_creatures` SET `position_z` = '25.466' WHERE (`spawn_id` = '21992'); 
+        -- Glasshide Gazer, Z placement., Index: 19620 
+        UPDATE `spawns_creatures` SET `position_z` = '45.26' WHERE (`spawn_id` = '21997'); 
+        -- Glasshide Gazer, Z placement., Index: 19621 
+        UPDATE `spawns_creatures` SET `position_z` = '21.565' WHERE (`spawn_id` = '21998'); 
+        -- Glasshide Gazer, Z placement., Index: 19630 
+        UPDATE `spawns_creatures` SET `position_z` = '24.725' WHERE (`spawn_id` = '22007'); 
+        -- Glasshide Gazer, Z placement., Index: 19649 
+        UPDATE `spawns_creatures` SET `position_z` = '34.147' WHERE (`spawn_id` = '22026'); 
+        -- Glasshide Gazer, Z placement., Index: 19669 
+        UPDATE `spawns_creatures` SET `position_z` = '55.574' WHERE (`spawn_id` = '22046'); 
+        -- Glasshide Gazer, Z placement., Index: 19674 
+        UPDATE `spawns_creatures` SET `position_z` = '46.277' WHERE (`spawn_id` = '22051'); 
+        -- Glasshide Gazer, Z placement., Index: 19675 
+        UPDATE `spawns_creatures` SET `position_z` = '14.996' WHERE (`spawn_id` = '22052'); 
+        -- Glasshide Petrifier, Z placement., Index: 19694 
+        UPDATE `spawns_creatures` SET `position_z` = '9.068' WHERE (`spawn_id` = '22071'); 
+        -- Glasshide Petrifier, Z placement., Index: 19710 
+        UPDATE `spawns_creatures` SET `position_z` = '12.006' WHERE (`spawn_id` = '22087'); 
+        -- Glasshide Petrifier, Z placement., Index: 19718 
+        UPDATE `spawns_creatures` SET `position_z` = '9.962' WHERE (`spawn_id` = '22095'); 
+        -- Glasshide Petrifier, Z placement., Index: 19724 
+        UPDATE `spawns_creatures` SET `position_z` = '20.409' WHERE (`spawn_id` = '22101'); 
+        -- Glasshide Petrifier, Z placement., Index: 19730 
+        UPDATE `spawns_creatures` SET `position_z` = '13.533' WHERE (`spawn_id` = '22107'); 
+        -- Scorpid Hunter, Z placement., Index: 19740 
+        UPDATE `spawns_creatures` SET `position_z` = '10.222' WHERE (`spawn_id` = '22117'); 
+        -- Scorpid Hunter, Z placement., Index: 19782 
+        UPDATE `spawns_creatures` SET `position_z` = '10.112' WHERE (`spawn_id` = '22159'); 
+        -- Scorpid Tail Lasher, Z placement., Index: 19806 
+        UPDATE `spawns_creatures` SET `position_z` = '41.897' WHERE (`spawn_id` = '22183'); 
+        -- Scorpid Tail Lasher, Z placement., Index: 19816 
+        UPDATE `spawns_creatures` SET `position_z` = '9.154' WHERE (`spawn_id` = '22193'); 
+        -- Scorpid Tail Lasher, Z placement., Index: 19837 
+        UPDATE `spawns_creatures` SET `position_z` = '12.533' WHERE (`spawn_id` = '22214'); 
+        -- Scorpid Tail Lasher, Z placement., Index: 19839 
+        UPDATE `spawns_creatures` SET `position_z` = '17.126' WHERE (`spawn_id` = '22216'); 
+        -- Scorpid Tail Lasher, Z placement., Index: 19848 
+        UPDATE `spawns_creatures` SET `position_z` = '8.932' WHERE (`spawn_id` = '22225'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19871 
+        UPDATE `spawns_creatures` SET `position_z` = '14.406' WHERE (`spawn_id` = '22248'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19880 
+        UPDATE `spawns_creatures` SET `position_z` = '13.159' WHERE (`spawn_id` = '22257'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19881 
+        UPDATE `spawns_creatures` SET `position_z` = '8.885' WHERE (`spawn_id` = '22258'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19891 
+        UPDATE `spawns_creatures` SET `position_z` = '14.084' WHERE (`spawn_id` = '22268'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19892 
+        UPDATE `spawns_creatures` SET `position_z` = '11.766' WHERE (`spawn_id` = '22269'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19905 
+        UPDATE `spawns_creatures` SET `position_z` = '12.786' WHERE (`spawn_id` = '22282'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19906 
+        UPDATE `spawns_creatures` SET `position_z` = '35.957' WHERE (`spawn_id` = '22283'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19909 
+        UPDATE `spawns_creatures` SET `position_z` = '9.097' WHERE (`spawn_id` = '22286'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19910 
+        UPDATE `spawns_creatures` SET `position_z` = '37.554' WHERE (`spawn_id` = '22287'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19914 
+        UPDATE `spawns_creatures` SET `position_z` = '8.967' WHERE (`spawn_id` = '22291'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19922 
+        UPDATE `spawns_creatures` SET `position_z` = '20.719' WHERE (`spawn_id` = '22299'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19923 
+        UPDATE `spawns_creatures` SET `position_z` = '25.491' WHERE (`spawn_id` = '22300'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19924 
+        UPDATE `spawns_creatures` SET `position_z` = '18.64' WHERE (`spawn_id` = '22301'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19925 
+        UPDATE `spawns_creatures` SET `position_z` = '34.691' WHERE (`spawn_id` = '22302'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19926 
+        UPDATE `spawns_creatures` SET `position_z` = '18.311' WHERE (`spawn_id` = '22303'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19932 
+        UPDATE `spawns_creatures` SET `position_z` = '9.445' WHERE (`spawn_id` = '22310'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19945 
+        UPDATE `spawns_creatures` SET `position_z` = '8.803' WHERE (`spawn_id` = '22323'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19950 
+        UPDATE `spawns_creatures` SET `position_z` = '23.295' WHERE (`spawn_id` = '22328'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19964 
+        UPDATE `spawns_creatures` SET `position_z` = '25.619' WHERE (`spawn_id` = '22342'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19965 
+        UPDATE `spawns_creatures` SET `position_z` = '10.653' WHERE (`spawn_id` = '22343'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19973 
+        UPDATE `spawns_creatures` SET `position_z` = '41.226' WHERE (`spawn_id` = '22351'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19975 
+        UPDATE `spawns_creatures` SET `position_z` = '34.373' WHERE (`spawn_id` = '22353'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19979 
+        UPDATE `spawns_creatures` SET `position_z` = '33.143' WHERE (`spawn_id` = '22357'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19980 
+        UPDATE `spawns_creatures` SET `position_z` = '33.954' WHERE (`spawn_id` = '22358'); 
+        -- Scorpid Dunestalker, Z placement., Index: 19981 
+        UPDATE `spawns_creatures` SET `position_z` = '21.081' WHERE (`spawn_id` = '22359'); 
 
 		
         insert into applied_updates values ('08020221');
