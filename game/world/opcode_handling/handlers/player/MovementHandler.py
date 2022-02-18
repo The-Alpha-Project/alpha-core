@@ -53,10 +53,8 @@ class MovementHandler(object):
                     world_session.player_mgr.movement_spline = MovementManager.MovementSpline.from_bytes(
                         reader.data[48:])
 
-                movement_data = pack(f'<Q{len(reader.data)}s',
-                                     world_session.player_mgr.guid,
-                                     reader.data)
-
+                # Broadcast player movement to surroundings.
+                movement_data = pack(f'<Q{len(reader.data)}s', world_session.player_mgr.guid, reader.data)
                 movement_packet = PacketWriter.get_packet(OpCode(reader.opcode), movement_data)
                 MapManager.send_surrounding(movement_packet, world_session.player_mgr, include_self=False)
 
