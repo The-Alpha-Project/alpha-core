@@ -496,7 +496,7 @@ class PlayerManager(UnitManager):
                 self.pending_teleport_destination.y,
                 self.pending_teleport_destination.z,
                 self.pending_teleport_destination.o,
-                0,  # ?
+                self.pitch,
                 MoveFlags.MOVEFLAG_NONE,
             )
 
