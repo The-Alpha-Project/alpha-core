@@ -19935,7 +19935,101 @@ begin not atomic
         UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '301310'); 
         -- Stone Watcher of Norgannon, Z placement., Index: 51551 
         UPDATE `spawns_creatures` SET `position_z` = '9.323' WHERE (`spawn_id` = '301766'); 
-		
+
+        -- Webwood spiders.
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '46958');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '46971');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '46972');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '46974');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '46981');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '46997');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '46998');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '46999');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47000');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47001');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47004');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47006');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47008');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47009');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47010');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47012');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47016');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47021');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47030');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47029');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47031');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47037');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47038');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47039');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47052');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47053');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47054');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47055');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47057');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47060');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47062');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47208');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47262');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47263');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47266');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47267');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '47268');
+        
+        -- Webwood Spider, XYZ placement., Index: 39254 
+        UPDATE `spawns_creatures` SET `position_x` = '10793.133', `position_y` = '918.445', `position_z` = '1336.41' WHERE (`spawn_id` = '46958'); 
+        -- Webwood Spider, XYZ placement., Index: 39258 
+        UPDATE `spawns_creatures` SET `position_x` = '10807.817', `position_y` = '903.075', `position_z` = '1335.594' WHERE (`spawn_id` = '46971'); 
+        -- Webwood Spider, XYZ placement., Index: 39259 
+        UPDATE `spawns_creatures` SET `position_x` = '10826.102', `position_y` = '886.1', `position_z` = '1335.135' WHERE (`spawn_id` = '46972'); 
+        -- Webwood Spider, XYZ placement., Index: 39260 
+        UPDATE `spawns_creatures` SET `position_x` = '10824.334', `position_y` = '911.231', `position_z` = '1336.922' WHERE (`spawn_id` = '46974'); 
+        -- Webwood Spider, XYZ placement., Index: 39263 
+        UPDATE `spawns_creatures` SET `position_x` = '10838.625', `position_y` = '938.732', `position_z` = '1333.599' WHERE (`spawn_id` = '46981'); 
+        -- Webwood Spider, XYZ placement., Index: 39273 
+        UPDATE `spawns_creatures` SET `position_x` = '10828.857', `position_y` = '952.239', `position_z` = '1331.258' WHERE (`spawn_id` = '46997'); 
+        -- Webwood Spider, XYZ placement., Index: 39274 
+        UPDATE `spawns_creatures` SET `position_x` = '10836.008', `position_y` = '965.159', `position_z` = '1330.037' WHERE (`spawn_id` = '46998'); 
+        -- Webwood Spider, XYZ placement., Index: 39275 
+        UPDATE `spawns_creatures` SET `position_x` = '10849.093', `position_y` = '963.589', `position_z` = '1328.376' WHERE (`spawn_id` = '46999'); 
+        -- Webwood Spider, XYZ placement., Index: 39276 
+        UPDATE `spawns_creatures` SET `position_x` = '10868.239', `position_y` = '974.984', `position_z` = '1323.395' WHERE (`spawn_id` = '47000'); 
+        -- Webwood Spider, XYZ placement., Index: 39277 
+        UPDATE `spawns_creatures` SET `position_x` = '10871.638', `position_y` = '959.909', `position_z` = '1322.367' WHERE (`spawn_id` = '47001'); 
+        -- Webwood Spider, XYZ placement., Index: 39280 
+        UPDATE `spawns_creatures` SET `position_x` = '10894.021', `position_y` = '959.637', `position_z` = '1320.43' WHERE (`spawn_id` = '47004'); 
+        -- Webwood Spider, XYZ placement., Index: 39281 
+        UPDATE `spawns_creatures` SET `position_x` = '10900.507', `position_y` = '944.336', `position_z` = '1320.111' WHERE (`spawn_id` = '47006'); 
+        -- Webwood Spider, XYZ placement., Index: 39282 
+        UPDATE `spawns_creatures` SET `position_x` = '10883.806', `position_y` = '917.428', `position_z` = '1317.499' WHERE (`spawn_id` = '47008'); 
+        -- Webwood Spider, XYZ placement., Index: 39283 
+        UPDATE `spawns_creatures` SET `position_x` = '10876.388', `position_y` = '922.042', `position_z` = '1317.187' WHERE (`spawn_id` = '47009'); 
+        -- Webwood Spider, XYZ placement., Index: 39286 
+        UPDATE `spawns_creatures` SET `position_x` = '10895.01', `position_y` = '933.875', `position_z` = '1318.536' WHERE (`spawn_id` = '47016'); 
+        -- Webwood Spider, XYZ placement., Index: 39288 
+        UPDATE `spawns_creatures` SET `position_x` = '10854.239', `position_y` = '969.748', `position_z` = '1326.577' WHERE (`spawn_id` = '47018'); 
+        -- Webwood Spider, XYZ placement., Index: 39289 
+        UPDATE `spawns_creatures` SET `position_x` = '10909.809', `position_y` = '966.041', `position_z` = '1320.034' WHERE (`spawn_id` = '47021'); 
+        -- Webwood Spider, XYZ placement., Index: 39294 
+        UPDATE `spawns_creatures` SET `position_x` = '10895.666', `position_y` = '948.342', `position_z` = '1318.017' WHERE (`spawn_id` = '47029'); 
+        -- Webwood Spider, XYZ placement., Index: 39295 
+        UPDATE `spawns_creatures` SET `position_x` = '10883.961', `position_y` = '956.071', `position_z` = '1320.944' WHERE (`spawn_id` = '47030'); 
+        -- Webwood Spider, XYZ placement., Index: 39296 
+        UPDATE `spawns_creatures` SET `position_x` = '10856.378', `position_y` = '964.568', `position_z` = '1326.359' WHERE (`spawn_id` = '47031'); 
+        -- Webwood Spider, XYZ placement., Index: 39304 
+        UPDATE `spawns_creatures` SET `position_x` = '10835.163', `position_y` = '955.473', `position_z` = '1330.483' WHERE (`spawn_id` = '47039'); 
+        -- Webwood Spider, XYZ placement., Index: 39309 
+        UPDATE `spawns_creatures` SET `position_x` = '10840.829', `position_y` = '921.112', `position_z` = '1336.213' WHERE (`spawn_id` = '47052'); 
+        -- Webwood Spider, XYZ placement., Index: 39310 
+        UPDATE `spawns_creatures` SET `position_x` = '10810.558', `position_y` = '900.919', `position_z` = '1335.605' WHERE (`spawn_id` = '47053'); 
+        -- Webwood Spider, XYZ placement., Index: 39314 
+        UPDATE `spawns_creatures` SET `position_x` = '10794.732', `position_y` = '907.572', `position_z` = '1334.532' WHERE (`spawn_id` = '47057'); 
+        -- Webwood Spider, XYZ placement., Index: 39483 
+        UPDATE `spawns_creatures` SET `position_x` = '10794.42', `position_y` = '920.667', `position_z` = '1336.202' WHERE (`spawn_id` = '47262'); 
+        -- Webwood Spider, XYZ placement., Index: 39484 
+        UPDATE `spawns_creatures` SET `position_x` = '10760.61', `position_y` = '921.326', `position_z` = '1336.914' WHERE (`spawn_id` = '47263'); 
+        -- Webwood Spider, XYZ placement., Index: 39488 
+        UPDATE `spawns_creatures` SET `position_x` = '10737.214', `position_y` = '915.977', `position_z` = '1333.222' WHERE (`spawn_id` = '47268'); 
+
         insert into applied_updates values ('08020221');
     end if;
 	
