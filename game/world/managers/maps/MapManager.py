@@ -1,4 +1,5 @@
 import traceback
+import math
 import _queue
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -176,14 +177,14 @@ class MapManager(object):
 
     # noinspection PyBroadException
     @staticmethod
-    def calculate_z(map_id, x, y, current_z=0.0):
+    def calculate_z(map_id, x, y, current_z=0.0) -> tuple: # float, z_protected (Could not use map files Z)
         try:
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, (RESOLUTION_ZMAP - 1))
             x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / SIZE) - map_tile_x) - tile_local_x
             y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / SIZE) - map_tile_y) - tile_local_y
 
             if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
-                return current_z if current_z else 0.0
+                return current_z if current_z else 0.0, False
 
             try:
                 val_1 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x, tile_local_y)
@@ -192,12 +193,16 @@ class MapManager(object):
                 val_3 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x, tile_local_y + 1)
                 val_4 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x + 1, tile_local_y + 1)
                 bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
-                return MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
+                calculated_z = MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
+                # TODO, Protect against wrong maps Z due WMO's.
+                if math.fabs(current_z - calculated_z) > 1.5 and current_z:
+                    return current_z, True
+                return calculated_z, False
             except:
-                return MAPS[map_id].tiles[map_tile_x][map_tile_y].z_height_map[tile_local_x][tile_local_x]
+                return MAPS[map_id].tiles[map_tile_x][map_tile_y].z_height_map[tile_local_x][tile_local_x], False
         except:
             Logger.error(traceback.format_exc())
-            return current_z if current_z else 0.0
+            return current_z if current_z else 0.0, False
 
     @staticmethod
     def get_area_information(map_id, x, y):

@@ -9,7 +9,7 @@ from game.world.managers.objects.units.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypes, MoveFlags
-from utils.constants.UnitCodes import SplineFlags, SplineType
+from utils.constants.UnitCodes import SplineFlags, SplineType, UnitFlags
 
 
 class MovementManager(object):
@@ -53,8 +53,7 @@ class MovementManager(object):
                     map_id = -1
                 else:
                     map_id = self.unit.map_
-                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location,
-                                                                       map_id=map_id)
+                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location, map_id=map_id)
 
             if new_position:
                 self.waypoint_timer = 0
@@ -62,8 +61,13 @@ class MovementManager(object):
                 self.unit.location.x = new_position.x
                 self.unit.location.y = new_position.y
                 self.unit.location.z = new_position.z
-
                 MapManager.update_object(self.unit)
+
+                # TODO, below logic should be removed once we have some kind of navmesh.
+                #  this temporarily allows units to return without getting stuck in walls forever.
+                # Append combat movements so this unit can use them to return to spawn point if fleeing.
+                if not self.is_player and self.unit.in_combat and not self.unit.is_fleeing():
+                    self.unit.fleeing_waypoints.append(new_position.copy())
 
                 if self.is_player and self.unit.pending_taxi_destination:
                     self.unit.taxi_manager.update_flight_state()
@@ -75,6 +79,11 @@ class MovementManager(object):
                     self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination, is_instant=True)
                     self.unit.pending_taxi_destination = None
                     self.unit.taxi_manager.update_flight_state()
+
+                if not self.is_player:
+                    if self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+                        self.unit.set_fleeing(False)
+
                 self.reset()
 
     def reset(self):
@@ -250,8 +259,8 @@ class MovementManager(object):
     def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
         random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
         # TODO: Below check might not be needed once better path finding is implemented
-        # Don't move if the new Z is very different to original Z.
-        if math.fabs(start_position.z - random_point.z) > 1.5:
+        # Don't move if we were unable to calculate new Z by using map files.
+        if random_point.z_protected:
             return
 
         # Don't move if the destination is not an active cell.

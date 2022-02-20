@@ -426,15 +426,41 @@ class CreatureManager(UnitManager):
         return self.static_flags & CreatureStaticFlags.AQUATIC == 0
 
     def evade(self):
-        # TODO: Finish implmenting evade mechanic.
+        # Already fleeing.
+        if self.is_fleeing():
+            return
+        # TODO: Finish implementing evade mechanic.
+        # Reverse the combat waypoints, so they point back to spawn location.
+        waypoints = [wp for wp in reversed(self.fleeing_waypoints)]
         self.leave_combat(force=True)
         self.set_health(self.max_health)
         self.recharge_power()
-        self.movement_manager.send_move_normal([self.spawn_position], self.running_speed,
-                                               SplineFlags.SPLINEFLAG_RUNMODE)
+        self.set_fleeing(True)
+
+        # TODO: Below return to spawn point logic should be removed once a navmesh is available.
+        # Set unit location to last known combat move.
+        self.location = waypoints[0].copy()
+
+        last_waypoint = self.location
+        d_factor = 5
+        distance = 0
+        # Filter the waypoints by distance, remove those that are too close to each other.
+        for waypoint in list(waypoints):
+            distance += last_waypoint.distance(waypoint)
+            if distance < d_factor:
+                waypoints.remove(waypoint)
+            else:
+                distance = 0
+            last_waypoint = waypoint
+
+        # Make sure the last waypoints its self spawn position.
+        waypoints.append(self.spawn_position.copy())
+        # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
+        self.movement_manager.send_move_normal(waypoints, self.running_speed, SplineFlags.SPLINEFLAG_FLYING)
 
     def _perform_random_movement(self, now):
-        if not self.in_combat and self.creature_instance.movement_type == MovementTypes.WANDER:
+        # Do not wander in combat, while fleeing or without wander flag.
+        if not self.in_combat and not self.is_fleeing() and self.creature_instance.movement_type == MovementTypes.WANDER:
             if len(self.movement_manager.pending_waypoints) == 0:
                 if now > self.last_random_movement + self.random_movement_wait_time:
                     self.movement_manager.move_random(self.spawn_position,
@@ -468,7 +494,7 @@ class CreatureManager(UnitManager):
             interactable_distance = UnitFormulas.interactable_distance(self, self.combat_target)
 
             # TODO: Find better formula?
-            combat_position_distance = interactable_distance * 0.5
+            combat_position_distance = interactable_distance * 0.6
 
             # If target is within combat distance, don't move but do check creature orientation.
             if current_distance <= combat_position_distance:

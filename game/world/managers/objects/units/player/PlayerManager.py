@@ -925,7 +925,7 @@ class PlayerManager(UnitManager):
     # override
     def is_on_water(self):
         self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
-        map_z = MapManager.calculate_z_for_object(self)
+        map_z = MapManager.calculate_z_for_object(self)[0]
         return self.liquid_information and map_z < self.liquid_information.height
 
     # override
