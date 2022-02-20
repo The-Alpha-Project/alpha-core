@@ -344,7 +344,10 @@ class MapManager(object):
             old_grid_manager = None
 
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
-        grid_manager.update_object(world_object, old_grid_manager, check_pending_changes=check_pending_changes)
+        if grid_manager:
+            grid_manager.update_object(world_object, old_grid_manager, check_pending_changes=check_pending_changes)
+        else:
+            print(f'Warning, did not find grid_manager for map: {world_object.map_}')
 
     @staticmethod
     def remove_object(world_object):
