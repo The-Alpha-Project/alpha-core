@@ -425,38 +425,59 @@ class CreatureManager(UnitManager):
     def can_exit_water(self):
         return self.static_flags & CreatureStaticFlags.AQUATIC == 0
 
+    # TODO: Finish implementing evade mechanic.
     def evade(self):
         # Already fleeing.
         if self.is_fleeing():
             return
-        # TODO: Finish implementing evade mechanic.
-        # Reverse the combat waypoints, so they point back to spawn location.
-        waypoints = [wp for wp in reversed(self.fleeing_waypoints)]
+
+        # Get the path we are using to get back to spawn location.
+        waypoints_to_spawn, z_protected = self._get_return_to_spawn_points()
         self.leave_combat(force=True)
         self.set_health(self.max_health)
         self.recharge_power()
         self.set_fleeing(True)
 
-        # TODO: Below return to spawn point logic should be removed once a navmesh is available.
-        # Set unit location to last known combat move.
-        self.location = waypoints[0].copy()
+        # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
+        spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_protected else SplineFlags.SPLINEFLAG_FLYING
+        self.movement_manager.send_move_normal(waypoints_to_spawn, self.running_speed, spline_flag)
 
+    # TODO: Below return to spawn point logic should be removed once a navmesh is available.
+    def _get_return_to_spawn_points(self) -> tuple: # [waypoints], z_protected bool
+        # No points, return just spawn point.
+        if len(self.fleeing_waypoints) == 0:
+            return [self.spawn_position]
+
+        # Reverse the combat waypoints, so they point back to spawn location.
+        waypoints = [wp for wp in reversed(self.fleeing_waypoints)]
+        # Set self location to the latest known point.
+        self.location = waypoints[0].copy()
         last_waypoint = self.location
-        d_factor = 5
-        distance = 0
+        # Distance we want between each waypoint.
+        d_factor = 4
+        # Try to use waypoints only for units that have invalid z calculations.
+        found_protected_z = False
+        distance_sum = 0
         # Filter the waypoints by distance, remove those that are too close to each other.
         for waypoint in list(waypoints):
-            distance += last_waypoint.distance(waypoint)
-            if distance < d_factor:
+            # Check for protected z.
+            if not found_protected_z:
+                z, found_protected_z = MapManager.calculate_z(self.map_, waypoint.x, waypoint.y, waypoint.z)
+            distance_sum += last_waypoint.distance(waypoint)
+            if distance_sum < d_factor:
                 waypoints.remove(waypoint)
             else:
-                distance = 0
+                distance_sum = 0
             last_waypoint = waypoint
 
-        # Make sure the last waypoints its self spawn position.
-        waypoints.append(self.spawn_position.copy())
-        # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
-        self.movement_manager.send_move_normal(waypoints, self.running_speed, SplineFlags.SPLINEFLAG_FLYING)
+        if found_protected_z:
+            # Make sure the last waypoints its self spawn position.
+            waypoints.append(self.spawn_position.copy())
+        else:
+            # This unit is probably outside a cave, do not use waypoints.
+            waypoints.clear()
+            waypoints.append(self.spawn_position)
+        return waypoints, found_protected_z
 
     def _perform_random_movement(self, now):
         # Do not wander in combat, while fleeing or without wander flag.
@@ -504,6 +525,9 @@ class CreatureManager(UnitManager):
                 return
 
             combat_location = self.combat_target.location.get_point_in_between(combat_position_distance, vector=self.location)
+
+            if not combat_location:
+                return
 
             # If already going to the correct spot, don't do anything.
             if len(self.movement_manager.pending_waypoints) > 0 and self.movement_manager.pending_waypoints[0].location == combat_location:
