@@ -89,10 +89,10 @@ class QuestManager(object):
             # Check starters.
             for quest_id in relations_list:
                 if quest_id not in self.active_quests and quest_id not in self.completed_quests:
-                     quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
-                     if quest_template and self.check_quest_requirements(quest_template):
-                         # This go offers a quest we don't have, and we match the requirements for it.
-                         return True
+                    quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
+                    if quest_template and self.check_quest_requirements(quest_template):
+                        # This go offers a quest we don't have, and we match the requirements for it.
+                        return True
 
         return False
 

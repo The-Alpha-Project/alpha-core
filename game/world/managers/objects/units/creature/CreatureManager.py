@@ -263,10 +263,10 @@ class CreatureManager(UnitManager):
 
                 addon_template = self.creature_instance.addon_template
                 if addon_template:
-                    # TODO, Emote, Mount, DisplayID
+                    # TODO: Emote, Mount, DisplayID
                     self.set_stand_state(addon_template.stand_state)
                     self.set_weapon_mode(addon_template.sheath_state)
-                    # Check auras, 'auras' point to an entry id on Spell dbc.
+                    # Check auras; 'auras' points to an entry id on Spell dbc.
                     if addon_template.auras:
                         spells = str(addon_template.auras).rsplit(' ')
                         for spell in spells:
@@ -432,21 +432,21 @@ class CreatureManager(UnitManager):
             return
 
         # Get the path we are using to get back to spawn location.
-        waypoints_to_spawn, z_protected = self._get_return_to_spawn_points()
+        waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
         self.leave_combat(force=True)
         self.set_health(self.max_health)
         self.recharge_power()
         self.set_fleeing(True)
 
         # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
-        spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_protected else SplineFlags.SPLINEFLAG_FLYING
+        spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_locked else SplineFlags.SPLINEFLAG_FLYING
         self.movement_manager.send_move_normal(waypoints_to_spawn, self.running_speed, spline_flag)
 
     # TODO: Below return to spawn point logic should be removed once a navmesh is available.
-    def _get_return_to_spawn_points(self) -> tuple: # [waypoints], z_protected bool
+    def _get_return_to_spawn_points(self) -> tuple:  # [waypoints], z_locked bool
         # No points, return just spawn point.
         if len(self.fleeing_waypoints) == 0:
-            return [self.spawn_position]
+            return self.spawn_position, False
 
         # Reverse the combat waypoints, so they point back to spawn location.
         waypoints = [wp for wp in reversed(self.fleeing_waypoints)]
@@ -456,13 +456,13 @@ class CreatureManager(UnitManager):
         # Distance we want between each waypoint.
         d_factor = 4
         # Try to use waypoints only for units that have invalid z calculations.
-        found_protected_z = False
+        z_locked = False
         distance_sum = 0
         # Filter the waypoints by distance, remove those that are too close to each other.
         for waypoint in list(waypoints):
             # Check for protected z.
-            if not found_protected_z:
-                z, found_protected_z = MapManager.calculate_z(self.map_, waypoint.x, waypoint.y, waypoint.z)
+            if not z_locked:
+                z, z_locked = MapManager.calculate_z(self.map_, waypoint.x, waypoint.y, waypoint.z)
             distance_sum += last_waypoint.distance(waypoint)
             if distance_sum < d_factor:
                 waypoints.remove(waypoint)
@@ -470,14 +470,14 @@ class CreatureManager(UnitManager):
                 distance_sum = 0
             last_waypoint = waypoint
 
-        if found_protected_z:
+        if z_locked:
             # Make sure the last waypoints its self spawn position.
             waypoints.append(self.spawn_position.copy())
         else:
             # This unit is probably outside a cave, do not use waypoints.
             waypoints.clear()
             waypoints.append(self.spawn_position)
-        return waypoints, found_protected_z
+        return waypoints, z_locked
 
     def _perform_random_movement(self, now):
         # Do not wander in combat, while fleeing or without wander flag.

@@ -307,7 +307,6 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-
     # Quest stuff
 
     class QuestRelationHolder:
@@ -402,7 +401,6 @@ class WorldDatabaseManager(object):
         res = world_db_session.query(QuestTemplate).filter_by(ignored=0).all()
         world_db_session.close()
         return res
-
 
     class QuestTemplateHolder:
         QUEST_TEMPLATES: dict[int, QuestTemplate] = {}

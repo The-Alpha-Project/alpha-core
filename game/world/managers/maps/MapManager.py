@@ -102,8 +102,8 @@ class MapManager(object):
 
         return True
 
-    @staticmethod
     # Store environmental collision objects given a gameobject.
+    @staticmethod
     def add_environmental_collision(gameobject):
         x = MapManager.validate_map_coord(gameobject.location.x)
         y = MapManager.validate_map_coord(gameobject.location.y)
@@ -177,7 +177,7 @@ class MapManager(object):
 
     # noinspection PyBroadException
     @staticmethod
-    def calculate_z(map_id, x, y, current_z=0.0) -> tuple: # float, z_protected (Could not use map files Z)
+    def calculate_z(map_id, x, y, current_z=0.0) -> tuple:  # float, z_locked (Could not use map files Z)
         try:
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, (RESOLUTION_ZMAP - 1))
             x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / SIZE) - map_tile_x) - tile_local_x
@@ -194,7 +194,7 @@ class MapManager(object):
                 val_4 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x + 1, tile_local_y + 1)
                 bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
                 calculated_z = MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
-                # TODO, Protect against wrong maps Z due WMO's.
+                # TODO: Protect against wrong maps Z due WMO's.
                 if math.fabs(current_z - calculated_z) > 1.5 and current_z:
                     return current_z, True
                 return calculated_z, False
@@ -217,8 +217,8 @@ class MapManager(object):
             Logger.error(traceback.format_exc())
             return None
 
-    @staticmethod
     # Return an Environmental damage object if collision detected.
+    @staticmethod
     def get_environmental_damage(map_id, vector):
         try:
             x = MapManager.validate_map_coord(vector.x)
@@ -352,7 +352,7 @@ class MapManager(object):
         if grid_manager:
             grid_manager.update_object(world_object, old_grid_manager, check_pending_changes=check_pending_changes)
         else:
-            print(f'Warning, did not find grid_manager for map: {world_object.map_}')
+            Logger.warning(f'Warning, did not find grid_manager for map: {world_object.map_}')
 
     @staticmethod
     def remove_object(world_object):

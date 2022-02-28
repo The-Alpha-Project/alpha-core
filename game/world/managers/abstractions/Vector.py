@@ -9,12 +9,12 @@ from utils.ConfigManager import config
 class Vector(object):
     """Class to represent points in a 3D space and utilities to work with them within the game."""
 
-    def __init__(self, x=0, y=0, z=0, o=0, z_protected = False):
+    def __init__(self, x=0, y=0, z=0, o=0, z_locked = False):
         self.x = x
         self.y = y
         self.z = z
         self.o = o
-        self.z_protected = z_protected
+        self.z_locked = z_locked
 
     def __add__(self, other):
         return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
@@ -38,7 +38,7 @@ class Vector(object):
         return vector
 
     @staticmethod
-    def calculate_z(x, y, map_id, default_z=0.0) -> tuple: # float, z_protected (Could not use map files Z)
+    def calculate_z(x, y, map_id, default_z=0.0) -> tuple:  # float, z_locked (Could not use map files Z)
         if map_id == -1 or not config.Server.Settings.use_map_tiles:
             return default_z, False
         else:
@@ -103,16 +103,16 @@ class Vector(object):
         factor = offset / general_distance
         x3 = self.x + factor * (vector.x - self.x)
         y3 = self.y + factor * (vector.y - self.y)
-        z3, z_protected = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z))
+        z3, z_locked = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z))
 
-        return Vector(x3, y3, z3, z_protected=z_protected)
+        return Vector(x3, y3, z3, z_locked=z_locked)
 
     def get_point_in_middle(self, vector, map_id=-1):
         x = (self.x + vector.x) / 2
         y = (self.y + vector.y) / 2
-        z, z_protected = Vector.calculate_z(x, y, map_id, (self.z + vector.z) / 2)
+        z, z_locked = Vector.calculate_z(x, y, map_id, (self.z + vector.z) / 2)
 
-        return Vector(x, y, z, z_protected=z_protected)
+        return Vector(x, y, z, z_locked=z_locked)
 
     # https://stackoverflow.com/a/50746409/4208583
     def get_random_point_in_radius(self, radius, map_id=-1):
@@ -121,6 +121,6 @@ class Vector(object):
 
         x = self.x + (r * math.cos(theta))
         y = self.y + (r * math.sin(theta))
-        z, z_protected = Vector.calculate_z(x, y, map_id, self.z)
+        z, z_locked = Vector.calculate_z(x, y, map_id, self.z)
 
-        return Vector(x, y, z, z_protected=z_protected)
+        return Vector(x, y, z, z_locked=z_locked)
