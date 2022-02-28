@@ -56,9 +56,9 @@ begin not atomic
         -- Alliance Chest ignored, out of reach. 
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47589'); 
         -- Dwarven Brazier Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '519.878' WHERE (`spawn_id` = '19'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '19');
         -- Campfire Damage Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '519.878' WHERE (`spawn_id` = '20'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '20');
         -- Mithril Deposit Z placement. 
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '25.874' WHERE (`spawn_id` = '30737'); 
         -- Mithril Deposit Z placement. 
@@ -68,9 +68,9 @@ begin not atomic
         -- No object template, set ignored.
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '52'); 
         -- Dwarven Brazier Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '423.01' WHERE (`spawn_id` = '58'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '58');
         -- Campfire Damage Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '423.01' WHERE (`spawn_id` = '59'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '59');
         -- Forge ignored, out of reach. 
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47586'); 
         -- Small Thorium Vein Z placement. 
@@ -250,10 +250,10 @@ begin not atomic
         -- Musty Tome Trap Z placement. 
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '71.66' WHERE (`spawn_id` = '12342'); 
         -- Dwarven Brazier Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '519.887' WHERE (`spawn_id` = '512'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '512');
         -- Campfire Damage Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '519.888' WHERE (`spawn_id` = '513'); 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '519.887' WHERE (`spawn_id` = '516'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '513');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '516');
         -- Silverleaf Bush Z placement. 
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '34.575' WHERE (`spawn_id` = '522'); 
         -- Wooden Chair Z placement. 
@@ -267,21 +267,21 @@ begin not atomic
         -- Wooden Chair ignored, out of reach. 
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '592'); 
         -- Dwarven Brazier Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '519.876' WHERE (`spawn_id` = '596'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '596');
         -- Campfire Damage Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '519.876' WHERE (`spawn_id` = '601'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '601');
         -- Dwarven Brazier Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '523.496' WHERE (`spawn_id` = '603'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '603');
         -- Campfire Damage Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '523.496' WHERE (`spawn_id` = '610'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '610');
         -- Dwarven Brazier Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '523.496' WHERE (`spawn_id` = '611'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '611');
         -- Campfire Damage Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '523.496' WHERE (`spawn_id` = '612'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '612');
         -- Dwarven Brazier Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '525.949' WHERE (`spawn_id` = '613'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '613');
         -- Campfire Damage Z placement. 
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '525.949' WHERE (`spawn_id` = '617'); 
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '617');
         -- Silverleaf Bush Z placement. 
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-5.602' WHERE (`spawn_id` = '631'); 
         -- Silverleaf Bush Z placement. 
