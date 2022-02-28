@@ -1449,7 +1449,6 @@ class PlayerManager(UnitManager):
         self.last_tick = now
 
     def send_update_self(self, update_packet=None, create=False):
-
         if create:
             self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
         else:
