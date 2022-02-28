@@ -21,7 +21,7 @@ from utils.constants.MiscCodes import ObjectTypes, HitInfo, GameObjectTypes, Att
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects
-from utils.constants.UnitCodes import PowerTypes, StandState
+from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode
 
 
 class SpellManager(object):
@@ -149,6 +149,10 @@ class SpellManager(object):
 
         self.casting_spells.append(casting_spell)
         casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
+
+        # If the spell uses a ranged weapon, draw it.
+        if casting_spell.is_ranged_weapon_attack():
+            self.unit_mgr.set_weapon_mode(WeaponMode.RANGEDMODE)
 
         if not casting_spell.is_instant_cast():
             if not casting_spell.triggered:
