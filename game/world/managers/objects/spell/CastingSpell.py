@@ -210,9 +210,10 @@ class CastingSpell(object):
         if self.spell_entry.EquippedItemClass != ItemClasses.ITEM_CLASS_WEAPON:
             return False
 
-        ranged_mask = (1 << ItemSubClasses.ITEM_SUBCLASS_GUN) | \
-                      (1 << ItemSubClasses.ITEM_SUBCLASS_BOW) | \
-                      (1 << ItemSubClasses.ITEM_SUBCLASS_THROWN)
+        ranged_mask = (1 << ItemSubClasses.ITEM_SUBCLASS_BOW) | \
+                      (1 << ItemSubClasses.ITEM_SUBCLASS_GUN) | \
+                      (1 << ItemSubClasses.ITEM_SUBCLASS_THROWN) | \
+                      (1 << ItemSubClasses.ITEM_SUBCLASS_CROSSBOW)
 
         return self.spell_entry.EquippedItemSubclass & ranged_mask != 0
 
