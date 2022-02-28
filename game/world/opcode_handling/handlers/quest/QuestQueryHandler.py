@@ -1,5 +1,4 @@
 from struct import unpack
-
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 
 

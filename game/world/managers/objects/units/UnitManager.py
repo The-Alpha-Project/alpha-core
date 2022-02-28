@@ -157,8 +157,8 @@ class UnitManager(ObjectManager):
         self.update_packet_factory.init_values(UnitFields.UNIT_END)
 
         self.is_alive = True
-        self.is_sitting = False
         self.in_combat = False
+        self.fleeing_waypoints = []
         self.swing_error = AttackSwingError.NONE
         self.extra_attacks = 0
         self.disarmed_mainhand = False
@@ -383,7 +383,11 @@ class UnitManager(ObjectManager):
         if hit_info != HitInfo.SUCCESS:
             damage_info.hit_info = HitInfo.MISS
             damage_info.total_damage = 0
-            if hit_info == HitInfo.DODGE:
+            # Check evade, there is no HitInfo flag for this.
+            if victim.is_fleeing():
+                damage_info.target_state = VictimStates.VS_EVADE
+                damage_info.proc_victim |= ProcFlags.NONE
+            elif hit_info == HitInfo.DODGE:
                 damage_info.target_state = VictimStates.VS_DODGE
                 damage_info.proc_victim |= ProcFlags.DODGE
             elif hit_info == HitInfo.PARRY:
@@ -464,6 +468,9 @@ class UnitManager(ObjectManager):
         if not target or not target.is_alive:
             return
 
+        if target.is_fleeing():
+            return
+
         if target is not self:
             if self.guid not in target.attackers:
                 target.attackers[self.guid] = self
@@ -524,10 +531,19 @@ class UnitManager(ObjectManager):
         else:  # TODO Proc damage effects (SPELL_AURA_PROC_TRIGGER_DAMAGE) can't fill target results - should they be able to miss?
             miss_reason = SpellMissReason.MISS_REASON_NONE
 
+        # Overwrite if fleeing.
+        if target.is_fleeing():
+            miss_reason = SpellMissReason.MISS_REASON_EVADED
+
         damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target, casting_spell.spell_attack_type)
 
         # TODO Handle misses, absorbs etc. for spells.
         damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)
+
+        if miss_reason == SpellMissReason.MISS_REASON_EVADED:
+            damage_info.total_damage = 0
+            damage_info.hit_info = HitInfo.MISS
+            damage_info.proc_victim |= ProcFlags.NONE
 
         if casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack():  # TODO Should other spells give skill too?
             self.handle_combat_skill_gain(damage_info)
@@ -647,6 +663,7 @@ class UnitManager(ObjectManager):
         self.send_attack_stop(self.combat_target.guid if self.combat_target else self.guid)
         self.swing_error = 0
 
+        self.fleeing_waypoints.clear()
         self.combat_target = None
         self.in_combat = False
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
@@ -671,6 +688,22 @@ class UnitManager(ObjectManager):
 
     def set_attack_timer(self, attack_type, value):
         self.attack_timers[attack_type] = value
+
+    def is_sitting(self):
+        return self.stand_state == StandState.UNIT_SITTING
+
+    def set_stand_state(self, stand_state):
+        self.stand_state = stand_state
+
+    def set_fleeing(self, state):
+        if state:
+            self.unit_flags |= UnitFlags.UNIT_FLAG_FLEEING
+        else:
+            self.unit_flags &= ~UnitFlags.UNIT_FLAG_FLEEING
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+    def is_fleeing(self):
+        return self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
     # override
     def change_speed(self, speed=0):
@@ -882,9 +915,6 @@ class UnitManager(ObjectManager):
     # Implemented by PlayerManager
     def remove_combo_points(self):
         pass
-
-    def set_stand_state(self, stand_state):
-        self.stand_state = stand_state
 
     def set_taxi_flying_state(self, is_flying, mount_display_id=0):
         if is_flying:

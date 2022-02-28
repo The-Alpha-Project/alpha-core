@@ -42,7 +42,7 @@ class TextEmoteHandler(object):
                 state = StandState.UNIT_STANDING
 
                 if emote_text_id == Emotes.SIT:
-                    if not world_session.player_mgr.is_sitting:
+                    if not world_session.player_mgr.is_sitting():
                         state = StandState.UNIT_SITTING
                         world_session.player_mgr.set_stand_state(state)
                 elif emote_text_id == Emotes.STAND:

@@ -1,6 +1,7 @@
 from struct import unpack
-
+from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.maps.MapManager import MapManager
+from utils.constants.MiscCodes import HighGuid
 from utils.Logger import Logger
 
 
@@ -10,7 +11,14 @@ class QuestGiverHelloHandler(object):
     def handle(world_session, socket, reader):
         if len(reader.data) >= 8:  # Avoid handling empty quest giver hello packet.
             guid = unpack('<Q', reader.data[:8])[0]
-            quest_giver = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
+            high_guid = ObjectManager.extract_high_guid(guid)
+
+            quest_giver = None
+            if high_guid == HighGuid.HIGHGUID_UNIT:
+                quest_giver = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
+            elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
+                quest_giver = MapManager.get_surrounding_gameobject_by_guid(world_session.player_mgr, guid)
+
             if not quest_giver:
                 Logger.error(f'Error in CMSG_QUESTGIVER_HELLO, could not find quest giver with guid of: {guid}')
                 return 0

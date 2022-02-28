@@ -107,7 +107,7 @@ class WorldSessionStateHandler(object):
     @staticmethod
     def save_character(player_mgr):
         try:
-            player_mgr.sync_player()
+            player_mgr.synchronize_db_player()
             RealmDatabaseManager.character_update(player_mgr.player)
         except AttributeError:
             pass

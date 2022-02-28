@@ -27,10 +27,11 @@ from utils import Formulas
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
-from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
+from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, EnvironmentalDamageSource, \
+    EnvironmentalDamageTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
-from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools
+from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools, SpellTargetMask
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
 from utils.constants.UpdateFields import *
 
@@ -92,6 +93,9 @@ class PlayerManager(UnitManager):
         self.team = Teams.TEAM_NONE  # Set at set_player_variables().
         self.trade_data = None
         self.last_regen = 0
+        self.last_env_damage_object = None
+        self.last_env_damage_check = 0
+        self.last_swimming_check = 0
         self.spirit_release_timer = 0
         self.logout_timer = -1
         self.dirty_inventory = False
@@ -214,6 +218,7 @@ class PlayerManager(UnitManager):
         self.current_scale = self.native_scale
         self.race_mask = 1 << self.player.race - 1
         self.class_mask = 1 << self.player.class_ - 1
+
         self.team = PlayerManager.get_team_for_race(self.player.race)
 
     def set_gm(self, on=True):
@@ -421,7 +426,7 @@ class PlayerManager(UnitManager):
                 return True
         return False
 
-    def sync_player(self):
+    def synchronize_db_player(self):
         if self.player:
             self.player.level = self.level
             self.player.xp = self.xp
@@ -491,7 +496,7 @@ class PlayerManager(UnitManager):
                 self.pending_teleport_destination.y,
                 self.pending_teleport_destination.z,
                 self.pending_teleport_destination.o,
-                0,  # ?
+                self.pitch,
                 MoveFlags.MOVEFLAG_NONE,
             )
 
@@ -920,7 +925,7 @@ class PlayerManager(UnitManager):
     # override
     def is_on_water(self):
         self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
-        map_z = MapManager.calculate_z_for_object(self)
+        map_z = MapManager.calculate_z_for_object(self)[0]
         return self.liquid_information and map_z < self.liquid_information.height
 
     # override
@@ -1124,12 +1129,14 @@ class PlayerManager(UnitManager):
         self.skill_points = max(0, self.skill_points - skill_points)
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
-    def regenerate(self, current_time):
+    def regenerate(self, elapsed):
         if not self.is_alive or self.health == 0:
             return
 
+        self.last_regen += elapsed
         # Every 2 seconds
-        if current_time > self.last_regen + 2:
+        if self.last_regen >= 2:
+            self.last_regen = 0
             # Healing aura increases regeneration "by 2 every second", and base points equal to 10. Calculate 2/5 of hp5/mp5.
             health_regen = self.stat_manager.get_total_stat(UnitStats.HEALTH_REGENERATION_PER_5) * 0.4
             mana_regen = self.stat_manager.get_total_stat(UnitStats.POWER_REGENERATION_PER_5) * 0.4
@@ -1139,11 +1146,13 @@ class PlayerManager(UnitManager):
             if self.health < self.max_health and not self.in_combat or self.player.race == Races.RACE_TROLL:
                 if self.player.race == Races.RACE_TROLL:
                     health_regen *= 0.1 if self.in_combat else 1.1
-                if self.is_sitting:
-                    health_regen *= 0.33
 
                 if health_regen < 1:
                     health_regen = 1
+                # Apply bonus if sitting.
+                if self.is_sitting():
+                    health_regen += health_regen * 0.33
+
                 if self.health + health_regen >= self.max_health:
                     self.set_health(self.max_health)
                 elif self.health < self.max_health:
@@ -1185,8 +1194,6 @@ class PlayerManager(UnitManager):
                         self.set_energy(self.max_power_4)
                     elif self.power_4 < self.max_power_4:
                         self.set_energy(self.power_4 + 20)
-
-            self.last_regen = current_time
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target: UnitManager, apply_bonuses=True):
         rolled_damage = super().calculate_base_attack_damage(attack_type, attack_school, target, apply_bonuses)
@@ -1290,7 +1297,6 @@ class PlayerManager(UnitManager):
     def set_weapon_mode(self, weapon_mode):
         super().set_weapon_mode(weapon_mode)
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
-
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
@@ -1351,6 +1357,31 @@ class PlayerManager(UnitManager):
         else:
             Logger.warning('Tried to send packet to null session.')
 
+    def check_swimming_state(self, elapsed):
+        if not self.is_alive:
+            return
+        self.last_swimming_check += elapsed
+        if self.last_swimming_check >= 1:
+            self.last_swimming_check = 0
+            if self.is_swimming() and not self.liquid_information:
+                self.update_swimming_state(True)
+            elif not self.is_swimming() and self.liquid_information:
+                self.update_swimming_state(False)
+
+    def check_environment_damage(self, elapsed):
+        if not self.is_alive or self.movement_spline and self.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
+            return
+        self.last_env_damage_check += elapsed
+        if self.last_env_damage_check >= 1:
+            self.last_env_damage_check = 0
+            environment_damage_object = MapManager.get_environmental_damage(self.map_, self.location)
+            if environment_damage_object and environment_damage_object != self.last_env_damage_object:
+                environment_damage_object.add_participant(self)
+                self.last_env_damage_object = environment_damage_object
+            elif self.last_env_damage_object and not environment_damage_object:
+                self.last_env_damage_object.remove_participant(self)
+                self.last_env_damage_object = None
+
     # override
     def has_pending_updates(self):
         return self.update_packet_factory.has_pending_updates() or self.dirty_inventory
@@ -1366,11 +1397,15 @@ class PlayerManager(UnitManager):
             self.player.leveltime += elapsed
 
             # Regeneration.
-            self.regenerate(now)
+            self.regenerate(elapsed)
             # Attack update.
             self.attack_update(elapsed)
             # Waypoints (mostly flying paths) update.
             self.movement_manager.update_pending_waypoints(elapsed)
+            # Check environment damage.
+            self.check_environment_damage(elapsed)
+            # Check swimming state.
+            self.check_swimming_state(elapsed)
 
             # SpellManager tick.
             self.spell_manager.update(now, elapsed)
@@ -1397,6 +1432,7 @@ class PlayerManager(UnitManager):
                 self.logout_timer -= elapsed
                 if self.logout_timer < 0:
                     self.logout()
+                    return
 
             # Check if player has pending updates.
             if self.has_pending_updates() and self.online:
@@ -1407,6 +1443,9 @@ class PlayerManager(UnitManager):
             # Not dirty, has a pending teleport and a teleport is not ongoing.
             elif not self.has_pending_updates() and self.pending_teleport_destination and not self.update_lock:
                 self.trigger_teleport()
+            else:
+                MapManager.update_object(self)
+                self.synchronize_db_player()
 
         self.last_tick = now
 

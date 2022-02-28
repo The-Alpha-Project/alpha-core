@@ -67,7 +67,8 @@ class WorldServerSessionHandler(object):
         WorldSessionStateHandler.save_character(self.player_mgr)
 
     def enqueue_packet(self, data):
-        self.outgoing_pending.put_nowait(data)
+        if self.keep_alive:
+            self.outgoing_pending.put_nowait(data)
 
     def process_outgoing(self):
         while self.keep_alive:
@@ -110,11 +111,13 @@ class WorldServerSessionHandler(object):
         except AttributeError:
             pass
 
-        # Unblock queues if they are waiting inside loop.
-        if self.incoming_pending.empty():
-            self.incoming_pending.put_nowait(None)
-        if self.outgoing_pending.empty():
-            self.outgoing_pending.put_nowait(None)
+        # Unblock and flush queues.
+        self.incoming_pending.put_nowait(None)
+        while not self.incoming_pending.empty():
+            self.incoming_pending.get(block=False, timeout=None)
+        self.outgoing_pending.put_nowait(None)
+        while not self.outgoing_pending.empty():
+            self.outgoing_pending.get(block=False, timeout=None)
 
         WorldSessionStateHandler.remove(self)
         try:

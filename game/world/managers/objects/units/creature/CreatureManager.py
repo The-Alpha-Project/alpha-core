@@ -14,6 +14,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
@@ -260,6 +261,19 @@ class CreatureManager(UnitManager):
                         self.set_virtual_item(1, creature_equip_template.equipentry2)
                         self.set_virtual_item(2, creature_equip_template.equipentry3)
 
+                addon_template = self.creature_instance.addon_template
+                if addon_template:
+                    # TODO, Emote, Mount, DisplayID
+                    self.set_stand_state(addon_template.stand_state)
+                    self.set_weapon_mode(addon_template.sheath_state)
+                    # Check auras, 'auras' point to an entry id on Spell dbc.
+                    if addon_template.auras:
+                        spells = str(addon_template.auras).rsplit(' ')
+                        for spell in spells:
+                            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(int(spell))
+                            if spell_template:
+                                self.spell_manager.start_spell_cast(spell_template, self, self, SpellTargetMask.SELF)
+
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses()
 
@@ -411,16 +425,63 @@ class CreatureManager(UnitManager):
     def can_exit_water(self):
         return self.static_flags & CreatureStaticFlags.AQUATIC == 0
 
+    # TODO: Finish implementing evade mechanic.
     def evade(self):
-        # TODO: Finish implmenting evade mechanic.
+        # Already fleeing.
+        if self.is_fleeing():
+            return
+
+        # Get the path we are using to get back to spawn location.
+        waypoints_to_spawn, z_protected = self._get_return_to_spawn_points()
         self.leave_combat(force=True)
         self.set_health(self.max_health)
         self.recharge_power()
-        self.movement_manager.send_move_normal([self.spawn_position], self.running_speed,
-                                               SplineFlags.SPLINEFLAG_RUNMODE)
+        self.set_fleeing(True)
+
+        # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
+        spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_protected else SplineFlags.SPLINEFLAG_FLYING
+        self.movement_manager.send_move_normal(waypoints_to_spawn, self.running_speed, spline_flag)
+
+    # TODO: Below return to spawn point logic should be removed once a navmesh is available.
+    def _get_return_to_spawn_points(self) -> tuple: # [waypoints], z_protected bool
+        # No points, return just spawn point.
+        if len(self.fleeing_waypoints) == 0:
+            return [self.spawn_position]
+
+        # Reverse the combat waypoints, so they point back to spawn location.
+        waypoints = [wp for wp in reversed(self.fleeing_waypoints)]
+        # Set self location to the latest known point.
+        self.location = waypoints[0].copy()
+        last_waypoint = self.location
+        # Distance we want between each waypoint.
+        d_factor = 4
+        # Try to use waypoints only for units that have invalid z calculations.
+        found_protected_z = False
+        distance_sum = 0
+        # Filter the waypoints by distance, remove those that are too close to each other.
+        for waypoint in list(waypoints):
+            # Check for protected z.
+            if not found_protected_z:
+                z, found_protected_z = MapManager.calculate_z(self.map_, waypoint.x, waypoint.y, waypoint.z)
+            distance_sum += last_waypoint.distance(waypoint)
+            if distance_sum < d_factor:
+                waypoints.remove(waypoint)
+            else:
+                distance_sum = 0
+            last_waypoint = waypoint
+
+        if found_protected_z:
+            # Make sure the last waypoints its self spawn position.
+            waypoints.append(self.spawn_position.copy())
+        else:
+            # This unit is probably outside a cave, do not use waypoints.
+            waypoints.clear()
+            waypoints.append(self.spawn_position)
+        return waypoints, found_protected_z
 
     def _perform_random_movement(self, now):
-        if not self.in_combat and self.creature_instance.movement_type == MovementTypes.WANDER:
+        # Do not wander in combat, while fleeing or without wander flag.
+        if not self.in_combat and not self.is_fleeing() and self.creature_instance.movement_type == MovementTypes.WANDER:
             if len(self.movement_manager.pending_waypoints) == 0:
                 if now > self.last_random_movement + self.random_movement_wait_time:
                     self.movement_manager.move_random(self.spawn_position,
@@ -454,7 +515,7 @@ class CreatureManager(UnitManager):
             interactable_distance = UnitFormulas.interactable_distance(self, self.combat_target)
 
             # TODO: Find better formula?
-            combat_position_distance = interactable_distance * 0.5
+            combat_position_distance = interactable_distance * 0.6
 
             # If target is within combat distance, don't move but do check creature orientation.
             if current_distance <= combat_position_distance:
@@ -464,6 +525,9 @@ class CreatureManager(UnitManager):
                 return
 
             combat_location = self.combat_target.location.get_point_in_between(combat_position_distance, vector=self.location)
+
+            if not combat_location:
+                return
 
             # If already going to the correct spot, don't do anything.
             if len(self.movement_manager.pending_waypoints) > 0 and self.movement_manager.pending_waypoints[0].location == combat_location:
@@ -592,7 +656,6 @@ class CreatureManager(UnitManager):
     def set_weapon_mode(self, weapon_mode):
         super().set_weapon_mode(weapon_mode)
         self.bytes_2 = unpack('<I', pack('<4B', self.sheath_state, 0, 0, 0))[0]
-
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
     # override

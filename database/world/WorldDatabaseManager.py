@@ -307,35 +307,66 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+
+    # Quest stuff
+
     class QuestRelationHolder:
-        QUEST_STARTERS: [int, list[t_creature_quest_starter]] = {}
-        QUEST_FINISHERS = {}
+        QUEST_CREATURE_STARTERS: [int, list[t_creature_quest_starter]] = {}
+        QUEST_CREATURE_FINISHERS = {}
+        QUEST_GAMEOBJECT_STARTERS: [int, list[t_gameobject_quest_starter]] = {}
+        QUEST_GAMEOBJECT_FINISHERS = {}
 
         @staticmethod
         def load_creature_starter_quest(creature_quest_starter):
-            if creature_quest_starter.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_STARTERS:
-                WorldDatabaseManager.QuestRelationHolder.QUEST_STARTERS[creature_quest_starter.entry] = []
+            if creature_quest_starter.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_STARTERS:
+                WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_STARTERS[creature_quest_starter.entry] = []
 
-            WorldDatabaseManager.QuestRelationHolder.QUEST_STARTERS[creature_quest_starter.entry]\
+            WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_STARTERS[creature_quest_starter.entry]\
                 .append(creature_quest_starter)
 
         @staticmethod
         def load_creature_finisher_quest(creature_quest_finisher):
-            if creature_quest_finisher.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_FINISHERS:
-                WorldDatabaseManager.QuestRelationHolder.QUEST_FINISHERS[creature_quest_finisher.entry] = []
+            if creature_quest_finisher.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_FINISHERS:
+                WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_FINISHERS[creature_quest_finisher.entry] = []
 
-            WorldDatabaseManager.QuestRelationHolder.QUEST_FINISHERS[creature_quest_finisher.entry]\
+            WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_FINISHERS[creature_quest_finisher.entry]\
                 .append(creature_quest_finisher)
 
         @staticmethod
+        def load_gameobject_starter_quest(gameobject_quest_starter):
+            if gameobject_quest_starter.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS:
+                WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS[gameobject_quest_starter.entry] = []
+
+            WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS[gameobject_quest_starter.entry] \
+                .append(gameobject_quest_starter)
+
+        @staticmethod
+        def load_gameobject_finisher_quest(gameobject_quest_finisher):
+            if gameobject_quest_finisher.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS:
+                WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS[gameobject_quest_finisher.entry] = []
+
+            WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS[gameobject_quest_finisher.entry] \
+                .append(gameobject_quest_finisher)
+
+        @staticmethod
         def creature_quest_starter_get_by_entry(entry) -> list[t_creature_quest_starter]:
-            return WorldDatabaseManager.QuestRelationHolder.QUEST_STARTERS[entry] \
-                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_STARTERS else []
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_STARTERS[entry] \
+                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_STARTERS else []
 
         @staticmethod
         def creature_quest_finisher_get_by_entry(entry) -> list[t_creature_quest_finisher]:
-            return WorldDatabaseManager.QuestRelationHolder.QUEST_FINISHERS[entry] \
-                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_FINISHERS else []
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_FINISHERS[entry] \
+                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_FINISHERS else []
+
+        @staticmethod
+        def gameobject_quest_starter_get_by_entry(entry) -> list[t_gameobject_quest_starter]:
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS[entry] \
+                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS else []
+
+        @staticmethod
+        def gameobject_quest_finisher_get_by_entry(entry) -> list[t_gameobject_quest_finisher]:
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS[entry] \
+                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS else []
 
     @staticmethod
     def creature_quest_starter_get_all() -> list[t_creature_quest_starter]:
@@ -351,7 +382,27 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Quest stuff
+    @staticmethod
+    def gameobject_quest_starter_get_all() -> list[t_gameobject_quest_starter]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(t_gameobject_quest_starter).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def gameobject_quest_finisher_get_all() -> list[t_gameobject_quest_finisher]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(t_gameobject_quest_finisher).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def quest_template_get_all() -> list[QuestTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(QuestTemplate).filter_by(ignored=0).all()
+        world_db_session.close()
+        return res
+
 
     class QuestTemplateHolder:
         QUEST_TEMPLATES: dict[int, QuestTemplate] = {}
@@ -363,13 +414,6 @@ class WorldDatabaseManager(object):
         @staticmethod
         def quest_get_by_entry(entry) -> Optional[QuestTemplate]:
             return WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES.get(entry)
-
-    @staticmethod
-    def quest_template_get_all() -> list[QuestTemplate]:
-        world_db_session = SessionHolder()
-        res = world_db_session.query(QuestTemplate).filter_by(ignored=0).all()
-        world_db_session.close()
-        return res
 
     # Trainer stuff
 
