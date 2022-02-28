@@ -8,7 +8,8 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError
+from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError, ItemSubClasses, BagFamilies, \
+    ItemClasses
 from utils.constants.MiscCodes import BankSlots, ItemBondingTypes
 from utils.constants.UpdateFields import PlayerFields
 
@@ -343,23 +344,33 @@ class InventoryManager(object):
             self.remove_bag(target_slot)
 
     def remove_items(self, entry, count):
-        for container_slot, container in list(self.containers.items()):
-            if not container:
-                continue
+        for container_slot in self.containers:
+            count = self.remove_from_container(entry, count, container_slot)
             if count == 0:
                 break
-            for slot, item in list(container.sorted_slots.items()):
-                if item.item_template.entry == entry:
-                    if count < item.item_instance.stackcount:
-                        item.item_instance.stackcount -= count
-                        count = 0
-                        RealmDatabaseManager.character_inventory_update_item(item.item_instance)
-                        break
-                    elif count >= item.item_instance.stackcount:
-                        self.remove_item(container_slot, slot, True)
-                        count -= item.item_instance.stackcount
 
         return count  # Return the amount of items not removed
+
+    def remove_from_container(self, item_entry, item_count, container_slot):
+        if item_count == 0:
+            return 0
+
+        target_container = self.get_container(container_slot)
+        if not target_container:
+            return item_count
+
+        for slot, item in list(target_container.sorted_slots.items()):
+            if item.item_template.entry == item_entry:
+                if item_count < item.item_instance.stackcount:
+                    item.item_instance.stackcount -= item_count
+                    item_count = 0
+                    RealmDatabaseManager.character_inventory_update_item(item.item_instance)
+                    break
+                elif item_count >= item.item_instance.stackcount:
+                    self.remove_item(container_slot, slot, True)
+                    item_count -= item.item_instance.stackcount
+
+        return item_count  # Return the amount of items not removed
 
     def get_item_info_by_guid(self, guid):
         for container_slot, container in list(self.containers.items()):
@@ -638,6 +649,33 @@ class InventoryManager(object):
 
     def get_ranged(self):
         return self.get_backpack().get_item(InventorySlots.SLOT_RANGED)
+
+    def get_bag_slot_for_ammo(self, ammo_type):
+        # 0.9 patch notes imply that previously an ammo pouch or quiver was required to spend ammo.
+        # ... ... Ammo will be fired from a quiver, ammo pouch, or any other bag.
+        # Quivers and ammo pouches **are no longer required.**
+        # The client also does not allow any ranged casts without the required ammo pouch/quiver.
+        for slot, container in self.containers.items():
+            if not container or container.is_backpack:
+                continue
+
+            container_class = container.item_template.class_
+            container_subclass = container.item_template.subclass
+
+            if container_class != ItemClasses.ITEM_CLASS_QUIVER:
+                continue
+
+            if ammo_type == ItemSubClasses.ITEM_SUBCLASS_ARROW:
+                if container_subclass == ItemSubClasses.ITEM_SUBCLASS_QUIVER:
+                    return slot
+                continue
+
+            # Must be bullets.
+            if container_subclass == ItemSubClasses.ITEM_SUBCLASS_BULLET:
+                return slot
+            continue
+
+        return -1
 
     def has_main_weapon(self):
         item = self.get_main_hand()

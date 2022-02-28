@@ -545,7 +545,7 @@ class UnitManager(ObjectManager):
             damage_info.hit_info = HitInfo.MISS
             damage_info.proc_victim |= ProcFlags.NONE
 
-        if casting_spell.casts_on_swing():  # TODO Should other spells give skill too?
+        if casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack():  # TODO Should other spells give skill too?
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 

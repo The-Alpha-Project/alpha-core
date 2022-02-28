@@ -11,7 +11,8 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import ObjectTypes
+from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
+from utils.constants.MiscCodes import ObjectTypes, AttackTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellEffects, SpellInterruptFlags
@@ -39,6 +40,7 @@ class CastingSpell(object):
     caster_effective_level: int
 
     spell_attack_type: int
+    used_ranged_attack_item: ItemManager  # Ammo or thrown.
 
     def __init__(self, spell, caster_obj, initial_target, target_mask, source_item=None, triggered=False):
         self.spell_entry = spell
@@ -54,7 +56,12 @@ class CastingSpell(object):
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
         self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
 
-        self.spell_attack_type = -1  # Assigned on cast TODO Next ranged spells
+        # Resolve the weapon required for the spell.
+        self.spell_attack_type = -1
+        # Item target casts (enchants) have target item info in equipment requirements - ignore.
+        if spell.EquippedItemClass == ItemClasses.ITEM_CLASS_WEAPON and not self.initial_target_is_item():
+            self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged_weapon_attack() else AttackTypes.BASE_ATTACK
+
         self.cast_state = SpellState.SPELL_STATE_PREPARING
         self.spell_impact_timestamps = {}
 
@@ -63,7 +70,12 @@ class CastingSpell(object):
 
         self.load_effects()
 
-        self.cast_flags = SpellCastFlags.CAST_FLAG_NONE  # TODO Ammo/proc flag
+        self.cast_flags = SpellCastFlags.CAST_FLAG_NONE
+
+        # Ammo needs to be resolved on initialization since it's needed for validation and spell cast packets.
+        self.used_ranged_attack_item = self.get_ammo_for_cast()
+        if self.used_ranged_attack_item:
+            self.cast_flags |= SpellCastFlags.CAST_FLAG_HAS_AMMO
 
     def initial_target_is_object(self):
         return isinstance(self.initial_target, ObjectManager)
@@ -117,11 +129,42 @@ class CastingSpell(object):
         effect_info = effect.targets.get_effect_target_miss_results()
         self.object_target_results = {**self.object_target_results, **effect_info}
 
-    def is_instant_cast(self):
-        return not self.cast_time_entry or self.cast_time_entry.Base <= 0  # One entry has negative (-1000000) base cast time and should be instant.
+    def get_ammo_for_cast(self) -> Optional[ItemManager]:
+        if not self.is_ranged_weapon_attack():
+            return None
 
-    def is_ranged(self):
-        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_RANGED == SpellAttributes.SPELL_ATTR_RANGED
+        if self.spell_caster.get_type() != ObjectTypes.TYPE_PLAYER:
+            return None  # TODO Ammo type resolving for other units.
+
+        equipped_weapon = self.spell_caster.get_weapon_for_attack_type(AttackTypes.RANGED_ATTACK)
+
+        if not equipped_weapon:
+            return None
+
+        required_ammo = equipped_weapon.item_template.ammo_type
+
+        ranged_attack_item = equipped_weapon  # Default to the weapon used to account for thrown weapon case.
+        if required_ammo in [ItemSubClasses.ITEM_SUBCLASS_ARROW, ItemSubClasses.ITEM_SUBCLASS_BULLET]:
+            target_bag_slot = self.spell_caster.inventory.get_bag_slot_for_ammo(required_ammo)
+            if target_bag_slot == -1:
+                return None  # No ammo pouch/quiver.
+
+            target_bag = self.spell_caster.inventory.get_container(target_bag_slot)
+            target_ammo = next(iter(target_bag.sorted_slots.values()), None)  # Get first item in bag.
+            if not target_ammo:
+                return None  # No required ammo.
+
+            ranged_attack_item = target_ammo
+
+        return ranged_attack_item
+
+    def is_instant_cast(self):
+        # Due to auto shot not existing yet,
+        # ranged attacks are handled like regular spells with cast time despite having no cast time.
+        if self.casts_on_ranged_attack():
+            return False
+
+        return not self.cast_time_entry or self.cast_time_entry.Base <= 0
 
     def is_passive(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE == SpellAttributes.SPELL_ATTR_PASSIVE
@@ -154,6 +197,25 @@ class CastingSpell(object):
     def casts_on_swing(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 == SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1
 
+    def casts_on_ranged_attack(self):
+        # Quick Shot has a negative base cast time (-1000000), which will resolve to 0 in get_base_cast_time().
+        # Ranged attacks occurring on next ranged have a base cast time of 0.
+        if not self.cast_time_entry or self.cast_time_entry.Base < 0:
+            return False  # No entry or Quick Shot.
+
+        # All instant ranged attacks are by default next ranged.
+        return self.is_ranged_weapon_attack() and self.cast_time_entry.Base == 0
+
+    def is_ranged_weapon_attack(self):
+        if self.spell_entry.EquippedItemClass != ItemClasses.ITEM_CLASS_WEAPON:
+            return False
+
+        ranged_mask = (1 << ItemSubClasses.ITEM_SUBCLASS_GUN) | \
+                      (1 << ItemSubClasses.ITEM_SUBCLASS_BOW) | \
+                      (1 << ItemSubClasses.ITEM_SUBCLASS_THROWN)
+
+        return self.spell_entry.EquippedItemSubclass & ranged_mask != 0
+
     def requires_combo_points(self):
         cp_att = SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS
         return self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and \
@@ -175,13 +237,21 @@ class CastingSpell(object):
     def get_base_cast_time(self):
         if self.is_instant_cast():
             return 0
-        skill = None
+
+        skill = 0
         if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER:
             skill = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
-        if not skill:
-            return self.cast_time_entry.Minimum
 
-        return int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill))
+        cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill))
+
+        if self.is_ranged_weapon_attack():
+            # Ranged attack tooltips are unfinished, so this is partially a guess.
+            # All ranged attacks without delay seem to say "next ranged".
+            # Ranged attacks with delay (cast time) say "attack speed + X (delay) sec".
+            ranged_delay = self.spell_caster.stat_manager.get_total_stat(UnitStats.RANGED_DELAY)
+            cast_time += ranged_delay
+
+        return max(0, cast_time)
 
     def get_resource_cost(self):
         mana_cost = self.spell_entry.ManaCost

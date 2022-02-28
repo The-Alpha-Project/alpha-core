@@ -418,7 +418,7 @@ class SkillManager(object):
     def get_skill_value_for_spell_id(self, spell_id):
         skill = self.get_skill_for_spell_id(spell_id)
         if not skill or skill.ID not in self.skills:
-            return None
+            return 0
 
         return self.get_total_skill_value(skill.ID)
 
