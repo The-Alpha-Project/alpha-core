@@ -1,5 +1,4 @@
 from struct import unpack
-
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager

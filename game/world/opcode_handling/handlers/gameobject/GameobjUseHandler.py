@@ -14,6 +14,6 @@ class GameobjUseHandler(object):
                 gobject = MapManager.get_surrounding_gameobject_by_guid(world_session.player_mgr, guid)
                 if gobject:
                     if gobject.gobject_template.type != GameObjectTypes.TYPE_GENERIC:
-                        gobject.use(world_session.player_mgr)
+                        gobject.use(world_session.player_mgr, target=gobject)
 
         return 0

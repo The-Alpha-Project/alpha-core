@@ -9,6 +9,7 @@ from game.world.managers.objects.units.creature.CreatureManager import CreatureM
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
+from utils.constants.MiscCodes import EnvironmentalDamageSource
 from utils.Logger import Logger
 
 
@@ -24,6 +25,8 @@ class WorldLoader:
         if config.Server.Settings.load_gameobjects:
             WorldLoader.load_gameobjects()
             WorldLoader.load_gameobject_loot_templates()
+            WorldLoader.load_gameobject_quest_starters()
+            WorldLoader.load_gameobject_quest_finishers()
         else:
             Logger.info('Skipped game object loading.')
 
@@ -66,17 +69,50 @@ class WorldLoader:
         length = len(gobject_spawns)
         count = 0
 
-        for gobject in gobject_spawns:
-            if gobject.gameobject:
+        for gobject_spawn in gobject_spawns:
+            if gobject_spawn.gameobject:
                 gobject_mgr = GameObjectManager(
-                    gobject_template=gobject.gameobject,
-                    gobject_instance=gobject
+                    gobject_template=gobject_spawn.gameobject,
+                    gobject_instance=gobject_spawn
                 )
                 gobject_mgr.load()
+
+                # If this go has environmental damage, add its collision detection to MapManager.
+                if gobject_mgr.has_environmental_damage():
+                    MapManager.add_environmental_collision(gobject_mgr)
+
             count += 1
             Logger.progress('Spawning gameobjects...', count, length)
 
         session.close()
+        return length
+
+    @staticmethod
+    def load_gameobject_quest_starters():
+        gameobject_quest_starters = WorldDatabaseManager.gameobject_quest_starter_get_all()
+        length = len(gameobject_quest_starters)
+        count = 0
+
+        for gameobject_quest_starter in gameobject_quest_starters:
+            WorldDatabaseManager.QuestRelationHolder.load_gameobject_starter_quest(gameobject_quest_starter)
+
+            count += 1
+            Logger.progress('Loading gameobject quest starters...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_gameobject_quest_finishers():
+        gameobject_quest_finishers = WorldDatabaseManager.gameobject_quest_finisher_get_all()
+        length = len(gameobject_quest_finishers)
+        count = 0
+
+        for gameobject_quest_finisher in gameobject_quest_finishers:
+            WorldDatabaseManager.QuestRelationHolder.load_gameobject_finisher_quest(gameobject_quest_finisher)
+
+            count += 1
+            Logger.progress('Loading gameobject quest finishers...', count, length)
+
         return length
 
     @staticmethod

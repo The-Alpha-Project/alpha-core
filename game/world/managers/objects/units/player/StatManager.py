@@ -500,6 +500,10 @@ class StatManager(object):
     def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0):
         # TODO Based on vanilla calculations.
 
+        # Fleeing, return miss and handle on calling method.
+        if self.unit_mgr.is_fleeing():
+            return HitInfo.MISS
+
         if attacker.get_type() == ObjectTypes.TYPE_PLAYER:
             attack_weapon = attacker.get_weapon_for_attack_type(attack_type)
             attack_weapon_template = attack_weapon.item_template if attack_weapon is not None else None

@@ -72,6 +72,13 @@ class SpellManager(object):
             if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
                 self.apply_passive_spell_effects(spell_template)
 
+    def apply_cast_when_learned_spells(self):
+        # Cast any spell with SPELL_ATTR_EX_CAST_WHEN_LEARNED flag on player.
+        for spell_id in self.spells.keys():
+            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if spell_template and spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
+                self.start_spell_cast(spell_template, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF)
+
     def apply_passive_spell_effects(self, spell_template):
         if spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
             spell = self.try_initialize_spell(spell_template, self.unit_mgr, self.unit_mgr, SpellTargetMask.SELF,
@@ -237,7 +244,8 @@ class SpellManager(object):
                     continue
                 if ObjectTypes.TYPE_UNIT in target.object_type:
                     target.aura_manager.check_aura_procs(involved_cast=casting_spell)
-                casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
+                if casting_spell.spell_caster.get_type() != ObjectTypes.TYPE_GAMEOBJECT:
+                    casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
                 applied_targets.append(target.guid)
 
     def cast_queued_melee_ability(self, attack_type) -> bool:

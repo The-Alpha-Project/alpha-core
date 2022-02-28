@@ -1,5 +1,6 @@
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas

@@ -730,13 +730,6 @@ class Worldports(Base):
     name = Column(String(255), nullable=False, server_default=text("''"))
 
 
-t_creature_quest_finisher = Table(
-    'creature_quest_finisher', metadata,
-    Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
-    Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
-)
-
-
 class CreatureLootTemplate(Base):
     __tablename__ = 'creature_loot_template'
 
@@ -754,6 +747,27 @@ class CreatureLootTemplate(Base):
 
 t_creature_quest_starter = Table(
     'creature_quest_starter', metadata,
+    Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
+    Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
+)
+
+
+t_creature_quest_finisher = Table(
+    'creature_quest_finisher', metadata,
+    Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
+    Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
+)
+
+
+t_gameobject_quest_starter = Table(
+    'gameobject_questrelation', metadata,
+    Column('entry', ForeignKey('gameobject_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
+    Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
+)
+
+
+t_gameobject_quest_finisher = Table(
+    'gameobject_involvedrelation', metadata,
     Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
     Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
 )
@@ -920,6 +934,9 @@ class SpawnsCreatures(Base):
     visibility_mod = Column(Float, server_default=text("'0'"))
     ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
+    addon_template = relationship('CreatureAddonTemplate', foreign_keys='CreatureAddonTemplate.guid',
+                                  primaryjoin='SpawnsCreatures.spawn_id == CreatureAddonTemplate.guid',
+                                  lazy='joined', uselist=False)
     creature_template = relationship('CreatureTemplate', backref='CreatureTemplate', lazy='joined')
     npc_text = relationship('NpcText', secondary='npc_gossip')
 
@@ -946,7 +963,7 @@ class SpawnsGameobjects(Base):
     spawn_visibility_mod = Column(Float, nullable=True, server_default=text("'0'"))
     ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
-    gameobject = relationship('GameobjectTemplate')
+    gameobject = relationship('GameobjectTemplate', lazy='joined')
 
 
 class NpcGossip(Base):
@@ -971,3 +988,16 @@ class CreatureEquipTemplate(Base):
     equipentry1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     equipentry2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     equipentry3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+
+class CreatureAddonTemplate(Base):
+    __tablename__ = 'creature_addon'
+
+    guid = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
+    display_id = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    mount_display_id = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    equipment_id = Column(INTEGER(11), nullable=False, server_default=text("'-1'"))
+    stand_state = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    sheath_state = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
+    emote_state = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    auras = Column(Text)

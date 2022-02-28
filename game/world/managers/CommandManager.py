@@ -110,7 +110,7 @@ class CommandManager(object):
                   f'X: {world_session.player_mgr.location.x:.3f}, ' \
                   f'Y: {world_session.player_mgr.location.y:.3f}, ' \
                   f'Z: {world_session.player_mgr.location.z:.3f}, ' \
-                  f'MapZ: {MapManager.calculate_z_for_object(world_session.player_mgr):.3f}, ' \
+                  f'MapZ: {MapManager.calculate_z_for_object(world_session.player_mgr)[0]:.3f}, ' \
                   f'O: {world_session.player_mgr.location.o:.3f}'
 
     @staticmethod

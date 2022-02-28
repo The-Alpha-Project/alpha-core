@@ -53,20 +53,10 @@ class MovementHandler(object):
                     world_session.player_mgr.movement_spline = MovementManager.MovementSpline.from_bytes(
                         reader.data[48:])
 
-                movement_data = pack(f'<Q{len(reader.data)}s',
-                                     world_session.player_mgr.guid,
-                                     reader.data)
-
+                # Broadcast player movement to surroundings.
+                movement_data = pack(f'<Q{len(reader.data)}s', world_session.player_mgr.guid, reader.data)
                 movement_packet = PacketWriter.get_packet(OpCode(reader.opcode), movement_data)
                 MapManager.send_surrounding(movement_packet, world_session.player_mgr, include_self=False)
-                MapManager.update_object(world_session.player_mgr)
-                world_session.player_mgr.sync_player()
-
-                # Update player swimming state.
-                if world_session.player_mgr.is_swimming() and not world_session.player_mgr.liquid_information:
-                    world_session.player_mgr.update_swimming_state(True)
-                elif not world_session.player_mgr.is_swimming() and world_session.player_mgr.liquid_information:
-                    world_session.player_mgr.update_swimming_state(False)
 
                 # Get up if you jump while not standing.
                 if reader.opcode == OpCode.MSG_MOVE_JUMP and \

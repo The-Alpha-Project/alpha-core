@@ -82,6 +82,7 @@ class PlayerLoginHandler(object):
         # Passive spells contain skill and proficiency learning.
         # Perform passive spell casts after loading skills to avoid duplicate database entries.
         world_session.player_mgr.spell_manager.cast_passive_spells()
+        world_session.player_mgr.spell_manager.apply_cast_when_learned_spells()
         world_session.player_mgr.skill_manager.init_proficiencies()
 
         world_session.player_mgr.quest_manager.load_quests()

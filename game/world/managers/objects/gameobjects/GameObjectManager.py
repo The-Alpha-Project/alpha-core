@@ -9,11 +9,12 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager, SpawnsGameobjects
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.maps.EnvironmentalDamageObject import EnvironmentalDamageObject
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, GameObjectTypes, \
-    GameObjectStates
+    GameObjectStates, EnvironmentalDamageSource
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import StandState
@@ -22,6 +23,7 @@ from utils.constants.UpdateFields import ObjectFields, GameObjectFields
 
 class GameObjectManager(ObjectManager):
     CURRENT_HIGHEST_GUID = 0
+    ENVIRONMENTAL_SOURCES = {}
 
     def __init__(self,
                  gobject_template,
@@ -35,6 +37,7 @@ class GameObjectManager(ObjectManager):
         self.is_summon = is_summon
 
         if self.gobject_template:
+            self.level = 0 # Used only by SpellManager
             self.entry = self.gobject_template.entry
             self.native_display_id = self.gobject_template.display_id
             self.current_display_id = self.native_display_id
@@ -71,8 +74,34 @@ class GameObjectManager(ObjectManager):
             self.ritual_caster = None
             self.ritual_participants = []
 
+        # Environmental spell damage.
+        if self.has_environmental_damage():
+            self.environmental_damage_objects = []
+            self.generate_environmental_detection()
+
     def load(self):
         MapManager.update_object(self)
+
+    def has_environmental_damage(self):
+        # Check fire sources for now.
+        return self.gobject_template.data2 == EnvironmentalDamageSource.BONEFIRE or self.gobject_template.data2 == EnvironmentalDamageSource.CAMPFIRE
+
+    # Generate collision objects which MapManager will then use.
+    def generate_environmental_detection(self):
+        x = MapManager.validate_map_coord(self.location.x)
+        y = MapManager.validate_map_coord(self.location.y)
+        z = self.location.z
+
+        # Template data2 either point to 'Campfire Damage' or 'BoneFire Damage' game objects.
+        damage_source = self.gobject_template.data2
+        if damage_source not in GameObjectManager.ENVIRONMENTAL_SOURCES:
+            # Cache this damage templates for reusing.
+            GameObjectManager.ENVIRONMENTAL_SOURCES[damage_source] = WorldDatabaseManager.gameobject_template_get_by_entry(damage_source)[0]
+
+        # Grab the damage radius and the spell_id and create our damage object.
+        radius = GameObjectManager.ENVIRONMENTAL_SOURCES[damage_source].data2
+        spell_id = GameObjectManager.ENVIRONMENTAL_SOURCES[damage_source].data3
+        self.environmental_damage_objects.append(EnvironmentalDamageObject(self, damage_source, spell_id, x, y, z, radius))
 
     @staticmethod
     def spawn(entry, location, map_id, override_faction=0, despawn_time=1):
@@ -148,6 +177,10 @@ class GameObjectManager(ObjectManager):
             player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o), is_instant=True)
             player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
+    def _handle_use_quest_giver(self, player, target):
+        if target:
+            player.quest_manager.handle_quest_giver_hello(target, target.guid)
+
     def _handle_use_chest(self, player):
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.state == GameObjectStates.GO_STATE_READY:
@@ -194,10 +227,30 @@ class GameObjectManager(ObjectManager):
             else:
                 self.ritual_caster.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
 
+    # TODO, Should use Gameobject spell manager.
+    def trigger_fire_damage(self, environment_damage_object, unit):
+        spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(environment_damage_object.spell_id)
+        initialized_spell = unit.spell_manager.try_initialize_spell(spell=spell_to_cast,
+                                                                    caster_obj=environment_damage_object.world_object,
+                                                                    spell_target=unit,
+                                                                    target_mask=SpellTargetMask.CAN_TARGET_UNITS,
+                                                                    validate=False)
+        unit.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
+
+    # TODO, Added just to make SpellManager work with GO's as casters.
+    def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
+        damage_info = target.get_spell_cast_damage_info(target, casting_spell, damage, 0)
+        target.send_spell_cast_debug_info(damage_info, 0, casting_spell.spell_entry.ID, is_periodic=is_periodic)
+        target.deal_damage(target, damage, is_periodic)
+
+    # TODO, Added just to make SpellManager work with GO's as casters.
+    def can_attack_target(self, unit):
+        return True
+
     def _handle_use_goober(self, player):
         pass
 
-    def use(self, player):
+    def use(self, player, target=None):
         if self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
             self._handle_use_door(player)
         if self.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
@@ -212,6 +265,8 @@ class GameObjectManager(ObjectManager):
             self._handle_use_ritual(player)
         elif self.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
             self._handle_use_goober(player)
+        elif self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
+            self._handle_use_quest_giver(player, target)
 
     def set_state(self, state):
         self.state = state
@@ -264,10 +319,11 @@ class GameObjectManager(ObjectManager):
 
     def generate_dynamic_field_value(self, requester):
         # TODO: Handle more dynamic cases.
-        # CHEST (This includes other interactive game objects).
-        if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
-            if requester.quest_manager.should_interact_with_go(self):
-                return pack('<I', 1)
+        # QUESTGIVERS and CHESTS (This includes other interactive game objects).
+        if self.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
+                self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
+             if requester.quest_manager.should_interact_with_go(self):
+                 return pack('<I', 1)
         return pack('<I', 0)
 
     # override
@@ -341,6 +397,12 @@ class GameObjectManager(ObjectManager):
             elapsed = now - self.last_tick
 
             if self.is_spawned:
+                # Check if we need to trigger environmental damage.
+                if self.has_environmental_damage():
+                    for environmental_object in self.environmental_damage_objects:
+                        if len(environmental_object.participants) > 0:
+                            self.trigger_fire_damage(environmental_object, environmental_object.participants[0])
+
                 # Check if this game object should be updated yet or not.
                 if self.has_pending_updates():
                     MapManager.update_object(self, check_pending_changes=True)

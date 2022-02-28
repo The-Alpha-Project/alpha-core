@@ -78,7 +78,7 @@ class SpellEffectHandler(object):
     def handle_open_lock(casting_spell, effect, caster, target):
         # TODO Skill checks etc.
         if caster and target and target.get_type() == ObjectTypes.TYPE_GAMEOBJECT:  # TODO other object types, ie. lockboxes
-            target.use(caster)
+            target.use(caster, target)
             caster.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
             caster.set_uint32(UnitFields.UNIT_FIELD_FLAGS, caster.unit_flags)
 

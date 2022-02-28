@@ -1,11 +1,15 @@
 import traceback
+import math
 import _queue
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
+from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS, \
+    RESOLUTION_ENVIRONMENTAL
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config
 from utils.Logger import Logger
+
 
 MAPS = {}
 MAP_LIST = DbcDatabaseManager.map_get_all_ids()
@@ -13,6 +17,7 @@ AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
 PENDING_LOAD = {}
 PENDING_LOAD_QUEUE = _queue.SimpleQueue()
+ENVIRONMENTAL_COLLISION = {}
 
 
 # noinspection PyBroadException
@@ -75,7 +80,7 @@ class MapManager(object):
         while True:
             key = PENDING_LOAD_QUEUE.get(block=True, timeout=None)
             map_id, x, y = str(key).rsplit(',')
-            MapManager.load_map_tiles(map_id, x, y)
+            MapManager.load_map_tiles(int(map_id), int(x), int(y))
 
     @staticmethod
     def load_map_tiles(map_id, x, y):
@@ -96,6 +101,25 @@ class MapManager(object):
                         MAPS[map_id].tiles[x + i][y + j] = MapTile(map_id, x + i, y + j)
 
         return True
+
+    @staticmethod
+    # Store environmental collision objects given a gameobject.
+    def add_environmental_collision(gameobject):
+        x = MapManager.validate_map_coord(gameobject.location.x)
+        y = MapManager.validate_map_coord(gameobject.location.y)
+
+        key = MapManager.get_go_spawn_key(gameobject.map_, x, y)
+        if key not in ENVIRONMENTAL_COLLISION:
+            ENVIRONMENTAL_COLLISION[key] = []
+
+        # Add all collision objects residing within the gameobject.
+        for env_collision_object in gameobject.environmental_damage_objects:
+            ENVIRONMENTAL_COLLISION[key].append(env_collision_object)
+
+    @staticmethod
+    def get_go_spawn_key(map_id, x, y):
+        tile_x, tile_y, local_x, local_y = MapManager.calculate_tile(x, y, RESOLUTION_ENVIRONMENTAL)
+        return f'{map_id}{tile_x}{tile_y}{local_x}{local_y}'
 
     @staticmethod
     def get_tile(x, y):
@@ -153,14 +177,14 @@ class MapManager(object):
 
     # noinspection PyBroadException
     @staticmethod
-    def calculate_z(map_id, x, y, current_z=0.0):
+    def calculate_z(map_id, x, y, current_z=0.0) -> tuple: # float, z_protected (Could not use map files Z)
         try:
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, (RESOLUTION_ZMAP - 1))
             x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / SIZE) - map_tile_x) - tile_local_x
             y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / SIZE) - map_tile_y) - tile_local_y
 
             if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
-                return current_z if current_z else 0.0
+                return current_z if current_z else 0.0, False
 
             try:
                 val_1 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x, tile_local_y)
@@ -169,12 +193,16 @@ class MapManager(object):
                 val_3 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x, tile_local_y + 1)
                 val_4 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x + 1, tile_local_y + 1)
                 bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
-                return MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
+                calculated_z = MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
+                # TODO, Protect against wrong maps Z due WMO's.
+                if math.fabs(current_z - calculated_z) > 1.5 and current_z:
+                    return current_z, True
+                return calculated_z, False
             except:
-                return MAPS[map_id].tiles[map_tile_x][map_tile_y].z_height_map[tile_local_x][tile_local_x]
+                return MAPS[map_id].tiles[map_tile_x][map_tile_y].z_height_map[tile_local_x][tile_local_x], False
         except:
             Logger.error(traceback.format_exc())
-            return current_z if current_z else 0.0
+            return current_z if current_z else 0.0, False
 
     @staticmethod
     def get_area_information(map_id, x, y):
@@ -185,6 +213,29 @@ class MapManager(object):
                 return None
 
             return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_information[tile_local_x][tile_local_y]
+        except:
+            Logger.error(traceback.format_exc())
+            return None
+
+    @staticmethod
+    # Return an Environmental damage object if collision detected.
+    def get_environmental_damage(map_id, vector):
+        try:
+            x = MapManager.validate_map_coord(vector.x)
+            y = MapManager.validate_map_coord(vector.y)
+            z = vector.z
+            collision_key = MapManager.get_go_spawn_key(map_id, x, y)
+
+            if collision_key not in ENVIRONMENTAL_COLLISION:
+                return None
+
+            for environmental_collision in ENVIRONMENTAL_COLLISION[collision_key]:
+                if environmental_collision.x_min <= x <= environmental_collision.x_max and \
+                        environmental_collision.y_min <= y <= environmental_collision.y_max and \
+                        environmental_collision.z_min <= z <= environmental_collision.z_max:
+                    return environmental_collision
+
+            return None
         except:
             Logger.error(traceback.format_exc())
             return None
@@ -298,7 +349,10 @@ class MapManager(object):
             old_grid_manager = None
 
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
-        grid_manager.update_object(world_object, old_grid_manager, check_pending_changes=check_pending_changes)
+        if grid_manager:
+            grid_manager.update_object(world_object, old_grid_manager, check_pending_changes=check_pending_changes)
+        else:
+            print(f'Warning, did not find grid_manager for map: {world_object.map_}')
 
     @staticmethod
     def remove_object(world_object):
