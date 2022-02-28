@@ -1,7 +1,7 @@
 class EnvironmentalDamageObject(object):
     def __init__(self, world_object, damage_source, spell_id, x, y, z, radius):
         self.world_object = world_object
-        self.damage_source = damage_source # EnvironmentalDamageSource IntEnum
+        self.damage_source = damage_source  # EnvironmentalDamageSource IntEnum
         self.spell_id = spell_id
         self.participants = []
         self.x_min = x - (radius / 2)

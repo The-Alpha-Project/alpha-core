@@ -1388,7 +1388,6 @@ class PlayerManager(UnitManager):
 
     # override
     def update(self, now):
-
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 

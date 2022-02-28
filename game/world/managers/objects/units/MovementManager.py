@@ -63,7 +63,7 @@ class MovementManager(object):
                 self.unit.location.z = new_position.z
                 MapManager.update_object(self.unit)
 
-                # TODO, below logic should be removed once we have some kind of navmesh.
+                # TODO: Logic below should be removed once we have some kind of navmesh.
                 #  this temporarily allows units to return without getting stuck in walls forever.
                 # Append combat movements so this unit can use them to return to spawn point if fleeing.
                 if not self.is_player and self.unit.in_combat and not self.unit.is_fleeing():
@@ -260,7 +260,7 @@ class MovementManager(object):
         random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
         # TODO: Below check might not be needed once better path finding is implemented
         # Don't move if we were unable to calculate new Z by using map files.
-        if random_point.z_protected:
+        if random_point.z_locked:
             return
 
         # Don't move if the destination is not an active cell.

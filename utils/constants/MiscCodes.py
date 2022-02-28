@@ -826,7 +826,7 @@ class ActivateTaxiReplies(IntEnum):
 class EnvironmentalDamageSource(IntEnum):
     NONE = 0
     CAMPFIRE = 2061
-    BONEFIRE = 2066
+    BONFIRE = 2066
 
 
 class EnvironmentalDamageTypes(IntEnum):

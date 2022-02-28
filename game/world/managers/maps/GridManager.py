@@ -199,7 +199,7 @@ class GridManager(object):
 
         for cell in self.get_surrounding_cells_by_object(world_object):
             if ObjectTypes.TYPE_PLAYER in object_types:
-                surrounding_objects[players_index] = { **surrounding_objects[players_index], **cell.players}
+                surrounding_objects[players_index] = {**surrounding_objects[players_index], **cell.players}
             if ObjectTypes.TYPE_UNIT in object_types:
                 surrounding_objects[creatures_index] = {**surrounding_objects[creatures_index], **cell.creatures}
             if ObjectTypes.TYPE_GAMEOBJECT in object_types:

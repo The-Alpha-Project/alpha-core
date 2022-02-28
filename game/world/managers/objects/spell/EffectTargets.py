@@ -45,14 +45,13 @@ class EffectTargets:
     def get_simple_targets(self) -> dict[SpellImplicitTargets, list[Union[ObjectManager, Vector]]]:
         caster = self.casting_spell.spell_caster
         caster_is_player = caster.get_type() == ObjectTypes.TYPE_PLAYER
+        caster_is_gameobject = caster.get_type() == ObjectTypes.TYPE_GAMEOBJECT
 
         target_is_player = self.casting_spell.initial_target_is_player()
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
         target_is_item = self.casting_spell.initial_target_is_item()
 
-        caster_is_gameobect = caster.get_type() == ObjectTypes.TYPE_GAMEOBJECT
-
-        target_is_friendly = not caster_is_gameobect and self.casting_spell.initial_target_is_unit_or_player() and not \
+        target_is_friendly = not caster_is_gameobject and self.casting_spell.initial_target_is_unit_or_player() and not \
             caster.can_attack_target(self.casting_spell.initial_target)
 
         return {

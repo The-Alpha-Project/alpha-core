@@ -37,7 +37,7 @@ class GameObjectManager(ObjectManager):
         self.is_summon = is_summon
 
         if self.gobject_template:
-            self.level = 0 # Used only by SpellManager
+            self.level = 0  # Used only by SpellManager
             self.entry = self.gobject_template.entry
             self.native_display_id = self.gobject_template.display_id
             self.current_display_id = self.native_display_id
@@ -84,7 +84,7 @@ class GameObjectManager(ObjectManager):
 
     def has_environmental_damage(self):
         # Check fire sources for now.
-        return self.gobject_template.data2 == EnvironmentalDamageSource.BONEFIRE or self.gobject_template.data2 == EnvironmentalDamageSource.CAMPFIRE
+        return self.gobject_template.data2 == EnvironmentalDamageSource.BONFIRE or self.gobject_template.data2 == EnvironmentalDamageSource.CAMPFIRE
 
     # Generate collision objects which MapManager will then use.
     def generate_environmental_detection(self):
@@ -92,13 +92,13 @@ class GameObjectManager(ObjectManager):
         y = MapManager.validate_map_coord(self.location.y)
         z = self.location.z
 
-        # Template data2 either point to 'Campfire Damage' or 'BoneFire Damage' game objects.
+        # Template data2 either points to 'Campfire Damage' or 'Bonfire Damage' game objects.
         damage_source = self.gobject_template.data2
         if damage_source not in GameObjectManager.ENVIRONMENTAL_SOURCES:
             # Cache this damage templates for reusing.
             GameObjectManager.ENVIRONMENTAL_SOURCES[damage_source] = WorldDatabaseManager.gameobject_template_get_by_entry(damage_source)[0]
 
-        # Grab the damage radius and the spell_id and create our damage object.
+        # Grab the damage radius and the spell_id and create the damage object.
         radius = GameObjectManager.ENVIRONMENTAL_SOURCES[damage_source].data2
         spell_id = GameObjectManager.ENVIRONMENTAL_SOURCES[damage_source].data3
         self.environmental_damage_objects.append(EnvironmentalDamageObject(self, damage_source, spell_id, x, y, z, radius))
@@ -227,7 +227,7 @@ class GameObjectManager(ObjectManager):
             else:
                 self.ritual_caster.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
 
-    # TODO, Should use Gameobject spell manager.
+    # TODO: Should use Gameobject spell manager.
     def trigger_fire_damage(self, environment_damage_object, unit):
         spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(environment_damage_object.spell_id)
         initialized_spell = unit.spell_manager.try_initialize_spell(spell=spell_to_cast,
@@ -237,14 +237,16 @@ class GameObjectManager(ObjectManager):
                                                                     validate=False)
         unit.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
 
-    # TODO, Added just to make SpellManager work with GO's as casters.
+    # TODO: Added just to make SpellManager work with gameobjects as casters.
+    # noinspection PyMethodMayBeStatic
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         damage_info = target.get_spell_cast_damage_info(target, casting_spell, damage, 0)
         target.send_spell_cast_debug_info(damage_info, 0, casting_spell.spell_entry.ID, is_periodic=is_periodic)
         target.deal_damage(target, damage, is_periodic)
 
-    # TODO, Added just to make SpellManager work with GO's as casters.
-    def can_attack_target(self, unit):
+    # TODO: Added just to make SpellManager work with gameobjects as casters.
+    # noinspection PyMethodMayBeStatic
+    def can_attack_target(self, target):
         return True
 
     def _handle_use_goober(self, player):
