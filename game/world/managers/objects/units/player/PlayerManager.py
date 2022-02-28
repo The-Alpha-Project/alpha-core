@@ -1,5 +1,4 @@
 import math
-import time
 from struct import unpack
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
@@ -22,16 +21,14 @@ from game.world.managers.objects.timers.MirrorTimersManager import MirrorTimersM
 from game.world.managers.objects.units.player.taxi.TaxiManager import TaxiManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
-from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils import Formulas
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
-from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, EnvironmentalDamageSource, \
-    EnvironmentalDamageTypes
+from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
-from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools, SpellTargetMask
+from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
 from utils.constants.UpdateFields import *
 
