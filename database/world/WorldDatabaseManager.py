@@ -185,10 +185,11 @@ class WorldDatabaseManager(object):
         return res, world_db_session
 
     @staticmethod
-    def gameobject_template_get_by_entry(entry) -> [Optional[GameobjectTemplate], scoped_session]:
+    def gameobject_template_get_by_entry(entry) -> Optional[GameobjectTemplate]:
         world_db_session = SessionHolder()
         res = world_db_session.query(GameobjectTemplate).filter_by(entry=entry).first()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     @staticmethod
     def gameobject_get_loot_template() -> list[GameobjectLootTemplate]:
