@@ -90,8 +90,8 @@ class PlayerManager(UnitManager):
         self.team = Teams.TEAM_NONE  # Set at set_player_variables().
         self.trade_data = None
         self.last_regen = 0
-        self.last_env_damage_object = None
-        self.last_env_damage_check = 0
+        self.last_trap_info_object = None
+        self.last_trap_check = 0
         self.last_swimming_check = 0
         self.spirit_release_timer = 0
         self.logout_timer = -1
@@ -1357,6 +1357,7 @@ class PlayerManager(UnitManager):
     def check_swimming_state(self, elapsed):
         if not self.is_alive:
             return
+
         self.last_swimming_check += elapsed
         if self.last_swimming_check >= 1:
             self.last_swimming_check = 0
@@ -1365,19 +1366,20 @@ class PlayerManager(UnitManager):
             elif not self.is_swimming() and self.liquid_information:
                 self.update_swimming_state(False)
 
-    def check_environment_damage(self, elapsed):
+    def check_trap_collision(self, elapsed):
         if not self.is_alive or self.movement_spline and self.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
             return
-        self.last_env_damage_check += elapsed
-        if self.last_env_damage_check >= 1:
-            self.last_env_damage_check = 0
-            environment_damage_object = MapManager.get_environmental_damage(self.map_, self.location)
-            if environment_damage_object and environment_damage_object != self.last_env_damage_object:
-                environment_damage_object.add_participant(self)
-                self.last_env_damage_object = environment_damage_object
-            elif self.last_env_damage_object and not environment_damage_object:
-                self.last_env_damage_object.remove_participant(self)
-                self.last_env_damage_object = None
+
+        self.last_trap_check += elapsed
+        if self.last_trap_check >= 1:
+            self.last_trap_check = 0
+            trap_info_object = MapManager.get_trap(self.map_, self.location)
+            if trap_info_object and trap_info_object != self.last_trap_info_object:
+                trap_info_object.add_participant(self)
+                self.last_trap_info_object = trap_info_object
+            elif self.last_trap_info_object and not trap_info_object:
+                self.last_trap_info_object.remove_participant(self)
+                self.last_trap_info_object = None
 
     # override
     def has_pending_updates(self):
@@ -1399,7 +1401,7 @@ class PlayerManager(UnitManager):
             # Waypoints (mostly flying paths) update.
             self.movement_manager.update_pending_waypoints(elapsed)
             # Check environment damage.
-            self.check_environment_damage(elapsed)
+            self.check_trap_collision(elapsed)
             # Check swimming state.
             self.check_swimming_state(elapsed)
 
