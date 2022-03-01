@@ -96,7 +96,7 @@ class GameObjectManager(ObjectManager):
         damage_source = self.gobject_template.data2
         if damage_source not in GameObjectManager.ENVIRONMENTAL_SOURCES:
             # Cache this damage templates for reusing.
-            GameObjectManager.ENVIRONMENTAL_SOURCES[damage_source] = WorldDatabaseManager.gameobject_template_get_by_entry(damage_source)[0]
+            GameObjectManager.ENVIRONMENTAL_SOURCES[damage_source] = WorldDatabaseManager.gameobject_template_get_by_entry(damage_source)
 
         # Grab the damage radius and the spell_id and create the damage object.
         radius = GameObjectManager.ENVIRONMENTAL_SOURCES[damage_source].data2
@@ -105,8 +105,7 @@ class GameObjectManager(ObjectManager):
 
     @staticmethod
     def spawn(entry, location, map_id, override_faction=0, despawn_time=1):
-        go_template, session = WorldDatabaseManager.gameobject_template_get_by_entry(entry)
-        session.close()
+        go_template = WorldDatabaseManager.gameobject_template_get_by_entry(entry)
 
         if not go_template:
             return None
