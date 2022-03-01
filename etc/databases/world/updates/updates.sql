@@ -20034,6 +20034,51 @@ begin not atomic
 
         insert into applied_updates values ('090220221');
     end if;
+    
+        -- 01/03/2022 1
+    if (select count(*) from applied_updates where id='010320221') = 0 then
+    	-- Remove Undercity shop signs
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44919');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44920');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44905');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44948');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44904');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44992');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44964');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44970');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44906');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44912');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44977');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44923');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44969');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44921');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44952');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44922');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44991');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44986');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44930');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44935');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44980');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44927');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44928');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44914');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44957');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44966');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44918');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44931');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44985');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44937');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44936');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44993');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44971');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44915');
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44932');
+		
+		-- Remove last remaining IF braizer
+		UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1869');
+
+        insert into applied_updates values ('010320221');
+    end if;
 
 end $
 delimiter ;
