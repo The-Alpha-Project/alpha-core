@@ -3,7 +3,7 @@ import math
 import _queue
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS, \
-    RESOLUTION_ENVIRONMENTAL
+    RESOLUTION_TRAP_COLLISION
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config
@@ -115,7 +115,7 @@ class MapManager(object):
 
     @staticmethod
     def get_go_spawn_key(map_id, x, y):
-        tile_x, tile_y, local_x, local_y = MapManager.calculate_tile(x, y, RESOLUTION_ENVIRONMENTAL)
+        tile_x, tile_y, local_x, local_y = MapManager.calculate_tile(x, y, RESOLUTION_TRAP_COLLISION)
         return f'{map_id}{tile_x}{tile_y}{local_x}{local_y}'
 
     @staticmethod
