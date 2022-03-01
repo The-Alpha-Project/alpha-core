@@ -2,7 +2,6 @@ import traceback
 import math
 import _queue
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS, \
     RESOLUTION_ENVIRONMENTAL
 from game.world.managers.maps.Map import Map
@@ -17,7 +16,7 @@ AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
 PENDING_LOAD = {}
 PENDING_LOAD_QUEUE = _queue.SimpleQueue()
-ENVIRONMENTAL_COLLISION = {}
+TRAP_COLLISION = {}
 
 
 # noinspection PyBroadException
@@ -102,19 +101,17 @@ class MapManager(object):
 
         return True
 
-    # Store environmental collision objects given a gameobject.
     @staticmethod
-    def add_environmental_collision(gameobject):
+    def add_trap_collision(gameobject):
         x = MapManager.validate_map_coord(gameobject.location.x)
         y = MapManager.validate_map_coord(gameobject.location.y)
 
         key = MapManager.get_go_spawn_key(gameobject.map_, x, y)
-        if key not in ENVIRONMENTAL_COLLISION:
-            ENVIRONMENTAL_COLLISION[key] = []
+        if key not in TRAP_COLLISION:
+            TRAP_COLLISION[key] = []
 
-        # Add all collision objects residing within the gameobject.
-        for env_collision_object in gameobject.environmental_damage_objects:
-            ENVIRONMENTAL_COLLISION[key].append(env_collision_object)
+        # Add collision object to the main list.
+        TRAP_COLLISION[key].append(gameobject.trap_info_holder)
 
     @staticmethod
     def get_go_spawn_key(map_id, x, y):
@@ -217,23 +214,23 @@ class MapManager(object):
             Logger.error(traceback.format_exc())
             return None
 
-    # Return an Environmental damage object if collision detected.
+    # Return a TrapInfoHolder object if collision is detected.
     @staticmethod
-    def get_environmental_damage(map_id, vector):
+    def get_trap(map_id, vector):
         try:
             x = MapManager.validate_map_coord(vector.x)
             y = MapManager.validate_map_coord(vector.y)
             z = vector.z
             collision_key = MapManager.get_go_spawn_key(map_id, x, y)
 
-            if collision_key not in ENVIRONMENTAL_COLLISION:
+            if collision_key not in TRAP_COLLISION:
                 return None
 
-            for environmental_collision in ENVIRONMENTAL_COLLISION[collision_key]:
-                if environmental_collision.x_min <= x <= environmental_collision.x_max and \
-                        environmental_collision.y_min <= y <= environmental_collision.y_max and \
-                        environmental_collision.z_min <= z <= environmental_collision.z_max:
-                    return environmental_collision
+            for trap_collision in TRAP_COLLISION[collision_key]:
+                if trap_collision.x_min <= x <= trap_collision.x_max and \
+                        trap_collision.y_min <= y <= trap_collision.y_max and \
+                        trap_collision.z_min <= z <= trap_collision.z_max:
+                    return trap_collision
 
             return None
         except:

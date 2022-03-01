@@ -823,12 +823,6 @@ class ActivateTaxiReplies(IntEnum):
     ERR_TAXINOTSTANDING = 12
 
 
-class EnvironmentalDamageSource(IntEnum):
-    NONE = 0
-    CAMPFIRE = 2061
-    BONFIRE = 2066
-
-
 class EnvironmentalDamageTypes(IntEnum):
     INVALID = 0
     HOLY = 1

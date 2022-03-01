@@ -9,7 +9,7 @@ from game.world.managers.objects.units.creature.CreatureManager import CreatureM
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import EnvironmentalDamageSource
+from utils.constants.MiscCodes import GameObjectTypes
 from utils.Logger import Logger
 
 
@@ -77,9 +77,9 @@ class WorldLoader:
                 )
                 gobject_mgr.load()
 
-                # If this go has environmental damage, add its collision detection to MapManager.
-                if gobject_mgr.has_environmental_damage():
-                    MapManager.add_environmental_collision(gobject_mgr)
+                # If this go is a trap, add its collision detection to MapManager.
+                if gobject_mgr.gobject_template.type == GameObjectTypes.TYPE_TRAP:
+                    MapManager.add_trap_collision(gobject_mgr)
 
             count += 1
             Logger.progress('Spawning gameobjects...', count, length)
