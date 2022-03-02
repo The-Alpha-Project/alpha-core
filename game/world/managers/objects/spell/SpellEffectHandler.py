@@ -26,16 +26,25 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in target.object_type:
+            return
+
         damage = effect.get_effect_points(casting_spell.caster_effective_level)
         caster.apply_spell_damage(target, damage, casting_spell)
 
     @staticmethod
     def handle_heal(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in target.object_type:
+            return
+
         healing = effect.get_effect_points(casting_spell.caster_effective_level)
         caster.apply_spell_healing(target, healing, casting_spell)
 
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in caster.object_type:
+            return
+
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type, casting_spell.spell_entry.School,
                                                             target, apply_bonuses=False)  # Bonuses are applied on spell damage
 
@@ -44,6 +53,9 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_weapon_damage_plus(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in caster.object_type:
+            return
+
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type, casting_spell.spell_entry.School,
                                                             target, apply_bonuses=False)  # Bonuses are applied on spell damage
 
@@ -57,10 +69,16 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in caster.object_type:
+            return
+
         caster.add_combo_points_on_target(target, effect.get_effect_points(casting_spell.caster_effective_level))
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in target.object_type:
+            return
+
         target.aura_manager.apply_spell_effect_aura(caster, casting_spell, effect)
 
     @staticmethod
@@ -84,6 +102,9 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in target.object_type:
+            return
+
         power_type = effect.misc_value
         if power_type != target.power_type:
             return
@@ -93,6 +114,9 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_summon_mount(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in target.object_type:
+            return
+
         already_mounted = target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED
         if already_mounted:
             # Remove any existing mount auras.
@@ -109,6 +133,9 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_insta_kill(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in target.object_type:
+            return
+
         # No SMSG_SPELLINSTAKILLLOG in 0.5.3
         target.die(killer=caster)
 
@@ -122,6 +149,9 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_PLAYER not in target.object_type:
+            return
+
         # Teleport targets should follow the format (map, Vector).
         teleport_targets = effect.targets.get_resolved_effect_targets_by_type(tuple)
         if len(teleport_targets) == 0:
@@ -194,8 +224,6 @@ class SpellEffectHandler(object):
             Logger.error(f'Gameobject with entry {object_entry} not found for spell {casting_spell.spell_entry.ID}.')
             return
 
-        casting_spell.spell_caster.set_channel_object(go_manager.guid)
-
         if go_manager.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
             go_manager.ritual_caster = caster
 
@@ -206,6 +234,9 @@ class SpellEffectHandler(object):
         # 1.1: Target of summoning ritual must already be in the same instance if caster is in an instance.
         # 1.1: Summoning gives a confirmation dialog to person being summoned.
         # 1.3: You can no longer accept a warlock summoning while you are in combat.
+
+        if caster.get_type() != ObjectTypes.TYPE_PLAYER:
+            return
 
         # Since this handler is ONLY used by the ritual of summoning effect, directly check for that spell here (ID 698).
         if not caster.spell_manager.remove_cast_by_id(698):
@@ -222,6 +253,7 @@ class SpellEffectHandler(object):
             # Periodic trigger spell aura uses the original target mask.
             # Arcane missiles initial cast is self-targeted, so we need to switch the mask here.
             casting_spell.spell_target_mask = SpellTargetMask.UNIT
+
         elif casting_spell.spell_entry.ID == group_astral_recall:
             for target in effect.targets.get_resolved_effect_targets_by_type(ObjectManager):
                 if target.get_type() != ObjectTypes.TYPE_PLAYER:
@@ -243,6 +275,7 @@ class SpellEffectHandler(object):
     def handle_add_proficiency(casting_spell, effect, caster, target):
         if target.get_type() != ObjectTypes.TYPE_PLAYER:
             return
+
         item_class = casting_spell.spell_entry.EquippedItemClass
         item_subclass_mask = casting_spell.spell_entry.EquippedItemSubclass
 
@@ -289,20 +322,32 @@ class SpellEffectHandler(object):
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
     def handle_block_passive(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in target.object_type:
+            return
+
         target.has_block_passive = True
         if target.get_type() == ObjectTypes.TYPE_PLAYER:
             target.skill_manager.add_skill(SkillTypes.BLOCK.value)
 
     @staticmethod
     def handle_parry_passive(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in target.object_type:
+            return
+
         target.has_parry_passive = True
 
     @staticmethod
     def handle_dodge_passive(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in target.object_type:
+            return
+
         target.has_dodge_passive = True
 
     @staticmethod
     def handle_defense_passive(casting_spell, effect, caster, target):
+        if ObjectTypes.TYPE_UNIT not in target.object_type:
+            return
+
         if target.get_type() == ObjectTypes.TYPE_PLAYER:
             target.skill_manager.add_skill(SkillTypes.DEFENSE.value)
 

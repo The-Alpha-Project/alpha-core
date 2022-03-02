@@ -8,11 +8,12 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
-from utils.constants.MiscCodes import ObjectTypes, AttackTypes
+from utils.constants.MiscCodes import ObjectTypes, AttackTypes, HitInfo
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellEffects, SpellInterruptFlags
@@ -54,7 +55,11 @@ class CastingSpell(object):
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)  # TODO RangeMin is never used
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
-        self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
+
+        if ObjectTypes.TYPE_UNIT in self.spell_caster.object_type:
+            self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
+        else:
+            self.caster_effective_level = 0
 
         # Resolve the weapon required for the spell.
         self.spell_attack_type = -1
@@ -245,7 +250,7 @@ class CastingSpell(object):
 
         cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill))
 
-        if self.is_ranged_weapon_attack():
+        if self.is_ranged_weapon_attack() and ObjectTypes.TYPE_UNIT in self.spell_caster.object_type:
             # Ranged attack tooltips are unfinished, so this is partially a guess.
             # All ranged attacks without delay seem to say "next ranged".
             # Ranged attacks with delay (cast time) say "attack speed + X (delay) sec".
@@ -267,6 +272,25 @@ class CastingSpell(object):
         # ManaCostPerLevel is not used by anything relevant, ignore for now (only 271/4513/7290) TODO
 
         return mana_cost + power_cost_mod
+
+    def get_cast_damage_info(self, attacker, victim, damage, absorb):
+        damage_info = DamageInfoHolder()
+
+        if not victim:
+            return None
+
+        damage_info.attacker = attacker
+        damage_info.target = victim
+        damage_info.attack_type = self.spell_attack_type if self.spell_attack_type != -1 else 0
+
+        damage_info.damage += damage
+        damage_info.damage_school_mask = self.spell_entry.School
+        # Not taking "subdamages" into account
+        damage_info.total_damage = max(0, damage - absorb)
+        damage_info.absorb = absorb
+        damage_info.hit_info = HitInfo.DAMAGE
+
+        return damage_info
 
     def load_effects(self):
         self.effects = []

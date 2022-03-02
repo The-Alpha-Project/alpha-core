@@ -552,7 +552,7 @@ class CreatureManager(UnitManager):
 
             if self.is_alive and self.is_spawned:
                 # Spell/aura updates
-                self.spell_manager.update(now, elapsed)
+                self.spell_manager.update(now)
                 self.aura_manager.update(now)
                 # Movement Updates
                 self.movement_manager.update_pending_waypoints(elapsed)

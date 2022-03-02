@@ -538,7 +538,7 @@ class UnitManager(ObjectManager):
         damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target, casting_spell.spell_attack_type)
 
         # TODO Handle misses, absorbs etc. for spells.
-        damage_info = self.get_spell_cast_damage_info(target, casting_spell, damage, 0)
+        damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
 
         if miss_reason == SpellMissReason.MISS_REASON_EVADED:
             damage_info.total_damage = 0
@@ -555,28 +555,9 @@ class UnitManager(ObjectManager):
 
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
         miss_info = casting_spell.object_target_results[target.guid].result
-        damage_info = self.get_spell_cast_damage_info(target, casting_spell, healing, 0)
+        damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
         self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True, is_periodic=is_periodic)
         target.receive_healing(healing, self)
-
-    def get_spell_cast_damage_info(self, victim, casting_spell, damage, absorb):
-        damage_info = DamageInfoHolder()
-
-        if not victim:
-            return None
-
-        damage_info.attacker = self
-        damage_info.target = victim
-        damage_info.attack_type = casting_spell.spell_attack_type if casting_spell.spell_attack_type != -1 else 0
-
-        damage_info.damage += damage
-        damage_info.damage_school_mask = casting_spell.spell_entry.School
-        # Not taking "subdamages" into account
-        damage_info.total_damage = max(0, damage - absorb)
-        damage_info.absorb = absorb
-        damage_info.hit_info = HitInfo.DAMAGE
-
-        return damage_info
 
     def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False, is_periodic=False):
         flags = SpellHitFlags.HIT_FLAG_HEALED if healing else SpellHitFlags.HIT_FLAG_DAMAGE
@@ -974,7 +955,7 @@ class UnitManager(ObjectManager):
             if killer.combo_target == self.guid:
                 killer.remove_combo_points()
 
-        if killer:
+        if killer and ObjectTypes.TYPE_UNIT in killer.object_type:
             killer.spell_manager.remove_unit_from_all_cast_targets(self.guid)  # Interrupt casting on target death
             killer.aura_manager.check_aura_procs(killed_unit=True)
 

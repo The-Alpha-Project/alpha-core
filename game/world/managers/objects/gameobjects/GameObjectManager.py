@@ -36,7 +36,6 @@ class GameObjectManager(ObjectManager):
         self.is_summon = is_summon
 
         if self.gobject_template:
-            self.level = 0  # Used only by SpellManager
             self.entry = self.gobject_template.entry
             self.native_display_id = self.gobject_template.display_id
             self.current_display_id = self.native_display_id
@@ -63,6 +62,9 @@ class GameObjectManager(ObjectManager):
 
         self.respawn_timer = 0
         self.loot_manager = None
+
+        from game.world.managers.objects.spell.SpellManager import SpellManager  # Local due to circular imports.
+        self.spell_manager = SpellManager(self)
 
         # Chest only initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
@@ -225,12 +227,19 @@ class GameObjectManager(ObjectManager):
                                                                     validate=False)
         unit.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
 
-    # TODO: Added just to make SpellManager work with gameobjects as casters.
-    # noinspection PyMethodMayBeStatic
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
-        damage_info = target.get_spell_cast_damage_info(target, casting_spell, damage, 0)
-        target.send_spell_cast_debug_info(damage_info, 0, casting_spell.spell_entry.ID, is_periodic=is_periodic)
-        target.deal_damage(target, damage, is_periodic)
+        damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
+        miss_info = casting_spell.object_target_results[target.guid].result
+
+        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, is_periodic=is_periodic)
+        target.receive_damage(damage, self, is_periodic)
+
+    def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
+        miss_info = casting_spell.object_target_results[target.guid].result
+        damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
+
+        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True, is_periodic=is_periodic)
+        target.receive_healing(healing, self)
 
     # TODO: Added just to make SpellManager work with gameobjects as casters.
     # noinspection PyMethodMayBeStatic
@@ -396,6 +405,9 @@ class GameObjectManager(ObjectManager):
                 if self.has_pending_updates():
                     MapManager.update_object(self, check_pending_changes=True)
                     self.reset_fields_older_than(now)
+
+                # SpellManager update.
+                self.spell_manager.update(now)
             # Not spawned.
             else:
                 self.respawn_timer += elapsed

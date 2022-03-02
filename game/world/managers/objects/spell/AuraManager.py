@@ -53,7 +53,7 @@ class AuraManager:
             self.send_aura_duration(aura)
 
         # Aura application threat TODO handle threat elsewhere
-        if aura.harmful:
+        if aura.harmful and ObjectTypes.TYPE_UNIT in aura.caster.object_type:
             if aura.source_spell.generates_threat():
                 self.unit_mgr.attack(aura.caster)
             self.check_aura_interrupts(negative_aura_applied=True)
