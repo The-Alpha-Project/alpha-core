@@ -132,7 +132,7 @@ class SpellManager(object):
 
     def try_initialize_spell(self, spell, spell_target, target_mask, source_item=None,
                              triggered=False, validate=True) -> Optional[CastingSpell]:
-        spell = CastingSpell(spell, spell_target, target_mask, source_item, triggered=triggered)
+        spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item, triggered=triggered)
         if not validate:
             return spell
         return spell if self.validate_cast(spell) else None
