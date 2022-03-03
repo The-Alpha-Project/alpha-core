@@ -202,6 +202,7 @@ class EffectTargets:
             result = MapManager.get_surrounding_units_by_location(effect_source, map_, radius, True)  # Ground-targeted AoE.
             merged = list(result[0].values()) + list(result[1].values())
         else:
+            # TODO len(target_effect.targets.resolved_targets_a) == 1 incorrectly resolves to a single target of an AoE spell.
             effect_source = target_effect.targets.resolved_targets_a[0] if len(target_effect.targets.resolved_targets_a) == 1 else caster
             target_effect.targets.effect_source = effect_source
 
