@@ -109,7 +109,7 @@ class AuraManager:
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: self.unit_mgr.in_combat,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED: self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE: has_moved,
-            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST: self.unit_mgr.spell_manager.is_casting() or cast_spell,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST: cast_spell,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL: negative_aura_applied,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage
         }
