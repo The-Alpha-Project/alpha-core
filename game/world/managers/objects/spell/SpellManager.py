@@ -117,28 +117,29 @@ class SpellManager(object):
 
             self.start_spell_cast(initialized_spell=casting_spell)
 
-    # TODO Remove caster arguments - should be tied to this SpellManager instance.
-    def handle_cast_attempt(self, spell_id, spell_target, target_mask, validate=True):
+    def handle_cast_attempt(self, spell_id, spell_target, target_mask, triggered=False, validate=True):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not spell or not spell_target:
             return
 
         if not validate:
-            initialized_spell = self.try_initialize_spell(spell, spell_target, target_mask, validate=False)
+            initialized_spell = self.try_initialize_spell(spell, spell_target, target_mask,
+                                                          triggered=triggered, validate=validate)
             self.start_spell_cast(initialized_spell=initialized_spell)
             return
 
-        self.start_spell_cast(spell, spell_target, target_mask)
+        self.start_spell_cast(spell, spell_target, target_mask, triggered=triggered)
 
-    def try_initialize_spell(self, spell, spell_target, target_mask, source_item=None, triggered=False, validate=True) -> Optional[CastingSpell]:
+    def try_initialize_spell(self, spell, spell_target, target_mask, source_item=None,
+                             triggered=False, validate=True) -> Optional[CastingSpell]:
         spell = CastingSpell(spell, spell_target, target_mask, source_item, triggered=triggered)
         if not validate:
             return spell
         return spell if self.validate_cast(spell) else None
 
     def start_spell_cast(self, spell=None, spell_target=None, target_mask=SpellTargetMask.SELF, source_item=None,
-                         initialized_spell=None):
-        casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item) \
+                         triggered=False, initialized_spell=None):
+        casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item, triggered=triggered) \
             if not initialized_spell else initialized_spell
 
         if not casting_spell:

@@ -30,7 +30,6 @@ class SpellEffect(object):
     targets: EffectTargets
     radius_entry: SpellRadius
     duration_entry: SpellDuration
-    trigger_spell_entry: Spell
 
     # Duration and periodic timing info for auras applied by this effect
     applied_aura_duration = -1
@@ -48,7 +47,6 @@ class SpellEffect(object):
         self.caster_effective_level = casting_spell.caster_effective_level
         self.targets = EffectTargets(casting_spell, self)
         self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index) if self.radius_index else None
-        self.trigger_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(self.trigger_spell_id) if self.trigger_spell_id else None
         self.duration_entry = casting_spell.duration_entry
 
     def update_effect_aura(self, timestamp):

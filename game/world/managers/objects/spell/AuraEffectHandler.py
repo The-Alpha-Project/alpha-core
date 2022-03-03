@@ -51,11 +51,11 @@ class AuraEffectHandler:
     def handle_periodic_trigger_spell(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
-        new_spell_entry = aura.spell_effect.trigger_spell_entry
-        spell = effect_target.spell_manager.try_initialize_spell(new_spell_entry, aura.source_spell.initial_target,
-                                                                 aura.source_spell.spell_target_mask,
-                                                                 validate=False, triggered=True)
-        effect_target.spell_manager.start_spell_cast(initialized_spell=spell)
+
+        trigger_spell_id = aura.spell_effect.trigger_spell_id
+        spell = aura.source_spell
+        effect_target.spell_manager.handle_cast_attempt(trigger_spell_id, spell.initial_target, spell.spell_target_mask,
+                                                        validate=False, triggered=True)
 
     @staticmethod
     def handle_periodic_healing(aura, effect_target, remove):

@@ -218,12 +218,7 @@ class GameObjectManager(ObjectManager):
 
     # TODO: Should use Gameobject spell manager.
     def trigger_trap(self, trap_info_object, unit):
-        spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(trap_info_object.spell_id)
-        initialized_spell = unit.spell_manager.try_initialize_spell(spell=spell_to_cast,
-                                                                    spell_target=unit,
-                                                                    target_mask=SpellTargetMask.CAN_TARGET_UNITS,
-                                                                    validate=False)
-        unit.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
+        self.spell_manager.handle_cast_attempt(trap_info_object.spell_id, unit, SpellTargetMask.UNIT, validate=False)
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
