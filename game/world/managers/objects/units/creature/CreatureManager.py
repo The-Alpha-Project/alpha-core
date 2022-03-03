@@ -446,7 +446,7 @@ class CreatureManager(UnitManager):
     def _get_return_to_spawn_points(self) -> tuple:  # [waypoints], z_locked bool
         # No points, return just spawn point.
         if len(self.fleeing_waypoints) == 0:
-            return self.spawn_position, False
+            return [self.spawn_position], False
 
         # Reverse the combat waypoints, so they point back to spawn location.
         waypoints = [wp for wp in reversed(self.fleeing_waypoints)]
