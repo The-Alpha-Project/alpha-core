@@ -1,3 +1,4 @@
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
@@ -101,7 +102,7 @@ class AuraEffectHandler:
         if not aura.target.stat_manager.roll_proc_chance(proc_chance):
             return
 
-        new_spell_entry = aura.spell_effect.trigger_spell_entry
+        new_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(aura.spell_effect.trigger_spell_id)
 
         # Before choosing the initial target for the spell, it will need to be initialized so we can use EffectTargets methods.
         # This is fine since targets are resolved on cast, not on initialization.
