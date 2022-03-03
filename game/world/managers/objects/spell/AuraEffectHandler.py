@@ -52,7 +52,7 @@ class AuraEffectHandler:
         if not aura.is_past_next_period() or remove:
             return
         new_spell_entry = aura.spell_effect.trigger_spell_entry
-        spell = effect_target.spell_manager.try_initialize_spell(new_spell_entry, effect_target, aura.source_spell.initial_target,
+        spell = effect_target.spell_manager.try_initialize_spell(new_spell_entry, aura.source_spell.initial_target,
                                                                  aura.source_spell.spell_target_mask,
                                                                  validate=False, triggered=True)
         effect_target.spell_manager.start_spell_cast(initialized_spell=spell)
@@ -106,7 +106,7 @@ class AuraEffectHandler:
         # Before choosing the initial target for the spell, it will need to be initialized so we can use EffectTargets methods.
         # This is fine since targets are resolved on cast, not on initialization.
         caster = aura.target
-        spell = caster.spell_manager.try_initialize_spell(new_spell_entry, caster, caster,
+        spell = caster.spell_manager.try_initialize_spell(new_spell_entry, caster,
                                                           aura.source_spell.spell_target_mask,
                                                           validate=False, triggered=True)
 

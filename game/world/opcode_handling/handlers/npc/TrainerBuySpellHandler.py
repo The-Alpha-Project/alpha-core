@@ -36,8 +36,9 @@ class TrainerBuySpellHandler(object):
                 else:
                     spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_id)
 
-                    initialized_spell = world_session.player_mgr.spell_manager.try_initialize_spell(spell=spell_to_cast, caster_obj=world_session.player_mgr,
-                                                                                                    spell_target=world_session.player_mgr, target_mask=SpellTargetMask.SELF,
+                    initialized_spell = world_session.player_mgr.spell_manager.try_initialize_spell(spell=spell_to_cast,
+                                                                                                    spell_target=world_session.player_mgr,
+                                                                                                    target_mask=SpellTargetMask.SELF,
                                                                                                     validate=False)
                     world_session.player_mgr.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
 
@@ -90,8 +91,9 @@ class TrainerBuySpellHandler(object):
                     spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_id)
                     cast_target = world_session.player_mgr
 
-                    initialized_spell = world_session.player_mgr.spell_manager.try_initialize_spell(spell=spell_to_cast, caster_obj=world_session.player_mgr,
-                                                                                                    spell_target=cast_target, target_mask=SpellTargetMask.SELF,
+                    initialized_spell = world_session.player_mgr.spell_manager.try_initialize_spell(spell=spell_to_cast,
+                                                                                                    spell_target=cast_target,
+                                                                                                    target_mask=SpellTargetMask.SELF,
                                                                                                     validate=False)
                     npc.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
                     

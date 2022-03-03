@@ -16,8 +16,7 @@ class CastSpellHandler(object):
 
             spell_target = CastSpellHandler.get_target_info(world_session, target_mask, target_bytes)
 
-            world_session.player_mgr.spell_manager.handle_cast_attempt(spell_id, world_session.player_mgr,
-                                                                       spell_target, target_mask)
+            world_session.player_mgr.spell_manager.handle_cast_attempt(spell_id, spell_target, target_mask)
             return 0
 
     @staticmethod

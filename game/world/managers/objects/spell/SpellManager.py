@@ -56,7 +56,7 @@ class SpellManager(object):
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
 
         if cast_on_learn or spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
-            self.start_spell_cast(spell, self.caster, self.caster, SpellTargetMask.SELF)
+            self.start_spell_cast(spell, self.caster, SpellTargetMask.SELF)
 
         # Apply passive effects when they're learned. This will also apply talents on learn.
         if spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
@@ -77,11 +77,11 @@ class SpellManager(object):
         for spell_id in self.spells.keys():
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template and spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
-                self.start_spell_cast(spell_template, self.caster, self.caster, SpellTargetMask.SELF)
+                self.start_spell_cast(spell_template, self.caster, SpellTargetMask.SELF)
 
     def apply_passive_spell_effects(self, spell_template):
         if spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
-            spell = self.try_initialize_spell(spell_template, self.caster, self.caster, SpellTargetMask.SELF,
+            spell = self.try_initialize_spell(spell_template, self.caster, SpellTargetMask.SELF,
                                               validate=False)
             spell.resolve_target_info_for_effects()
             self.apply_spell_effects(spell)
@@ -97,7 +97,10 @@ class SpellManager(object):
 
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 
-    def handle_item_cast_attempt(self, item, caster, spell_target, target_mask):
+    def handle_item_cast_attempt(self, item, spell_target, target_mask):
+        if ObjectTypes.TYPE_UNIT not in self.caster.object_type:
+            return
+
         for spell_info in item.spell_stats:
             if spell_info.spell_id == 0:
                 break
@@ -106,31 +109,36 @@ class SpellManager(object):
                 Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} ({item.item_template.name}) could not be found in the spell database.')
                 continue
 
-            casting_spell = self.try_initialize_spell(spell, caster, spell_target, target_mask, item)
+            casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, item)
             if not casting_spell:
                 continue
             if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here
-                caster.set_stand_state(StandState.UNIT_SITTING)
+                self.caster.set_stand_state(StandState.UNIT_SITTING)
 
             self.start_spell_cast(initialized_spell=casting_spell)
 
     # TODO Remove caster arguments - should be tied to this SpellManager instance.
-    def handle_cast_attempt(self, spell_id, caster, spell_target, target_mask):
+    def handle_cast_attempt(self, spell_id, spell_target, target_mask, validate=True):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not spell or not spell_target:
             return
 
-        self.start_spell_cast(spell, caster, spell_target, target_mask)
+        if not validate:
+            initialized_spell = self.try_initialize_spell(spell, spell_target, target_mask, validate=False)
+            self.start_spell_cast(initialized_spell=initialized_spell)
+            return
 
-    def try_initialize_spell(self, spell, caster_obj, spell_target, target_mask, source_item=None, triggered=False, validate=True) -> Optional[CastingSpell]:
-        spell = CastingSpell(spell, caster_obj, spell_target, target_mask, source_item, triggered=triggered)
+        self.start_spell_cast(spell, spell_target, target_mask)
+
+    def try_initialize_spell(self, spell, spell_target, target_mask, source_item=None, triggered=False, validate=True) -> Optional[CastingSpell]:
+        spell = CastingSpell(spell, spell_target, target_mask, source_item, triggered=triggered)
         if not validate:
             return spell
         return spell if self.validate_cast(spell) else None
 
-    def start_spell_cast(self, spell=None, caster=None, spell_target=None, target_mask=SpellTargetMask.SELF, source_item=None,
+    def start_spell_cast(self, spell=None, spell_target=None, target_mask=SpellTargetMask.SELF, source_item=None,
                          initialized_spell=None):
-        casting_spell = self.try_initialize_spell(spell, caster, spell_target, target_mask, source_item) \
+        casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item) \
             if not initialized_spell else initialized_spell
 
         if not casting_spell:

@@ -18,6 +18,5 @@ class UseItemHandler(object):
             target_bytes = reader.data[5:]
             target = CastSpellHandler.get_target_info(world_session, target_mask, target_bytes)
 
-            world_session.player_mgr.spell_manager.handle_item_cast_attempt(item, world_session.player_mgr,
-                                                                            target, target_mask)
+            world_session.player_mgr.spell_manager.handle_item_cast_attempt(item, target, target_mask)
         return 0

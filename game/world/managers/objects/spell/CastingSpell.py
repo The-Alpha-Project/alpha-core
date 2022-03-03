@@ -43,9 +43,9 @@ class CastingSpell(object):
     spell_attack_type: int
     used_ranged_attack_item: ItemManager  # Ammo or thrown.
 
-    def __init__(self, spell, caster_obj, initial_target, target_mask, source_item=None, triggered=False):
+    def __init__(self, spell, caster, initial_target, target_mask, source_item=None, triggered=False):
         self.spell_entry = spell
-        self.spell_caster = caster_obj
+        self.spell_caster = caster
         self.source_item = source_item
         self.initial_target = initial_target
         self.spell_target_mask = target_mask
@@ -70,7 +70,7 @@ class CastingSpell(object):
         self.cast_state = SpellState.SPELL_STATE_PREPARING
         self.spell_impact_timestamps = {}
 
-        if ObjectTypes.TYPE_PLAYER in caster_obj.object_type:
+        if ObjectTypes.TYPE_PLAYER in caster.object_type:
             self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(self.spell_caster, self.spell_caster.current_selection, include_players=True)
 
         self.load_effects()

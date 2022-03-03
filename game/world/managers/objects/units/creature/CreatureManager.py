@@ -272,7 +272,7 @@ class CreatureManager(UnitManager):
                         for spell in spells:
                             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(int(spell))
                             if spell_template:
-                                self.spell_manager.start_spell_cast(spell_template, self, self, SpellTargetMask.SELF)
+                                self.spell_manager.start_spell_cast(spell_template, self, SpellTargetMask.SELF)
 
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses()

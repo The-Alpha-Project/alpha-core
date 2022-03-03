@@ -193,8 +193,7 @@ class GameObjectManager(ObjectManager):
 
         # Make the player channel for summoning.
         channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
-        spell = player.spell_manager.try_initialize_spell(channel_spell_entry, player, self,
-                                                          SpellTargetMask.GAMEOBJECT, validate=False)
+        spell = player.spell_manager.try_initialize_spell(channel_spell_entry, self, SpellTargetMask.GAMEOBJECT, validate=False)
 
         # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
         player.spell_manager.remove_colliding_casts(spell)
@@ -210,7 +209,7 @@ class GameObjectManager(ObjectManager):
             # Cast the finishing spell.
             spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
             spell_cast = self.ritual_caster.spell_manager.try_initialize_spell(spell_entry, self.ritual_caster,
-                                                                               self.ritual_caster, SpellTargetMask.SELF,
+                                                                               SpellTargetMask.SELF,
                                                                                triggered=True, validate=False)
             if spell_cast:
                 self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast)
@@ -221,7 +220,6 @@ class GameObjectManager(ObjectManager):
     def trigger_trap(self, trap_info_object, unit):
         spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(trap_info_object.spell_id)
         initialized_spell = unit.spell_manager.try_initialize_spell(spell=spell_to_cast,
-                                                                    caster_obj=trap_info_object.world_object,
                                                                     spell_target=unit,
                                                                     target_mask=SpellTargetMask.CAN_TARGET_UNITS,
                                                                     validate=False)
