@@ -216,7 +216,6 @@ class GameObjectManager(ObjectManager):
             else:
                 self.ritual_caster.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
 
-    # TODO: Should use Gameobject spell manager.
     def trigger_trap(self, trap_info_object, unit):
         self.spell_manager.handle_cast_attempt(trap_info_object.spell_id, unit, SpellTargetMask.UNIT, validate=False)
 
