@@ -226,6 +226,16 @@ class GameObjectManager(ObjectManager):
         target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, is_periodic=is_periodic)
         target.receive_damage(damage, self, is_periodic)
 
+        # Send environmental damage log packet to the affected player.
+        if target.get_type() == ObjectTypes.TYPE_PLAYER:
+            data = pack(
+                '<Q2I',
+                target.guid,
+                casting_spell.spell_entry.School,
+                damage
+            )
+            target.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ENVIRONMENTALDAMAGELOG, data))
+
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
         miss_info = casting_spell.object_target_results[target.guid].result
         damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
