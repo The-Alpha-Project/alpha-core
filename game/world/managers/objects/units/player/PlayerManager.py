@@ -1406,7 +1406,7 @@ class PlayerManager(UnitManager):
             self.check_swimming_state(elapsed)
 
             # SpellManager tick.
-            self.spell_manager.update(now, elapsed)
+            self.spell_manager.update(now)
             # AuraManager tick.
             self.aura_manager.update(now)
 

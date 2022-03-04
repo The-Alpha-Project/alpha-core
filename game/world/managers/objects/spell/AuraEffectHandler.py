@@ -1,3 +1,4 @@
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
@@ -51,11 +52,11 @@ class AuraEffectHandler:
     def handle_periodic_trigger_spell(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
-        new_spell_entry = aura.spell_effect.trigger_spell_entry
-        spell = effect_target.spell_manager.try_initialize_spell(new_spell_entry, effect_target, aura.source_spell.initial_target,
-                                                                 aura.source_spell.spell_target_mask,
-                                                                 validate=False, triggered=True)
-        effect_target.spell_manager.start_spell_cast(initialized_spell=spell)
+
+        trigger_spell_id = aura.spell_effect.trigger_spell_id
+        spell = aura.source_spell
+        effect_target.spell_manager.handle_cast_attempt(trigger_spell_id, spell.initial_target, spell.spell_target_mask,
+                                                        validate=False, triggered=True)
 
     @staticmethod
     def handle_periodic_healing(aura, effect_target, remove):
@@ -101,12 +102,12 @@ class AuraEffectHandler:
         if not aura.target.stat_manager.roll_proc_chance(proc_chance):
             return
 
-        new_spell_entry = aura.spell_effect.trigger_spell_entry
+        new_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(aura.spell_effect.trigger_spell_id)
 
         # Before choosing the initial target for the spell, it will need to be initialized so we can use EffectTargets methods.
         # This is fine since targets are resolved on cast, not on initialization.
         caster = aura.target
-        spell = caster.spell_manager.try_initialize_spell(new_spell_entry, caster, caster,
+        spell = caster.spell_manager.try_initialize_spell(new_spell_entry, caster,
                                                           aura.source_spell.spell_target_mask,
                                                           validate=False, triggered=True)
 

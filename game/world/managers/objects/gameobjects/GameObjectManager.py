@@ -36,7 +36,6 @@ class GameObjectManager(ObjectManager):
         self.is_summon = is_summon
 
         if self.gobject_template:
-            self.level = 0  # Used only by SpellManager
             self.entry = self.gobject_template.entry
             self.native_display_id = self.gobject_template.display_id
             self.current_display_id = self.native_display_id
@@ -63,6 +62,9 @@ class GameObjectManager(ObjectManager):
 
         self.respawn_timer = 0
         self.loot_manager = None
+
+        from game.world.managers.objects.spell.SpellManager import SpellManager  # Local due to circular imports.
+        self.spell_manager = SpellManager(self)
 
         # Chest only initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
@@ -191,8 +193,7 @@ class GameObjectManager(ObjectManager):
 
         # Make the player channel for summoning.
         channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
-        spell = player.spell_manager.try_initialize_spell(channel_spell_entry, player, self,
-                                                          SpellTargetMask.GAMEOBJECT, validate=False)
+        spell = player.spell_manager.try_initialize_spell(channel_spell_entry, self, SpellTargetMask.GAMEOBJECT, validate=False)
 
         # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
         player.spell_manager.remove_colliding_casts(spell)
@@ -208,29 +209,29 @@ class GameObjectManager(ObjectManager):
             # Cast the finishing spell.
             spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
             spell_cast = self.ritual_caster.spell_manager.try_initialize_spell(spell_entry, self.ritual_caster,
-                                                                               self.ritual_caster, SpellTargetMask.SELF,
+                                                                               SpellTargetMask.SELF,
                                                                                triggered=True, validate=False)
             if spell_cast:
                 self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast)
             else:
                 self.ritual_caster.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
 
-    # TODO: Should use Gameobject spell manager.
     def trigger_trap(self, trap_info_object, unit):
-        spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(trap_info_object.spell_id)
-        initialized_spell = unit.spell_manager.try_initialize_spell(spell=spell_to_cast,
-                                                                    caster_obj=trap_info_object.world_object,
-                                                                    spell_target=unit,
-                                                                    target_mask=SpellTargetMask.CAN_TARGET_UNITS,
-                                                                    validate=False)
-        unit.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
+        self.spell_manager.handle_cast_attempt(trap_info_object.spell_id, unit, SpellTargetMask.UNIT, validate=False)
 
-    # TODO: Added just to make SpellManager work with gameobjects as casters.
-    # noinspection PyMethodMayBeStatic
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
-        damage_info = target.get_spell_cast_damage_info(target, casting_spell, damage, 0)
-        target.send_spell_cast_debug_info(damage_info, 0, casting_spell.spell_entry.ID, is_periodic=is_periodic)
-        target.deal_damage(target, damage, is_periodic)
+        damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
+        miss_info = casting_spell.object_target_results[target.guid].result
+
+        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, is_periodic=is_periodic)
+        target.receive_damage(damage, self, is_periodic)
+
+    def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
+        miss_info = casting_spell.object_target_results[target.guid].result
+        damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
+
+        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True, is_periodic=is_periodic)
+        target.receive_healing(healing, self)
 
     # TODO: Added just to make SpellManager work with gameobjects as casters.
     # noinspection PyMethodMayBeStatic
@@ -396,6 +397,9 @@ class GameObjectManager(ObjectManager):
                 if self.has_pending_updates():
                     MapManager.update_object(self, check_pending_changes=True)
                     self.reset_fields_older_than(now)
+
+                # SpellManager update.
+                self.spell_manager.update(now)
             # Not spawned.
             else:
                 self.respawn_timer += elapsed

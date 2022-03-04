@@ -34,12 +34,9 @@ class TrainerBuySpellHandler(object):
                     TrainerBuySpellHandler.send_trainer_buy_fail(world_session, trainer_guid, spell_id, TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE)
                     return 0
                 else:
-                    spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_id)
-
-                    initialized_spell = world_session.player_mgr.spell_manager.try_initialize_spell(spell=spell_to_cast, caster_obj=world_session.player_mgr,
-                                                                                                    spell_target=world_session.player_mgr, target_mask=SpellTargetMask.SELF,
-                                                                                                    validate=False)
-                    world_session.player_mgr.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
+                    world_session.player_mgr.spell_manager.handle_cast_attempt(trainer_spell_id,
+                                                                               world_session.player_mgr,
+                                                                               SpellTargetMask.SELF, validate=False)
 
                     world_session.player_mgr.remove_talent_points(talent_cost)
                     TrainerBuySpellHandler.send_trainer_buy_succeeded(world_session, trainer_guid, spell_id)
@@ -87,14 +84,9 @@ class TrainerBuySpellHandler(object):
                     
                     return 0
                 else:
-                    spell_to_cast = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_id)
-                    cast_target = world_session.player_mgr
+                    npc.spell_manager.handle_cast_attempt(trainer_spell_id, world_session.player_mgr,
+                                                          SpellTargetMask.UNIT, validate=False)
 
-                    initialized_spell = world_session.player_mgr.spell_manager.try_initialize_spell(spell=spell_to_cast, caster_obj=world_session.player_mgr,
-                                                                                                    spell_target=cast_target, target_mask=SpellTargetMask.SELF,
-                                                                                                    validate=False)
-                    npc.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
-                    
                     if spell_money_cost > 0:
                         world_session.player_mgr.mod_money(-spell_money_cost)
 

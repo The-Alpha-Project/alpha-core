@@ -272,7 +272,7 @@ class CreatureManager(UnitManager):
                         for spell in spells:
                             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(int(spell))
                             if spell_template:
-                                self.spell_manager.start_spell_cast(spell_template, self, self, SpellTargetMask.SELF)
+                                self.spell_manager.start_spell_cast(spell_template, self, SpellTargetMask.SELF)
 
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses()
@@ -446,7 +446,7 @@ class CreatureManager(UnitManager):
     def _get_return_to_spawn_points(self) -> tuple:  # [waypoints], z_locked bool
         # No points, return just spawn point.
         if len(self.fleeing_waypoints) == 0:
-            return self.spawn_position, False
+            return [self.spawn_position], False
 
         # Reverse the combat waypoints, so they point back to spawn location.
         waypoints = [wp for wp in reversed(self.fleeing_waypoints)]
@@ -552,7 +552,7 @@ class CreatureManager(UnitManager):
 
             if self.is_alive and self.is_spawned:
                 # Spell/aura updates
-                self.spell_manager.update(now, elapsed)
+                self.spell_manager.update(now)
                 self.aura_manager.update(now)
                 # Movement Updates
                 self.movement_manager.update_pending_waypoints(elapsed)

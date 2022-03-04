@@ -23,6 +23,6 @@ class BinderActivateHandler(object):
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PLAYERBINDERROR))
             else:
                 bind_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(BIND_SPELL)
-                binder.spell_manager.start_spell_cast(spell=bind_spell, caster=binder, spell_target=world_session.player_mgr)
+                binder.spell_manager.start_spell_cast(spell=bind_spell, spell_target=world_session.player_mgr)
 
         return 0
