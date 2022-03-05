@@ -7,6 +7,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
@@ -175,15 +176,8 @@ class PlayerManager(UnitManager):
         self.native_display_id = self.get_native_display_id(is_male, race)
         self.current_display_id = self.native_display_id
 
-        # Power type
-        if self.player.class_ == Classes.CLASS_WARRIOR:
-            self.power_type = PowerTypes.TYPE_RAGE
-        elif self.player.class_ == Classes.CLASS_HUNTER:
-            self.power_type = PowerTypes.TYPE_FOCUS
-        elif self.player.class_ == Classes.CLASS_ROGUE:
-            self.power_type = PowerTypes.TYPE_ENERGY
-        else:
-            self.power_type = PowerTypes.TYPE_MANA
+        # Initialize power type
+        self.update_power_type()
 
         if self.player.race == Races.RACE_HUMAN:
             self.bounding_radius = 0.306 if is_male else 0.208
@@ -602,6 +596,23 @@ class PlayerManager(UnitManager):
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
                                                             self.get_movement_update_packet()), self)
+
+    # override
+    def update_power_type(self):
+        if not self.shapeshift_form:
+            if self.player.class_ == Classes.CLASS_WARRIOR:
+                self.power_type = PowerTypes.TYPE_RAGE
+            elif self.player.class_ == Classes.CLASS_HUNTER:
+                self.power_type = PowerTypes.TYPE_FOCUS
+            elif self.player.class_ == Classes.CLASS_ROGUE:
+                self.power_type = PowerTypes.TYPE_ENERGY
+            else:
+                self.power_type = PowerTypes.TYPE_MANA
+        else:
+            self.power_type = ShapeshiftInfo.get_power_for_form(self.shapeshift_form)
+
+        self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.gender, self.power_type))[0]
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
 
     def loot_money(self):
         if self.current_selection > 0:

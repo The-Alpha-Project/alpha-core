@@ -7,6 +7,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -19,7 +20,7 @@ from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags
+    CreatureStaticFlags, PowerTypes
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -358,7 +359,7 @@ class CreatureManager(UnitManager):
         self.finish_loading()
 
         # race, class, gender, power_type
-        self.bytes_0 = unpack('<I', pack('<4B', 0, self.creature_template.unit_class, self.gender, 0))[0]
+        self.bytes_0 = unpack('<I', pack('<4B', 0, self.creature_template.unit_class, self.gender, self.power_type))[0]
         # stand_state, npc_flags, shapeshift_form, visibility_flag
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form, 0))[0]
         # sheath_state, misc_flags, pet_flags, unknown
@@ -669,6 +670,15 @@ class CreatureManager(UnitManager):
         super().set_shapeshift_form(shapeshift_form)
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form, 0))[0]
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+
+    # override
+    def update_power_type(self):
+        if not self.shapeshift_form:
+            self.power_type = PowerTypes.TYPE_MANA
+        else:
+            self.power_type = ShapeshiftInfo.get_power_for_form(self.shapeshift_form)
+
+        self.bytes_0 = unpack('<I', pack('<4B', 0, self.creature_template.unit_class, self.gender, self.power_type))[0]
 
     # override
     def get_type(self):
