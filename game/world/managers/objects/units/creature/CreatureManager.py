@@ -604,7 +604,9 @@ class CreatureManager(UnitManager):
 
     # override
     def die(self, killer=None):
-        super().die(killer)
+        if not super().die(killer):
+            return False
+
         self.loot_manager.generate_loot(killer)
 
         if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
