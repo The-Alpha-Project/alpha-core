@@ -325,7 +325,7 @@ class SkillManager(object):
 
         if not equipped_weapon:
             if self.player_mgr.is_in_feral_form():
-                return None  # Feral form attacks don't use a weapon.
+                return False  # Feral form attacks don't use a weapon.
 
             skill_id = self.get_skill_id_for_weapon(None)
         else:
