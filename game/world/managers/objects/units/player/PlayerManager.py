@@ -1208,7 +1208,7 @@ class PlayerManager(UnitManager):
 
         if apply_bonuses:
             subclass = -1
-            equipped_weapon = self.get_weapon_for_attack_type(attack_type)
+            equipped_weapon = self.get_current_weapon_for_attack_type(attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
             rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target, subclass)
@@ -1219,7 +1219,7 @@ class PlayerManager(UnitManager):
     def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
         subclass = 0
         if spell_attack_type != -1:
-            equipped_weapon = self.get_weapon_for_attack_type(spell_attack_type)
+            equipped_weapon = self.get_current_weapon_for_attack_type(spell_attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
 
@@ -1541,7 +1541,10 @@ class PlayerManager(UnitManager):
     def generate_object_guid(self, low_guid):
         return low_guid | HighGuid.HIGHGUID_PLAYER
 
-    def get_weapon_for_attack_type(self, attack_type: AttackTypes):
+    def get_current_weapon_for_attack_type(self, attack_type: AttackTypes):
+        if self.is_in_feral_form():
+            return None  # Feral form attacks don't use a weapon.
+
         if attack_type == AttackTypes.BASE_ATTACK:
             return self.inventory.get_main_hand()
         elif attack_type == AttackTypes.OFFHAND_ATTACK:

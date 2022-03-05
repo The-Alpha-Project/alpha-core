@@ -893,6 +893,9 @@ class UnitManager(ObjectManager):
     def has_form(self, shapeshift_form):
         return self.shapeshift_form == shapeshift_form
 
+    def is_in_feral_form(self):
+        return self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR) or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT)
+
     # Implemented by PlayerManager
     def add_combo_points_on_target(self, target, combo_points):
         pass
