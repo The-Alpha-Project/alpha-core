@@ -141,7 +141,7 @@ class CastingSpell(object):
         if self.spell_caster.get_type() != ObjectTypes.TYPE_PLAYER:
             return None  # TODO Ammo type resolving for other units.
 
-        equipped_weapon = self.spell_caster.get_weapon_for_attack_type(AttackTypes.RANGED_ATTACK)
+        equipped_weapon = self.spell_caster.get_current_weapon_for_attack_type(AttackTypes.RANGED_ATTACK)
 
         if not equipped_weapon:
             return None

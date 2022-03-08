@@ -2,7 +2,7 @@ import math
 
 from game.world.managers.abstractions.Vector import Vector
 from utils.constants.SpellCodes import ShapeshiftForms, TotemSlots
-from utils.constants.UnitCodes import Teams
+from utils.constants.UnitCodes import Teams, PowerTypes
 
 
 class AuraDoseInfo:
@@ -29,6 +29,20 @@ class ShapeshiftInfo:
         ShapeshiftForms.SHAPESHIFT_FORM_AQUATIC: (2428, 2428, 0.8),
         ShapeshiftForms.SHAPESHIFT_FORM_BEAR: (2281, 2289, 1.0)
     }
+
+    SHAPESHIFT_POWER_TYPES = {
+        ShapeshiftForms.SHAPESHIFT_FORM_CAT: PowerTypes.TYPE_ENERGY,
+        ShapeshiftForms.SHAPESHIFT_FORM_BEAR: PowerTypes.TYPE_RAGE,
+        ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE: PowerTypes.TYPE_RAGE,
+        ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE: PowerTypes.TYPE_RAGE,
+        ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE: PowerTypes.TYPE_RAGE
+    }
+
+    @staticmethod
+    def get_power_for_form(shapeshift_form):
+        if shapeshift_form in ShapeshiftInfo.SHAPESHIFT_POWER_TYPES:
+            return ShapeshiftInfo.SHAPESHIFT_POWER_TYPES[shapeshift_form]
+        return PowerTypes.TYPE_MANA
 
     @staticmethod
     def get_form_model_info(form: ShapeshiftForms, faction: Teams):

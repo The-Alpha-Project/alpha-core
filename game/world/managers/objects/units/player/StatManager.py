@@ -7,7 +7,7 @@ from game.world.managers.objects.units.player.SkillManager import SkillTypes, Sk
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import AttackTypes, ObjectTypes, HitInfo
-from utils.constants.SpellCodes import SpellSchools
+from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms
 from utils.constants.UnitCodes import PowerTypes, Classes
 
 
@@ -295,6 +295,18 @@ class StatManager(object):
                            UnitStats.OFF_HAND_DELAY: config.Unit.Defaults.offhand_attack_time}  # Clear item stats
         self.weapon_reach = 0
 
+        if self.unit_mgr.is_in_feral_form():
+            # Druids in feral form don't use their weapon to attack.
+            # Use weapon damage values for paw damage instead.
+            # VMaNGOS values.
+
+            # Base attack delay for the two forms.
+            attack_delay = 1000 if self.unit_mgr.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT) else 2500
+
+            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = self.unit_mgr.level * 0.85 * (attack_delay / 1000)
+            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = self.unit_mgr.level * 1.25 * (attack_delay / 1000)
+            self.item_stats[UnitStats.MAIN_HAND_DELAY] = attack_delay
+
         for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
             # Check only equipped items
             if item.current_slot <= InventorySlots.SLOT_TABARD:
@@ -314,6 +326,10 @@ class StatManager(object):
                                   UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res}
                 for stat, value in separate_stats.items():
                     self.item_stats[stat] = self.item_stats.get(stat, 0) + value
+
+                if InventorySlots.SLOT_MAINHAND <= item.current_slot <= InventorySlots.SLOT_RANGED and \
+                        self.unit_mgr.is_in_feral_form():
+                    continue  # Ignore weapon damage stats for feral druids.
 
                 weapon_min_damage = int(item.item_template.dmg_min1)
                 weapon_max_damage = int(item.item_template.dmg_max1)
@@ -504,8 +520,9 @@ class StatManager(object):
         if self.unit_mgr.is_fleeing():
             return HitInfo.MISS
 
-        if attacker.get_type() == ObjectTypes.TYPE_PLAYER:
-            attack_weapon = attacker.get_weapon_for_attack_type(attack_type)
+        # Note: Bear and cat form attacks don't use a weapon, and instead have max attack rating.
+        if attacker.get_type() == ObjectTypes.TYPE_PLAYER and not attacker.is_in_feral_form():
+            attack_weapon = attacker.get_current_weapon_for_attack_type(attack_type)
             attack_weapon_template = attack_weapon.item_template if attack_weapon is not None else None
 
             skill_id = attacker.skill_manager.get_skill_id_for_weapon(attack_weapon_template)

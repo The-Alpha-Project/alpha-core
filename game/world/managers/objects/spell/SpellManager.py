@@ -859,7 +859,7 @@ class SpellManager(object):
             # Check if player has required weapon and ammo.
             if casting_spell.spell_attack_type != -1:
                 required_weapon_mask = casting_spell.spell_entry.EquippedItemSubclass
-                equipped_weapon = self.caster.get_weapon_for_attack_type(casting_spell.spell_attack_type)
+                equipped_weapon = self.caster.get_current_weapon_for_attack_type(casting_spell.spell_attack_type)
                 if not equipped_weapon:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_EQUIPPED_ITEM)
                     return False

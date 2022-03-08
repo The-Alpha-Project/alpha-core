@@ -18,7 +18,7 @@ from utils.Logger import Logger
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
     HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
-from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools
+from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, UnitStates
 from utils.constants.UpdateFields import UnitFields
 
@@ -730,6 +730,10 @@ class UnitManager(ObjectManager):
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
+    # Implemented by Creature/PlayerManager.
+    def update_power_type(self):
+        pass
+
     def get_power_type_value(self):
         if self.power_type == PowerTypes.TYPE_MANA:
             return self.power_1
@@ -888,6 +892,9 @@ class UnitManager(ObjectManager):
 
     def has_form(self, shapeshift_form):
         return self.shapeshift_form == shapeshift_form
+
+    def is_in_feral_form(self):
+        return self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR) or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT)
 
     # Implemented by PlayerManager
     def add_combo_points_on_target(self, target, combo_points):

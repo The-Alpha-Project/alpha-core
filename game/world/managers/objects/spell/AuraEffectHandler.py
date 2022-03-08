@@ -30,6 +30,10 @@ class AuraEffectHandler:
         faction = aura.target.team if effect_target.get_type() == ObjectTypes.TYPE_PLAYER else 0
         model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
 
+        # Shapeshifting can affect current power type and stats (druid shapeshift powers/attack values).
+        effect_target.update_power_type()
+        effect_target.stat_manager.apply_bonuses()
+
         if remove or not model_info[0]:
             effect_target.reset_display_id()
             effect_target.reset_scale()
