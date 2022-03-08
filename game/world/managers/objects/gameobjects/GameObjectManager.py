@@ -243,8 +243,8 @@ class GameObjectManager(ObjectManager):
         target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True, is_periodic=is_periodic)
         target.receive_healing(healing, self)
 
-    # TODO: Added just to make SpellManager work with gameobjects as casters.
     # noinspection PyMethodMayBeStatic
+    # override
     def can_attack_target(self, target):
         return True
 

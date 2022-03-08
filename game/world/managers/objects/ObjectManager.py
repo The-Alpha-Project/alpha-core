@@ -315,6 +315,10 @@ class ObjectManager(object):
                                                                self.location.z)
         return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
 
+    # override
+    def can_attack_target(self, target):
+        return False
+
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)
         return PacketWriter.get_packet(OpCode.SMSG_DESTROY_OBJECT, data)
