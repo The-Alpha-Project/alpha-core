@@ -1031,6 +1031,7 @@ class UnitManager(ObjectManager):
         else:
             return ((own_faction.EnemyGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.EnemyGroup)) != 0
 
+    # noinspection PyUnresolvedReferences
     # override
     def can_attack_target(self, target):
         if target is self:
