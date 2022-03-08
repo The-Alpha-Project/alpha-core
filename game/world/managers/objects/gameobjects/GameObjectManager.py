@@ -167,6 +167,7 @@ class GameObjectManager(ObjectManager):
             player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o), is_instant=True)
             player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
+    # noinspection PyMethodMayBeStatic
     def _handle_use_quest_giver(self, player, target):
         if target:
             player.quest_manager.handle_quest_giver_hello(target, target.guid)
@@ -246,6 +247,8 @@ class GameObjectManager(ObjectManager):
     # noinspection PyMethodMayBeStatic
     # override
     def can_attack_target(self, target):
+        # Always return true so GameObject casters (traps) can interact with the spell target.
+        # TODO: Should we take GameObject faction into account to determine this result?
         return True
 
     def _handle_use_goober(self, player):
