@@ -2,7 +2,7 @@ from struct import unpack
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes, QuestGiverStatus, HighGuid
+from utils.constants.MiscCodes import ObjectTypeFlags, QuestGiverStatus, HighGuid, ObjectTypeIds
 
 
 class QuestGiverStatusHandler(object):
@@ -24,9 +24,9 @@ class QuestGiverStatusHandler(object):
                 return 0
 
             quest_giver_status = QuestGiverStatus.QUEST_GIVER_NONE
-            # Only units are able to provide quests status.
-            if world_session.player_mgr and quest_giver.get_type() == ObjectTypes.TYPE_UNIT:
-                if quest_giver.get_type() == ObjectTypes.TYPE_UNIT:
+            if world_session.player_mgr:
+                # Only units are able to provide quests status.
+                if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
                     quest_giver_status = world_session.player_mgr.quest_manager.get_dialog_status(quest_giver)
 
                 world_session.player_mgr.quest_manager.send_quest_giver_status(guid, quest_giver_status)

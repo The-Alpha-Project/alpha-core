@@ -1,7 +1,7 @@
 import math, time
 
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypes
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 
 TOLERANCE = 0.00001
 CELL_SIZE = config.Server.Settings.cell_size
@@ -56,7 +56,7 @@ class GridManager(object):
         cell = self.get_create_cell(world_object)
         cell.add(self, world_object)
 
-        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
+        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             affected_cells = list(self.get_surrounding_cells_by_object(world_object))
             # Try to load tile maps for affected cells if needed.
             self.load_maps_for_cells(affected_cells)
@@ -190,28 +190,28 @@ class GridManager(object):
         # Define return collection and indexes dynamically.
         for index in range(0, len(object_types)):
             surrounding_objects.append(dict())
-            if object_types[index] == ObjectTypes.TYPE_PLAYER:
+            if object_types[index] == ObjectTypeFlags.TYPE_PLAYER:
                 players_index = index
-            if object_types[index] == ObjectTypes.TYPE_UNIT:
+            if object_types[index] == ObjectTypeFlags.TYPE_UNIT:
                 creatures_index = index
-            if object_types[index] == ObjectTypes.TYPE_GAMEOBJECT:
+            if object_types[index] == ObjectTypeFlags.TYPE_GAMEOBJECT:
                 gameobject_index = index
 
         for cell in self.get_surrounding_cells_by_object(world_object):
-            if ObjectTypes.TYPE_PLAYER in object_types:
+            if ObjectTypeFlags.TYPE_PLAYER in object_types:
                 surrounding_objects[players_index] = {**surrounding_objects[players_index], **cell.players}
-            if ObjectTypes.TYPE_UNIT in object_types:
+            if ObjectTypeFlags.TYPE_UNIT in object_types:
                 surrounding_objects[creatures_index] = {**surrounding_objects[creatures_index], **cell.creatures}
-            if ObjectTypes.TYPE_GAMEOBJECT in object_types:
+            if ObjectTypeFlags.TYPE_GAMEOBJECT in object_types:
                 surrounding_objects[gameobject_index] = {**surrounding_objects[gameobject_index], **cell.gameobjects}
 
         return surrounding_objects
 
     def get_surrounding_players(self, world_object):
-        return self.get_surrounding_objects(world_object, [ObjectTypes.TYPE_PLAYER])[0]
+        return self.get_surrounding_objects(world_object, [ObjectTypeFlags.TYPE_PLAYER])[0]
 
     def get_surrounding_units(self, world_object, include_players=False):
-        object_types = [ObjectTypes.TYPE_PLAYER, ObjectTypes.TYPE_UNIT] if include_players else [ObjectTypes.TYPE_UNIT]
+        object_types = [ObjectTypeFlags.TYPE_PLAYER, ObjectTypeFlags.TYPE_UNIT] if include_players else [ObjectTypeFlags.TYPE_UNIT]
         res = self.get_surrounding_objects(world_object, object_types)
         if include_players:
             return res[0], res[1]
@@ -232,7 +232,7 @@ class GridManager(object):
         return units
 
     def get_surrounding_gameobjects(self, world_object):
-        return self.get_surrounding_objects(world_object, [ObjectTypes.TYPE_GAMEOBJECT])[0]
+        return self.get_surrounding_objects(world_object, [ObjectTypeFlags.TYPE_GAMEOBJECT])[0]
 
     def get_surrounding_player_by_guid(self, world_object, guid):
         for p_guid, player in list(self.get_surrounding_players(world_object).items()):
@@ -337,11 +337,11 @@ class Cell(object):
         # Update world_object cell so the below messages affect the new cell surroundings.
         world_object.current_cell = self.key
 
-        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
+        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.players[world_object.guid] = world_object
-        elif world_object.get_type() == ObjectTypes.TYPE_UNIT:
+        elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
             self.creatures[world_object.guid] = world_object
-        elif world_object.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
+        elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             self.gameobjects[world_object.guid] = world_object
 
     # Make each player update its surroundings, adding, removing or updating world objects as needed.
@@ -353,11 +353,11 @@ class Cell(object):
                 player.update_known_world_objects()
 
     def remove(self, world_object):
-        if world_object.get_type() == ObjectTypes.TYPE_PLAYER:
+        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.players.pop(world_object.guid, None)
-        elif world_object.get_type() == ObjectTypes.TYPE_UNIT:
+        elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
             self.creatures.pop(world_object.guid, None)
-        elif world_object.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
+        elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             self.gameobjects.pop(world_object.guid, None)
 
     def send_all(self, packet, source=None, exclude=None, use_ignore=False):

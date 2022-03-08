@@ -13,7 +13,7 @@ from game.world.managers.maps.TrapInfoHolder import TrapInfoHolder
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, GameObjectTypes, \
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
@@ -57,7 +57,7 @@ class GameObjectManager(ObjectManager):
             self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
                                         self.gobject_instance.spawn_spawntimemax)
 
-        self.object_type.append(ObjectTypes.TYPE_GAMEOBJECT)
+        self.object_type_mask |= ObjectTypeFlags.TYPE_GAMEOBJECT
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
 
         self.respawn_timer = 0
@@ -228,7 +228,7 @@ class GameObjectManager(ObjectManager):
         target.receive_damage(damage, self, is_periodic)
 
         # Send environmental damage log packet to the affected player.
-        if target.get_type() == ObjectTypes.TYPE_PLAYER:
+        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             data = pack(
                 '<Q2I',
                 target.guid,
@@ -326,8 +326,8 @@ class GameObjectManager(ObjectManager):
         # QUESTGIVERS and CHESTS (This includes other interactive game objects).
         if self.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
                 self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
-             if requester.quest_manager.should_interact_with_go(self):
-                 return pack('<I', 1)
+            if requester.quest_manager.should_interact_with_go(self):
+                return pack('<I', 1)
         return pack('<I', 0)
 
     # override
@@ -335,7 +335,7 @@ class GameObjectManager(ObjectManager):
         if self.gobject_template and self.gobject_instance:
             # Object fields
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
-            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
+            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
             self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
@@ -424,10 +424,6 @@ class GameObjectManager(ObjectManager):
     # override
     def on_cell_change(self):
         pass
-
-    # override
-    def get_type(self):
-        return ObjectTypes.TYPE_GAMEOBJECT
 
     # override
     def get_type_id(self):

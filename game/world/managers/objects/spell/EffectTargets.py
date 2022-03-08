@@ -8,7 +8,7 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.ExtendedSpellData import SummonedObjectPositions
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects
 
 
@@ -44,8 +44,8 @@ class EffectTargets:
 
     def get_simple_targets(self) -> dict[SpellImplicitTargets, list[Union[ObjectManager, Vector]]]:
         caster = self.casting_spell.spell_caster
-        caster_is_player = caster.get_type() == ObjectTypes.TYPE_PLAYER
-        caster_is_gameobject = caster.get_type() == ObjectTypes.TYPE_GAMEOBJECT
+        caster_is_player = caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+        caster_is_gameobject = caster.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
 
         target_is_player = self.casting_spell.initial_target_is_player()
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
@@ -136,7 +136,7 @@ class EffectTargets:
 
     @staticmethod
     def get_party_members_from_unit_list(units: list[ObjectManager], caster):
-        if caster.get_type() != ObjectTypes.TYPE_PLAYER or not caster.group_manager:
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not caster.group_manager:
             return []
 
         friendly_units = EffectTargets.get_friends_from_unit_list(units, caster)  # Party members can be hostile while dueling
@@ -253,10 +253,10 @@ class EffectTargets:
         units_in_range = []
 
         # These spells should most likely include self (battle shout, prayer of healing etc.)
-        if ObjectTypes.TYPE_UNIT in caster.object_type:
+        if caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             units_in_range.append(caster)
 
-        if caster.get_type() != ObjectTypes.TYPE_PLAYER or not caster.group_manager:
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not caster.group_manager:
             return units_in_range  # TODO pets etc. should probably be targeted
 
         for unit in units:

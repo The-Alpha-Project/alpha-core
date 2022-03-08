@@ -10,7 +10,7 @@ from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes, GameObjectTypes, HighGuid
+from utils.constants.MiscCodes import ObjectTypeFlags, GameObjectTypes, HighGuid, ObjectTypeIds
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import UnitFields
@@ -26,7 +26,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in target.object_type:
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
             return
 
         damage = effect.get_effect_points(casting_spell.caster_effective_level)
@@ -34,7 +34,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_heal(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in target.object_type:
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
             return
 
         healing = effect.get_effect_points(casting_spell.caster_effective_level)
@@ -42,7 +42,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in caster.object_type:
+        if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type, casting_spell.spell_entry.School,
@@ -53,7 +53,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_weapon_damage_plus(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in caster.object_type:
+        if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type, casting_spell.spell_entry.School,
@@ -61,7 +61,7 @@ class SpellEffectHandler(object):
 
         damage_bonus = effect.get_effect_points(casting_spell.caster_effective_level)
 
-        if caster.get_type() == ObjectTypes.TYPE_PLAYER and \
+        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
                 casting_spell.requires_combo_points():
             damage_bonus *= caster.combo_points
 
@@ -69,14 +69,14 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in caster.object_type:
+        if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         caster.add_combo_points_on_target(target, effect.get_effect_points(casting_spell.caster_effective_level))
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in target.object_type:
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
             return
 
         target.aura_manager.apply_spell_effect_aura(caster, casting_spell, effect)
@@ -95,14 +95,14 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_open_lock(casting_spell, effect, caster, target):
         # TODO Skill checks etc.
-        if caster and target and target.get_type() == ObjectTypes.TYPE_GAMEOBJECT:  # TODO other object types, ie. lockboxes
+        if caster and target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:  # TODO other object types, ie. lockboxes
             target.use(caster, target)
             caster.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
             caster.set_uint32(UnitFields.UNIT_FIELD_FLAGS, caster.unit_flags)
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in target.object_type:
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
             return
 
         power_type = effect.misc_value
@@ -114,7 +114,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_summon_mount(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in target.object_type:
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
             return
 
         already_mounted = target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED
@@ -133,7 +133,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_insta_kill(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in target.object_type:
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
             return
 
         # No SMSG_SPELLINSTAKILLLOG in 0.5.3
@@ -141,7 +141,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_create_item(casting_spell, effect, caster, target):
-        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         target.inventory.add_item(effect.item_type,
@@ -149,7 +149,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_PLAYER not in target.object_type:
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_PLAYER:
             return
 
         # Teleport targets should follow the format (map, Vector).
@@ -235,7 +235,7 @@ class SpellEffectHandler(object):
         # 1.1: Summoning gives a confirmation dialog to person being summoned.
         # 1.3: You can no longer accept a warlock summoning while you are in combat.
 
-        if caster.get_type() != ObjectTypes.TYPE_PLAYER:
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         # Since this handler is ONLY used by the ritual of summoning effect, directly check for that spell here (ID 698).
@@ -256,14 +256,14 @@ class SpellEffectHandler(object):
 
         elif casting_spell.spell_entry.ID == group_astral_recall:
             for target in effect.targets.get_resolved_effect_targets_by_type(ObjectManager):
-                if target.get_type() != ObjectTypes.TYPE_PLAYER:
+                if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
                     continue
                 recall_coordinates = target.get_deathbind_coordinates()
                 target.teleport(recall_coordinates[0], recall_coordinates[1])
 
     @staticmethod
     def handle_weapon_skill(casting_spell, effect, caster, target):
-        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         skill = target.skill_manager.get_skill_for_spell_id(casting_spell.spell_entry.ID)
@@ -273,7 +273,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_add_proficiency(casting_spell, effect, caster, target):
-        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         item_class = casting_spell.spell_entry.EquippedItemClass
@@ -286,7 +286,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_add_language(casting_spell, effect, caster, target):
-        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         skill = target.skill_manager.get_skill_for_spell_id(casting_spell.spell_entry.ID)
@@ -298,11 +298,11 @@ class SpellEffectHandler(object):
     @staticmethod
     def handle_bind(casting_spell, effect, caster, target):
         # Only target allowed is a player.
-        if target.get_type() != ObjectTypes.TYPE_PLAYER:
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         # Only save the GUID of the binder if the spell is casted by a creature.
-        if caster.get_type() == ObjectTypes.TYPE_UNIT:
+        if caster.get_type_id() == ObjectTypeIds.ID_UNIT:
             target.deathbind.creature_binder_guid = caster.guid & ~HighGuid.HIGHGUID_UNIT
         else:
             target.deathbind.creature_binder_guid = 0
@@ -322,33 +322,33 @@ class SpellEffectHandler(object):
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
     def handle_block_passive(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in target.object_type:
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
             return
 
         target.has_block_passive = True
-        if target.get_type() == ObjectTypes.TYPE_PLAYER:
+        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             target.skill_manager.add_skill(SkillTypes.BLOCK.value)
 
     @staticmethod
     def handle_parry_passive(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in target.object_type:
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
             return
 
         target.has_parry_passive = True
 
     @staticmethod
     def handle_dodge_passive(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in target.object_type:
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
             return
 
         target.has_dodge_passive = True
 
     @staticmethod
     def handle_defense_passive(casting_spell, effect, caster, target):
-        if ObjectTypes.TYPE_UNIT not in target.object_type:
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
             return
 
-        if target.get_type() == ObjectTypes.TYPE_PLAYER:
+        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             target.skill_manager.add_skill(SkillTypes.DEFENSE.value)
 
     @staticmethod

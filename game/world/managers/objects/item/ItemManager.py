@@ -7,7 +7,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses
-from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, ItemBondingTypes
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.UpdateFields import ObjectFields, ItemFields
 
 AVAILABLE_EQUIP_SLOTS = [
@@ -107,7 +107,7 @@ class ItemManager(ObjectManager):
                                       self.item_template.spellcharges_5, self.item_template.spellcooldown_5,
                                       self.item_template.spellcategory_5, self.item_template.spellcategorycooldown_5))
 
-        self.object_type.append(ObjectTypes.TYPE_ITEM)
+        self.object_type_mask |= ObjectTypeFlags.TYPE_ITEM
         self.update_packet_factory.init_values(ItemFields.ITEM_END)
 
     class Stat(object):
@@ -326,7 +326,7 @@ class ItemManager(ObjectManager):
 
             # Object fields
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
-            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
+            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.item_template.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, 1)
             self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
@@ -367,10 +367,6 @@ class ItemManager(ObjectManager):
         else:
             self.item_instance.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_UNK16
         self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self.item_instance.item_flags)
-
-    # override
-    def get_type(self):
-        return ObjectTypes.TYPE_ITEM
 
     # override
     def get_type_id(self):

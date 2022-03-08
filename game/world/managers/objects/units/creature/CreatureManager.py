@@ -17,7 +17,7 @@ from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import NpcFlags, ObjectTypes, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
+from utils.constants.MiscCodes import NpcFlags, ObjectTypeFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
     CreatureStaticFlags, PowerTypes
@@ -369,7 +369,7 @@ class CreatureManager(UnitManager):
 
         # Object fields
         self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
-        self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
+        self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
         self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
         self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
@@ -610,7 +610,7 @@ class CreatureManager(UnitManager):
 
         self.loot_manager.generate_loot(killer)
 
-        if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
+        if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.reward_kill_xp(killer)
             self.killed_by = killer
             # If the player/group requires the kill, reward it to them.
@@ -681,10 +681,6 @@ class CreatureManager(UnitManager):
             self.power_type = ShapeshiftInfo.get_power_for_form(self.shapeshift_form)
 
         self.bytes_0 = unpack('<I', pack('<4B', 0, self.creature_template.unit_class, self.gender, self.power_type))[0]
-
-    # override
-    def get_type(self):
-        return ObjectTypes.TYPE_UNIT
 
     # override
     def get_type_id(self):

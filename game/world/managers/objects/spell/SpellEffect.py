@@ -2,7 +2,7 @@ import random
 import time
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import SpellRadius, Spell, SpellDuration
+from database.dbc.DbcModels import SpellRadius, SpellDuration
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from utils.constants.SpellCodes import SpellEffects
 

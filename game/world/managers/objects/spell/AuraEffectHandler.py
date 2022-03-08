@@ -3,7 +3,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypes, MoveFlags
+from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
 from utils.constants.UnitCodes import UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields
@@ -27,7 +27,7 @@ class AuraEffectHandler:
         form = aura.spell_effect.misc_value if not remove else ShapeshiftForms.SHAPESHIFT_FORM_NONE
         effect_target.set_shapeshift_form(form)
 
-        faction = aura.target.team if effect_target.get_type() == ObjectTypes.TYPE_PLAYER else 0
+        faction = aura.target.team if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER else 0
         model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
 
         # Shapeshifting can affect current power type and stats (druid shapeshift powers/attack values).
@@ -146,7 +146,7 @@ class AuraEffectHandler:
         #    - Interrupt spell casting.
 
         # Player specific.
-        if effect_target.get_type() == ObjectTypes.TYPE_PLAYER:
+        if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Don't stun if player is flying.
             if effect_target.pending_taxi_destination:
                 return

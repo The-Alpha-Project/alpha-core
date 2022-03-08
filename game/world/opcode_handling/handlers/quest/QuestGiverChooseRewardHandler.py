@@ -21,7 +21,7 @@ class QuestGiverChooseRewardHandler(object):
                 quest_giver = MapManager.get_surrounding_gameobject_by_guid(world_session.player_mgr, guid)
 
             if not quest_giver:
-                Logger.error(f'Error in CMSG_QUESTGIVER_COMPLETE_QUEST, could not find quest giver with guid of: {quest_giver_guid}')
+                Logger.error(f'Error in CMSG_QUESTGIVER_COMPLETE_QUEST, could not find quest giver with guid of: {guid}')
                 return 0
 
             if world_session.player_mgr.is_enemy_to(quest_giver):

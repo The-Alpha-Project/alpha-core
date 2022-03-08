@@ -6,7 +6,7 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.MiscCodes import ObjectTypes, ProcFlags, HitInfo
+from utils.constants.MiscCodes import ObjectTypeFlags, ProcFlags, ObjectTypeIds
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
     SpellAttributesEx, SpellEffects
 from utils.constants.UnitCodes import UnitFlags, StandState
@@ -53,7 +53,7 @@ class AuraManager:
             self.send_aura_duration(aura)
 
         # Aura application threat TODO handle threat elsewhere
-        if aura.harmful and ObjectTypes.TYPE_UNIT in aura.caster.object_type:
+        if aura.harmful and aura.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             if aura.source_spell.generates_threat():
                 self.unit_mgr.attack(aura.caster)
             self.check_aura_interrupts(negative_aura_applied=True)
@@ -303,7 +303,7 @@ class AuraManager:
         self.cancel_auras_by_spell_id(spell_id)
 
     def send_aura_duration(self, aura):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         data = pack('<Bi', aura.index, int(aura.get_duration()))

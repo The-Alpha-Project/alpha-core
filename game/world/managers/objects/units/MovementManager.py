@@ -8,14 +8,14 @@ from game.world.managers.objects.units.MovementSpline import MovementSpline
 from game.world.managers.objects.units.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypes, MoveFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, MoveFlags, ObjectTypeIds
 from utils.constants.UnitCodes import SplineFlags, SplineType, UnitFlags
 
 
 class MovementManager(object):
     def __init__(self, unit):
         self.unit = unit
-        self.is_player = self.unit.get_type() == ObjectTypes.TYPE_PLAYER
+        self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
         self.should_update_waypoints = False
         self.last_position = None
         self.pending_waypoints = []

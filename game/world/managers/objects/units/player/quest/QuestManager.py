@@ -11,8 +11,8 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants import UnitCodes
-from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypes, QuestMethod, \
-    QuestFlags, GameObjectTypes
+from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypeFlags, QuestMethod, \
+    QuestFlags, GameObjectTypes, ObjectTypeIds
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -104,7 +104,7 @@ class QuestManager(object):
             return dialog_status
 
         # Relations bounds, the quest giver; Involved relations bounds, the quest completer.
-        if world_object.get_type() == ObjectTypes.TYPE_UNIT:
+        if world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
             relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(world_object.entry)
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(world_object.entry)
         else:
@@ -153,10 +153,10 @@ class QuestManager(object):
     def handle_quest_giver_hello(self, quest_giver, quest_giver_guid):
         quest_menu = QuestMenu()
         # Type is unit, but not player.
-        if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.get_type_id() != ObjectTypeIds.ID_PLAYER:
             relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
-        elif quest_giver.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
+        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(quest_giver.entry)
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(quest_giver.entry)
         else:
@@ -215,10 +215,10 @@ class QuestManager(object):
         quest_num: int = 0
 
         # Type is unit, but not player.
-        if quest_giver.get_type() == ObjectTypes.TYPE_UNIT and quest_giver.get_type() != ObjectTypes.TYPE_PLAYER:
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.get_type_id() != ObjectTypeIds.ID_PLAYER:
             relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
-        elif quest_giver.get_type() == ObjectTypes.TYPE_GAMEOBJECT:
+        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(quest_giver.entry)
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(quest_giver.entry)
         else:
@@ -316,7 +316,7 @@ class QuestManager(object):
 
         questgiver_greeting = ''
         # Get text based on creature gender.
-        if quest_giver.get_type() == ObjectTypes.TYPE_UNIT:
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
             if quest_giver.gender == UnitCodes.Genders.GENDER_MALE:
                 questgiver_greeting: str = questgiver_text_entry.text0_0
             else:
@@ -326,7 +326,7 @@ class QuestManager(object):
 
     # Quest status only works for units, sending a gameobject guid crashes the client.
     def update_surrounding_quest_status(self):
-        units = MapManager.get_surrounding_objects(self.player_mgr, [ObjectTypes.TYPE_UNIT])[0]
+        units = MapManager.get_surrounding_objects(self.player_mgr, [ObjectTypeFlags.TYPE_UNIT])[0]
         for guid, unit in units.items():
             if WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
                     unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry):

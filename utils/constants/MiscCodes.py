@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 
-class ObjectTypes(IntEnum):
+class ObjectTypeFlags(IntEnum):
     TYPE_OBJECT = 1
     TYPE_ITEM = 2
     TYPE_CONTAINER = 4

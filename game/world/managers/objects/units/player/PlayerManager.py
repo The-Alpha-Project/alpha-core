@@ -27,7 +27,7 @@ from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
-from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
@@ -144,7 +144,7 @@ class PlayerManager(UnitManager):
             self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
             self.is_alive = self.health > 0
 
-            self.object_type.append(ObjectTypes.TYPE_PLAYER)
+            self.object_type_mask |= ObjectTypeFlags.TYPE_PLAYER
             self.update_packet_factory.init_values(PlayerFields.PLAYER_END)
 
             self.talent_manager = TalentManager(self)
@@ -320,7 +320,7 @@ class PlayerManager(UnitManager):
     # (update_mask bits set).
     def update_world_object_on_me(self, world_object):
         if world_object.guid in self.known_objects:
-            if world_object.get_type() == ObjectTypes.TYPE_PLAYER and world_object.dirty_inventory:
+            if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and world_object.dirty_inventory:
                 # This is a known player and has inventory changes.
                 for update_packet in world_object.inventory.get_inventory_update_packets(self):
                     self.enqueue_packet(update_packet)
@@ -337,9 +337,9 @@ class PlayerManager(UnitManager):
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
     def update_known_world_objects(self, force_update=False):
-        players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypes.TYPE_PLAYER,
-                                                                              ObjectTypes.TYPE_UNIT,
-                                                                              ObjectTypes.TYPE_GAMEOBJECT])
+        players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypeFlags.TYPE_PLAYER,
+                                                                                     ObjectTypeFlags.TYPE_UNIT,
+                                                                                     ObjectTypeFlags.TYPE_GAMEOBJECT])
 
         # Which objects were found in self surroundings.
         active_objects = dict()
@@ -962,7 +962,7 @@ class PlayerManager(UnitManager):
 
         # Object fields
         self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.player.guid)
-        self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_object_type_value())
+        self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
         self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
         self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
@@ -1494,7 +1494,7 @@ class PlayerManager(UnitManager):
         if not super().die(killer):
             return False
 
-        if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
+        if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
             death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
             self.enqueue_packet(death_notify_packet)
 
@@ -1528,10 +1528,6 @@ class PlayerManager(UnitManager):
     # override
     def on_cell_change(self):
         self.quest_manager.update_surrounding_quest_status()
-
-    # override
-    def get_type(self):
-        return ObjectTypes.TYPE_PLAYER
 
     # override
     def get_type_id(self):

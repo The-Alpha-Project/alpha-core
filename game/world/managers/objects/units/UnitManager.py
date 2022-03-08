@@ -16,7 +16,7 @@ from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.DuelCodes import DuelState
-from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, AttackTypes, ProcFlags, \
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
     HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, UnitStates
@@ -153,7 +153,7 @@ class UnitManager(ObjectManager):
         self.bytes_2 = bytes_2  # combo points, 0, 0, 0
         self.current_target = current_target
 
-        self.object_type.append(ObjectTypes.TYPE_UNIT)
+        self.object_type_mask |= ObjectTypeFlags.TYPE_UNIT
         self.update_packet_factory.init_values(UnitFields.UNIT_END)
 
         self.is_alive = True
@@ -195,7 +195,7 @@ class UnitManager(ObjectManager):
             return False
 
         # Mounted players can't attack
-        if self.get_type() == ObjectTypes.TYPE_PLAYER and self.mount_display_id > 0:
+        if self.get_type_id() == ObjectTypeIds.ID_PLAYER and self.mount_display_id > 0:
             return False
 
         # In fight already
@@ -308,7 +308,7 @@ class UnitManager(ObjectManager):
                 self.attacker_state_update(self.combat_target, AttackTypes.OFFHAND_ATTACK, False)
                 self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
-        if self.object_type == ObjectTypes.TYPE_PLAYER:
+        if self.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if swing_error != AttackSwingError.NONE:
                 self.set_attack_timer(AttackTypes.BASE_ATTACK, self.base_attack_time)
                 if self.has_offhand_weapon():
@@ -400,7 +400,7 @@ class UnitManager(ObjectManager):
                 damage_info.proc_victim |= ProcFlags.BLOCK
 
         # Generate rage (if needed)
-        self.generate_rage(damage_info, is_player=self.get_type() == ObjectTypes.TYPE_PLAYER)
+        self.generate_rage(damage_info, is_player=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
         # Note: 1.1.0 patch: "Skills will not increase from use while dueling or engaged in PvP."
         self.handle_combat_skill_gain(damage_info)
@@ -434,7 +434,7 @@ class UnitManager(ObjectManager):
                     0, 0,
                     damage_info.blocked_amount)
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATE, data), self,
-                                    include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
+                                    include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
         # Damage effects
         self.deal_damage(damage_info.target, damage_info.total_damage)
@@ -484,7 +484,7 @@ class UnitManager(ObjectManager):
         target.receive_damage(damage, source=self, is_periodic=False)
 
     def receive_damage(self, amount, source=None, is_periodic=False):
-        is_player = self.get_type() == ObjectTypes.TYPE_PLAYER
+        is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
 
         if source is not self and not is_periodic and amount > 0:
             self.aura_manager.check_aura_interrupts(received_damage=True)
@@ -497,7 +497,7 @@ class UnitManager(ObjectManager):
             self.set_health(new_health)
 
         # If unit is a creature and it's being attacked by another unit, automatically set combat target.
-        if not self.combat_target and not is_player and source and source.get_type() != ObjectTypes.TYPE_GAMEOBJECT:
+        if not self.combat_target and not is_player and source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
             # Make sure to first stop any movement right away.
             if len(self.movement_manager.pending_waypoints) > 0:
                 self.movement_manager.send_move_stop()
@@ -575,13 +575,13 @@ class UnitManager(ObjectManager):
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL
 
         MapManager.send_surrounding(PacketWriter.get_packet(combat_log_opcode, combat_log_data), self,
-                                    include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
+                                    include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
         if not healing:
             damage_data = pack('<Q2i2IQ', damage_info.target.guid, damage_info.total_damage, damage_info.damage,
                                miss_reason, spell_id, damage_info.attacker.guid)
             MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
-                                        include_self=self.get_type() == ObjectTypes.TYPE_PLAYER)
+                                        include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
     def set_current_target(self, guid):
         self.current_target = guid
@@ -954,7 +954,7 @@ class UnitManager(ObjectManager):
         self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_DEAD
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
-        if killer and killer.get_type() == ObjectTypes.TYPE_PLAYER:
+        if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if killer.current_selection == self.guid:
                 killer.set_current_selection(killer.guid)
 
@@ -962,7 +962,7 @@ class UnitManager(ObjectManager):
             if killer.combo_target == self.guid:
                 killer.remove_combo_points()
 
-        if killer and ObjectTypes.TYPE_UNIT in killer.object_type:
+        if killer and killer.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             killer.spell_manager.remove_unit_from_all_cast_targets(self.guid)  # Interrupt casting on target death
             killer.aura_manager.check_aura_procs(killed_unit=True)
 
@@ -991,10 +991,6 @@ class UnitManager(ObjectManager):
     # override
     def on_cell_change(self):
         pass
-
-    # override
-    def get_type(self):
-        return ObjectTypes.TYPE_UNIT
 
     # override
     def get_type_id(self):
@@ -1038,7 +1034,7 @@ class UnitManager(ObjectManager):
             return False
 
         is_enemy = self.is_enemy_to(target)
-        if is_enemy or self.get_type() != ObjectTypes.TYPE_PLAYER or target.get_type() != ObjectTypes.TYPE_PLAYER:
+        if is_enemy or self.get_type_id() != ObjectTypeIds.ID_PLAYER or target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return is_enemy
 
         if not self.duel_manager:

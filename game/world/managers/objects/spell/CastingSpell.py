@@ -13,7 +13,7 @@ from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
-from utils.constants.MiscCodes import ObjectTypes, AttackTypes, HitInfo
+from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellEffects, SpellInterruptFlags
@@ -56,7 +56,7 @@ class CastingSpell(object):
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
 
-        if ObjectTypes.TYPE_UNIT in self.spell_caster.object_type:
+        if self.spell_caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
         else:
             self.caster_effective_level = 0
@@ -70,8 +70,9 @@ class CastingSpell(object):
         self.cast_state = SpellState.SPELL_STATE_PREPARING
         self.spell_impact_timestamps = {}
 
-        if ObjectTypes.TYPE_PLAYER in caster.object_type:
-            self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(self.spell_caster, self.spell_caster.current_selection, include_players=True)
+        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(
+                self.spell_caster, self.spell_caster.current_selection, include_players=True)
 
         self.load_effects()
 
@@ -89,26 +90,25 @@ class CastingSpell(object):
         if not self.initial_target_is_object():
             return False
 
-        target_type = self.initial_target.get_type()
-        return target_type == ObjectTypes.TYPE_UNIT or target_type == ObjectTypes.TYPE_PLAYER
+        return self.initial_target.object_type_mask & ObjectTypeFlags.TYPE_UNIT
 
     def initial_target_is_player(self):
         if not self.initial_target_is_object():
             return False
 
-        return self.initial_target.get_type() == ObjectTypes.TYPE_PLAYER
+        return self.initial_target.get_type_id() == ObjectTypeIds.ID_PLAYER
 
     def initial_target_is_item(self):
         if not self.initial_target_is_object():
             return False
 
-        return self.initial_target.get_type() == ObjectTypes.TYPE_ITEM
+        return self.initial_target.get_type_id() == ObjectTypeIds.ID_ITEM
 
     def initial_target_is_gameobject(self):
         if not self.initial_target_is_object():
             return False
 
-        return self.initial_target.get_type() == ObjectTypes.TYPE_GAMEOBJECT
+        return self.initial_target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
 
     def initial_target_is_terrain(self):
         return isinstance(self.initial_target, Vector)
@@ -138,7 +138,7 @@ class CastingSpell(object):
         if not self.is_ranged_weapon_attack():
             return None
 
-        if self.spell_caster.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.spell_caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return None  # TODO Ammo type resolving for other units.
 
         equipped_weapon = self.spell_caster.get_current_weapon_for_attack_type(AttackTypes.RANGED_ATTACK)
@@ -224,8 +224,8 @@ class CastingSpell(object):
 
     def requires_combo_points(self):
         cp_att = SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS
-        return self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and \
-            self.spell_entry.AttributesEx & cp_att != 0
+        return self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
+               self.spell_entry.AttributesEx & cp_att != 0
 
     def requires_hostile_target(self):
         for effect in self.effects:
@@ -245,12 +245,12 @@ class CastingSpell(object):
             return 0
 
         skill = 0
-        if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER:
+        if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             skill = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
 
         cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill))
 
-        if self.is_ranged_weapon_attack() and ObjectTypes.TYPE_UNIT in self.spell_caster.object_type:
+        if self.is_ranged_weapon_attack() and self.spell_caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             # Ranged attack tooltips are unfinished, so this is partially a guess.
             # All ranged attacks without delay seem to say "next ranged".
             # Ranged attacks with delay (cast time) say "attack speed + X (delay) sec".
@@ -263,10 +263,10 @@ class CastingSpell(object):
         mana_cost = self.spell_entry.ManaCost
         power_cost_mod = 0
 
-        if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER and self.spell_entry.ManaCostPct != 0:
+        if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER and self.spell_entry.ManaCostPct != 0:
             mana_cost = self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
 
-        if self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER:
+        if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             mana_cost = self.spell_caster.stat_manager.apply_bonuses_for_value(mana_cost, UnitStats.SCHOOL_POWER_COST,
                                                                                misc_value=self.spell_entry.School)
         # ManaCostPerLevel is not used by anything relevant, ignore for now (only 271/4513/7290) TODO
@@ -360,4 +360,4 @@ class CastingSpell(object):
             return
 
         MapManager.send_surrounding(PacketWriter.get_packet(final_opcode, data), self.spell_caster,
-                                    include_self=self.spell_caster.get_type() == ObjectTypes.TYPE_PLAYER)
+                                    include_self=self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER)

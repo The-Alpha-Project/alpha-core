@@ -6,7 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from game.world.managers.objects.units.player.SkillManager import SkillTypes, SkillManager
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import AttackTypes, ObjectTypes, HitInfo
+from utils.constants.MiscCodes import AttackTypes, ObjectTypeFlags, HitInfo, ObjectTypeIds
 from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms
 from utils.constants.UnitCodes import PowerTypes, Classes
 
@@ -111,7 +111,7 @@ class StatManager(object):
         self.aura_stats_percentual = {}
 
     def init_stats(self):
-        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.player.class_,
                                                                            self.unit_mgr.level)
             base_attrs = WorldDatabaseManager.player_get_level_stats(self.unit_mgr.player.class_,
@@ -215,7 +215,7 @@ class StatManager(object):
         self.send_resistances()
         self.send_defense_bonuses()
 
-        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.unit_mgr.skill_manager.build_update()
 
         # Set health and power (if it's not Rage) to their max values.
@@ -283,7 +283,7 @@ class StatManager(object):
         return bonuses
 
     def calculate_item_stats(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             self.weapon_reach = self.unit_mgr.weapon_reach
             min_damage, max_damage = unpack('<2H', pack('<I', self.unit_mgr.damage))
             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = min_damage
@@ -395,7 +395,7 @@ class StatManager(object):
         return mana_diff if mana_diff > 0 else 0
 
     def update_base_health_regen(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         player_class = self.unit_mgr.player.class_
@@ -403,7 +403,7 @@ class StatManager(object):
         self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(CLASS_BASE_REGEN_HEALTH[player_class] + spirit * CLASS_SPIRIT_SCALING_HP5[player_class])
 
     def update_base_mana_regen(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
         player_class = self.unit_mgr.player.class_
         if player_class not in CLASS_SPIRIT_SCALING_MANA:
@@ -414,7 +414,7 @@ class StatManager(object):
         self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
 
     def update_base_dodge_chance(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return  # Base dodge can't change for creatures - set on init
 
         player_class = self.unit_mgr.player.class_
@@ -431,7 +431,7 @@ class StatManager(object):
         self.base_stats[UnitStats.DODGE_CHANCE] = base_dodge
 
     def update_base_block_chance(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         player_class = self.unit_mgr.player.class_
@@ -452,7 +452,7 @@ class StatManager(object):
         self.base_stats[UnitStats.BLOCK_CHANCE] = strength_scaling + base_block_chance
 
     def update_base_proc_chance(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
         player_class = self.unit_mgr.player.class_
 
@@ -521,7 +521,7 @@ class StatManager(object):
             return HitInfo.MISS
 
         # Note: Bear and cat form attacks don't use a weapon, and instead have max attack rating.
-        if attacker.get_type() == ObjectTypes.TYPE_PLAYER and not attacker.is_in_feral_form():
+        if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER and not attacker.is_in_feral_form():
             attack_weapon = attacker.get_current_weapon_for_attack_type(attack_type)
             attack_weapon_template = attack_weapon.item_template if attack_weapon is not None else None
 
@@ -533,7 +533,7 @@ class StatManager(object):
 
         base_miss = 0.05 + dual_wield_penalty
 
-        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # 0.04% Bonus against players when the defender has a higher combat rating,
             # 0.02% Bonus when the attacker has a higher combat rating.
             miss_chance = base_miss + rating_difference * 0.0004 if rating_difference > 0 else base_miss + rating_difference * 0.0002
@@ -572,7 +572,7 @@ class StatManager(object):
         return HitInfo.SUCCESS
 
     def update_base_weapon_attributes(self, attack_type=0):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
         # TODO: Using Vanilla formula, AP was not present in Alpha
 
@@ -618,7 +618,7 @@ class StatManager(object):
         self.update_base_block_chance()
 
     def send_melee_attributes(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
         # For stat sheet
         self.unit_mgr.set_melee_damage(self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN),
@@ -629,7 +629,7 @@ class StatManager(object):
         self.unit_mgr.set_weapon_reach(self.weapon_reach)
 
     def send_resistances(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         self.unit_mgr.set_armor(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_PHYSICAL))
@@ -666,7 +666,7 @@ class StatManager(object):
         return self.get_total_stat(stat_type, accept_negative=True), self.get_item_stat(stat_type)
 
     def send_attributes(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
         self.unit_mgr.set_base_str(self.get_base_stat(UnitStats.STRENGTH))
         self.unit_mgr.set_base_agi(self.get_base_stat(UnitStats.AGILITY))
@@ -681,7 +681,7 @@ class StatManager(object):
         self.unit_mgr.set_spi(self.get_total_stat(UnitStats.SPIRIT, accept_negative=True))
 
     def send_damage_bonuses(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
         main_hand = self.unit_mgr.inventory.get_main_hand()
         subclass_mask = 0
@@ -704,7 +704,7 @@ class StatManager(object):
         self.send_dodge_percentage()
 
     def send_block_percentage(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
         if not self.unit_mgr.can_block():
             self.unit_mgr.set_block_chance(0)
@@ -720,7 +720,7 @@ class StatManager(object):
         self.unit_mgr.set_block_chance(value)
 
     def send_parry_percentage(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
         if not self.unit_mgr.can_parry():
             self.unit_mgr.set_parry_chance(0)
@@ -734,7 +734,7 @@ class StatManager(object):
         self.unit_mgr.set_parry_chance(value)
 
     def send_dodge_percentage(self):
-        if self.unit_mgr.get_type() != ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
         if not self.unit_mgr.can_dodge():
             self.unit_mgr.set_dodge_chance(0)
@@ -754,7 +754,7 @@ class StatManager(object):
         if attacker_rating == -1:  # Use max defense skill since it follows the same values as max weapon skill
             attacker_rating = SkillManager.get_max_rank(attacker_level, SkillTypes.DEFENSE)
 
-        if self.unit_mgr.get_type() == ObjectTypes.TYPE_PLAYER:
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # TODO It's unclear what the block skill is used for based on patch notes.
             # Replace Defense in calculations with block to at least give it a purpose.
             # This way, block chance will be affected by block skill instead of defense skill like in vanilla.

@@ -5,7 +5,7 @@ from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes, MoveFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes, MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields \
     import ObjectFields
@@ -55,7 +55,7 @@ class ObjectManager(object):
         self.zone = zone
         self.map_ = map_
 
-        self.object_type = [ObjectTypes.TYPE_OBJECT]
+        self.object_type_mask = ObjectTypeFlags.TYPE_OBJECT
         self.update_packet_factory = UpdatePacketFactory()
 
         self.is_spawned = True
@@ -74,12 +74,6 @@ class ObjectManager(object):
 
     def has_pending_updates(self):
         return self.update_packet_factory.has_pending_updates()
-
-    def get_object_type_value(self):
-        type_value = 0
-        for type_ in self.object_type:
-            type_value |= type_
-        return type_value
 
     def generate_create_packet(self, requester):
         return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
@@ -106,7 +100,8 @@ class ObjectManager(object):
         data += self._get_movement_fields()
 
         # Misc fields.
-        combat_unit = UnitManager.UnitManager(self).combat_target if ObjectTypes.TYPE_UNIT in self.object_type else None
+        combat_unit = UnitManager.UnitManager(self).combat_target if self.object_type_mask & ObjectTypeFlags.TYPE_UNIT \
+            else None
         data += pack(
             '<3IQ',
             1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
@@ -267,10 +262,6 @@ class ObjectManager(object):
     # override
     def on_cell_change(self):
         pass
-
-    # override
-    def get_type(self):
-        return ObjectTypes.TYPE_OBJECT
 
     # override
     def get_type_id(self):

@@ -1,7 +1,7 @@
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from utils.constants.ItemCodes import InventorySlots, ItemClasses, ItemSubClasses, BagFamilies
-from utils.constants.MiscCodes import ObjectTypes, ObjectTypeIds, HighGuid, ItemBondingTypes
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.UpdateFields import ContainerFields
 
 MAX_BAG_SLOTS = 20  # (ContainerFields.CONTAINER_END - ContainerFields.CONTAINER_FIELD_SLOT_1) / 2
@@ -30,7 +30,7 @@ class ContainerManager(ItemManager):
             self.max_slot = InventorySlots.SLOT_BANK_END
             self.is_contained = self.owner
 
-        self.object_type.append(ObjectTypes.TYPE_CONTAINER)
+        self.object_type_mask |= ObjectTypeFlags.TYPE_CONTAINER
         self.update_packet_factory.init_values(ContainerFields.CONTAINER_END)
 
     @classmethod
@@ -185,10 +185,6 @@ class ContainerManager(ItemManager):
         if self.item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_QUIVER:
             return item_template.bag_family == BagFamilies.ARROWS
         return item_template.bag_family == BagFamilies.BULLETS
-
-    # override
-    def get_type(self):
-        return ObjectTypes.TYPE_CONTAINER
 
     # override
     def get_type_id(self):
