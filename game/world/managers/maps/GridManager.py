@@ -190,25 +190,25 @@ class GridManager(object):
         # Define return collection and indexes dynamically.
         for index in range(0, len(object_types)):
             surrounding_objects.append(dict())
-            if object_types[index] == ObjectTypeFlags.TYPE_PLAYER:
+            if object_types[index] == ObjectTypeIds.ID_PLAYER:
                 players_index = index
-            if object_types[index] == ObjectTypeFlags.TYPE_UNIT:
+            if object_types[index] == ObjectTypeIds.ID_UNIT:
                 creatures_index = index
-            if object_types[index] == ObjectTypeFlags.TYPE_GAMEOBJECT:
+            if object_types[index] == ObjectTypeIds.ID_GAMEOBJECT:
                 gameobject_index = index
 
         for cell in self.get_surrounding_cells_by_object(world_object):
-            if ObjectTypeFlags.TYPE_PLAYER in object_types:
+            if ObjectTypeIds.ID_PLAYER in object_types:
                 surrounding_objects[players_index] = {**surrounding_objects[players_index], **cell.players}
-            if ObjectTypeFlags.TYPE_UNIT in object_types:
+            if ObjectTypeIds.ID_UNIT in object_types:
                 surrounding_objects[creatures_index] = {**surrounding_objects[creatures_index], **cell.creatures}
-            if ObjectTypeFlags.TYPE_GAMEOBJECT in object_types:
+            if ObjectTypeIds.ID_GAMEOBJECT in object_types:
                 surrounding_objects[gameobject_index] = {**surrounding_objects[gameobject_index], **cell.gameobjects}
 
         return surrounding_objects
 
     def get_surrounding_players(self, world_object):
-        return self.get_surrounding_objects(world_object, [ObjectTypeFlags.TYPE_PLAYER])[0]
+        return self.get_surrounding_objects(world_object, [ObjectTypeIds.ID_PLAYER])[0]
 
     def get_surrounding_units(self, world_object, include_players=False):
         object_types = [ObjectTypeFlags.TYPE_PLAYER, ObjectTypeFlags.TYPE_UNIT] if include_players else [ObjectTypeFlags.TYPE_UNIT]
@@ -232,7 +232,7 @@ class GridManager(object):
         return units
 
     def get_surrounding_gameobjects(self, world_object):
-        return self.get_surrounding_objects(world_object, [ObjectTypeFlags.TYPE_GAMEOBJECT])[0]
+        return self.get_surrounding_objects(world_object, [ObjectTypeIds.ID_PLAYER])[0]
 
     def get_surrounding_player_by_guid(self, world_object, guid):
         for p_guid, player in list(self.get_surrounding_players(world_object).items()):

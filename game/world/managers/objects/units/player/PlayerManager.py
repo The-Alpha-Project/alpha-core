@@ -337,9 +337,9 @@ class PlayerManager(UnitManager):
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
     def update_known_world_objects(self, force_update=False):
-        players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypeFlags.TYPE_PLAYER,
-                                                                                     ObjectTypeFlags.TYPE_UNIT,
-                                                                                     ObjectTypeFlags.TYPE_GAMEOBJECT])
+        players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypeIds.ID_PLAYER,
+                                                                                     ObjectTypeIds.ID_UNIT,
+                                                                                     ObjectTypeIds.ID_GAMEOBJECT])
 
         # Which objects were found in self surroundings.
         active_objects = dict()

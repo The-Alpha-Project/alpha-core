@@ -326,7 +326,7 @@ class QuestManager(object):
 
     # Quest status only works for units, sending a gameobject guid crashes the client.
     def update_surrounding_quest_status(self):
-        units = MapManager.get_surrounding_objects(self.player_mgr, [ObjectTypeFlags.TYPE_UNIT])[0]
+        units = MapManager.get_surrounding_objects(self.player_mgr, [ObjectTypeIds.ID_UNIT])[0]
         for guid, unit in units.items():
             if WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
                     unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry):
