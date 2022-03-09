@@ -23,12 +23,9 @@ class QuestGiverStatusHandler(object):
                 Logger.error(f'Error in CMSG_QUESTGIVER_STATUS_QUERY, could not find quest giver with guid of: {guid}')
                 return 0
 
-            quest_giver_status = QuestGiverStatus.QUEST_GIVER_NONE
-            if world_session.player_mgr:
-                # Only units are able to provide quests status.
-                if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
-                    quest_giver_status = world_session.player_mgr.quest_manager.get_dialog_status(quest_giver)
-
+            # Only units are able to provide quest status.
+            if world_session.player_mgr and quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
+                quest_giver_status = world_session.player_mgr.quest_manager.get_dialog_status(quest_giver)
                 world_session.player_mgr.quest_manager.send_quest_giver_status(guid, quest_giver_status)
 
         return 0
