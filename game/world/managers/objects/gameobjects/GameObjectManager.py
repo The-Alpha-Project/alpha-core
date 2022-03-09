@@ -210,7 +210,7 @@ class GameObjectManager(ObjectManager):
         target.receive_damage(damage, self, is_periodic)
 
         # Send environmental damage log packet to the affected player.
-        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if self.gobject_template.type == GameObjectTypes.TYPE_TRAP and target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             data = pack(
                 '<Q2I',
                 target.guid,
