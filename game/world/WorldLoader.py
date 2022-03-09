@@ -77,10 +77,6 @@ class WorldLoader:
                 )
                 gobject_mgr.load()
 
-                # If this go is a trap, add its collision detection to MapManager.
-                if gobject_mgr.gobject_template.type == GameObjectTypes.TYPE_TRAP:
-                    MapManager.add_trap_collision(gobject_mgr)
-
             count += 1
             Logger.progress('Spawning gameobjects...', count, length)
 

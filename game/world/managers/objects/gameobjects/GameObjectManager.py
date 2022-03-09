@@ -1,6 +1,4 @@
 import math
-import time
-from bitarray import bitarray
 from math import pi, cos, sin
 from random import randint
 from struct import pack
@@ -9,7 +7,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager, SpawnsGameobjects
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.maps.TrapInfoHolder import TrapInfoHolder
+from game.world.managers.maps.TrapManager import TrapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from network.packet.PacketWriter import PacketWriter
@@ -17,7 +15,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, 
     GameObjectStates
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.UnitCodes import StandState
+from utils.constants.UnitCodes import StandState, SplineFlags
 from utils.constants.UpdateFields import ObjectFields, GameObjectFields
 
 
@@ -77,22 +75,10 @@ class GameObjectManager(ObjectManager):
 
         # Trap collision initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
-            self.trap_info_holder = None
-            self.generate_trap_detection()
+            self.trap_manager = TrapManager.generate(self)
 
     def load(self):
         MapManager.update_object(self)
-
-    # Generate collision objects which MapManager will then use.
-    def generate_trap_detection(self):
-        x = MapManager.validate_map_coord(self.location.x)
-        y = MapManager.validate_map_coord(self.location.y)
-        z = self.location.z
-
-        # Grab the spell radius and the spell_id and create the trap info object.
-        radius = self.gobject_template.data2
-        spell_id = self.gobject_template.data3
-        self.trap_info_holder = TrapInfoHolder(self, spell_id, x, y, z, radius)
 
     @staticmethod
     def spawn(entry, location, map_id, override_faction=0, despawn_time=1):
@@ -216,9 +202,6 @@ class GameObjectManager(ObjectManager):
                 self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast)
             else:
                 self.ritual_caster.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
-
-    def trigger_trap(self, trap_info_object, unit):
-        self.spell_manager.handle_cast_attempt(trap_info_object.spell_id, unit, SpellTargetMask.UNIT, validate=False)
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
@@ -402,9 +385,24 @@ class GameObjectManager(ObjectManager):
 
             if self.is_spawned:
                 # Check if we need to trigger a trap.
-                if self.gobject_template.type == GameObjectTypes.TYPE_TRAP and self.trap_info_holder:
-                    if len(self.trap_info_holder.participants) > 0:
-                        self.trigger_trap(self.trap_info_holder, self.trap_info_holder.participants[0])
+                if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
+                    if self.trap_manager.is_ready():
+                        surrounding_players = MapManager.get_surrounding_players_by_location(
+                            self.location, self.map_, self.trap_manager.radius)
+                        for player in surrounding_players.values():
+                            # Keep looping until we find a player that's alive and not flying.
+                            if not player.is_alive or player.movement_spline and \
+                                    player.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
+                                continue
+
+                            # Valid player found, trigger the trap and stop searching for more.
+                            # In case charges = 1, despawn the trap.
+                            if self.trap_manager.trigger(player) and self.trap_manager.charges == 1:
+                                self.set_active()
+                                self.despawn()
+                            break
+                    else:
+                        self.trap_manager.update(elapsed)
 
                 # Check if this game object should be updated yet or not.
                 if self.has_pending_updates():

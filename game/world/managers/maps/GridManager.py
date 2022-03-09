@@ -231,6 +231,14 @@ class GridManager(object):
                     units[1][guid] = player
         return units
 
+    def get_surrounding_players_by_location(self, vector, target_map, range_):
+        players = {}
+        for cell in self.get_surrounding_cells_by_location(vector.x, vector.y, target_map):
+            for guid, player in list(cell.players.items()):
+                if player.location.distance(vector) <= range_:
+                    players[guid] = player
+        return players
+
     def get_surrounding_gameobjects(self, world_object):
         return self.get_surrounding_objects(world_object, [ObjectTypeIds.ID_GAMEOBJECT])[0]
 

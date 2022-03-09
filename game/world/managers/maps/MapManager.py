@@ -2,8 +2,7 @@ import traceback
 import math
 import _queue
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS, \
-    RESOLUTION_TRAP_COLLISION
+from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config
@@ -16,7 +15,6 @@ AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
 PENDING_LOAD = {}
 PENDING_LOAD_QUEUE = _queue.SimpleQueue()
-TRAP_COLLISION = {}
 
 
 # noinspection PyBroadException
@@ -100,23 +98,6 @@ class MapManager(object):
                         MAPS[map_id].tiles[x + i][y + j] = MapTile(map_id, x + i, y + j)
 
         return True
-
-    @staticmethod
-    def add_trap_collision(gameobject):
-        x = MapManager.validate_map_coord(gameobject.location.x)
-        y = MapManager.validate_map_coord(gameobject.location.y)
-
-        key = MapManager.get_go_spawn_key(gameobject.map_, x, y)
-        if key not in TRAP_COLLISION:
-            TRAP_COLLISION[key] = []
-
-        # Add collision object to the main list.
-        TRAP_COLLISION[key].append(gameobject.trap_info_holder)
-
-    @staticmethod
-    def get_go_spawn_key(map_id, x, y):
-        tile_x, tile_y, local_x, local_y = MapManager.calculate_tile(x, y, RESOLUTION_TRAP_COLLISION)
-        return f'{map_id}{tile_x}{tile_y}{local_x}{local_y}'
 
     @staticmethod
     def get_tile(x, y):
@@ -210,29 +191,6 @@ class MapManager(object):
                 return None
 
             return MAPS[map_id].tiles[map_tile_x][map_tile_y].area_information[tile_local_x][tile_local_y]
-        except:
-            Logger.error(traceback.format_exc())
-            return None
-
-    # Return a TrapInfoHolder object if collision is detected.
-    @staticmethod
-    def get_trap(map_id, vector):
-        try:
-            x = MapManager.validate_map_coord(vector.x)
-            y = MapManager.validate_map_coord(vector.y)
-            z = vector.z
-            collision_key = MapManager.get_go_spawn_key(map_id, x, y)
-
-            if collision_key not in TRAP_COLLISION:
-                return None
-
-            for trap_collision in TRAP_COLLISION[collision_key]:
-                if trap_collision.x_min <= x <= trap_collision.x_max and \
-                        trap_collision.y_min <= y <= trap_collision.y_max and \
-                        trap_collision.z_min <= z <= trap_collision.z_max:
-                    return trap_collision
-
-            return None
         except:
             Logger.error(traceback.format_exc())
             return None
@@ -391,6 +349,13 @@ class MapManager(object):
         if not grid_mgr:
             return [{}, {}]
         return grid_mgr.get_surrounding_units_by_location(vector, target_map, range_, include_players)
+
+    @staticmethod
+    def get_surrounding_players_by_location(vector, target_map, range_):
+        grid_mgr = MapManager.get_grid_manager_by_map_id(target_map)
+        if not grid_mgr:
+            return {}
+        return grid_mgr.get_surrounding_players_by_location(vector, target_map, range_)
 
     @staticmethod
     def get_surrounding_gameobjects(world_object):
