@@ -34,8 +34,8 @@ services:
   phpmyadmin:
     image: phpmyadmin
     ports:
-      - "8080:80"    
-    environment: 
+      - "8080:80"
+    environment:
       - PMA_HOST=sql
       - PMA_USER=root
       - PMA_PASSWORD=pwd
@@ -44,7 +44,7 @@ services:
       - sql
     profiles:
       - dev
-  
+
   inotify:
     image: alpha-inotify:latest
     build: etc/docker/inotify
@@ -57,3 +57,7 @@ services:
     restart: on-failure
     profiles:
       - dev
+
+networks:
+  default:
+    name: alpha-core-network
