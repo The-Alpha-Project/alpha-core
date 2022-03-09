@@ -2,14 +2,14 @@ from utils.constants.SpellCodes import SpellTargetMask
 
 
 class TrapManager(object):
-    def __init__(self, world_object, spell_id, charges, cooldown, start_delay, diameter):
+    def __init__(self, world_object, spell_id, charges, cooldown, start_delay, radius):
         self.world_object = world_object
         self.spell_id = spell_id
         self.charges = charges  # Can only be 0 (infinite triggering) or 1 (should despawn after the trigger).
         self.cooldown = cooldown
         self.start_delay = start_delay
         self.remaining_cooldown = start_delay
-        self.radius = diameter / 2
+        self.radius = radius
 
     def is_ready(self):
         return self.remaining_cooldown == 0
@@ -25,7 +25,9 @@ class TrapManager(object):
 
     @staticmethod
     def generate(gameobject):
-        radius = gameobject.gobject_template.data2
+        radius = gameobject.gobject_template.data2 / 2.0
+        if radius == 0:
+            radius = 2.5
         spell_id = gameobject.gobject_template.data3
         charges = gameobject.gobject_template.data4
         cooldown = gameobject.gobject_template.data5
