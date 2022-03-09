@@ -23,6 +23,9 @@ class TrapManager(object):
 
         return True
 
+    def restart(self):
+        self.remaining_cooldown = self.start_delay
+
     @staticmethod
     def generate(gameobject):
         radius = gameobject.gobject_template.data2 / 2.0

@@ -33,13 +33,12 @@ class GameObjectManager(ObjectManager):
         self.gobject_instance = gobject_instance
         self.is_summon = is_summon
 
-        if self.gobject_template:
-            self.entry = self.gobject_template.entry
-            self.native_display_id = self.gobject_template.display_id
-            self.current_display_id = self.native_display_id
-            self.native_scale = self.gobject_template.scale
-            self.current_scale = self.native_scale
-            self.faction = self.gobject_template.faction
+        self.entry = self.gobject_template.entry
+        self.native_display_id = self.gobject_template.display_id
+        self.current_display_id = self.native_display_id
+        self.native_scale = self.gobject_template.scale
+        self.current_scale = self.native_scale
+        self.faction = self.gobject_template.faction
 
         if gobject_instance:
             if GameObjectManager.CURRENT_HIGHEST_GUID < gobject_instance.spawn_id:
@@ -376,6 +375,9 @@ class GameObjectManager(ObjectManager):
         self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
                                     self.gobject_instance.spawn_spawntimemin)
 
+        if self.trap_manager:
+            self.trap_manager.restart()
+
         MapManager.respawn_object(self)
 
     # override
@@ -384,8 +386,8 @@ class GameObjectManager(ObjectManager):
             elapsed = now - self.last_tick
 
             if self.is_spawned:
-                # Check if we need to trigger a trap.
-                if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
+                # Logic for Trap GameObjects (type 6).
+                if self.trap_manager:
                     if self.trap_manager.is_ready():
                         surrounding_players = MapManager.get_surrounding_players_by_location(
                             self.location, self.map_, self.trap_manager.radius)

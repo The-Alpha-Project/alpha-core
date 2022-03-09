@@ -39,43 +39,42 @@ class CreatureManager(UnitManager):
         self.killed_by = None
         self.is_summon = is_summon
 
-        if self.creature_template:
-            self.entry = self.creature_template.entry
-            self.native_display_id = self.generate_display_id()
-            self.current_display_id = self.native_display_id
-            self.max_health = self.creature_template.health_max
-            self.power_1 = self.creature_template.mana_min
-            self.max_power_1 = self.creature_template.mana_max
-            self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
-            self.resistance_0 = self.creature_template.armor
-            self.resistance_1 = self.creature_template.holy_res
-            self.resistance_2 = self.creature_template.fire_res
-            self.resistance_3 = self.creature_template.nature_res
-            self.resistance_4 = self.creature_template.frost_res
-            self.resistance_5 = self.creature_template.shadow_res
-            self.npc_flags = self.creature_template.npc_flags
-            self.static_flags = self.creature_template.static_flags
-            self.mod_cast_speed = 1.0
-            self.base_attack_time = self.creature_template.base_attack_time
-            self.unit_flags = self.creature_template.unit_flags
-            self.faction = self.creature_template.faction
-            self.creature_type = self.creature_template.type
-            self.sheath_state = WeaponMode.NORMALMODE
+        self.entry = self.creature_template.entry
+        self.native_display_id = self.generate_display_id()
+        self.current_display_id = self.native_display_id
+        self.max_health = self.creature_template.health_max
+        self.power_1 = self.creature_template.mana_min
+        self.max_power_1 = self.creature_template.mana_max
+        self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
+        self.resistance_0 = self.creature_template.armor
+        self.resistance_1 = self.creature_template.holy_res
+        self.resistance_2 = self.creature_template.fire_res
+        self.resistance_3 = self.creature_template.nature_res
+        self.resistance_4 = self.creature_template.frost_res
+        self.resistance_5 = self.creature_template.shadow_res
+        self.npc_flags = self.creature_template.npc_flags
+        self.static_flags = self.creature_template.static_flags
+        self.mod_cast_speed = 1.0
+        self.base_attack_time = self.creature_template.base_attack_time
+        self.unit_flags = self.creature_template.unit_flags
+        self.faction = self.creature_template.faction
+        self.creature_type = self.creature_template.type
+        self.sheath_state = WeaponMode.NORMALMODE
 
-            self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
+        self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
 
-            if 0 < self.creature_template.rank < 4:
-                self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
+        if 0 < self.creature_template.rank < 4:
+            self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
 
-            self.fully_loaded = False
-            self.is_evading = False
-            self.wearing_offhand_weapon = False
-            self.wearing_ranged_weapon = False
-            self.respawn_timer = 0
-            self.last_random_movement = 0
-            self.random_movement_wait_time = randint(1, 12)
+        self.fully_loaded = False
+        self.is_evading = False
+        self.wearing_offhand_weapon = False
+        self.wearing_ranged_weapon = False
+        self.respawn_timer = 0
+        self.last_random_movement = 0
+        self.random_movement_wait_time = randint(1, 12)
 
-            self.loot_manager = CreatureLootManager(self)
+        self.loot_manager = CreatureLootManager(self)
 
         if self.creature_instance:
             if CreatureManager.CURRENT_HIGHEST_GUID < creature_instance.spawn_id:
@@ -235,7 +234,7 @@ class CreatureManager(UnitManager):
         world_session.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
 
     def finish_loading(self, reload=False):
-        if self.creature_template and self.creature_instance:
+        if self.creature_instance:
             if not self.fully_loaded or reload:
                 creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)
                 if creature_model_info:
