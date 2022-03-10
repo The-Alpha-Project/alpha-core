@@ -40,7 +40,6 @@ class TrapManager(object):
 
                 target = creature
                 break
-
         else:
             # This trap can only be triggered by players.
             surrounding_players = MapManager.get_surrounding_players_by_location(
