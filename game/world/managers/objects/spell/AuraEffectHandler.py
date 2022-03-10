@@ -187,6 +187,10 @@ class AuraEffectHandler:
             effect_target.reset_display_id()
 
     @staticmethod
+    def handle_mod_root(aura, effect_target, remove):
+        effect_target.set_root(not remove)
+
+    @staticmethod
     def handle_mod_resistance(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
@@ -424,6 +428,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_FEIGN_DEATH: AuraEffectHandler.handle_feign_death,
     AuraTypes.SPELL_AURA_MOD_STUN: AuraEffectHandler.handle_mod_stun,
     AuraTypes.SPELL_AURA_TRANSFORM: AuraEffectHandler.handle_transform,
+    AuraTypes.SPELL_AURA_MOD_ROOT: AuraEffectHandler.handle_mod_root,
 
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
     AuraTypes.SPELL_AURA_MOD_BASE_RESISTANCE: AuraEffectHandler.handle_mod_base_resistance,
