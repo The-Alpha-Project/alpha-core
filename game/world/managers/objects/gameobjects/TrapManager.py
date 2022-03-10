@@ -23,7 +23,7 @@ class TrapManager(object):
 
         return True
 
-    def restart(self):
+    def reset(self):
         self.remaining_cooldown = self.start_delay
 
     @staticmethod

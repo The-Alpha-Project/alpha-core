@@ -369,7 +369,7 @@ class GameObjectManager(ObjectManager):
                                     self.gobject_instance.spawn_spawntimemin)
 
         if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
-            self.trap_manager.restart()
+            self.trap_manager.reset()
 
         MapManager.respawn_object(self)
 
