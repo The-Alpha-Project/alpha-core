@@ -31,7 +31,7 @@ class TrapManager(object):
         if self.spell_id in TrapManager.TRIGGERED_BY_CREATURES:
             surrounding_creatures, surrounding_players = MapManager.get_surrounding_units_by_location(
                 self.trap_object.location, self.trap_object.map_, self.radius, include_players=True)
-            surrounding_units = surrounding_creatures | surrounding_creatures
+            surrounding_units = surrounding_creatures | surrounding_players
         else:
             # This trap can only be triggered by players.
             surrounding_units = MapManager.get_surrounding_players_by_location(
