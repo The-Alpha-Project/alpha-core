@@ -1516,7 +1516,7 @@ class PlayerManager(UnitManager):
         if not self.duel_manager:
             return super().can_attack_target(target)
 
-        # Return True if the players are friendly but dueling.
+        # Return True if players are friendly but dueling.
         return self.duel_manager.player_involved(
             target) and self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
 
