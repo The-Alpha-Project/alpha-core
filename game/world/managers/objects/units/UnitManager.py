@@ -14,8 +14,6 @@ from game.world.managers.objects.spell.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
-from utils.Logger import Logger
-from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
     HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms
