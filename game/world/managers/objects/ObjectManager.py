@@ -326,6 +326,11 @@ class ObjectManager(object):
             if target.is_fleeing():
                 return False
 
+        # Checks for both players and creatures (all units).
+        if target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+            if not target.is_alive:
+                return False
+
         return self.is_enemy_to(target)
 
     def _allegiance_status_checker(self, target, check_friendly=True):

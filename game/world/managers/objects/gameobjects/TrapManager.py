@@ -31,33 +31,19 @@ class TrapManager(object):
         if self.spell_id in TrapManager.TRIGGERED_BY_CREATURES:
             surrounding_creatures, surrounding_players = MapManager.get_surrounding_units_by_location(
                 self.trap_object.location, self.trap_object.map_, self.radius, include_players=True)
-            for creature in surrounding_creatures.values():
-                # Keep looking until we find a valid creature (alive, attackable).
-                if not creature.is_alive:
-                    continue
-                elif not self.trap_object.can_attack_target(creature):
-                    continue
-
-                target = creature
-                break
+            surrounding_units = surrounding_creatures | surrounding_creatures
         else:
             # This trap can only be triggered by players.
-            surrounding_players = MapManager.get_surrounding_players_by_location(
+            surrounding_units = MapManager.get_surrounding_players_by_location(
                 self.trap_object.location, self.trap_object.map_, self.radius)
 
-        # Search for players if no creature has been found yet or if this trap can only be triggered by players.
-        if not target:
-            for player in surrounding_players.values():
-                # Keep looping until we find a valid player (alive, not flying and attackable).
-                if not player.is_alive:
-                    continue
-                elif player.movement_spline and player.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
-                    continue
-                elif not self.trap_object.can_attack_target(player):
-                    continue
+        for unit in surrounding_units.values():
+            # Keep looping until we find a valid unit.
+            if not self.trap_object.can_attack_target(unit):
+                continue
 
-                target = player
-                break
+            target = unit
+            break
 
         if target:
             # Valid target found. In case charges = 1, despawn the trap.
