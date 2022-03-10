@@ -140,7 +140,7 @@ class DuelManager(object):
         self.map = None
 
     def is_player_involved(self, who):
-        if who.get_type() != ObjectTypeIds.ID_PLAYER:
+        if who.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return False
 
         return self.players and who.guid in self.players
