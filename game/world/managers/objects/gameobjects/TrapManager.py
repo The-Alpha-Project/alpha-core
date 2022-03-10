@@ -25,8 +25,6 @@ class TrapManager(object):
             self.remaining_cooldown = max(0, self.remaining_cooldown - elapsed)
             return
 
-        target = None
-
         # If the trap should be triggered by creatures, search for them along with players.
         if self.spell_id in TrapManager.TRIGGERED_BY_CREATURES:
             surrounding_creatures, surrounding_players = MapManager.get_surrounding_units_by_location(
@@ -42,14 +40,11 @@ class TrapManager(object):
             if not self.trap_object.can_attack_target(unit):
                 continue
 
-            target = unit
-            break
-
-        if target:
-            # Valid target found. In case charges = 1, despawn the trap.
-            if self.trigger(target) and self.charges == 1:
+            # Valid target found, trigger the trap. In case charges = 1, despawn the trap.
+            if self.trigger(unit) and self.charges == 1:
                 self.trap_object.set_active()
                 self.trap_object.despawn()
+            break
 
     def trigger(self, who):
         self.trap_object.spell_manager.handle_cast_attempt(self.spell_id, who, SpellTargetMask.UNIT, validate=False)
