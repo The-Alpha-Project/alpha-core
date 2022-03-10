@@ -226,13 +226,6 @@ class GameObjectManager(ObjectManager):
         target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True, is_periodic=is_periodic)
         target.receive_healing(healing, self)
 
-    # noinspection PyMethodMayBeStatic
-    # override
-    def can_attack_target(self, target):
-        # Always return true so GameObject casters (traps) can interact with the spell target.
-        # TODO: Should we take GameObject faction into account to determine this result?
-        return True
-
     def _handle_use_goober(self, player):
         pass
 
@@ -375,7 +368,7 @@ class GameObjectManager(ObjectManager):
         self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
                                     self.gobject_instance.spawn_spawntimemin)
 
-        if self.trap_manager:
+        if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
             self.trap_manager.restart()
 
         MapManager.respawn_object(self)
@@ -387,7 +380,7 @@ class GameObjectManager(ObjectManager):
 
             if self.is_spawned:
                 # Logic for Trap GameObjects (type 6).
-                if self.trap_manager:
+                if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
                     if self.trap_manager.is_ready():
                         # Hunter traps doesn't seem to exist in 0.5.3, so apparently all existing trap objects should be
                         # triggered by players only.

@@ -1,10 +1,12 @@
 from struct import pack, unpack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
+from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes, MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields \
@@ -308,7 +310,47 @@ class ObjectManager(object):
 
     # override
     def can_attack_target(self, target):
+        if target is self:
+            return False
+
+        is_enemy = self.is_enemy_to(target)
+        if is_enemy or self.get_type_id() != ObjectTypeIds.ID_PLAYER or target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return is_enemy
+
         return False
+
+    def _allegiance_status_checker(self, target, check_friendly=True):
+        own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)
+        target_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(target.faction)
+
+        if not own_faction:
+            Logger.error(f'Invalid faction template: {self.faction}.')
+            return not check_friendly
+
+        if not target_faction:
+            Logger.error(f'Invalid faction template: {target.faction}.')
+            return not check_friendly
+
+        own_enemies = [own_faction.Enemies_1, own_faction.Enemies_2, own_faction.Enemies_3, own_faction.Enemies_4]
+        own_friends = [own_faction.Friend_1, own_faction.Friend_2, own_faction.Friend_3, own_faction.Friend_4]
+        if target_faction.Faction > 0:
+            for enemy in own_enemies:
+                if enemy == target_faction.Faction:
+                    return not check_friendly
+            for friend in own_friends:
+                if friend == target_faction.Faction:
+                    return check_friendly
+
+        if check_friendly:
+            return ((own_faction.FriendGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.FriendGroup)) != 0
+        else:
+            return ((own_faction.EnemyGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.EnemyGroup)) != 0
+
+    def is_friendly_to(self, target):
+        return self._allegiance_status_checker(target, True)
+
+    def is_enemy_to(self, target):
+        return self._allegiance_status_checker(target, False)
 
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)

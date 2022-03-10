@@ -1510,6 +1510,16 @@ class PlayerManager(UnitManager):
     def on_cell_change(self):
         self.quest_manager.update_surrounding_quest_status()
 
+    # noinspection PyUnresolvedReferences
+    # override
+    def can_attack_target(self, target):
+        if not self.duel_manager:
+            return super().can_attack_target(target)
+
+        # Return True if the players are friendly but dueling.
+        return self.duel_manager.player_involved(
+            target) and self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
+
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_PLAYER
