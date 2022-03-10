@@ -695,6 +695,10 @@ class UnitManager(ObjectManager):
 
     def set_root(self, active):
         if active:
+            # Stop movement if the unit has pending waypoints.
+            if len(self.movement_manager.pending_waypoints) > 0:
+                self.movement_manager.send_move_stop()
+
             self.movement_flags |= MoveFlags.MOVEFLAG_ROOTED
             self.unit_state |= UnitStates.ROOTED
         else:
