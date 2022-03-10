@@ -9,6 +9,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes, MoveFlags
 from utils.constants.OpCodes import OpCode
+from utils.constants.UnitCodes import SplineFlags
 from utils.constants.UpdateFields \
     import ObjectFields
 
@@ -312,6 +313,18 @@ class ObjectManager(object):
     def can_attack_target(self, target):
         if target is self:
             return False
+
+        # Player only checks.
+        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            # If player is on a flying path.
+            if target.movement_spline and target.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
+                return False
+
+        # Creature only checks.
+        elif target.get_type_id() == ObjectTypeIds.ID_UNIT:
+            # If the unit is fleeing (evading).
+            if target.is_fleeing():
+                return False
 
         return self.is_enemy_to(target)
 
