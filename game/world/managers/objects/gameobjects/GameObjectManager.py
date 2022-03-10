@@ -381,25 +381,7 @@ class GameObjectManager(ObjectManager):
             if self.is_spawned:
                 # Logic for Trap GameObjects (type 6).
                 if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
-                    if self.trap_manager.is_ready():
-                        # Hunter traps dont't seem to exist in 0.5.3, so apparently all existing trap objects should be
-                        # triggered by players only.
-                        surrounding_players = MapManager.get_surrounding_players_by_location(
-                            self.location, self.map_, self.trap_manager.radius)
-                        for player in surrounding_players.values():
-                            # Keep looping until we find a player that's alive and not flying.
-                            if not player.is_alive or player.movement_spline and \
-                                    player.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
-                                continue
-
-                            # Valid player found, trigger the trap and stop searching for more.
-                            # In case charges = 1, despawn the trap.
-                            if self.trap_manager.trigger(player) and self.trap_manager.charges == 1:
-                                self.set_active()
-                                self.despawn()
-                            break
-                    else:
-                        self.trap_manager.update(elapsed)
+                    self.trap_manager.update(elapsed)
 
                 # Check if this game object should be updated yet or not.
                 if self.has_pending_updates():
