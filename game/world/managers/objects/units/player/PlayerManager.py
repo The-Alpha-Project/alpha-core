@@ -1510,7 +1510,6 @@ class PlayerManager(UnitManager):
     def on_cell_change(self):
         self.quest_manager.update_surrounding_quest_status()
 
-    # noinspection PyUnresolvedReferences
     # override
     def can_attack_target(self, target):
         is_enemy = super().can_attack_target(target)
