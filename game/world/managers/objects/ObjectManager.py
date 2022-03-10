@@ -313,11 +313,7 @@ class ObjectManager(object):
         if target is self:
             return False
 
-        is_enemy = self.is_enemy_to(target)
-        if is_enemy or self.get_type_id() != ObjectTypeIds.ID_PLAYER or target.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return is_enemy
-
-        return False
+        return self.is_enemy_to(target)
 
     def _allegiance_status_checker(self, target, check_friendly=True):
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)

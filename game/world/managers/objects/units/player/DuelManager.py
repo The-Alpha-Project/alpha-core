@@ -4,6 +4,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.DuelCodes import *
+from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import PlayerFields, UnitFields
 
@@ -138,8 +139,11 @@ class DuelManager(object):
         self.arbiter = None
         self.map = None
 
-    def player_involved(self, player_mgr):
-        return self.players and player_mgr.guid in self.players
+    def is_player_involved(self, who):
+        if who.get_type() != ObjectTypeIds.ID_PLAYER:
+            return False
+
+        return self.players and who.guid in self.players
 
     def boundary_check(self):
         for entry in list(self.players.values()):  # Prevent mutability

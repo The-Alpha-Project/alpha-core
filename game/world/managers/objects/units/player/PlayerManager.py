@@ -1467,7 +1467,7 @@ class PlayerManager(UnitManager):
 
     # override
     def die(self, killer=None):
-        if killer and self.duel_manager and self.duel_manager.player_involved(killer):
+        if killer and self.duel_manager and self.duel_manager.is_player_involved(killer):
             self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
             self.set_health(1)
             return False
@@ -1513,12 +1513,15 @@ class PlayerManager(UnitManager):
     # noinspection PyUnresolvedReferences
     # override
     def can_attack_target(self, target):
-        if not self.duel_manager:
-            return super().can_attack_target(target)
+        is_enemy = super().can_attack_target(target)
+        if is_enemy:
+            return True
 
         # Return True if players are friendly but dueling.
-        return self.duel_manager.player_involved(
-            target) and self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
+        if self.duel_manager and target is not self and self.duel_manager.is_player_involved(target):
+            return self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
+
+        return False
 
     # override
     def get_type_id(self):
