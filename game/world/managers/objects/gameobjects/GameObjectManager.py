@@ -382,7 +382,7 @@ class GameObjectManager(ObjectManager):
                 # Logic for Trap GameObjects (type 6).
                 if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
                     if self.trap_manager.is_ready():
-                        # Hunter traps doesn't seem to exist in 0.5.3, so apparently all existing trap objects should be
+                        # Hunter traps dont't seem to exist in 0.5.3, so apparently all existing trap objects should be
                         # triggered by players only.
                         surrounding_players = MapManager.get_surrounding_players_by_location(
                             self.location, self.map_, self.trap_manager.radius)
