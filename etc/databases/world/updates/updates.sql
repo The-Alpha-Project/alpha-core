@@ -20080,5 +20080,12 @@ begin not atomic
         insert into applied_updates values ('010320221');
     end if;
 
+    -- 10/03/2022 1
+    if (select count(*) from applied_updates where id='100320221') = 0 then
+        UPDATE `gameobject_template` SET `name` = 'Snare Trap' WHERE `entry` = 2561;
+
+        insert into applied_updates values ('100320221');
+    end if;
+
 end $
 delimiter ;
