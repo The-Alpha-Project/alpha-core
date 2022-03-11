@@ -20087,5 +20087,16 @@ begin not atomic
         insert into applied_updates values ('100320221');
     end if;
 
+    -- 11/03/2022 1
+    if (select count(*) from applied_updates where id='110320221') = 0 then
+        -- Searing Whelp stats update.
+        UPDATE `creature_template` SET `rank` = 1, `health_min` = 3963, `health_max` = 4119, `mana_min` = 2864, `mana_max` = 2966 WHERE `entry` = 4324;
+
+        -- Drywallow Daggermaw status update.
+        UPDATE `creature_template` SET `rank` = 1, `health_min` = 4572, `health_max` = 4755, `mana_min` = 0, `mana_max` = 0, `armor` = 2117, `dmg_min` = 112.045, `dmg_max` = 163.558, `attack_power` = 142 WHERE `entry` = 4345;
+
+        insert into applied_updates values ('110320221');
+    end if;
+
 end $
 delimiter ;
