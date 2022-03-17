@@ -6,7 +6,8 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses
+from game.world.managers.objects.item.ItemLootManager import ItemLootManager
+from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.UpdateFields import ObjectFields, ItemFields
 
@@ -106,6 +107,10 @@ class ItemManager(ObjectManager):
                 ItemManager.SpellStat(self.item_template.spellid_5, self.item_template.spelltrigger_5,
                                       self.item_template.spellcharges_5, self.item_template.spellcooldown_5,
                                       self.item_template.spellcategory_5, self.item_template.spellcategorycooldown_5))
+
+            # Load loot_manager if needed.
+            if item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
+                self.loot_manager = ItemLootManager(self)
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_ITEM
         self.update_packet_factory.init_values(ItemFields.ITEM_END)

@@ -52,6 +52,7 @@ from game.world.opcode_handling.handlers.inventory.AutostoreBagItemHandler impor
 from game.world.opcode_handling.handlers.inventory.DestroyItemHandler import DestroyItemHandler
 from game.world.opcode_handling.handlers.inventory.ItemQuerySingleHandler import ItemQuerySingleHandler
 from game.world.opcode_handling.handlers.inventory.PageTextQueryHandler import PageTextQueryHandler
+from game.world.opcode_handling.handlers.inventory.OpenItemHandler import OpenItemHandler
 from game.world.opcode_handling.handlers.inventory.ReadItemHandler import ReadItemHandler
 from game.world.opcode_handling.handlers.inventory.SplitItemHandler import SplitItemHandler
 from game.world.opcode_handling.handlers.inventory.SwapInvItemHandler import SwapInvItemHandler
@@ -188,6 +189,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_SETWEAPONMODE: SetWeaponModeHandler.handle,
     OpCode.CMSG_PAGE_TEXT_QUERY: PageTextQueryHandler.handle,
     OpCode.CMSG_READ_ITEM: ReadItemHandler.handle,
+    OpCode.CMSG_OPEN_ITEM: OpenItemHandler.handle,
     OpCode.CMSG_SWAP_INV_ITEM: SwapInvItemHandler.handle,
     OpCode.CMSG_SWAP_ITEM: SwapItemHandler.handle,
     OpCode.CMSG_DESTROYITEM: DestroyItemHandler.handle,
