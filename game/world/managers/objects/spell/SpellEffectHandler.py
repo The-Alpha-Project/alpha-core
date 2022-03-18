@@ -322,27 +322,35 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_leap(casting_spell, effect, caster, target):
-        # For Blink spells.
-        if casting_spell.spell_entry.Targets & SpellTargetMask.DEST_LOCATION:
-            target_teleport_info = effect.targets.initial_target
-            if not target_teleport_info:
-                return
+        # Leap targeting specifies both the leaping unit and their leap target.
+        # Since there are no leap spells with multiple targets,
+        # this method selects the first targets.
 
-            # Set caster orientation.
-            target_teleport_info.o = caster.location.o
-            # Terrain teleport, trigger upon tick to 'preserve' animation.
-            caster.teleport(caster.map_, target_teleport_info)
+        leaper = effect.targets.resolved_targets_a
+        leap_target = effect.targets.resolved_targets_b
 
-        # For Charge (or Heroic Leap) spells.
-        else:
-            # Generate a point within combat reach and facing the target.
-            charge_location = ChargePositions.get_position_for_charge(caster, target)
-            # Stop movement if target is currently moving with waypoints.
-            if len(target.movement_manager.pending_waypoints) > 0:
-                target.movement_manager.send_move_stop()
+        if len(leaper) != 1 or len(leap_target) != 1:
+            return
 
-            # Instant teleport.
-            caster.teleport(caster.map_, charge_location, is_instant=True)
+        leaper = leaper[0]
+        leap_target = leap_target[0]
+
+        # Terrain targeted leaps (ie. blink).
+        if casting_spell.initial_target_is_terrain():
+            leap_target.o = leaper.location.o
+            leaper.teleport(caster.map_, leap_target)
+            return
+
+        # Unit-targeted leap (Charge/heroic leap).
+        # Generate a point within combat reach and facing the target.
+        charge_location = ChargePositions.get_position_for_charge(leaper, leap_target)
+
+        # Stop movement if target is currently moving with waypoints.
+        if len(target.movement_manager.pending_waypoints) > 0:
+            target.movement_manager.send_move_stop()
+
+        # Instant teleport.
+        caster.teleport(caster.map_, charge_location, is_instant=True)
 
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.

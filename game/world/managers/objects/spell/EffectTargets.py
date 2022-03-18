@@ -65,6 +65,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_DUEL_VS_PLAYER: self.initial_target,  # Spells that can be cast on both hostile and friendly?
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
             SpellImplicitTargets.TARGET_MASTER: [],  # TODO
+            SpellImplicitTargets.TARGET_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start,
             SpellImplicitTargets.TARGET_SELF_FISHING: caster
         }
 
@@ -363,18 +364,6 @@ class EffectTargets:
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_all_hostile_around_caster(casting_spell, target_effect):
-        result = MapManager.get_surrounding_units(casting_spell.spell_caster, True)
-        unit_enemies = EffectTargets.get_enemies_from_unit_list(list(result[0].values()) + list(result[1].values()),
-                                                                casting_spell.spell_caster)
-        # If this is charge / heroic leap, return the player selected unit if it's in range and is enemy.
-        if target_effect.effect_type == SpellEffects.SPELL_EFFECT_LEAP:
-            return [unit for unit in unit_enemies if unit.guid == casting_spell.spell_caster.current_selection]
-        # Return surrounding enemies.
-        else:
-            return unit_enemies
-
-    @staticmethod
     def resolve_aoe_party(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
@@ -406,7 +395,6 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_ALL_PARTY: EffectTargets.resolve_all_party,
     SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2: EffectTargets.resolve_party_around_caster_2,
     SpellImplicitTargets.TARGET_SINGLE_PARTY: EffectTargets.resolve_single_party,
-    SpellImplicitTargets.TARGET_ALL_HOSTILE_UNITS_AROUND_CASTER: EffectTargets.resolve_all_hostile_around_caster,
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY: EffectTargets.resolve_aoe_party,
     SpellImplicitTargets.TARGET_SCRIPT: EffectTargets.resolve_script,
     SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: EffectTargets.resolve_gameobject_script_near_caster
