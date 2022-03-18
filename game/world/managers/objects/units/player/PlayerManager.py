@@ -640,6 +640,8 @@ class PlayerManager(UnitManager):
                 world_obj_target = MapManager.get_surrounding_unit_by_guid(self, self.current_loot_selection, include_players=False)
             elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
                 world_obj_target = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
+            elif high_guid == HighGuid.HIGHGUID_ITEM:
+                world_obj_target = self.inventory.get_item_by_guid(self.current_loot_selection)
 
             if world_obj_target and world_obj_target.loot_manager.has_loot():
                 loot = world_obj_target.loot_manager.get_loot_in_slot(slot)
@@ -684,6 +686,11 @@ class PlayerManager(UnitManager):
                     game_object.set_ready()
                 else:
                     game_object.despawn()
+        elif high_guid == HighGuid.HIGHGUID_ITEM:
+            item_mgr = self.inventory.get_item_by_guid(self.current_loot_selection)
+            if item_mgr and not item_mgr.loot_manager.has_loot():
+                item_mgr.loot_manager.clear()
+                self.inventory.remove_items(item_mgr.item_template.entry, 1)
         else:
             Logger.warning(f'Unhandled loot release for type {HighGuid(high_guid).name}')
 

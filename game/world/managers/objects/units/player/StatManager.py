@@ -373,11 +373,12 @@ class StatManager(object):
 
         current_hp = self.unit_mgr.max_health
         new_hp = int(self.get_health_bonus_from_stamina(total_stamina) + total_health)
-        self.unit_mgr.set_max_health(new_hp)
 
         hp_diff = new_hp - current_hp
-
-        return hp_diff if hp_diff > 0 else 0
+        if hp_diff > 0:
+            self.unit_mgr.set_max_health(new_hp)
+            return hp_diff
+        return 0
 
     def update_max_mana(self):
         if self.unit_mgr.power_type != PowerTypes.TYPE_MANA:
@@ -388,11 +389,12 @@ class StatManager(object):
 
         current_mana = self.unit_mgr.max_power_1
         new_mana = int(self.get_mana_bonus_from_intellect(total_intellect) + total_mana)
-        self.unit_mgr.set_max_mana(new_mana)
 
         mana_diff = new_mana - current_mana
-
-        return mana_diff if mana_diff > 0 else 0
+        if mana_diff > 0:
+            self.unit_mgr.set_max_mana(new_mana)
+            return mana_diff
+        return 0
 
     def update_base_health_regen(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:

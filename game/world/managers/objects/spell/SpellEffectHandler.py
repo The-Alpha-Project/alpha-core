@@ -10,9 +10,10 @@ from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
+from game.world.managers.objects.spell.ExtendedSpellData import ChargePositions
 from utils.constants.MiscCodes import ObjectTypeFlags, GameObjectTypes, HighGuid, ObjectTypeIds
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UnitCodes import UnitFlags, PowerTypes
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -20,7 +21,8 @@ class SpellEffectHandler(object):
     @staticmethod
     def apply_effect(casting_spell, effect, caster, target):
         if effect.effect_type not in SPELL_EFFECTS:
-            Logger.debug(f'Unimplemented effect called: {effect.effect_type}')
+            Logger.debug(f'Unimplemented spell effect called ({SpellEffects(effect.effect_type).name}: '
+                         f'{effect.effect_type}) from spell {casting_spell.spell_entry.ID}.')
             return
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)
 
@@ -318,6 +320,30 @@ class SpellEffectHandler(object):
         data = pack('<Q', caster.guid)
         target.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PLAYERBOUND, data))
 
+    @staticmethod
+    def handle_leap(casting_spell, effect, caster, target):
+        # For Blink spells.
+        if casting_spell.spell_entry.Targets & SpellTargetMask.DEST_LOCATION:
+            target_teleport_info = effect.targets.initial_target
+            if not target_teleport_info:
+                return
+
+            # Set caster orientation.
+            target_teleport_info.o = caster.location.o
+            # Terrain teleport, trigger upon tick to 'preserve' animation.
+            caster.teleport(caster.map_, target_teleport_info)
+
+        # For Charge (or Heroic Leap) spells.
+        else:
+            # Generate a point within combat reach and facing the target.
+            charge_location = ChargePositions.get_position_for_charge(caster, target)
+            # Stop movement if target is currently moving with waypoints.
+            if len(target.movement_manager.pending_waypoints) > 0:
+                target.movement_manager.send_move_stop()
+
+            # Instant teleport.
+            caster.teleport(caster.map_, charge_location, is_instant=True)
+
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
@@ -384,6 +410,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SUMMON_PLAYER: SpellEffectHandler.handle_summon_player,
     SpellEffects.SPELL_EFFECT_CREATE_HOUSE: SpellEffectHandler.handle_summon_object,
     SpellEffects.SPELL_EFFECT_BIND: SpellEffectHandler.handle_bind,
+    SpellEffects.SPELL_EFFECT_LEAP: SpellEffectHandler.handle_leap,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

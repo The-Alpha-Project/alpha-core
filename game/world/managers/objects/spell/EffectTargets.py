@@ -363,8 +363,16 @@ class EffectTargets:
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod
-    def resolve_all_hostile_around_caster(casting_spell, target_effect):  # TODO Charge effects only?
-        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
+    def resolve_all_hostile_around_caster(casting_spell, target_effect):
+        result = MapManager.get_surrounding_units(casting_spell.spell_caster, True)
+        unit_enemies = EffectTargets.get_enemies_from_unit_list(list(result[0].values()) + list(result[1].values()),
+                                                                casting_spell.spell_caster)
+        # If this is charge / heroic leap, return the player selected unit if it's in range and is enemy.
+        if target_effect.effect_type == SpellEffects.SPELL_EFFECT_LEAP:
+            return [unit for unit in unit_enemies if unit.guid == casting_spell.spell_caster.current_selection]
+        # Return surrounding enemies.
+        else:
+            return unit_enemies
 
     @staticmethod
     def resolve_aoe_party(casting_spell, target_effect):

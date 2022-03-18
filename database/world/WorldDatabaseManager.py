@@ -125,6 +125,29 @@ class WorldDatabaseManager(object):
 
     # Item stuff
 
+    @staticmethod
+    def item_get_loot_template() -> list[ItemLootTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(ItemLootTemplate).all()
+        world_db_session.close()
+        return res
+
+    class ItemLootTemplateHolder:
+        ITEM_LOOT_TEMPLATES: [int, list[ItemLootTemplate]] = {}
+
+        @staticmethod
+        def load_item_loot_template(item_loot_template):
+            if item_loot_template.entry not in WorldDatabaseManager.ItemLootTemplateHolder.ITEM_LOOT_TEMPLATES:
+                WorldDatabaseManager.ItemLootTemplateHolder.ITEM_LOOT_TEMPLATES[item_loot_template.entry] = []
+
+            WorldDatabaseManager.ItemLootTemplateHolder.ITEM_LOOT_TEMPLATES[item_loot_template.entry] \
+                .append(item_loot_template)
+
+        @staticmethod
+        def item_loot_template_get_by_entry(entry) -> list[ItemLootTemplate]:
+            return WorldDatabaseManager.ItemLootTemplateHolder.ITEM_LOOT_TEMPLATES[entry] \
+                if entry in WorldDatabaseManager.ItemLootTemplateHolder.ITEM_LOOT_TEMPLATES else []
+
     class ItemTemplateHolder:
         ITEM_TEMPLATES: [int, ItemTemplate] = {}
 

@@ -238,16 +238,19 @@ class UnitManager(ObjectManager):
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def attack_update(self, elapsed):
-        # If we have a single attacker and is no longer alive, leave combat.
-        if self.combat_target and not self.combat_target.is_alive and len(self.attackers) == 0:
+        # If we have a combat target, no attackers and target is no longer alive or is fleeing, leave combat.
+        if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_fleeing()) and len(self.attackers) == 0:
             self.leave_combat()
             return
-        # We have more attackers, switch to next alive target.
-        elif self.combat_target and not self.combat_target.is_alive and len(self.attackers) > 0:
+        # We have attackers, last target is dead or fleeing, switch to next alive target.
+        elif self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_fleeing()) and len(self.attackers) > 0:
             for guid, attacker in self.attackers.items():
-                if attacker.is_alive:
+                if attacker.is_alive and not attacker.is_fleeing():
                     self.attack(attacker)
                     return
+            # If we did not find a target, leave combat.
+            self.leave_combat()
+            return
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
         if self.has_offhand_weapon():

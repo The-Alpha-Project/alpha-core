@@ -3,6 +3,7 @@ import math
 from game.world.managers.abstractions.Vector import Vector
 from utils.constants.SpellCodes import ShapeshiftForms, TotemSlots
 from utils.constants.UnitCodes import Teams, PowerTypes
+from utils.Formulas import UnitFormulas
 
 
 class AuraDoseInfo:
@@ -110,6 +111,18 @@ class CastPositionRestrictions:
         if spell_id in CastPositionRestrictions.CASTABLE_FROM_FRONT:
             return facing_target
         return True
+
+
+class ChargePositions:
+    @staticmethod
+    def get_position_for_charge(caster, target):
+        interactable_distance = UnitFormulas.interactable_distance(caster, target)
+        # TODO: Find better formula?
+        combat_position_distance = interactable_distance * 0.6
+        distance = caster.location.distance(target.location) - combat_position_distance
+        location = caster.location.get_point_in_between(distance, target.location, map_id=caster.map_)
+        location.face_point(target.location)
+        return location
 
 
 class SummonedObjectPositions:
