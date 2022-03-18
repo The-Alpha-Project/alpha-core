@@ -731,11 +731,19 @@ class SpellManager(object):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
                 return False
 
-        # Aura bounce check
+        # Aura bounce check.
         if casting_spell.initial_target_is_unit_or_player():
             target = casting_spell.initial_target
             if not target.aura_manager.are_spell_effects_applicable(casting_spell):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED)
+                return False
+
+        # Check for terrain target range.
+        if casting_spell.initial_target_is_terrain():
+            distance = casting_spell.initial_target.distance(self.caster.location)
+            max_range = casting_spell.range_entry.RangeMax
+            if not ExtendedSpellData.CastPositionRestrictions.is_valid_range(casting_spell.spell_entry.ID, distance <= max_range):
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
                 return False
 
         # Special case of Ritual of Summoning.

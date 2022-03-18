@@ -3,6 +3,7 @@ import math
 from game.world.managers.abstractions.Vector import Vector
 from utils.constants.SpellCodes import ShapeshiftForms, TotemSlots
 from utils.constants.UnitCodes import Teams, PowerTypes
+from utils.Formulas import UnitFormulas
 
 
 class AuraDoseInfo:
@@ -100,7 +101,13 @@ class CastPositionRestrictions:
 
     CASTABLE_FROM_FRONT = {
         1776, 1777,  # Gouge
-        1966, 6768  # Feint
+        1966, 6768   # Feint
+    }
+
+    TERRAIN_RANGE_RESTRICTION = {
+        1953, 6139, # Blink
+        100, 6178,  # Charge
+        6544        # HeroicLeap
     }
 
     @staticmethod
@@ -110,6 +117,23 @@ class CastPositionRestrictions:
         if spell_id in CastPositionRestrictions.CASTABLE_FROM_FRONT:
             return facing_target
         return True
+
+    @staticmethod
+    def is_valid_range(spell_id: int, within_range: bool) -> bool:
+        if spell_id in CastPositionRestrictions.TERRAIN_RANGE_RESTRICTION:
+            return within_range
+        return True
+
+
+class LeapPositions:
+    @staticmethod
+    def get_position_for_charge(caster, target):
+        interactable_distance = UnitFormulas.interactable_distance(caster, target)
+        combat_position_distance = interactable_distance * 0.6
+        distance = caster.location.distance(target.location) - combat_position_distance
+        location = caster.location.get_point_in_between(distance, target.location, map_id=caster.map_)
+        location.face_point(target.location)
+        return location
 
 
 class SummonedObjectPositions:
