@@ -16,7 +16,7 @@ from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
-    AuraTypes, SpellEffects, SpellInterruptFlags
+    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets
 
 
 class CastingSpell(object):
@@ -180,6 +180,19 @@ class CastingSpell(object):
     def generates_threat(self):
         return not (self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT)
 
+    def requires_implicit_initial_unit_target(self):
+        # Some spells are self casts, but require an implicit unit target when casted.
+
+        if self.spell_target_mask != SpellTargetMask.SELF:
+            return False
+
+        if self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNEL_TRACK_TARGET:
+            # Only arcane missiles, but this attribute implies a required unit target.
+            return True
+
+        # Return true if the effect has an implicit unit selection target.
+        return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_UNIT_SELECTION for effect in self.effects])
+
     def is_refreshment_spell(self):
         if len(self.effects) == 0:
             return False
@@ -226,12 +239,6 @@ class CastingSpell(object):
         cp_att = SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS
         return self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
                self.spell_entry.AttributesEx & cp_att != 0
-
-    def requires_hostile_target(self):
-        for effect in self.effects:
-            if not effect.targets.can_target_friendly():
-                return True
-        return False
 
     def calculate_effective_level(self, level):
         if level > self.spell_entry.MaxLevel > 0:

@@ -708,46 +708,45 @@ class SpellManager(object):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
                 return False
 
-        if not casting_spell.initial_target:
+        validation_target = casting_spell.initial_target
+        # In the case of the spell requiring an unit target but being cast on self,
+        # validate the spell against the caster's current unit selection instead.
+        if casting_spell.spell_target_mask == SpellTargetMask.SELF and \
+                casting_spell.requires_implicit_initial_unit_target():
+            validation_target = casting_spell.targeted_unit_on_cast_start
+
+        if not validation_target:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return False
 
-        # Channeled spells that require persistent targets.
-        if casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNEL_TRACK_TARGET:
-            if not casting_spell.targeted_unit_on_cast_start:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)  # Arcane missiles cast only sends self as target but expects an unit target to track.
-                return False
-            if not casting_spell.spell_caster.can_attack_target(casting_spell.targeted_unit_on_cast_start) and casting_spell.requires_hostile_target():
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
-                return False
-
-        if casting_spell.initial_target_is_unit_or_player() and not casting_spell.initial_target.is_alive:  # TODO dead targets (resurrect)
+        if casting_spell.initial_target_is_unit_or_player() and not validation_target.is_alive:  # TODO dead targets (resurrect)
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 
         if casting_spell.initial_target_is_unit_or_player():  # Orientation checks.
-            target_is_facing_caster = casting_spell.initial_target.location.has_in_arc(self.caster.location, math.pi)
+            target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location, math.pi)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID, target_is_facing_caster):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
                 return False
 
-        # Check if the caster is within range of the target to cast the spell.
-        if casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
+        # Check if the caster is within range of the (world) target to cast the spell.
+        if not casting_spell.initial_target_is_item() and \
+                casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
             if casting_spell.initial_target_is_terrain():
-                distance = casting_spell.initial_target.distance(self.caster.location)
+                distance = validation_target.distance(self.caster.location)
             else:
-                distance = casting_spell.initial_target.location.distance(self.caster.location)
+                distance = validation_target.location.distance(self.caster.location)
+
             if distance > casting_spell.range_entry.RangeMax:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
                 return False
-            # if distance < casting_spell.range_entry.RangeMin:
-            #    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
-            #    return False
+            if distance < casting_spell.range_entry.RangeMin:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
+                return False
 
         # Aura bounce check.
         if casting_spell.initial_target_is_unit_or_player():
-            target = casting_spell.initial_target
-            if not target.aura_manager.are_spell_effects_applicable(casting_spell):
+            if not validation_target.aura_manager.are_spell_effects_applicable(casting_spell):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED)
                 return False
 
