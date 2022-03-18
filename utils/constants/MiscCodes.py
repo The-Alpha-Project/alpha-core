@@ -288,6 +288,7 @@ class QuestState(IntEnum):
     QUEST_ACCEPTED = 2
     QUEST_REWARD = 3
     QUEST_STATE_NUM_TYPES = 4
+    QUEST_BOAT_OPERATOR = 5  # Internal
 
 
 class QuestGiverStatus(IntEnum):

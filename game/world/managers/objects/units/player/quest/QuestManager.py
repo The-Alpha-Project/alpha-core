@@ -118,6 +118,8 @@ class QuestManager(object):
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest:
                 continue
+            if QuestHelpers.is_alpha_teleport_quest(quest_entry):
+                return QuestGiverStatus.QUEST_GIVER_TRIVIAL
             if quest_entry not in self.active_quests:
                 continue
             quest_state = self.active_quests[quest_entry].get_quest_state()
@@ -130,6 +132,8 @@ class QuestManager(object):
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest or not self.check_quest_requirements(quest):
                 continue
+            if QuestHelpers.is_alpha_teleport_quest(quest_entry):
+                return QuestGiverStatus.QUEST_GIVER_TRIVIAL
             if quest_entry in self.active_quests:
                 continue
             if quest_entry in self.completed_quests:
@@ -166,8 +170,11 @@ class QuestManager(object):
         for involved_relation in involved_relations_list:
             if len(involved_relation) == 0:
                 continue
-            quest_entry = involved_relation[1]
+            quest_entry = involved_relation[1]  # TODO: Why 1? We are on a loop here.
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
+            if QuestHelpers.is_alpha_teleport_quest(quest_entry):
+                quest_menu.add_menu_item(quest, QuestState.QUEST_BOAT_OPERATOR)
+                break
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
             if quest_entry not in self.active_quests:
@@ -181,8 +188,11 @@ class QuestManager(object):
         for relation in relations_list:
             if len(relation) == 0:
                 continue
-            quest_entry = relation[1]
+            quest_entry = relation[1]  # TODO: Why 1? We are on a loop here.
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
+            if QuestHelpers.is_alpha_teleport_quest(quest_entry):
+                quest_menu.add_menu_item(quest, QuestState.QUEST_BOAT_OPERATOR)
+                break
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
             if quest_entry in self.completed_quests:
@@ -196,7 +206,11 @@ class QuestManager(object):
 
         if len(quest_menu.items) == 1:
             quest_menu_item = list(quest_menu.items.values())[0]
-            if quest_menu_item.state == QuestState.QUEST_REWARD:
+            if quest and quest_menu_item.state == QuestState.QUEST_BOAT_OPERATOR:
+                active_quest = self._create_db_quest_status(quest)
+                self.send_quest_giver_offer_reward(active_quest, quest_giver_guid, True)
+                return 0
+            elif quest_menu_item.state == QuestState.QUEST_REWARD:
                 self.send_quest_giver_offer_reward(self.active_quests[quest_menu_item.quest.entry], quest_giver_guid, True)
                 return 0
             elif quest_menu_item.state == QuestState.QUEST_ACCEPTED:
@@ -206,7 +220,6 @@ class QuestManager(object):
                 self.send_quest_giver_quest_details(quest_menu_item.quest, quest_giver_guid, True)
         else:
             questgiver_greeting: str = QuestManager.get_quest_giver_gossip_string(quest_giver)
-
             self.send_quest_giver_quest_list(questgiver_greeting, quest_giver_guid, quest_menu.items)
 
         self.update_surrounding_quest_status()
@@ -679,6 +692,13 @@ class QuestManager(object):
         self.send_quest_giver_offer_reward(active_quest, quest_giver_guid, True)
 
     def handle_choose_reward(self, quest_giver_guid, quest_id, item_choice):
+        # If this is a 0.5.3 instant teleport quest, teleport player.
+        if QuestHelpers.is_alpha_teleport_quest(quest_id):
+            destination = QuestHelpers.get_alpha_teleport_destination(quest_id)
+            if destination:
+                self.player_mgr.teleport(destination[0], destination[1])
+                return
+
         if quest_id not in self.active_quests:
             return
 
