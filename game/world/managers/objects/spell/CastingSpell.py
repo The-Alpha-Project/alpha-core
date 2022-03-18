@@ -52,7 +52,7 @@ class CastingSpell(object):
         self.triggered = triggered
 
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
-        self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)  # TODO RangeMin is never used
+        self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
 

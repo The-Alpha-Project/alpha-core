@@ -696,7 +696,7 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
             return False
 
-        # Unit-only checks
+        # Unit-only checks.
         if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             if not self.caster.is_alive and \
                     casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD != SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD:
@@ -731,19 +731,24 @@ class SpellManager(object):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
                 return False
 
+        # Check if the caster is within range of the target to cast the spell.
+        if casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
+            if casting_spell.initial_target_is_terrain():
+                distance = casting_spell.initial_target.distance(self.caster.location)
+            else:
+                distance = casting_spell.initial_target.location.distance(self.caster.location)
+            if distance > casting_spell.range_entry.RangeMax:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
+                return False
+            # if distance < casting_spell.range_entry.RangeMin:
+            #    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
+            #    return False
+
         # Aura bounce check.
         if casting_spell.initial_target_is_unit_or_player():
             target = casting_spell.initial_target
             if not target.aura_manager.are_spell_effects_applicable(casting_spell):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED)
-                return False
-
-        # Check for terrain target range.
-        if casting_spell.initial_target_is_terrain():
-            distance = casting_spell.initial_target.distance(self.caster.location)
-            max_range = casting_spell.range_entry.RangeMax
-            if not ExtendedSpellData.CastPositionRestrictions.is_valid_range(casting_spell.spell_entry.ID, distance <= max_range):
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
                 return False
 
         # Special case of Ritual of Summoning.

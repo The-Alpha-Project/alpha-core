@@ -104,24 +104,12 @@ class CastPositionRestrictions:
         1966, 6768  # Feint
     }
 
-    TERRAIN_RANGE_RESTRICTION = {
-        1953, 6139,  # Blink
-        100, 6178,  # Charge
-        6544  # Heroic Leap
-    }
-
     @staticmethod
     def is_position_correct(spell_id: int, facing_target: bool) -> bool:
         if spell_id in CastPositionRestrictions.CASTABLE_FROM_BEHIND:
             return not facing_target
         if spell_id in CastPositionRestrictions.CASTABLE_FROM_FRONT:
             return facing_target
-        return True
-
-    @staticmethod
-    def is_valid_range(spell_id: int, within_range: bool) -> bool:
-        if spell_id in CastPositionRestrictions.TERRAIN_RANGE_RESTRICTION:
-            return within_range
         return True
 
 
