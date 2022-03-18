@@ -11,6 +11,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants import UnitCodes
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypeFlags, QuestMethod, \
     QuestFlags, GameObjectTypes, ObjectTypeIds
 from utils.constants.UpdateFields import PlayerFields
@@ -172,9 +173,12 @@ class QuestManager(object):
                 continue
             quest_entry = involved_relation[1]  # TODO: Why 1? We are on a loop here.
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
-            if QuestHelpers.is_alpha_teleport_quest(quest_entry):
-                quest_menu.add_menu_item(quest, QuestState.QUEST_BOAT_OPERATOR)
-                break
+
+            # Handle boat operator special case, player does not 'Accepts' a quest, he just completes and its not persisted.
+            if QuestHelpers.is_alpha_teleport_quest(quest_entry) and quest_entry not in self.active_quests:
+                self.active_quests[quest_entry] = self._create_db_quest_status(quest)
+                self.active_quests[quest_entry].db_state.state = QuestState.QUEST_REWARD
+
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
             if quest_entry not in self.active_quests:
@@ -190,9 +194,12 @@ class QuestManager(object):
                 continue
             quest_entry = relation[1]  # TODO: Why 1? We are on a loop here.
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
-            if QuestHelpers.is_alpha_teleport_quest(quest_entry):
-                quest_menu.add_menu_item(quest, QuestState.QUEST_BOAT_OPERATOR)
-                break
+
+            # Handle boat operator special case, player does not 'Accepts' a quest, he just completes and its not persisted.
+            if QuestHelpers.is_alpha_teleport_quest(quest_entry) and quest_entry not in self.active_quests:
+                self.active_quests[quest_entry] = self._create_db_quest_status(quest)
+                self.active_quests[quest_entry].db_state.state = QuestState.QUEST_REWARD
+
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
             if quest_entry in self.completed_quests:
@@ -206,11 +213,7 @@ class QuestManager(object):
 
         if len(quest_menu.items) == 1:
             quest_menu_item = list(quest_menu.items.values())[0]
-            if quest and quest_menu_item.state == QuestState.QUEST_BOAT_OPERATOR:
-                active_quest = self._create_db_quest_status(quest)
-                self.send_quest_giver_offer_reward(active_quest, quest_giver_guid, True)
-                return 0
-            elif quest_menu_item.state == QuestState.QUEST_REWARD:
+            if quest_menu_item.state == QuestState.QUEST_REWARD:
                 self.send_quest_giver_offer_reward(self.active_quests[quest_menu_item.quest.entry], quest_giver_guid, True)
                 return 0
             elif quest_menu_item.state == QuestState.QUEST_ACCEPTED:
@@ -692,13 +695,6 @@ class QuestManager(object):
         self.send_quest_giver_offer_reward(active_quest, quest_giver_guid, True)
 
     def handle_choose_reward(self, quest_giver_guid, quest_id, item_choice):
-        # If this is a 0.5.3 instant teleport quest, teleport player.
-        if QuestHelpers.is_alpha_teleport_quest(quest_id):
-            destination = QuestHelpers.get_alpha_teleport_destination(quest_id)
-            if destination:
-                self.player_mgr.teleport(destination[0], destination[1])
-                return
-
         if quest_id not in self.active_quests:
             return
 
@@ -721,12 +717,13 @@ class QuestManager(object):
         given_xp = active_quest.reward_xp()
         given_gold = active_quest.reward_gold()
 
-        # Remove from log and mark as rewarded.
-        self.remove_from_quest_log(quest_id)
-        self.completed_quests.add(quest_id)
+        if not QuestHelpers.is_alpha_teleport_quest(active_quest.quest.entry):
+            # Remove from log and mark as rewarded.
+            self.remove_from_quest_log(quest_id)
+            self.completed_quests.add(quest_id)
 
-        # Update db quest status.
-        active_quest.update_quest_status(rewarded=True)
+            # Update db quest status.
+            active_quest.update_quest_status(rewarded=True)
 
         data = pack(
             '<4I',
@@ -744,12 +741,23 @@ class QuestManager(object):
             data += pack('<2I', rew_item_list[index], rew_item_count_list[index])
             self.player_mgr.inventory.add_item(entry=rew_item_list[index], show_item_get=False, update_inventory=True)
 
-        # TODO: Handle RewSpell and RewSpellCast upon completion.
+        # TODO: Handle RewSpell
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_COMPLETE, data))
+
+        if active_quest.quest.RewSpellCast:
+            self.cast_reward_spell(quest_giver_guid, active_quest)
 
         # Update surrounding, NextQuestInChain was not working properly.
         self.update_surrounding_quest_status()
         self.player_mgr.update_known_world_objects(force_update=True)
+
+    def cast_reward_spell(self, quest_giver_guid, active_quest):
+        quest_giver_unit = MapManager.get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
+        if quest_giver_unit:
+            quest_giver_unit.spell_manager.handle_cast_attempt(active_quest.quest.RewSpellCast,
+                                                            self.player_mgr,
+                                                            SpellTargetMask.SELF, validate=False)
+        return
 
     def remove_from_quest_log(self, quest_id):
         self.active_quests.pop(quest_id)

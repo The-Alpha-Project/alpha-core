@@ -3,19 +3,19 @@ from game.world.managers.abstractions.Vector import Vector
 
 class QuestHelpers:
     # Possible teleport quests, either boat operators or some other npc.
-    # QuestID : (map, destination)
+    # QuestID : None
     TELEPORT_QUESTS = \
-        {
-             796 : None,  # Journey to Booty Bay!      (Missing)
-             797 : None,  # Journey to Ratchet!        (Missing)
-             798 : None,  # Journey to the Undercity!  (Missing)
-             799 : None,  # Journey to Orgrimmar!      (Missing)
-             1018 : (1, Vector(6483.387, 617.568, 7.233, 3.33)),     # Journey to Auberdine!  (Handled)
-             1019 : (0, Vector(-3766.843, -697.225, 10.455, 5.093)), # Journey to Menethil!   (Handled)
-             1123 : None, # Journey to Darkshore!      (Missing)
-             1124 : None, # Journey to Menethil Harbor!(NPC: Captain Quirk)  (Missing)
-             1126 : None  # Journey to Theramore!      (Missing)
-         }
+        (
+             796,  # Journey to Booty Bay!      (Missing)
+             797,  # Journey to Ratchet!        (Missing)
+             798,  # Journey to the Undercity!  (Missing)
+             799,  # Journey to Orgrimmar!      (Missing)
+             1018, # Journey to Auberdine!      (Handled)
+             1019, # Journey to Menethil!       (Handled)
+             1123, # Journey to Darkshore!      (Missing)
+             1124, # Journey to Menethil Harbor!(NPC: Captain Quirk)  (Missing)
+             1126  # Journey to Theramore!      (Missing)
+        )
 
     @staticmethod
     def is_alpha_teleport_quest(quest_entry):
