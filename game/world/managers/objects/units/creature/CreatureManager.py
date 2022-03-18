@@ -378,7 +378,6 @@ class CreatureManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
         self.set_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)
         self.set_uint32(UnitFields.UNIT_FIELD_POWER1, self.power_1)
-        self.set_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)
         self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, self.max_power_1)
         self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
