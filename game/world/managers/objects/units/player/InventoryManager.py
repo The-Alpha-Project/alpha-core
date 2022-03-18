@@ -372,6 +372,14 @@ class InventoryManager(object):
 
         return item_count  # Return the amount of items not removed
 
+    def get_item_by_guid(self, guid):
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                continue
+            for slot, item in list(container.sorted_slots.items()):
+                if item.guid == guid:
+                    return item
+
     def get_item_info_by_guid(self, guid):
         for container_slot, container in list(self.containers.items()):
             if not container:
