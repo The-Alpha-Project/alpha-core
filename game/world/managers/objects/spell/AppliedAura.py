@@ -24,7 +24,7 @@ class AppliedAura:
         self.passive = casting_spell.is_passive()
         self.harmful = self.resolve_harmful()
 
-        for effect in casting_spell.effects:
+        for effect in casting_spell.get_effects():
             if effect.effect_index >= spell_effect.effect_index:
                 break
             if effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and \

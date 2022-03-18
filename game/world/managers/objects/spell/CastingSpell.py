@@ -33,7 +33,7 @@ class CastingSpell(object):
     range_entry: SpellRange
     duration_entry: SpellDuration
     cast_time_entry: SpellCastTimes
-    effects: list
+    _effects: list
 
     cast_start_timestamp: float
     cast_end_timestamp: float
@@ -119,14 +119,14 @@ class CastingSpell(object):
                 else [self.initial_target.guid]), ('3f' if is_terrain else 'Q')
 
     def resolve_target_info_for_effects(self):
-        for effect in self.effects:
+        for effect in self.get_effects():
             self.resolve_target_info_for_effect(effect.effect_index)
 
     # noinspection PyUnresolvedReferences
     def resolve_target_info_for_effect(self, index):
-        if index < 0 or index > len(self.effects) - 1:
+        if index < 0 or not self._effects[index]:
             return
-        effect = self.effects[index]
+        effect = self._effects[index]
         if not effect:
             return
 
@@ -191,12 +191,13 @@ class CastingSpell(object):
             return True
 
         # Return true if the effect has an implicit unit selection target.
-        return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_UNIT_SELECTION for effect in self.effects])
+        return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_UNIT_SELECTION for effect in self.get_effects()])
 
     def is_refreshment_spell(self):
-        if len(self.effects) == 0:
+        spell_effect = self._effects[0]  # Food/drink effect should be first.
+        if not spell_effect:
             return False
-        spell_effect = self.effects[0]  # Food/drink effect should be first
+
         has_sitting_attribute = self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_SITTING
         is_regen_buff = spell_effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_HEAL or \
             spell_effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE
@@ -204,7 +205,7 @@ class CastingSpell(object):
         return has_sitting_attribute and is_regen_buff
 
     def has_effect_of_type(self, effect_type: SpellEffects):
-        for effect in self.effects:
+        for effect in self.get_effects():
             if effect.effect_type == effect_type:
                 return True
         return False
@@ -300,13 +301,18 @@ class CastingSpell(object):
         return damage_info
 
     def load_effects(self):
-        self.effects = []
-        if self.spell_entry.Effect_1 != 0:
-            self.effects.append(SpellEffect(self, len(self.effects)))
-        if self.spell_entry.Effect_2 != 0:
-            self.effects.append(SpellEffect(self, len(self.effects)))
-        if self.spell_entry.Effect_3 != 0:
-            self.effects.append(SpellEffect(self, len(self.effects)))  # Use effects length for index - some spells (by mistake?) have empty effect slots before an actual effect
+        # Some spells have undefined effects (ie. effect type = 0) before defined effects.
+        # Use a fixed-length list to avoid indexing issues caused by invalid effects.
+        self._effects = [None, None, None]
+        effect_ids = [self.spell_entry.Effect_1, self.spell_entry.Effect_2, self.spell_entry.Effect_3]
+        for i in range(0, 3):
+            if not effect_ids[i]:
+                continue
+            self._effects[i] = SpellEffect(self, i)
+
+    def get_effects(self):
+        # Some spells have missing effects (see load_effects) - only return loaded ones.
+        return [effect for effect in self._effects if effect is not None]
 
     def get_reagents(self):
         return (self.spell_entry.Reagent_1, self.spell_entry.ReagentCount_1), (self.spell_entry.Reagent_2, self.spell_entry.ReagentCount_2), \
@@ -327,7 +333,7 @@ class CastingSpell(object):
 
     def get_conjured_items(self):
         conjured_items = []
-        for effect in self.effects:
+        for effect in self.get_effects():
             item_count = abs(effect.get_effect_points(self.caster_effective_level))
             conjured_items.append([effect.item_type, item_count])
         return tuple(conjured_items)
@@ -344,7 +350,7 @@ class CastingSpell(object):
             channel_length = self.duration_entry.Duration/1000  # /1000 for seconds.
             final_opcode = OpCode.MSG_CHANNEL_UPDATE
             pushback_length_sec = min(remaining_cast_before_pushback, channel_length * 0.25)
-            for effect in self.effects:
+            for effect in self.get_effects():
                 if remaining_cast_before_pushback <= pushback_length_sec:
                     # Applied aura duration is not timestamp based so it's stored in milliseconds.
                     # To avoid rounding issues, set to zero instead of subtracting if pushback leads to channel stop.

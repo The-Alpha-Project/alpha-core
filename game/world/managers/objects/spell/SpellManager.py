@@ -218,7 +218,7 @@ class SpellManager(object):
         if not update:
             self.handle_procs_for_cast(casting_spell)
 
-        for effect in casting_spell.effects:
+        for effect in casting_spell.get_effects():
             if not update:
                 effect.start_aura_duration()
 
@@ -250,7 +250,7 @@ class SpellManager(object):
     # noinspection PyMethodMayBeStatic
     def handle_procs_for_cast(self, casting_spell):
         applied_targets = []
-        for effect in casting_spell.effects:
+        for effect in casting_spell.get_effects():
             for target in effect.targets.get_resolved_effect_targets_by_type(ObjectManager):
                 if target.guid in applied_targets:
                     continue
@@ -436,7 +436,7 @@ class SpellManager(object):
                 self.remove_cast(casting_spell, result, interrupted=True)
                 return
 
-            for effect in casting_spell.effects:
+            for effect in casting_spell.get_effects():
                 effect.targets.remove_object_from_targets(target_guid)
 
     def remove_colliding_casts(self, current_cast):
@@ -459,7 +459,7 @@ class SpellManager(object):
             return impact_delays
 
         lowest_delay = 0
-        for effect in casting_spell.effects:
+        for effect in casting_spell.get_effects():
             vector_targets = effect.targets.get_resolved_effect_targets_by_type(Vector)
             if len(vector_targets) > 0:  # Throwable items - bombs etc. Set as the minimum delay for unit targets.
                 travel_distance = vector_targets[0].distance(effect.targets.effect_source)
@@ -533,7 +533,7 @@ class SpellManager(object):
         # TODO Channeling animations do not play
 
     def handle_spell_effect_update(self, casting_spell, timestamp):
-        for effect in casting_spell.effects:
+        for effect in casting_spell.get_effects():
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
@@ -582,7 +582,7 @@ class SpellManager(object):
         results_by_type = {SpellMissReason.MISS_REASON_NONE: []}  # Hits need to be written first.
 
         # Only include the primary effect targets.
-        targets = casting_spell.effects[0].targets.get_resolved_effect_targets_by_type(ObjectManager)
+        targets = casting_spell.get_effects()[0].targets.get_resolved_effect_targets_by_type(ObjectManager)
         for target in targets:
             miss_info = casting_spell.object_target_results[target.guid]
             new_targets = results_by_type.get(miss_info.result, [])
