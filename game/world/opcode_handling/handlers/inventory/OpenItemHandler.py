@@ -1,6 +1,5 @@
 from struct import unpack
 
-from network.packet.PacketWriter import *
 from utils.constants.ItemCodes import InventoryError, InventorySlots
 
 

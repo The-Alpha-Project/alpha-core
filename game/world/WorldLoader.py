@@ -45,7 +45,7 @@ class WorldLoader:
             Logger.info('Skipped creature loading.')
 
         WorldLoader.load_item_templates()
-        WorldLoader.load_items_loot_templates()
+        WorldLoader.load_item_loot_templates()
         WorldLoader.load_quests()
         WorldLoader.load_spells()
         WorldLoader.load_spell_chains()
@@ -185,12 +185,12 @@ class WorldLoader:
         return length
 
     @staticmethod
-    def load_items_loot_templates():
-        items_loot_templates = WorldDatabaseManager.item_get_loot_template()
-        length = len(items_loot_templates)
+    def load_item_loot_templates():
+        item_loot_templates = WorldDatabaseManager.item_get_loot_template()
+        length = len(item_loot_templates)
         count = 0
 
-        for item_loot_template in items_loot_templates:
+        for item_loot_template in item_loot_templates:
             WorldDatabaseManager.ItemLootTemplateHolder.load_item_loot_template(item_loot_template)
             count += 1
             Logger.progress('Loading item loot templates...', count, length)

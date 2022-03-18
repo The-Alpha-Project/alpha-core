@@ -363,7 +363,8 @@ class CreatureManager(UnitManager):
         self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form, 0))[0]
         # sheath_state, misc_flags, pet_flags, unknown
         self.bytes_2 = unpack('<I', pack('<4B', self.sheath_state, 0, 0, 0))[0]
-        self.damage = unpack('<I', pack('<2H', int(self.creature_template.dmg_min), int(self.creature_template.dmg_max)))[0]
+        self.damage = unpack('<I', pack('<2H', int(self.creature_template.dmg_min),
+                                        int(self.creature_template.dmg_max)))[0]
 
         # Object fields
         self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)

@@ -10,7 +10,7 @@ from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from game.world.managers.objects.spell.ExtendedSpellData import LeapPositions
+from game.world.managers.objects.spell.ExtendedSpellData import ChargePositions
 from utils.constants.MiscCodes import ObjectTypeFlags, GameObjectTypes, HighGuid, ObjectTypeIds
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, PowerTypes
@@ -321,26 +321,27 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_leap(casting_spell, effect, caster, target):
-        blink = [1953, 6139]
-        charge = [100, 6178, 6544] # 6544 = HeroicLeap
-        if casting_spell.spell_entry.ID in blink:
+        # For Blink spells.
+        if casting_spell.spell_entry.Targets & SpellTargetMask.DEST_LOCATION:
             target_teleport_info = effect.targets.initial_target
             if not target_teleport_info:
                 return
+
             # Set caster orientation.
             target_teleport_info.o = caster.location.o
             # Terrain teleport, trigger upon tick to 'preserve' animation.
             caster.teleport(caster.map_, target_teleport_info)
-        elif casting_spell.spell_entry.ID in charge:
+
+        # For Charge (or Heroic Leap) spells.
+        else:
             # Generate a point within combat reach and facing the target.
-            charge_location = LeapPositions.get_position_for_charge(caster, target)
-            # Stop movement if target is unit.
-            if target.get_type_id() == ObjectTypeIds.ID_UNIT:
+            charge_location = ChargePositions.get_position_for_charge(caster, target)
+            # Stop movement if target is currently moving with waypoints.
+            if len(target.movement_manager.pending_waypoints) > 0:
                 target.movement_manager.send_move_stop()
+
             # Instant teleport.
             caster.teleport(caster.map_, charge_location, is_instant=True)
-            # Generate 15 rage points. (Rage is 0 - 1000)
-            caster.receive_power(15 * 10, PowerTypes.TYPE_RAGE)
 
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.

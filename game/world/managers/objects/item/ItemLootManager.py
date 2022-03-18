@@ -6,6 +6,7 @@ from utils.constants.MiscCodes import LootTypes
 from utils.constants.ItemCodes import ItemClasses
 from utils.constants.ItemCodes import ItemFlags
 
+
 class ItemLootManager(LootManager):
     def __init__(self, item_mgr):
         super(ItemLootManager, self).__init__(item_mgr)
@@ -17,12 +18,13 @@ class ItemLootManager(LootManager):
         from game.world.managers.objects.item.ItemManager import ItemManager
         self.clear()
 
-        for loot_item in choices(self.loot_template, k=randint(min(3, len(self.loot_template)), min(7, len(self.loot_template)))):
+        for loot_item in choices(self.loot_template, k=randint(min(3, len(self.loot_template)),
+                                                               min(7, len(self.loot_template)))):
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:
                 # Check if this is a quest item and if the player or group needs it.
-                if requester and item_template.class_ == ItemClasses.ITEM_CLASS_QUEST:  # Quest item
+                if requester and item_template.class_ == ItemClasses.ITEM_CLASS_QUEST:  # Quest item.
                     if not requester.player_or_group_require_quest_item(item_template.entry):
                         continue  # Move on to next item.
 
