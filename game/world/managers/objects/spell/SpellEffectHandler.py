@@ -21,7 +21,8 @@ class SpellEffectHandler(object):
     @staticmethod
     def apply_effect(casting_spell, effect, caster, target):
         if effect.effect_type not in SPELL_EFFECTS:
-            Logger.debug(f'Unimplemented effect called: {effect.effect_type}')
+            Logger.debug(f'Unimplemented spell effect called ({SpellEffects(effect.effect_type).name}: '
+                         f'{effect.effect_type}) from spell {casting_spell.spell_entry.ID}.')
             return
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)
 
