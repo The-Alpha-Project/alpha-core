@@ -12,7 +12,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants import UnitCodes
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, ObjectTypeFlags, QuestMethod, \
+from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestSpecialFlags, QuestMethod, \
     QuestFlags, GameObjectTypes, ObjectTypeIds
 from utils.constants.UpdateFields import PlayerFields
 
@@ -119,8 +119,6 @@ class QuestManager(object):
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest:
                 continue
-            if QuestHelpers.is_alpha_teleport_quest(quest_entry):
-                return QuestGiverStatus.QUEST_GIVER_TRIVIAL
             if quest_entry not in self.active_quests:
                 continue
             quest_state = self.active_quests[quest_entry].get_quest_state()
@@ -133,8 +131,6 @@ class QuestManager(object):
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest or not self.check_quest_requirements(quest):
                 continue
-            if QuestHelpers.is_alpha_teleport_quest(quest_entry):
-                return QuestGiverStatus.QUEST_GIVER_TRIVIAL
             if quest_entry in self.active_quests:
                 continue
             if quest_entry in self.completed_quests:
@@ -173,12 +169,10 @@ class QuestManager(object):
                 continue
             quest_entry = involved_relation[1]  # TODO: Why 1? We are on a loop here.
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
-
-            # Handle boat operator special case, player does not 'Accepts' a quest, he just completes and its not persisted.
-            if QuestHelpers.is_alpha_teleport_quest(quest_entry) and quest_entry not in self.active_quests:
+            # Handle repeatable.
+            if self.check_is_repeatable(quest) and quest_entry not in self.active_quests:
                 self.active_quests[quest_entry] = self._create_db_quest_status(quest)
-                self.active_quests[quest_entry].db_state.state = QuestState.QUEST_REWARD
-
+                quest_menu.add_menu_item(quest, quest_state)
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
             if quest_entry not in self.active_quests:
@@ -194,12 +188,8 @@ class QuestManager(object):
                 continue
             quest_entry = relation[1]  # TODO: Why 1? We are on a loop here.
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
-
-            # Handle boat operator special case, player does not 'Accepts' a quest, he just completes and its not persisted.
-            if QuestHelpers.is_alpha_teleport_quest(quest_entry) and quest_entry not in self.active_quests:
+            if self.check_is_repeatable(quest) and quest_entry not in self.active_quests:
                 self.active_quests[quest_entry] = self._create_db_quest_status(quest)
-                self.active_quests[quest_entry].db_state.state = QuestState.QUEST_REWARD
-
             if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
             if quest_entry in self.completed_quests:
@@ -207,12 +197,14 @@ class QuestManager(object):
             quest_state = QuestState.QUEST_OFFER
             if quest_entry in self.active_quests:
                 quest_state = self.active_quests[quest_entry].get_quest_state()
+                print(quest_state)
             if quest_state >= QuestState.QUEST_ACCEPTED:
                 continue  # Quest turn-in is handled by involved_relations_list.
             quest_menu.add_menu_item(quest, quest_state)
 
         if len(quest_menu.items) == 1:
             quest_menu_item = list(quest_menu.items.values())[0]
+            print(quest_menu_item.state)
             if quest_menu_item.state == QuestState.QUEST_REWARD:
                 self.send_quest_giver_offer_reward(self.active_quests[quest_menu_item.quest.entry], quest_giver_guid, True)
                 return 0
@@ -274,7 +266,14 @@ class QuestManager(object):
 
         return quest_num
 
+    def check_is_repeatable(self, quest_template):
+        return quest_template.SpecialFlags == QuestSpecialFlags.QUEST_SPECIAL_FLAG_REPEATABLE
+
     def check_quest_requirements(self, quest_template):
+        # First check if quest is disabled.
+        if quest_template.Method == QuestMethod.QUEST_DISABLED:
+            return False
+
         # Is the player character the required race.
         race_is_required = quest_template.RequiredRaces > 0
         if race_is_required and not (quest_template.RequiredRaces & self.player_mgr.race_mask):
@@ -717,13 +716,16 @@ class QuestManager(object):
         given_xp = active_quest.reward_xp()
         given_gold = active_quest.reward_gold()
 
-        if not QuestHelpers.is_alpha_teleport_quest(active_quest.quest.entry):
+        # Repeatable quests are not persisted.
+        if not self.check_is_repeatable(active_quest.quest):
             # Remove from log and mark as rewarded.
             self.remove_from_quest_log(quest_id)
             self.completed_quests.add(quest_id)
-
             # Update db quest status.
             active_quest.update_quest_status(rewarded=True)
+        # Do pop from current runtime active quests.
+        else:
+            self.active_quests.pop(active_quest)
 
         data = pack(
             '<4I',
@@ -854,5 +856,8 @@ class QuestManager(object):
         db_quest_status = CharacterQuestState()
         db_quest_status.guid = self.player_mgr.guid
         db_quest_status.quest = quest.entry
-        db_quest_status.state = QuestState.QUEST_ACCEPTED.value
+        if quest.Method == QuestMethod.QUEST_AUTOCOMPLETE:
+            db_quest_status.state = QuestState.QUEST_REWARD.value
+        else:
+            db_quest_status.state = QuestState.QUEST_ACCEPTED.value
         return ActiveQuest(db_quest_status, self.player_mgr, quest)

@@ -1,29 +1,4 @@
-from game.world.managers.abstractions.Vector import Vector
-
-
 class QuestHelpers:
-    # Possible teleport quests, either boat operators or some other npc.
-    # QuestID : None
-    TELEPORT_QUESTS = \
-        (
-             796,  # Journey to Booty Bay!      (Missing)
-             797,  # Journey to Ratchet!        (Missing)
-             798,  # Journey to the Undercity!  (Missing)
-             799,  # Journey to Orgrimmar!      (Missing)
-             1018, # Journey to Auberdine!      (Handled)
-             1019, # Journey to Menethil!       (Handled)
-             1123, # Journey to Darkshore!      (Missing)
-             1124, # Journey to Menethil Harbor!(NPC: Captain Quirk)  (Missing)
-             1126  # Journey to Theramore!      (Missing)
-        )
-
-    @staticmethod
-    def is_alpha_teleport_quest(quest_entry):
-        return quest_entry in QuestHelpers.TELEPORT_QUESTS
-
-    @staticmethod
-    def get_alpha_teleport_destination(quest_entry):
-        return QuestHelpers.TELEPORT_QUESTS[quest_entry] if quest_entry in QuestHelpers.TELEPORT_QUESTS else None
 
     @staticmethod
     def generate_rew_choice_item_list(quest_template):

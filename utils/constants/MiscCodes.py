@@ -299,6 +299,12 @@ class QuestGiverStatus(IntEnum):
     QUEST_GIVER_NUMITEMS = 5
 
 
+class QuestSpecialFlags(IntEnum):
+    QUEST_SPECIAL_FLAG_NONE = 0
+    QUEST_SPECIAL_FLAG_REPEATABLE = 1
+    QUEST_SPECIAL_FLAG_SCRIPT = 2
+
+
 class QuestFlags(IntEnum):
     QUEST_FLAGS_NONE = 0x00000000
     QUEST_FLAGS_STAY_ALIVE = 0x00000001  # Not used currently
