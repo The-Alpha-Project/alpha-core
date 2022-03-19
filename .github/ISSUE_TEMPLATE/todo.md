@@ -8,7 +8,7 @@ assignees: ''
 
 ---
 
-<!-- Please after creating this issue add the appropriate difficulty tag so it's easier for others to decide if they are willing to take the challenge or not. -->
+<!-- Please after creating this issue add the appropriate difficulty label so it's easier for others to decide if they are willing to take the challenge or not. -->
 
 **Describe what needs to be implemented or enhanced**
 A clear and concise description of what needs to be implemented, enhanced, reworked, refactored...
