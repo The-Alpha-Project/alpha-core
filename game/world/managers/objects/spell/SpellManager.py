@@ -424,10 +424,18 @@ class SpellManager(object):
 
     def remove_unit_from_all_cast_targets(self, target_guid):
         for casting_spell in list(self.casting_spells):
-            if not casting_spell.initial_target_is_unit_or_player() or (casting_spell.is_instant_cast() and not casting_spell.is_channeled()):  # Don't interrupt instant casts.
+            for effect in casting_spell.get_effects():
+                effect.targets.remove_object_from_targets(target_guid)
+
+            # Interrupt handling
+            if not casting_spell.initial_target_is_unit_or_player() or \
+                    (casting_spell.spell_target_mask == SpellTargetMask.SELF and not
+                        casting_spell.requires_implicit_initial_unit_target()) or \
+                    (casting_spell.is_instant_cast() and not casting_spell.is_channeled()):
+                # Ignore spells that are non-unit targeted, self-cast or instant.
                 continue
 
-            if target_guid in casting_spell.object_target_results and len(casting_spell.object_target_results) == 1:  # Only target of this spell.
+            if target_guid in casting_spell.object_target_results:  # Only target of this spell.
                 result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
                 if not casting_spell.is_channeled() and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
                         casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
@@ -435,9 +443,6 @@ class SpellManager(object):
 
                 self.remove_cast(casting_spell, result, interrupted=True)
                 return
-
-            for effect in casting_spell.get_effects():
-                effect.targets.remove_object_from_targets(target_guid)
 
     def remove_colliding_casts(self, current_cast):
         for casting_spell in self.casting_spells:
