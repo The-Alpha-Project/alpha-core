@@ -715,8 +715,14 @@ class SpellManager(object):
                 casting_spell.requires_implicit_initial_unit_target():
             validation_target = casting_spell.targeted_unit_on_cast_start
 
+            if validation_target and not self.caster.can_attack_target(validation_target):
+                # All secondary initial unit targets are hostile. Unlike (nearly?) all other spells,
+                # the target for arcane missiles is not validated by the client (script effect). Catch that case here.
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
+
         if not validation_target:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
             return False
 
         if casting_spell.initial_target_is_unit_or_player() and not validation_target.is_alive:  # TODO dead targets (resurrect)
