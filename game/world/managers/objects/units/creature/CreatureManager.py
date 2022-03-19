@@ -511,10 +511,7 @@ class CreatureManager(UnitManager):
                     return
 
             current_distance = self.location.distance(self.combat_target.location)
-            interactable_distance = UnitFormulas.interactable_distance(self, self.combat_target)
-
-            # TODO: Find better formula?
-            combat_position_distance = interactable_distance * 0.6
+            combat_position_distance = UnitFormulas.combat_distance(self, self.combat_target)
 
             # If target is within combat distance, don't move but do check creature orientation.
             if current_distance <= combat_position_distance:

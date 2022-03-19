@@ -50,6 +50,11 @@ class UnitFormulas(object):
     def interactable_distance(attacker, target):
         return (attacker.weapon_reach + attacker.combat_reach + target.weapon_reach + target.combat_reach + 1.3333334) * 1.05 * 0.89999998
 
+    @staticmethod
+    def combat_distance(attacker, target):
+        # TODO: Find better formula?
+        return UnitFormulas.interactable_distance(attacker, target) * 0.6
+
 
 class PlayerFormulas(object):
 
