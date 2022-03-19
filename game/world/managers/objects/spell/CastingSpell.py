@@ -191,7 +191,7 @@ class CastingSpell(object):
             return True
 
         # Return true if the effect has an implicit unit selection target.
-        return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_UNIT_SELECTION for effect in self.get_effects()])
+        return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
 
     def is_refreshment_spell(self):
         spell_effect = self._effects[0]  # Food/drink effect should be first.

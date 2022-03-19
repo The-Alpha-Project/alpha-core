@@ -530,7 +530,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_ALL_PARTY = 33  # Only used in B with TARGET_ALL_AROUND_CASTER in A
     TARGET_ALL_PARTY_AROUND_CASTER_2 = 34  # Only used by group astral recall (966) in B with TARGET_EFFECT_SELECT in A
     TARGET_SINGLE_PARTY = 35
-    TARGET_UNIT_SELECTION = 36
+    TARGET_HOSTILE_UNIT_SELECTION = 36
     TARGET_AREAEFFECT_PARTY = 37  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
     TARGET_SCRIPT = 38
     TARGET_SELF_FISHING = 39  # Equip a fishing pole and find a body of water to fish.

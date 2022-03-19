@@ -54,6 +54,10 @@ class EffectTargets:
         target_is_friendly = not caster_is_gameobject and self.casting_spell.initial_target_is_unit_or_player() and not \
             caster.can_attack_target(self.casting_spell.initial_target)
 
+        targeted_unit_is_hostile = not caster_is_gameobject and \
+            self.casting_spell.requires_implicit_initial_unit_target() and \
+            caster.can_attack_target(self.casting_spell.targeted_unit_on_cast_start)
+
         return {
             SpellImplicitTargets.TARGET_INITIAL: self.initial_target,  # Only accept in A.
             SpellImplicitTargets.TARGET_SELF: caster,
@@ -65,7 +69,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_DUEL_VS_PLAYER: self.initial_target,  # Spells that can be cast on both hostile and friendly?
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
             SpellImplicitTargets.TARGET_MASTER: [],  # TODO
-            SpellImplicitTargets.TARGET_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start,
+            SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start if targeted_unit_is_hostile else [],
             SpellImplicitTargets.TARGET_SELF_FISHING: caster
         }
 
