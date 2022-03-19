@@ -113,7 +113,7 @@ class CommandManager(object):
         adt_tile = MapManager.get_tile(player_x, player_y)
         return 0, f'Map: {world_session.player_mgr.map_},  ' \
                   f'Zone: {world_session.player_mgr.zone}, ' \
-                  f'ADT: [{adt_tile[0],adt_tile[1]}], ' \
+                  f'ADT: [{adt_tile[0]},{adt_tile[1]}], ' \
                   f'X: {player_x:.3f}, ' \
                   f'Y: {player_y:.3f}, ' \
                   f'Z: {player_z:.3f}, ' \
