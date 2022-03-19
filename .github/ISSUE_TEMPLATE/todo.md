@@ -3,7 +3,7 @@ name: TODO
 about: Intended for developers. Explain what's left to implement so others can take
   this task if they want.
 title: ''
-labels: ''
+labels: todo
 assignees: ''
 
 ---

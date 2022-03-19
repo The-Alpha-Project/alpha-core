@@ -2,7 +2,7 @@
 name: General bug report
 about: Create a report to help us improve alpha-core.
 title: ''
-labels: ''
+labels: bug
 assignees: ''
 
 ---
