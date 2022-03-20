@@ -978,12 +978,19 @@ class SpellManager(object):
             self.caster.inventory.remove_items(reagent_info[0], reagent_info[1])
 
         # Ammo
-        if casting_spell.spell_attack_type == AttackTypes.RANGED_ATTACK:
+        used_ammo_or_weapon = casting_spell.used_ranged_attack_item
+        if casting_spell.spell_attack_type == AttackTypes.RANGED_ATTACK and used_ammo:
             # Validation ensures that the initially selected ammo (used_ranged_attack_item) remains the same.
-            used_ammo = casting_spell.used_ranged_attack_item
-            if used_ammo and used_ammo.item_template.class_ == ItemClasses.ITEM_CLASS_PROJECTILE:
-                self.caster.inventory.remove_from_container(used_ammo.item_template.entry, 1,
-                                                            used_ammo.item_instance.bag)
+            ammo_class = used_ammo_or_weapon.item_template.class_
+            ammo_subclass = used_ammo_or_weapon.item_template.subclass
+
+            # Projectiles and thrown weapons are consumed on use.
+            is_consumable = ammo_class == ItemClasses.ITEM_CLASS_PROJECTILE or \
+                (ammo_class == ItemClasses.ITEM_CLASS_WEAPON and
+                    ammo_subclass == ItemSubClasses.ITEM_SUBCLASS_THROWN)
+            if is_consumable:
+                self.caster.inventory.remove_from_container(used_ammo_or_weapon.item_template.entry, 1,
+                                                            used_ammo_or_weapon.item_instance.bag)
 
         # Spells cast with consumables.
         if casting_spell.source_item and casting_spell.source_item.has_charges():
