@@ -1190,7 +1190,12 @@ class PlayerManager(UnitManager):
             elif self.power_type == PowerTypes.TYPE_RAGE:
                 if self.power_2 > 0:
                     if not self.in_combat:
-                        self.set_rage(self.power_2 - 20)
+                        # Defensive Stance (71) description says:
+                        #     "A defensive stance that reduces rage decay when out of combat. [...]."
+                        # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
+                        # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
+                        rage_decay_value = 10 if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) else 20
+                        self.set_rage(self.power_2 - rage_decay_value)
             # Focus
             elif self.power_type == PowerTypes.TYPE_FOCUS:
                 # Apparently focus didn't regenerate while moving.
