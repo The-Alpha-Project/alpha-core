@@ -20098,5 +20098,12 @@ begin not atomic
         insert into applied_updates values ('110320221');
     end if;
 
+    -- 20/03/2022 1
+    if (select count(*) from applied_updates where id='200320221') = 0 then
+        UPDATE `spawns_creatures` SET `position_x` = '1850.31', `position_y` = '-4357.3', `position_z` = '-14.7982' WHERE (`spawn_id` = '256');
+
+        insert into applied_updates values ('200320221');
+    end if;
+
 end $
 delimiter ;
