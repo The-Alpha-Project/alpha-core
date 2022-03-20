@@ -1,4 +1,17 @@
+from utils.constants.MiscCodes import QuestSpecialFlags, QuestMethod
+
+
 class QuestHelpers:
+
+    @staticmethod
+    def is_instant_complete_quest(quest_template):
+        if quest_template.Method == QuestMethod.QUEST_AUTOCOMPLETE:
+            return True
+        return False
+
+    @staticmethod
+    def is_quest_repeatable(quest_template):
+        return quest_template.SpecialFlags == QuestSpecialFlags.QUEST_SPECIAL_FLAG_REPEATABLE
 
     @staticmethod
     def generate_rew_choice_item_list(quest_template):
@@ -25,6 +38,10 @@ class QuestHelpers:
     @staticmethod
     def generate_req_item_count_list(quest_template):
         return [quest_template.ReqItemCount1, quest_template.ReqItemCount2, quest_template.ReqItemCount3, quest_template.ReqItemCount4]
+
+    @staticmethod
+    def has_item_requirements(quest_template):
+        return quest_template.ReqItemCount1 + quest_template.ReqItemCount2 + quest_template.ReqItemCount3 + quest_template.ReqItemCount4 > 0
 
     @staticmethod
     def generate_req_source_list(quest_template):

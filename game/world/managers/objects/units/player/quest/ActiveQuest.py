@@ -4,7 +4,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas
-from utils.constants.MiscCodes import QuestState
+from utils.constants.MiscCodes import QuestState, QuestMethod
 
 
 class ActiveQuest:
@@ -141,27 +141,8 @@ class ActiveQuest:
         else:
             RealmDatabaseManager.character_update_quest_status(self.db_state)
 
-    def is_instant_complete_quest(self):
-        for reqSource in QuestHelpers.generate_req_source_list(self.quest):
-            if reqSource != 0:
-                return False
-
-        for reqItem in QuestHelpers.generate_req_item_list(self.quest):
-            if reqItem != 0:
-                return False
-
-        for reqCreatureGo in QuestHelpers.generate_req_creature_or_go_list(self.quest):
-            if reqCreatureGo != 0:
-                return False
-
-        for reqSpellCast in QuestHelpers.generate_req_spell_cast_list(self.quest):
-            if reqSpellCast != 0:
-                return False
-
-        return True
-
     def can_complete_quest(self):
-        if self.is_instant_complete_quest():
+        if QuestHelpers.is_instant_complete_quest(self.quest):
             return True
 
         # Check for required kills / gameobjects.
