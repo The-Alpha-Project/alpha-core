@@ -258,7 +258,7 @@ class SpellManager(object):
                 target_info = casting_spell.object_target_results[target.guid]
                 if target_info.result != SpellMissReason.MISS_REASON_NONE:
                     continue
-                if  target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+                if target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
                     target.aura_manager.check_aura_procs(involved_cast=casting_spell)
                 if casting_spell.spell_caster.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
                     casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
@@ -496,7 +496,7 @@ class SpellManager(object):
         if not self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return  # Non-unit casters should not broadcast their casts.
 
-        data = [self.caster.guid, self.caster.guid,  # TODO Source (1st arg) can also be item
+        data = [self.caster.guid, self.caster.guid,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags, casting_spell.get_base_cast_time(),
                 casting_spell.spell_target_mask]
 
@@ -575,13 +575,13 @@ class SpellManager(object):
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
 
     def send_spell_go(self, casting_spell):
-        if not self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            return  # Non-unit casters should not broadcast their casts.
+        # The client expects the source to only be set for unit casters.
+        source_unit = self.caster.guid if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT else 0
 
-        data = [self.caster.guid, self.caster.guid,
+        data = [self.caster.guid, source_unit,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags]
 
-        signature = '<2QIH'  # source, caster, ID, flags .. (targets, ammo info).
+        signature = '<2QIH'  # caster, source, ID, flags .. (targets, ammo info).
 
         # Prepare target data
         results_by_type = {SpellMissReason.MISS_REASON_NONE: []}  # Hits need to be written first.
