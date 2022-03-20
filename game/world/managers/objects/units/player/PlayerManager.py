@@ -524,7 +524,6 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(self.get_action_buttons())
             self.enqueue_packet(self.generate_create_packet(requester=self))
 
-        # Unmount.
         self.unmount()
 
         # Get us in a new cell and check for pending changes.
