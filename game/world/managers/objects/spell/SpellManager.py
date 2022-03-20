@@ -979,7 +979,7 @@ class SpellManager(object):
 
         # Ammo
         used_ammo_or_weapon = casting_spell.used_ranged_attack_item
-        if casting_spell.spell_attack_type == AttackTypes.RANGED_ATTACK and used_ammo:
+        if casting_spell.spell_attack_type == AttackTypes.RANGED_ATTACK and used_ammo_or_weapon:
             # Validation ensures that the initially selected ammo (used_ranged_attack_item) remains the same.
             ammo_class = used_ammo_or_weapon.item_template.class_
             ammo_subclass = used_ammo_or_weapon.item_template.subclass
