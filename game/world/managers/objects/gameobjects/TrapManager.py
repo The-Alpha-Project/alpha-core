@@ -58,11 +58,16 @@ class TrapManager(object):
     @staticmethod
     def generate(gameobject):
         radius = gameobject.gobject_template.data2 / 2.0
+        # If no diameter is defined, use 2.5 yd as radius by default as it seems to be the most common value among traps
+        # that have one defined.
         if radius == 0:
             radius = 2.5
         spell_id = gameobject.gobject_template.data3
         charges = gameobject.gobject_template.data4
         cooldown = gameobject.gobject_template.data5
+        # If no cooldown is defined, use 1 second as this seems to be the default value as observed in Classic servers.
+        if cooldown == 0:
+            cooldown = 1
         start_delay = gameobject.gobject_template.data7
 
         return TrapManager(gameobject, spell_id, charges, cooldown, start_delay, radius)
