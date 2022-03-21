@@ -105,13 +105,20 @@ class CommandManager(object):
 
     @staticmethod
     def gps(world_session, args):
-        return 0, f'Map: {world_session.player_mgr.map_}, ' \
+        player_x = world_session.player_mgr.location.x
+        player_y = world_session.player_mgr.location.y
+        player_z = world_session.player_mgr.location.z
+        player_o = world_session.player_mgr.location.o
+        maps_z = MapManager.calculate_z_for_object(world_session.player_mgr)[0]
+        adt_tile = MapManager.get_tile(player_x, player_y)
+        return 0, f'Map: {world_session.player_mgr.map_},  ' \
                   f'Zone: {world_session.player_mgr.zone}, ' \
-                  f'X: {world_session.player_mgr.location.x:.3f}, ' \
-                  f'Y: {world_session.player_mgr.location.y:.3f}, ' \
-                  f'Z: {world_session.player_mgr.location.z:.3f}, ' \
-                  f'MapZ: {MapManager.calculate_z_for_object(world_session.player_mgr)[0]:.3f}, ' \
-                  f'O: {world_session.player_mgr.location.o:.3f}'
+                  f'ADT: [{adt_tile[0]},{adt_tile[1]}], ' \
+                  f'X: {player_x:.3f}, ' \
+                  f'Y: {player_y:.3f}, ' \
+                  f'Z: {player_z:.3f}, ' \
+                  f'MapZ: {maps_z:.3f}, ' \
+                  f'O: {player_o:.3f}'
 
     @staticmethod
     def tel(world_session, args):

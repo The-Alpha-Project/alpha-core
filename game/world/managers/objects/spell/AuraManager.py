@@ -94,7 +94,7 @@ class AuraManager:
         return True
 
     def are_spell_effects_applicable(self, casting_spell):
-        for spell_effect in casting_spell.effects:
+        for spell_effect in casting_spell.get_effects():
             if spell_effect.effect_type != SpellEffects.SPELL_EFFECT_APPLY_AURA:
                 continue
             aura = AppliedAura(casting_spell.spell_caster, casting_spell, spell_effect, self.unit_mgr)

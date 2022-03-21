@@ -495,7 +495,10 @@ class PlayerManager(UnitManager):
         else:
             # Always remove the player from world before sending a Loading Screen, preventing unexpected packets
             # while the screen is still present.
+            # Remove to others.
             MapManager.remove_object(self)
+            # Destroy self.
+            self.enqueue_packet(self.get_destroy_packet())
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
 
             data = pack(
@@ -515,19 +518,16 @@ class PlayerManager(UnitManager):
             self.map_ = self.pending_teleport_destination_map
             self.location = Vector(self.pending_teleport_destination.x, self.pending_teleport_destination.y, self.pending_teleport_destination.z, self.pending_teleport_destination.o)
 
-        # Unmount.
-        self.unmount()
-
-        # Notify player with create packet if not relocating (Changed map).
+        # Player changed map, send initial spells, action buttons and create packet.
         if not self.is_relocating:
+            self.enqueue_packet(self.spell_manager.get_initial_spells())
+            self.enqueue_packet(self.get_action_buttons())
             self.enqueue_packet(self.generate_create_packet(requester=self))
 
-        # Get us in a new grid.
-        MapManager.update_object(self)
+        self.unmount()
 
-        # Update self and surroundings, map/cell might be the same but states could've changed.
-        if self.is_relocating:
-            MapManager.send_surrounding(self.generate_partial_packet(requester=self), self)
+        # Get us in a new cell and check for pending changes.
+        MapManager.update_object(self, check_pending_changes=True)
 
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None
@@ -1190,7 +1190,12 @@ class PlayerManager(UnitManager):
             elif self.power_type == PowerTypes.TYPE_RAGE:
                 if self.power_2 > 0:
                     if not self.in_combat:
-                        self.set_rage(self.power_2 - 20)
+                        # Defensive Stance (71) description says:
+                        #     "A defensive stance that reduces rage decay when out of combat. [...]."
+                        # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
+                        # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
+                        rage_decay_value = 10 if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) else 20
+                        self.set_rage(self.power_2 - rage_decay_value)
             # Focus
             elif self.power_type == PowerTypes.TYPE_FOCUS:
                 # Apparently focus didn't regenerate while moving.

@@ -218,7 +218,7 @@ class SpellManager(object):
         if not update:
             self.handle_procs_for_cast(casting_spell)
 
-        for effect in casting_spell.effects:
+        for effect in casting_spell.get_effects():
             if not update:
                 effect.start_aura_duration()
 
@@ -250,7 +250,7 @@ class SpellManager(object):
     # noinspection PyMethodMayBeStatic
     def handle_procs_for_cast(self, casting_spell):
         applied_targets = []
-        for effect in casting_spell.effects:
+        for effect in casting_spell.get_effects():
             for target in effect.targets.get_resolved_effect_targets_by_type(ObjectManager):
                 if target.guid in applied_targets:
                     continue
@@ -258,7 +258,7 @@ class SpellManager(object):
                 target_info = casting_spell.object_target_results[target.guid]
                 if target_info.result != SpellMissReason.MISS_REASON_NONE:
                     continue
-                if  target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+                if target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
                     target.aura_manager.check_aura_procs(involved_cast=casting_spell)
                 if casting_spell.spell_caster.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
                     casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
@@ -424,10 +424,18 @@ class SpellManager(object):
 
     def remove_unit_from_all_cast_targets(self, target_guid):
         for casting_spell in list(self.casting_spells):
-            if not casting_spell.initial_target_is_unit_or_player() or (casting_spell.is_instant_cast() and not casting_spell.is_channeled()):  # Don't interrupt instant casts.
+            for effect in casting_spell.get_effects():
+                effect.targets.remove_object_from_targets(target_guid)
+
+            # Interrupt handling
+            if not casting_spell.initial_target_is_unit_or_player() or \
+                    (casting_spell.spell_target_mask == SpellTargetMask.SELF and not
+                        casting_spell.requires_implicit_initial_unit_target()) or \
+                    (casting_spell.is_instant_cast() and not casting_spell.is_channeled()):
+                # Ignore spells that are non-unit targeted, self-cast or instant.
                 continue
 
-            if target_guid in casting_spell.object_target_results and len(casting_spell.object_target_results) == 1:  # Only target of this spell.
+            if target_guid in casting_spell.object_target_results:  # Only target of this spell.
                 result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
                 if not casting_spell.is_channeled() and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
                         casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
@@ -435,9 +443,6 @@ class SpellManager(object):
 
                 self.remove_cast(casting_spell, result, interrupted=True)
                 return
-
-            for effect in casting_spell.effects:
-                effect.targets.remove_object_from_targets(target_guid)
 
     def remove_colliding_casts(self, current_cast):
         for casting_spell in self.casting_spells:
@@ -459,7 +464,7 @@ class SpellManager(object):
             return impact_delays
 
         lowest_delay = 0
-        for effect in casting_spell.effects:
+        for effect in casting_spell.get_effects():
             vector_targets = effect.targets.get_resolved_effect_targets_by_type(Vector)
             if len(vector_targets) > 0:  # Throwable items - bombs etc. Set as the minimum delay for unit targets.
                 travel_distance = vector_targets[0].distance(effect.targets.effect_source)
@@ -491,7 +496,7 @@ class SpellManager(object):
         if not self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return  # Non-unit casters should not broadcast their casts.
 
-        data = [self.caster.guid, self.caster.guid,  # TODO Source (1st arg) can also be item
+        data = [self.caster.guid, self.caster.guid,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags, casting_spell.get_base_cast_time(),
                 casting_spell.spell_target_mask]
 
@@ -533,7 +538,7 @@ class SpellManager(object):
         # TODO Channeling animations do not play
 
     def handle_spell_effect_update(self, casting_spell, timestamp):
-        for effect in casting_spell.effects:
+        for effect in casting_spell.get_effects():
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
@@ -570,19 +575,19 @@ class SpellManager(object):
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
 
     def send_spell_go(self, casting_spell):
-        if not self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            return  # Non-unit casters should not broadcast their casts.
+        # The client expects the source to only be set for unit casters.
+        source_unit = self.caster.guid if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT else 0
 
-        data = [self.caster.guid, self.caster.guid,
+        data = [self.caster.guid, source_unit,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags]
 
-        signature = '<2QIH'  # source, caster, ID, flags .. (targets, ammo info).
+        signature = '<2QIH'  # caster, source, ID, flags .. (targets, ammo info).
 
         # Prepare target data
         results_by_type = {SpellMissReason.MISS_REASON_NONE: []}  # Hits need to be written first.
 
         # Only include the primary effect targets.
-        targets = casting_spell.effects[0].targets.get_resolved_effect_targets_by_type(ObjectManager)
+        targets = casting_spell.get_effects()[0].targets.get_resolved_effect_targets_by_type(ObjectManager)
         for target in targets:
             miss_info = casting_spell.object_target_results[target.guid]
             new_targets = results_by_type.get(miss_info.result, [])
@@ -708,46 +713,51 @@ class SpellManager(object):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
                 return False
 
-        if not casting_spell.initial_target:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+        validation_target = casting_spell.initial_target
+        # In the case of the spell requiring an unit target but being cast on self,
+        # validate the spell against the caster's current unit selection instead.
+        if casting_spell.spell_target_mask == SpellTargetMask.SELF and \
+                casting_spell.requires_implicit_initial_unit_target():
+            validation_target = casting_spell.targeted_unit_on_cast_start
+
+            if validation_target and not self.caster.can_attack_target(validation_target):
+                # All secondary initial unit targets are hostile. Unlike (nearly?) all other spells,
+                # the target for arcane missiles is not validated by the client (script effect). Catch that case here.
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
+
+        if not validation_target:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
             return False
 
-        # Channeled spells that require persistent targets.
-        if casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNEL_TRACK_TARGET:
-            if not casting_spell.targeted_unit_on_cast_start:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)  # Arcane missiles cast only sends self as target but expects an unit target to track.
-                return False
-            if not casting_spell.spell_caster.can_attack_target(casting_spell.targeted_unit_on_cast_start) and casting_spell.requires_hostile_target():
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
-                return False
-
-        if casting_spell.initial_target_is_unit_or_player() and not casting_spell.initial_target.is_alive:  # TODO dead targets (resurrect)
+        if casting_spell.initial_target_is_unit_or_player() and not validation_target.is_alive:  # TODO dead targets (resurrect)
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 
         if casting_spell.initial_target_is_unit_or_player():  # Orientation checks.
-            target_is_facing_caster = casting_spell.initial_target.location.has_in_arc(self.caster.location, math.pi)
+            target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location, math.pi)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID, target_is_facing_caster):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
                 return False
 
-        # Check if the caster is within range of the target to cast the spell.
-        if casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
+        # Check if the caster is within range of the (world) target to cast the spell.
+        if not casting_spell.initial_target_is_item() and \
+                casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
             if casting_spell.initial_target_is_terrain():
-                distance = casting_spell.initial_target.distance(self.caster.location)
+                distance = validation_target.distance(self.caster.location)
             else:
-                distance = casting_spell.initial_target.location.distance(self.caster.location)
+                distance = validation_target.location.distance(self.caster.location)
+
             if distance > casting_spell.range_entry.RangeMax:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
                 return False
-            # if distance < casting_spell.range_entry.RangeMin:
-            #    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
-            #    return False
+            if distance < casting_spell.range_entry.RangeMin:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
+                return False
 
         # Aura bounce check.
         if casting_spell.initial_target_is_unit_or_player():
-            target = casting_spell.initial_target
-            if not target.aura_manager.are_spell_effects_applicable(casting_spell):
+            if not validation_target.aura_manager.are_spell_effects_applicable(casting_spell):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED)
                 return False
 
@@ -968,12 +978,19 @@ class SpellManager(object):
             self.caster.inventory.remove_items(reagent_info[0], reagent_info[1])
 
         # Ammo
-        if casting_spell.spell_attack_type == AttackTypes.RANGED_ATTACK:
+        used_ammo_or_weapon = casting_spell.used_ranged_attack_item
+        if casting_spell.spell_attack_type == AttackTypes.RANGED_ATTACK and used_ammo_or_weapon:
             # Validation ensures that the initially selected ammo (used_ranged_attack_item) remains the same.
-            used_ammo = casting_spell.used_ranged_attack_item
-            if used_ammo and used_ammo.item_template.class_ == ItemClasses.ITEM_CLASS_PROJECTILE:
-                self.caster.inventory.remove_from_container(used_ammo.item_template.entry, 1,
-                                                            used_ammo.item_instance.bag)
+            ammo_class = used_ammo_or_weapon.item_template.class_
+            ammo_subclass = used_ammo_or_weapon.item_template.subclass
+
+            # Projectiles and thrown weapons are consumed on use.
+            is_consumable = ammo_class == ItemClasses.ITEM_CLASS_PROJECTILE or \
+                (ammo_class == ItemClasses.ITEM_CLASS_WEAPON and
+                    ammo_subclass == ItemSubClasses.ITEM_SUBCLASS_THROWN)
+            if is_consumable:
+                self.caster.inventory.remove_from_container(used_ammo_or_weapon.item_template.entry, 1,
+                                                            used_ammo_or_weapon.item_instance.bag)
 
         # Spells cast with consumables.
         if casting_spell.source_item and casting_spell.source_item.has_charges():
