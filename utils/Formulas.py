@@ -1,7 +1,7 @@
 import math
 
 from utils.constants.MiscCodes import AttackTypes
-
+from utils.constants.SpellCodes import ShapeshiftForms
 
 # Extracted from the 0.5.3 client as is.
 class Distances(object):
@@ -79,8 +79,8 @@ class PlayerFormulas(object):
         # Vanilla rage formula source http://blue.mmo-champion.com/topic/18325-the-new-rage-formula-by-kalgan/
         rage_gained = (damage_info.damage / PlayerFormulas.rage_conversion_value(damage_info.victim.level)) * 2.5
 
-        # 2458 Berserker stance - generate 30% more rage
-        if (damage_info.victim.aura_manager.get_auras_by_spell_id(2458)):
+        # Berserker stance - generate 30% more rage
+        if (damage_info.victim.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE)):
             rage_gained *= 1.3
 
         return int(rage_gained*10)
