@@ -451,7 +451,11 @@ class UnitManager(ObjectManager):
         return random.randint(min_damage, max_damage)
 
     # Implemented by PlayerManager
-    def generate_rage(self, damage_info, is_player=False):
+    def generate_rage(self, damage_info):
+        return
+
+    # Implemented by PlayerManager
+    def generate_rage_on_received_damage(self, damage_info, is_player=False):
         return
 
     # Implemented by PlayerManager
@@ -495,7 +499,12 @@ class UnitManager(ObjectManager):
         if new_health <= 0:
             self.die(killer=source)
         else:
+            damage_info = DamageInfoHolder()
+            damage_info.damage = amount
+            damage_info.victim = self                                    
             self.set_health(new_health)
+            self.generate_rage_on_received_damage(damage_info, is_player)
+
 
         # If unit is a creature and it's being attacked by another unit, automatically set combat target.
         if not self.combat_target and not is_player and source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:

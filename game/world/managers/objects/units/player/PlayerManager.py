@@ -1241,6 +1241,13 @@ class PlayerManager(UnitManager):
                                                            self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR)):
             self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, is_player=is_player))
 
+    def generate_rage_on_received_damage(self, damage_info):
+        # Warriors or Druids in Bear form
+        if self.player.class_ == Classes.CLASS_WARRIOR or (self.player.class_ == Classes.CLASS_DRUID and
+                                                           self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR)):
+            add_rage = Formulas.PlayerFormulas.calculate_rage_regen_on_received_damage(damage_info)
+            self.set_rage(self.power_2 + add_rage)
+
     # override
     def handle_combat_skill_gain(self, damage_info):
         if damage_info.attacker == self:
