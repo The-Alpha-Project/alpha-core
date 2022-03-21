@@ -11,6 +11,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants import UnitCodes
+from utils.constants.ItemCodes import InventoryError
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestMethod, \
     QuestFlags, GameObjectTypes, ObjectTypeIds
@@ -247,6 +248,12 @@ class QuestManager(object):
     def get_quest_state(self, quest_entry):
         if quest_entry in self.active_quests:
             return self.active_quests[quest_entry].get_quest_state()
+
+        quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
+        # If this is a quest we can take, return quest offer.
+        if self.check_quest_requirements(quest) and self.check_quest_level(quest, False):
+            return QuestState.QUEST_OFFER
+        # Greeting - 'None'
         return QuestState.QUEST_GREETING
 
     def get_active_quest_num_from_quest_giver(self, quest_giver):
@@ -274,7 +281,7 @@ class QuestManager(object):
                 quest_num += 1
 
         # Quest start.
-        for quest_entry in quest_giver_finish_quests:
+        for quest_entry in quest_giver_start_quests:
             quest_status = self.get_quest_state(quest_entry)
             if quest_status == QuestState.QUEST_OFFER:
                 quest_num += 1
@@ -374,6 +381,7 @@ class QuestManager(object):
                 quest_status = self.get_dialog_status(unit)
                 self.send_quest_giver_status(guid, quest_status)
 
+    # TODO: We should not be creating ItemManager instances and sending item query details all the time...
     # Send item query details and return item struct byte segments.
     def _gen_item_struct(self, item_entry, count):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
@@ -460,23 +468,31 @@ class QuestManager(object):
         # Reward money
         data += pack('<I', quest_template.RewOrReqMoney)
 
-        # Required items
-        req_item_list = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(quest_template)))
-        req_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(quest_template)))
-        data += pack('<I', len(req_item_list))
-        for index, item in enumerate(req_item_list):
-            data += self._gen_item_struct(item, req_count_list[index])
+        # Emotes
+        data += pack('<I', 4)
+        for index in range (1, 5):
+            detail_emote = int(eval(f'quest_template.DetailsEmote{index}'))
+            detail_emote_delay = eval(f'quest_template.DetailsEmoteDelay{index}')
+            data += pack('<2I', detail_emote, detail_emote_delay )
 
-        # Required kill / go count
-        req_creature_or_go_list = list(filter((0).__ne__, QuestHelpers.generate_req_creature_or_go_list(quest_template)))
-        req_creature_or_go_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_creature_or_go_count_list(quest_template)))
-        data += pack('<I', len(req_creature_or_go_list))
-        for index, creature_or_go in enumerate(req_creature_or_go_list):
-            data += pack(
-                '<2I',
-                creature_or_go if creature_or_go >= 0 else (creature_or_go * -1) | 0x80000000,
-                req_creature_or_go_count_list[index]
-            )
+        # TODO: This code below does not belong on this packet.
+        # # Required items
+        # req_item_list = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(quest_template)))
+        # req_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(quest_template)))
+        # data += pack('<I', len(req_item_list))
+        # for index, item in enumerate(req_item_list):
+        #     data += self._gen_item_struct(item, req_count_list[index])
+        #
+        # # Required kill / go count
+        # req_creature_or_go_list = list(filter((0).__ne__, QuestHelpers.generate_req_creature_or_go_list(quest_template)))
+        # req_creature_or_go_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_creature_or_go_count_list(quest_template)))
+        # data += pack('<I', len(req_creature_or_go_list))
+        # for index, creature_or_go in enumerate(req_creature_or_go_list):
+        #     data += pack(
+        #         '<2I',
+        #         creature_or_go if creature_or_go >= 0 else (creature_or_go * -1) | 0x80000000,
+        #         req_creature_or_go_count_list[index]
+        #     )
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
 
@@ -613,9 +629,9 @@ class QuestManager(object):
         # Emote count, always 4.
         data += pack('<I', 4)
         for i in range(1, 5):
-            emote = eval(f'active_quest.quest.OfferRewardEmote{i}')
-            delay = eval(f'active_quest.quest.OfferRewardEmoteDelay{i}')
-            data += pack('<2I', emote, delay)
+            offer_emote = eval(f'active_quest.quest.OfferRewardEmote{i}')
+            offer_emote_delay = eval(f'active_quest.quest.OfferRewardEmoteDelay{i}')
+            data += pack('<2I', offer_emote, offer_emote_delay)
 
         if active_quest.has_pick_reward():
             # Reward choices
@@ -638,13 +654,8 @@ class QuestManager(object):
         else:
             data += pack('<I', 0)
 
-        # Reward
-        data += pack(
-            '<3I',
-            quest.RewOrReqMoney if quest.RewOrReqMoney >= 0 else -quest.RewOrReqMoney,
-            quest.RewSpell,
-            quest.RewSpellCast,
-        )
+        # Reward Money, 0.5.3 does not handle RewSpell, RewSpellCast.
+        data += pack('<I', quest.RewOrReqMoney if quest.RewOrReqMoney >= 0 else -quest.RewOrReqMoney)
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_OFFER_REWARD, data))
 
@@ -665,12 +676,13 @@ class QuestManager(object):
         req_src_item_count = quest.SrcItemCount
         if req_src_item != 0:
             if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count, update_inventory=True):
+                self.player_mgr.send_equip_error(InventoryError.BAG_INV_FULL)
                 return
 
         active_quest = self._create_db_quest_status(quest)
         active_quest.save(is_new=True)
         self.add_to_quest_log(quest_id, active_quest)
-        self.send_quest_query_response(active_quest.quest)
+        self.send_quest_query_response(quest)
 
         # If player is in a group and quest has QUEST_FLAGS_PARTY_ACCEPT flag, let other members accept it too.
         if self.player_mgr.group_manager and not shared:
