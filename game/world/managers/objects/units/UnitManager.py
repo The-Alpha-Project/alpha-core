@@ -451,11 +451,11 @@ class UnitManager(ObjectManager):
         return random.randint(min_damage, max_damage)
 
     # Implemented by PlayerManager
-    def generate_rage(self, damage_info):
+    def generate_rage(self, damage_info, is_player=False):
         return
 
     # Implemented by PlayerManager
-    def generate_rage_on_received_damage(self, damage_info, is_player=False):
+    def generate_rage_on_received_damage(self, damage_info):
         return
 
     # Implemented by PlayerManager

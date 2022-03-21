@@ -77,10 +77,9 @@ class PlayerFormulas(object):
     @staticmethod
     def calculate_rage_regen_on_received_damage(damage_info):
         # Vanilla rage formula source http://blue.mmo-champion.com/topic/18325-the-new-rage-formula-by-kalgan/
-
         rage_gained = (damage_info.damage / PlayerFormulas.rage_conversion_value(damage_info.victim.level)) * 2.5
 
-        # 2458 - Berserker stance generates 30% more rage
+        # 2458 Berserker stance - generate 30% more rage
         if (damage_info.victim.aura_manager.get_auras_by_spell_id(2458)):
             rage_gained *= 1.3
 
