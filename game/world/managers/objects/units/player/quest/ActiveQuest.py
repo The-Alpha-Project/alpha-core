@@ -20,7 +20,7 @@ class ActiveQuest:
         if self.db_state.state != QuestState.QUEST_REWARD:
             return False
 
-        quest_giver: CreatureManager = MapManager.get_surrounding_unit_by_guid(self.owner, quest_giver_guid)
+        quest_giver = MapManager.get_surrounding_unit_by_guid(self.owner, quest_giver_guid)
         if not quest_giver:
             return False
 
@@ -140,6 +140,9 @@ class ActiveQuest:
 
     def get_quest_state(self):
         return self.db_state.state
+
+    def get_is_quest_rewarded(self):
+        return self.db_state.rewarded == 1
 
     def update_quest_state(self, quest_state):
         self.db_state.state = quest_state.value
