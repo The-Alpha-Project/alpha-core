@@ -23,9 +23,9 @@ class ItemLootManager(LootManager):
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:
-                # Check if this is a quest item and if the player or group needs it.
+                # Check if this is a quest item and if the player needs it.
                 if requester and item_template.class_ == ItemClasses.ITEM_CLASS_QUEST:  # Quest item.
-                    if not requester.player_or_group_require_quest_item(item_template.entry):
+                    if not requester.player_or_group_require_quest_item(item_template.entry, only_self=True):
                         continue  # Move on to next item.
 
                 item_chance = loot_item.ChanceOrQuestChance
