@@ -503,7 +503,7 @@ class UnitManager(ObjectManager):
             damage_info.damage = amount
             damage_info.victim = self                                    
             self.set_health(new_health)
-            self.generate_rage_on_received_damage(damage_info, is_player)
+            self.generate_rage_on_received_damage(damage_info)
 
 
         # If unit is a creature and it's being attacked by another unit, automatically set combat target.
