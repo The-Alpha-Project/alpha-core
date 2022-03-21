@@ -1,6 +1,8 @@
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from utils.constants.MiscCodes import ObjectTypeIds
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas
@@ -17,8 +19,20 @@ class ActiveQuest:
     def is_quest_complete(self, quest_giver_guid):
         if self.db_state.state != QuestState.QUEST_REWARD:
             return False
-        # TODO: check that quest_giver_guid is turn-in for quest_id
-        return True
+
+        quest_giver: CreatureManager = MapManager.get_surrounding_unit_by_guid(self.owner, quest_giver_guid)
+        if not quest_giver:
+            return False
+
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
+        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(quest_giver.entry)
+        else:
+            return False
+
+        # Return if this quest is finished by this quest giver.
+        return self.quest.entry in {quest_entry[1] for quest_entry in involved_relations_list}
 
     def need_item_from_go(self, go_loot_template):
         # Quest is complete.
