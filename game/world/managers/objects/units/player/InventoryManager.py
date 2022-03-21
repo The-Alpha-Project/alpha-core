@@ -5,6 +5,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ContainerManager import ContainerManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.item.ItemQueryDetailCache import ItemQueryDetailCache
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.Logger import Logger
@@ -767,7 +768,7 @@ class InventoryManager(object):
     def get_single_item_update_packets(self, item, requester):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(requester)))
-        return [update_packet, item.query_details()]
+        return [update_packet, ItemQueryDetailCache.get_item_detail_query(item.item_template)]
 
     def get_inventory_update_packets(self, requester):
         # Edge case where the session might be null at some point.

@@ -20,6 +20,7 @@ from game.world.managers.objects.units.player.InventoryManager import InventoryM
 from game.world.managers.objects.units.player.ReputationManager import ReputationManager
 from game.world.managers.objects.timers.MirrorTimersManager import MirrorTimersManager
 from game.world.managers.objects.units.player.taxi.TaxiManager import TaxiManager
+from game.world.managers.objects.item.ItemQueryDetailCache import ItemQueryDetailCache
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from utils import Formulas
@@ -720,7 +721,7 @@ class PlayerManager(UnitManager):
                         continue
 
                     # Send item query information
-                    self.enqueue_packet(loot.item.query_details())
+                    self.enqueue_packet(ItemQueryDetailCache.get_item_detail_query(loot.item.item_template))
 
                     data += pack(
                         '<B3I',

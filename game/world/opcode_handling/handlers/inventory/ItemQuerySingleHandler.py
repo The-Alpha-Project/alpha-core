@@ -1,7 +1,6 @@
 from struct import unpack
-
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.item.ItemQueryDetailCache import ItemQueryDetailCache
 
 
 class ItemQuerySingleHandler(object):
@@ -13,9 +12,7 @@ class ItemQuerySingleHandler(object):
             if entry > 0:
                 item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
                 if item_template:
-                    item_mgr = ItemManager(
-                        item_template=item_template
-                    )
-                    world_session.enqueue_packet(item_mgr.query_details())
+                    query_packet = ItemQueryDetailCache.get_item_detail_query(item_template)
+                    world_session.enqueue_packet(query_packet)
 
         return 0

@@ -4,6 +4,7 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQ
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.item.ItemQueryDetailCache import ItemQueryDetailCache
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from game.world.managers.objects.units.player.quest.QuestMenu import QuestMenu
@@ -11,7 +12,6 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants import UnitCodes
-from utils.constants.ItemCodes import InventoryError
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestMethod, \
     QuestFlags, GameObjectTypes, ObjectTypeIds
@@ -207,6 +207,8 @@ class QuestManager(object):
             # Quest is available from this finisher.
             elif quest_state == QuestState.QUEST_OFFER:
                 quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_NONE, quest_state)
+            elif quest_state == QuestState.QUEST_REWARD:
+                quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_REWARD, quest_state)
 
         # Quest start.
         for quest_entry in quest_giver_start_quests:
@@ -224,12 +226,20 @@ class QuestManager(object):
             quest_state = self.get_quest_state(quest_entry)
             if QuestHelpers.is_instant_complete_quest(quest) and quest_entry not in self.active_quests:
                 quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_REWARD, QuestState.QUEST_REWARD)
-            elif quest_state == QuestState.QUEST_GREETING:
-                quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_NONE, quest_state.QUEST_OFFER)
+            elif quest_entry not in self.active_quests:
+                quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_NONE, QuestState.QUEST_OFFER)
+            # If this npc is the finisher of this incomplete quest, display in 'Current Quests'.
+            elif quest_entry in quest_giver_finish_quests and quest_state == QuestState.QUEST_ACCEPTED:
+                quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_QUEST, QuestState.QUEST_ACCEPTED)
+
+        # No quest menu items, do not display anything.
+        if len(quest_menu.items) == 0:
+            return
 
         print(f'QuestMenu items: {len(quest_menu.items)}')
         if len(quest_menu.items) == 1:
             quest_menu_item = list(quest_menu.items.values())[0]
+            print(QuestState(quest_menu_item.quest_state).name)
             if quest_menu_item.quest_state == QuestState.QUEST_REWARD:
                 self.send_quest_giver_offer_reward(quest_menu_item.quest, quest_giver_guid, True)
                 return 0
@@ -387,9 +397,9 @@ class QuestManager(object):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
         display_id = 0
         if item_template:
-            item_mgr = ItemManager(item_template=item_template)
-            self.player_mgr.enqueue_packet(item_mgr.query_details())
             display_id = item_template.display_id
+            item_query_packet = ItemQueryDetailCache.get_item_detail_query(item_template)
+            self.player_mgr.enqueue_packet(item_query_packet)
 
         item_data = pack(
             '<3I',
@@ -676,7 +686,6 @@ class QuestManager(object):
         req_src_item_count = quest.SrcItemCount
         if req_src_item != 0:
             if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count, update_inventory=True):
-                self.player_mgr.send_equip_error(InventoryError.BAG_INV_FULL)
                 return
 
         active_quest = self._create_db_quest_status(quest)
@@ -721,10 +730,19 @@ class QuestManager(object):
             player_mgr.enqueue_packet(packet)
 
     def handle_remove_quest(self, slot):
-        quest_id = self.player_mgr.get_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6))
-        if quest_id in self.active_quests:
-            self.remove_from_quest_log(quest_id)
-            RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_id)
+        quest_entry = self.player_mgr.get_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6))
+        if quest_entry in self.active_quests:
+            active_quest = self.active_quests[quest_entry]
+            # Remove required items from the player inventory.
+            req_item_list = QuestHelpers.generate_req_item_list(active_quest.quest)
+            req_item_count = QuestHelpers.generate_req_item_count_list(active_quest.quest)
+            for index, req_item in enumerate(req_item_list):
+                if req_item != 0:
+                    print(f'Removed item {req_item}')
+                    self.player_mgr.inventory.remove_items(req_item, req_item_count[index])
+
+            self.remove_from_quest_log(quest_entry)
+            RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_entry)
             self.update_surrounding_quest_status()
             self.player_mgr.update_known_world_objects(force_update=True)
 
