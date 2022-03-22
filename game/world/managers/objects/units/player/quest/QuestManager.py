@@ -472,7 +472,7 @@ class QuestManager(object):
             detail_emote_delay = eval(f'quest_template.DetailsEmoteDelay{index}')
             data += pack('<2I', detail_emote, detail_emote_delay )
 
-        # TODO: This code below does not belong on this packet.
+        # TODO: Apparently, the code below does not belong to this packet.
         # # Required items
         # req_item_list = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(quest_template)))
         # req_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(quest_template)))
