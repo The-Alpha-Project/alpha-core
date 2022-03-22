@@ -1235,22 +1235,6 @@ class PlayerManager(UnitManager):
 
         return self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school, target, subclass)
 
-    def generate_rage(self, damage_info, is_player=False):
-        # Warriors or Druids in Bear form
-        if self.player.class_ == Classes.CLASS_WARRIOR or (self.player.class_ == Classes.CLASS_DRUID and
-                                                           self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR)):
-            self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, is_player=is_player))
-
-    def generate_rage_on_received_damage(self, damage_info):
-        # Def/Battle stance or Bear form 
-        # (Berserker stance doesn't generate rage in 0.5.3)
-        if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE)\
-           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE)\
-           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
-
-            add_rage = Formulas.PlayerFormulas.calculate_rage_regen_on_received_damage(damage_info)
-            self.set_rage(self.power_2 + add_rage)
-
     # override
     def handle_combat_skill_gain(self, damage_info):
         if damage_info.attacker == self:

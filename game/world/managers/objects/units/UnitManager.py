@@ -17,7 +17,7 @@ from utils.Formulas import UnitFormulas
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
     HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, UnitStates
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, UnitStates, Classes
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -450,13 +450,24 @@ class UnitManager(ObjectManager):
 
         return random.randint(min_damage, max_damage)
 
-    # Implemented by PlayerManager
     def generate_rage(self, damage_info, is_player=False):
-        return
+        # Defensive/Berserker/Battle stance or Bear form 
+        if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE)\
+           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE)\
+           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE)\
+           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
 
-    # Implemented by PlayerManager
+            self.set_rage(self.power_2 + UnitFormulas.calculate_rage_regen(damage_info, is_player=is_player))
+
     def generate_rage_on_received_damage(self, damage_info):
-        return
+        # Defensive/Battle stance or Bear form 
+        # (0.5.3 Berserker stance does not generate rage on received dmg)
+        if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE)\
+           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE)\
+           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
+
+            add_rage = UnitFormulas.calculate_rage_regen_on_received_damage(damage_info)
+            self.set_rage(self.power_2 + add_rage)
 
     # Implemented by PlayerManager
     def handle_combat_skill_gain(self, damage_info):
