@@ -746,6 +746,7 @@ class QuestManager(object):
 
         self.send_quest_giver_offer_reward(quest, quest_giver_guid, True)
 
+    # TODO: Handle RewSpell? Not sure if available by looking at 0.5.3 code.
     def handle_choose_reward(self, quest_giver_guid, quest_id, item_choice):
         quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
         if not quest:
@@ -803,9 +804,9 @@ class QuestManager(object):
             data += pack('<2I', rew_item_list[index], rew_item_count_list[index])
             self.player_mgr.inventory.add_item(entry=rew_item_list[index], show_item_get=False, update_inventory=True)
 
-        # TODO: Handle RewSpell
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_COMPLETE, data))
 
+        # Cast spell if needed.
         if active_quest.quest.RewSpellCast:
             self.cast_reward_spell(quest_giver_guid, active_quest)
 
