@@ -17,7 +17,7 @@ from utils.Formulas import UnitFormulas
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
     HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, UnitStates, Classes
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, UnitStates
 from utils.constants.UpdateFields import UnitFields
 
 
