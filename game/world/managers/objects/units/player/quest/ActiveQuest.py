@@ -2,6 +2,8 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import HighGuid
+from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -17,11 +19,21 @@ class ActiveQuest:
         self.failed = False
 
     def is_quest_complete(self, quest_giver_guid):
-        if self.db_state.state != QuestState.QUEST_REWARD:
+        quest_giver = None
+        high_guid = ObjectManager.extract_high_guid(quest_giver_guid)
+
+        if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
+            quest_giver = MapManager.get_surrounding_gameobject_by_guid(self.owner, quest_giver_guid)
+        elif high_guid == HighGuid.HIGHGUID_UNIT:
+            quest_giver = MapManager.get_surrounding_unit_by_guid(self.owner, quest_giver_guid)
+
+        if not quest_giver:
             return False
 
-        quest_giver = MapManager.get_surrounding_unit_by_guid(self.owner, quest_giver_guid)
-        if not quest_giver:
+        if QuestHelpers.is_instant_complete_quest(self.quest):
+            return True
+
+        if self.db_state.state != QuestState.QUEST_REWARD:
             return False
 
         if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.get_type_id() != ObjectTypeIds.ID_PLAYER:
