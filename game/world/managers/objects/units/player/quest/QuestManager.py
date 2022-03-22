@@ -233,7 +233,7 @@ class QuestManager(object):
                 self.send_quest_giver_offer_reward(quest_menu_item.quest, quest_giver_guid, True)
                 return
             elif quest_menu_item.quest_state == QuestState.QUEST_ACCEPTED:
-                self.send_quest_giver_request_items(quest_menu_item.quest, quest_giver_guid, auto_launched=True)
+                self.send_quest_giver_request_items(quest_menu_item.quest, quest_giver_guid, close_on_cancel =True)
                 return
             else:
                 self.send_quest_giver_quest_details(quest_menu_item.quest, quest_giver_guid, True)
@@ -560,7 +560,7 @@ class QuestManager(object):
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUEST_QUERY_RESPONSE, data))
 
-    def send_quest_giver_request_items(self, quest, quest_giver_id, auto_launched):
+    def send_quest_giver_request_items(self, quest, quest_giver_id, close_on_cancel):
         # We can always call to RequestItems, but this packet only goes out if there are actually
         # items.  Otherwise, we'll skip straight to the OfferReward.
         quest_title = quest.Title
@@ -581,7 +581,7 @@ class QuestManager(object):
             request_items_text_bytes,
             0,  # Emote delay
             quest.CompleteEmote if is_completable else quest.IncompleteEmote,
-            auto_launched,  # Close Window after cancel
+            close_on_cancel,  # Close Window after cancel
         )
 
         req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(quest)))
@@ -741,7 +741,7 @@ class QuestManager(object):
 
         active_quest = self.active_quests[quest_id]
         if not active_quest.is_quest_complete(quest_giver_guid):
-            self.send_quest_giver_request_items(quest, quest_giver_guid, auto_launched=False)
+            self.send_quest_giver_request_items(quest, quest_giver_guid, close_on_cancel =False)
             return
 
         self.send_quest_giver_offer_reward(quest, quest_giver_guid, True)
