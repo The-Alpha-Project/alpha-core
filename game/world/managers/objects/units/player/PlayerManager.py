@@ -924,11 +924,17 @@ class PlayerManager(UnitManager):
             packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
             self.enqueue_packet(packet)
 
+    def set_liquid_information(self, liquids):
+        self.liquid_information = liquids
+
     def update_swimming_state(self, state):
         if state:
-            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
-            if not self.liquid_information:
+            _liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
+            if not _liquid_information:
                 Logger.warning(f'Unable to retrieve liquid information.')
+            # We found maps information, override default liquid information.
+            else:
+                self.liquid_information = _liquid_information
         else:
             self.liquid_information = None
 
@@ -937,7 +943,10 @@ class PlayerManager(UnitManager):
 
     # override
     def is_on_water(self):
-        self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
+        _liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
+        if not _liquid_information:
+            return False
+        self.liquid_information = _liquid_information
         map_z = MapManager.calculate_z_for_object(self)[0]
         return self.liquid_information and map_z < self.liquid_information.height
 
@@ -956,7 +965,10 @@ class PlayerManager(UnitManager):
     def update_liquid_information(self):
         # Retrieve latest liquid information, only if player is swimming.
         if self.is_swimming():
-            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
+            _liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
+            # If we found liquids from maps, override current liquid information.
+            if _liquid_information:
+                self.liquid_information = _liquid_information
 
     # override
     def get_full_update_packet(self, requester):

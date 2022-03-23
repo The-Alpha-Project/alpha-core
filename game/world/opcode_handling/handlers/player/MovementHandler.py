@@ -1,11 +1,12 @@
 from struct import error
 
+from game.world.managers.maps.LiquidInformation import LiquidInformation
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units import MovementManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
-from utils.constants.MiscCodes import MoveFlags
+from utils.constants.MiscCodes import MoveFlags, LiquidTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import StandState
 
@@ -47,6 +48,11 @@ class MovementHandler(object):
                 world_session.player_mgr.location.o = o
 
                 world_session.player_mgr.pitch = pitch
+
+                # Player just started swimming, set default liquids information, z + ~character height.
+                if flags & MoveFlags.MOVEFLAG_SWIMMING and not world_session.player_mgr.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
+                    world_session.player_mgr.set_liquid_information(LiquidInformation(LiquidTypes.RIVER, z + 1.8))
+
                 world_session.player_mgr.movement_flags = flags
 
                 if flags & MoveFlags.MOVEFLAG_SPLINE_MOVER:
