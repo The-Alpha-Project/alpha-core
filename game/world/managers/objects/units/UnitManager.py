@@ -400,8 +400,8 @@ class UnitManager(ObjectManager):
                 damage_info.target_state = VictimStates.VS_BLOCK
                 damage_info.proc_victim |= ProcFlags.BLOCK
 
-        # Generate rage (if needed)
-        self.generate_rage(damage_info, is_player=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
+        # Generate rage (if needed).
+        self.generate_rage(damage_info, is_attacking=True)
 
         # Note: 1.1.0 patch: "Skills will not increase from use while dueling or engaged in PvP."
         self.handle_combat_skill_gain(damage_info)
@@ -450,24 +450,14 @@ class UnitManager(ObjectManager):
 
         return random.randint(min_damage, max_damage)
 
-    def generate_rage(self, damage_info, is_player=False):
-        # Defensive/Berserker/Battle stance or Bear form 
-        if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE)\
-           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE)\
-           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE)\
-           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
-
-            self.set_rage(self.power_2 + UnitFormulas.calculate_rage_regen(damage_info, is_player=is_player))
-
-    def generate_rage_on_received_damage(self, damage_info):
-        # Defensive/Battle stance or Bear form 
-        # (0.5.3 Berserker stance does not generate rage on received dmg)
-        if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE)\
-           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE)\
-           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
-
-            add_rage = UnitFormulas.calculate_rage_regen_on_received_damage(damage_info)
-            self.set_rage(self.power_2 + add_rage)
+    def generate_rage(self, damage_info, is_attacking=True):
+        # Defensive Stance, Battle Stance or Bear Form.
+        # 0.5.3 Berserker Stance does not generate rage on received damage.
+        if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) \
+                or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE) \
+                or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR) \
+                or is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE):
+            self.set_rage(self.power_2 + UnitFormulas.calculate_rage_regen(damage_info, is_attacking=is_attacking))
 
     # Implemented by PlayerManager
     def handle_combat_skill_gain(self, damage_info):
@@ -514,8 +504,7 @@ class UnitManager(ObjectManager):
             damage_info.damage = amount
             damage_info.victim = self                                    
             self.set_health(new_health)
-            self.generate_rage_on_received_damage(damage_info)
-
+            self.generate_rage(damage_info, is_attacking=False)
 
         # If unit is a creature and it's being attacked by another unit, automatically set combat target.
         if not self.combat_target and not is_player and source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:

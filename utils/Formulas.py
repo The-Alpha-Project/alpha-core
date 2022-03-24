@@ -59,37 +59,24 @@ class UnitFormulas(object):
         return 0.0091107836 * level ** 2 + 3.225598133 * level + 4.2652911
 
     @staticmethod
-    def calculate_rage_regen_on_received_damage(damage_info):
-        # Vanilla rage formula source http://blue.mmo-champion.com/topic/18325-the-new-rage-formula-by-kalgan/
-        rage_gained = (damage_info.damage / UnitFormulas.rage_conversion_value(damage_info.victim.level)) * 2.5
-
-        return int(rage_gained*10)
-
-    @staticmethod
-    def calculate_rage_regen(damage_info, is_player=True):
-        # R=(15d/4c)+(fs/2) | d=WeaponDamage, c=rage conversion rate, f=hit rating, s=speed
-        if is_player:
-            main_hand = damage_info.attack_type == AttackTypes.BASE_ATTACK
-            damage = damage_info.damage  # This is already calculated based off either Main or Offhand weapon.
-            speed = damage_info.attacker.base_attack_time
-            hit_rate = 3.5 if main_hand else 1.75
-
-            if main_hand and damage_info.attacker.inventory.has_main_weapon():
-                main_weapon = damage_info.attacker.inventory.get_main_hand()
-                if main_weapon:
-                    speed = main_weapon.item_template.delay
-            elif damage_info.attacker.inventory.has_offhand_weapon():
-                offhand = damage_info.attacker.inventory.get_offhand()
-                if offhand:
-                    speed = offhand.item_template.delay
-
-            regen = ((15 * damage) / (4 * UnitFormulas.rage_conversion_value(damage_info.attacker.level)) + (
-                        (hit_rate * speed) / 2))
+    def calculate_rage_regen(damage_info, is_attacking=True):
+        # "Rage Conversion Value (note: this number is derived from other values within the game such as a mob's hit
+        # points and a warrior's expected damage value against that mob)." We use an approximation.
+        # Rage Gained from dealing damage = (Damage Dealt) / (Rage Conversion at Your Level) * 7.5
+        #
+        # Source: https://www.bluetracker.gg/wow/topic/eu-en/83678537-the-new-rage-formula-by-kalgan/
+        if is_attacking:
+            level = damage_info.attacker.level
+            factor = 7.5
         else:
-            regen = (2.5 * (damage_info.damage / UnitFormulas.rage_conversion_value(damage_info.victim.level)))
+            level = damage_info.victim.level
+            factor = 2.5
 
-        # Rage is measured 0 - 1000
-        return int(regen / 100)
+        # Get rage regen value based on supplied variables.
+        regen = damage_info.damage / UnitFormulas.rage_conversion_value(level) * factor
+        # Rage is measured 0 - 1000, multiply by 10.
+        regen = int(regen * 10)
+        return regen
 
 
 class PlayerFormulas(object):
