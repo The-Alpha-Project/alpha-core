@@ -26,8 +26,11 @@ class ShapeshiftInfo:
     SHAPESHIFT_MODELS = {
         ShapeshiftForms.SHAPESHIFT_FORM_CAT: (892, 892, 0.8),
         ShapeshiftForms.SHAPESHIFT_FORM_TREE: (864, 864, 1.0),
+        ShapeshiftForms.SHAPESHIFT_FORM_FLYING: (632, 632, 0.8),  # Guessed, using Travel Form display id instead.
         ShapeshiftForms.SHAPESHIFT_FORM_AQUATIC: (2428, 2428, 0.8),
-        ShapeshiftForms.SHAPESHIFT_FORM_BEAR: (2281, 2289, 1.0)
+        ShapeshiftForms.SHAPESHIFT_FORM_BEAR: (2281, 2289, 1.0),
+        ShapeshiftForms.SHAPESHIFT_FORM_AMBIENT: (328, 328, 1.0),  # Guessed, only used by zzOLDScout Form.
+        ShapeshiftForms.SHAPESHIFT_FORM_GHOSTWOLF: (1164, 1164, 0.8)  # Guessed, the normal Ghost Wolf didn't exist yet.
     }
 
     SHAPESHIFT_POWER_TYPES = {

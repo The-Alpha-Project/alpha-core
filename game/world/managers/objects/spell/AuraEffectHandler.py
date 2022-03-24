@@ -461,11 +461,3 @@ PROC_AURA_EFFECTS = [
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE
 ]
-
-# Alliance / Default display_id, Horde display_id, Scale
-SHAPESHIFT_MODEL_IDS = {
-    ShapeshiftForms.SHAPESHIFT_FORM_CAT: (892, 892, 0.8),
-    ShapeshiftForms.SHAPESHIFT_FORM_TREE: (864, 864, 1.0),
-    ShapeshiftForms.SHAPESHIFT_FORM_AQUATIC: (2428, 2428, 0.8),
-    ShapeshiftForms.SHAPESHIFT_FORM_BEAR: (2281, 2289, 1.0)
-}
