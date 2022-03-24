@@ -63,6 +63,7 @@ class UnitFormulas(object):
         # "Rage Conversion Value (note: this number is derived from other values within the game such as a mob's hit
         # points and a warrior's expected damage value against that mob)." We use an approximation.
         # Rage Gained from dealing damage = (Damage Dealt) / (Rage Conversion at Your Level) * 7.5
+        # Rage Gained for taking damage = (Damage Taken) / (Rage Conversion at Your Level) * 2.5
         #
         # Source: https://www.bluetracker.gg/wow/topic/eu-en/83678537-the-new-rage-formula-by-kalgan/
         if is_attacking:
