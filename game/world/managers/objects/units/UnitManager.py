@@ -450,9 +450,24 @@ class UnitManager(ObjectManager):
 
         return random.randint(min_damage, max_damage)
 
-    # Implemented by PlayerManager
     def generate_rage(self, damage_info, is_player=False):
-        return
+        # Defensive/Berserker/Battle stance or Bear form 
+        if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE)\
+           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE)\
+           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE)\
+           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
+
+            self.set_rage(self.power_2 + UnitFormulas.calculate_rage_regen(damage_info, is_player=is_player))
+
+    def generate_rage_on_received_damage(self, damage_info):
+        # Defensive/Battle stance or Bear form 
+        # (0.5.3 Berserker stance does not generate rage on received dmg)
+        if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE)\
+           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE)\
+           or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
+
+            add_rage = UnitFormulas.calculate_rage_regen_on_received_damage(damage_info)
+            self.set_rage(self.power_2 + add_rage)
 
     # Implemented by PlayerManager
     def handle_combat_skill_gain(self, damage_info):
@@ -495,7 +510,12 @@ class UnitManager(ObjectManager):
         if new_health <= 0:
             self.die(killer=source)
         else:
+            damage_info = DamageInfoHolder()
+            damage_info.damage = amount
+            damage_info.victim = self                                    
             self.set_health(new_health)
+            self.generate_rage_on_received_damage(damage_info)
+
 
         # If unit is a creature and it's being attacked by another unit, automatically set combat target.
         if not self.combat_target and not is_player and source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:

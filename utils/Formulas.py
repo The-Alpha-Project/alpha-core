@@ -2,7 +2,6 @@ import math
 
 from utils.constants.MiscCodes import AttackTypes
 
-
 # Extracted from the 0.5.3 client as is.
 class Distances(object):
     MAX_DUEL_DISTANCE = 10.0
@@ -55,24 +54,16 @@ class UnitFormulas(object):
         # TODO: Find better formula?
         return UnitFormulas.interactable_distance(attacker, target) * 0.6
 
-
-class PlayerFormulas(object):
-
     @staticmethod
     def rage_conversion_value(level):
         return 0.0091107836 * level ** 2 + 3.225598133 * level + 4.2652911
 
     @staticmethod
-    def get_gray_level(player_level):
-        gray_level = 0
-        if 5 < player_level < 50:
-            gray_level = int(player_level - math.floor(player_level / 10.0) - 5)
-        elif player_level == 50:
-            gray_level = 40
-        elif 50 < player_level < 60:
-            gray_level = int(player_level - math.floor(player_level / 5.0) - 1)
+    def calculate_rage_regen_on_received_damage(damage_info):
+        # Vanilla rage formula source http://blue.mmo-champion.com/topic/18325-the-new-rage-formula-by-kalgan/
+        rage_gained = (damage_info.damage / UnitFormulas.rage_conversion_value(damage_info.victim.level)) * 2.5
 
-        return gray_level
+        return int(rage_gained*10)
 
     @staticmethod
     def calculate_rage_regen(damage_info, is_player=True):
@@ -92,13 +83,28 @@ class PlayerFormulas(object):
                 if offhand:
                     speed = offhand.item_template.delay
 
-            regen = ((15 * damage) / (4 * PlayerFormulas.rage_conversion_value(damage_info.attacker.level)) + (
+            regen = ((15 * damage) / (4 * UnitFormulas.rage_conversion_value(damage_info.attacker.level)) + (
                         (hit_rate * speed) / 2))
         else:
-            regen = (2.5 * (damage_info.damage / PlayerFormulas.rage_conversion_value(damage_info.victim.level)))
+            regen = (2.5 * (damage_info.damage / UnitFormulas.rage_conversion_value(damage_info.victim.level)))
 
         # Rage is measured 0 - 1000
         return int(regen / 100)
+
+
+class PlayerFormulas(object):
+
+    @staticmethod
+    def get_gray_level(player_level):
+        gray_level = 0
+        if 5 < player_level < 50:
+            gray_level = int(player_level - math.floor(player_level / 10.0) - 5)
+        elif player_level == 50:
+            gray_level = 40
+        elif 50 < player_level < 60:
+            gray_level = int(player_level - math.floor(player_level / 5.0) - 1)
+
+        return gray_level
 
     @staticmethod
     def zero_difference_value(level):
