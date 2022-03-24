@@ -451,12 +451,15 @@ class UnitManager(ObjectManager):
         return random.randint(min_damage, max_damage)
 
     def generate_rage(self, damage_info, is_attacking=True):
-        # Defensive Stance, Battle Stance or Bear Form.
-        # 0.5.3 Berserker Stance does not generate rage on received damage.
-        if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) \
+        # Warrior Stances and Bear Form.
+        # Defensive Stance (71): "A defensive stance that reduces rage decay when out of combat.
+        # Generate rage when you are hit."
+        # Battle Stance (2457): "A balanced combat stance. Generate rage when hit and when you strike an opponent."
+        # Berserker Stance (2458): "An aggressive stance. Generate rage when you strike an opponent."
+        if not is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) \
+                or is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE) \
                 or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE) \
-                or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR) \
-                or is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE):
+                or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
             self.set_rage(self.power_2 + UnitFormulas.calculate_rage_regen(damage_info, is_attacking=is_attacking))
 
     # Implemented by PlayerManager
