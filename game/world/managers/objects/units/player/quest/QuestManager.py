@@ -360,11 +360,10 @@ class QuestManager(object):
 
         quest_giver_greeting = ''
         
-        # Gender greetings.
+        # Text based on gender.
         male_greeting = quest_giver_text_entry.text0_0
         female_greeting = quest_giver_text_entry.text0_1
 
-        # Get text based on creature gender.
         if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
             # If male or agnostic to gender.
             if quest_giver.gender == UnitCodes.Genders.GENDER_MALE or not female_greeting:
