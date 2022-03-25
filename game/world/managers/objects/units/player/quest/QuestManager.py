@@ -359,12 +359,18 @@ class QuestManager(object):
         quest_giver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(text_entry)
 
         quest_giver_greeting = ''
+        
+        # Gender greetings.
+        male_greeting = quest_giver_text_entry.text0_0
+        female_greeting = quest_giver_text_entry.text0_1
+
         # Get text based on creature gender.
         if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
-            if quest_giver.gender == UnitCodes.Genders.GENDER_MALE:
-                quest_giver_greeting: str = quest_giver_text_entry.text0_0
+            # If male or agnostic to gender.
+            if quest_giver.gender == UnitCodes.Genders.GENDER_MALE or not female_greeting:
+                quest_giver_greeting: str = male_greeting
             else:
-                quest_giver_greeting: str = quest_giver_text_entry.text0_1
+                quest_giver_greeting: str = female_greeting
 
         return True if quest_giver_gossip_entry else False, quest_giver_greeting, quest_giver_text_entry.em0_0
 
