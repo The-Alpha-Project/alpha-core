@@ -692,14 +692,6 @@ class QuestManager(object):
     def handle_remove_quest(self, slot):
         quest_entry = self.player_mgr.get_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6))
         if quest_entry in self.active_quests:
-            active_quest = self.active_quests[quest_entry]
-            # Remove required items from the player inventory.
-            req_item_list = QuestHelpers.generate_req_item_list(active_quest.quest)
-            req_item_count = QuestHelpers.generate_req_item_count_list(active_quest.quest)
-            for index, req_item in enumerate(req_item_list):
-                if req_item != 0:
-                    self.player_mgr.inventory.remove_items(req_item, req_item_count[index])
-
             self.remove_from_quest_log(quest_entry)
             RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_entry)
             self.update_surrounding_quest_status()
