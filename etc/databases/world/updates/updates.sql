@@ -21880,7 +21880,7 @@ begin not atomic
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('3896', '1018');
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('4497', '1124');
         
-        -- Wrong GO on Theramore Hardbor
+        -- Wrong GO on Theramore Harbor
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '8492');
 
         insert into applied_updates values ('210320221');
