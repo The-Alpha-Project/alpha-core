@@ -1233,7 +1233,8 @@ class PlayerManager(UnitManager):
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
 
-        return self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school, target, subclass)
+        damage = self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school, target, subclass)
+        return max(0, int(damage))
 
     # override
     def handle_combat_skill_gain(self, damage_info):
