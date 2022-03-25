@@ -537,7 +537,6 @@ class StatManager(object):
             return HitInfo.MISS
 
         # Note: Bear and cat form attacks don't use a weapon, and instead have max attack rating.
-        # Attacker
         if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER and not attacker.is_in_feral_form():
             attack_weapon = attacker.get_current_weapon_for_attack_type(attack_type)
             attack_weapon_template = attack_weapon.item_template if attack_weapon is not None else None
