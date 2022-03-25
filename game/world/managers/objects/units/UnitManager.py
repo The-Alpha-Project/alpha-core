@@ -15,7 +15,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
-    HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
+    ProcFlagsExLegacy,HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, UnitStates
 from utils.constants.UpdateFields import UnitFields
@@ -381,7 +381,11 @@ class UnitManager(ObjectManager):
         damage_info.hit_info = hit_info
         damage_info.target_state = VictimStates.VS_WOUND  # Default state on successful attack.
 
-        if hit_info != HitInfo.SUCCESS:
+        if hit_info == HitInfo.CRITICAL_HIT:
+            damage_info.total_damage *= 2
+            damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
+
+        elif hit_info != HitInfo.SUCCESS:
             damage_info.hit_info = HitInfo.MISS
             damage_info.total_damage = 0
             # Check evade, there is no HitInfo flag for this.

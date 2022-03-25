@@ -136,6 +136,7 @@ class StatManager(object):
             self.base_stats[UnitStats.MANA] = self.unit_mgr.max_power_1
             self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100  # Players don't have a flat dodge/block chance.
             self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100  # Players have block scaling, assign flat 5% to creatures.
+            self.base_stats[UnitStats.CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
 
         # Don't overwrite base speed if it has been modified.
         self.base_stats[UnitStats.SPEED_RUNNING] = self.base_stats.get(UnitStats.SPEED_RUNNING, config.Unit.Defaults.run_speed)
@@ -150,6 +151,7 @@ class StatManager(object):
         self.update_base_mana_regen()
 
         self.update_base_proc_chance()
+        self.update_melee_critical_chance()
         self.update_defense_bonuses()
 
     def get_base_stat(self, stat_type: UnitStats) -> int:
@@ -415,6 +417,20 @@ class StatManager(object):
         regen = CLASS_BASE_REGEN_MANA[player_class] + spirit * CLASS_SPIRIT_SCALING_MANA[player_class]
         self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
 
+    def update_melee_critical_chance(self):
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        player_class = self.unit_mgr.player.class_
+        agility = self.get_total_stat(UnitStats.AGILITY)
+        scaling = CLASS_AGILITY_SCALING_CRITICAL[player_class]
+        class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
+                      scaling[1] * (self.unit_mgr.level - 1)) / 59
+        agility_bonus = agility / class_rate / 100
+        crit = BASE_MELEE_CRITICAL_CHANCE / 100 + agility_bonus
+
+        self.base_stats[UnitStats.CRITICAL] = crit
+
     def update_base_dodge_chance(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return  # Base dodge can't change for creatures - set on init
@@ -570,7 +586,11 @@ class StatManager(object):
         if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
             return HitInfo.BLOCK
 
-        # TODO Roll crit
+        roll = random.random()
+        crit_chance = attacker.stat_manager.get_total_stat(UnitStats.CRITICAL, accept_float=True)
+        if roll < crit_chance:
+            return HitInfo.CRITICAL_HIT
+        
         return HitInfo.SUCCESS
 
     def update_base_weapon_attributes(self, attack_type=0):
@@ -783,6 +803,7 @@ class StatManager(object):
 
 
 BASE_BLOCK_PARRY_CHANCE = 5
+BASE_MELEE_CRITICAL_CHANCE = 5
 BASE_DODGE_CHANCE_CREATURE = 5
 
 CLASS_SPIRIT_SCALING_HP5 = {
@@ -849,6 +870,8 @@ CLASS_AGILITY_SCALING_DODGE = {
     Classes.CLASS_WARLOCK: (8.4, 20.0),
     Classes.CLASS_WARRIOR: (3.9, 20.0)
 }
+
+CLASS_AGILITY_SCALING_CRITICAL = CLASS_AGILITY_SCALING_DODGE
 
 INVENTORY_STAT_TO_UNIT_STAT = {
     InventoryStats.MANA: UnitStats.MANA,
