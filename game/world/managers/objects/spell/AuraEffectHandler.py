@@ -250,7 +250,12 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
-        stat_type = aura.spell_effect.misc_value
+
+        if aura.spell_effect.misc_value == -1:
+            stat_type = UnitStats.ALL_ATTRIBUTES
+        else:
+            stat_type = UnitStats.ATTRIBUTE_START << aura.spell_effect.misc_value
+
         amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount, percentual=True)
 
