@@ -10,6 +10,7 @@ from game.world.managers.objects.units.player.guild.GuildManager import GuildMan
 from utils.ConfigManager import config
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import HighGuid
+from utils.constants.SpellCodes import SpellEffects
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -212,9 +213,22 @@ class CommandManager(object):
 
         for spell in spells:
             spell_name = spell.Name_enUS.replace('\\', '')
-            spell_subtext = spell.NameSubtext_enUS if spell.NameSubtext_enUS else ''
             spell_text = f'{spell.ID} - |cFF00FFFF[{spell_name}]|r'
-            spell_text += f' ({spell_subtext})'
+            if spell.NameSubtext_enUS:
+                spell_text += f' ({spell.NameSubtext_enUS})'
+
+            learned_spells = []
+            if spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_SPELL:
+                learned_spells.append(spell.EffectTriggerSpell_1)
+            if spell.Effect_2 == SpellEffects.SPELL_EFFECT_LEARN_SPELL:
+                learned_spells.append(spell.EffectTriggerSpell_2)
+            if spell.Effect_3 == SpellEffects.SPELL_EFFECT_LEARN_SPELL:
+                learned_spells.append(spell.EffectTriggerSpell_3)
+
+            if learned_spells:
+                learned_spells_text = ', '.join([str(spell_id) for spell_id in learned_spells])
+                spell_text += f' [Teaches: {learned_spells_text}]'
+
             ChatManager.send_system_message(world_session, spell_text)
         return 0, f'{len(spells)} spells found.'
 
