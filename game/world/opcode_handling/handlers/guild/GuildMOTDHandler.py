@@ -14,7 +14,9 @@ class GuildMOTDHandler(object):
             if not player_mgr.guild_manager:
                 GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                        GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
-            elif player_mgr.guild_manager.get_rank(player_mgr.guid) > GuildRank.GUILDRANK_OFFICER:
+            # Only Guild Masters could set the Guild MotD in 0.5.3.
+            # 0.5.4 patch notes: "Guild officers are now able to set a "Guild Message of the Day.""
+            elif player_mgr.guild_manager.get_rank(player_mgr.guid) > GuildRank.GUILDRANK_GUILD_MASTER:
                 GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                        GuildCommandResults.GUILD_PERMISSIONS)
             else:
