@@ -426,8 +426,9 @@ class StatManager(object):
         scaling = CLASS_AGILITY_SCALING_CRITICAL[player_class]
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
-        crit = agility / class_rate / 100
-        self.base_stats[UnitStats.CRITICAL] = crit
+        crit = self.get_total_stat(UnitStats.CRITICAL)
+        total_crit = crit + agility / class_rate / 100
+        self.base_stats[UnitStats.CRITICAL] = total_crit
 
     def update_base_dodge_chance(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -548,26 +549,15 @@ class StatManager(object):
 
         rating_difference = self._get_combat_rating_difference(attacker.level, attack_rating)
         base_miss = 0.05 + dual_wield_penalty
-        attacker_crit = attacker.stat_manager.get_total_stat(UnitStats.CRITICAL, accept_float=True)
 
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # 0.04% Bonus against players when the defender has a higher combat rating,
             # 0.02% Bonus when the attacker has a higher combat rating.
             miss_chance = base_miss + rating_difference * 0.0004 if rating_difference > 0 else base_miss + rating_difference * 0.0002
-
-            if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                # Defender is player and attacker is player
-                crit_chance = attacker_crit - rating_difference * 0.0004
-            else:
-                # Defender is player and attacker is mob
-                crit_chance = attacker_crit if rating_difference > 0 else attacker_crit + rating_difference * 0.0004
         else:
             #  0.4% if defense rating is >10 points higher than attack rating, otherwise 0.1%.
             miss_chance = base_miss + rating_difference * 0.001 if rating_difference <= 10 \
                 else base_miss + 1 + (rating_difference - 10) * 0.004
-
-            crit_chance = attacker_crit  if rating_difference > 0 \
-                else attacker_crit - rating_difference * 0.002
 
         # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
         # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
@@ -594,6 +584,18 @@ class StatManager(object):
         roll = random.random()
         if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
             return HitInfo.BLOCK
+
+        attacker_crit = attacker.stat_manager.get_total_stat(UnitStats.CRITICAL, accept_float=True)
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            # Player : +- 0.04% for each rating difference
+            # For example with defender Player LvL 60 and attacker Mob LvL 63
+            # 5% - (300-315)*0.04 = 5.6% crit chance (mob)
+            crit_chance = attacker_crit - rating_difference * 0.0004
+        else:
+            # Mob : +- 0.02% for each rating difference
+            # For example with defender mob LvL 63 and attacker Player LvL 60 (we assume player has 10% crit chance)
+            # 10% - (315-300)*0.2 = 7% crit chance (player)
+            crit_chance = attacker_crit - rating_difference * 0.002
 
         roll = random.random()
         if roll < crit_chance:
