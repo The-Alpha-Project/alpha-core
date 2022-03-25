@@ -422,7 +422,7 @@ class StatManager(object):
             return
 
         player_class = self.unit_mgr.player.class_
-        agility = self.get_total_stat(UnitStats.AGILITY)
+        agility = self.get_total_stat(UnitStats.AGILITY) - self.get_base_stat(UnitStats.AGILITY)
         scaling = CLASS_AGILITY_SCALING_CRITICAL[player_class]
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
@@ -533,12 +533,14 @@ class StatManager(object):
 
     def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0):
         # TODO Based on vanilla calculations.
-
+        print(self)
+        print(attacker)
         # Fleeing, return miss and handle on calling method.
         if self.unit_mgr.is_fleeing():
             return HitInfo.MISS
 
         # Note: Bear and cat form attacks don't use a weapon, and instead have max attack rating.
+        # Attacker
         if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER and not attacker.is_in_feral_form():
             attack_weapon = attacker.get_current_weapon_for_attack_type(attack_type)
             attack_weapon_template = attack_weapon.item_template if attack_weapon is not None else None
@@ -547,18 +549,43 @@ class StatManager(object):
             attack_rating = attacker.skill_manager.get_total_skill_value(skill_id)
         else:
             attack_rating = -1
+
+        # Defender
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER and not self.unit_mgr.is_in_feral_form():
+            attack_weapon = self.unit_mgr.get_current_weapon_for_attack_type(attack_type)
+            attack_weapon_template = attack_weapon.item_template if attack_weapon is not None else None
+
+            skill_id = self.unit_mgr.skill_manager.get_skill_id_for_weapon(attack_weapon_template)
+            defender_attack_rating = self.unit_mgr.skill_manager.get_total_skill_value(skill_id)
+        else:
+            defender_attack_rating = -1
+
         rating_difference = self._get_combat_rating_difference(attacker.level, attack_rating)
+        rating_difference_for_crit = attacker.stat_manager._get_combat_rating_difference(self.unit_mgr.level, defender_attack_rating)
+        print("RATING DIFF defender", rating_difference)
+        print("RATING DIFF ATTACKER", rating_difference_for_crit)
 
         base_miss = 0.05 + dual_wield_penalty
+        base_crit = attacker.stat_manager.get_total_stat(UnitStats.CRITICAL, accept_float=True)
+        print("BASE CRIT", base_crit)
+        print("BASE MISS", base_miss)
 
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # 0.04% Bonus against players when the defender has a higher combat rating,
             # 0.02% Bonus when the attacker has a higher combat rating.
             miss_chance = base_miss + rating_difference * 0.0004 if rating_difference > 0 else base_miss + rating_difference * 0.0002
+            crit_chance = base_crit + rating_difference_for_crit * 0.0004 if rating_difference_for_crit < 0 else base_crit - rating_difference_for_crit * 0.0004
         else:
             #  0.4% if defense rating is >10 points higher than attack rating, otherwise 0.1%.
             miss_chance = base_miss + rating_difference * 0.001 if rating_difference <= 10 \
                 else base_miss + 1 + (rating_difference - 10) * 0.004
+
+            crit_chance = base_crit  if rating_difference_for_crit < 0 \
+                else base_crit + (rating_difference_for_crit) * 0.002
+
+        print("MISS CHANCE AFTER CALCULATION : ", miss_chance)
+
+        print("CRIT CHANCE AFTER CALCULATION : ", crit_chance)
 
         # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
         # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
@@ -587,7 +614,8 @@ class StatManager(object):
             return HitInfo.BLOCK
 
         roll = random.random()
-        crit_chance = attacker.stat_manager.get_total_stat(UnitStats.CRITICAL, accept_float=True)
+        print("CRIT ROLL", roll)
+        print("CRIT CHANCE", crit_chance)
         if roll < crit_chance:
             return HitInfo.CRITICAL_HIT
         
@@ -783,7 +811,6 @@ class StatManager(object):
             own_defense_rating = self.unit_mgr.skill_manager.get_total_skill_value(SkillTypes.DEFENSE if not use_block else SkillTypes.BLOCK)
         else:
             own_defense_rating = SkillManager.get_max_rank(self.unit_mgr.level, SkillTypes.DEFENSE)
-
 
         return own_defense_rating - attacker_rating
 
