@@ -958,7 +958,9 @@ class SpellManager(object):
             new_power = 0
         else:
             cost = casting_spell.get_resource_cost()
-            current_power = self.caster.health if power_type == PowerTypes.TYPE_HEALTH else self.caster.get_power_type_value()
+            # Note: resources are consumed after the cast, which means that the caster's power type can change.
+            # Pass the required power to get_power_type_value.
+            current_power = self.caster.health if power_type == PowerTypes.TYPE_HEALTH else self.caster.get_power_type_value(power_type)
             new_power = current_power - cost
 
         if power_type == PowerTypes.TYPE_MANA:
