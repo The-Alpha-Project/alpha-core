@@ -14,6 +14,22 @@ class QuestHelpers:
         return quest_template.SpecialFlags == QuestSpecialFlags.QUEST_SPECIAL_FLAG_REPEATABLE
 
     @staticmethod
+    # noinspection PyUnusedLocal
+    def has_item_reward(quest_template):
+        for index in range(1, 5):
+            if eval(f'quest_template.RewItemId{index}') > 0:
+                return True
+        return False
+
+    @staticmethod
+    # noinspection PyUnusedLocal
+    def has_pick_reward(quest_template):
+        for index in range(1, 5):
+            if eval(f'quest_template.RewChoiceItemId{index}') > 0:
+                return True
+        return False
+
+    @staticmethod
     def generate_rew_choice_item_list(quest_template):
         return [quest_template.RewChoiceItemId1, quest_template.RewChoiceItemId2, quest_template.RewChoiceItemId3, quest_template.RewChoiceItemId4,
                 quest_template.RewChoiceItemId5, quest_template.RewChoiceItemId6]

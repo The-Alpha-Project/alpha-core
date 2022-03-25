@@ -64,20 +64,6 @@ class ActiveQuest:
 
         return False
 
-    # noinspection PyMethodMayBeStatic
-    def has_item_reward(self):
-        for index in range(1, 5):
-            if eval(f'self.quest.RewItemId{index}') > 0:
-                return True
-        return False
-
-    # noinspection PyMethodMayBeStatic
-    def has_pick_reward(self):
-        for index in range(1, 5):
-            if eval(f'self.quest.RewChoiceItemId{index}') > 0:
-                return True
-        return False
-
     def reward_gold(self):
         if self.quest.RewOrReqMoney > 0:
             self.owner.mod_money(self.quest.RewOrReqMoney)
