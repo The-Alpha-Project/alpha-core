@@ -227,7 +227,6 @@ class QuestManager(object):
         # If we only have 1 quest menu item, and it has no custom greeting, send the appropriate packet directly.
         if len(quest_menu.items) == 1 and not has_greeting:
             quest_menu_item = list(quest_menu.items.values())[0]
-            print(QuestState(quest_menu_item.quest_state).name)
             if quest_menu_item.quest_state == QuestState.QUEST_REWARD:
                 self.send_quest_giver_offer_reward(quest_menu_item.quest, quest_giver_guid, True)
                 return

@@ -273,7 +273,6 @@ class CreatureManager(UnitManager):
 
                     # Set emote state if available.
                     if addon_template.emote_state:
-                        print(addon_template.emote_state)
                         self.set_emote_state(addon_template.emote_state)
 
                     # Check auras; 'auras' points to an entry id on Spell dbc.
