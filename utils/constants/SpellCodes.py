@@ -200,7 +200,7 @@ class SpellAttributes(IntEnum):
 
 class SpellAttributesEx(IntEnum):
     SPELL_ATTR_EX_DISMISS_PET_FIRST = 0x00000001  # 0
-    SPELL_ATTR_EX_DRAIN_ALL_POWER = 0x00000002  # 1 use all power (Only paladin Lay of Hands and Bunyanize)
+    SPELL_ATTR_EX_DRAIN_ALL_POWER = 0x00000002  # 1 use all power (Lay on Hands, Bunyanize and Warrior stances)
     SPELL_ATTR_EX_CHANNELED = 0x00000004  # 2 channeled 1
     SPELL_ATTR_EX_CANT_BE_REDIRECTED = 0x00000008  # 3
     SPELL_ATTR_EX_NO_SKILL_INCREASE = 0x00000010  # 4

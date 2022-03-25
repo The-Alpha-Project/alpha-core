@@ -34,10 +34,11 @@ if __name__ == '__main__':
     # Validate configuration file version.
     try:
         if config.Version.current != ConfigManager.EXPECTED_VERSION:
-            Logger.error(f'Invalid config.yml version, expected {ConfigManager.EXPECTED_VERSION} found {config.Version.current}')
+            Logger.error(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION} '
+                         f'found {config.Version.current}.')
             exit()
-    except:
-        Logger.error(f'Invalid config.yml version, expected {ConfigManager.EXPECTED_VERSION}')
+    except AttributeError:
+        Logger.error(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION}, none found.')
         exit()
 
     # Validate if maps available and if version match.

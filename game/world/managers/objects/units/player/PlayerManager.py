@@ -1236,12 +1236,6 @@ class PlayerManager(UnitManager):
 
         return self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school, target, subclass)
 
-    def generate_rage(self, damage_info, is_player=False):
-        # Warriors or Druids in Bear form
-        if self.player.class_ == Classes.CLASS_WARRIOR or (self.player.class_ == Classes.CLASS_DRUID and
-                                                           self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR)):
-            self.set_rage(self.power_2 + Formulas.PlayerFormulas.calculate_rage_regen(damage_info, is_player=is_player))
-
     # override
     def handle_combat_skill_gain(self, damage_info):
         if damage_info.attacker == self:

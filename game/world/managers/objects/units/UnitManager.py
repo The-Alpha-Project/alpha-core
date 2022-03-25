@@ -400,8 +400,8 @@ class UnitManager(ObjectManager):
                 damage_info.target_state = VictimStates.VS_BLOCK
                 damage_info.proc_victim |= ProcFlags.BLOCK
 
-        # Generate rage (if needed)
-        self.generate_rage(damage_info, is_player=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
+        # Generate rage (if needed).
+        self.generate_rage(damage_info, is_attacking=True)
 
         # Note: 1.1.0 patch: "Skills will not increase from use while dueling or engaged in PvP."
         self.handle_combat_skill_gain(damage_info)
@@ -450,9 +450,17 @@ class UnitManager(ObjectManager):
 
         return random.randint(min_damage, max_damage)
 
-    # Implemented by PlayerManager
-    def generate_rage(self, damage_info, is_player=False):
-        return
+    def generate_rage(self, damage_info, is_attacking=True):
+        # Warrior Stances and Bear Form.
+        # Defensive Stance (71): "A defensive stance that reduces rage decay when out of combat.
+        # Generate rage when you are hit."
+        # Battle Stance (2457): "A balanced combat stance. Generate rage when hit and when you strike an opponent."
+        # Berserker Stance (2458): "An aggressive stance. Generate rage when you strike an opponent."
+        if not is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) \
+                or is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE) \
+                or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE) \
+                or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
+            self.set_rage(self.power_2 + UnitFormulas.calculate_rage_regen(damage_info, is_attacking=is_attacking))
 
     # Implemented by PlayerManager
     def handle_combat_skill_gain(self, damage_info):
@@ -495,7 +503,11 @@ class UnitManager(ObjectManager):
         if new_health <= 0:
             self.die(killer=source)
         else:
+            damage_info = DamageInfoHolder()
+            damage_info.damage = amount
+            damage_info.victim = self                                    
             self.set_health(new_health)
+            self.generate_rage(damage_info, is_attacking=False)
 
         # If unit is a creature and it's being attacked by another unit, automatically set combat target.
         if not self.combat_target and not is_player and source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:

@@ -2,7 +2,6 @@ import math
 
 from utils.constants.MiscCodes import AttackTypes
 
-
 # Extracted from the 0.5.3 client as is.
 class Distances(object):
     MAX_DUEL_DISTANCE = 10.0
@@ -55,12 +54,32 @@ class UnitFormulas(object):
         # TODO: Find better formula?
         return UnitFormulas.interactable_distance(attacker, target) * 0.6
 
-
-class PlayerFormulas(object):
-
     @staticmethod
     def rage_conversion_value(level):
         return 0.0091107836 * level ** 2 + 3.225598133 * level + 4.2652911
+
+    @staticmethod
+    def calculate_rage_regen(damage_info, is_attacking=True):
+        # "Rage Conversion Value (note: this number is derived from other values within the game such as a mob's hit
+        # points and a warrior's expected damage value against that mob)." We use an approximation.
+        # Rage Gained from dealing damage = (Damage Dealt) / (Rage Conversion at Your Level) * 7.5
+        # Rage Gained for taking damage = (Damage Taken) / (Rage Conversion at Your Level) * 2.5
+        #
+        # Source: https://www.bluetracker.gg/wow/topic/eu-en/83678537-the-new-rage-formula-by-kalgan/
+        if is_attacking:
+            level = damage_info.attacker.level
+            factor = 7.5
+        else:
+            level = damage_info.victim.level
+            factor = 2.5
+
+        # Get rage regen value based on supplied variables.
+        regen = damage_info.damage / UnitFormulas.rage_conversion_value(level) * factor
+        # Rage is measured 0 - 1000, multiply it by 10.
+        return int(regen * 10)
+
+
+class PlayerFormulas(object):
 
     @staticmethod
     def get_gray_level(player_level):
@@ -73,32 +92,6 @@ class PlayerFormulas(object):
             gray_level = int(player_level - math.floor(player_level / 5.0) - 1)
 
         return gray_level
-
-    @staticmethod
-    def calculate_rage_regen(damage_info, is_player=True):
-        # R=(15d/4c)+(fs/2) | d=WeaponDamage, c=rage conversion rate, f=hit rating, s=speed
-        if is_player:
-            main_hand = damage_info.attack_type == AttackTypes.BASE_ATTACK
-            damage = damage_info.damage  # This is already calculated based off either Main or Offhand weapon.
-            speed = damage_info.attacker.base_attack_time
-            hit_rate = 3.5 if main_hand else 1.75
-
-            if main_hand and damage_info.attacker.inventory.has_main_weapon():
-                main_weapon = damage_info.attacker.inventory.get_main_hand()
-                if main_weapon:
-                    speed = main_weapon.item_template.delay
-            elif damage_info.attacker.inventory.has_offhand_weapon():
-                offhand = damage_info.attacker.inventory.get_offhand()
-                if offhand:
-                    speed = offhand.item_template.delay
-
-            regen = ((15 * damage) / (4 * PlayerFormulas.rage_conversion_value(damage_info.attacker.level)) + (
-                        (hit_rate * speed) / 2))
-        else:
-            regen = (2.5 * (damage_info.damage / PlayerFormulas.rage_conversion_value(damage_info.victim.level)))
-
-        # Rage is measured 0 - 1000
-        return int(regen / 100)
 
     @staticmethod
     def zero_difference_value(level):
