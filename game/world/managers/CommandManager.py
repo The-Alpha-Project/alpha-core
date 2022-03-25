@@ -255,6 +255,22 @@ class CommandManager(object):
             return -1, 'please specify one or more valid spell ID(s).'
 
     @staticmethod
+    def cast(world_session, args):
+        try:
+            spell_id = int(args)
+            if not spell_id:
+                return -1, 'please specify a spell ID.'
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if not spell:
+                return -1, 'The spell was not found.'
+
+            unit = CommandManager._target_or_self(world_session)
+            world_session.player_mgr.spell_manager.start_spell_cast(spell, unit, triggered=True)
+            return 0, ''
+        except ValueError:
+            return -1, 'Invalid ID.'
+
+    @staticmethod
     def sskill(world_session, args):
         skill_name = args.strip()
         if not skill_name:
@@ -591,6 +607,7 @@ GM_COMMAND_DEFINITIONS = {
     'sspell': CommandManager.sspell,
     'lspell': CommandManager.lspell,
     'lspells': CommandManager.lspells,
+    'cast': CommandManager.cast,
     'sskill': CommandManager.sskill,
     'lskill': CommandManager.lskill,
     'lskills': CommandManager.lskills,
