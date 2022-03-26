@@ -1,5 +1,4 @@
 from struct import pack
-
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import TradeStatus
 from utils.constants.OpCodes import OpCode

@@ -5,6 +5,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ContainerManager import ContainerManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.item.ItemQueryDetailCache import ItemQueryDetailCache
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.Logger import Logger
@@ -764,6 +765,7 @@ class InventoryManager(object):
         for slot, item in self.get_backpack().sorted_slots.items():
             self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid)
 
+    # noinspection PyMethodMayBeStatic
     def get_single_item_update_packets(self, item, requester):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(requester)))

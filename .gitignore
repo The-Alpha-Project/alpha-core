@@ -18,3 +18,9 @@ venv
 **.vmtree
 **.vmtile
 **.dbc
+**.nav
+**.bvh
+**.idx
+
+# python win libs
+**.pyd

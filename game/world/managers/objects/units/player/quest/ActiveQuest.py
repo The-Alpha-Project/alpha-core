@@ -1,10 +1,14 @@
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import HighGuid
+from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas
-from utils.constants.MiscCodes import QuestState
+from utils.constants.MiscCodes import QuestState, QuestMethod
 
 
 class ActiveQuest:
@@ -15,10 +19,32 @@ class ActiveQuest:
         self.failed = False
 
     def is_quest_complete(self, quest_giver_guid):
+        quest_giver = None
+        high_guid = ObjectManager.extract_high_guid(quest_giver_guid)
+
+        if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
+            quest_giver = MapManager.get_surrounding_gameobject_by_guid(self.owner, quest_giver_guid)
+        elif high_guid == HighGuid.HIGHGUID_UNIT:
+            quest_giver = MapManager.get_surrounding_unit_by_guid(self.owner, quest_giver_guid)
+
+        if not quest_giver:
+            return False
+
+        if QuestHelpers.is_instant_complete_quest(self.quest):
+            return True
+
         if self.db_state.state != QuestState.QUEST_REWARD:
             return False
-        # TODO: check that quest_giver_guid is turn-in for quest_id
-        return True
+
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
+        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(quest_giver.entry)
+        else:
+            return False
+
+        # Return if this quest is finished by this quest giver.
+        return self.quest.entry in {quest_entry[1] for quest_entry in involved_relations_list}
 
     def need_item_from_go(self, go_loot_template):
         # Quest is complete.
@@ -36,20 +62,6 @@ class ActiveQuest:
             if entry.item in needed_items:
                 return True
 
-        return False
-
-    # noinspection PyMethodMayBeStatic
-    def has_item_reward(self):
-        for index in range(1, 5):
-            if eval(f'self.quest.RewItemId{index}') > 0:
-                return True
-        return False
-
-    # noinspection PyMethodMayBeStatic
-    def has_pick_reward(self):
-        for index in range(1, 5):
-            if eval(f'self.quest.RewChoiceItemId{index}') > 0:
-                return True
         return False
 
     def reward_gold(self):
@@ -72,6 +84,9 @@ class ActiveQuest:
         data = pack('<4IQ', self.db_state.quest, creature.entry, current + value, required, creature.guid)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_KILL, data)
         self.owner.enqueue_packet(packet)
+        # Check if this makes it complete.
+        if self.can_complete_quest():
+            self.update_quest_state(QuestState.QUEST_REWARD)
 
     def _update_db_creature_go_count(self, index, value):
         if index == 0:
@@ -94,6 +109,10 @@ class ActiveQuest:
         data = pack('<2I', item_entry, quantity)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
         self.owner.enqueue_packet(packet)
+        # Check if this makes it complete.
+        can_complete = self.can_complete_quest()
+        if self.can_complete_quest():
+            self.update_quest_state(QuestState.QUEST_REWARD)
 
     def _update_db_item_count(self, index, value, required_count=None):
         if not required_count:
@@ -127,6 +146,9 @@ class ActiveQuest:
     def get_quest_state(self):
         return self.db_state.state
 
+    def get_is_quest_rewarded(self):
+        return self.db_state.rewarded == 1
+
     def update_quest_state(self, quest_state):
         self.db_state.state = quest_state.value
         self.save()
@@ -141,27 +163,8 @@ class ActiveQuest:
         else:
             RealmDatabaseManager.character_update_quest_status(self.db_state)
 
-    def is_instant_complete_quest(self):
-        for reqSource in QuestHelpers.generate_req_source_list(self.quest):
-            if reqSource != 0:
-                return False
-
-        for reqItem in QuestHelpers.generate_req_item_list(self.quest):
-            if reqItem != 0:
-                return False
-
-        for reqCreatureGo in QuestHelpers.generate_req_creature_or_go_list(self.quest):
-            if reqCreatureGo != 0:
-                return False
-
-        for reqSpellCast in QuestHelpers.generate_req_spell_cast_list(self.quest):
-            if reqSpellCast != 0:
-                return False
-
-        return True
-
     def can_complete_quest(self):
-        if self.is_instant_complete_quest():
+        if QuestHelpers.is_instant_complete_quest(self.quest):
             return True
 
         # Check for required kills / gameobjects.

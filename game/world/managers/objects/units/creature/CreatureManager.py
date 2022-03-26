@@ -10,6 +10,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
+from game.world.managers.objects.item.ItemQueryDetailCache import ItemQueryDetailCache
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
@@ -57,6 +58,7 @@ class CreatureManager(UnitManager):
         self.mod_cast_speed = 1.0
         self.base_attack_time = self.creature_template.base_attack_time
         self.unit_flags = self.creature_template.unit_flags
+        self.emote_state = 0
         self.faction = self.creature_template.faction
         self.creature_type = self.creature_template.type
         self.sheath_state = WeaponMode.NORMALMODE
@@ -163,7 +165,9 @@ class CreatureManager(UnitManager):
                     vendor_data_entry.item_template.max_durability,  # Max durability (not implemented in 0.5.3).
                     vendor_data_entry.item_template.buy_count  # Stack count.
                 )
-                world_session.enqueue_packet(ItemManager(item_template=vendor_data_entry.item_template).query_details())
+
+                item_query_packet = ItemQueryDetailCache.get_item_detail_query(vendor_data_entry.item_template)
+                world_session.enqueue_packet(item_query_packet)
 
         session.close()
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
@@ -263,9 +267,14 @@ class CreatureManager(UnitManager):
 
                 addon_template = self.creature_instance.addon_template
                 if addon_template:
-                    # TODO: Emote, Mount, DisplayID
+                    # TODO: Mount, is it used?
                     self.set_stand_state(addon_template.stand_state)
                     self.set_weapon_mode(addon_template.sheath_state)
+
+                    # Set emote state if available.
+                    if addon_template.emote_state:
+                        self.set_emote_state(addon_template.emote_state)
+
                     # Check auras; 'auras' points to an entry id on Spell dbc.
                     if addon_template.auras:
                         spells = str(addon_template.auras).rsplit(' ')
@@ -273,6 +282,10 @@ class CreatureManager(UnitManager):
                             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(int(spell))
                             if spell_template:
                                 self.spell_manager.start_spell_cast(spell_template, self, SpellTargetMask.SELF)
+
+                    # Update display id if available.
+                    if addon_template.display_id:
+                        self.set_display_id(addon_template.display_id)
 
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses()
@@ -395,6 +408,7 @@ class CreatureManager(UnitManager):
         self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
+        self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
@@ -634,6 +648,10 @@ class CreatureManager(UnitManager):
             player.group_manager.reward_group_xp(player, self, is_elite)
         else:
             player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite)], self)
+
+    def set_emote_state(self, emote_state):
+        self.emote_state = emote_state
+        self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
 
     def set_lootable(self, flag=True):
         if flag:
