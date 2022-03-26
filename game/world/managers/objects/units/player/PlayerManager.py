@@ -1495,15 +1495,17 @@ class PlayerManager(UnitManager):
     # override
     def respawn(self):
         # Set expected HP / Power before respawning.
-        self.set_health(int(self.max_health / 2))
+        # It wasn't until Patch 0.6 that players had 50% of health and mana after reviving. It is currently unknown
+        # the % that players had in 0.5.3, so 100% is assumed.
+        self.set_health(self.max_health)
         if self.power_type == PowerTypes.TYPE_MANA:
-            self.set_mana(int(self.max_power_1 / 2))
+            self.set_mana(self.max_power_1)
         if self.power_type == PowerTypes.TYPE_RAGE:
             self.set_rage(0)
         if self.power_type == PowerTypes.TYPE_FOCUS:
-            self.set_focus(int(self.max_power_3 / 2))
+            self.set_focus(self.max_power_3)
         if self.power_type == PowerTypes.TYPE_ENERGY:
-            self.set_energy(int(self.max_power_4 / 2))
+            self.set_energy(self.max_power_4)
 
         super().respawn()
 
