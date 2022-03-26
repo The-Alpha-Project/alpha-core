@@ -1,6 +1,4 @@
 from struct import pack
-
-from game.world.managers.objects.item.ItemQueryDetailCache import ItemQueryDetailCache
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import TradeStatus
 from utils.constants.OpCodes import OpCode
@@ -98,8 +96,8 @@ class TradeManager(object):
                 return
 
             self.items[slot] = item
-            self.player.enqueue_packet(ItemQueryDetailCache.get_item_detail_query(item.item_template))
-            self.other_player.enqueue_packet(ItemQueryDetailCache.get_item_detail_query(item.item_template))
+            self.player.enqueue_packet(item.query_details())
+            self.other_player.enqueue_packet(item.query_details())
 
             self.set_accepted(False)
             self.other_player.trade_data.set_accepted(False)

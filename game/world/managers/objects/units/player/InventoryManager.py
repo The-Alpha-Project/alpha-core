@@ -768,7 +768,7 @@ class InventoryManager(object):
     def get_single_item_update_packets(self, item, requester):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(requester)))
-        return [update_packet, ItemQueryDetailCache.get_item_detail_query(item.item_template)]
+        return [update_packet, item.query_details()]
 
     def get_inventory_update_packets(self, requester):
         # Edge case where the session might be null at some point.
