@@ -879,7 +879,6 @@ CLASS_AGILITY_SCALING_DODGE = {
     Classes.CLASS_WARRIOR: (3.9, 20.0)
 }
 
-# VMaNGOS (level 1, level 60, agility)
 # 0.5.3 Strength improve critical strike
 # TODO: THIS IS A GUESS, find the real scale for strength
 CLASS_STRENGTH_SCALING_CRITICAL = {
@@ -888,10 +887,10 @@ CLASS_STRENGTH_SCALING_CRITICAL = {
     Classes.CLASS_SHAMAN: (4.6, 20.0),
     Classes.CLASS_MAGE: (12.9, 20.0),
     Classes.CLASS_ROGUE: (2.2, 29.0),
-    Classes.CLASS_HUNTER: (3.5, 53.0),
+    Classes.CLASS_HUNTER: (1.8, 26.5),
     Classes.CLASS_PRIEST: (11.0, 20.0),
     Classes.CLASS_WARLOCK: (8.4, 20.0),
-    Classes.CLASS_WARRIOR: (3.9, 20.0)
+    Classes.CLASS_WARRIOR: (7.8, 40.0)
 }
 
 INVENTORY_STAT_TO_UNIT_STAT = {
