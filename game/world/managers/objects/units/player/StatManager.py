@@ -591,7 +591,7 @@ class StatManager(object):
             # 5% - (300-315)*0.04 = 5.6% crit chance (mob)
             crit_chance = attacker_crit - rating_difference * 0.0004
         else:
-            # Mob : +- 0.02% for each rating difference
+            # Mob : +- 0.2% for each rating difference
             # For example with defender mob LvL 63 and attacker Player LvL 60 (we assume player has 10% crit chance)
             # 10% - (315-300)*0.2 = 7% crit chance (player)
             crit_chance = attacker_crit - rating_difference * 0.002
