@@ -422,12 +422,12 @@ class StatManager(object):
             return
 
         player_class = self.unit_mgr.player.class_
-        strengh = self.get_total_stat(UnitStats.STRENGH)
-        scaling = CLASS_STRENGH_SCALING_CRITICAL[player_class]
+        strength = self.get_total_stat(UnitStats.STRENGTH)
+        scaling = CLASS_STRENGTH_SCALING_CRITICAL[player_class]
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
         crit = self.get_total_stat(UnitStats.CRITICAL)
-        total_crit = crit + strengh / class_rate / 100
+        total_crit = crit + strength / class_rate / 100
         self.base_stats[UnitStats.CRITICAL] = total_crit
 
     def update_base_dodge_chance(self):
@@ -880,9 +880,9 @@ CLASS_AGILITY_SCALING_DODGE = {
 }
 
 # VMaNGOS (level 1, level 60, agility)
-# 0.5.3 Strengh improve critical strike
-# TODO: THIS IS A GUESS, find the real scale for strengh
-CLASS_STRENGH_SCALING_CRITICAL = {
+# 0.5.3 Strength improve critical strike
+# TODO: THIS IS A GUESS, find the real scale for strength
+CLASS_STRENGTH_SCALING_CRITICAL = {
     Classes.CLASS_DRUID: (4.6, 20.0),
     Classes.CLASS_PALADIN: (4.6, 20.0),
     Classes.CLASS_SHAMAN: (4.6, 20.0),
