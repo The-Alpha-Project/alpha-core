@@ -422,12 +422,12 @@ class StatManager(object):
             return
 
         player_class = self.unit_mgr.player.class_
-        agility = self.get_total_stat(UnitStats.AGILITY)
+        strengh = self.get_total_stat(UnitStats.STRENGH)
         scaling = CLASS_STRENGH_SCALING_CRITICAL[player_class]
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
         crit = self.get_total_stat(UnitStats.CRITICAL)
-        total_crit = crit + agility / class_rate / 100
+        total_crit = crit + strengh / class_rate / 100
         self.base_stats[UnitStats.CRITICAL] = total_crit
 
     def update_base_dodge_chance(self):
