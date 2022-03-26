@@ -423,7 +423,7 @@ class StatManager(object):
 
         player_class = self.unit_mgr.player.class_
         agility = self.get_total_stat(UnitStats.AGILITY)
-        scaling = CLASS_AGILITY_SCALING_CRITICAL[player_class]
+        scaling = CLASS_STRENGH_SCALING_CRITICAL[player_class]
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
         crit = self.get_total_stat(UnitStats.CRITICAL)
@@ -879,7 +879,20 @@ CLASS_AGILITY_SCALING_DODGE = {
     Classes.CLASS_WARRIOR: (3.9, 20.0)
 }
 
-CLASS_AGILITY_SCALING_CRITICAL = CLASS_AGILITY_SCALING_DODGE
+# VMaNGOS (level 1, level 60, agility)
+# 0.5.3 Strengh improve critical strike
+# TODO: THIS IS A GUESS, find the real scale for strengh
+CLASS_STRENGH_SCALING_CRITICAL = {
+    Classes.CLASS_DRUID: (4.6, 20.0),
+    Classes.CLASS_PALADIN: (4.6, 20.0),
+    Classes.CLASS_SHAMAN: (4.6, 20.0),
+    Classes.CLASS_MAGE: (12.9, 20.0),
+    Classes.CLASS_ROGUE: (2.2, 29.0),
+    Classes.CLASS_HUNTER: (3.5, 53.0),
+    Classes.CLASS_PRIEST: (11.0, 20.0),
+    Classes.CLASS_WARLOCK: (8.4, 20.0),
+    Classes.CLASS_WARRIOR: (3.9, 20.0)
+}
 
 INVENTORY_STAT_TO_UNIT_STAT = {
     InventoryStats.MANA: UnitStats.MANA,
