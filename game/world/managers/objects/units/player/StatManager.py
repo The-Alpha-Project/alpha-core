@@ -426,9 +426,8 @@ class StatManager(object):
         scaling = CLASS_STRENGTH_SCALING_CRITICAL[player_class]
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
-        crit = self.get_total_stat(UnitStats.CRITICAL)
-        total_crit = crit + strength / class_rate / 100
-        self.base_stats[UnitStats.CRITICAL] = total_crit
+        crit = strength / class_rate / 100
+        self.base_stats[UnitStats.CRITICAL] = crit
 
     def update_base_dodge_chance(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
