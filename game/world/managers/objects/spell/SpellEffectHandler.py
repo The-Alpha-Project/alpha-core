@@ -343,6 +343,8 @@ class SpellEffectHandler(object):
 
         # Unit-targeted leap (Charge/heroic leap).
         # Generate a point within combat reach and facing the target.
+        # It wasn't until Patch 0.6 that Charge speeded you along a path towards the target, it just teleported you
+        # next to the target (there's also video evidence of this behavior).
         distance = caster.location.distance(target.location) - UnitFormulas.combat_distance(leaper, leap_target)
         charge_location = caster.location.get_point_in_between(distance, target.location, map_id=caster.map_)
         charge_location.face_point(target.location)

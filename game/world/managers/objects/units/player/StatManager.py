@@ -699,7 +699,6 @@ class StatManager(object):
 
             self.unit_mgr.set_bonus_damage_done_for_school(int(flat_bonuses * percentual_bonuses), school)
 
-
     def send_defense_bonuses(self):
         self.send_block_percentage()
         self.send_parry_percentage()
@@ -763,7 +762,6 @@ class StatManager(object):
             own_defense_rating = self.unit_mgr.skill_manager.get_total_skill_value(SkillTypes.DEFENSE if not use_block else SkillTypes.BLOCK)
         else:
             own_defense_rating = SkillManager.get_max_rank(self.unit_mgr.level, SkillTypes.DEFENSE)
-
 
         return own_defense_rating - attacker_rating
 
