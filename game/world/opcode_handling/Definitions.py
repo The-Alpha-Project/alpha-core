@@ -1,3 +1,4 @@
+from game.world.opcode_handling.handlers.player.BootMeHandler import BootMeHandler
 from game.world.opcode_handling.handlers.player.cheats.RechargeHandler import RechargeHandler
 from game.world.opcode_handling.handlers.player.cheats.CreateItemHandler import CreateItemHandler
 from game.world.opcode_handling.handlers.channel.ChannelAnnounceHandler import ChannelAnnounceHandler
@@ -315,6 +316,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_NEW_SPELL_SLOT: NewSpellSlotHandler.handle,
     OpCode.CMSG_SETDEATHBINDPOINT: SetDeathBindPointHandler.handle,
     OpCode.CMSG_GETDEATHBINDZONE: GetDeathBindPointHandler.handle,
+    OpCode.CMSG_BOOTME: BootMeHandler.handle,
 
     # Movement packets
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
