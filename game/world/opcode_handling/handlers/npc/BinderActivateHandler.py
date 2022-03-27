@@ -23,7 +23,7 @@ class BinderActivateHandler(object):
             if binder_guid & ~HighGuid.HIGHGUID_UNIT == world_session.player_mgr.deathbind.creature_binder_guid:
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PLAYERBINDERROR))
             else:
-                binder.spell_manager.handle_cast_attempt(BIND_SPELL, world_session.player_mgr, SpellTargetMask.UNIT_TARGET_MASK,
-                                                         validate=False)
+                binder.spell_manager.handle_cast_attempt(BIND_SPELL, world_session.player_mgr,
+                                                         SpellTargetMask.UNIT, validate=False)
 
         return 0

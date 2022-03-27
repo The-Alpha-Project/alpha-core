@@ -47,7 +47,7 @@ class TrapManager(object):
             break
 
     def trigger(self, who):
-        self.trap_object.spell_manager.handle_cast_attempt(self.spell_id, who, SpellTargetMask.UNIT_TARGET_MASK, validate=False)
+        self.trap_object.spell_manager.handle_cast_attempt(self.spell_id, who, SpellTargetMask.UNIT, validate=False)
         self.remaining_cooldown = self.cooldown
 
         return True

@@ -799,7 +799,7 @@ class QuestManager(object):
         quest_giver_unit = MapManager.get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
         if quest_giver_unit:
             quest_giver_unit.spell_manager.handle_cast_attempt(active_quest.quest.RewSpellCast, self.player_mgr,
-                                                               SpellTargetMask.UNIT_TARGET_MASK, validate=False)
+                                                               SpellTargetMask.UNIT, validate=False)
 
     def remove_from_quest_log(self, quest_id):
         self.active_quests.pop(quest_id)
