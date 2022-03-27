@@ -274,11 +274,11 @@ class ItemManager(ObjectManager):
     def generate_query_details_data(item_template, item_flags=-1, stats=None, damage_stats=None, spell_stats=None):
         # Initialize stat values if none are supplied.
         if not stats:
-            ItemManager.Stat.generate_stat_list(item_template)
+            stats = ItemManager.Stat.generate_stat_list(item_template)
         if not damage_stats:
-            ItemManager.DamageStat.generate_damage_stat_list(item_template)
+            damage_stats = ItemManager.DamageStat.generate_damage_stat_list(item_template)
         if not spell_stats:
-            ItemManager.SpellStat.generate_spell_stat_list(item_template)
+            spell_stats = ItemManager.SpellStat.generate_spell_stat_list(item_template)
 
         item_name_bytes = PacketWriter.string_to_bytes(item_template.name)
         data = pack(
