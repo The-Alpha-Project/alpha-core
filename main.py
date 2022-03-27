@@ -32,14 +32,14 @@ if __name__ == '__main__':
     PathManager.set_root_path(os.path.dirname(os.path.realpath(__file__)))
 
     # Validate configuration file version.
+    # (Not using Logger since it can fail due to missing config options too).
     try:
         if config.Version.current != ConfigManager.EXPECTED_VERSION:
-            # Can't rely on using Logger if version miss match.
             print(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION} '
                   f'found {config.Version.current}.')
             exit()
     except AttributeError:
-        Logger.error(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION}, none found.')
+        print(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION}, none found.')
         exit()
 
     # Validate if maps available and if version match.

@@ -10,7 +10,6 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
-from game.world.managers.objects.item.ItemQueryDetailCache import ItemQueryDetailCache
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
@@ -166,8 +165,9 @@ class CreatureManager(UnitManager):
                     vendor_data_entry.item_template.buy_count  # Stack count.
                 )
 
-                item_query_packet = ItemQueryDetailCache.get_item_detail_query(vendor_data_entry.item_template)
-                world_session.enqueue_packet(item_query_packet)
+                query_data = ItemManager.generate_query_details_data(vendor_data_entry.item_template)
+                world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE,
+                                                                     query_data))
 
         session.close()
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))

@@ -11,7 +11,7 @@ class QuestHelpers:
 
     @staticmethod
     def is_quest_repeatable(quest_template):
-        return quest_template.SpecialFlags == QuestSpecialFlags.QUEST_SPECIAL_FLAG_REPEATABLE
+        return quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_REPEATABLE
 
     @staticmethod
     # noinspection PyUnusedLocal

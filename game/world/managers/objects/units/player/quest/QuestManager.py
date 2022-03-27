@@ -4,7 +4,6 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQ
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.item.ItemQueryDetailCache import ItemQueryDetailCache
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from game.world.managers.objects.units.player.quest.QuestMenu import QuestMenu
@@ -231,7 +230,7 @@ class QuestManager(object):
                 self.send_quest_giver_offer_reward(quest_menu_item.quest, quest_giver_guid, True)
                 return
             elif quest_menu_item.quest_state == QuestState.QUEST_ACCEPTED:
-                self.send_quest_giver_request_items(quest_menu_item.quest, quest_giver_guid, close_on_cancel =True)
+                self.send_quest_giver_request_items(quest_menu_item.quest, quest_giver_guid, close_on_cancel=True)
                 return
             else:
                 self.send_quest_giver_quest_details(quest_menu_item.quest, quest_giver_guid, True)
@@ -388,8 +387,10 @@ class QuestManager(object):
         display_id = 0
         if item_template:
             display_id = item_template.display_id
-            item_query_packet = ItemQueryDetailCache.get_item_detail_query(item_template)
-            self.player_mgr.enqueue_packet(item_query_packet)
+            query_data = ItemManager.generate_query_details_data(item_template)
+            self.player_mgr.enqueue_packet.enqueue_packet(
+                PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, query_data)
+            )
 
         item_data = pack(
             '<3I',
@@ -470,10 +471,10 @@ class QuestManager(object):
 
         # Emotes
         data += pack('<I', 4)
-        for index in range (1, 5):
+        for index in range(1, 5):
             detail_emote = int(eval(f'quest_template.DetailsEmote{index}'))
             detail_emote_delay = eval(f'quest_template.DetailsEmoteDelay{index}')
-            data += pack('<2I', detail_emote, detail_emote_delay )
+            data += pack('<2I', detail_emote, detail_emote_delay)
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
 
@@ -576,7 +577,7 @@ class QuestManager(object):
 
         data += pack(
             '<3I',
-            0x02, # MaskMatch
+            0x02,  # MaskMatch
             0x03 if is_completable else 0x00,  # Completable = Player has items?
             0x04,  # HasFaction
         )
@@ -717,7 +718,7 @@ class QuestManager(object):
 
             active_quest = self.active_quests[quest_id]
             if not active_quest.is_quest_complete(quest_giver_guid):
-                self.send_quest_giver_request_items(quest, quest_giver_guid, close_on_cancel =False)
+                self.send_quest_giver_request_items(quest, quest_giver_guid, close_on_cancel=False)
                 return
 
         self.send_quest_giver_offer_reward(quest, quest_giver_guid, True)
@@ -797,10 +798,8 @@ class QuestManager(object):
     def cast_reward_spell(self, quest_giver_guid, active_quest):
         quest_giver_unit = MapManager.get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
         if quest_giver_unit:
-            quest_giver_unit.spell_manager.handle_cast_attempt(active_quest.quest.RewSpellCast,
-                                                            self.player_mgr,
-                                                            SpellTargetMask.SELF, validate=False)
-        return
+            quest_giver_unit.spell_manager.handle_cast_attempt(active_quest.quest.RewSpellCast, self.player_mgr,
+                                                               SpellTargetMask.SELF, validate=False)
 
     def remove_from_quest_log(self, quest_id):
         self.active_quests.pop(quest_id)

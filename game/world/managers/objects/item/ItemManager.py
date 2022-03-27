@@ -65,48 +65,9 @@ class ItemManager(ObjectManager):
             self.display_id = item_template.display_id
             self.equip_slot = self.get_inv_slot_by_type(self.item_template.inventory_type)
 
-            self.stats.append(ItemManager.Stat(self.item_template.stat_type1, self.item_template.stat_value1))
-            self.stats.append(ItemManager.Stat(self.item_template.stat_type2, self.item_template.stat_value2))
-            self.stats.append(ItemManager.Stat(self.item_template.stat_type3, self.item_template.stat_value3))
-            self.stats.append(ItemManager.Stat(self.item_template.stat_type4, self.item_template.stat_value4))
-            self.stats.append(ItemManager.Stat(self.item_template.stat_type5, self.item_template.stat_value5))
-            self.stats.append(ItemManager.Stat(self.item_template.stat_type6, self.item_template.stat_value6))
-            self.stats.append(ItemManager.Stat(self.item_template.stat_type7, self.item_template.stat_value7))
-            self.stats.append(ItemManager.Stat(self.item_template.stat_type8, self.item_template.stat_value8))
-            self.stats.append(ItemManager.Stat(self.item_template.stat_type9, self.item_template.stat_value9))
-            self.stats.append(ItemManager.Stat(self.item_template.stat_type10, self.item_template.stat_value10))
-
-            self.damage_stats.append(ItemManager.DamageStat(self.item_template.dmg_min1, self.item_template.dmg_max1,
-                                                            self.item_template.dmg_type1))
-            self.damage_stats.append(ItemManager.DamageStat(self.item_template.dmg_min2, self.item_template.dmg_max2,
-                                                            self.item_template.dmg_type2))
-            self.damage_stats.append(ItemManager.DamageStat(self.item_template.dmg_min3, self.item_template.dmg_max3,
-                                                            self.item_template.dmg_type3))
-            self.damage_stats.append(ItemManager.DamageStat(self.item_template.dmg_min4, self.item_template.dmg_max4,
-                                                            self.item_template.dmg_type4))
-            self.damage_stats.append(ItemManager.DamageStat(self.item_template.dmg_min5, self.item_template.dmg_max5,
-                                                            self.item_template.dmg_type5))
-
-            self.spell_stats.append(
-                ItemManager.SpellStat(self.item_template.spellid_1, self.item_template.spelltrigger_1,
-                                      self.item_template.spellcharges_1, self.item_template.spellcooldown_1,
-                                      self.item_template.spellcategory_1, self.item_template.spellcategorycooldown_1))
-            self.spell_stats.append(
-                ItemManager.SpellStat(self.item_template.spellid_2, self.item_template.spelltrigger_2,
-                                      self.item_template.spellcharges_2, self.item_template.spellcooldown_2,
-                                      self.item_template.spellcategory_2, self.item_template.spellcategorycooldown_2))
-            self.spell_stats.append(
-                ItemManager.SpellStat(self.item_template.spellid_3, self.item_template.spelltrigger_3,
-                                      self.item_template.spellcharges_3, self.item_template.spellcooldown_3,
-                                      self.item_template.spellcategory_3, self.item_template.spellcategorycooldown_3))
-            self.spell_stats.append(
-                ItemManager.SpellStat(self.item_template.spellid_4, self.item_template.spelltrigger_4,
-                                      self.item_template.spellcharges_4, self.item_template.spellcooldown_4,
-                                      self.item_template.spellcategory_4, self.item_template.spellcategorycooldown_4))
-            self.spell_stats.append(
-                ItemManager.SpellStat(self.item_template.spellid_5, self.item_template.spelltrigger_5,
-                                      self.item_template.spellcharges_5, self.item_template.spellcooldown_5,
-                                      self.item_template.spellcategory_5, self.item_template.spellcategorycooldown_5))
+            self.stats = ItemManager.Stat.generate_stat_list(self.item_template)
+            self.damage_stats = ItemManager.DamageStat.generate_damage_stat_list(self.item_template)
+            self.spell_stats = ItemManager.SpellStat.generate_spell_stat_list(self.item_template)
 
             # Load loot_manager if needed.
             if item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
@@ -120,11 +81,36 @@ class ItemManager(ObjectManager):
             self.stat_type = stat_type
             self.value = value
 
+        @staticmethod
+        def generate_stat_list(item_template):
+            return [
+                ItemManager.Stat(item_template.stat_type1, item_template.stat_value1),
+                ItemManager.Stat(item_template.stat_type2, item_template.stat_value2),
+                ItemManager.Stat(item_template.stat_type3, item_template.stat_value3),
+                ItemManager.Stat(item_template.stat_type4, item_template.stat_value4),
+                ItemManager.Stat(item_template.stat_type5, item_template.stat_value5),
+                ItemManager.Stat(item_template.stat_type6, item_template.stat_value6),
+                ItemManager.Stat(item_template.stat_type7, item_template.stat_value7),
+                ItemManager.Stat(item_template.stat_type8, item_template.stat_value8),
+                ItemManager.Stat(item_template.stat_type9, item_template.stat_value9),
+                ItemManager.Stat(item_template.stat_type10, item_template.stat_value10)
+            ]
+
     class DamageStat(object):
         def __init__(self, minimum, maximum, stat_type):
             self.minimum = minimum
             self.maximum = maximum
             self.stat_type = stat_type
+
+        @staticmethod
+        def generate_damage_stat_list(item_template):
+            return [
+                ItemManager.DamageStat(item_template.dmg_min1, item_template.dmg_max1, item_template.dmg_type1),
+                ItemManager.DamageStat(item_template.dmg_min2, item_template.dmg_max2, item_template.dmg_type2),
+                ItemManager.DamageStat(item_template.dmg_min3, item_template.dmg_max3, item_template.dmg_type3),
+                ItemManager.DamageStat(item_template.dmg_min4, item_template.dmg_max4, item_template.dmg_type4),
+                ItemManager.DamageStat(item_template.dmg_min5, item_template.dmg_max5, item_template.dmg_type5)
+            ]
 
     class SpellStat(object):
         def __init__(self, spell_id, trigger, charges, cooldown, category, category_cooldown):
@@ -134,6 +120,26 @@ class ItemManager(ObjectManager):
             self.cooldown = cooldown
             self.category = category
             self.category_cooldown = category_cooldown
+
+        @staticmethod
+        def generate_spell_stat_list(item_template):
+            return [
+                ItemManager.SpellStat(item_template.spellid_1, item_template.spelltrigger_1,
+                                      item_template.spellcharges_1, item_template.spellcooldown_1,
+                                      item_template.spellcategory_1, item_template.spellcategorycooldown_1),
+                ItemManager.SpellStat(item_template.spellid_2, item_template.spelltrigger_2,
+                                      item_template.spellcharges_2, item_template.spellcooldown_2,
+                                      item_template.spellcategory_2, item_template.spellcategorycooldown_2),
+                ItemManager.SpellStat(item_template.spellid_3, item_template.spelltrigger_3,
+                                      item_template.spellcharges_3, item_template.spellcooldown_3,
+                                      item_template.spellcategory_3, item_template.spellcategorycooldown_3),
+                ItemManager.SpellStat(item_template.spellid_4, item_template.spelltrigger_4,
+                                      item_template.spellcharges_4, item_template.spellcooldown_4,
+                                      item_template.spellcategory_4, item_template.spellcategorycooldown_4),
+                ItemManager.SpellStat(item_template.spellid_5, item_template.spelltrigger_5,
+                                      item_template.spellcharges_5, item_template.spellcooldown_5,
+                                      item_template.spellcategory_5, item_template.spellcategorycooldown_5)
+            ]
 
     def is_container(self):
         if self.item_template:
@@ -255,50 +261,69 @@ class ItemManager(ObjectManager):
         return None
 
     def query_details(self):
-        item_name_bytes = PacketWriter.string_to_bytes(self.item_template.name)
+        data = ItemManager.generate_query_details_data(
+            self.item_template,
+            self.item_instance.flags if self.item_instance else self.item_template.flags,
+            self.stats,
+            self.damage_stats,
+            self.spell_stats
+        )
+        return PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, data)
+
+    @staticmethod
+    def generate_query_details_data(item_template, item_flags=-1, stats=None, damage_stats=None, spell_stats=None):
+        # Initialize stat values if none are supplied.
+        if not stats:
+            ItemManager.Stat.generate_stat_list(item_template)
+        if not damage_stats:
+            ItemManager.DamageStat.generate_damage_stat_list(item_template)
+        if not spell_stats:
+            ItemManager.SpellStat.generate_spell_stat_list(item_template)
+
+        item_name_bytes = PacketWriter.string_to_bytes(item_template.name)
         data = pack(
             f'<3I{len(item_name_bytes)}ssss6I2i7I',
-            self.item_template.entry,
-            self.item_template.class_,
-            self.item_template.subclass,
+            item_template.entry,
+            item_template.class_,
+            item_template.subclass,
             item_name_bytes, b'\x00', b'\x00', b'\x00',
-            self.item_template.display_id,
-            self.item_template.quality,
-            self.item_instance.item_flags if self.item_instance else self.item_template.flags,
-            self.item_template.buy_price,
-            self.item_template.sell_price,
-            self.item_template.inventory_type,
-            self.item_template.allowable_class,
-            self.item_template.allowable_race,
-            self.item_template.item_level,
-            self.item_template.required_level,
-            self.item_template.required_skill,
-            self.item_template.required_skill_rank,
-            self.item_template.max_count,
-            self.item_template.stackable,
-            self.item_template.container_slots
+            item_template.display_id,
+            item_template.quality,
+            item_flags if item_flags > -1 else item_template.flags,
+            item_template.buy_price,
+            item_template.sell_price,
+            item_template.inventory_type,
+            item_template.allowable_class,
+            item_template.allowable_race,
+            item_template.item_level,
+            item_template.required_level,
+            item_template.required_skill,
+            item_template.required_skill_rank,
+            item_template.max_count,
+            item_template.stackable,
+            item_template.container_slots
         )
 
-        for stat in self.stats:
+        for stat in stats:
             data += pack('<2i', stat.stat_type, stat.value)
 
-        for damage_stat in self.damage_stats:
+        for damage_stat in damage_stats:
             data += pack('<3i', int(damage_stat.minimum), int(damage_stat.maximum), damage_stat.stat_type)
 
         data += pack(
             '<6i3I',
-            self.item_template.armor,
-            self.item_template.holy_res,
-            self.item_template.fire_res,
-            self.item_template.nature_res,
-            self.item_template.frost_res,
-            self.item_template.shadow_res,
-            self.item_template.delay,
-            self.item_template.ammo_type,
-            0  # Durability, not implemented
+            item_template.armor,
+            item_template.holy_res,
+            item_template.fire_res,
+            item_template.nature_res,
+            item_template.frost_res,
+            item_template.shadow_res,
+            item_template.delay,
+            item_template.ammo_type,
+            0  # Durability, not implemented client side.
         )
 
-        for spell_stat in self.spell_stats:
+        for spell_stat in spell_stats:
             data += pack(
                 '<Q4i',
                 spell_stat.spell_id,
@@ -308,21 +333,21 @@ class ItemManager(ObjectManager):
                 spell_stat.category_cooldown
             )
 
-        description_bytes = PacketWriter.string_to_bytes(self.item_template.description)
+        description_bytes = PacketWriter.string_to_bytes(item_template.description)
         data += pack(
             f'<I{len(description_bytes)}s5IiI',
-            self.item_template.bonding,
+            item_template.bonding,
             description_bytes,
-            self.item_template.page_text,
-            self.item_template.page_language,
-            self.item_template.page_material,
-            self.item_template.start_quest,
-            self.item_template.lock_id,
-            self.item_template.material,
-            self.item_template.sheath
+            item_template.page_text,
+            item_template.page_language,
+            item_template.page_material,
+            item_template.start_quest,
+            item_template.lock_id,
+            item_template.material,
+            item_template.sheath
         )
 
-        return PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, data)
+        return data
 
     # override
     def get_full_update_packet(self, requester):

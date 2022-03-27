@@ -7,6 +7,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
@@ -20,7 +21,6 @@ from game.world.managers.objects.units.player.InventoryManager import InventoryM
 from game.world.managers.objects.units.player.ReputationManager import ReputationManager
 from game.world.managers.objects.timers.MirrorTimersManager import MirrorTimersManager
 from game.world.managers.objects.units.player.taxi.TaxiManager import TaxiManager
-from game.world.managers.objects.item.ItemQueryDetailCache import ItemQueryDetailCache
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from utils import Formulas
@@ -721,7 +721,8 @@ class PlayerManager(UnitManager):
                         continue
 
                     # Send item query information
-                    self.enqueue_packet(ItemQueryDetailCache.get_item_detail_query(loot.item.item_template))
+                    query_data = ItemManager.generate_query_details_data(loot.item.item_template)
+                    self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, query_data))
 
                     data += pack(
                         '<B3I',

@@ -2,6 +2,7 @@ from typing import NamedTuple
 from database.world.WorldModels import QuestTemplate
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState
 
+
 class QuestMenu:
     class QuestMenuItem(NamedTuple):
         quest: QuestTemplate
