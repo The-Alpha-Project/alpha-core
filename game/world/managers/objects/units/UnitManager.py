@@ -755,14 +755,17 @@ class UnitManager(ObjectManager):
     def update_power_type(self):
         pass
 
-    def get_power_type_value(self):
-        if self.power_type == PowerTypes.TYPE_MANA:
+    def get_power_type_value(self, power_type=-1):
+        if power_type == -1:
+            power_type = self.power_type
+
+        if power_type == PowerTypes.TYPE_MANA:
             return self.power_1
-        elif self.power_type == PowerTypes.TYPE_RAGE:
+        elif power_type == PowerTypes.TYPE_RAGE:
             return self.power_2
-        elif self.power_type == PowerTypes.TYPE_FOCUS:
+        elif power_type == PowerTypes.TYPE_FOCUS:
             return self.power_3
-        elif self.power_type == PowerTypes.TYPE_ENERGY:
+        elif power_type == PowerTypes.TYPE_ENERGY:
             return self.power_4
         return 0
 

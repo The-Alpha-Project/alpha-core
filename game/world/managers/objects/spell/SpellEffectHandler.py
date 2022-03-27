@@ -28,7 +28,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         damage = effect.get_effect_points(casting_spell.caster_effective_level)
@@ -36,7 +36,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_heal(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         healing = effect.get_effect_points(casting_spell.caster_effective_level)
@@ -78,7 +78,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         target.aura_manager.apply_spell_effect_aura(caster, casting_spell, effect)
@@ -104,7 +104,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         power_type = effect.misc_value
@@ -116,7 +116,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_summon_mount(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         already_mounted = target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED
@@ -135,7 +135,7 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_insta_kill(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         # No SMSG_SPELLINSTAKILLLOG in 0.5.3
@@ -360,7 +360,7 @@ class SpellEffectHandler(object):
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
     def handle_block_passive(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         target.has_block_passive = True
@@ -369,21 +369,21 @@ class SpellEffectHandler(object):
 
     @staticmethod
     def handle_parry_passive(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         target.has_parry_passive = True
 
     @staticmethod
     def handle_dodge_passive(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         target.has_dodge_passive = True
 
     @staticmethod
     def handle_defense_passive(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT :
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
@@ -434,5 +434,3 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_PROFICIENCY: SpellEffectHandler.handle_add_proficiency,
     SpellEffects.SPELL_EFFECT_LANGUAGE: SpellEffectHandler.handle_add_language
 }
-
-

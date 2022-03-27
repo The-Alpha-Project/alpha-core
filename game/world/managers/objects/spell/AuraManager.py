@@ -24,10 +24,7 @@ class AuraManager:
         self.add_aura(aura)
 
     def add_aura(self, aura):
-        # Note: This order of applying, removing colliding and then returning might be problematic if cases are added to can_apply_aura.
-        # At the moment mount behaviour depends on this order.
-        can_apply = self.can_apply_aura(aura)
-        self.remove_colliding_effects(aura)
+        can_apply = self.can_apply_aura(aura) and self.remove_colliding_effects(aura)
         if not can_apply:
             return
 
@@ -75,14 +72,6 @@ class AuraManager:
                 len(self.get_auras_by_spell_id(aura.spell_id)) > 0:
             return False  # Don't apply same shapeshift effect if it already exists.
 
-        if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOUNTED and \
-                aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
-            return False
-
-        if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED and \
-                aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED == 0:
-            return False
-
         # Stronger effect applied.
         similar_applied = self.get_similar_applied_aura(aura)
         if similar_applied:
@@ -95,8 +84,19 @@ class AuraManager:
 
     def are_spell_effects_applicable(self, casting_spell):
         for spell_effect in casting_spell.get_effects():
+            if spell_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_MOUNT and \
+                    len(self.get_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED)):
+                # Special case of mounting via spell effect when the player already has a mount aura applied.
+                # This interaction does not currently work,
+                # as the mount aura is removed via aura interrupts on cast (fixable?).
+                # This results in the spell effect's mount applying instead of dismounting the player,
+                # visually leaving the player on the aura-applied mount.
+                
+                return False
+
             if spell_effect.effect_type != SpellEffects.SPELL_EFFECT_APPLY_AURA:
                 continue
+
             aura = AppliedAura(casting_spell.spell_caster, casting_spell, spell_effect, self.unit_mgr)
             if not self.can_apply_aura(aura):
                 return False
@@ -173,6 +173,8 @@ class AuraManager:
                 aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED and not \
                 self.get_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED):
             AuraEffectHandler.handle_mounted(aura, aura.target, remove=True)  # Remove mount effect
+            # If a mount aura would be applied but we dismount the unit, don't apply the new mount aura.
+            return False
 
         aura_spell_template = aura.source_spell.spell_entry
 
@@ -209,6 +211,8 @@ class AuraManager:
                     aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT:
                 self.remove_aura(applied_aura)  # Player can only be in one shapeshift form
                 continue
+
+        return True
 
     def get_auras_by_spell_id(self, spell_id) -> list[AppliedAura]:
         auras = []
