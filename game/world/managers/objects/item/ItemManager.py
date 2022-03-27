@@ -263,7 +263,7 @@ class ItemManager(ObjectManager):
     def query_details(self):
         data = ItemManager.generate_query_details_data(
             self.item_template,
-            self.item_instance.flags if self.item_instance else self.item_template.flags,
+            self.item_instance.item_flags if self.item_instance else self.item_template.flags,
             self.stats,
             self.damage_stats,
             self.spell_stats
