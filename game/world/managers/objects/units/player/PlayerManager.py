@@ -30,7 +30,7 @@ from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
-from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools
+from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools, SpellTargetMask
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
 from utils.constants.UpdateFields import *
 
@@ -1511,6 +1511,11 @@ class PlayerManager(UnitManager):
             self.set_energy(self.max_power_4)
 
         super().respawn()
+
+        # Add Resurrection Sickness (2146) to the player.
+        # TODO: Unsure if it should always be applied regardless of whether the player resurrected normally or was
+        #  resurrected by another player, assuming it was always applied for now.
+        self.spell_manager.handle_cast_attempt(2146, self, SpellTargetMask.SELF, validate=False)
 
     def repop(self):
         self.respawn()

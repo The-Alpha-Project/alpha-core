@@ -216,7 +216,7 @@ class SpellEffectHandler(object):
                          creature_manager.creature_template.spell_id4]:
             if spell_id == 0:
                 break
-            creature_manager.spell_manager.handle_cast_attempt(spell_id, creature_manager, 0)
+            creature_manager.spell_manager.handle_cast_attempt(spell_id, creature_manager, SpellTargetMask.SELF)
 
     @staticmethod
     def handle_summon_object(casting_spell, effect, caster, target):

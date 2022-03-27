@@ -5,6 +5,7 @@ from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas
 from utils.constants.MiscCodes import HighGuid
+from utils.constants.SpellCodes import SpellTargetMask
 
 BIND_SPELL = 3286
 
@@ -22,7 +23,7 @@ class BinderActivateHandler(object):
             if binder_guid & ~HighGuid.HIGHGUID_UNIT == world_session.player_mgr.deathbind.creature_binder_guid:
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PLAYERBINDERROR))
             else:
-                bind_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(BIND_SPELL)
-                binder.spell_manager.start_spell_cast(spell=bind_spell, spell_target=world_session.player_mgr)
+                binder.spell_manager.handle_cast_attempt(BIND_SPELL, world_session.player_mgr, SpellTargetMask.UNIT_TARGET_MASK,
+                                                         validate=False)
 
         return 0

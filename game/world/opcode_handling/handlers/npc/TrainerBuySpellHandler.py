@@ -85,7 +85,7 @@ class TrainerBuySpellHandler(object):
                     return 0
                 else:
                     npc.spell_manager.handle_cast_attempt(trainer_spell_id, world_session.player_mgr,
-                                                          SpellTargetMask.UNIT, validate=False)
+                                                          SpellTargetMask.UNIT_TARGET_MASK, validate=False)
 
                     if spell_money_cost > 0:
                         world_session.player_mgr.mod_money(-spell_money_cost)
