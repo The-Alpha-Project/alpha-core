@@ -21895,5 +21895,15 @@ begin not atomic
         insert into applied_updates values ('210320221');
     end if;
 
+    -- 27/03/2022 1
+    if (select count(*) from applied_updates where id='270320221') = 0 then
+        INSERT INTO `creature_equip_template` VALUES (400000, 2715, 0, 0);
+        UPDATE `creature_template` SET `equipment_id` = 400000 WHERE `subname` = 'Boat Operator' AND `entry` != 3895;
+
+        UPDATE `creature_template` SET `name` = 'Captain Morgan' WHERE `entry`= 3151;
+
+        insert into applied_updates values ('270320221');
+    end if;
+
 end $
 delimiter ;
