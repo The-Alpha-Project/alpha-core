@@ -426,12 +426,12 @@ class StatManager(object):
         scaling = CLASS_STRENGTH_SCALING_CRITICAL[player_class]
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
-        crit = strength / class_rate / 100
-        self.base_stats[UnitStats.CRITICAL] = crit
+        critical_bonus = strength / class_rate / 100
+        self.base_stats[UnitStats.CRITICAL] = critical_bonus
 
     def update_base_dodge_chance(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return  # Base dodge can't change for creatures - set on init
+            return  # Base dodge can't change for creatures - set on init.
 
         player_class = self.unit_mgr.player.class_
         agility = self.get_total_stat(UnitStats.AGILITY)
@@ -546,8 +546,8 @@ class StatManager(object):
             attack_rating = -1
 
         rating_difference = self._get_combat_rating_difference(attacker.level, attack_rating)
-        base_miss = 0.05 + dual_wield_penalty
 
+        base_miss = 0.05 + dual_wield_penalty
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # 0.04% Bonus against players when the defender has a higher combat rating,
             # 0.02% Bonus when the attacker has a higher combat rating.
@@ -583,21 +583,21 @@ class StatManager(object):
         if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
             return HitInfo.BLOCK
 
-        attacker_crit = attacker.stat_manager.get_total_stat(UnitStats.CRITICAL, accept_float=True)
+        attacker_critical_chance = attacker.stat_manager.get_total_stat(UnitStats.CRITICAL, accept_float=True)
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            # Player : +- 0.04% for each rating difference
-            # For example with defender Player LvL 60 and attacker Mob LvL 63
-            # 5% - (300-315)*0.04 = 5.6% crit chance (mob)
-            crit_chance = attacker_crit - rating_difference * 0.0004
+            # Player: +- 0.04% for each rating difference.
+            # For example with defender player level 60 and attacker mob level 63:
+            # 5% - (300-315) * 0.04 = 5.6% crit chance (mob).
+            critical_chance = attacker_critical_chance - rating_difference * 0.0004
         else:
-            # Mob : +- 0.2% for each rating difference OR 0.04% if attacker weapon skill is higher than mob def
-            # For example with defender mob LvL 63 and attacker Player LvL 60 (we assume player has 10% crit chance)
-            # 10% - (315-300)*0.2 = 7% crit chance (player)
+            # Mob: +- 0.2% for each rating difference OR 0.04% if attacker weapon skill is higher than mob defense.
+            # For example with defender mob level 63 and attacker player level 60 (assuming player has 10% crit chance):
+            # 10% - (315-300) * 0.2 = 7% crit chance (player).
             multiplier = 0.002 if rating_difference > 0 else 0.0004
-            crit_chance = attacker_crit - rating_difference * multiplier
+            critical_chance = attacker_critical_chance - rating_difference * multiplier
 
         roll = random.random()
-        if roll < crit_chance:
+        if roll < critical_chance:
             return HitInfo.CRITICAL_HIT
         
         return HitInfo.SUCCESS
@@ -878,8 +878,8 @@ CLASS_AGILITY_SCALING_DODGE = {
     Classes.CLASS_WARRIOR: (3.9, 20.0)
 }
 
-# 0.5.3 Strength improve critical strike
-# TODO: THIS IS A GUESS, find the real scale for strength
+# In 0.5.3, Strength improves critical strike chance.
+# TODO: This is a guess, it uses VMaNGOS agility bonus but doubles it for Warriors instead of Hunters.
 CLASS_STRENGTH_SCALING_CRITICAL = {
     Classes.CLASS_DRUID: (4.6, 20.0),
     Classes.CLASS_PALADIN: (4.6, 20.0),
