@@ -1,6 +1,6 @@
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
-from utils.constants.SpellCodes import SpellEffects, SpellState
+from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes
 
 
 class AppliedAura:
@@ -47,6 +47,9 @@ class AppliedAura:
         return self.spell_effect.is_periodic()
 
     def resolve_harmful(self) -> bool:
+        if self.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_AURA_IS_DEBUFF:
+            return True
+
         if self.source_spell.initial_target_is_object():
             return self.caster.can_attack_target(self.target)  # TODO not always applicable, ie. arcane missiles
 
