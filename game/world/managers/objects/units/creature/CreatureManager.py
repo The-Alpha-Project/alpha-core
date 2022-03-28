@@ -1,8 +1,7 @@
-import time, math
+import math
 from dataclasses import dataclass
 from random import randint, choice
 from struct import unpack, pack
-from typing import NamedTuple
 
 from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatures
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
