@@ -1,6 +1,8 @@
 import time, math
+from dataclasses import dataclass
 from random import randint, choice
 from struct import unpack, pack
+from typing import NamedTuple
 
 from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatures
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -24,6 +26,7 @@ from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, Move
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
+# noinspection PyCallByClass
 class CreatureManager(UnitManager):
     CURRENT_HIGHEST_GUID = 0
 
@@ -61,6 +64,7 @@ class CreatureManager(UnitManager):
         self.faction = self.creature_template.faction
         self.creature_type = self.creature_template.type
         self.sheath_state = WeaponMode.NORMALMODE
+        self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
 
         self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
 
@@ -96,6 +100,12 @@ class CreatureManager(UnitManager):
         self.has_block_passive = True
         self.has_dodge_passive = True
         self.has_parry_passive = True
+
+    @dataclass
+    class VirtualItemInfoHolder:
+        display_id: int = 0
+        info_packed: int = 0
+        sheath: int = 0
 
     def load(self):
         MapManager.update_object(self)
@@ -296,13 +306,10 @@ class CreatureManager(UnitManager):
                 self.fully_loaded = True
 
     def set_virtual_item(self, slot, item_entry):
-        if item_entry == 0:
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, 0)
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, 0)
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, 0)
-            return
+        item_template = None
+        if item_entry > 0:
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
 
-        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
         if item_template:
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, item_template.display_id)
             virtual_item_info = unpack('<I', pack('<4B',
@@ -314,7 +321,11 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item_info)
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, item_template.sheath)
 
-            # Main hand
+            self.virtual_item_info[slot] = CreatureManager.VirtualItemInfoHolder(
+                item_template.display_id, virtual_item_info, item_template.sheath
+            )
+
+            # Main hand.
             if slot == 0:
                 # This is a TOTAL guess, I have no idea about real weapon reach values.
                 # The weapon reach unit field was removed in patch 0.10.
@@ -325,16 +336,26 @@ class CreatureManager(UnitManager):
                 elif item_template.subclass != ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON:
                     self.weapon_reach = 1.0
 
-            # Offhand
+            # Offhand.
             if slot == 1:
                 self.wearing_offhand_weapon = (item_template.inventory_type == InventoryTypes.WEAPON or
                                                item_template.inventory_type == InventoryTypes.WEAPONOFFHAND)
-            # Ranged
+            # Ranged.
             if slot == 2:
                 self.wearing_ranged_weapon = (item_template.inventory_type == InventoryTypes.RANGED or
                                               item_template.inventory_type == InventoryTypes.RANGEDRIGHT)
-        elif slot == 0:
-            self.weapon_reach = 0.0
+        else:
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, 0)
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, 0)
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, 0)
+
+            self.virtual_item_info[slot] = CreatureManager.VirtualItemInfoHolder()
+
+            if slot == 0:
+                self.weapon_reach = 0.0
+                self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
+
+        self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
 
     def is_quest_giver(self) -> bool:
         return self.npc_flags & NpcFlags.NPC_FLAG_QUESTGIVER
@@ -419,6 +440,11 @@ class CreatureManager(UnitManager):
         self.set_float(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
+
+        for slot, virtual_item in self.virtual_item_info.items():
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, virtual_item.display_id)
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item.info_packed)
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, virtual_item.sheath)
 
         return self.get_object_create_packet(requester)
 
