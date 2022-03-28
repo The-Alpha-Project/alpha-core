@@ -416,6 +416,11 @@ class QuestManager(object):
     # TODO: There are several emote fields in npc_text.
     def send_quest_giver_quest_list(self, message, emote, quest_giver_guid, quests):
         message_bytes = PacketWriter.string_to_bytes(message)
+
+        # Client has a 256 characters limitation, truncate.
+        if len(message_bytes) > 256:
+            message_bytes = message_bytes[:255] + b'\x00'
+
         data = pack(
             f'<Q{len(message_bytes)}s2iB',
             quest_giver_guid,
