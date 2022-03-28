@@ -267,7 +267,6 @@ class CreatureManager(UnitManager):
 
                 addon_template = self.creature_instance.addon_template
                 if addon_template:
-                    # TODO: Mount, is it used?
                     self.set_stand_state(addon_template.stand_state)
                     self.set_weapon_mode(addon_template.sheath_state)
 
@@ -286,6 +285,10 @@ class CreatureManager(UnitManager):
                     # Update display id if available.
                     if addon_template.display_id:
                         self.set_display_id(addon_template.display_id)
+
+                    # Mount this creature if defined.
+                    if addon_template.mount_display_id > 0:
+                        self.mount(addon_template.mount_display_id)
 
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses()
@@ -408,6 +411,7 @@ class CreatureManager(UnitManager):
         self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
+        self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
