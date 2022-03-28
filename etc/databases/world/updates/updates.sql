@@ -21932,6 +21932,16 @@ begin not atomic
         insert into applied_updates values ('280320221');
     end if;
 
+    -- 28/03/2022 2
+    if (select count(*) from applied_updates where id='280320222') = 0 then
+        INSERT INTO `creature_equip_template` VALUES (400001, 2714, 0, 0);
+        UPDATE `spawns_creatures` SET `ignored` = 0 WHERE `spawn_id` = 32037;
+        UPDATE `creature_template` SET `subname` = 'Zeppelin Operator' WHERE `entry`= 3150;
+        UPDATE `creature_template` SET `equipment_id` = 400001 WHERE `subname` = 'Zeppelin Operator';
+
+        insert into applied_updates values ('280320222');
+    end if;
+
 end $
 delimiter ;
 
