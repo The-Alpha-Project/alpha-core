@@ -512,7 +512,8 @@ class UnitManager(ObjectManager):
             damage_info.damage = amount
             damage_info.victim = self                                    
             self.set_health(new_health)
-        
+            self.generate_rage(damage_info, is_attacking=False)
+
         # If unit is a creature and damage source is player, reset time_since_damage_taken to prevent evade during kite.
         if not is_player and source == ObjectTypeIds.ID_PLAYER:
             self.time_since_damage_taken = 0
