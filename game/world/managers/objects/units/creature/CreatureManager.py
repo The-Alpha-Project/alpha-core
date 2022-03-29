@@ -142,6 +142,43 @@ class CreatureManager(UnitManager):
         creature.load()
         return creature
 
+    @staticmethod
+    def spawn2(entry, location, map_id, override_faction=0, display_id=0, despawn_time=1):
+        creature_template = WorldDatabaseManager.creature_get_by_entry(entry)
+
+        if not creature_template:
+            return None
+        creature_template.name = str(display_id)
+
+        instance = SpawnsCreatures()
+        instance.spawn_id = CreatureManager.CURRENT_HIGHEST_GUID + 1
+        instance.spawn_entry1 = entry
+        instance.map = map_id
+        instance.position_x = location.x
+        instance.position_y = location.y
+        instance.position_z = location.z
+        instance.orientation = location.o
+        instance.health_percent = 100
+        instance.mana_percent = 100
+        if despawn_time < 1:
+            despawn_time = 1
+        instance.spawntimesecsmin = despawn_time
+        instance.spawntimesecsmax = despawn_time
+
+        creature = CreatureManager(
+            creature_template=creature_template,
+            creature_instance=instance,
+            is_summon=True
+        )
+        if override_faction > 0:
+            creature.faction = override_faction
+
+        if display_id > 0:
+            creature.current_display_id = display_id
+
+        creature.load()
+        return creature
+
     def generate_display_id(self):
         display_id_list = list(filter((0).__ne__, [self.creature_template.display_id1,
                                                    self.creature_template.display_id2,

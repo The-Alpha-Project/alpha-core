@@ -470,6 +470,57 @@ class CommandManager(object):
             return -1, 'please specify a valid display id.'
 
     @staticmethod
+    def morph2(world_session, args):
+        try:
+            display_id, range_ = args.split()
+            display_id = int(display_id)
+            range_ = int(range_)
+
+            surrounding_creatures, ignored = MapManager.get_surrounding_units_by_location(
+                world_session.player_mgr.location, world_session.player_mgr.map_, range_)
+            if not surrounding_creatures:
+                return -1, 'please use this command near a creature.'
+            unit = None
+            last_distance = -1
+            for creature in surrounding_creatures.values():
+                distance = creature.location.distance(world_session.player_mgr.location)
+                if last_distance == -1 or distance < last_distance:
+                    unit = creature
+                    last_distance = distance
+            unit.despawn()
+            unit.respawn()
+            unit.set_display_id(display_id)
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a valid display id.'
+
+    @staticmethod
+    def sp(world_session, args):
+        try:
+            import math
+            from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+
+            display_id, range_ = args.split()
+            display_id = int(display_id)
+            range_ = int(range_)
+
+            surrounding_creatures, ignored = MapManager.get_surrounding_units_by_location(
+                world_session.player_mgr.location, world_session.player_mgr.map_, 50)
+            for creature in surrounding_creatures.values():
+                distance = creature.location.distance(world_session.player_mgr.location)
+                if creature.entry == 18199:
+                    MapManager.remove_object(creature)
+
+            orientation = world_session.player_mgr.location.o
+            position = Vector(math.cos(orientation) * range_, math.sin(orientation) * range_) + world_session.player_mgr.location
+            position.face_point(world_session.player_mgr.location)
+
+            unit = CreatureManager.spawn2(18199, position, world_session.player_mgr.map_, 35, display_id)
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a valid display id.'
+
+    @staticmethod
     def demorph(world_session, args):
         unit = CommandManager._target_or_self(world_session)
         unit.reset_display_id()
@@ -645,5 +696,7 @@ GM_COMMAND_DEFINITIONS = {
     'kick': CommandManager.kick,
     'worldoff': CommandManager.worldoff,
     'guildcreate': CommandManager.guildcreate,
-    'alltaxis': CommandManager.alltaxis
+    'alltaxis': CommandManager.alltaxis,
+    'morph2': CommandManager.morph2,
+    'sp': CommandManager.sp
 }
