@@ -1,0 +1,63 @@
+version: '3.9'
+services:
+  main:
+    image: alpha-core:latest
+    container_name: alpha-core-main
+    build: .
+    environment:
+      - MYSQL_HOST=sql
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=pwd
+      - CONSOLE_MODE=False
+      - FORWARD_ADDRESS_OVERRIDE=127.0.0.1
+    ports:
+      - "8100:8100"
+      - "9090:9090"
+      - "9100:9100"
+    volumes:
+      - .:/var/wow/
+    depends_on:
+      - sql
+    restart: on-failure
+
+  sql:
+    image: alpha-mariadb:latest
+    build: etc/docker/sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=pwd
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./etc/databases/:/etc/databases/
+    restart: on-failure
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=sql
+      - PMA_USER=root
+      - PMA_PASSWORD=pwd
+    restart: "no"
+    depends_on:
+      - sql
+    profiles:
+      - dev
+
+  inotify:
+    image: alpha-inotify:latest
+    build: etc/docker/inotify
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - .:/var/wow/
+    environment:
+      - CONTAINER=alpha-core-main
+      - VOLUMES=/var/wow
+    restart: on-failure
+    profiles:
+      - dev
+
+networks:
+  default:
+    name: alpha-core-network

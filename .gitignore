@@ -1,0 +1,26 @@
+**.pyc
+
+# IDE configuration files
+.idea
+.vscode
+
+# Project files
+etc/config/config.yml
+
+# virtualenv folder
+venv
+
+# Client data
+**.map
+**.mmap
+**.mmtile
+**.vmap
+**.vmtree
+**.vmtile
+**.dbc
+**.nav
+**.bvh
+**.idx
+
+# python win libs
+**.pyd

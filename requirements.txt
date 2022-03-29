@@ -1,0 +1,6 @@
+bitarray
+PyYAML
+colorama
+SQLAlchemy
+pymysql
+apscheduler
