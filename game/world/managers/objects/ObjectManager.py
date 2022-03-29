@@ -283,8 +283,11 @@ class ObjectManager(object):
         pass
 
     # override
-    def despawn(self):
-        MapManager.despawn_object(self)
+    def despawn(self, destroy=False):
+        if destroy:
+            MapManager.remove_object(self)
+        else:
+            MapManager.despawn_object(self)
 
     # override
     def respawn(self):

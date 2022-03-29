@@ -605,11 +605,11 @@ class CreatureManager(UnitManager):
             # Dead
             elif not self.is_alive:
                 self.respawn_timer += elapsed
-                if self.respawn_timer >= self.respawn_time and not self.is_summon:
+                if self.respawn_timer >= self.respawn_time:
                     self.respawn()
-                # Destroy body when creature is about to respawn
+                # Destroy body when creature is about to respawn.
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
-                    self.despawn()
+                    self.despawn(destroy=self.is_summon)
 
             # Check if this creature object should be updated yet or not.
             if self.has_pending_updates():

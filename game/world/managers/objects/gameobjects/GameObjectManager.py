@@ -393,8 +393,11 @@ class GameObjectManager(ObjectManager):
             # Not spawned.
             else:
                 self.respawn_timer += elapsed
-                if self.respawn_timer >= self.respawn_time and not self.is_summon:
-                    self.respawn()
+                if self.respawn_timer >= self.respawn_time:
+                    if self.is_summon:
+                        self.despawn(destroy=True)
+                    else:
+                        self.respawn()
 
         self.last_tick = now
 
