@@ -192,6 +192,10 @@ class AuraEffectHandler:
         effect_target.set_root(not remove)
 
     @staticmethod
+    def handle_mod_stealth(aura, effect_target, remove):
+        effect_target.set_stealthed(not remove)
+
+    @staticmethod
     def handle_mod_resistance(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
@@ -329,8 +333,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
-        # Points are positive in dbc
-        amount = -aura.get_effect_points()
+        amount = aura.get_effect_points() - 100
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPEED_RUNNING, amount, percentual=True)
 
     @staticmethod
@@ -435,7 +438,9 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_STUN: AuraEffectHandler.handle_mod_stun,
     AuraTypes.SPELL_AURA_TRANSFORM: AuraEffectHandler.handle_transform,
     AuraTypes.SPELL_AURA_MOD_ROOT: AuraEffectHandler.handle_mod_root,
+    AuraTypes.SPELL_AURA_MOD_STEALTH: AuraEffectHandler.handle_mod_stealth,
 
+    # Stat modifiers.
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
     AuraTypes.SPELL_AURA_MOD_BASE_RESISTANCE: AuraEffectHandler.handle_mod_base_resistance,
     AuraTypes.SPELL_AURA_MOD_STAT: AuraEffectHandler.handle_mod_stat,

@@ -285,22 +285,8 @@ class SpellManager(object):
             return casting_spell
         return None
 
-    has_moved = False
-
-    def flag_as_moved(self):
-        # TODO temporary way of handling this until movement data can be passed to update()
-        if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            self.caster.aura_manager.has_moved = True
-
-        if len(self.casting_spells) == 0:
-            return
-        self.has_moved = True
-
     def update(self, timestamp):
-        moved = self.has_moved
-        self.has_moved = False  # Reset has_moved on every update
         self.check_spell_cooldowns()
-        self.check_spell_interrupts(moved=moved)
         for casting_spell in list(self.casting_spells):
             # Queued spells cast on swing will be updated on call from attack handling.
             if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
@@ -337,7 +323,7 @@ class SpellManager(object):
                 self.apply_spell_effects(casting_spell, partial_targets=targets_due)
 
     def check_spell_interrupts(self, moved=False, turned=False, received_damage=False, hit_info=HitInfo.DAMAGE,
-                               interrupted=False, received_auto_attack=False):  # TODO provide interrupted, turned
+                               interrupted=False, received_auto_attack=False):  # TODO provide interrupted
         casting_spell_flag_cases = {
             SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT: moved,
             SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE: received_damage,
@@ -701,7 +687,7 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
             return False
 
-        # Unit-only checks.
+        # Caster unit-only checks.
         if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             if not self.caster.is_alive and \
                     casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD != SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD:
@@ -712,6 +698,13 @@ class SpellManager(object):
                     self.caster.stand_state != StandState.UNIT_STANDING:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
                 return False
+
+            if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ONLY_STEALTHED and \
+                    not self.caster.is_stealthed():
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)
+                return True
+
+        # Target validation.
 
         validation_target = casting_spell.initial_target
         # In the case of the spell requiring an unit target but being cast on self,
