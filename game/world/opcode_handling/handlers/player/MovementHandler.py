@@ -30,9 +30,14 @@ class MovementHandler(object):
 
                     return 0
 
-                # Send movement info to SpellManager until movement handling is merged to update system
-                if flags & 0xF != 0:  # MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK
-                    world_session.player_mgr.spell_manager.flag_as_moved()
+                jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
+
+                if flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK) or jumped:
+                    world_session.player_mgr.spell_manager.check_spell_interrupts(moved=True)
+                    world_session.player_mgr.aura_manager.check_aura_interrupts(moved=True)
+
+                if flags & MoveFlags.MOVEFLAG_TURN_MASK:
+                    world_session.player_mgr.spell_manager.check_spell_interrupts(turned=True)
 
                 world_session.player_mgr.transport_id = transport_guid
 
@@ -59,8 +64,7 @@ class MovementHandler(object):
                 MapManager.send_surrounding(movement_packet, world_session.player_mgr, include_self=False)
 
                 # Get up if you jump while not standing.
-                if reader.opcode == OpCode.MSG_MOVE_JUMP and \
-                        world_session.player_mgr.stand_state != StandState.UNIT_DEAD and \
+                if jumped and world_session.player_mgr.stand_state != StandState.UNIT_DEAD and \
                         world_session.player_mgr.stand_state != StandState.UNIT_STANDING:
                     world_session.player_mgr.set_stand_state(StandState.UNIT_STANDING)
 

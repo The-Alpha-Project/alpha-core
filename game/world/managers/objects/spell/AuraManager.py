@@ -55,17 +55,11 @@ class AuraManager:
                 self.unit_mgr.attack(aura.caster)
             self.check_aura_interrupts(negative_aura_applied=True)
 
-    has_moved = False  # Set from SpellManager - TODO pass movement info from unit update instead
-
     def update(self, timestamp):
         for aura in list(self.active_auras.values()):
             aura.update(timestamp)  # Update duration and handle periodic effects.
             if aura.has_duration() and aura.get_duration() <= 0:
                 self.remove_aura(aura)
-
-        if len(self.active_auras) > 0:
-            self.check_aura_interrupts(has_moved=self.has_moved)
-        self.has_moved = False
 
     def can_apply_aura(self, aura) -> bool:
         if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
@@ -91,7 +85,7 @@ class AuraManager:
                 # as the mount aura is removed via aura interrupts on cast (fixable?).
                 # This results in the spell effect's mount applying instead of dismounting the player,
                 # visually leaving the player on the aura-applied mount.
-                
+
                 return False
 
             if spell_effect.effect_type != SpellEffects.SPELL_EFFECT_APPLY_AURA:
@@ -102,13 +96,13 @@ class AuraManager:
                 return False
         return True
 
-    def check_aura_interrupts(self, has_moved=False, negative_aura_applied=False, cast_spell=False, received_damage=False):
+    def check_aura_interrupts(self, moved=False, negative_aura_applied=False, cast_spell=False, received_damage=False):
         # TODO turning and water-related checks
         # Add once movement information is passed to update.
         flag_cases = {
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: self.unit_mgr.in_combat,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED: self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED,
-            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE: has_moved,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE: moved,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST: cast_spell,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL: negative_aura_applied,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage
