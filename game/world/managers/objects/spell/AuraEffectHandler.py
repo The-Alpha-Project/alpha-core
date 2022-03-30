@@ -333,8 +333,7 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
-        # Points are positive in dbc
-        amount = -aura.get_effect_points()
+        amount = aura.get_effect_points() - 100
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPEED_RUNNING, amount, percentual=True)
 
     @staticmethod
