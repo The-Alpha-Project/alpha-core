@@ -687,7 +687,7 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
             return False
 
-        # Unit-only checks.
+        # Caster unit-only checks.
         if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             if not self.caster.is_alive and \
                     casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD != SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD:
@@ -698,6 +698,13 @@ class SpellManager(object):
                     self.caster.stand_state != StandState.UNIT_STANDING:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
                 return False
+
+            if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ONLY_STEALTHED and \
+                    not self.caster.is_stealthed():
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)
+                return True
+
+        # Target validation.
 
         validation_target = casting_spell.initial_target
         # In the case of the spell requiring an unit target but being cast on self,

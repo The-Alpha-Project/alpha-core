@@ -700,6 +700,16 @@ class UnitManager(ObjectManager):
             self.unit_flags &= ~UnitFlags.UNIT_FLAG_FLEEING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
+    def is_stealthed(self):
+        return self.unit_flags & UnitFlags.UNIT_FLAG_SNEAK == UnitFlags.UNIT_FLAG_SNEAK
+
+    def set_stealthed(self, stealthed):
+        if stealthed:
+            self.unit_flags |= UnitFlags.UNIT_FLAG_SNEAK
+        else:
+            self.unit_flags &= ~UnitFlags.UNIT_FLAG_SNEAK
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
     def is_fleeing(self):
         return self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
