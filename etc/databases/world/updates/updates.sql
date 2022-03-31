@@ -22285,7 +22285,7 @@ begin not atomic
         -- [MinLevel v3925] | 
         UPDATE `quest_template` SET `MinLevel` = 15 WHERE (`entry` = 4762);
 		
-		insert into applied_updates values ('310320221');
+        insert into applied_updates values ('310320221');
     end if;
 
 end $
