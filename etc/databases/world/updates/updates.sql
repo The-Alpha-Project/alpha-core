@@ -22288,6 +22288,13 @@ begin not atomic
         insert into applied_updates values ('310320221');
     end if;
 
+    -- 01/04/2022 1
+    if (select count(*) from applied_updates where id='010420221') = 0 then
+        UPDATE `creature_template` SET `display_id1` = 1869 WHERE `entry` = 3149;
+
+        insert into applied_updates values ('010420221');
+    end if;
+
 end $
 delimiter ;
 
