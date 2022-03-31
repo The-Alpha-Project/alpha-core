@@ -277,6 +277,8 @@ class QuestManager(object):
 
         # Quest start.
         for quest_entry in quest_giver_start_quests:
+            if quest_entry in self.completed_quests:
+                continue
             quest_status = self.get_quest_state(quest_entry)
             if quest_status == QuestState.QUEST_OFFER:
                 quest_num += 1
