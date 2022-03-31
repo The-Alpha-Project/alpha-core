@@ -22295,6 +22295,16 @@ begin not atomic
         insert into applied_updates values ('010420221');
     end if;
 
+    -- 01/04/2022 2
+    if (select count(*) from applied_updates where id='010420222') = 0 then
+        INSERT INTO `spell_target_position` VALUES (5000, 0, 1893.04, 238.585, 58, 0);
+        UPDATE `spell_target_position` SET `target_map` = 1, `target_position_x` = -954.183, `target_position_y` = -3680.25, `target_position_z` = 8.07897, `target_orientation` = 0 WHERE `id` = 4999;
+        UPDATE `spell_target_position` SET `target_map` = 0, `target_position_x` = -12383.6, `target_position_y` = 172.574, `target_position_z` = 3.28056, `target_orientation` = 0 WHERE `id` = 4998;
+        UPDATE `spell_target_position` SET `target_map` = 1, `target_position_x` = 6439, `target_position_y` = 409, `target_position_z` = 15, `target_orientation` = 0 WHERE `id` = 6349;
+
+        insert into applied_updates values ('010420222');
+    end if;
+
 end $
 delimiter ;
 
