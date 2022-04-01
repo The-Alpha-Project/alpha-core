@@ -155,7 +155,7 @@ class ActiveQuest:
         else:
             RealmDatabaseManager.character_update_quest_status(self.db_state)
 
-    # TODO: Should handle other type of quests here; Exploration, game object related, item usage, etc.
+    # TODO: Should handle other types of quests here: exploration, game object related, item usage, etc.
     def can_complete_quest(self):
         if QuestHelpers.is_instant_complete_quest(self.quest):
             return True
