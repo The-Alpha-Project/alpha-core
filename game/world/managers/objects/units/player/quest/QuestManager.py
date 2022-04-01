@@ -597,6 +597,13 @@ class QuestManager(object):
         if quest.entry not in self.active_quests and not QuestHelpers.is_instant_complete_quest(quest):
             return
 
+        # While the dialog was open displaying 'Quest Complete' the user destroyed items.
+        # Validate if this quest can be completed.
+        active_quest = self.active_quests[quest.entry]
+        if not active_quest.can_complete_quest():
+            self.send_cant_take_quest_response(QuestFailedReasons.QUEST_FAILED_MISSING_ITEMS)
+            return
+
         quest_title_bytes = PacketWriter.string_to_bytes(quest.Title)
         display_dialog_text = quest.OfferRewardText
 
