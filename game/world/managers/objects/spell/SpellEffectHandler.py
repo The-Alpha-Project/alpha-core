@@ -356,6 +356,65 @@ class SpellEffectHandler(object):
         # Instant teleport.
         caster.teleport(caster.map_, charge_location, is_instant=True)
 
+    @staticmethod
+    def handle_tame_creature(casting_spell, effect, caster, target):
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        # Everything here is obviously very temporary, just for testing purposes.
+
+        target.set_uint32(UnitFields.UNIT_FIELD_SUMMONEDBY, caster.guid)
+        target.set_uint32(UnitFields.UNIT_FIELD_CREATEDBY, caster.guid)
+        target.faction = caster.faction
+        target.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, target.faction)
+        target.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, casting_spell.spell_entry.ID)
+
+        bar_slots = 10
+
+        signature = f'<QIBBBB{str(bar_slots)}IBB'
+        data = [target.guid, 0]  # ?
+        data.append(0)  # React state (0 = passive, 1 = defensive, 2 = aggressive)
+        data.append(0)  # Command state (0 = stay, 1 = follow, 2 = attack, 3 = dismiss)
+        data.append(0)  # ?
+        data.append(0)  # Enabled? 0x0 : 0x8.
+
+        # Build action bar.
+        # define MAKE_UNIT_ACTION_BUTTON(A,T) (uint32(A) | (uint32(T) << 24))
+
+        #    for (const auto& i : m_petActionBar)
+        #       *data << uint32(i.packedData);
+
+        for i in range(0, bar_slots):
+            value = 2 | (0x07 << 24) if not i else 0
+            data.append(value)  # ActiveStates.ACT_COMMAND
+
+        data.append(0)  # Spell count.
+        data.append(0)  # Spell cooldown count.
+
+        packet = pack(signature, *data)
+        caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, packet))
+        '''
+        enum ActiveStates
+        {
+            ACT_PASSIVE  = 0x01,                                    // 0x01 - passive
+            ACT_DISABLED = 0x81,                                    // 0x80 - castable
+            ACT_ENABLED  = 0xC1,                                    // 0x40 | 0x80 - auto cast + castable
+            ACT_COMMAND  = 0x07,                                    // 0x01 | 0x02 | 0x04
+            ACT_REACTION = 0x06,                                    // 0x02 | 0x04
+            ACT_DECIDE   = 0x00                                     // custom
+        };
+
+            def get_action_buttons(self):
+                data = b''
+                player_buttons = RealmDatabaseManager.character_get_buttons(self.player.guid)
+                for x in range(0, MAX_ACTION_BUTTONS):
+                    if player_buttons and x in player_buttons:
+                        data += pack('<i', player_buttons[x])
+                    else:
+                        data += pack('<i', 0)
+                return PacketWriter.get_packet(OpCode.SMSG_ACTION_BUTTONS, data)
+        '''
+
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
@@ -423,6 +482,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_CREATE_HOUSE: SpellEffectHandler.handle_summon_object,
     SpellEffects.SPELL_EFFECT_BIND: SpellEffectHandler.handle_bind,
     SpellEffects.SPELL_EFFECT_LEAP: SpellEffectHandler.handle_leap,
+    SpellEffects.SPELL_EFFECT_TAME_CREATURE: SpellEffectHandler.handle_tame_creature,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,
