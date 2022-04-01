@@ -114,17 +114,19 @@ class ActiveQuest:
             self.update_quest_state(QuestState.QUEST_REWARD)
 
     # noinspection PyUnusedLocal
-    def _update_db_item_count(self, index, value, required_count, is_set=False):
-        # Make sure we clamp between 0 and required.
-        if not is_set:
+    def _update_db_item_count(self, index, value, required_count, override=False):
+        if override:
+            new_count = min(value, required_count)
+        else:
             current_db_count = self._get_db_item_count(index)
+            # Make sure we clamp between 0 and required.
             if current_db_count + value > required_count:
                 value = required_count - current_db_count
             if current_db_count + value < 0:
                 value = 0
+            new_count = current_db_count + value
 
-        # Either aggregate or set depending on 'is_set' flag.
-        exec(f"self.db_state.itemcount{index + 1} {'+=' if not is_set else '='} {'value' if not is_set else 'min(value, required_count)'}")
+        exec(f'self.db_state.itemcount{index + 1} = new_count')
         self.save(is_new=False)
 
     # noinspection PyMethodMayBeStatic
@@ -201,10 +203,7 @@ class ActiveQuest:
         req_count = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(self.quest)))
         for index, item in enumerate(req_item):
             current_count = self.owner.inventory.get_item_count(item)
-            if current_count:
-                self._update_db_item_count(index, current_count, req_count[index], is_set=True)
-            else:
-                self._update_db_item_count(index, 0, req_count[index], is_set=True)
+            self._update_db_item_count(index, current_count, req_count[index], override=True)
         if self.can_complete_quest():
             self.update_quest_state(QuestState.QUEST_REWARD)
         else:
