@@ -113,6 +113,7 @@ class ActiveQuest:
         if self.can_complete_quest():
             self.update_quest_state(QuestState.QUEST_REWARD)
 
+    # noinspection PyUnusedLocal
     def _update_db_item_count(self, index, value, required_count, is_set=False):
         # Make sure we clamp between 0 and required.
         if not is_set:
@@ -122,23 +123,8 @@ class ActiveQuest:
             if current_db_count + value < 0:
                 value = 0
 
-            if index == 0:
-                self.db_state.itemcount1 += value
-            elif index == 1:
-                self.db_state.itemcount2 += value
-            elif index == 2:
-                self.db_state.itemcount3 += value
-            elif index == 3:
-                self.db_state.itemcount4 += value
-        else:
-            if index == 0:
-                self.db_state.itemcount1 = min(value, required_count)
-            elif index == 1:
-                self.db_state.itemcount2 = min(value, required_count)
-            elif index == 2:
-                self.db_state.itemcount3 = min(value, required_count)
-            elif index == 3:
-                self.db_state.itemcount4 = min(value, required_count)
+        # Either aggregate or set depending on 'is_set' flag.
+        exec(f'self.db_state.itemcount{index + 1} {"+=" if not is_set else "="} value')
         self.save(is_new=False)
 
     # noinspection PyMethodMayBeStatic
