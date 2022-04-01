@@ -321,9 +321,6 @@ class InventoryManager(object):
         if clear_slot:
             self.send_destroy_packet(target_slot, target_container.sorted_slots)
 
-        # Update the quest db state if needed.
-        self.owner.quest_manager.pop_item(target_item.item_template.entry, target_item.item_instance.stackcount)
-
         # We are not replacing this item, set is as removed.
         if not swap_item:
             self.mark_as_removed(target_item)
@@ -341,6 +338,10 @@ class InventoryManager(object):
         if target_container.is_backpack and \
                 self.is_bag_pos(target_slot) and self.get_container(target_slot):  # Equipped bags
             self.remove_bag(target_slot)
+
+        # Update the quest db state if needed. (Destroying item)
+        if not swap_item and clear_slot:
+            self.owner.quest_manager.pop_item(target_item.item_template.entry)
 
     def remove_items(self, entry, count):
         for container_slot in self.containers:

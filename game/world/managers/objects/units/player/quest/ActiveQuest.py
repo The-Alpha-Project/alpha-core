@@ -113,25 +113,32 @@ class ActiveQuest:
         if self.can_complete_quest():
             self.update_quest_state(QuestState.QUEST_REWARD)
 
-    def _update_db_item_count(self, index, value, required_count=None):
-        if not required_count:
-            required_count = QuestHelpers.generate_req_item_count_list(self.quest)[index]
-
+    def _update_db_item_count(self, index, value, required_count, is_set=False):
         # Make sure we clamp between 0 and required.
-        current_db_count = self._get_db_item_count(index)
-        if current_db_count + value > required_count:
-            value = required_count - current_db_count
-        if current_db_count + value < 0:
-            value = 0
+        if not is_set:
+            current_db_count = self._get_db_item_count(index)
+            if current_db_count + value > required_count:
+                value = required_count - current_db_count
+            if current_db_count + value < 0:
+                value = 0
 
-        if index == 0:
-            self.db_state.itemcount1 += value
-        elif index == 1:
-            self.db_state.itemcount2 += value
-        elif index == 2:
-            self.db_state.itemcount3 += value
-        elif index == 3:
-            self.db_state.itemcount4 += value
+            if index == 0:
+                self.db_state.itemcount1 += value
+            elif index == 1:
+                self.db_state.itemcount2 += value
+            elif index == 2:
+                self.db_state.itemcount3 += value
+            elif index == 3:
+                self.db_state.itemcount4 += value
+        else:
+            if index == 0:
+                self.db_state.itemcount1 = min(value, required_count)
+            elif index == 1:
+                self.db_state.itemcount2 = min(value, required_count)
+            elif index == 2:
+                self.db_state.itemcount3 = min(value, required_count)
+            elif index == 3:
+                self.db_state.itemcount4 = min(value, required_count)
         self.save(is_new=False)
 
     # noinspection PyMethodMayBeStatic
@@ -202,31 +209,24 @@ class ActiveQuest:
             current_items = self._get_db_item_count(index)
             return current_items < required_items
 
-    def fill_existent_items(self):
+    def update_required_items_from_inventory(self):
         req_item = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
         req_count = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(self.quest)))
         for index, item in enumerate(req_item):
             current_count = self.owner.inventory.get_item_count(item)
             if current_count:
-                self._update_db_item_count(index, current_count, req_count[index])
+                self._update_db_item_count(index, current_count, req_count[index], is_set=True)
+            else:
+                self._update_db_item_count(index, 0, req_count[index], is_set=True)
+        if self.can_complete_quest():
+            self.update_quest_state(QuestState.QUEST_REWARD)
+        else:
+            self.update_quest_state(QuestState.QUEST_ACCEPTED)
 
     def requires_item(self, item_entry):
         req_item = QuestHelpers.generate_req_item_list(self.quest)
         req_src_item = QuestHelpers.generate_req_source_list(self.quest)
         return item_entry in req_item or item_entry in req_src_item
-
-    def pop_item(self, item_entry, count):
-        req_item = QuestHelpers.generate_req_item_list(self.quest)
-        required = item_entry in req_item
-        if required:
-            req_item_count = QuestHelpers.generate_req_item_count_list(self.quest)
-            index = req_item.index(item_entry)
-            current_count = self.owner.inventory.get_item_count(item_entry)
-            if current_count - count < req_item_count[index]:
-                self._update_db_item_count(index, -count, req_item_count[index])
-                self.update_quest_state(QuestState.QUEST_ACCEPTED)
-                return True
-        return False
 
     # Whats happening inside get_progress():
     # Required MobKills1 = 5
