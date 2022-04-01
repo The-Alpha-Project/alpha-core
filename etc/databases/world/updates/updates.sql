@@ -21944,348 +21944,221 @@ begin not atomic
 	
     -- 31/03/2022 1
     if (select count(*) from applied_updates where id='310320221') = 0 then
-        -- [Details v3494] | [NextQuestInChain v3494] | [MinLevel v3494] | [RewOrReqMoney v3494] | [RewItemId1 v3494] | [RewItemCount1 v3494] | 
-    	UPDATE `quest_template` SET `Details` = 'Your first task is one of cleansing, $N.  A clan of kobolds have infested the woods to the north.  Go there and fight the kobold vermin you find.  Reduce their numbers so that we may one day drive them from Northshire.', `NextQuestInChain` = 15, `MinLevel` = 2, `RewOrReqMoney` = 25, `RewItemId1` = 0, `RewItemCount1` = 0 WHERE (`entry` = 7);
-        -- [MinLevel v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 15 WHERE (`entry` = 9);
-        -- [Details v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Details` = 'Gnolls, brutish creatures with no decent business in these lands,  have been seen along the borders of Elwynn Forest.  A large pack of them, many more than we can handle alone, have infested the woods south of the guard tower yonder.$B$BThe Stormwind Army will commend whomever helps kill them.  Bring me their painted gnoll armbands as proof of your deed.', `MinLevel` = 10 WHERE (`entry` = 11);
-        -- [Details v3494] | [Objectives v3494] | [MinLevel v3494] | [RewOrReqMoney v3494] | [ReqCreatureOrGOCount1 v3494] | [ReqCreatureOrGOId2 v3494] | [ReqCreatureOrGOCount2 v3494] | 
-        UPDATE `quest_template` SET `Details` = 'The People\'s Militia has but one goal:  To defend the lands of Westfall and return peace to our surroundings.  Unfortunately, the price of peace is often blood. $b$bOne of my scouts has brought word of a band of Defias Trappers wreaking havoc nearby.  I have reports of Defias Trapper sightings near the Jangolode Mine to the Northwest. If you seek to join our ranks, slay 20 Defias Trappers and return to me.', `Objectives` = 'Gryan Stoutmantle wants you to kill 20 Defias Trappers and return to him on Sentinel Hill.', `MinLevel` = 12, `RewOrReqMoney` = 400, `ReqCreatureOrGOCount1` = 20, `ReqCreatureOrGOId2` = 0, `ReqCreatureOrGOCount2` = 0 WHERE (`entry` = 12);
-        -- [Details v3494] | [Objectives v3494] | [MinLevel v3494] | [RewOrReqMoney v3494] | [ReqCreatureOrGOCount1 v3494] | [ReqCreatureOrGOId2 v3494] | [ReqCreatureOrGOCount2 v3494] | 
-        UPDATE `quest_template` SET `Details` = 'A band of vicious Defias Pillagers has been seen plundering the Gold Coast Quarry as well as Moonbrook.  The People\'s Militia will not stand for such behavior.  Dispatch immediately, $n, and make the Light\'s presence known in Westfall.$b$bThe Gold Coast Quarry is near the shore, to the West of the tower.  As the next step of your training, I want you to kill 20 of those foul Defias Pillagers.', `Objectives` = 'Gryan Stoutmantle wants you to kill 20 Defias Pillagers and return to him on Sentinel Hill.', `MinLevel` = 14, `RewOrReqMoney` = 500, `ReqCreatureOrGOCount1` = 20, `ReqCreatureOrGOId2` = 0, `ReqCreatureOrGOCount2` = 0 WHERE (`entry` = 13);
-        -- [Details v3494] | [Objectives v3494] | [MinLevel v3494] | [ReqCreatureOrGOCount1 v3494] | [ReqCreatureOrGOId2 v3494] | [ReqCreatureOrGOCount2 v3494] | [RewChoiceItemId3 v3494] | [RewChoiceItemCount3 v3494] | [ReqCreatureOrGOId3 v3494] | [ReqCreatureOrGOCount3 v3494] | 
-        UPDATE `quest_template` SET `Details` = 'Some Defias Highwaymen have eluded us.  My most trusted scout reports that these Defias Highwaymen have been looting and pillaging the countryside, all the way into Southern Westfall.  We believe they are hiding out in the Southern Hills, plotting their next move.   Slay 20 of the wretches in the name of The People\'s Militia.', `Objectives` = 'Gryan Stoutmantle wants you to kill 20 Defias Highwaymen and return to him on Sentinel Hill.', `MinLevel` = 17, `ReqCreatureOrGOCount1` = 20, `ReqCreatureOrGOId2` = 0, `ReqCreatureOrGOCount2` = 0, `RewChoiceItemId3` = 0, `RewChoiceItemCount3` = 0, `ReqCreatureOrGOId3` = 0, `ReqCreatureOrGOCount3` = 0 WHERE (`entry` = 14);
-        -- [Details v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Details` = '$N, my scouts tell me that the kobold infestation is larger than we had thought.  A group of kobold workers has moved into the Echo Ridge Mine to the north.$B$BGo to the mine and remove them.  We know there are at least 10.  Kill them, see if there are more, then report back to me.', `MinLevel` = 3 WHERE (`entry` = 15);
-        -- [Objectives v3494] | [MinLevel v3494] | [ReqCreatureOrGOId1 v3494] | [ReqCreatureOrGOId2 v3494] | [ReqCreatureOrGOCount2 v3494] | [RewChoiceItemId3 v3494] | [RewChoiceItemCount3 v3494] | 
-        UPDATE `quest_template` SET `Objectives` = 'Kill 12 Kobold Workers and 8 Kobold Laborers, then return to Marshal McBride at Northshire Abbey.', `MinLevel` = 5, `ReqCreatureOrGOId1` = 257, `ReqCreatureOrGOId2` = 80, `ReqCreatureOrGOCount2` = 8, `RewChoiceItemId3` = 0, `RewChoiceItemCount3` = 0 WHERE (`entry` = 21);
-        -- [Details v3494] | [Objectives v3494] | [MinLevel v3494] | [ReqItemCount1 v3494] | 
-        UPDATE `quest_template` SET `Details` = 'The onions are peeled.  The garlic is minced.  The rosemary is crushed.  The crust has been baked.  The dill weed is chopped.  The gravy is simmering.  Now all I need for my famous meat pie are 10 Goretusk Livers!', `Objectives` = 'Salma Saldean needs 10 Goretusk livers to make a Goretusk Liver Pie.', `MinLevel` = 12, `ReqItemCount1` = 10 WHERE (`entry` = 22);
-        -- [Details v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Details` = 'If you are concerned that the rumors of Murlocs are true, then do this -- travel to the eastern Elwynn bridge and speak with Guard Thomas.  He has been stationed at the bridge for the past week and will know the state of the area.$B$BBring me his report.', `MinLevel` = 10 WHERE (`entry` = 35);
-        -- [MinLevel v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 10 WHERE (`entry` = 36);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 10 WHERE (`entry` = 37);
-        -- [Details v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Details` = '$N, there\'s a new threat in Elwynn Forest!  Murlocs are swimming up the streams of eastern Elwynn, scaring away fish and attacking gentle folk!$B$BI warned Marshal Dughan, but he\'s more worried about the gnolls and the bandits.  he\'s not convinced that the Murlocs are a danger.$B$BPlease, $N, speak to Dughan and persuade him to send more troops to the east!', `MinLevel` = 10 WHERE (`entry` = 40);
-        -- [MinLevel v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 10 WHERE (`entry` = 46);
-        -- [Details v3494] | [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `Details` = 'The Kobolds in these parts sometimes carry Gold Dust on them.  I could really use the stuff - bring me a load of it and I\'ll give you the best price in town...best price in town!', `MinLevel` = 7, `RewOrReqMoney` = 100 WHERE (`entry` = 47);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 10, `RewOrReqMoney` = 150 WHERE (`entry` = 52);
-        -- [MinLevel v3494] | [RewItemId1 v3494] | [RewItemCount1 v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 5, `RewItemId1` = 0, `RewItemCount1` = 0 WHERE (`entry` = 54);
-        -- [MinLevel v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 10 WHERE (`entry` = 59);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | [RewItemCount1 v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 7, `RewOrReqMoney` = 50, `RewItemCount1` = 6 WHERE (`entry` = 60);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 7, `RewOrReqMoney` = 150 WHERE (`entry` = 61);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 7, `RewOrReqMoney` = 150 WHERE (`entry` = 62);
-        -- [MinLevel v3494] | [RewItemId1 v3494] | [RewItemCount1 v3494] | [RewItemId2 v3494] | [RewItemCount2 v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 12, `RewItemId1` = 0, `RewItemCount1` = 0, `RewItemId2` = 0, `RewItemCount2` = 0 WHERE (`entry` = 64);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 18 WHERE (`entry` = 65);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | [Details v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 10, `RewOrReqMoney` = 300, `Details` = 'Thanks to you we know the Fargodeep Mine is infested with kobolds.  Now we need a scout to investigate the more distant Jasperlode Mine.$B$BExplore Jasperlode and confirm any kobold presence.  To reach the mine, travel east along the road until you reach the Tower of Azore.  From the tower, head north and you\'ll find the mine in the foothills.' WHERE (`entry` = 76);
-        -- [Details v3596] | [MinLevel v3596] | 
-        UPDATE `quest_template` SET `Details` = 'The Defias gang in Northshire wears burlap masks, but the Defias in Elwynn wears linen which I can use to make fine linen goods.$B$BBring me red linen bandanas and I\'ll use them to fashion something for you.$B$BDefias gang members were seen outside the Brackwell Pumpkin Patch southwest of here.', `MinLevel` = 9 WHERE (`entry` = 83);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 6 WHERE (`entry` = 84);
-        -- [MinLevel v3494] | [RewItemId1 v3494] | [RewItemCount1 v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 6, `RewItemId1` = 1359, `RewItemCount1` = 1 WHERE (`entry` = 85);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 6 WHERE (`entry` = 86);
-        -- [MinLevel v3494] | [RewItemId1 v3494] | [RewItemCount1 v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 8, `RewItemId1` = 0, `RewItemCount1` = 0 WHERE (`entry` = 87);
-        -- [MinLevel v3494] | [RewChoiceItemId3 v3494] | [RewChoiceItemCount3 v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 9, `RewChoiceItemId3` = 0, `RewChoiceItemCount3` = 0 WHERE (`entry` = 88);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 14 WHERE (`entry` = 102);
-        -- [MinLevel v3494] | [RewItemId1 v3494] | [RewItemCount1 v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 6, `RewItemId1` = 1217, `RewItemCount1` = 1 WHERE (`entry` = 106);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 6 WHERE (`entry` = 107);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 10, `RewOrReqMoney` = 200 WHERE (`entry` = 109);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 6 WHERE (`entry` = 111);
-        -- [Details v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Details` = 'I can make an invisibility liquor for Maybell, so she can slip away from the Maclure Vineyards and go to Tommy Joe.  But to make the Liquor, I need some crystal kelp.$B$BAlthough the kelp usually grows in the ocean... sometimes murlocs collect it.  See if the murlocs near crystal lake have any.  Crystal Lake is just east of Goldshire.', `MinLevel` = 7 WHERE (`entry` = 112);
-        -- [MinLevel v3494] | [RewItemId1 v3494] | [RewItemCount1 v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 7, `RewItemId1` = 1217, `RewItemCount1` = 1 WHERE (`entry` = 114);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | [RewItemId2 v3494] | [RewItemCount2 v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 15, `RewOrReqMoney` = 3500, `RewItemId2` = 0, `RewItemCount2` = 0 WHERE (`entry` = 116);
-        -- [Title v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Title` = 'Thunderbrew Lager', `MinLevel` = 15 WHERE (`entry` = 117);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 18 WHERE (`entry` = 118);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 18, `RewOrReqMoney` = 200 WHERE (`entry` = 119);
+        -- [Details v3494] | [NextQuestInChain v3494] | [RewOrReqMoney v3494] | [RewItemId1 v3494] | [RewItemCount1 v3494] | 
+        UPDATE `quest_template` SET `Details` = 'Your first task is one of cleansing, $N.  A clan of kobolds have infested the woods to the north.  Go there and fight the kobold vermin you find.  Reduce their numbers so that we may one day drive them from Northshire.', `NextQuestInChain` = 15, `RewOrReqMoney` = 25, `RewItemId1` = 0, `RewItemCount1` = 0 WHERE (`entry` = 7);
+        -- [Details v3494] | 
+        UPDATE `quest_template` SET `Details` = 'Gnolls, brutish creatures with no decent business in these lands,  have been seen along the borders of Elwynn Forest.  A large pack of them, many more than we can handle alone, have infested the woods south of the guard tower yonder.$B$BThe Stormwind Army will commend whomever helps kill them.  Bring me their painted gnoll armbands as proof of your deed.' WHERE (`entry` = 11);
+        -- [Details v3494] | [Objectives v3494] | [RewOrReqMoney v3494] | [ReqCreatureOrGOCount1 v3494] | [ReqCreatureOrGOId2 v3494] | [ReqCreatureOrGOCount2 v3494] | 
+        UPDATE `quest_template` SET `Details` = 'The People\'s Militia has but one goal:  To defend the lands of Westfall and return peace to our surroundings.  Unfortunately, the price of peace is often blood. $b$bOne of my scouts has brought word of a band of Defias Trappers wreaking havoc nearby.  I have reports of Defias Trapper sightings near the Jangolode Mine to the Northwest. If you seek to join our ranks, slay 20 Defias Trappers and return to me.', `Objectives` = 'Gryan Stoutmantle wants you to kill 20 Defias Trappers and return to him on Sentinel Hill.', `RewOrReqMoney` = 400, `ReqCreatureOrGOCount1` = 20, `ReqCreatureOrGOId2` = 0, `ReqCreatureOrGOCount2` = 0 WHERE (`entry` = 12);
+        -- [Details v3494] | [Objectives v3494] | [RewOrReqMoney v3494] | [ReqCreatureOrGOCount1 v3494] | [ReqCreatureOrGOId2 v3494] | [ReqCreatureOrGOCount2 v3494] | 
+        UPDATE `quest_template` SET `Details` = 'A band of vicious Defias Pillagers has been seen plundering the Gold Coast Quarry as well as Moonbrook.  The People\'s Militia will not stand for such behavior.  Dispatch immediately, $n, and make the Light\'s presence known in Westfall.$b$bThe Gold Coast Quarry is near the shore, to the West of the tower.  As the next step of your training, I want you to kill 20 of those foul Defias Pillagers.', `Objectives` = 'Gryan Stoutmantle wants you to kill 20 Defias Pillagers and return to him on Sentinel Hill.', `RewOrReqMoney` = 500, `ReqCreatureOrGOCount1` = 20, `ReqCreatureOrGOId2` = 0, `ReqCreatureOrGOCount2` = 0 WHERE (`entry` = 13);
+        -- [Details v3494] | [Objectives v3494] | [ReqCreatureOrGOCount1 v3494] | [ReqCreatureOrGOId2 v3494] | [ReqCreatureOrGOCount2 v3494] | [RewChoiceItemId3 v3494] | [RewChoiceItemCount3 v3494] | [ReqCreatureOrGOId3 v3494] | [ReqCreatureOrGOCount3 v3494] | 
+        UPDATE `quest_template` SET `Details` = 'Some Defias Highwaymen have eluded us.  My most trusted scout reports that these Defias Highwaymen have been looting and pillaging the countryside, all the way into Southern Westfall.  We believe they are hiding out in the Southern Hills, plotting their next move.   Slay 20 of the wretches in the name of The People\'s Militia.', `Objectives` = 'Gryan Stoutmantle wants you to kill 20 Defias Highwaymen and return to him on Sentinel Hill.', `ReqCreatureOrGOCount1` = 20, `ReqCreatureOrGOId2` = 0, `ReqCreatureOrGOCount2` = 0, `RewChoiceItemId3` = 0, `RewChoiceItemCount3` = 0, `ReqCreatureOrGOId3` = 0, `ReqCreatureOrGOCount3` = 0 WHERE (`entry` = 14);
+        -- [Details v3494] | 
+        UPDATE `quest_template` SET `Details` = '$N, my scouts tell me that the kobold infestation is larger than we had thought.  A group of kobold workers has moved into the Echo Ridge Mine to the north.$B$BGo to the mine and remove them.  We know there are at least 10.  Kill them, see if there are more, then report back to me.' WHERE (`entry` = 15);
+        -- [Objectives v3494] | [ReqCreatureOrGOId1 v3494] | [ReqCreatureOrGOId2 v3494] | [ReqCreatureOrGOCount2 v3494] | [RewChoiceItemId3 v3494] | [RewChoiceItemCount3 v3494] | 
+        UPDATE `quest_template` SET `Objectives` = 'Kill 12 Kobold Workers and 8 Kobold Laborers, then return to Marshal McBride at Northshire Abbey.', `ReqCreatureOrGOId1` = 257, `ReqCreatureOrGOId2` = 80, `ReqCreatureOrGOCount2` = 8, `RewChoiceItemId3` = 0, `RewChoiceItemCount3` = 0 WHERE (`entry` = 21);
+        -- [Details v3494] | [Objectives v3494] | [ReqItemCount1 v3494] | 
+        UPDATE `quest_template` SET `Details` = 'The onions are peeled.  The garlic is minced.  The rosemary is crushed.  The crust has been baked.  The dill weed is chopped.  The gravy is simmering.  Now all I need for my famous meat pie are 10 Goretusk Livers!', `Objectives` = 'Salma Saldean needs 10 Goretusk livers to make a Goretusk Liver Pie.', `ReqItemCount1` = 10 WHERE (`entry` = 22);
+        -- [Details v3494] | 
+        UPDATE `quest_template` SET `Details` = 'If you are concerned that the rumors of Murlocs are true, then do this -- travel to the eastern Elwynn bridge and speak with Guard Thomas.  He has been stationed at the bridge for the past week and will know the state of the area.$B$BBring me his report.' WHERE (`entry` = 35);
+        -- [Details v3494] | 
+        UPDATE `quest_template` SET `Details` = '$N, there\'s a new threat in Elwynn Forest!  Murlocs are swimming up the streams of eastern Elwynn, scaring away fish and attacking gentle folk!$B$BI warned Marshal Dughan, but he\'s more worried about the gnolls and the bandits.  he\'s not convinced that the Murlocs are a danger.$B$BPlease, $N, speak to Dughan and persuade him to send more troops to the east!' WHERE (`entry` = 40);
+        -- [Details v3494] | [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `Details` = 'The Kobolds in these parts sometimes carry Gold Dust on them.  I could really use the stuff - bring me a load of it and I\'ll give you the best price in town...best price in town!', `RewOrReqMoney` = 100 WHERE (`entry` = 47);
+        -- [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 150 WHERE (`entry` = 52);
+        -- [RewItemId1 v3494] | [RewItemCount1 v3494] | 
+        UPDATE `quest_template` SET `RewItemId1` = 0, `RewItemCount1` = 0 WHERE (`entry` = 54);
+        -- [RewOrReqMoney v3494] | [RewItemCount1 v3494] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 50, `RewItemCount1` = 6 WHERE (`entry` = 60);
+        -- [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 150 WHERE (`entry` = 61);
+        -- [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 150 WHERE (`entry` = 62);
+        -- [RewItemId1 v3494] | [RewItemCount1 v3494] | [RewItemId2 v3494] | [RewItemCount2 v3494] | 
+        UPDATE `quest_template` SET `RewItemId1` = 0, `RewItemCount1` = 0, `RewItemId2` = 0, `RewItemCount2` = 0 WHERE (`entry` = 64);
+        -- [Details v3494] | [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `Details` = 'Thanks to you we know the Fargodeep Mine is infested with kobolds.  Now we need a scout to investigate the more distant Jasperlode Mine.$B$BExplore Jasperlode and confirm any kobold presence.  To reach the mine, travel east along the road until you reach the Tower of Azore.  From the tower, head north and you\'ll find the mine in the foothills.', `RewOrReqMoney` = 300 WHERE (`entry` = 76);
+        -- [Details v3596] | 
+        UPDATE `quest_template` SET `Details` = 'The Defias gang in Northshire wears burlap masks, but the Defias in Elwynn wears linen which I can use to make fine linen goods.$B$BBring me red linen bandanas and I\'ll use them to fashion something for you.$B$BDefias gang members were seen outside the Brackwell Pumpkin Patch southwest of here.' WHERE (`entry` = 83);
+        -- [RewItemId1 v3494] | [RewItemCount1 v3494] | 
+        UPDATE `quest_template` SET `RewItemId1` = 1359, `RewItemCount1` = 1 WHERE (`entry` = 85);
+        -- [RewItemId1 v3494] | [RewItemCount1 v3494] | 
+        UPDATE `quest_template` SET `RewItemId1` = 0, `RewItemCount1` = 0 WHERE (`entry` = 87);
+        -- [RewChoiceItemId3 v3494] | [RewChoiceItemCount3 v3494] | 
+        UPDATE `quest_template` SET `RewChoiceItemId3` = 0, `RewChoiceItemCount3` = 0 WHERE (`entry` = 88);
+        -- [RewItemId1 v3494] | [RewItemCount1 v3494] | 
+        UPDATE `quest_template` SET `RewItemId1` = 1217, `RewItemCount1` = 1 WHERE (`entry` = 106);
+        -- [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 200 WHERE (`entry` = 109);
+        -- [Details v3494] | 
+        UPDATE `quest_template` SET `Details` = 'I can make an invisibility liquor for Maybell, so she can slip away from the Maclure Vineyards and go to Tommy Joe.  But to make the Liquor, I need some crystal kelp.$B$BAlthough the kelp usually grows in the ocean... sometimes murlocs collect it.  See if the murlocs near crystal lake have any.  Crystal Lake is just east of Goldshire.' WHERE (`entry` = 112);
+        -- [RewItemId1 v3494] | [RewItemCount1 v3494] | 
+        UPDATE `quest_template` SET `RewItemId1` = 1217, `RewItemCount1` = 1 WHERE (`entry` = 114);
+        -- [RewOrReqMoney v3494] | [RewItemId2 v3494] | [RewItemCount2 v3494] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 3500, `RewItemId2` = 0, `RewItemCount2` = 0 WHERE (`entry` = 116);
+        -- [Title v3494] | 
+        UPDATE `quest_template` SET `Title` = 'Thunderbrew Lager' WHERE (`entry` = 117);
+        -- [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 200 WHERE (`entry` = 119);
         -- [RewOrReqMoney v3494] | 
         UPDATE `quest_template` SET `RewOrReqMoney` = 100 WHERE (`entry` = 121);
-        -- [Details v3494] | [Objectives v3494] | [Title v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Details` = 'I need some Black Dragon Whelp Scales to pay for the shoes Argus sent me from Goldshire.  If you can get 6 of them for me, then I can pay Argus with some... and have enough left to fashion something for you.$B$BBlack Dragon Whelps are often flying around south of Lakeshire, but they like to wander.  You might have to just keep an eye out and hunt them when you see them.', `Objectives` = 'Gather 6 Black Dragon Whelp Scales from Black Dragon Whelps, and bring them to Verner Osgood in Redridge.', `Title` = 'Black Dragon Whelp Scales', `MinLevel` = 18 WHERE (`entry` = 122);
-        -- [Details v3596] | [Objectives v3596] | [MinLevel v3596] | [RewOrReqMoney v3596] | [RewItemId1 v3596] | [RewItemCount1 v3596] | 
-        UPDATE `quest_template` SET `Details` = 'This note is a schedule with a list of days and times when a person -- described only as "The Collector" -- will receive a shipment of gold from the mines in Elwynn Forest.$B$BFrom the schedule, it looks as if the Collector resides near the Brackwell Pumpkin Patch in eastern Elwynn$B$BThis sounds important.  You should report it to Marshal Dughan in Goldshire.', `Objectives` = 'Go to Marshal Dughan in Goldshire and give him The Collector\'s Pickup Schedule', `MinLevel` = 10, `RewOrReqMoney` = 75, `RewItemId1` = 1217, `RewItemCount1` = 1 WHERE (`entry` = 123);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 18 WHERE (`entry` = 132);
-        -- [Details v3494] | [Objectives v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Details` = 'I wonder what Wiley meant when he mentioned the Stonemasons.  Perhaps that was a slip of tongue.  Could the Defias gang be related to the Stonemasons?  Only one man would know for sure:  Mathias Shaw, head of the Stormwind Assassins Guild.  Show him Wiley\'s Note and see if he has anything to add to this growing mystery.', `Objectives` = 'Take Wiley\'s Note to Mathias Shaw in the Stormwind Assassin\'s Guild.', `MinLevel` = 18 WHERE (`entry` = 135);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 18 WHERE (`entry` = 141);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 18 WHERE (`entry` = 142);
-        -- [MinLevel v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 10 WHERE (`entry` = 147);
-        -- [Details v3494] | [Objectives v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Details` = 'Poor Old Blanchy!  Such a tired beast after all the work we put her through.  I fed her before we left the farm but we weren\'t expecting the wagon to break on us.  If you could bring her a few handfuls of oats from the fields, I\'d be grateful.  I bet you could find some around the fields, if you can steer clear of those horrific machines that have taken over.', `Objectives` = 'Verna Furlbrow in Westfall wants you to bring her 8 handfuls of oats.', `MinLevel` = 10 WHERE (`entry` = 151);
-        -- [Objectives v3494] | [MinLevel v3494] | [RewChoiceItemId3 v3494] | [RewChoiceItemCount3 v3494] | 
-        UPDATE `quest_template` SET `Objectives` = 'Bring 15 red leather bandanas to Scout Galiaan at Sentinel Hill.', `MinLevel` = 15, `RewChoiceItemId3` = 0, `RewChoiceItemCount3` = 0 WHERE (`entry` = 153);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 11 WHERE (`entry` = 176);
+        -- [Details v3494] | [Objectives v3494] | [Title v3494] | 
+        UPDATE `quest_template` SET `Details` = 'I need some Black Dragon Whelp Scales to pay for the shoes Argus sent me from Goldshire.  If you can get 6 of them for me, then I can pay Argus with some... and have enough left to fashion something for you.$B$BBlack Dragon Whelps are often flying around south of Lakeshire, but they like to wander.  You might have to just keep an eye out and hunt them when you see them.', `Objectives` = 'Gather 6 Black Dragon Whelp Scales from Black Dragon Whelps, and bring them to Verner Osgood in Redridge.', `Title` = 'Black Dragon Whelp Scales' WHERE (`entry` = 122);
+        -- [Details v3596] | [Objectives v3596] | [RewOrReqMoney v3596] | [RewItemId1 v3596] | [RewItemCount1 v3596] | 
+        UPDATE `quest_template` SET `Details` = 'This note is a schedule with a list of days and times when a person -- described only as "The Collector" -- will receive a shipment of gold from the mines in Elwynn Forest.$B$BFrom the schedule, it looks as if the Collector resides near the Brackwell Pumpkin Patch in eastern Elwynn$B$BThis sounds important.  You should report it to Marshal Dughan in Goldshire.', `Objectives` = 'Go to Marshal Dughan in Goldshire and give him The Collector\'s Pickup Schedule', `RewOrReqMoney` = 75, `RewItemId1` = 1217, `RewItemCount1` = 1 WHERE (`entry` = 123);
+        -- [Details v3494] | [Objectives v3494] | 
+        UPDATE `quest_template` SET `Details` = 'I wonder what Wiley meant when he mentioned the Stonemasons.  Perhaps that was a slip of tongue.  Could the Defias gang be related to the Stonemasons?  Only one man would know for sure:  Mathias Shaw, head of the Stormwind Assassins Guild.  Show him Wiley\'s Note and see if he has anything to add to this growing mystery.', `Objectives` = 'Take Wiley\'s Note to Mathias Shaw in the Stormwind Assassin\'s Guild.' WHERE (`entry` = 135);
+        -- [Details v3494] | [Objectives v3494] | [QuestLevel v3494] | 
+        UPDATE `quest_template` SET `Details` = 'Poor Old Blanchy!  Such a tired beast after all the work we put her through.  I fed her before we left the farm but we weren\'t expecting the wagon to break on us.  If you could bring her a few handfuls of oats from the fields, I\'d be grateful.  I bet you could find some around the fields, if you can steer clear of those horrific machines that have taken over.', `Objectives` = 'Verna Furlbrow in Westfall wants you to bring her 8 handfuls of oats.', `QuestLevel` = 10 WHERE (`entry` = 151);
+        -- [Objectives v3494] | [RewChoiceItemId3 v3494] | [RewChoiceItemCount3 v3494] | 
+        UPDATE `quest_template` SET `Objectives` = 'Bring 15 red leather bandanas to Scout Galiaan at Sentinel Hill.', `RewChoiceItemId3` = 0, `RewChoiceItemCount3` = 0 WHERE (`entry` = 153);
         -- [Objectives v3494] | [ReqItemCount1 v3494] | 
         UPDATE `quest_template` SET `Objectives` = 'Sten Stoutarm would like 6 pieces of Tough Wolf Meat.', `ReqItemCount1` = 6 WHERE (`entry` = 179);
-        -- [Objectives v3494] | [MinLevel v3494] | [ReqCreatureOrGOCount1 v3494] | 
-        UPDATE `quest_template` SET `Objectives` = 'Talin Keeneye would like you to kill 8 Small Crag Boars.', `MinLevel` = 3, `ReqCreatureOrGOCount1` = 8 WHERE (`entry` = 183);
+        -- [Objectives v3494] | [ReqCreatureOrGOCount1 v3494] | 
+        UPDATE `quest_template` SET `Objectives` = 'Talin Keeneye would like you to kill 8 Small Crag Boars.', `ReqCreatureOrGOCount1` = 8 WHERE (`entry` = 183);
+        -- [QuestLevel v3494] | 
+        UPDATE `quest_template` SET `QuestLevel` = 1 WHERE (`entry` = 233);
+        -- [QuestLevel v3494] | [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `QuestLevel` = 1, `RewOrReqMoney` = 5 WHERE (`entry` = 234);
+        -- [Details v3494] | [Objectives v3494] | [RewOrReqMoney v3494] | [ReqCreatureOrGOId1 v3494] | [ReqCreatureOrGOCount1 v3494] | [ReqCreatureOrGOId2 v3494] | [ReqCreatureOrGOCount2 v3494] | [ReqCreatureOrGOId3 v3494] | [ReqCreatureOrGOCount3 v3494] | 
+        UPDATE `quest_template` SET `Details` = 'We don\'t have men to spare, but something must be done about those gnolls you reported to me.$B$BScout southern Redridge for gnolls.  Harry them, kill those you can and report back to me with a count of their numbers and an assessment of the threat they present.$B$BDo this for the Stormwind Army, $N, and you will be rewarded.', `Objectives` = 'Kill 6 Redridge Thrashers, 9 Redridge Mongrels and 6 Redridge Poachers, then report back to Deputy Feldon in Lakeshire.', `RewOrReqMoney` = 500, `ReqCreatureOrGOId1` = 712, `ReqCreatureOrGOCount1` = 6, `ReqCreatureOrGOId2` = 423, `ReqCreatureOrGOCount2` = 9, `ReqCreatureOrGOId3` = 424, `ReqCreatureOrGOCount3` = 6 WHERE (`entry` = 246);
         -- [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `RewOrReqMoney` = 5 WHERE (`entry` = 234);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 10 WHERE (`entry` = 239);
-        -- [Details v3494] | [Objectives v3494] | [MinLevel v3494] | [RewOrReqMoney v3494] | [ReqCreatureOrGOId1 v3494] | [ReqCreatureOrGOCount1 v3494] | [ReqCreatureOrGOId2 v3494] | [ReqCreatureOrGOCount2 v3494] | [ReqCreatureOrGOId3 v3494] | [ReqCreatureOrGOCount3 v3494] | 
-        UPDATE `quest_template` SET `Details` = 'We don\'t have men to spare, but something must be done about those gnolls you reported to me.$B$BScout southern Redridge for gnolls.  Harry them, kill those you can and report back to me with a count of their numbers and an assessment of the threat they present.$B$BDo this for the Stormwind Army, $N, and you will be rewarded.', `Objectives` = 'Kill 6 Redridge Thrashers, 9 Redridge Mongrels and 6 Redridge Poachers, then report back to Deputy Feldon in Lakeshire.', `MinLevel` = 17, `RewOrReqMoney` = 500, `ReqCreatureOrGOId1` = 712, `ReqCreatureOrGOCount1` = 6, `ReqCreatureOrGOId2` = 423, `ReqCreatureOrGOCount2` = 9, `ReqCreatureOrGOId3` = 424, `ReqCreatureOrGOCount3` = 6 WHERE (`entry` = 246);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 9 WHERE (`entry` = 287);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 10, `RewOrReqMoney` = 150 WHERE (`entry` = 291);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 7 WHERE (`entry` = 308);
-        -- [Details v3494] | [Objectives v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Details` = 'I have to admit, those Thunderbrews make some good drinks.  But they need to learn that theirs isn\'t the only decent brew!  Maybe you can help me teach them that lesson...$B$BHere, take this barrel of Barleybrew Scalder.  Sneak into the basement of the Thunderbrew Distillery in Kharanos and switch it with one of their barrels of Thunder Lager.  Then we\'ll see how their patrons like my brew over theirs!$B$BAnd if the barrels are guarded, then you might have to distract the guard ...', `Objectives` = 'In the basement of the Thunderbrew Distillery in Kharanos, replace a barrel of Thunder Lager with a Barrel of Barleybrew Scalder.', `MinLevel` = 6 WHERE (`entry` = 310);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 7, `RewOrReqMoney` = 150 WHERE (`entry` = 311);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 7, `RewOrReqMoney` = 150 WHERE (`entry` = 313);
-        -- [Details v3494] | [Objectives v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Details` = 'I\'m on a quest, a quest to make the perfect stout.  I know I can do it -- brewing\'s in my blood.  I just need to find the right recipe...$B$BThe Frostmane Trolls grow a plant, Shimmerweed, high up in a cave to the northeast.  They use it in their strange, tribal rituals.  We dwarves haven\'t found much use for it, but it has a unique taste...and I want to experiment with it in my brews!$B$BGet me some shimmerweed from Frostmane Seers, or swipe it from the troll\'s shimmerweed baskets.', `Objectives` = 'Bring 6 Shimmerweeds to Rejold Barleybrew in the Brewnal Village.', `MinLevel` = 9 WHERE (`entry` = 315);
-        -- [MinLevel v3596] | [ZoneOrSort v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 2, `ZoneOrSort` = 80 WHERE (`entry` = 332);
-        -- [MinLevel v3494] | [ZoneOrSort v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 2, `ZoneOrSort` = 80, `RewOrReqMoney` = 50 WHERE (`entry` = 333);
-        -- [MinLevel v3494] | [ZoneOrSort v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 2, `ZoneOrSort` = 80 WHERE (`entry` = 334);
-        -- [Details v3494] | [MinLevel v3494] | [ZoneOrSort v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `Details` = 'The Stormpike\'s are a respected dwarven clan, and are well known for their fine and discerning tastes.  So it\'s no wonder that Gringer Stormpike, a Mountaineer of Ironforge, commissioned me to craft him a weapon.$B$BThe weapon is finished, but... Mountaineer Stormpike is far away, in distant Loch Modan.  If you plan on traveling to the north, can you deliver this package to him?$B$BMy last message from Mountaineer Stormpike said he\'s stationed at the northern guard tower in Loch Modan.', `MinLevel` = 14, `ZoneOrSort` = 80, `RewOrReqMoney` = 500 WHERE (`entry` = 353);
-        -- [MinLevel v3925] | [ReqCreatureOrGOId1 v3925] | [ReqCreatureOrGOCount1 v3925] | [ReqCreatureOrGOId2 v3925] | [ReqCreatureOrGOCount2 v3925] | [ReqCreatureOrGOId3 v3925] | [ReqCreatureOrGOCount3 v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 8, `ReqCreatureOrGOId1` = 1941, `ReqCreatureOrGOCount1` = 8, `ReqCreatureOrGOId2` = 1675, `ReqCreatureOrGOCount2` = 5, `ReqCreatureOrGOId3` = 0, `ReqCreatureOrGOCount3` = 0 WHERE (`entry` = 358);
-        -- [MinLevel v3368] | [RewOrReqMoney v3368] | 
-        UPDATE `quest_template` SET `MinLevel` = 2, `RewOrReqMoney` = 0 WHERE (`entry` = 364);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 7 WHERE (`entry` = 365);
+        UPDATE `quest_template` SET `RewOrReqMoney` = 150 WHERE (`entry` = 291);
+        -- [Details v3494] | [Objectives v3494] | 
+        UPDATE `quest_template` SET `Details` = 'I have to admit, those Thunderbrews make some good drinks.  But they need to learn that theirs isn\'t the only decent brew!  Maybe you can help me teach them that lesson...$B$BHere, take this barrel of Barleybrew Scalder.  Sneak into the basement of the Thunderbrew Distillery in Kharanos and switch it with one of their barrels of Thunder Lager.  Then we\'ll see how their patrons like my brew over theirs!$B$BAnd if the barrels are guarded, then you might have to distract the guard ...', `Objectives` = 'In the basement of the Thunderbrew Distillery in Kharanos, replace a barrel of Thunder Lager with a Barrel of Barleybrew Scalder.' WHERE (`entry` = 310);
+        -- [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 150 WHERE (`entry` = 311);
+        -- [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 150 WHERE (`entry` = 313);
+        -- [Details v3494] | [Objectives v3494] | 
+        UPDATE `quest_template` SET `Details` = 'I\'m on a quest, a quest to make the perfect stout.  I know I can do it -- brewing\'s in my blood.  I just need to find the right recipe...$B$BThe Frostmane Trolls grow a plant, Shimmerweed, high up in a cave to the northeast.  They use it in their strange, tribal rituals.  We dwarves haven\'t found much use for it, but it has a unique taste...and I want to experiment with it in my brews!$B$BGet me some shimmerweed from Frostmane Seers, or swipe it from the troll\'s shimmerweed baskets.', `Objectives` = 'Bring 6 Shimmerweeds to Rejold Barleybrew in the Brewnal Village.' WHERE (`entry` = 315);
+        -- [ZoneOrSort v3596] | 
+        UPDATE `quest_template` SET `ZoneOrSort` = 80 WHERE (`entry` = 332);
+        -- [ZoneOrSort v3494] | [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `ZoneOrSort` = 80, `RewOrReqMoney` = 50 WHERE (`entry` = 333);
+        -- [ZoneOrSort v3494] | 
+        UPDATE `quest_template` SET `ZoneOrSort` = 80 WHERE (`entry` = 334);
+        -- [Details v3494] | [QuestLevel v3494] | [ZoneOrSort v3494] | [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `Details` = 'The Stormpike\'s are a respected dwarven clan, and are well known for their fine and discerning tastes.  So it\'s no wonder that Gringer Stormpike, a Mountaineer of Ironforge, commissioned me to craft him a weapon.$B$BThe weapon is finished, but... Mountaineer Stormpike is far away, in distant Loch Modan.  If you plan on traveling to the north, can you deliver this package to him?$B$BMy last message from Mountaineer Stormpike said he\'s stationed at the northern guard tower in Loch Modan.', `QuestLevel` = 14, `ZoneOrSort` = 80, `RewOrReqMoney` = 500 WHERE (`entry` = 353);
+        -- [ReqCreatureOrGOId1 v3925] | [ReqCreatureOrGOCount1 v3925] | [ReqCreatureOrGOId2 v3925] | [ReqCreatureOrGOCount2 v3925] | [ReqCreatureOrGOId3 v3925] | [ReqCreatureOrGOCount3 v3925] | 
+        UPDATE `quest_template` SET `ReqCreatureOrGOId1` = 1941, `ReqCreatureOrGOCount1` = 8, `ReqCreatureOrGOId2` = 1675, `ReqCreatureOrGOCount2` = 5, `ReqCreatureOrGOId3` = 0, `ReqCreatureOrGOCount3` = 0 WHERE (`entry` = 358);
+        -- [RewOrReqMoney v3368] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 0 WHERE (`entry` = 364);
         -- [Details v3368] | [RewOrReqMoney v3368] | 
         UPDATE `quest_template` SET `Details` = 'Lady Sylvanas has called upon the Royal Apothecary Society. The Dark Lady believes our knowledge coupled with the newfound magic will provide the key to Arthas\'s demise.  She has challenged us to concoct a new plague, a plague deadlier than any ailment on Azeroth. This new disease will bring Arthas\'s Scourge Army to ruin.$b$bMy studies show that the blood of beasts might prove to be the key. Bring to me 5 vials of darkhound blood so I can test my theory.', `RewOrReqMoney` = 50 WHERE (`entry` = 367);
-        -- [MinLevel v3368] | [RewOrReqMoney v3368] | 
-        UPDATE `quest_template` SET `MinLevel` = 8, `RewOrReqMoney` = 180 WHERE (`entry` = 375);
+        -- [RewOrReqMoney v3368] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 180 WHERE (`entry` = 375);
         -- [Details v3368] | [RewChoiceItemId1 v3368] | [RewChoiceItemId2 v3368] | 
         UPDATE `quest_template` SET `Details` = 'My duties include tending to our wounded warriors, tailoring armor and clothes, and assisting Shadow Priest Sarvis with whatever else he might need.$b$bFrom the look of it, you\'ll be enlisted in his service also... hunting the Mindless Ones, if I know his mind. Well, if you\'d like to stay in one piece--and I\'ve no doubt you do--perhaps I can help. I\'m running out of paws and wings, and if you bring me some, I\'ll find some armor for you. You\'ll find a good number of wolves and bats to the northwest.', `RewChoiceItemId1` = 3274, `RewChoiceItemId2` = 6060 WHERE (`entry` = 376);
-        -- [Details v3368] | [Objectives v3368] | [MinLevel v3368] | [ReqCreatureOrGOCount1 v3368] | [ReqCreatureOrGOCount2 v3368] | 
-        UPDATE `quest_template` SET `Details` = 'One of our greatest struggles is obtaining the natural resources we need to survive. Gold was scarce even in the height of the Alliance\'s power.$b$bThere is a gold mine to the northwest that has been overrun with spiders. We need gold from the mine, but we can\'t very well get it while the spiders are crawling around in there. I\'ve not much manpower to commit to the task, so we\'ll just have to do it little by little. Get out there and see what you can do.', `Objectives` = 'Executor Arren wants you to kill 8 Young Night Web Spiders and 6 Night Web Spiders.', `MinLevel` = 4, `ReqCreatureOrGOCount1` = 8, `ReqCreatureOrGOCount2` = 6 WHERE (`entry` = 380);
-        -- [Details v3368] | [Objectives v3368] | [MinLevel v3368] | [ReqItemCount1 v3368] | 
-        UPDATE `quest_template` SET `Details` = 'You\'ll be happy to know we appear to be making progress in the mine (thanks in no small part to your efforts), and we can turn our eyes to other concerns.$b$bMy scouts have reported that a detachment of the Scarlet Crusade is setting up a camp southeast of here. The Scarlet Crusade is a despicable organization that hunts us, and they will not rest until every undead--Lich King\'s Scourge or no--is destroyed. We must strike first!$b$bBe careful, their unholy zeal makes them dangerous adversaries.', `Objectives` = 'Bring Executor Arren 8 Scarlet Armbands from Scarlet Converts and Scarlet Initiates.', `MinLevel` = 4, `ReqItemCount1` = 8 WHERE (`entry` = 381);
-        -- [MinLevel v3368] | 
-        UPDATE `quest_template` SET `MinLevel` = 5 WHERE (`entry` = 382);
-        -- [MinLevel v3368] | 
-        UPDATE `quest_template` SET `MinLevel` = 5 WHERE (`entry` = 383);
-        -- [MinLevel v3494] | [ZoneOrSort v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 7, `ZoneOrSort` = 1, `RewOrReqMoney` = 50 WHERE (`entry` = 384);
-        -- [Objectives v3494] | [MinLevel v3494] | [ZoneOrSort v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `Objectives` = 'Go to Baros Alexston\'s house in Westfall and search for his compass, then return it to him in the Trade District of Stormwind.', `MinLevel` = 15, `ZoneOrSort` = 80, `RewOrReqMoney` = 500 WHERE (`entry` = 399);
-        -- [Details v3494] | [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `Details` = 'Beldin Steelgrill owns the local mechanic shop, and he\'s the best siege engine tech there is!  But he\'s not forgiving to his tools.  I swear he almost breaks more arclite spanners than we can supply him with!$B$BWe just filled his last order for tools.  If you deliver it to him I\'m sure he\'ll make it worth the effort.$B$BHis shop, Steelgrill\'s Depot, is just northeast of Kharanos.  And it\'s a local haunt for veteran siege engine pilots, so keep your ears open for opportunities while you\'re there.', `MinLevel` = 5, `RewOrReqMoney` = 50 WHERE (`entry` = 400);
-        -- [Details v3368] | [MinLevel v3368] | 
-        UPDATE `quest_template` SET `Details` = 'Scourge have trickled into Tirisfal Glades and have infested the area west of Brill, near the old bridge.$B$BGo there and beat back the Rotting Dead and Ravaged Corpses you find.  Scatter their bones and bring back their Putrid Claws, and the Deathguards will reward you.', `MinLevel` = 6 WHERE (`entry` = 404);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 10 WHERE (`entry` = 412);
-        -- [MinLevel v3368] | [RewOrReqMoney v3368] | 
-        UPDATE `quest_template` SET `MinLevel` = 8, `RewOrReqMoney` = 200 WHERE (`entry` = 426);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 8 WHERE (`entry` = 427);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 9, `RewOrReqMoney` = 190 WHERE (`entry` = 432);
-        -- [MinLevel v3494] | [RewOrReqMoney v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 11, `RewOrReqMoney` = 260 WHERE (`entry` = 433);
-        -- [MinLevel v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 18 WHERE (`entry` = 436);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 24 WHERE (`entry` = 442);
-        -- [Objectives v3925] | [NextQuestInChain v3596] | [MinLevel v3596] | [ReqCreatureOrGOCount1 v3925] | [RewChoiceItemId2 v3925] | [RewChoiceItemCount2 v3925] | [ReqCreatureOrGOCount2 v3925] | [RewOrReqMoney v3596] | [RewItemId1 v3596] | [RewItemCount1 v3596] | [RewChoiceItemId1 v3596] | [RewChoiceItemCount1 v3596] | 
-        UPDATE `quest_template` SET `Objectives` = 'Kill 10 Young Nightsabers and 6 Young Thistle Boars and return to Conservator Ilthalaine.', `NextQuestInChain` = 457, `MinLevel` = 2, `ReqCreatureOrGOCount1` = 10, `RewChoiceItemId2` = 11187, `RewChoiceItemCount2` = 1, `ReqCreatureOrGOCount2` = 6, `RewOrReqMoney` = 30, `RewItemId1` = 5394, `RewItemCount1` = 1, `RewChoiceItemId1` = 0, `RewChoiceItemCount1` = 0 WHERE (`entry` = 456);
-        -- [Objectives v3925] | [MinLevel v3596] | [RewOrReqMoney v3596] | [ReqCreatureOrGOCount1 v3925] | [ReqCreatureOrGOCount2 v3925] | 
-        UPDATE `quest_template` SET `Objectives` = 'Conservator Ilthalaine needs you to kill 8 Mangy Nightsabers and 8 Thistle Boars.', `MinLevel` = 3, `RewOrReqMoney` = 45, `ReqCreatureOrGOCount1` = 8, `ReqCreatureOrGOCount2` = 8 WHERE (`entry` = 457);
-        -- [Details v3596] | [Objectives v3925] | [MinLevel v3596] | [ReqItemCount1 v3596] | [RewChoiceItemId3 v3925] | [RewChoiceItemCount3 v3925] | 
-        UPDATE `quest_template` SET `Details` = 'Something evil is brewing in the forests of Teldrassil.  Look yonder to where the peaceful furbolgs used to dwell.  They have deserted their homes and are amassing under the name of the Gnarlpine tribe.$b$bOnly the corruption of wicked Fel Moss could cause such a transformation.  The grells and grelkin have infested the area and are threatening the residents of Shadowglen.  $b$bEngage these grells and grelkin, $N, and see if they are indeed caught under the enchanment of the wicked Fel Moss.', `Objectives` = 'Collect 12 Fel Moss and bring them to Tarindrella.', `MinLevel` = 3, `ReqItemCount1` = 6, `RewChoiceItemId3` = 11190, `RewChoiceItemCount3` = 1 WHERE (`entry` = 459);
-        -- [Objectives v3596] | [MinLevel v3596] | 
-        UPDATE `quest_template` SET `Objectives` = 'Seek out Gaerloas Talvethren in Starbreeze Village.', `MinLevel` = 6 WHERE (`entry` = 475);
-        -- [MinLevel v3596] | [RewOrReqMoney v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 6, `RewOrReqMoney` = 135 WHERE (`entry` = 476);
-        -- [MinLevel v3596] | [RewOrReqMoney v3596] | [RewChoiceItemId1 v3596] | [RewChoiceItemId2 v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 9, `RewOrReqMoney` = 200, `RewChoiceItemId1` = 5458, `RewChoiceItemId2` = 5589 WHERE (`entry` = 483);
-        -- [MinLevel v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 12 WHERE (`entry` = 486);
-        -- [MinLevel v3596] | [RewOrReqMoney v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 8, `RewOrReqMoney` = 200 WHERE (`entry` = 487);
-        -- [MinLevel v3596] | [ReqCreatureOrGOCount1 v3596] | [RewOrReqMoney v3596] | [RewItemCount1 v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 5, `ReqCreatureOrGOCount1` = 1, `RewOrReqMoney` = 90, `RewItemCount1` = 6 WHERE (`entry` = 488);
-        -- [MinLevel v3596] | [Details v3596] | [RewOrReqMoney v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 7, `Details` = 'The Council of the Forest has news that you aided Zenn Foulhoof.  The foul satyr is an enemy of the forest.  As a $r, you should know better than to defile the forest by killing Nature\'s precious creatures.$b$bYou must redeem yourself in the eyes of the Council if you wish to remain a friend of Teldrassil.$b$bTeach Foulhoof a lesson and you shall be redeemed.  Fel Cones are corrupted seeds that fall from the trees.  Give 3 Fel Cones to Foulhoof who will think you have brought him a harmless snack.', `RewOrReqMoney` = 170 WHERE (`entry` = 489);
+        -- [Details v3368] | [Objectives v3368] | [ReqCreatureOrGOCount1 v3368] | [ReqCreatureOrGOCount2 v3368] | 
+        UPDATE `quest_template` SET `Details` = 'One of our greatest struggles is obtaining the natural resources we need to survive. Gold was scarce even in the height of the Alliance\'s power.$b$bThere is a gold mine to the northwest that has been overrun with spiders. We need gold from the mine, but we can\'t very well get it while the spiders are crawling around in there. I\'ve not much manpower to commit to the task, so we\'ll just have to do it little by little. Get out there and see what you can do.', `Objectives` = 'Executor Arren wants you to kill 8 Young Night Web Spiders and 6 Night Web Spiders.', `ReqCreatureOrGOCount1` = 8, `ReqCreatureOrGOCount2` = 6 WHERE (`entry` = 380);
+        -- [Details v3368] | [Objectives v3368] | [ReqItemCount1 v3368] | 
+        UPDATE `quest_template` SET `Details` = 'You\'ll be happy to know we appear to be making progress in the mine (thanks in no small part to your efforts), and we can turn our eyes to other concerns.$b$bMy scouts have reported that a detachment of the Scarlet Crusade is setting up a camp southeast of here. The Scarlet Crusade is a despicable organization that hunts us, and they will not rest until every undead--Lich King\'s Scourge or no--is destroyed. We must strike first!$b$bBe careful, their unholy zeal makes them dangerous adversaries.', `Objectives` = 'Bring Executor Arren 8 Scarlet Armbands from Scarlet Converts and Scarlet Initiates.', `ReqItemCount1` = 8 WHERE (`entry` = 381);
+        -- [ZoneOrSort v3494] | [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `ZoneOrSort` = 1, `RewOrReqMoney` = 50 WHERE (`entry` = 384);
+        -- [Objectives v3494] | [ZoneOrSort v3494] | [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `Objectives` = 'Go to Baros Alexston\'s house in Westfall and search for his compass, then return it to him in the Trade District of Stormwind.', `ZoneOrSort` = 80, `RewOrReqMoney` = 500 WHERE (`entry` = 399);
+        -- [Details v3494] | [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `Details` = 'Beldin Steelgrill owns the local mechanic shop, and he\'s the best siege engine tech there is!  But he\'s not forgiving to his tools.  I swear he almost breaks more arclite spanners than we can supply him with!$B$BWe just filled his last order for tools.  If you deliver it to him I\'m sure he\'ll make it worth the effort.$B$BHis shop, Steelgrill\'s Depot, is just northeast of Kharanos.  And it\'s a local haunt for veteran siege engine pilots, so keep your ears open for opportunities while you\'re there.', `RewOrReqMoney` = 50 WHERE (`entry` = 400);
+        -- [Details v3368] | 
+        UPDATE `quest_template` SET `Details` = 'Scourge have trickled into Tirisfal Glades and have infested the area west of Brill, near the old bridge.$B$BGo there and beat back the Rotting Dead and Ravaged Corpses you find.  Scatter their bones and bring back their Putrid Claws, and the Deathguards will reward you.' WHERE (`entry` = 404);
+        -- [RewOrReqMoney v3368] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 200 WHERE (`entry` = 426);
+        -- [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 190 WHERE (`entry` = 432);
+        -- [RewOrReqMoney v3494] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 260 WHERE (`entry` = 433);
+        -- [NextQuestInChain v3596] | [RewOrReqMoney v3596] | [RewItemId1 v3596] | [RewItemCount1 v3596] | [RewChoiceItemId1 v3596] | [RewChoiceItemCount1 v3596] | [Objectives v3925] | [ReqCreatureOrGOCount1 v3925] | [RewChoiceItemId2 v3925] | [RewChoiceItemCount2 v3925] | [ReqCreatureOrGOCount2 v3925] | 
+        UPDATE `quest_template` SET `NextQuestInChain` = 457, `RewOrReqMoney` = 30, `RewItemId1` = 5394, `RewItemCount1` = 1, `RewChoiceItemId1` = 0, `RewChoiceItemCount1` = 0, `Objectives` = 'Kill 10 Young Nightsabers and 6 Young Thistle Boars and return to Conservator Ilthalaine.', `ReqCreatureOrGOCount1` = 10, `RewChoiceItemId2` = 11187, `RewChoiceItemCount2` = 1, `ReqCreatureOrGOCount2` = 6 WHERE (`entry` = 456);
+        -- [RewOrReqMoney v3596] | [Objectives v3925] | [ReqCreatureOrGOCount1 v3925] | [ReqCreatureOrGOCount2 v3925] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 45, `Objectives` = 'Conservator Ilthalaine needs you to kill 8 Mangy Nightsabers and 8 Thistle Boars.', `ReqCreatureOrGOCount1` = 8, `ReqCreatureOrGOCount2` = 8 WHERE (`entry` = 457);
+        -- [Details v3596] | [ReqItemCount1 v3596] | [Objectives v3925] | [RewChoiceItemId3 v3925] | [RewChoiceItemCount3 v3925] | 
+        UPDATE `quest_template` SET `Details` = 'Something evil is brewing in the forests of Teldrassil.  Look yonder to where the peaceful furbolgs used to dwell.  They have deserted their homes and are amassing under the name of the Gnarlpine tribe.$b$bOnly the corruption of wicked Fel Moss could cause such a transformation.  The grells and grelkin have infested the area and are threatening the residents of Shadowglen.  $b$bEngage these grells and grelkin, $N, and see if they are indeed caught under the enchanment of the wicked Fel Moss.', `ReqItemCount1` = 6, `Objectives` = 'Collect 12 Fel Moss and bring them to Tarindrella.', `RewChoiceItemId3` = 11190, `RewChoiceItemCount3` = 1 WHERE (`entry` = 459);
+        -- [Objectives v3596] | 
+        UPDATE `quest_template` SET `Objectives` = 'Seek out Gaerloas Talvethren in Starbreeze Village.' WHERE (`entry` = 475);
+        -- [RewOrReqMoney v3596] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 135 WHERE (`entry` = 476);
+        -- [RewOrReqMoney v3596] | [RewChoiceItemId1 v3596] | [RewChoiceItemId2 v3596] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 200, `RewChoiceItemId1` = 5458, `RewChoiceItemId2` = 5589 WHERE (`entry` = 483);
+        -- [RewOrReqMoney v3596] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 200 WHERE (`entry` = 487);
+        -- [RewOrReqMoney v3596] | [RewItemCount1 v3596] | [ReqCreatureOrGOCount1 v3596] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 90, `RewItemCount1` = 6, `ReqCreatureOrGOCount1` = 1 WHERE (`entry` = 488);
+        -- [Details v3596] | [RewOrReqMoney v3596] | 
+        UPDATE `quest_template` SET `Details` = 'The Council of the Forest has news that you aided Zenn Foulhoof.  The foul satyr is an enemy of the forest.  As a $r, you should know better than to defile the forest by killing Nature\'s precious creatures.$b$bYou must redeem yourself in the eyes of the Council if you wish to remain a friend of Teldrassil.$b$bTeach Foulhoof a lesson and you shall be redeemed.  Fel Cones are corrupted seeds that fall from the trees.  Give 3 Fel Cones to Foulhoof who will think you have brought him a harmless snack.', `RewOrReqMoney` = 170 WHERE (`entry` = 489);
         -- [Details v3494] | 
         UPDATE `quest_template` SET `Details` = 'I hope you strapped your belt on tight, young $c.  Because there is work to do here in Northshire.$B$BAnd I don\'t mean farming.$B$BThe Stormwind guards are hard pressed to keep the peace here, with so many of us in distant lands and so many threats pressing close.  And so we\'re enlisting the aid of anyone willing to defend their home.  And their alliance.$B$BIf you\'re here to answer the call, then speak with my superior, Marshal McBride.  He\'s inside the abbey behind me.' WHERE (`entry` = 783);
-        -- [Details v3925] | [MinLevel v3925] | 
-        UPDATE `quest_template` SET `Details` = 'It is clear the prospector depended on explosives and those noisy vehicles to rip the ground apart. We can expect a new foreman to take over soon.$b$bI want to give the dwarves a taste of their own medicine. According to these plans if we combine nitroglycerin with wood pulp and sodium nitrate we can create an explosive charge. The rifleman, soldiers and officers in the Keep are known to have the supplies.$b$bCollect these items and bring them to me. I will fashion a charge that the dwarves wont forget!', `MinLevel` = 26 WHERE (`entry` = 846);
-        -- [Details v3925] | [MinLevel v3925] | 
-        UPDATE `quest_template` SET `Details` = 'Hey, $N. I been sent to the Crossroads to watch over the land and take note of its happenings for my masters in Orgrimmar.$B$BOne object of my studies are the insect-like creatures found to the south in the Field of Giants. We know little of the creatures, so I be makin\'  it a point to discover more. They seem to have intelligence to them, more so than any normal animal.$B$BTake this digging claw and collect some of the creatures\' eggs from their mounds, but be careful: if alerted, they will attack you.', `MinLevel` = 22 WHERE (`entry` = 868);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 19 WHERE (`entry` = 882);
-        -- [Details v3925] | [Objectives v3925] | [ReqItemCount1 v3925] | [RewChoiceItemId5 v3925] | [RewChoiceItemCount5 v3925] | [RewChoiceItemId6 v3925] | [RewChoiceItemCount6 v3925] | 
-        UPDATE `quest_template` SET `Details` = 'I came to Shadowglen to observe the webwood spiders that dwell in the Shadowthread Cave.  They are cousin to a much smaller variety of spider;  I believe the world tree has had a profound effect on them, and I would like specimens to study to confirm this.$B$BFirst, I would like some of their venom.  Gather Webwood venom sacs from the spiders in and around the Shadowthread Cave, to the north.  I can then examine them for similarities with their smaller cousin\'s venom.', `Objectives` = 'Bring 7 Webwood Venom Sacs to Gilshalan Windwalker at Aldrassil.', `ReqItemCount1` = 7, `RewChoiceItemId5` = 10544, `RewChoiceItemCount5` = 1, `RewChoiceItemId6` = 12447, `RewChoiceItemCount6` = 1 WHERE (`entry` = 916);
-        -- [MinLevel v3925] | [RewChoiceItemId3 v3925] | [RewChoiceItemCount3 v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 5, `RewChoiceItemId3` = 11189, `RewChoiceItemCount3` = 1 WHERE (`entry` = 917);
-        -- [MinLevel v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 7 WHERE (`entry` = 918);
-        -- [MinLevel v3596] | [Details v3596] | [Objectives v3596] | [RewOrReqMoney v3596] | [ReqItemCount1 v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 7, `Details` = 'Small timberlings are sprouting around the waters of Lake Al\'Ameth, and Wellspring Lake to the north.  I\'m afraid these sprouts are beyond help -- we should try to clear them from the land before they grow large enough to cause trouble.$B$BWhen you\'re wandering the lakes, if you see any timberling sprouts please take them.  Help keep our land clean!', `Objectives` = 'Bring 5 Timberling Sprouts to Denalan at Lake Al\'Ameth.', `RewOrReqMoney` = 150, `ReqItemCount1` = 5 WHERE (`entry` = 919);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 5 WHERE (`entry` = 920);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 5 WHERE (`entry` = 921);
-        -- [MinLevel v3596] | [Details v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 7, `Details` = '$N, can you take one of the seeds you brought me to my friend, Rellian Greenspyre?  He is a druid in Darnassus, and when last we spoke he revealed his interest in my work with the Timberlings.  He had some ideas himself, and he will appreciate a specimen seed to work with.$B$BThank you, $N.  You have been a great help to me.  I hope that, some day, you will see the fruit of my labors.' WHERE (`entry` = 922);
-        -- [MinLevel v3596] | [RewOrReqMoney v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 9, `RewOrReqMoney` = 200 WHERE (`entry` = 923);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 5 WHERE (`entry` = 928);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 5 WHERE (`entry` = 929);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 10 WHERE (`entry` = 930);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 7 WHERE (`entry` = 932);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 9 WHERE (`entry` = 933);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 11 WHERE (`entry` = 934);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 11 WHERE (`entry` = 935);
-        -- [MinLevel v3596] | [Details v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 11, `Details` = 'I was dispatched with a small group of Sentinels here to protect the Oracle Tree from the harpies that have made nests all around the glade. Little by little we are trying to push them back.$b$bWhen the Oracle Tree attempted to send a runner to Darnassus with a report, the mesenger was attacked and killed by a group of the harpies.$b$bIf you feel up to the task, go to their nests, slay them, and return their belts to me as proof of your deeds.' WHERE (`entry` = 937);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 11 WHERE (`entry` = 940);
-        -- [MinLevel v3596] | [RewOrReqMoney v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 16, `RewOrReqMoney` = 300 WHERE (`entry` = 947);
-        -- [Details v3925] | [Objectives v3925] | [MinLevel v3925] | 
-        UPDATE `quest_template` SET `Details` = 'If you had enough time to run messages for the Oracle Tree, then I\'m sure that I can press you into service to deliver a message to the Grove of the Ancients in Darkshore.$b$bYou will most likely have to secure transport on a hippogryph, but I have faith enough in you that you can manage that. Take this to Onu, the Ancient of Lore. He has been awaiting word from me, even as I waited for news from the Oracle Glade.', `Objectives` = 'Deliver Fandral\'s message to Onu in the Grove of the Ancients in Darkshore.', `MinLevel` = 11 WHERE (`entry` = 952);
-        -- [MinLevel v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 12 WHERE (`entry` = 954);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 12 WHERE (`entry` = 955);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 13 WHERE (`entry` = 956);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 13 WHERE (`entry` = 957);
-        -- [MinLevel v3596] | [RewOrReqMoney v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 12, `RewOrReqMoney` = 300 WHERE (`entry` = 958);
-        -- [MinLevel v3925] | [ZoneOrSort v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 18, `ZoneOrSort` = 1638 WHERE (`entry` = 962);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 16 WHERE (`entry` = 963);
-        -- [Details v3925] | [MinLevel v3925] | 
-        UPDATE `quest_template` SET `Details` = 'Hail, young $r. I am Elissa Starbreeze, and it is my charge to protect Auberdine from harm.$b$bTo this end, I sent Balthule Shadowstrike to observe the strange happenings around the Tower of Althalaxx to the northeast.$b$bIt is past time that he should have returned. I worry that he has encountered some unforseen danger in the forest. I would be most appreciative if you would find him and see that he is doing well.', `MinLevel` = 18 WHERE (`entry` = 965);
-        -- [Details v3925] | [Title v3925] | [MinLevel v3925] | [RewOrReqMoney v3925] | [RewChoiceItemId1 v3925] | [RewChoiceItemCount1 v3925] | [RewChoiceItemId2 v3925] | [RewChoiceItemCount2 v3925] | 
-        UPDATE `quest_template` SET `Details` = 'Off the coast of Darkshore to our north are two wrecked ships - the Silver Dawning and the Mist Veil.  Some time ago, both ships ran afoul of the blasted murlocs as they sailed across the vast sea into Auberdine.  They now they lie at the bottom of the ocean as trophies for those fiends.$B$BBoth captains didn\'t make it out that night, and their logs and other effects are still below in lockboxes.  I\'d like for you to recover them for us; it would mean a lot to the crew members still around these parts.', `Title` = 'Deep Ocean Vast Sea <needs reward>', `MinLevel` = 14, `RewOrReqMoney` = 0, `RewChoiceItemId1` = 0, `RewChoiceItemCount1` = 0, `RewChoiceItemId2` = 0, `RewChoiceItemCount2` = 0 WHERE (`entry` = 982);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 10 WHERE (`entry` = 983);
-        -- [MinLevel v3596] | [Details v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 14, `Details` = '$N, I\'ve come to find out how rampant the effects of Fel Moss are. Some of my brethren were rescued from a corrupt furbolg in Teldrassil, and I\'ve vowed to stop any more atrocities before more of our kind are injured... or worse.$B$BI have seen a couple hints of corruption in Darkshore already, but I have yet to find any widespread signs. I think it would be logical if the investigation continued with the furbolgs. Would you find one of their camps, and return to me if you see any signs of corruption?' WHERE (`entry` = 984);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 14 WHERE (`entry` = 985);
-        -- [Details v3925] | [MinLevel v3925] | 
-        UPDATE `quest_template` SET `Details` = '$N, your skills have already helped me in my endeavor. Could I impose on you again to help Grimclaw and his master Volcor? In addition, I can craft you a magical cloak that will allow you to walk unhindered by Darkshore\'s creatures while you look for him.$B$BTo create the cloak, I\'ll need five fine moonstalker pelts from a moonstalker sire or matriarch to have enough material. The cats can be found north of here near Wildbend River or much farther to the south, closer to Ashenvale.', `MinLevel` = 20 WHERE (`entry` = 986);
-        -- [MinLevel v3596] | [Details v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 5, `Details` = 'Are you heading to the south?  To Lake Al\'Ameth?  If so, then I have a task I might ask of you...$B$BMy colleage Denalan has a camp along the eastern end of the lake, where he is studying and experimenting on the plant life of Teldrassil.  He requested a package of rare earths from Darnassus and it was late, only recently arriving here in Dolanaar.$B$BCan you take him the package?' WHERE (`entry` = 997);
-        -- [Title v3596] | [MinLevel v3596] | [ZoneOrSort v3596] | [ReqItemId1 v3596] | [ReqItemCount1 v3596] | 
-        UPDATE `quest_template` SET `Title` = 'The Strange Fruit *GOSSIP*', `MinLevel` = 1, `ZoneOrSort` = 141, `ReqItemId1` = 0, `ReqItemCount1` = 0 WHERE (`entry` = 998);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 12 WHERE (`entry` = 1001);
-        -- [MinLevel v3925] | [ZoneOrSort v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 27, `ZoneOrSort` = 130 WHERE (`entry` = 1014);
-        -- [MinLevel v3596] | [ZoneOrSort v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 1, `ZoneOrSort` = 11 WHERE (`entry` = 1019);
-        -- [Details v3925] | [Objectives v3925] | [MinLevel v3925] | [ReqCreatureOrGOId1 v3925] | [ReqCreatureOrGOCount1 v3925] | [ReqCreatureOrGOId2 v3925] | [ReqCreatureOrGOCount2 v3925] | 
-        UPDATE `quest_template` SET `Details` = 'The goblin-run Venture Company moved into the Stonetalon Mountains to the west, chopping down trees and burning huge stretches of forest.  The spirits of this place are nearly blind with pain and rage.  We must stop the Venture Company!$B$BHead west into the Greatwood Vale.  You will find the goblins and their servants at work -- show them the Horde will not allow the exploitation of Stonetalon.  Show them in the language they best understand...$B$BViolence.', `Objectives` = 'Kill 12 Venture Co. Cutters and 10 Venture Co. Grinders, then return to Seereth Stonebreak on the border of Stonetalon and the Barrens.', `MinLevel` = 19, `ReqCreatureOrGOId1` = 3990, `ReqCreatureOrGOCount1` = 12, `ReqCreatureOrGOId2` = 4071, `ReqCreatureOrGOCount2` = 10 WHERE (`entry` = 1062);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 27 WHERE (`entry` = 1095);
-        -- [MinLevel v3494] | [ZoneOrSort v3494] | 
-        UPDATE `quest_template` SET `MinLevel` = 15, `ZoneOrSort` = 80 WHERE (`entry` = 1097);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 30 WHERE (`entry` = 1130);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 14 WHERE (`entry` = 1141);
-        -- [Objectives v3925] | [MinLevel v3925] | [ZoneOrSort v3925] | [ReqItemCount1 v3925] | 
-        UPDATE `quest_template` SET `Objectives` = 'Grab a Crate with Holes.$BGrab a Snufflenose Command Stick.$BGrab and read the Snufflenose Owner\'s Manual.$B$BIn Razorfen Kraul, use the Crate with Holes to summon a Snufflenose Gopher, and use the Command Stick on the gopher to make it search for Tubers.$B$BBring 10 Blueleaf Tubers, the Snufflenose Command Stick and the Crate with Holes to Mebok Mizzyrix in Ratchet.', `MinLevel` = 26, `ZoneOrSort` = 17, `ReqItemCount1` = 10 WHERE (`entry` = 1221);
-        -- [Details v3494] | [Objectives v3494] | [Title v3494] | [MinLevel v3494] | 
-        UPDATE `quest_template` SET `Details` = 'We dwarves aren\'t the only ones fighting.  Our human allies have their hands full too!$B$BRedridge is under periodic attack from blackrock orcs, and their supply of equipment is always low.  If you were to help them out, I\'m sure their resident blacksmith, Vernor Osgood, would teach you a trick or two.', `Objectives` = 'Tormus Deepforge  wants you to bring 4 Runed Copper Belts and 4 Heavy Copper Mauls to Vernor Osgood in Redridge.', `Title` = '<test> Gearing Redridge', `MinLevel` = 16 WHERE (`entry` = 1618);
-        -- [Details v3494] | [MinLevel v3494] | [RewItemId1 v3494] | [RewItemCount1 v3494] | 
-        UPDATE `quest_template` SET `Details` = 'If you want to rise in the ranks of  the warriors, then you better be tough.  I can teach you new moves but before that, prove to me you can handle yourself against real foes.$B$BVejrek is the toughest troll you\'ll find in these parts, and he\'s who you have to beat.  He has a hut just south of Frostmane Hold--a cave cut into the mountains of western Dun Morogh$B$BBring me Vejrek\'s head and I\'ll know you have mettle.', `MinLevel` = 11, `RewItemId1` = 6619, `RewItemCount1` = 1 WHERE (`entry` = 1678);
+        -- [Details v3925] | 
+        UPDATE `quest_template` SET `Details` = 'It is clear the prospector depended on explosives and those noisy vehicles to rip the ground apart. We can expect a new foreman to take over soon.$b$bI want to give the dwarves a taste of their own medicine. According to these plans if we combine nitroglycerin with wood pulp and sodium nitrate we can create an explosive charge. The rifleman, soldiers and officers in the Keep are known to have the supplies.$b$bCollect these items and bring them to me. I will fashion a charge that the dwarves wont forget!' WHERE (`entry` = 846);
+        -- [Details v3925] | 
+        UPDATE `quest_template` SET `Details` = 'Hey, $N. I been sent to the Crossroads to watch over the land and take note of its happenings for my masters in Orgrimmar.$B$BOne object of my studies are the insect-like creatures found to the south in the Field of Giants. We know little of the creatures, so I be makin\'  it a point to discover more. They seem to have intelligence to them, more so than any normal animal.$B$BTake this digging claw and collect some of the creatures\' eggs from their mounds, but be careful: if alerted, they will attack you.' WHERE (`entry` = 868);
+        -- [Details v3925] | [Objectives v3925] | [QuestLevel v3925] | [ReqItemCount1 v3925] | [RewChoiceItemId5 v3925] | [RewChoiceItemCount5 v3925] | [RewChoiceItemId6 v3925] | [RewChoiceItemCount6 v3925] | 
+        UPDATE `quest_template` SET `Details` = 'I came to Shadowglen to observe the webwood spiders that dwell in the Shadowthread Cave.  They are cousin to a much smaller variety of spider;  I believe the world tree has had a profound effect on them, and I would like specimens to study to confirm this.$B$BFirst, I would like some of their venom.  Gather Webwood venom sacs from the spiders in and around the Shadowthread Cave, to the north.  I can then examine them for similarities with their smaller cousin\'s venom.', `Objectives` = 'Bring 7 Webwood Venom Sacs to Gilshalan Windwalker at Aldrassil.', `QuestLevel` = 3, `ReqItemCount1` = 7, `RewChoiceItemId5` = 10544, `RewChoiceItemCount5` = 1, `RewChoiceItemId6` = 12447, `RewChoiceItemCount6` = 1 WHERE (`entry` = 916);
+        -- [RewChoiceItemId3 v3925] | [RewChoiceItemCount3 v3925] | 
+        UPDATE `quest_template` SET `RewChoiceItemId3` = 11189, `RewChoiceItemCount3` = 1 WHERE (`entry` = 917);
+        -- [Details v3596] | [Objectives v3596] | [RewOrReqMoney v3596] | [ReqItemCount1 v3596] | 
+        UPDATE `quest_template` SET `Details` = 'Small timberlings are sprouting around the waters of Lake Al\'Ameth, and Wellspring Lake to the north.  I\'m afraid these sprouts are beyond help -- we should try to clear them from the land before they grow large enough to cause trouble.$B$BWhen you\'re wandering the lakes, if you see any timberling sprouts please take them.  Help keep our land clean!', `Objectives` = 'Bring 5 Timberling Sprouts to Denalan at Lake Al\'Ameth.', `RewOrReqMoney` = 150, `ReqItemCount1` = 5 WHERE (`entry` = 919);
+        -- [Details v3596] | 
+        UPDATE `quest_template` SET `Details` = '$N, can you take one of the seeds you brought me to my friend, Rellian Greenspyre?  He is a druid in Darnassus, and when last we spoke he revealed his interest in my work with the Timberlings.  He had some ideas himself, and he will appreciate a specimen seed to work with.$B$BThank you, $N.  You have been a great help to me.  I hope that, some day, you will see the fruit of my labors.' WHERE (`entry` = 922);
+        -- [RewOrReqMoney v3596] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 200 WHERE (`entry` = 923);
+        -- [Details v3596] | 
+        UPDATE `quest_template` SET `Details` = 'I was dispatched with a small group of Sentinels here to protect the Oracle Tree from the harpies that have made nests all around the glade. Little by little we are trying to push them back.$b$bWhen the Oracle Tree attempted to send a runner to Darnassus with a report, the mesenger was attacked and killed by a group of the harpies.$b$bIf you feel up to the task, go to their nests, slay them, and return their belts to me as proof of your deeds.' WHERE (`entry` = 937);
+        -- [QuestLevel v3596] | [RewOrReqMoney v3596] | 
+        UPDATE `quest_template` SET `QuestLevel` = 16, `RewOrReqMoney` = 300 WHERE (`entry` = 947);
+        -- [Details v3925] | [Objectives v3925] | 
+        UPDATE `quest_template` SET `Details` = 'If you had enough time to run messages for the Oracle Tree, then I\'m sure that I can press you into service to deliver a message to the Grove of the Ancients in Darkshore.$b$bYou will most likely have to secure transport on a hippogryph, but I have faith enough in you that you can manage that. Take this to Onu, the Ancient of Lore. He has been awaiting word from me, even as I waited for news from the Oracle Glade.', `Objectives` = 'Deliver Fandral\'s message to Onu in the Grove of the Ancients in Darkshore.' WHERE (`entry` = 952);
+        -- [RewOrReqMoney v3596] | 
+        UPDATE `quest_template` SET `RewOrReqMoney` = 300 WHERE (`entry` = 958);
+        -- [ZoneOrSort v3925] | 
+        UPDATE `quest_template` SET `ZoneOrSort` = 1638 WHERE (`entry` = 962);
+        -- [Details v3925] | 
+        UPDATE `quest_template` SET `Details` = 'Hail, young $r. I am Elissa Starbreeze, and it is my charge to protect Auberdine from harm.$b$bTo this end, I sent Balthule Shadowstrike to observe the strange happenings around the Tower of Althalaxx to the northeast.$b$bIt is past time that he should have returned. I worry that he has encountered some unforseen danger in the forest. I would be most appreciative if you would find him and see that he is doing well.' WHERE (`entry` = 965);
+        -- [Details v3925] | [Title v3925] | [QuestLevel v3925] | [RewOrReqMoney v3925] | [RewChoiceItemId1 v3925] | [RewChoiceItemCount1 v3925] | [RewChoiceItemId2 v3925] | [RewChoiceItemCount2 v3925] | 
+        UPDATE `quest_template` SET `Details` = 'Off the coast of Darkshore to our north are two wrecked ships - the Silver Dawning and the Mist Veil.  Some time ago, both ships ran afoul of the blasted murlocs as they sailed across the vast sea into Auberdine.  They now they lie at the bottom of the ocean as trophies for those fiends.$B$BBoth captains didn\'t make it out that night, and their logs and other effects are still below in lockboxes.  I\'d like for you to recover them for us; it would mean a lot to the crew members still around these parts.', `Title` = 'Deep Ocean Vast Sea <needs reward>', `QuestLevel` = 14, `RewOrReqMoney` = 0, `RewChoiceItemId1` = 0, `RewChoiceItemCount1` = 0, `RewChoiceItemId2` = 0, `RewChoiceItemCount2` = 0 WHERE (`entry` = 982);
+        -- [Details v3596] | 
+        UPDATE `quest_template` SET `Details` = '$N, I\'ve come to find out how rampant the effects of Fel Moss are. Some of my brethren were rescued from a corrupt furbolg in Teldrassil, and I\'ve vowed to stop any more atrocities before more of our kind are injured... or worse.$B$BI have seen a couple hints of corruption in Darkshore already, but I have yet to find any widespread signs. I think it would be logical if the investigation continued with the furbolgs. Would you find one of their camps, and return to me if you see any signs of corruption?' WHERE (`entry` = 984);
+        -- [Details v3925] | 
+        UPDATE `quest_template` SET `Details` = '$N, your skills have already helped me in my endeavor. Could I impose on you again to help Grimclaw and his master Volcor? In addition, I can craft you a magical cloak that will allow you to walk unhindered by Darkshore\'s creatures while you look for him.$B$BTo create the cloak, I\'ll need five fine moonstalker pelts from a moonstalker sire or matriarch to have enough material. The cats can be found north of here near Wildbend River or much farther to the south, closer to Ashenvale.' WHERE (`entry` = 986);
+        -- [Details v3596] | 
+        UPDATE `quest_template` SET `Details` = 'Are you heading to the south?  To Lake Al\'Ameth?  If so, then I have a task I might ask of you...$B$BMy colleage Denalan has a camp along the eastern end of the lake, where he is studying and experimenting on the plant life of Teldrassil.  He requested a package of rare earths from Darnassus and it was late, only recently arriving here in Dolanaar.$B$BCan you take him the package?' WHERE (`entry` = 997);
+        -- [Title v3596] | [QuestLevel v3596] | [ZoneOrSort v3596] | [ReqItemId1 v3596] | [ReqItemCount1 v3596] | 
+        UPDATE `quest_template` SET `Title` = 'The Strange Fruit *GOSSIP*', `QuestLevel` = 1, `ZoneOrSort` = 141, `ReqItemId1` = 0, `ReqItemCount1` = 0 WHERE (`entry` = 998);
+        -- [ZoneOrSort v3925] | 
+        UPDATE `quest_template` SET `ZoneOrSort` = 130 WHERE (`entry` = 1014);
+        -- [QuestLevel v3596] | [ZoneOrSort v3596] | 
+        UPDATE `quest_template` SET `QuestLevel` = 1, `ZoneOrSort` = 11 WHERE (`entry` = 1019);
+        -- [Details v3925] | [Objectives v3925] | [ReqCreatureOrGOId1 v3925] | [ReqCreatureOrGOCount1 v3925] | [ReqCreatureOrGOId2 v3925] | [ReqCreatureOrGOCount2 v3925] | 
+        UPDATE `quest_template` SET `Details` = 'The goblin-run Venture Company moved into the Stonetalon Mountains to the west, chopping down trees and burning huge stretches of forest.  The spirits of this place are nearly blind with pain and rage.  We must stop the Venture Company!$B$BHead west into the Greatwood Vale.  You will find the goblins and their servants at work -- show them the Horde will not allow the exploitation of Stonetalon.  Show them in the language they best understand...$B$BViolence.', `Objectives` = 'Kill 12 Venture Co. Cutters and 10 Venture Co. Grinders, then return to Seereth Stonebreak on the border of Stonetalon and the Barrens.', `ReqCreatureOrGOId1` = 3990, `ReqCreatureOrGOCount1` = 12, `ReqCreatureOrGOId2` = 4071, `ReqCreatureOrGOCount2` = 10 WHERE (`entry` = 1062);
+        -- [ZoneOrSort v3494] | 
+        UPDATE `quest_template` SET `ZoneOrSort` = 80 WHERE (`entry` = 1097);
+        -- [Objectives v3925] | [ZoneOrSort v3925] | [ReqItemCount1 v3925] | 
+        UPDATE `quest_template` SET `Objectives` = 'Grab a Crate with Holes.$BGrab a Snufflenose Command Stick.$BGrab and read the Snufflenose Owner\'s Manual.$B$BIn Razorfen Kraul, use the Crate with Holes to summon a Snufflenose Gopher, and use the Command Stick on the gopher to make it search for Tubers.$B$BBring 10 Blueleaf Tubers, the Snufflenose Command Stick and the Crate with Holes to Mebok Mizzyrix in Ratchet.', `ZoneOrSort` = 17, `ReqItemCount1` = 10 WHERE (`entry` = 1221);
+        -- [Details v3494] | [Objectives v3494] | [Title v3494] | 
+        UPDATE `quest_template` SET `Details` = 'We dwarves aren\'t the only ones fighting.  Our human allies have their hands full too!$B$BRedridge is under periodic attack from blackrock orcs, and their supply of equipment is always low.  If you were to help them out, I\'m sure their resident blacksmith, Vernor Osgood, would teach you a trick or two.', `Objectives` = 'Tormus Deepforge  wants you to bring 4 Runed Copper Belts and 4 Heavy Copper Mauls to Vernor Osgood in Redridge.', `Title` = '<test> Gearing Redridge' WHERE (`entry` = 1618);
+        -- [Details v3494] | [RewItemId1 v3494] | [RewItemCount1 v3494] | 
+        UPDATE `quest_template` SET `Details` = 'If you want to rise in the ranks of  the warriors, then you better be tough.  I can teach you new moves but before that, prove to me you can handle yourself against real foes.$B$BVejrek is the toughest troll you\'ll find in these parts, and he\'s who you have to beat.  He has a hut just south of Frostmane Hold--a cave cut into the mountains of western Dun Morogh$B$BBring me Vejrek\'s head and I\'ll know you have mettle.', `RewItemId1` = 6619, `RewItemCount1` = 1 WHERE (`entry` = 1678);
         -- [Details v3925] | [Objectives v3925] | 
         UPDATE `quest_template` SET `Details` = 'I have placed the elunite you gathered into a case.  Take the it to the blacksmith Mathiel, and he will craft for you an elunite weapon.$B$BMathiel is to the south, on the other side of this building.', `Objectives` = 'Bring the Case of Elunite to Smith Mathiel.' WHERE (`entry` = 1692);
-        -- [Objectives v3925] | [MinLevel v3925] | [ReqCreatureOrGOId1 v3925] | [ReqCreatureOrGOCount1 v3925] | 
-        UPDATE `quest_template` SET `Objectives` = 'Capture a living Rabid Thistle Bear and bring it back to Tharnariun.', `MinLevel` = 14, `ReqCreatureOrGOId1` = 0, `ReqCreatureOrGOCount1` = 0 WHERE (`entry` = 2118);
-        -- [MinLevel v3596] | [Details v3596] | [Objectives v3596] | [Title v3596] | 
-        UPDATE `quest_template` SET `MinLevel` = 5, `Details` = 'Greetings, young $c.  Can you offer me aid?  I have a package of herbs that I must deliver to the town of Dolanaar.  But I still have business with the druids of Shadowglen and cannot yet leave.$B$BCan you deliver this package for me?  It must be sent to Melarith, at the Dolanaar inn.  It lies along the road, to the south.', `Objectives` = 'Bring the Dolanaar Delivery to Melarith.', `Title` = '<NYI> Dolanaar Delivery' WHERE (`entry` = 2159);
-        -- [Details v3925] | [MinLevel v3925] | 
-        UPDATE `quest_template` SET `Details` = 'I was once given an emerald dreamcatcher from Gaerolas Talvethen, the warden of the druids in the Ban\'ethil Barrow Den. This powerful amulet is able to siphon energy from the Emerald Dream, bestowing luck upon those who carry it.$B$BSadly, I have not been able to retrieve it from my dresser in Starbreeze Village... Although Starbreeze was once a tranquil place, it has now succumbed to the corruption of the furbolg that reside there.$B$BPerhaps you would be willing to recover my dreamcatcher, $c?', `MinLevel` = 6 WHERE (`entry` = 2438);
-        -- [MinLevel v3925] | [ReqCreatureOrGOId1 v3925] | [ReqCreatureOrGOCount1 v3925] | [ReqCreatureOrGOId2 v3925] | [ReqCreatureOrGOCount2 v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 8, `ReqCreatureOrGOId1` = 7235, `ReqCreatureOrGOCount1` = 7, `ReqCreatureOrGOId2` = 0, `ReqCreatureOrGOCount2` = 0 WHERE (`entry` = 2459);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 9 WHERE (`entry` = 2498);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 9 WHERE (`entry` = 2499);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 12 WHERE (`entry` = 2518);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 12 WHERE (`entry` = 2520);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 8 WHERE (`entry` = 2541);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 10 WHERE (`entry` = 2561);
+        -- [Objectives v3925] | [ReqCreatureOrGOId1 v3925] | [ReqCreatureOrGOCount1 v3925] | 
+        UPDATE `quest_template` SET `Objectives` = 'Capture a living Rabid Thistle Bear and bring it back to Tharnariun.', `ReqCreatureOrGOId1` = 0, `ReqCreatureOrGOCount1` = 0 WHERE (`entry` = 2118);
+        -- [Details v3596] | [Objectives v3596] | [Title v3596] | 
+        UPDATE `quest_template` SET `Details` = 'Greetings, young $c.  Can you offer me aid?  I have a package of herbs that I must deliver to the town of Dolanaar.  But I still have business with the druids of Shadowglen and cannot yet leave.$B$BCan you deliver this package for me?  It must be sent to Melarith, at the Dolanaar inn.  It lies along the road, to the south.', `Objectives` = 'Bring the Dolanaar Delivery to Melarith.', `Title` = '<NYI> Dolanaar Delivery' WHERE (`entry` = 2159);
+        -- [Details v3925] | 
+        UPDATE `quest_template` SET `Details` = 'I was once given an emerald dreamcatcher from Gaerolas Talvethen, the warden of the druids in the Ban\'ethil Barrow Den. This powerful amulet is able to siphon energy from the Emerald Dream, bestowing luck upon those who carry it.$B$BSadly, I have not been able to retrieve it from my dresser in Starbreeze Village... Although Starbreeze was once a tranquil place, it has now succumbed to the corruption of the furbolg that reside there.$B$BPerhaps you would be willing to recover my dreamcatcher, $c?' WHERE (`entry` = 2438);
+        -- [ReqCreatureOrGOId1 v3925] | [ReqCreatureOrGOCount1 v3925] | [ReqCreatureOrGOId2 v3925] | [ReqCreatureOrGOCount2 v3925] | 
+        UPDATE `quest_template` SET `ReqCreatureOrGOId1` = 7235, `ReqCreatureOrGOCount1` = 7, `ReqCreatureOrGOId2` = 0, `ReqCreatureOrGOCount2` = 0 WHERE (`entry` = 2459);
         -- [Details v3925] | [Objectives v3925] | 
         UPDATE `quest_template` SET `Details` = 'I hope my sigil finds you well, $c. I write to you because our people have need for those strong with the blade, the glaive, and all other weapons. So much has happened since our people have been reintroduced to the other races of Azeroth that we have an even greater need for protectors of all kinds.$B$BThis is where you come in. I would tell you more, but I feel it should be in person. Find me inside Aldrassil... on the lower levels.$B$B-Alyissia, Warrior Trainer', `Objectives` = 'Speak to Alyissia in Shadowglen.' WHERE (`entry` = 3116);
-        -- [Objectives v3925] | [MinLevel v3925] | [ZoneOrSort v3925] | 
-        UPDATE `quest_template` SET `Objectives` = 'Find someone that can tell you more about the Nightmare Shard.', `MinLevel` = 25, `ZoneOrSort` = -21 WHERE (`entry` = 3366);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 4 WHERE (`entry` = 3519);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 4 WHERE (`entry` = 3521);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 4 WHERE (`entry` = 3522);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 13 WHERE (`entry` = 3524);
-        -- [Details v3925] | [Objectives v3925] | [MinLevel v3925] | [ZoneOrSort v3925] | [ReqItemCount1 v3925] | 
-        UPDATE `quest_template` SET `Details` = 'Long ago, the night elves were called the Kaldorei, a name that means "children of the stars." Learning of the past is an important step in your path as a $c, $N, so listen well to what I have to tell you$B$BThe Kaldorei have always taken much pride in their harmonious relationship with nature. This means that we only take from nature what is necessary, and that we return in kind. This balance has afforded us much, $N.$B$BGo out and collect 10 small spider legs -- no more than that, and return to me.', `Objectives` = 'Collect 10 Small Spider Legs for Zarrin in Dolanaar.', `MinLevel` = 7, `ZoneOrSort` = 141, `ReqItemCount1` = 10 WHERE (`entry` = 4161);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 4 WHERE (`entry` = 4495);
-        -- [Title v3925] | [MinLevel v3925] | [RewChoiceItemId1 v3925] | [RewChoiceItemCount1 v3925] | [RewChoiceItemId2 v3925] | [RewChoiceItemCount2 v3925] | [RewChoiceItemId3 v3925] | [RewChoiceItemCount3 v3925] | 
-        UPDATE `quest_template` SET `Title` = 'Washed Ashore <needs reward>', `MinLevel` = 14, `RewChoiceItemId1` = 0, `RewChoiceItemCount1` = 0, `RewChoiceItemId2` = 0, `RewChoiceItemCount2` = 0, `RewChoiceItemId3` = 0, `RewChoiceItemCount3` = 0 WHERE (`entry` = 4681);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 15 WHERE (`entry` = 4761);
-        -- [MinLevel v3925] | 
-        UPDATE `quest_template` SET `MinLevel` = 15 WHERE (`entry` = 4762);
-		
-        insert into applied_updates values ('310320221');
+        -- [Objectives v3925] | [ZoneOrSort v3925] | 
+        UPDATE `quest_template` SET `Objectives` = 'Find someone that can tell you more about the Nightmare Shard.', `ZoneOrSort` = -21 WHERE (`entry` = 3366);
+        -- [Details v3925] | [Objectives v3925] | [ZoneOrSort v3925] | [ReqItemCount1 v3925] | 
+        UPDATE `quest_template` SET `Details` = 'Long ago, the night elves were called the Kaldorei, a name that means "children of the stars." Learning of the past is an important step in your path as a $c, $N, so listen well to what I have to tell you$B$BThe Kaldorei have always taken much pride in their harmonious relationship with nature. This means that we only take from nature what is necessary, and that we return in kind. This balance has afforded us much, $N.$B$BGo out and collect 10 small spider legs -- no more than that, and return to me.', `Objectives` = 'Collect 10 Small Spider Legs for Zarrin in Dolanaar.', `ZoneOrSort` = 141, `ReqItemCount1` = 10 WHERE (`entry` = 4161);
+        -- [Title v3925] | [RewChoiceItemId1 v3925] | [RewChoiceItemCount1 v3925] | [RewChoiceItemId2 v3925] | [RewChoiceItemCount2 v3925] | [RewChoiceItemId3 v3925] | [RewChoiceItemCount3 v3925] | 
+        UPDATE `quest_template` SET `Title` = 'Washed Ashore <needs reward>', `RewChoiceItemId1` = 0, `RewChoiceItemCount1` = 0, `RewChoiceItemId2` = 0, `RewChoiceItemCount2` = 0, `RewChoiceItemId3` = 0, `RewChoiceItemCount3` = 0 WHERE (`entry` = 4681);
+            insert into applied_updates values ('310320221');
     end if;
 
     -- 01/04/2022 1
