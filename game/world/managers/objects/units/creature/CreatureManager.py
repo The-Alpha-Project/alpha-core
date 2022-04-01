@@ -288,9 +288,8 @@ class CreatureManager(UnitManager):
                     if addon_template.auras:
                         spells = str(addon_template.auras).rsplit(' ')
                         for spell in spells:
-                            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(int(spell))
-                            if spell_template:
-                                self.spell_manager.start_spell_cast(spell_template, self, SpellTargetMask.SELF)
+                            self.spell_manager.handle_cast_attempt(int(spell), self, SpellTargetMask.SELF,
+                                                                   validate=False)
 
                     # Update display id if available.
                     if addon_template.display_id:

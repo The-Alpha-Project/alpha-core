@@ -10,7 +10,7 @@ from game.world.managers.objects.units.player.guild.GuildManager import GuildMan
 from utils.ConfigManager import config
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import HighGuid
-from utils.constants.SpellCodes import SpellEffects
+from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -279,7 +279,8 @@ class CommandManager(object):
                 return -1, 'The spell was not found.'
 
             unit = CommandManager._target_or_self(world_session)
-            world_session.player_mgr.spell_manager.start_spell_cast(spell, unit, triggered=True)
+            world_session.player_mgr.spell_manager.handle_cast_attempt(spell_id, unit, SpellTargetMask.UNIT,
+                                                                       validate=False)
             return 0, ''
         except ValueError:
             return -1, 'Invalid ID.'
