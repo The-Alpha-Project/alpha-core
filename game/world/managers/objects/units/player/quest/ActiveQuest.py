@@ -110,7 +110,6 @@ class ActiveQuest:
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
         self.owner.enqueue_packet(packet)
         # Check if this makes it complete.
-        can_complete = self.can_complete_quest()
         if self.can_complete_quest():
             self.update_quest_state(QuestState.QUEST_REWARD)
 
@@ -118,7 +117,7 @@ class ActiveQuest:
         if not required_count:
             required_count = QuestHelpers.generate_req_item_count_list(self.quest)[index]
 
-        # Be sure we clamp between 0 and required.
+        # Make sure we clamp between 0 and required.
         current_db_count = self._get_db_item_count(index)
         if current_db_count + value > required_count:
             value = required_count - current_db_count
