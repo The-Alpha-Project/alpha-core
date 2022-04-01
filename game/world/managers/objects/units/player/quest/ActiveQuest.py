@@ -171,14 +171,14 @@ class ActiveQuest:
         required_creature_go = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
         for i in range(0, 4):
             current_value = eval(f'self.db_state.mobcount{i + 1}')
-            if current_value != required_creature_go[i]:
+            if current_value < required_creature_go[i]:
                 return False
 
         # Check for required items.
         required_items = QuestHelpers.generate_req_item_count_list(self.quest)
         for i in range(0, 4):
             current_value = eval(f'self.db_state.itemcount{i + 1}')
-            if current_value != required_items[i]:
+            if current_value < required_items[i]:
                 return False
 
         # TODO: Check ReqMoney
