@@ -121,7 +121,7 @@ class ActiveQuest:
         # Be sure we clamp between 0 and required.
         current_db_count = self._get_db_item_count(index)
         if current_db_count + value > required_count:
-            value = required_count
+            value = required_count - current_db_count
         if current_db_count + value < 0:
             value = 0
 
