@@ -12,6 +12,7 @@ from game.world.managers.objects.units.player.StatManager import StatManager, Un
 from game.world.managers.objects.spell.AuraManager import AuraManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
 from network.packet.PacketWriter import PacketWriter, OpCode
+from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
@@ -897,7 +898,7 @@ class UnitManager(ObjectManager):
         self.set_int32(UnitFields.UNIT_FIELD_MOD_DAMAGE_DONE + school, value)
 
     def set_melee_damage(self, min_dmg, max_dmg):
-        damages = unpack('<I', pack('<2H', min_dmg, max_dmg))[0]
+        damages = ByteUtils.shorts_to_int(max_dmg, min_dmg)
         self.damage = damages
         self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, damages)
 
@@ -1021,6 +1022,22 @@ class UnitManager(ObjectManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
         self.set_stand_state(StandState.UNIT_STANDING)
+
+    # Implemented by CreatureManager and PlayerManager
+    def get_bytes_0(self):
+        pass
+
+    # Implemented by CreatureManager and PlayerManager
+    def get_bytes_1(self):
+        pass
+
+    # Implemented by CreatureManager and PlayerManager
+    def get_bytes_2(self):
+        pass
+
+    # Implemented by CreatureManager and PlayerManager
+    def get_damages(self):
+        pass
 
     # override
     def on_cell_change(self):

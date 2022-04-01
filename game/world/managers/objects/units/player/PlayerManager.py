@@ -24,6 +24,7 @@ from game.world.managers.objects.units.player.taxi.TaxiManager import TaxiManage
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
 from utils import Formulas
+from utils.ByteUtils import ByteUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
@@ -106,8 +107,8 @@ class PlayerManager(UnitManager):
             self.guid = self.generate_object_guid(self.player.guid)
             self.inventory = InventoryManager(self)
             self.level = self.player.level
-            self.player_bytes = unpack('<I', pack('<4B', self.player.skin, self.player.face, self.player.hairstyle, self.player.haircolour))[0]
-            self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
+            self.player_bytes = self.get_player_bytes()
+            self.player_bytes_2 = self.get_player_bytes_2()
             self.xp = player.xp
             self.talent_points = self.player.talentpoints
             self.skill_points = self.player.skillpoints
@@ -610,7 +611,7 @@ class PlayerManager(UnitManager):
         else:
             self.power_type = ShapeshiftInfo.get_power_for_form(self.shapeshift_form)
 
-        self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.gender, self.power_type))[0]
+        self.bytes_0 = self.get_bytes_0()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
 
     def loot_money(self):
@@ -855,7 +856,7 @@ class PlayerManager(UnitManager):
 
     def add_bank_slot(self, slot_cost):
         self.player.bankslots += 1
-        self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
+        self.player_bytes_2 = self.get_player_bytes_2()
         self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.player_bytes_2)
         self.mod_money(-slot_cost, update_inventory=True)
 
@@ -962,10 +963,10 @@ class PlayerManager(UnitManager):
 
     # override
     def get_full_update_packet(self, requester):
-        self.bytes_0 = unpack('<I', pack('<4B', self.player.race, self.player.class_, self.gender, self.power_type))[0]
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
-        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
-        self.player_bytes_2 = unpack('<I', pack('<4B', self.player.extra_flags, self.player.facialhair, self.player.bankslots, 0))[0]
+        self.bytes_0 = self.get_bytes_0()
+        self.bytes_1 = self.get_bytes_1()
+        self.bytes_2 = self.get_bytes_2()
+        self.player_bytes_2 = self.get_player_bytes_2()
 
         # Object fields
         self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.player.guid)
@@ -1311,19 +1312,19 @@ class PlayerManager(UnitManager):
     # override
     def set_weapon_mode(self, weapon_mode):
         super().set_weapon_mode(weapon_mode)
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
+        self.bytes_1 = self.get_bytes_1()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
     def set_stand_state(self, stand_state):
         super().set_stand_state(stand_state)
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
+        self.bytes_1 = self.get_bytes_1()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
     def set_shapeshift_form(self, shapeshift_form):
         super().set_shapeshift_form(shapeshift_form)
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, 0, self.shapeshift_form, self.sheath_state))[0]
+        self.bytes_1 = self.get_bytes_1()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
@@ -1337,7 +1338,7 @@ class PlayerManager(UnitManager):
         else:
             self.combo_points = min(combo_points + self.combo_points, 5)
 
-        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
+        self.bytes_2 = self.get_bytes_2()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
         self.combo_target = target.guid
@@ -1346,7 +1347,7 @@ class PlayerManager(UnitManager):
     # override
     def remove_combo_points(self):
         self.combo_points = 0
-        self.bytes_2 = unpack('<I', pack('<4B', self.combo_points, 0, 0, 0))[0]
+        self.bytes_2 = self.get_bytes_2()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
         self.combo_target = 0
@@ -1521,6 +1522,53 @@ class PlayerManager(UnitManager):
         self.respawn()
         self.spirit_release_timer = 0
         self.teleport_deathbind()
+
+    def get_player_bytes(self):
+        return ByteUtils.bytes_to_int(
+            self.player.haircolour,  # hair colour
+            self.player.hairstyle,  # hair style
+            self.player.face,  # player face
+            self.player.skin  # player skin
+        )
+
+    def get_player_bytes_2(self):
+        return ByteUtils.bytes_to_int(
+            0,  # values from Exhaustion.dbc in later versions, unknown here
+            self.player.bankslots,  # bank slots
+            self.player.facialhair,  # facial hair
+            self.player.extra_flags  # extra flags
+        )
+
+    # override
+    def get_bytes_0(self):
+        return ByteUtils.bytes_to_int(
+            self.power_type,  # power type
+            self.gender,  # gender
+            self.player.class_,  # player class
+            self.player.race  # player race
+        )
+
+    # override
+    def get_bytes_1(self):
+        return ByteUtils.bytes_to_int(
+            self.sheath_state,  # sheath state
+            self.shapeshift_form,  # shapeshift form
+            0,  # npc flags (0 for players)
+            self.stand_state  # stand state
+        )
+
+    # override
+    def get_bytes_2(self):
+        return ByteUtils.bytes_to_int(
+            0,  # unknown
+            0,  # pet flags (0 for players)
+            0,  # misc flags (0 for players?)
+            self.combo_points  # combo points
+        )
+
+    # override
+    def get_damages(self):
+        return self.damage
 
     # override
     def on_cell_change(self):

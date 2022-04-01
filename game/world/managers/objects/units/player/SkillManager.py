@@ -7,6 +7,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
 from network.packet.PacketWriter import PacketWriter
+from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
 from utils.constants.ItemCodes import ItemClasses
@@ -484,9 +485,12 @@ class SkillManager(object):
         for skill_id, skill in self.skills.items():
             total_value = self.get_total_skill_value(skill_id)
             self.player_mgr.set_uint32(PlayerFields.PLAYER_SKILL_INFO_1_1 + (count * 3),
-                                       unpack('<I', pack('<2H', skill_id, skill.value))[0])
+                                       # skill value, skill id
+                                       ByteUtils.shorts_to_int(skill.value, skill_id))
             self.player_mgr.set_uint32(PlayerFields.PLAYER_SKILL_INFO_1_1 + (count * 3) + 1,
-                                       unpack('<I', pack('<2H', skill.max, total_value - skill.value))[0])  # max_rank, skill_mod
+                                       # skill mod, max rank
+                                       ByteUtils.shorts_to_int(total_value - skill.value, skill.max))
             self.player_mgr.set_uint32(PlayerFields.PLAYER_SKILL_INFO_1_1 + (count * 3) + 2,
-                                       unpack('<I', pack('<2H', 0, 0))[0])  # skill_step, padding
+                                       # padding, skill step
+                                       ByteUtils.shorts_to_int(0, 0))
             count += 1

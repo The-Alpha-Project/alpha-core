@@ -476,7 +476,7 @@ class GroupManager(object):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
         if player_mgr:
             player_mgr.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
-            player_mgr.player_bytes_2 = unpack('<I', pack('<4B', player_mgr.player.extra_flags, player_mgr.player.facialhair, player_mgr.player.bankslots, 0))[0]
+            player_mgr.player_bytes_2 = player_mgr.get_player_bytes_2()
             player_mgr.set_uint32(PlayerFields.PLAYER_BYTES_2, player_mgr.player_bytes_2)
 
     @staticmethod
@@ -484,7 +484,7 @@ class GroupManager(object):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
         if player_mgr:
             player_mgr.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
-            player_mgr.player_bytes_2 = unpack('<I', pack('<4B', player_mgr.player.extra_flags, player_mgr.player.facialhair, player_mgr.player.bankslots, 0))[0]
+            player_mgr.player_bytes_2 = player_mgr.get_player_bytes_2()
             player_mgr.set_uint32(PlayerFields.PLAYER_BYTES_2, player_mgr.player_bytes_2)
 
     @staticmethod

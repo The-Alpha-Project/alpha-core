@@ -14,6 +14,7 @@ from game.world.managers.objects.units.creature.CreatureLootManager import Creat
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
+from utils.ByteUtils import ByteUtils
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
 from utils.constants.SpellCodes import SpellTargetMask
@@ -310,13 +311,13 @@ class CreatureManager(UnitManager):
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
 
         if item_template:
+            virtual_item_info = ByteUtils.bytes_to_int(
+                item_template.inventory_type,
+                item_template.material,
+                item_template.subclass,
+                item_template.class_
+            )
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, item_template.display_id)
-            virtual_item_info = unpack('<I', pack('<4B',
-                                                  item_template.class_,
-                                                  item_template.subclass,
-                                                  item_template.material,
-                                                  item_template.inventory_type)
-                                       )[0]
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item_info)
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, item_template.sheath)
 
@@ -393,14 +394,10 @@ class CreatureManager(UnitManager):
     def get_full_update_packet(self, requester):
         self.finish_loading()
 
-        # race, class, gender, power_type
-        self.bytes_0 = unpack('<I', pack('<4B', 0, self.creature_template.unit_class, self.gender, self.power_type))[0]
-        # stand_state, npc_flags, shapeshift_form, visibility_flag
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form, 0))[0]
-        # sheath_state, misc_flags, pet_flags, unknown
-        self.bytes_2 = unpack('<I', pack('<4B', self.sheath_state, 0, 0, 0))[0]
-        self.damage = unpack('<I', pack('<2H', int(self.creature_template.dmg_min),
-                                        int(self.creature_template.dmg_max)))[0]
+        self.bytes_0 = self.get_bytes_0()
+        self.bytes_1 = self.get_bytes_1()
+        self.bytes_2 = self.get_bytes_2()
+        self.damage = self.get_damages()
 
         # Object fields
         self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
@@ -690,6 +687,40 @@ class CreatureManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
     # override
+    def get_bytes_0(self):
+        return ByteUtils.bytes_to_int(
+            self.power_type,  # power type
+            self.gender,  # gender
+            self.creature_template.unit_class,  # class
+            0  # race (0 for creatures)
+        )
+
+    # override
+    def get_bytes_1(self):
+        return ByteUtils.bytes_to_int(
+            0,  # visibility flags
+            self.shapeshift_form,  # shapeshift form
+            self.npc_flags,  # npc flags
+            self.stand_state  # stand state
+        )
+
+    # override
+    def get_bytes_2(self):
+        return ByteUtils.bytes_to_int(
+            0,  # unknown
+            0,  # pet flags
+            0,  # misc flags
+            self.sheath_state  # sheath state
+        )
+
+    # override
+    def get_damages(self):
+        return ByteUtils.shorts_to_int(
+            int(self.creature_template.dmg_max),
+            int(self.creature_template.dmg_min)
+        )
+
+    # override
     def has_offhand_weapon(self):
         return self.wearing_offhand_weapon
 
@@ -700,19 +731,19 @@ class CreatureManager(UnitManager):
     # override
     def set_weapon_mode(self, weapon_mode):
         super().set_weapon_mode(weapon_mode)
-        self.bytes_2 = unpack('<I', pack('<4B', self.sheath_state, 0, 0, 0))[0]
+        self.bytes_2 = self.get_bytes_2()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
     # override
     def set_stand_state(self, stand_state):
         super().set_stand_state(stand_state)
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form, 0))[0]
+        self.bytes_1 = self.get_bytes_1()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
     def set_shapeshift_form(self, shapeshift_form):
         super().set_shapeshift_form(shapeshift_form)
-        self.bytes_1 = unpack('<I', pack('<4B', self.stand_state, self.npc_flags, self.shapeshift_form, 0))[0]
+        self.bytes_1 = self.get_bytes_1()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
@@ -722,7 +753,7 @@ class CreatureManager(UnitManager):
         else:
             self.power_type = ShapeshiftInfo.get_power_for_form(self.shapeshift_form)
 
-        self.bytes_0 = unpack('<I', pack('<4B', 0, self.creature_template.unit_class, self.gender, self.power_type))[0]
+        self.bytes_0 = self.get_bytes_0()
 
     # override
     def get_type_id(self):

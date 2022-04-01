@@ -7,6 +7,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.item.ItemLootManager import ItemLootManager
+from utils.ByteUtils import ByteUtils
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.UpdateFields import ObjectFields, ItemFields
@@ -402,7 +403,7 @@ class ItemManager(ObjectManager):
         # Prior to Patch 1.7 ITEM_FIELD_FLAGS 32 bit value was built using 2 16 bit integers, dynamic item flags and
         # static item flags. For example an item with ITEM_FIELD_FLAGS = 0x00010000 would mean that it has dynamic
         # flags = 0x0001 (ITEM_DYNFLAG_BOUND) and static flags = 0x0000.
-        return unpack('<I', pack('<2H', self.item_template.flags, self.item_instance.item_flags))[0]
+        return ByteUtils.shorts_to_int(self.item_instance.item_flags, self.item_template.flags)
 
     # override
     def get_type_id(self):
