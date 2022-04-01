@@ -339,7 +339,7 @@ class InventoryManager(object):
                 self.is_bag_pos(target_slot) and self.get_container(target_slot):  # Equipped bags
             self.remove_bag(target_slot)
 
-        # Update the quest db state if needed. (Destroying item)
+        # Update the quest db state if needed. (Destroying item).
         if not swap_item and clear_slot:
             self.owner.quest_manager.pop_item(target_item.item_template.entry)
 
