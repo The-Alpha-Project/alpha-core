@@ -115,17 +115,12 @@ class ActiveQuest:
 
     # noinspection PyUnusedLocal
     def _update_db_item_count(self, index, value, required_count, override=False):
-        if override:
-            new_count = min(value, required_count)
-        else:
+        if not override:
             current_db_count = self._get_db_item_count(index)
-            # Make sure we clamp between 0 and required.
-            if current_db_count + value > required_count:
-                value = required_count - current_db_count
-            if current_db_count + value < 0:
-                value = 0
-            new_count = current_db_count + value
+            value = current_db_count + value
 
+        # Make sure we clamp between 0 and required.
+        new_count = max(0, min(value, required_count))
         exec(f'self.db_state.itemcount{index + 1} = new_count')
         self.save(is_new=False)
 
