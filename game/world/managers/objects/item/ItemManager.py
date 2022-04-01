@@ -1,4 +1,4 @@
-from struct import pack
+from struct import pack, unpack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterInventory
@@ -154,7 +154,7 @@ class ItemManager(ObjectManager):
         if self.item_template.bonding == ItemBondingTypes.BIND_WHEN_PICKED_UP:
             return True
 
-        return self.dynamic_flags & ItemDynFlags.ITEM_DYNFLAG_UNK16 == ItemDynFlags.ITEM_DYNFLAG_UNK16
+        return self.item_instance.item_flags & ItemDynFlags.ITEM_DYNFLAG_BOUND == ItemDynFlags.ITEM_DYNFLAG_BOUND
 
     def has_charges(self):
         charges = [self.item_template.spellcharges_1, self.item_template.spellcharges_2,
@@ -366,7 +366,7 @@ class ItemManager(ObjectManager):
             self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)
             self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
-            self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self.item_instance.item_flags)
+            self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
 
             self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES, self.item_instance.SpellCharges1)
             self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 1, self.item_instance.SpellCharges2)
@@ -393,10 +393,16 @@ class ItemManager(ObjectManager):
 
     def set_binding(self, bind=True):
         if bind:
-            self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNK16
+            self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_BOUND
         else:
-            self.item_instance.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_UNK16
-        self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self.item_instance.item_flags)
+            self.item_instance.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_BOUND
+        self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
+
+    def _get_item_flags(self):
+        # Prior to Patch 1.7 ITEM_FIELD_FLAGS 32 bit value was built using 2 16 bit integers, dynamic item flags and
+        # static item flags. For example an item with ITEM_FIELD_FLAGS = 0x00010000 would mean that it has dynamic
+        # flags = 0x0001 (ITEM_DYNFLAG_BOUND) and static flags = 0x0000.
+        return unpack('<I', pack('<2H', self.item_template.flags, self.item_instance.item_flags))[0]
 
     # override
     def get_type_id(self):
