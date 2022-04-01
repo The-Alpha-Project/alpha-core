@@ -66,7 +66,6 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_11: [],  # Word of Recall Other - seems deprecated so return nothing
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else [],
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if target_is_gameobject else [],
-            SpellImplicitTargets.TARGET_DUEL_VS_PLAYER: self.initial_target,  # Spells that can be cast on both hostile and friendly?
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
             SpellImplicitTargets.TARGET_MASTER: [],  # TODO
             SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start if targeted_unit_is_hostile else [],
@@ -311,6 +310,48 @@ class EffectTargets:
         return units_in_range_front
 
     @staticmethod
+    def resolve_duel_vs_player(casting_spell, target_effect):
+        # Seems to be used by a variety of spells.
+        # All single unit targets. Some can target both friendly and hostile,
+        # some seem to be npc spells cast on players.
+
+        # The client allows spells with this implicit target to be cast on any unit,
+        # regardless of what the spell should target by description.
+
+        # Some npc spells (cast in a quest context on the player): Mark of Shame (6767), Proudmoore's Defense (7120).
+        # Beast taming and charm spells.
+
+        # Since there doesn't seem to be a consistent pattern,
+        # handle special-case target filters here similar to effect_select.
+
+        # Effects using this target type are:
+        # SpellEffects.SPELL_EFFECT_DUMMY (Fake Shot/copy - 7105/7764, Simple Teleport Other - 7079).
+        # SpellEffects.SPELL_EFFECT_HEAL_MAX_HEALTH (First aid - 7162).
+        # SpellEffects.SPELL_EFFECT_TELEPORT_UNITS (Test of Faith/Test of Banishment - 6714/6766)
+        # SpellEffects.SPELL_EFFECT_DISPEL (Dispel Magic - 527/988 (both), Fix Car (??) - 7085).
+        # SpellEffects.SPELL_EFFECT_APPLY_AURA (>10 spells - some mentioned above. None player-accessible?).
+        # SpellEffects.SPELL_EFFECT_BIND_SIGHT (Mind Vision - 2096).
+        # SpellEffects.SPELL_EFFECT_DUEL (Duel - 7266).
+        # SpellEffects.SPELL_EFFECT_TAME_CREATURE (Tame Pet (TEST) - 2650, Beast Taming - 1515)
+
+
+        effect_type = target_effect.effect_type
+        initial_target = casting_spell.initial_target
+        caster = casting_spell.spell_caster
+
+
+        if effect_type == SpellEffects.SPELL_EFFECT_DUEL:
+            # Only friendly duel targets.
+            return [initial_target] if not caster.can_attack_target(initial_target) else []
+
+        elif effect_type == SpellEffects.SPELL_EFFECT_TAME_CREATURE:
+            # Only tameable, attackable targets.
+            return [initial_target] if initial_target.is_tameable() and \
+                                       caster.can_attack_target(initial_target) else []
+
+        return [initial_target]
+
+    @staticmethod
     def resolve_aoe_enemy_channel(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
@@ -392,6 +433,7 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY: EffectTargets.resolve_party_around_caster,
     SpellImplicitTargets.TARGET_ALL_AROUND_CASTER: EffectTargets.resolve_all_around_caster,
     SpellImplicitTargets.TARGET_INFRONT: EffectTargets.resolve_enemy_infront,
+    SpellImplicitTargets.TARGET_DUEL_VS_PLAYER: EffectTargets.resolve_duel_vs_player,
     SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL: EffectTargets.resolve_aoe_enemy_channel,
     SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER: EffectTargets.resolve_all_friendly_around_caster,
     SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA: EffectTargets.resolve_all_friendly_in_area,

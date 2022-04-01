@@ -714,6 +714,10 @@ class UnitManager(ObjectManager):
     def is_fleeing(self):
         return self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
+    # Implemented by CreatureManager.
+    def is_tameable(self):
+        return False
+
     # override
     def change_speed(self, speed=0):
         # Assign new base speed.

@@ -362,6 +362,10 @@ class CreatureManager(UnitManager):
     def is_trainer(self) -> bool:
         return self.npc_flags & NpcFlags.NPC_FLAG_TRAINER
 
+    # override
+    def is_tameable(self) -> bool:
+        return self.static_flags & CreatureStaticFlags.TAMEABLE
+
     # TODO: Validate trainer_spell field and Pet trainers.
     def can_train(self, player_mgr) -> bool:
         if not self.is_trainer():
