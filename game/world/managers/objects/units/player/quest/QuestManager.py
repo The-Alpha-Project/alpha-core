@@ -597,6 +597,13 @@ class QuestManager(object):
         if quest.entry not in self.active_quests and not QuestHelpers.is_instant_complete_quest(quest):
             return
 
+        # While the dialog was open displaying 'Quest Complete' the user destroyed items.
+        # Validate if this quest can be completed.
+        active_quest = self.active_quests[quest.entry]
+        if not active_quest.can_complete_quest():
+            self.send_cant_take_quest_response(QuestFailedReasons.QUEST_FAILED_MISSING_ITEMS)
+            return
+
         quest_title_bytes = PacketWriter.string_to_bytes(quest.Title)
         display_dialog_text = quest.OfferRewardText
 
@@ -673,7 +680,7 @@ class QuestManager(object):
                 self.share_quest_event(active_quest)
 
         # Check if the player already has related items.
-        active_quest.fill_existent_items()
+        active_quest.update_required_items_from_inventory()
         if active_quest.can_complete_quest():
             self.complete_quest(active_quest, update_surrounding=False)
 
@@ -816,12 +823,12 @@ class QuestManager(object):
         self.active_quests[quest_id] = active_quest
         self.build_update()
 
-    def pop_item(self, item_entry, item_count):
+    def pop_item(self, item_entry):
         should_update = False
         for active_quest in list(self.active_quests.values()):
             if active_quest.requires_item(item_entry):
-                if active_quest.pop_item(item_entry, item_count):
-                    should_update = True
+                active_quest.update_required_items_from_inventory()
+                should_update = True
 
         if should_update:
             self.update_surrounding_quest_status()
