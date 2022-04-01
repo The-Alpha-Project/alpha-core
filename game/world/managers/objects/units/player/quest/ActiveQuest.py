@@ -124,7 +124,7 @@ class ActiveQuest:
                 value = 0
 
         # Either aggregate or set depending on 'is_set' flag.
-        exec(f'self.db_state.itemcount{index + 1} {"+=" if not is_set else "="} value')
+        exec(f'self.db_state.itemcount{index + 1} {"+=" if not is_set else "="} {"value" if not is_set else "min(value, required_count)"}')
         self.save(is_new=False)
 
     # noinspection PyMethodMayBeStatic
