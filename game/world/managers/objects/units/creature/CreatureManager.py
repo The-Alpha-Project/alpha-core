@@ -17,6 +17,7 @@ from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
+from utils.TextUtils import GameTextFormatter
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
@@ -236,9 +237,11 @@ class CreatureManager(UnitManager):
             train_spell_bytes += data
             train_spell_count += 1
 
-        # TODO: Temp placeholder.
-        greeting: str = f'Hello, {world_session.player_mgr.player.name}! Ready for some training?'
-        greeting_bytes = PacketWriter.string_to_bytes(greeting)
+        # TODO: Placeholder text, although it seems to appear in most of the trainer screenshots.
+        #  https://imgur.com/a/70OcLjv
+        placeholder_greeting: str = f'Hello, $c!  Ready for some training?'
+        greeting_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(world_session.player_mgr,
+                                                                               placeholder_greeting))
         greeting_bytes = pack(
                     f'<{len(greeting_bytes)}s', 
                     greeting_bytes
