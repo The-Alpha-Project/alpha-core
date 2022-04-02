@@ -230,8 +230,8 @@ class SkillManager(object):
     # Apply armor proficiencies and populate full_proficiency_masks.
     # noinspection PyUnusedLocal
     def load_proficiencies(self):
-        base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.player.race,
-                                                                             self.player_mgr.player.class_)
+        base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.race,
+                                                                             self.player_mgr.class_)
         if not base_info:
             return
 
