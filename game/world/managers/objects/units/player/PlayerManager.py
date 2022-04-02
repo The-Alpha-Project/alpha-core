@@ -499,8 +499,6 @@ class PlayerManager(UnitManager):
             # while the screen is still present.
             # Remove to others.
             MapManager.remove_object(self)
-            # Destroy self.
-            self.enqueue_packet(self.get_destroy_packet())
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
 
             data = pack(
