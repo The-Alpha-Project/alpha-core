@@ -532,6 +532,11 @@ class CreatureManager(UnitManager):
 
     def _perform_combat_movement(self):
         if self.combat_target:
+
+            if self.combat_target.is_alive == False and len(self.attackers) == 0:
+                self.evade()
+                return
+
             # TODO: Temp, extremely basic evade / runback mechanic based ONLY on distance. Replace later with a proper one.
             if self.location.distance(self.spawn_position) > 50:
                 self.evade()

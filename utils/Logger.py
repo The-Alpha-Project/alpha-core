@@ -27,7 +27,6 @@ class DebugLevel(IntEnum):
 
 
 class Logger:
-    IS_WINDOWS = platform == 'win32'
 
     @staticmethod
     def _should_log(log_type: DebugLevel):
@@ -37,9 +36,7 @@ class Logger:
     @staticmethod
     def _colorize_message(label, color, msg):
         date = datetime.now().strftime('[%d/%m/%Y %H:%M:%S]')
-        # No colors for Windows :)
-        if Logger.IS_WINDOWS:
-            return f'{label} {date} {msg}'
+        # Colorama seems to be working with windows nowadays.
         return f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
 
     @staticmethod
