@@ -252,8 +252,8 @@ class SkillManager(object):
             if acquire_method != ProficiencyAcquireMethod.ON_CHAR_CREATE:
                 continue
 
-            # All weapon proficiencies except misc weapons have proficiency spells.
-            # Armor proficiencies learned on character creation do not have spells
+            # All weapon proficiencies except misc weapons have passive proficiency spells.
+            # Armor proficiencies learned on character creation do not have associated spells.
             if item_class == ItemClasses.ITEM_CLASS_WEAPON:
                 misc_weapon_mask = 1 << ItemSubClasses.ITEM_SUBCLASS_MISC_WEAPON
                 if item_subclass_mask & misc_weapon_mask == 0:
