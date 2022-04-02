@@ -230,11 +230,6 @@ class SkillManager(object):
     # Apply armor proficiencies and populate full_proficiency_masks.
     # noinspection PyUnusedLocal
     def load_proficiencies(self):
-        def add_to_full_proficiency_mask(class_, subclass_mask):
-            curr_mask = self.full_proficiency_masks.get(class_, 0)
-            curr_mask |= subclass_mask
-            self.full_proficiency_masks[item_class] = curr_mask
-
         base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.player.race,
                                                                              self.player_mgr.player.class_)
         if not base_info:
@@ -249,21 +244,23 @@ class SkillManager(object):
             item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
             item_subclass_mask = eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}')
 
-            add_to_full_proficiency_mask(item_class, item_subclass_mask)
+            curr_mask = self.full_proficiency_masks.get(item_class, 0)
+            curr_mask |= item_subclass_mask
+            self.full_proficiency_masks[item_class] = curr_mask
 
             # Learned proficiencies are applied through passive spells.
             if acquire_method != ProficiencyAcquireMethod.ON_CHAR_CREATE:
                 continue
 
-            # Weapon proficiencies have passive spells assigned to them, but armor proficiencies don't.
-            if item_class != ItemClasses.ITEM_CLASS_ARMOR:
-                continue
-            self.add_proficiency(item_class, item_subclass_mask, -1)
+            # All weapon proficiencies except misc weapons have proficiency spells.
+            # Armor proficiencies learned on character creation do not have spells
+            if item_class == ItemClasses.ITEM_CLASS_WEAPON:
+                misc_weapon_mask = 1 << ItemSubClasses.ITEM_SUBCLASS_MISC_WEAPON
+                if item_subclass_mask & misc_weapon_mask == 0:
+                    continue
+                item_subclass_mask = misc_weapon_mask
 
-        # All players should be able to equip miscellaneous weapons.
-        misc_weapon_mask = 1 << ItemSubClasses.ITEM_SUBCLASS_MISC_WEAPON
-        add_to_full_proficiency_mask(ItemClasses.ITEM_CLASS_WEAPON, misc_weapon_mask)
-        self.add_proficiency(ItemClasses.ITEM_CLASS_WEAPON, misc_weapon_mask, -1)
+            self.add_proficiency(item_class, item_subclass_mask, -1)
 
     def add_proficiency(self, item_class, item_subclass_mask, skill_id):
         if item_class in self.proficiencies:
