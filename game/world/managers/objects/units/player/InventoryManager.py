@@ -530,11 +530,17 @@ class InventoryManager(object):
             self.send_equip_error(InventoryError.BAG_NOT_WHILE_DEAD, source_item, dest_item)
             return False
 
-        # Check equipment skill and level requirement
+        # Equipment requirements.
         if self.is_equipment_pos(dest_bag, dest_slot):
+            # If the display id of the item is invalid, prevent equipping it to avoid a client crash on next login.
+            if source_template.display_id > MAX_3368_ITEM_DISPLAY_ID:
+                self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, source_item, dest_item)
+                return False
+            # Check if the player has the required level.
             if source_template.required_level > self.owner.level:
                 self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
                 return False
+            # Check if the player has the required proficiency.
             if not self.owner.skill_manager.can_use_equipment(source_template.class_,
                                                               source_template.subclass):
                 self.send_equip_error(InventoryError.BAG_PROFICIENCY_NEEDED, source_item, dest_item)
