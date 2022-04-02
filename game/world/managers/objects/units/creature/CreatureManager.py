@@ -44,6 +44,7 @@ class CreatureManager(UnitManager):
         self.is_summon = is_summon
 
         self.entry = self.creature_template.entry
+        self.class_ = self.creature_template.unit_class
         self.native_display_id = self.generate_display_id()
         self.current_display_id = self.native_display_id
         self.max_health = self.creature_template.health_max
@@ -589,6 +590,8 @@ class CreatureManager(UnitManager):
             elapsed = now - self.last_tick
 
             if self.is_alive and self.is_spawned:
+                # Regeneration.
+                self.regenerate(elapsed)
                 # Spell/aura updates
                 self.spell_manager.update(now)
                 self.aura_manager.update(now)
@@ -694,7 +697,7 @@ class CreatureManager(UnitManager):
             self.power_type,  # power type
             self.gender,  # gender
             self.creature_template.unit_class,  # class
-            0  # race (0 for creatures)
+            self.race  # race (0 for creatures)
         )
 
     # override
