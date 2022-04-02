@@ -230,7 +230,7 @@ class SkillManager(object):
     # Apply armor proficiencies and populate full_proficiency_masks.
     # noinspection PyUnusedLocal
     def load_proficiencies(self):
-        def append_proficiency_mask(class_, subclass_mask):
+        def add_to_full_proficiency_mask(class_, subclass_mask):
             curr_mask = self.full_proficiency_masks.get(class_, 0)
             curr_mask |= subclass_mask
             self.full_proficiency_masks[item_class] = curr_mask
@@ -249,7 +249,7 @@ class SkillManager(object):
             item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
             item_subclass_mask = eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}')
 
-            append_proficiency_mask(item_class, item_subclass_mask)
+            add_to_full_proficiency_mask(item_class, item_subclass_mask)
 
             # Learned proficiencies are applied through passive spells.
             if acquire_method != ProficiencyAcquireMethod.ON_CHAR_CREATE:
@@ -262,7 +262,7 @@ class SkillManager(object):
 
         # All players should be able to equip miscellaneous weapons.
         misc_weapon_mask = 1 << ItemSubClasses.ITEM_SUBCLASS_MISC_WEAPON
-        append_proficiency_mask(ItemClasses.ITEM_CLASS_WEAPON, misc_weapon_mask)
+        add_to_full_proficiency_mask(ItemClasses.ITEM_CLASS_WEAPON, misc_weapon_mask)
         self.add_proficiency(ItemClasses.ITEM_CLASS_WEAPON, misc_weapon_mask, -1)
 
     def add_proficiency(self, item_class, item_subclass_mask, skill_id):
