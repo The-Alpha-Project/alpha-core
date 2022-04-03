@@ -17,6 +17,7 @@ from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
+from utils.TextUtils import GameTextFormatter
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
@@ -46,10 +47,19 @@ class CreatureManager(UnitManager):
         self.entry = self.creature_template.entry
         self.native_display_id = self.generate_display_id()
         self.current_display_id = self.native_display_id
-        self.max_health = self.creature_template.health_max
-        self.power_1 = self.creature_template.mana_min
-        self.max_power_1 = self.creature_template.mana_max
         self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
+
+        # Calculate relative level in order to get health and mana values.
+        rel_level = 0 if self.creature_template.level_max == self.creature_template.level_min else \
+            ((self.level - self.creature_template.level_min) /
+             (self.creature_template.level_max - self.creature_template.level_min))
+        self.max_health = self.creature_template.health_min + int(rel_level * (self.creature_template.health_max -
+                                                                               self.creature_template.health_min))
+        self.max_power_1 = self.creature_template.mana_min + int(rel_level * (self.creature_template.mana_max -
+                                                                              self.creature_template.mana_min))
+
+        self.health = self.max_health
+        self.power_1 = self.max_power_1
         self.resistance_0 = self.creature_template.armor
         self.resistance_1 = self.creature_template.holy_res
         self.resistance_2 = self.creature_template.fire_res
@@ -240,9 +250,11 @@ class CreatureManager(UnitManager):
             train_spell_bytes += data
             train_spell_count += 1
 
-        # TODO: Temp placeholder.
-        greeting: str = f'Hello, {world_session.player_mgr.player.name}! Ready for some training?'
-        greeting_bytes = PacketWriter.string_to_bytes(greeting)
+        # TODO: Placeholder text, although it seems to appear in most of the trainer screenshots.
+        #  https://imgur.com/a/70OcLjv
+        placeholder_greeting: str = f'Hello, $c!  Ready for some training?'
+        greeting_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(world_session.player_mgr,
+                                                                               placeholder_greeting))
         greeting_bytes = pack(
                     f'<{len(greeting_bytes)}s', 
                     greeting_bytes

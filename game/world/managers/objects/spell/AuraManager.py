@@ -28,32 +28,46 @@ class AuraManager:
         if not can_apply:
             return
 
-        # If this aura can stack and another is already applied
-        if aura.can_stack and len(existing_auras := self.get_auras_by_spell_id(aura.spell_id)) > 0:
-            if existing_auras[0].applied_stacks < existing_auras[0].max_stacks:
-                existing_auras[0].applied_stacks += 1  # Add a stack if the aura isn't at max already
-            existing_auras[0].spell_effect.start_aura_duration(overwrite=True)  # Refresh duration
+        # Application threat and negative aura application interrupts.
+        if aura.harmful:
+            if aura.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT and \
+                    aura.source_spell.generates_threat():
+                # TODO Replace once threat is handled properly.
+                self.unit_mgr.attack(aura.caster)
 
-            # Note that this aura will not be actually applied. Index and stacks are copied for sending information and updating effect points.
-            aura.applied_stacks = existing_auras[0].applied_stacks
-            aura.index = existing_auras[0].index
+            self.check_aura_interrupts(negative_aura_applied=True)
+
+        applied_similar_auras = self.get_similar_applied_auras(aura, accept_all_ranks=False, accept_all_sources=False)
+        is_refresh = len(applied_similar_auras) > 0
+        if is_refresh > 0:
+            # Only one similar aura from the same source can be applied.
+            # Lower ranks are removed by remove_colliding_effects.
+            similar_aura = applied_similar_auras[0]
+
+            if aura.can_stack and similar_aura.applied_stacks < similar_aura.max_stacks:
+                similar_aura.applied_stacks += 1  # Add a stack if the aura isn't at max already
+
+            similar_aura.spell_effect.start_aura_duration(overwrite=True)  # Refresh duration
+
+            # Note that this aura will not be actually applied.
+            # Index and stacks are copied for sending information and updating effect points.
+            aura.applied_stacks = similar_aura.applied_stacks
+            aura.index = similar_aura.index
         else:
             aura.index = self.get_next_aura_index(aura)
             self.active_auras[aura.index] = aura
 
-        # Handle effects after possible stack increase to update stats properly
+        # Handle effects after possible stack increase/refresh to update stats properly.
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target)
 
+        # TODO Some aura applications appear twice in the combat log.
+        # For example, the proc effect from frost armor appears twice.
+        # Gouge seems to appear twice against players (tested in duels), but not against NPCs.
         if not aura.passive:
-            self.write_aura_to_unit(aura)
-            self.write_aura_flag_to_unit(aura)
+            if not is_refresh:
+                self.write_aura_to_unit(aura)
+                self.write_aura_flag_to_unit(aura)
             self.send_aura_duration(aura)
-
-        # Aura application threat TODO handle threat elsewhere
-        if aura.harmful and aura.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            if aura.source_spell.generates_threat():
-                self.unit_mgr.attack(aura.caster)
-            self.check_aura_interrupts(negative_aura_applied=True)
 
     def update(self, timestamp):
         for aura in list(self.active_auras.values()):
@@ -67,8 +81,9 @@ class AuraManager:
             return False  # Don't apply same shapeshift effect if it already exists.
 
         # Stronger effect applied.
-        similar_applied = self.get_similar_applied_aura(aura)
-        if similar_applied:
+        similar_applied_auras = self.get_similar_applied_auras(aura, accept_all_ranks=True, accept_all_sources=False)
+        if len(similar_applied_auras) > 0:
+            similar_applied = similar_applied_auras[0]  # Only one similar aura from one source can be applied.
             applied_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(similar_applied.source_spell.spell_entry)
             new_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(aura.source_spell.spell_entry)
             if applied_rank > new_rank:
@@ -186,8 +201,8 @@ class AuraManager:
             # TODO Same effects but different spells (exclusivity groups)?
 
             # Note: This method ignores the case of a weaker spell being applied, as that is handled in can_apply_aura.
-            is_similar_or_weaker = applied_aura.spell_effect.effect_index == aura_effect_index and \
-                applied_aura_name == new_aura_name and applied_aura_rank <= new_aura_rank
+            is_similar_and_weaker = applied_aura.spell_effect.effect_index == aura_effect_index and \
+                applied_aura_name == new_aura_name and applied_aura_rank < new_aura_rank
 
             are_exclusive_by_source = ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(aura.spell_id, applied_aura.spell_id)  # Paladin seals, warlock curses
 
@@ -196,7 +211,7 @@ class AuraManager:
             is_stacking = applied_aura.can_stack
 
             casters_are_same = applied_aura.caster.guid == caster_guid
-            if is_similar_or_weaker and (is_unique or casters_are_same and not is_stacking) or \
+            if is_similar_and_weaker and (is_unique or casters_are_same and not is_stacking) or \
                     are_exclusive_by_source and casters_are_same:
                 self.remove_aura(applied_aura)
                 continue
@@ -224,20 +239,36 @@ class AuraManager:
             auras.append(aura)
         return auras
 
-    def get_similar_applied_aura(self, aura) -> Optional[AppliedAura]:
+    def get_similar_applied_auras(self, aura, accept_all_ranks=True, accept_all_sources=True) -> list[AppliedAura]:
         aura_spell_template = aura.source_spell.spell_entry
 
         new_aura_name = aura_spell_template.Name_enUS
+        new_aura_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(aura_spell_template)
+
+        similar_auras = []
 
         for applied_aura in list(self.active_auras.values()):
+            if applied_aura.spell_effect.effect_index != aura.spell_effect.effect_index:
+                continue
+
+            if not accept_all_sources and aura.caster != applied_aura.caster:
+                continue
+
             applied_spell_entry = applied_aura.source_spell.spell_entry
 
-            if applied_spell_entry.ID == aura_spell_template.ID:
-                return applied_aura
+            if applied_spell_entry.ID != aura_spell_template.ID:
+                continue
 
             applied_aura_name = applied_spell_entry.Name_enUS
-            if applied_aura_name == new_aura_name:
-                return applied_aura
+            applied_aura_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(applied_spell_entry)
+
+            if applied_aura_name != new_aura_name or \
+                    (applied_aura_rank != new_aura_rank and not accept_all_ranks):
+                continue
+
+            similar_auras.append(applied_aura)
+
+        return similar_auras
 
     def remove_auras_by_type(self, aura_type):
         for aura in list(self.active_auras.values()):

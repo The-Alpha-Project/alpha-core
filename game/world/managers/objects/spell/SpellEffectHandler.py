@@ -43,6 +43,14 @@ class SpellEffectHandler(object):
         caster.apply_spell_healing(target, healing, casting_spell)
 
     @staticmethod
+    def handle_heal_max_health(casting_spell, effect, caster, target):
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+            return
+        
+        healing = caster.max_health
+        caster.apply_spell_healing(target, healing, casting_spell)
+
+    @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):
         if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
@@ -402,6 +410,7 @@ class SpellEffectHandler(object):
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
     SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
+    SpellEffects.SPELL_EFFECT_HEAL_MAX_HEALTH: SpellEffectHandler.handle_heal_max_health,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage,
     SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
     SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
