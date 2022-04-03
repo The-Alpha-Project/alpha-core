@@ -48,17 +48,17 @@ class ContainerManager(ItemManager):
             guid = self.sorted_slots[x].guid if x in self.sorted_slots else 0
             self.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + x * 2, guid)
 
-    def can_set_item(self, item, slot):
+    def can_set_item(self, item, slot, is_swap=False):
         if item:
             if 0 > slot > self.max_slot:
                 return False
-            if not self.is_backpack and len(self.sorted_slots) == self.total_slots:
+            if not self.is_backpack and not is_swap and len(self.sorted_slots) == self.total_slots:
                 return False
             return True
         return False
 
-    def set_item(self, item, slot, count=1):
-        if self.can_set_item(item, slot):
+    def set_item(self, item, slot, count=1, is_swap=False):
+        if self.can_set_item(item, slot, is_swap=is_swap):
             if isinstance(item, ItemManager):
                 item_mgr = item
                 if item_mgr == self:
