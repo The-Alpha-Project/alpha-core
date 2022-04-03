@@ -883,8 +883,8 @@ class UnitManager(ObjectManager):
     def set_health(self, health):
         if health < 0:
             health = 0
-        self.health = health
-        self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, health)
+        self.health = min(health, self.max_health)
+        self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
 
     def set_max_health(self, health):
         self.max_health = health
@@ -894,25 +894,25 @@ class UnitManager(ObjectManager):
         if mana < 0:
             mana = 0
         self.power_1 = min(mana, self.max_power_1)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER1, mana)
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER1, self.power_1)
 
     def set_rage(self, rage):
         if rage < 0:
             rage = 0
         self.power_2 = min(rage, self.max_power_2)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER2, rage)
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER2, self.power_2)
 
     def set_focus(self, focus):
         if focus < 0:
             focus = 0
         self.power_3 = min(focus, self.max_power_3)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER3, focus)
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER3, self.power_3)
 
     def set_energy(self, energy):
         if energy < 0:
             energy = 0
         self.power_4 = min(energy, self.max_power_4)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER4, energy)
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER4, self.power_4)
 
     def set_max_mana(self, mana):
         self.max_power_1 = mana

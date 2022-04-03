@@ -690,6 +690,12 @@ class CreatureManager(UnitManager):
         else:
             player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite)], self)
 
+    # override
+    def set_max_mana(self, mana):
+        if self.max_power_1 > 0:
+            self.max_power_1 = mana
+            self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
+
     def set_emote_state(self, emote_state):
         self.emote_state = emote_state
         self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
