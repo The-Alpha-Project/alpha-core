@@ -24,6 +24,3 @@ venv
 
 # python win libs
 **.pyd
-
-#config.yml
-./etc/config/config.yml

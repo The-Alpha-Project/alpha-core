@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from sys import platform
 
+from colorama import init
 from colorama import Fore, Style
 
 from utils.ConfigManager import config
@@ -27,6 +28,10 @@ class DebugLevel(IntEnum):
 
 
 class Logger:
+    
+    # If windows override whether to convert ANSI codes in the output into win32 calls.
+    if platform == 'win32':
+        init(convert=True)
 
     @staticmethod
     def _should_log(log_type: DebugLevel):
@@ -36,7 +41,6 @@ class Logger:
     @staticmethod
     def _colorize_message(label, color, msg):
         date = datetime.now().strftime('[%d/%m/%Y %H:%M:%S]')
-        # Colorama seems to be working with windows nowadays.
         return f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
 
     @staticmethod
