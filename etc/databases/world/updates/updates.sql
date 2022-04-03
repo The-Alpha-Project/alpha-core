@@ -15,10 +15,10 @@ begin not atomic
         UPDATE `alpha_world`.`spell_target_position` SET `target_position_z` = '129.72' WHERE (`id` = '3561') and (`target_map` = '0');
         -- Teleport to Ironforge
         UPDATE `alpha_world`.`spell_target_position` SET `target_position_z` = '519.30' WHERE (`id` = '3562') and (`target_map` = '0');
-		-- Teleport to Orgrimmar (X,Y placement is still wrong in this one, but player wont fall throught the world anymore)
-		UPDATE `alpha_world`.`spell_target_position` SET `target_position_z` = '120.99' WHERE (`id` = '3567') and (`target_map` = '1');
+        -- Teleport to Orgrimmar (X,Y placement is still wrong in this one, but player wont fall throught the world anymore)
+        UPDATE `alpha_world`.`spell_target_position` SET `target_position_z` = '120.99' WHERE (`id` = '3567') and (`target_map` = '1');
 		
-		insert into applied_updates values ('030420222');
+        insert into applied_updates values ('030420222');
     end if;
 	
 end $
