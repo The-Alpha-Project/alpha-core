@@ -147,6 +147,12 @@ class UnitSummonType(IntEnum):
     UNIT_SUMMON_CREATION = 4
 
 
+class RegenStatsFlags(IntEnum):
+    NO_REGENERATION = 0
+    REGEN_FLAG_HEALTH = 1
+    REGEN_FLAG_POWER = 2
+
+
 class WeaponMode(IntEnum):
     NORMALMODE = 0x0
     SHEATHEDMODE = 0x1

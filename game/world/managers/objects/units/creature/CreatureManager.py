@@ -66,6 +66,7 @@ class CreatureManager(UnitManager):
         self.faction = self.creature_template.faction
         self.creature_type = self.creature_template.type
         self.sheath_state = WeaponMode.NORMALMODE
+        self.regen_flags = self.creature_template.regeneration
         self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
 
         self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
