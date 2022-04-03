@@ -32,8 +32,7 @@ from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools, SpellTargetMask
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags, \
-    RegenStatsFlags
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
 from utils.constants.UpdateFields import *
 
 MAX_ACTION_BUTTONS = 120
@@ -131,7 +130,6 @@ class PlayerManager(UnitManager):
             self.max_power_4 = 100
             self.power_4 = self.player.power4
             self.coinage = self.player.money
-            self.regen_flags = RegenStatsFlags.REGEN_FLAG_HEALTH | RegenStatsFlags.REGEN_FLAG_POWER
             self.online = self.player.online
 
             # GM checks

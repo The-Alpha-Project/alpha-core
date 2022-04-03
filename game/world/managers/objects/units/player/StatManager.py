@@ -112,42 +112,36 @@ class StatManager(object):
 
     # TODO: Creatures are using player scaling until we have more data.
     def init_stats(self):
-        base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.class_, self.unit_mgr.level)
-
-        temporal_race = self.unit_mgr.race
-        # Creatures, temporarily use a fixed race.
-        if temporal_race == 0:
-            temporal_race = 1
+        base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.class_,
+                                                                       self.unit_mgr.level)
 
         base_attrs = WorldDatabaseManager.player_get_level_stats(self.unit_mgr.class_,
                                                                  self.unit_mgr.level,
-                                                                 temporal_race)
+                                                                 self.unit_mgr.race)
 
         if not base_stats or not base_attrs:
-            Logger.error(f'Unsupported level ({self.unit_mgr.level}) from type {self.unit_mgr.get_type_id()}.')
+            Logger.error(f'Unsupported level ({self.unit_mgr.level}) from {self.unit_mgr.player.name}.')
             return
 
-        # Player specific.
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.base_stats[UnitStats.HEALTH] = base_stats.basehp
             self.base_stats[UnitStats.MANA] = base_stats.basemana
-            self.unit_mgr.base_hp = base_stats.basehp
-            self.unit_mgr.base_mana = base_stats.basemana
-        # Creatures.
         else:
             self.base_stats[UnitStats.HEALTH] = self.unit_mgr.max_health
             self.base_stats[UnitStats.MANA] = self.unit_mgr.max_power_1
-            # Players don't have a flat dodge/block chance.
-            self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100
-            # Players have block scaling, assign flat 5% to creatures.
-            self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100
-            self.base_stats[UnitStats.CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
 
         self.base_stats[UnitStats.STRENGTH] = base_attrs.str
         self.base_stats[UnitStats.AGILITY] = base_attrs.agi
         self.base_stats[UnitStats.STAMINA] = base_attrs.sta
         self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
         self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
+
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100  # Players don't have a flat dodge/block chance.
+            self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100  # Players have block scaling, assign flat 5% to creatures.
+            self.base_stats[UnitStats.CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
+        self.unit_mgr.base_hp = base_stats.basehp
+        self.unit_mgr.base_mana = base_stats.basemana
 
         # Don't overwrite base speed if it has been modified.
         self.base_stats[UnitStats.SPEED_RUNNING] = self.base_stats.get(UnitStats.SPEED_RUNNING, config.Unit.Defaults.run_speed)
