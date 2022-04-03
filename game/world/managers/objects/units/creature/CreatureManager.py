@@ -29,6 +29,7 @@ from utils.constants.UpdateFields import ObjectFields, UnitFields
 # noinspection PyCallByClass
 class CreatureManager(UnitManager):
     CURRENT_HIGHEST_GUID = 0
+    CREATURE_CASTING_DELAY = 1.2  # Seconds
 
     def __init__(self,
                  creature_template,
@@ -63,6 +64,9 @@ class CreatureManager(UnitManager):
         self.emote_state = 0
         self.faction = self.creature_template.faction
         self.creature_type = self.creature_template.type
+        self.spell_list_id = self.creature_template.spell_list_id
+        self.creature_spells = None
+        self.casting_delay = 0
         self.sheath_state = WeaponMode.NORMALMODE
         self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
 
@@ -299,6 +303,12 @@ class CreatureManager(UnitManager):
                     if addon_template.mount_display_id > 0:
                         self.mount(addon_template.mount_display_id)
 
+                # Load creature spells if available.
+                if self.creature_template.spell_list_id:
+                    spell_list_id = self.creature_template.spell_list_id
+                    creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(spell_list_id)
+                    self.creature_spells = creature_spells
+
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses()
 
@@ -517,6 +527,16 @@ class CreatureManager(UnitManager):
             waypoints.append(self.spawn_position)
         return waypoints, z_locked
 
+    def _update_creature_spell_list(self, elapsed):
+        if not self.creature_spells or not self.combat_target:
+            return
+
+        if self.casting_delay <= 0:
+            self.casting_delay = CreatureManager.CREATURE_CASTING_DELAY
+            self.spell_manager.handle_creature_spell_list_cast(self.creature_spells)
+        else:
+            self.casting_delay -= elapsed;
+
     def _perform_random_movement(self, now):
         # Do not wander in combat, while fleeing or without wander flag.
         if not self.in_combat and not self.is_fleeing() and self.creature_instance.movement_type == MovementTypes.WANDER:
@@ -528,7 +548,8 @@ class CreatureManager(UnitManager):
                     self.last_random_movement = now
 
     def _perform_combat_movement(self):
-        if self.combat_target:
+        # Move if unit is in combat and not casting.
+        if self.combat_target and not self.spell_manager.is_casting():
             # TODO: Temp, extremely basic evade / runback mechanic based ONLY on distance. Replace later with a proper one.
             if self.location.distance(self.spawn_position) > 50:
                 self.evade()
@@ -595,6 +616,8 @@ class CreatureManager(UnitManager):
                 self._perform_random_movement(now)
                 # Combat movement
                 self._perform_combat_movement()
+                # Spell
+                self._update_creature_spell_list(elapsed)
                 # Attack update
                 if self.combat_target and self.is_within_interactable_distance(self.combat_target):
                     self.attack_update(elapsed)

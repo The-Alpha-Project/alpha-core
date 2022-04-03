@@ -10,6 +10,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
@@ -116,6 +117,20 @@ class SpellManager(object):
                 self.caster.set_stand_state(StandState.UNIT_SITTING)
 
             self.start_spell_cast(initialized_spell=casting_spell)
+
+    def handle_creature_spell_list_cast(self, creature_spells):
+        for creature_spell in creature_spells:
+            # Short-circuit loop.
+            if not creature_spell.spell_id:
+                break
+            if not self.is_on_cooldown(creature_spell.spell_id) and not self.is_casting():
+                if self.caster.movement_manager.unit_is_moving():
+                    self.caster.movement_manager.send_move_stop()
+
+                target = ScriptManager.get_target_by_type(self.caster, self.caster, creature_spell.cast_target, creature_spell.target_param1, abs(creature_spell.target_param2))
+                if target:
+                    self.handle_cast_attempt(creature_spell.spell_id, target, SpellTargetMask.UNIT, validate=False)
+                break
 
     def handle_cast_attempt(self, spell_id, spell_target, target_mask, triggered=False, validate=True):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
