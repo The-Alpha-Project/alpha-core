@@ -314,8 +314,7 @@ class CreatureManager(UnitManager):
                         self.mount(addon_template.mount_display_id)
 
                 self.stat_manager.init_stats()
-                self.stat_manager.apply_bonuses()
-
+                self.stat_manager.apply_bonuses(replenish=True)
                 self.fully_loaded = True
 
     def set_virtual_item(self, slot, item_entry):
