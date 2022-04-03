@@ -47,10 +47,19 @@ class CreatureManager(UnitManager):
         self.class_ = self.creature_template.unit_class
         self.native_display_id = self.generate_display_id()
         self.current_display_id = self.native_display_id
-        self.max_health = self.creature_template.health_max
-        self.power_1 = self.creature_template.mana_min
-        self.max_power_1 = self.creature_template.mana_max
         self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
+
+        # Calculate relative level in order to get health and mana values.
+        rel_level = 0 if self.creature_template.level_max == self.creature_template.level_min else \
+            ((self.level - self.creature_template.level_min) /
+             (self.creature_template.level_max - self.creature_template.level_min))
+        self.health = self.creature_template.health_min + int(rel_level * (self.creature_template.health_max -
+                                                                           self.creature_template.health_min))
+        self.power_1 = self.creature_template.mana_min + int(rel_level * (self.creature_template.mana_max -
+                                                                          self.creature_template.mana_min))
+
+        self.max_health = self.health
+        self.max_power_1 = self.power_1
         self.resistance_0 = self.creature_template.armor
         self.resistance_1 = self.creature_template.holy_res
         self.resistance_2 = self.creature_template.fire_res
