@@ -474,7 +474,6 @@ class UnitManager(ObjectManager):
 
             # Health
             if self.regen_flags & RegenStatsFlags.REGEN_FLAG_HEALTH:
-                print('Health')
                 if self.health < self.max_health and not\
                         self.in_combat or self.race == Races.RACE_TROLL:
                     if self.race == Races.RACE_TROLL:
@@ -486,7 +485,6 @@ class UnitManager(ObjectManager):
                     if self.is_sitting():
                         health_regen += health_regen * 0.33
 
-                    print(f'Health regen {health_regen}')
                     if self.health + health_regen >= self.max_health:
                         self.set_health(self.max_health)
                     elif self.health < self.max_health:
