@@ -257,12 +257,12 @@ class InventoryManager(object):
             self.add_bag(source_slot, dest_item)
             RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
-        dest_container.set_item(source_item, dest_slot)
+        dest_container.set_item(source_item, dest_slot, is_swap=True)
         source_item.item_instance.bag = dest_bag
         source_item.item_instance.slot = dest_slot
 
         if dest_item:
-            source_container.set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
+            source_container.set_item(dest_item, source_slot, dest_item.item_instance.stackcount, is_swap=True)
             dest_item.item_instance.bag = source_bag
             dest_item.item_instance.slot = source_slot
 
