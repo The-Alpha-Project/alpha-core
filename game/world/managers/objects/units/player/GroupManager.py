@@ -524,7 +524,7 @@ class GroupManager(object):
             player_mgr.map_ if player_mgr else character.map,
             # Client expects an AreaNumber from AreaTable, not a zone id.
             MapManager.get_area_number_by_zone_id(player_mgr.zone if player_mgr else character.zone),
-            player_mgr.class_ if player_mgr else character.class_,
+            player_mgr.player.class_ if player_mgr else character.class_,
             player_mgr.location.x if player_mgr else character.position_x,
             player_mgr.location.y if player_mgr else character.position_y,
             player_mgr.location.z if player_mgr else character.position_z,

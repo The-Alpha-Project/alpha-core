@@ -34,7 +34,7 @@ class FriendsManager(object):
                     1,  # Online
                     MapManager.get_parent_zone_id(player_mgr.zone, player_mgr.map_),
                     player_mgr.level,
-                    player_mgr.class_
+                    player_mgr.player.class_
                 )
             self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
             self.send_friends()
@@ -100,7 +100,7 @@ class FriendsManager(object):
                     1,  # Online
                     MapManager.get_parent_zone_id(player_mgr.zone, player_mgr.map_),
                     player_mgr.level,
-                    player_mgr.class_
+                    player_mgr.player.class_
                 )
             else:
                 data += pack('QB', entry.friend, 0)  # Offline
@@ -130,7 +130,7 @@ class FriendsManager(object):
                     1,  # Online
                     MapManager.get_parent_zone_id(self.owner.zone, self.owner.map_),
                     self.owner.level,
-                    self.owner.class_
+                    self.owner.player.class_
                 )
                 packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
                 player_mgr.enqueue_packet(packet)

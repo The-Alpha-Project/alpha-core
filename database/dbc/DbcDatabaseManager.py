@@ -230,8 +230,8 @@ class DbcDatabaseManager(object):
 
         @staticmethod
         def skill_line_ability_get_by_spell_for_player(spell_id, player_mgr):
-            race = 1 << (player_mgr.race - 1)
-            class_ = 1 << (player_mgr.class_ - 1)
+            race = 1 << (player_mgr.player.race - 1)
+            class_ = 1 << (player_mgr.player.class_ - 1)
             skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
             for skill_line_ability in skill_line_abilities:
                 if (skill_line_ability.RaceMask and skill_line_ability.RaceMask & race == 0) or \

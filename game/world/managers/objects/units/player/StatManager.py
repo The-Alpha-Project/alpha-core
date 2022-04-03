@@ -110,38 +110,33 @@ class StatManager(object):
         self.aura_stats_flat = {}
         self.aura_stats_percentual = {}
 
-    # TODO: Creatures are using player scaling until we have more data.
     def init_stats(self):
-        base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.class_,
-                                                                       self.unit_mgr.level)
-
-        base_attrs = WorldDatabaseManager.player_get_level_stats(self.unit_mgr.class_,
-                                                                 self.unit_mgr.level,
-                                                                 self.unit_mgr.race)
-
-        if not base_stats or not base_attrs:
-            Logger.error(f'Unsupported level ({self.unit_mgr.level}) from {self.unit_mgr.player.name}.')
-            return
-
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.player.class_,
+                                                                           self.unit_mgr.level)
+            base_attrs = WorldDatabaseManager.player_get_level_stats(self.unit_mgr.player.class_,
+                                                                     self.unit_mgr.level,
+                                                                     self.unit_mgr.player.race)
+            if not base_stats or not base_attrs:
+                Logger.error(f'Unsupported level ({self.unit_mgr.level}) from {self.unit_mgr.player.name}.')
+                return
             self.base_stats[UnitStats.HEALTH] = base_stats.basehp
             self.base_stats[UnitStats.MANA] = base_stats.basemana
+            self.base_stats[UnitStats.STRENGTH] = base_attrs.str
+            self.base_stats[UnitStats.AGILITY] = base_attrs.agi
+            self.base_stats[UnitStats.STAMINA] = base_attrs.sta
+            self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
+            self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
+
+            self.unit_mgr.base_hp = base_stats.basehp
+            self.unit_mgr.base_mana = base_stats.basemana
         else:
+            # Creature
             self.base_stats[UnitStats.HEALTH] = self.unit_mgr.max_health
             self.base_stats[UnitStats.MANA] = self.unit_mgr.max_power_1
-
-        self.base_stats[UnitStats.STRENGTH] = base_attrs.str
-        self.base_stats[UnitStats.AGILITY] = base_attrs.agi
-        self.base_stats[UnitStats.STAMINA] = base_attrs.sta
-        self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
-        self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
-
-        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100  # Players don't have a flat dodge/block chance.
             self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100  # Players have block scaling, assign flat 5% to creatures.
             self.base_stats[UnitStats.CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
-        self.unit_mgr.base_hp = base_stats.basehp
-        self.unit_mgr.base_mana = base_stats.basemana
 
         # Don't overwrite base speed if it has been modified.
         self.base_stats[UnitStats.SPEED_RUNNING] = self.base_stats.get(UnitStats.SPEED_RUNNING, config.Unit.Defaults.run_speed)
@@ -404,24 +399,29 @@ class StatManager(object):
         return max(0, mana_diff)
 
     def update_base_health_regen(self):
-        unit_class = self.unit_mgr.class_
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        player_class = self.unit_mgr.player.class_
         spirit = self.get_total_stat(UnitStats.SPIRIT)
-        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(CLASS_BASE_REGEN_HEALTH[unit_class] + spirit * CLASS_SPIRIT_SCALING_HP5[unit_class])
+        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(CLASS_BASE_REGEN_HEALTH[player_class] + spirit * CLASS_SPIRIT_SCALING_HP5[player_class])
 
     def update_base_mana_regen(self):
-        unit_class = self.unit_mgr.class_
-        if unit_class not in CLASS_SPIRIT_SCALING_MANA:
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+        player_class = self.unit_mgr.player.class_
+        if player_class not in CLASS_SPIRIT_SCALING_MANA:
             return
 
         spirit = self.get_total_stat(UnitStats.SPIRIT)
-        regen = CLASS_BASE_REGEN_MANA[unit_class] + spirit * CLASS_SPIRIT_SCALING_MANA[unit_class]
+        regen = CLASS_BASE_REGEN_MANA[player_class] + spirit * CLASS_SPIRIT_SCALING_MANA[player_class]
         self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
 
     def update_base_melee_critical_chance(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        player_class = self.unit_mgr.class_
+        player_class = self.unit_mgr.player.class_
         strength = self.get_total_stat(UnitStats.STRENGTH)
         scaling = CLASS_STRENGTH_SCALING_CRITICAL[player_class]
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
@@ -433,7 +433,7 @@ class StatManager(object):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return  # Base dodge can't change for creatures - set on init.
 
-        player_class = self.unit_mgr.class_
+        player_class = self.unit_mgr.player.class_
         agility = self.get_total_stat(UnitStats.AGILITY)
         scaling = CLASS_AGILITY_SCALING_DODGE[player_class]
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
@@ -450,7 +450,7 @@ class StatManager(object):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        player_class = self.unit_mgr.class_
+        player_class = self.unit_mgr.player.class_
 
         # Strength increases chance to block according to the stat sheet tooltip.
         strength = self.get_total_stat(UnitStats.STRENGTH)
@@ -470,7 +470,7 @@ class StatManager(object):
     def update_base_proc_chance(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
-        player_class = self.unit_mgr.class_
+        player_class = self.unit_mgr.player.class_
 
         agility = self.get_total_stat(UnitStats.AGILITY)
 
@@ -613,7 +613,7 @@ class StatManager(object):
         strength = self.get_total_stat(UnitStats.STRENGTH)
         agility = self.get_total_stat(UnitStats.AGILITY)
         level = self.unit_mgr.level
-        class_ = self.unit_mgr.class_
+        class_ = self.unit_mgr.player.class_
 
         if class_ == Classes.CLASS_WARRIOR or \
                 class_ == Classes.CLASS_PALADIN:

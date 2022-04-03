@@ -99,8 +99,8 @@ class WhoHandler(object):
                         player_name_bytes,
                         guild_name_bytes,
                         player_mgr.level,
-                        player_mgr.class_,
-                        player_mgr.race,
+                        player_mgr.player.class_,
+                        player_mgr.player.race,
                         player_mgr.zone,
                         player_mgr.group_status
                     )
