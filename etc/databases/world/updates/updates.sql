@@ -9,7 +9,7 @@ begin not atomic
         insert into applied_updates values ('030420221');
     end if;
 	
-	-- 03/04/2022 1
+	-- 03/04/2022 2
 	if (select count(*) from applied_updates where id='030420222') = 0 then
         -- Teleport to Stormwind
         UPDATE `alpha_world`.`spell_target_position` SET `target_position_z` = '129.72' WHERE (`id` = '3561') and (`target_map` = '0');
