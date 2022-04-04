@@ -541,8 +541,7 @@ class CreatureManager(UnitManager):
 
     def _perform_combat_movement(self):
         if self.combat_target:
-
-            if self.combat_target.is_alive == False and len(self.attackers) == 0:
+            if not self.combat_target.is_alive and len(self.attackers) == 0:
                 self.evade()
                 return
 
