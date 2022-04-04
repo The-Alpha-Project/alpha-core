@@ -485,8 +485,9 @@ class CreatureManager(UnitManager):
         # Get the path we are using to get back to spawn location.
         waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
         self.leave_combat(force=True)
-        self.set_health(self.max_health)
-        self.recharge_power()
+        if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
+            self.set_health(self.max_health)
+            self.recharge_power()
         self.set_fleeing(True)
 
         # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
