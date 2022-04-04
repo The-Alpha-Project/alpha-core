@@ -32,7 +32,8 @@ from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools, SpellTargetMask
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags, \
+    RegenStatsFlags
 from utils.constants.UpdateFields import *
 
 MAX_ACTION_BUTTONS = 120
@@ -92,7 +93,6 @@ class PlayerManager(UnitManager):
         self.deathbind = deathbind
         self.team = Teams.TEAM_NONE  # Set at set_player_variables().
         self.trade_data = None
-        self.last_regen = 0
         self.last_swimming_check = 0
         self.spirit_release_timer = 0
         self.logout_timer = -1
@@ -103,6 +103,8 @@ class PlayerManager(UnitManager):
         self.liquid_information = None
 
         if self.player:
+            self.race = player.race
+            self.class_ = player.class_
             self.set_player_variables()
             self.guid = self.generate_object_guid(self.player.guid)
             self.inventory = InventoryManager(self)
@@ -129,6 +131,7 @@ class PlayerManager(UnitManager):
             self.max_power_4 = 100
             self.power_4 = self.player.power4
             self.coinage = self.player.money
+            self.regen_flags = RegenStatsFlags.REGEN_FLAG_HEALTH | RegenStatsFlags.REGEN_FLAG_POWER
             self.online = self.player.online
 
             # GM checks
@@ -165,7 +168,7 @@ class PlayerManager(UnitManager):
         return race_data.MaleDisplayId if is_male else race_data.FemaleDisplayId
 
     def set_player_variables(self):
-        race = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
+        race = DbcDatabaseManager.chr_races_get_by_race(self.race)
 
         self.faction = race.FactionID
         self.creature_type = race.CreatureType
@@ -179,38 +182,38 @@ class PlayerManager(UnitManager):
         # Initialize power type
         self.update_power_type()
 
-        if self.player.race == Races.RACE_HUMAN:
+        if self.race == Races.RACE_HUMAN:
             self.bounding_radius = 0.306 if is_male else 0.208
             self.combat_reach = 1.5
-        elif self.player.race == Races.RACE_ORC:
+        elif self.race == Races.RACE_ORC:
             self.bounding_radius = 0.372 if is_male else 0.236
             self.combat_reach = 1.5
-        elif self.player.race == Races.RACE_DWARF:
+        elif self.race == Races.RACE_DWARF:
             self.bounding_radius = 0.347
             self.combat_reach = 1.5
-        elif self.player.race == Races.RACE_NIGHT_ELF:
+        elif self.race == Races.RACE_NIGHT_ELF:
             self.bounding_radius = 0.389 if is_male else 0.306
             self.combat_reach = 1.5
-        elif self.player.race == Races.RACE_UNDEAD:
+        elif self.race == Races.RACE_UNDEAD:
             self.bounding_radius = 0.383
             self.combat_reach = 1.5
-        elif self.player.race == Races.RACE_TAUREN:
+        elif self.race == Races.RACE_TAUREN:
             self.bounding_radius = 0.9747 if is_male else 0.8725
             self.combat_reach = 4.05 if is_male else 3.75
             self.native_scale = 1.35 if is_male else 1.25
-        elif self.player.race == Races.RACE_GNOME:
+        elif self.race == Races.RACE_GNOME:
             self.bounding_radius = 0.3519
             self.combat_reach = 1.725
             self.native_scale = 1.15
-        elif self.player.race == Races.RACE_TROLL:
+        elif self.race == Races.RACE_TROLL:
             self.bounding_radius = 0.306
             self.combat_reach = 1.5
 
         self.current_scale = self.native_scale
-        self.race_mask = 1 << self.player.race - 1
-        self.class_mask = 1 << self.player.class_ - 1
+        self.race_mask = 1 << self.race - 1
+        self.class_mask = 1 << self.class_ - 1
 
-        self.team = PlayerManager.get_team_for_race(self.player.race)
+        self.team = PlayerManager.get_team_for_race(self.race)
 
     def set_gm(self, on=True):
         self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
@@ -598,11 +601,11 @@ class PlayerManager(UnitManager):
     # override
     def update_power_type(self):
         if not self.shapeshift_form:
-            if self.player.class_ == Classes.CLASS_WARRIOR:
+            if self.class_ == Classes.CLASS_WARRIOR:
                 self.power_type = PowerTypes.TYPE_RAGE
-            elif self.player.class_ == Classes.CLASS_HUNTER:
+            elif self.class_ == Classes.CLASS_HUNTER:
                 self.power_type = PowerTypes.TYPE_FOCUS
-            elif self.player.class_ == Classes.CLASS_ROGUE:
+            elif self.class_ == Classes.CLASS_ROGUE:
                 self.power_type = PowerTypes.TYPE_ENERGY
             else:
                 self.power_type = PowerTypes.TYPE_MANA
@@ -1143,77 +1146,6 @@ class PlayerManager(UnitManager):
         self.skill_points = max(0, self.skill_points - skill_points)
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
-    def regenerate(self, elapsed):
-        if not self.is_alive or self.health == 0:
-            return
-
-        self.last_regen += elapsed
-        # Every 2 seconds
-        if self.last_regen >= 2:
-            self.last_regen = 0
-            # Healing aura increases regeneration "by 2 every second", and base points equal to 10. Calculate 2/5 of hp5/mp5.
-            health_regen = self.stat_manager.get_total_stat(UnitStats.HEALTH_REGENERATION_PER_5) * 0.4
-            mana_regen = self.stat_manager.get_total_stat(UnitStats.POWER_REGENERATION_PER_5) * 0.4
-
-            # Health
-
-            if self.health < self.max_health and not self.in_combat or self.player.race == Races.RACE_TROLL:
-                if self.player.race == Races.RACE_TROLL:
-                    health_regen *= 0.1 if self.in_combat else 1.1
-
-                if health_regen < 1:
-                    health_regen = 1
-                # Apply bonus if sitting.
-                if self.is_sitting():
-                    health_regen += health_regen * 0.33
-
-                if self.health + health_regen >= self.max_health:
-                    self.set_health(self.max_health)
-                elif self.health < self.max_health:
-                    self.set_health(self.health + int(health_regen))
-
-            # Powers
-
-            # Mana
-            if self.power_type == PowerTypes.TYPE_MANA:
-                if self.power_1 < self.max_power_1:
-                    if self.in_combat:
-                        # 1% per second (5% per 5 seconds)
-                        mana_regen = self.base_mana * 0.02
-
-                    if mana_regen < 1:
-                        mana_regen = 1
-                    if self.power_1 + mana_regen >= self.max_power_1:
-                        self.set_mana(self.max_power_1)
-                    elif self.power_1 < self.max_power_1:
-                        self.set_mana(self.power_1 + int(mana_regen))
-            # Rage decay
-            elif self.power_type == PowerTypes.TYPE_RAGE:
-                if self.power_2 > 0:
-                    if not self.in_combat:
-                        # Defensive Stance (71) description says:
-                        #     "A defensive stance that reduces rage decay when out of combat. [...]."
-                        # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
-                        # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
-                        rage_decay_value = 10 if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) else 20
-                        self.set_rage(self.power_2 - rage_decay_value)
-            # Focus
-            elif self.power_type == PowerTypes.TYPE_FOCUS:
-                # Apparently focus didn't regenerate while moving.
-                # Note: Needs source, not 100% confirmed.
-                if self.power_3 < self.max_power_3 or not (self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK):
-                    if self.power_3 + 5 >= self.max_power_3:
-                        self.set_focus(self.max_power_3)
-                    elif self.power_3 < self.max_power_3:
-                        self.set_focus(self.power_3 + 5)
-            # Energy
-            elif self.power_type == PowerTypes.TYPE_ENERGY:
-                if self.power_4 < self.max_power_4:
-                    if self.power_4 + 20 >= self.max_power_4:
-                        self.set_energy(self.max_power_4)
-                    elif self.power_4 < self.max_power_4:
-                        self.set_energy(self.power_4 + 20)
-
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target: UnitManager, apply_bonuses=True):
         rolled_damage = super().calculate_base_attack_damage(attack_type, attack_school, target, apply_bonuses)
 
@@ -1542,8 +1474,8 @@ class PlayerManager(UnitManager):
         return ByteUtils.bytes_to_int(
             self.power_type,  # power type
             self.gender,  # gender
-            self.player.class_,  # player class
-            self.player.race  # player race
+            self.class_,  # player class
+            self.race  # player race
         )
 
     # override

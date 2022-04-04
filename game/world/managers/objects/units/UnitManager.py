@@ -18,7 +18,8 @@ from utils.Formulas import UnitFormulas
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy,HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, UnitStates
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, \
+    UnitStates, Races, RegenStatsFlags
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -104,6 +105,8 @@ class UnitManager(ObjectManager):
         self.max_power_3 = max_power_3
         self.max_power_4 = max_power_4
         self.level = level
+        self.race = 0
+        self.class_ = 0
         self.gender = gender
         self.bytes_0 = bytes_0  # race, class, gender, power_type
         self.creature_type = creature_type
@@ -162,6 +165,8 @@ class UnitManager(ObjectManager):
         self.extra_attacks = 0
         self.disarmed_mainhand = False
         self.disarmed_offhand = False
+        self.last_regen = 0
+        self.regen_flags = RegenStatsFlags.NO_REGENERATION
         self.attackers = {}
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
                               AttackTypes.OFFHAND_ATTACK: 0,
@@ -454,6 +459,79 @@ class UnitManager(ObjectManager):
             max_damage = tmp_min
 
         return random.randint(min_damage, max_damage)
+
+    def regenerate(self, elapsed):
+        if not self.is_alive or self.health == 0:
+            return
+
+        self.last_regen += elapsed
+        # Every 2 seconds
+        if self.last_regen >= 2:
+            self.last_regen = 0
+            # Healing aura increases regeneration "by 2 every second", and base points equal to 10. Calculate 2/5 of hp5/mp5.
+            health_regen = self.stat_manager.get_total_stat(UnitStats.HEALTH_REGENERATION_PER_5) * 0.4
+            mana_regen = self.stat_manager.get_total_stat(UnitStats.POWER_REGENERATION_PER_5) * 0.4
+
+            # Health
+            if self.regen_flags & RegenStatsFlags.REGEN_FLAG_HEALTH:
+                if self.health < self.max_health and not\
+                        self.in_combat or self.race == Races.RACE_TROLL:
+                    if self.race == Races.RACE_TROLL:
+                        health_regen *= 0.1 if self.in_combat else 1.1
+
+                    if health_regen < 1:
+                        health_regen = 1
+                    # Apply bonus if sitting.
+                    if self.is_sitting():
+                        health_regen += health_regen * 0.33
+
+                    if self.health + health_regen >= self.max_health:
+                        self.set_health(self.max_health)
+                    elif self.health < self.max_health:
+                        self.set_health(self.health + int(health_regen))
+
+            # Powers
+            # Check if this unit should regenerate its powers.
+            if self.regen_flags & RegenStatsFlags.REGEN_FLAG_POWER:
+                # Mana
+                if self.power_type == PowerTypes.TYPE_MANA:
+                    if self.power_1 < self.max_power_1:
+                        if self.in_combat:
+                            # 1% per second (5% per 5 seconds)
+                            mana_regen = self.base_mana * 0.02
+
+                        if mana_regen < 1:
+                            mana_regen = 1
+                        if self.power_1 + mana_regen >= self.max_power_1:
+                            self.set_mana(self.max_power_1)
+                        elif self.power_1 < self.max_power_1:
+                            self.set_mana(self.power_1 + int(mana_regen))
+                # Rage decay
+                elif self.power_type == PowerTypes.TYPE_RAGE:
+                    if self.power_2 > 0:
+                        if not self.in_combat:
+                            # Defensive Stance (71) description says:
+                            #     "A defensive stance that reduces rage decay when out of combat. [...]."
+                            # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
+                            # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
+                            rage_decay_value = 10 if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) else 20
+                            self.set_rage(self.power_2 - rage_decay_value)
+                # Focus
+                elif self.power_type == PowerTypes.TYPE_FOCUS:
+                    # Apparently focus didn't regenerate while moving.
+                    # Note: Needs source, not 100% confirmed.
+                    if self.power_3 < self.max_power_3 or not (self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK):
+                        if self.power_3 + 5 >= self.max_power_3:
+                            self.set_focus(self.max_power_3)
+                        elif self.power_3 < self.max_power_3:
+                            self.set_focus(self.power_3 + 5)
+                # Energy
+                elif self.power_type == PowerTypes.TYPE_ENERGY:
+                    if self.power_4 < self.max_power_4:
+                        if self.power_4 + 20 >= self.max_power_4:
+                            self.set_energy(self.max_power_4)
+                        elif self.power_4 < self.max_power_4:
+                            self.set_energy(self.power_4 + 20)
 
     def generate_rage(self, damage_info, is_attacking=True):
         # Warrior Stances and Bear Form.
@@ -805,8 +883,8 @@ class UnitManager(ObjectManager):
     def set_health(self, health):
         if health < 0:
             health = 0
-        self.health = health
-        self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, health)
+        self.health = min(health, self.max_health)
+        self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
 
     def set_max_health(self, health):
         self.max_health = health
@@ -816,25 +894,25 @@ class UnitManager(ObjectManager):
         if mana < 0:
             mana = 0
         self.power_1 = min(mana, self.max_power_1)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER1, mana)
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER1, self.power_1)
 
     def set_rage(self, rage):
         if rage < 0:
             rage = 0
         self.power_2 = min(rage, self.max_power_2)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER2, rage)
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER2, self.power_2)
 
     def set_focus(self, focus):
         if focus < 0:
             focus = 0
         self.power_3 = min(focus, self.max_power_3)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER3, focus)
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER3, self.power_3)
 
     def set_energy(self, energy):
         if energy < 0:
             energy = 0
         self.power_4 = min(energy, self.max_power_4)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER4, energy)
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER4, self.power_4)
 
     def set_max_mana(self, mana):
         self.max_power_1 = mana

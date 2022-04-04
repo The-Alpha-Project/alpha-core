@@ -44,6 +44,7 @@ class CreatureManager(UnitManager):
         self.is_summon = is_summon
 
         self.entry = self.creature_template.entry
+        self.class_ = self.creature_template.unit_class
         self.native_display_id = self.generate_display_id()
         self.current_display_id = self.native_display_id
         self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
@@ -74,6 +75,7 @@ class CreatureManager(UnitManager):
         self.faction = self.creature_template.faction
         self.creature_type = self.creature_template.type
         self.sheath_state = WeaponMode.NORMALMODE
+        self.regen_flags = self.creature_template.regeneration
         self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
 
         self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
@@ -312,8 +314,7 @@ class CreatureManager(UnitManager):
                         self.mount(addon_template.mount_display_id)
 
                 self.stat_manager.init_stats()
-                self.stat_manager.apply_bonuses()
-
+                self.stat_manager.apply_bonuses(replenish=True)
                 self.fully_loaded = True
 
     def set_virtual_item(self, slot, item_entry):
@@ -598,6 +599,8 @@ class CreatureManager(UnitManager):
             elapsed = now - self.last_tick
 
             if self.is_alive and self.is_spawned:
+                # Regeneration.
+                self.regenerate(elapsed)
                 # Spell/aura updates
                 self.spell_manager.update(now)
                 self.aura_manager.update(now)
@@ -686,6 +689,12 @@ class CreatureManager(UnitManager):
         else:
             player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite)], self)
 
+    # override
+    def set_max_mana(self, mana):
+        if self.max_power_1 > 0:
+            self.max_power_1 = mana
+            self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
+
     def set_emote_state(self, emote_state):
         self.emote_state = emote_state
         self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
@@ -703,7 +712,7 @@ class CreatureManager(UnitManager):
             self.power_type,  # power type
             self.gender,  # gender
             self.creature_template.unit_class,  # class
-            0  # race (0 for creatures)
+            self.race  # race (0 for creatures)
         )
 
     # override
