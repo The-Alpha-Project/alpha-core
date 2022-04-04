@@ -119,7 +119,6 @@ class StatManager(object):
 
         # Player specific.
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
-
             base_attrs = WorldDatabaseManager.player_get_level_stats(self.unit_mgr.class_,
                                                                      self.unit_mgr.level,
                                                                      self.unit_mgr.race)
@@ -146,6 +145,8 @@ class StatManager(object):
             # Players have block scaling, assign flat 5% to creatures.
             self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100
             self.base_stats[UnitStats.CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
+            self.unit_mgr.base_hp = self.unit_mgr.max_health
+            self.unit_mgr.base_mana = self.unit_mgr.max_power_1
 
         # Don't overwrite base speed if it has been modified.
         self.base_stats[UnitStats.SPEED_RUNNING] = self.base_stats.get(UnitStats.SPEED_RUNNING, config.Unit.Defaults.run_speed)

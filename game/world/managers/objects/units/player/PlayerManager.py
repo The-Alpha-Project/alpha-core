@@ -31,7 +31,7 @@ from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
-from utils.constants.SpellCodes import ShapeshiftForms, SpellSchools, SpellTargetMask
+from utils.constants.SpellCodes import SpellSchools, SpellTargetMask
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags, \
     RegenStatsFlags
 from utils.constants.UpdateFields import *
@@ -52,8 +52,6 @@ class PlayerManager(UnitManager):
                  block_percentage=0,
                  dodge_percentage=0,
                  parry_percentage=0,
-                 base_hp=0,
-                 base_mana=0,
                  combo_points=0,
                  combo_target=0,
                  chat_flags=0,
@@ -78,8 +76,6 @@ class PlayerManager(UnitManager):
         self.block_percentage = block_percentage
         self.dodge_percentage = dodge_percentage
         self.parry_percentage = parry_percentage
-        self.base_hp = base_hp
-        self.base_mana = base_mana
         self.combo_points = combo_points
         self.combo_target = combo_target
 

@@ -1,6 +1,6 @@
 import math
 import random
-from struct import pack, unpack
+from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -19,7 +19,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
     ProcFlagsExLegacy,HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, \
-    UnitStates, Races, RegenStatsFlags
+    UnitStates, Races, RegenStatsFlags, CreatureStaticFlags
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -52,6 +52,8 @@ class UnitManager(ObjectManager):
                  base_stat_2=0,
                  base_stat_3=0,
                  base_stat_4=0,
+                 base_hp=0,
+                 base_mana=0,
                  flags=0,
                  coinage=0,
                  combat_reach=config.Unit.Defaults.combat_reach,
@@ -120,6 +122,8 @@ class UnitManager(ObjectManager):
         self.base_sta = base_stat_2
         self.base_int = base_stat_3
         self.base_spi = base_stat_4
+        self.base_hp = base_hp
+        self.base_mana = base_mana
         self.flags = flags
         self.coinage = coinage
         self.combat_reach = combat_reach
@@ -468,19 +472,18 @@ class UnitManager(ObjectManager):
         # Every 2 seconds
         if self.last_regen >= 2:
             self.last_regen = 0
-            # Healing aura increases regeneration "by 2 every second", and base points equal to 10. Calculate 2/5 of hp5/mp5.
+
+            # Healing aura increases regeneration "by 2 every second", and base points equal to 10.
+            # Calculate 2/5 of hp5/mp5.
             health_regen = self.stat_manager.get_total_stat(UnitStats.HEALTH_REGENERATION_PER_5) * 0.4
             mana_regen = self.stat_manager.get_total_stat(UnitStats.POWER_REGENERATION_PER_5) * 0.4
 
             # Health
             if self.regen_flags & RegenStatsFlags.REGEN_FLAG_HEALTH:
-                if self.health < self.max_health and not\
-                        self.in_combat or self.race == Races.RACE_TROLL:
-                    if self.race == Races.RACE_TROLL:
-                        health_regen *= 0.1 if self.in_combat else 1.1
-
+                if self.health < self.max_health and not self.in_combat:
                     if health_regen < 1:
                         health_regen = 1
+
                     # Apply bonus if sitting.
                     if self.is_sitting():
                         health_regen += health_regen * 0.33
@@ -502,20 +505,11 @@ class UnitManager(ObjectManager):
 
                         if mana_regen < 1:
                             mana_regen = 1
+
                         if self.power_1 + mana_regen >= self.max_power_1:
                             self.set_mana(self.max_power_1)
                         elif self.power_1 < self.max_power_1:
                             self.set_mana(self.power_1 + int(mana_regen))
-                # Rage decay
-                elif self.power_type == PowerTypes.TYPE_RAGE:
-                    if self.power_2 > 0:
-                        if not self.in_combat:
-                            # Defensive Stance (71) description says:
-                            #     "A defensive stance that reduces rage decay when out of combat. [...]."
-                            # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
-                            # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
-                            rage_decay_value = 10 if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) else 20
-                            self.set_rage(self.power_2 - rage_decay_value)
                 # Focus
                 elif self.power_type == PowerTypes.TYPE_FOCUS:
                     # Apparently focus didn't regenerate while moving.
@@ -532,6 +526,17 @@ class UnitManager(ObjectManager):
                             self.set_energy(self.max_power_4)
                         elif self.power_4 < self.max_power_4:
                             self.set_energy(self.power_4 + 20)
+
+            # Rage decay
+            elif self.power_type == PowerTypes.TYPE_RAGE:
+                if self.power_2 > 0:
+                    if not self.in_combat:
+                        # Defensive Stance (71) description says:
+                        #     "A defensive stance that reduces rage decay when out of combat. [...]."
+                        # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
+                        # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
+                        rage_decay_value = 10 if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) else 20
+                        self.set_rage(self.power_2 - rage_decay_value)
 
     def generate_rage(self, damage_info, is_attacking=True):
         # Warrior Stances and Bear Form.
