@@ -630,13 +630,6 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
     # override
-    def regenerate(self, elapsed):
-        if self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
-            return
-
-        super().regenerate(elapsed)
-
-    # override
     def respawn(self):
         super().respawn()
         # Set all property values before making this creature visible.
