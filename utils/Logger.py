@@ -27,7 +27,7 @@ class DebugLevel(IntEnum):
 
 
 class Logger:
-
+    # Initialize colorama.
     init()
 
     @staticmethod
