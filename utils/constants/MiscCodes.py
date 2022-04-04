@@ -71,19 +71,14 @@ class Factions(IntEnum):
 
 class NpcFlags(IntEnum):
     NPC_FLAG_NONE = 0x0
-    NPC_FLAG_GOSSIP = 0x1
+    NPC_FLAG_VENDOR = 0x1
     NPC_FLAG_QUESTGIVER = 0x2
-    NPC_FLAG_VENDOR = 0x3
     NPC_FLAG_FLIGHTMASTER = 0x4
     NPC_FLAG_TRAINER = 0x8
     NPC_FLAG_BINDER = 0x10  # Binders were used to bind players to a meeting stone. You appeared there on death respawn.
     NPC_FLAG_BANKER = 0x20
-    NPC_FLAG_TABARDDESIGNER = 0x40
-    NPC_FLAG_PETITIONER = 0x80
-
-    NPC_FLAG_SPIRITHEALER = 0x00000020
-    NPC_FLAG_SPIRITGUIDE = 0x00000040
-    NPC_FLAG_INNKEEPER = 0x00000080
+    NPC_FLAG_TABARDDESIGNER = 0x40  # This will bring up the tabard design window only.
+    NPC_FLAG_PETITIONER = 0x80  # Guild Master NPCs need 0x40 | 0x80 to properly show the dialog window.
 
 
 # COMBAT INFORMATION

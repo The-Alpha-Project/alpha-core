@@ -29,5 +29,15 @@ begin not atomic
         insert into applied_updates values ('030420223');
     end if;
 
+    -- 04/04/2022 1
+    if (select count(*) from applied_updates where id='040420221') = 0 then
+        UPDATE `creature_template` SET `npc_flags` = 1 WHERE `npc_flags` = 3;
+        UPDATE `creature_template` SET `npc_flags` = 3 WHERE `npc_flags` = 5;
+        UPDATE `creature_template` SET `npc_flags` = 0 WHERE `npc_flags` = 1;
+        UPDATE `creature_template` SET `npc_flags` = 2 WHERE `entry` = 3150;
+
+        insert into applied_updates values ('040420221');
+    end if;
+
 end $
 delimiter ;
