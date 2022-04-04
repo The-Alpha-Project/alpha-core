@@ -15,6 +15,8 @@ class TaxiQueryNodesHandler(object):
                 return 0
 
             flight_master: CreatureManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
+            # If flight master is a quest giver and player has an active quest involving this NPC, send quest window
+            # instead of flying paths window.
             if flight_master and flight_master.is_quest_giver():
                 quests = world_session.player_mgr.quest_manager.get_active_quest_num_from_quest_giver(flight_master)
                 if quests > 0:

@@ -2,6 +2,7 @@ import math
 
 from utils.constants.MiscCodes import AttackTypes
 
+
 # Extracted from the 0.5.3 client as is.
 class Distances(object):
     MAX_DUEL_DISTANCE = 10.0
