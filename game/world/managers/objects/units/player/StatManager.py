@@ -383,12 +383,13 @@ class StatManager(object):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)
         total_health = self.get_total_stat(UnitStats.HEALTH)
 
-        current_hp = self.unit_mgr.max_health
+        current_hp = self.unit_mgr.health
+        current_total_hp = self.unit_mgr.max_health
         new_hp = int(self.get_health_bonus_from_stamina(total_stamina) + total_health)
 
-        hp_diff = new_hp - current_hp
+        hp_diff = new_hp - current_total_hp
         if new_hp > 0:
-            if new_hp < current_hp:
+            if new_hp < current_total_hp == current_hp:
                 self.unit_mgr.set_health(new_hp)
             self.unit_mgr.set_max_health(new_hp)
 
@@ -401,12 +402,13 @@ class StatManager(object):
         total_intellect = self.get_total_stat(UnitStats.INTELLECT)
         total_mana = self.get_total_stat(UnitStats.MANA)
 
-        current_mana = self.unit_mgr.max_power_1
+        current_mana = self.unit_mgr.power_1
+        current_total_mana = self.unit_mgr.max_power_1
         new_mana = int(self.get_mana_bonus_from_intellect(total_intellect) + total_mana)
 
-        mana_diff = new_mana - current_mana
+        mana_diff = new_mana - current_total_mana
         if new_mana > 0:
-            if new_mana < current_mana:
+            if new_mana < current_total_mana == current_mana:
                 self.unit_mgr.set_mana(new_mana)
             self.unit_mgr.set_max_mana(new_mana)
 
