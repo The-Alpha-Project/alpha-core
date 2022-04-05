@@ -388,6 +388,8 @@ class StatManager(object):
 
         hp_diff = new_hp - current_hp
         if new_hp > 0:
+            if new_hp < current_hp:
+                self.unit_mgr.set_health(new_hp)
             self.unit_mgr.set_max_health(new_hp)
 
         return max(0, hp_diff)
@@ -404,6 +406,8 @@ class StatManager(object):
 
         mana_diff = new_mana - current_mana
         if new_mana > 0:
+            if new_mana < current_mana:
+                self.unit_mgr.set_mana(new_mana)
             self.unit_mgr.set_max_mana(new_mana)
 
         return max(0, mana_diff)
