@@ -536,8 +536,8 @@ class StatManager(object):
 
     def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0):
         # TODO Based on vanilla calculations.
-        # Fleeing, return miss and handle on calling method.
-        if self.unit_mgr.is_fleeing():
+        # Evading, return miss and handle on calling method.
+        if self.unit_mgr.is_evading:
             return HitInfo.MISS
 
         # Note: Bear and cat form attacks don't use a weapon, and instead have max attack rating.

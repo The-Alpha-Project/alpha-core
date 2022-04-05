@@ -164,7 +164,8 @@ class UnitManager(ObjectManager):
 
         self.is_alive = True
         self.in_combat = False
-        self.fleeing_waypoints = []
+        self.is_evading = False
+        self.evading_waypoints = []
         self.swing_error = AttackSwingError.NONE
         self.extra_attacks = 0
         self.disarmed_mainhand = False
@@ -248,15 +249,15 @@ class UnitManager(ObjectManager):
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def attack_update(self, elapsed):
-        # If we have a combat target, no attackers and target is no longer alive or is fleeing, leave combat.
-        if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_fleeing()):
+        # If we have a combat target, no attackers and target is no longer alive or is evasing, leave combat.
+        if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_evading):
             if len(self.attackers) == 0:
                 self.leave_combat()
-            # If we have attackers and last target is dead or fleeing, switch to next alive target (only for creatures).
+            # If we have attackers and last target is dead or evading, switch to next alive target (only for creatures).
             elif not self.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 target_found = False
                 for guid, attacker in self.attackers.items():
-                    if attacker.is_alive and not attacker.is_fleeing():
+                    if attacker.is_alive and not attacker.is_evading:
                         self.attack(attacker)
                         target_found = True
                         break
@@ -401,7 +402,7 @@ class UnitManager(ObjectManager):
             damage_info.hit_info = HitInfo.MISS
             damage_info.total_damage = 0
             # Check evade, there is no HitInfo flag for this.
-            if victim.is_fleeing():
+            if victim.is_evading:
                 damage_info.target_state = VictimStates.VS_EVADE
                 damage_info.proc_victim |= ProcFlags.NONE
             elif hit_info == HitInfo.DODGE:
@@ -567,7 +568,7 @@ class UnitManager(ObjectManager):
         if not target or not target.is_alive:
             return
 
-        if target.is_fleeing():
+        if target.is_evading:
             return
 
         if target is not self:
@@ -634,8 +635,8 @@ class UnitManager(ObjectManager):
         else:  # TODO Proc damage effects (SPELL_AURA_PROC_TRIGGER_DAMAGE) can't fill target results - should they be able to miss?
             miss_reason = SpellMissReason.MISS_REASON_NONE
 
-        # Overwrite if fleeing.
-        if target.is_fleeing():
+        # Overwrite if evading.
+        if target.is_evading:
             miss_reason = SpellMissReason.MISS_REASON_EVADED
 
         damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target, casting_spell.spell_attack_type)
@@ -747,7 +748,7 @@ class UnitManager(ObjectManager):
         self.send_attack_stop(self.combat_target.guid if self.combat_target else self.guid)
         self.swing_error = 0
 
-        self.fleeing_waypoints.clear()
+        self.evading_waypoints.clear()
         self.combat_target = None
         self.in_combat = False
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
@@ -779,13 +780,6 @@ class UnitManager(ObjectManager):
     def set_stand_state(self, stand_state):
         self.stand_state = stand_state
 
-    def set_fleeing(self, state):
-        if state:
-            self.unit_flags |= UnitFlags.UNIT_FLAG_FLEEING
-        else:
-            self.unit_flags &= ~UnitFlags.UNIT_FLAG_FLEEING
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-
     def is_stealthed(self):
         return self.unit_flags & UnitFlags.UNIT_FLAG_SNEAK == UnitFlags.UNIT_FLAG_SNEAK
 
@@ -795,9 +789,6 @@ class UnitManager(ObjectManager):
         else:
             self.unit_flags &= ~UnitFlags.UNIT_FLAG_SNEAK
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-
-    def is_fleeing(self):
-        return self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
     # override
     def change_speed(self, speed=0):

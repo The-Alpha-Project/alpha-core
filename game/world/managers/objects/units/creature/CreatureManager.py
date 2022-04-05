@@ -84,7 +84,6 @@ class CreatureManager(UnitManager):
             self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
 
         self.fully_loaded = False
-        self.is_evading = False
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
         self.respawn_timer = 0
@@ -478,8 +477,8 @@ class CreatureManager(UnitManager):
 
     # TODO: Finish implementing evade mechanic.
     def evade(self):
-        # Already fleeing.
-        if self.is_fleeing():
+        # Already evading.
+        if self.is_evading:
             return
 
         # Get the path we are using to get back to spawn location.
@@ -488,7 +487,7 @@ class CreatureManager(UnitManager):
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
             self.set_health(self.max_health)
             self.recharge_power()
-        self.set_fleeing(True)
+        self.is_evading = True
 
         # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
         spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_locked else SplineFlags.SPLINEFLAG_FLYING
@@ -497,11 +496,11 @@ class CreatureManager(UnitManager):
     # TODO: Below return to spawn point logic should be removed once a navmesh is available.
     def _get_return_to_spawn_points(self) -> tuple:  # [waypoints], z_locked bool
         # No points, return just spawn point.
-        if len(self.fleeing_waypoints) == 0:
+        if len(self.evading_waypoints) == 0:
             return [self.spawn_position], False
 
         # Reverse the combat waypoints, so they point back to spawn location.
-        waypoints = [wp for wp in reversed(self.fleeing_waypoints)]
+        waypoints = [wp for wp in reversed(self.evading_waypoints)]
         # Set self location to the latest known point.
         self.location = waypoints[0].copy()
         last_waypoint = self.location
@@ -532,8 +531,8 @@ class CreatureManager(UnitManager):
         return waypoints, z_locked
 
     def _perform_random_movement(self, now):
-        # Do not wander in combat, while fleeing or without wander flag.
-        if not self.in_combat and not self.is_fleeing() and self.creature_instance.movement_type == MovementTypes.WANDER:
+        # Do not wander in combat, while evading or without wander flag.
+        if not self.in_combat and not self.is_evading and self.creature_instance.movement_type == MovementTypes.WANDER:
             if len(self.movement_manager.pending_waypoints) == 0:
                 if now > self.last_random_movement + self.random_movement_wait_time:
                     self.movement_manager.move_random(self.spawn_position,
@@ -547,7 +546,10 @@ class CreatureManager(UnitManager):
                 self.evade()
                 return
 
-            # TODO: Temp, extremely basic evade / runback mechanic based ONLY on distance. Replace later with a proper one.
+            # In 0.5.3, evade mechanic was only based on distance, the correct instance remains unknown. Assuming
+            # 50 yd for now.
+            # From 0.5.4 patch notes:
+            #     "Creature pursuit is now timer based rather than distance based."
             if self.location.distance(self.spawn_position) > 50:
                 self.evade()
                 return
