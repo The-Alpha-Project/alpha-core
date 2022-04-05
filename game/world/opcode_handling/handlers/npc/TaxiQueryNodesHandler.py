@@ -23,7 +23,7 @@ class TaxiQueryNodesHandler(object):
                 return 0
 
             # Mark FP as discovered in case it hasn't been discovered yet.
-            world_session.player_mgr.taxi_manager.discover_taxi(node, guid)
+            is_new_taxi = world_session.player_mgr.taxi_manager.discover_taxi(node, guid)
 
             # If flight master is a quest giver and player has an active quest involving this NPC, send quest window
             # instead of flying paths window.
@@ -33,6 +33,8 @@ class TaxiQueryNodesHandler(object):
                     world_session.player_mgr.quest_manager.handle_quest_giver_hello(flight_master, guid)
                     return 0
 
-            world_session.player_mgr.taxi_manager.handle_query_node(node, guid)
+            # Only show the FP window if the node has not just been discovered by the first time.
+            if not is_new_taxi:
+                world_session.player_mgr.taxi_manager.handle_query_node(node, guid)
 
         return 0

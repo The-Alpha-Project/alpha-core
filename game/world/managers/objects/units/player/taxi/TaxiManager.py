@@ -128,6 +128,8 @@ class TaxiManager(object):
                 # Update flight master status.
                 data = pack('<QB', flight_master_guid, 1)
                 self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TAXINODE_STATUS, data))
+            return True
+        return False
 
     def handle_query_node(self, node, flight_master_guid):
         # TODO: Find out how 'Destination Nodes' and 'Known Nodes' fields correlate,
