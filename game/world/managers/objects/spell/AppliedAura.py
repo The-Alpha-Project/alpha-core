@@ -1,5 +1,5 @@
 from game.world.managers.objects.spell import ExtendedSpellData
-from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
+from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler, PERIODIC_AURA_EFFECTS
 from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes
 
 
@@ -18,8 +18,6 @@ class AppliedAura:
         self.applied_stacks = 1
         self.can_stack = ExtendedSpellData.AuraDoseInfo.aura_can_stack(self.spell_id)
         self.max_stacks = ExtendedSpellData.AuraDoseInfo.get_aura_max_stacks(self.spell_id)
-
-        self.period = spell_effect.aura_period
 
         self.passive = casting_spell.is_passive()
         self.harmful = self.resolve_harmful()
