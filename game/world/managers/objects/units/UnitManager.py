@@ -249,7 +249,7 @@ class UnitManager(ObjectManager):
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def attack_update(self, elapsed):
-        # If we have a combat target, no attackers and target is no longer alive or is evasing, leave combat.
+        # If we have a combat target, no attackers and target is no longer alive or is evading, leave combat.
         if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_evading):
             if len(self.attackers) == 0:
                 self.leave_combat()
