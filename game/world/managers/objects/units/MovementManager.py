@@ -65,9 +65,9 @@ class MovementManager(object):
 
                 # TODO: Logic below should be removed once we have some kind of navmesh.
                 #  this temporarily allows units to return without getting stuck in walls forever.
-                # Append combat movements so this unit can use them to return to spawn point if fleeing.
-                if not self.is_player and self.unit.in_combat and not self.unit.is_fleeing():
-                    self.unit.fleeing_waypoints.append(new_position.copy())
+                # Append combat movements so this unit can use them to return to spawn point if evading.
+                if not self.is_player and self.unit.in_combat and not self.unit.is_evading:
+                    self.unit.evading_waypoints.append(new_position.copy())
 
                 if self.is_player and self.unit.pending_taxi_destination:
                     self.unit.taxi_manager.update_flight_state()
@@ -81,8 +81,8 @@ class MovementManager(object):
                     self.unit.taxi_manager.update_flight_state()
 
                 if not self.is_player:
-                    if self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
-                        self.unit.set_fleeing(False)
+                    if self.unit.is_evading:
+                        self.unit.is_evading = False
 
                 self.reset()
 

@@ -246,7 +246,7 @@ class QuestManager(object):
 
         quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
         # If this is a quest we can take, return quest offer.
-        if self.check_quest_requirements(quest) and self.check_quest_level(quest, False):
+        if quest and self.check_quest_requirements(quest) and self.check_quest_level(quest, False):
             return QuestState.QUEST_OFFER
         # Greeting - 'None'
         return QuestState.QUEST_GREETING

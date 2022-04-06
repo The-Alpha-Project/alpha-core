@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum, IntEnum
-from sys import platform
 
+from colorama import init
 from colorama import Fore, Style
 
 from utils.ConfigManager import config
@@ -27,7 +27,8 @@ class DebugLevel(IntEnum):
 
 
 class Logger:
-    IS_WINDOWS = platform == 'win32'
+    # Initialize colorama.
+    init()
 
     @staticmethod
     def _should_log(log_type: DebugLevel):
@@ -37,9 +38,6 @@ class Logger:
     @staticmethod
     def _colorize_message(label, color, msg):
         date = datetime.now().strftime('[%d/%m/%Y %H:%M:%S]')
-        # No colors for Windows :)
-        if Logger.IS_WINDOWS:
-            return f'{label} {date} {msg}'
         return f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
 
     @staticmethod

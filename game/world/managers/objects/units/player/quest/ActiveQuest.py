@@ -8,7 +8,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas
-from utils.constants.MiscCodes import QuestState, QuestMethod
+from utils.constants.MiscCodes import QuestState
 
 
 class ActiveQuest:
