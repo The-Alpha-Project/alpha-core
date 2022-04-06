@@ -778,7 +778,11 @@ class UnitManager(ObjectManager):
         return self.stand_state == StandState.UNIT_SITTING
 
     def set_stand_state(self, stand_state):
+        if stand_state == self.stand_state:
+            return
+
         self.stand_state = stand_state
+        self.aura_manager.check_aura_interrupts(changed_stand_state=True)
 
     def is_stealthed(self):
         return self.unit_flags & UnitFlags.UNIT_FLAG_SNEAK == UnitFlags.UNIT_FLAG_SNEAK

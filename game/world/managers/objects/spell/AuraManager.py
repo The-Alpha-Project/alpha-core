@@ -111,7 +111,7 @@ class AuraManager:
                 return False
         return True
 
-    def check_aura_interrupts(self, moved=False, negative_aura_applied=False, cast_spell=False, received_damage=False):
+    def check_aura_interrupts(self, moved=False, changed_stand_state=False, negative_aura_applied=False, cast_spell=False, received_damage=False):
         # TODO turning and water-related checks
         # Add once movement information is passed to update.
         flag_cases = {
@@ -123,16 +123,19 @@ class AuraManager:
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage
         }
         for aura in list(self.active_auras.values()):
+            # Food buffs are not labeled and an interrupt for sitting does not exist.
+            # Food/drink spells do claim that the player must remain seated.
+            # In later versions an aurainterrupt exists for this purpose.
+            if aura.source_spell.is_refreshment_spell() and changed_stand_state and \
+                    self.unit_mgr.stand_state != StandState.UNIT_SITTING:
+                self.remove_aura(aura)
+                continue
+
+
             for flag, condition in flag_cases.items():
                 if aura.interrupt_flags & flag and condition:
                     self.remove_aura(aura)
                     continue
-
-                # Food buffs are not labeled and an interrupt for sitting does not exist.
-                # Food/drink spells do claim that the player must remain seated.
-                # In later versions an aurainterrupt exists for this purpose.
-                if aura.source_spell.is_refreshment_spell() and self.unit_mgr.stand_state != StandState.UNIT_SITTING:
-                    self.remove_aura(aura)
 
     # Involved unit is the secondary unit in the proc event.
     # is_receiver is set to false if the player is causing damage and set to true if the player is taking damage.
