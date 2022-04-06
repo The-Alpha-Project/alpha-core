@@ -1,5 +1,5 @@
 from game.world.managers.objects.spell import ExtendedSpellData
-from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler, PERIODIC_AURA_EFFECTS
+from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
 from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes
 
 
