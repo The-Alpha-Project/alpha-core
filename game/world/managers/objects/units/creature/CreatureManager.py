@@ -686,8 +686,9 @@ class CreatureManager(UnitManager):
 
         # Check chance.
         # TODO: Probability should be checked after spell_manager do all the proper validations.
-        if probability < randint(0, 99):
-            return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
+        if probability:
+            if probability > randint(0, 99):
+                return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
 
         # Trigger the cast.
         # TODO: Need a way for spell_manager to 'prepare' the spell and return us SpellCheckCastResult.
