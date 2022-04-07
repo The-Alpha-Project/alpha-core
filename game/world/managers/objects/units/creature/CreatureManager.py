@@ -603,7 +603,7 @@ class CreatureManager(UnitManager):
                         self.movement_manager.send_move_stop()
                     # TODO: Stop melee combat without leaving combat.
                     # TODO: Run script if available.creature_spell_entry
-                    self.spell_manager.handle_cast_attempt(spell_entry.ID, target, SpellTargetMask.UNIT, cast_flags & CastFlags.CF_TRIGGERED, validate=False)
+                    self.spell_manager.handle_cast_attempt(spell_entry.ID, target, SpellTargetMask.UNIT, cast_flags & CastFlags.CF_TRIGGERED, validate=True)
                 elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_NOPATH \
                         or spell_cast_result == SpellCheckCastResult.SPELL_FAILED_SPELL_IN_PROGRESS:
                     continue
@@ -692,6 +692,7 @@ class CreatureManager(UnitManager):
 
         # Trigger the cast.
         # TODO: Need a way for spell_manager to 'prepare' the spell and return us SpellCheckCastResult.
+        #  Maybe validate_spell should receive the spell_entry and not CastingSpell or something.
         return SpellCheckCastResult.SPELL_NO_ERROR
 
     def _perform_random_movement(self, now):
