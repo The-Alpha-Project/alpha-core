@@ -8,7 +8,7 @@ from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import AttackTypes, ObjectTypeFlags, HitInfo, ObjectTypeIds
 from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms
-from utils.constants.UnitCodes import PowerTypes, Classes
+from utils.constants.UnitCodes import PowerTypes, Classes, Races
 
 
 # Stats that are modified aura effects. Used in StatManager and when accessing stats.
@@ -114,8 +114,19 @@ class StatManager(object):
         base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.class_, self.unit_mgr.level)
 
         if not base_stats:
-            Logger.error(f'Unsupported level ({self.unit_mgr.level}) from unit type {self.unit_mgr.get_type_id()}.')
-            return
+            if self.unit_mgr.level > 60:
+                # Default to max available base stats, level 60.
+                base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.class_, 60)
+                Logger.warning(f'Unsupported base stats for level ({self.unit_mgr.level})'
+                               f' Unit class ({Classes(self.unit_mgr.class_).name})'
+                               f' Unit type ({ObjectTypeIds(self.unit_mgr.get_type_id()).name})'
+                               f' Using level 60 base stats.')
+            else:
+                Logger.error(
+                    f'Unsupported base stats for level ({self.unit_mgr.level})'
+                    f' Unit class ({Classes(self.unit_mgr.class_).name})'
+                    f' Unit type ({ObjectTypeIds(self.unit_mgr.get_type_id()).name}).')
+                return
 
         # Player specific.
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
@@ -123,8 +134,22 @@ class StatManager(object):
                                                                      self.unit_mgr.level,
                                                                      self.unit_mgr.race)
             if not base_attrs:
-                Logger.error(f'Unsupported level ({self.unit_mgr.level}) from player {self.unit_mgr.player.name}.')
-                return
+                if self.unit_mgr.level > 60:
+                    # Default to max available attributes, level 60.
+                    base_attrs = WorldDatabaseManager.player_get_level_stats(self.unit_mgr.class_,
+                                                                             60,
+                                                                             self.unit_mgr.race)
+                    Logger.warning(f'Unsupported base attributes for level ({self.unit_mgr.level})'
+                                   f' Unit type ({ObjectTypeIds(self.unit_mgr.get_type_id()).name})'
+                                   f' Unit class ({Classes(self.unit_mgr.class_).name})'
+                                   f' Unit race ({Races(self.unit_mgr.race).name})'
+                                   f' Using level 60 attributes.')
+                else:
+                    Logger.error(f'Unsupported base attributes for level ({self.unit_mgr.level})'
+                                 f' Unit type ({ObjectTypeIds(self.unit_mgr.get_type_id()).name})'
+                                 f' Unit class ({Classes(self.unit_mgr.class_).name})'
+                                 f' Unit race ({Races(self.unit_mgr.race).name})')
+                    return
 
             self.base_stats[UnitStats.HEALTH] = base_stats.basehp
             self.base_stats[UnitStats.MANA] = base_stats.basemana
