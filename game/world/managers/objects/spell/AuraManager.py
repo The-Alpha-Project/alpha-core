@@ -223,6 +223,12 @@ class AuraManager:
 
         return True
 
+    def has_aura_by_spell_id(self, spell_id):
+        for aura in self.active_auras.values():
+            if aura.spell_id == spell_id:
+                return True
+        return False
+
     def get_auras_by_spell_id(self, spell_id) -> list[AppliedAura]:
         auras = []
         for aura in self.active_auras.values():

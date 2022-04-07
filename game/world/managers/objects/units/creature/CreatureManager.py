@@ -1,4 +1,5 @@
 import math
+import random
 from dataclasses import dataclass
 from random import randint, choice
 from struct import unpack, pack
@@ -8,28 +9,34 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.script.ScriptManager import ScriptManager
+from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureAISpellsEntry
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
 from utils.TextUtils import GameTextFormatter
-from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.ScriptCodes import CastFlags
+from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes
+    CreatureStaticFlags, PowerTypes, UnitStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
 # noinspection PyCallByClass
 class CreatureManager(UnitManager):
     CURRENT_HIGHEST_GUID = 0
+    # Creature spell lists should be updated every 1.2 seconds according to research.
+    # https://www.reddit.com/r/wowservers/comments/834nt5/felmyst_ai_system_research/
     CREATURE_CASTING_DELAY = 1.2  # Seconds
 
     def __init__(self,
@@ -76,7 +83,7 @@ class CreatureManager(UnitManager):
         self.faction = self.creature_template.faction
         self.creature_type = self.creature_template.type
         self.spell_list_id = self.creature_template.spell_list_id
-        self.creature_spells = None
+        self.creature_spells = []
         self.casting_delay = 0
         self.sheath_state = WeaponMode.NORMALMODE
         self.regen_flags = self.creature_template.regeneration
@@ -320,7 +327,11 @@ class CreatureManager(UnitManager):
                 if self.creature_template.spell_list_id:
                     spell_list_id = self.creature_template.spell_list_id
                     creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(spell_list_id)
-                    self.creature_spells = creature_spells
+                    # Finish loading each creature_spell.
+                    for creature_spell in creature_spells:
+                        creature_spell.finish_loading()
+                        if creature_spell.has_valid_spell:
+                            self.creature_spells.append(CreatureAISpellsEntry(creature_spell))
 
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses(replenish=True)
@@ -546,9 +557,141 @@ class CreatureManager(UnitManager):
 
         if self.casting_delay <= 0:
             self.casting_delay = CreatureManager.CREATURE_CASTING_DELAY
-            self.spell_manager.handle_creature_spell_list_cast(self.creature_spells)
+            self._do_spell_list_cast(elapsed)
         else:
-            self.casting_delay -= elapsed;
+            self.casting_delay -= elapsed
+
+    def _do_spell_list_cast(self, elapsed):
+        # self.spell_manager.handle_creature_spell_list_cast(self.creature_spells)
+        dont_cast = False
+        for creature_spell in self.creature_spells:
+            creature_spell.cool_down -= elapsed
+            if creature_spell.cool_down < 0:
+                creature_spell.cool_down = 0
+            creature_spell_entry = creature_spell.creature_spell_entry
+            cast_flags = creature_spell_entry.cast_flags
+            probability = creature_spell_entry.probability
+            # Check cooldown and if self is casting at the moment.
+            if creature_spell.cool_down <= 0 and not self.spell_manager.is_casting():
+                # Prevent casting multiple spells in the same update.
+                # Only update timers.
+                if not (cast_flags & (CastFlags.CF_TRIGGERED | CastFlags.CF_INTERRUPT_PREVIOUS)):
+                    # TODO: Need a way to check for different kind of spells being casted. IsNonMeleeSpellCasted-VMaNGOS
+                    if dont_cast:
+                        continue
+
+                target = ScriptManager.get_target_by_type(self,
+                                                          self,
+                                                          creature_spell_entry.cast_target,
+                                                          creature_spell_entry.target_param1,
+                                                          abs(creature_spell_entry.target_param2)
+                                                          )
+
+                # Unable to find target, move on.
+                if not target:
+                    continue
+
+                spell_entry = creature_spell.creature_spell_entry.spell
+                spell_cast_result = self._try_to_cast(target, spell_entry, cast_flags, probability)
+                print(SpellCheckCastResult(spell_cast_result).name)
+                if spell_cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
+                    dont_cast = not cast_flags & CastFlags.CF_TRIGGERED
+                    creature_spell.cool_down = randint(creature_spell_entry.delay_init_min, creature_spell_entry.delay_init_max)
+                    print(f'New cooldown {creature_spell.cool_down}')
+                    # Stop if ranged spell.
+                    if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL and self.movement_manager.unit_is_moving():
+                        self.movement_manager.send_move_stop()
+                    # TODO: Stop melee combat without leaving combat.
+                    # TODO: Run script if available.creature_spell_entry
+                    self.spell_manager.handle_cast_attempt(spell_entry.ID, target, SpellTargetMask.UNIT, cast_flags & CastFlags.CF_TRIGGERED, validate=False)
+                elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_NOPATH \
+                        or spell_cast_result == SpellCheckCastResult.SPELL_FAILED_SPELL_IN_PROGRESS:
+                    continue
+                elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN:
+                    # Probability roll failed, so we reset cooldown.
+                    creature_spell.cool_down = randint(creature_spell_entry.delay_init_min, creature_spell_entry.delay_init_max)
+                    # TODO: Enable movement and combat again if this was a ranged spell.
+                    # if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL:
+                else:
+                    # TODO: Enable movement and combat again if this was a ranged spell.
+                    continue
+
+    def _try_to_cast(self, target, spell_entry, cast_flags, probability):
+        # Could not resolver a target.
+        if not target:
+            return SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS
+
+        # Target is fleeing.
+        if target.unit_flags & UnitFlags.UNIT_FLAG_FLEEING or target.unit_state & UnitStates.FLEEING:
+            # VMaNGOS uses SPELL_FAILED_FLEEING at 0x1E, not sure if its the same.
+            return SpellCheckCastResult.SPELL_FAILED_NOPATH
+
+        # TODO: Need similar functionality to IsNonMeleeSpellCasted - VMaNGOS.
+        if cast_flags & CastFlags.CF_TARGET_CASTING and not target.spell.manager.is_casting():
+            return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
+
+        # This spell should only be cast when target does not have the aura it applies.
+        if cast_flags & CastFlags.CF_AURA_NOT_PRESENT and target.aura_manager.has_aura.has_aura_by_spell_id(spell_entry.ID):
+            return SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED
+
+        # Need to use combat distance.
+        if cast_flags & CastFlags.CF_ONLY_IN_MELEE and not self.is_within_interactable_distance(target):
+            return SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE
+
+        # This spell should not be used if target is in melee range.
+        if cast_flags & CastFlags.CF_NOT_IN_MELEE and self.is_within_interactable_distance(target):
+            return SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE
+
+        # This spell should only be cast when we cannot get into melee range.
+        # TODO: Missing pathfinding to check for reachability.
+        #  We need to known which type of movement the unit is 'using', chase, spline, etc..
+        if cast_flags & CastFlags.CF_TARGET_UNREACHABLE and self.is_within_interactable_distance(target) or \
+                self.unit_state & UnitStates.ROOTED:
+            return SpellCheckCastResult.SPELL_FAILED_MOVING
+
+        if not cast_flags & CastFlags.CF_FORCE_CAST:
+            # Need internal/custom unit states. UNIT_STAT_CAN_NOT_MOVE
+            # Check self fleeing.
+            if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING or self.unit_state & UnitStates.FLEEING:
+                return SpellCheckCastResult.SPELL_FAILED_NOPATH
+
+            # If the spell requires to be behind the target.
+            target_is_facing_caster = target.location.has_in_arc(self.location, math.pi)
+            if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(spell_entry.ID, target_is_facing_caster):
+                return SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_BEHIND
+
+            # If the spell requires the target having a specific power type.
+            # TODO: Spell IsAreaOfEffectSpell, IsTargetPowerTypeValid
+            #  if not is_area_of_effect_spell and not is_target_power_type_valid:
+            #     return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
+
+            # No point in casting if target is immune.
+            # TODO: IsPositiveSpell(), IsImmuneToDamage()
+            #  if target != self and is_positive_spell and target.is_inmune_to_damage(spell_school_mask, spell_info):
+            #     return SpellCheckCastResult.SPELL_FAILED_IMMUNE
+
+            # Mind control abilities can't be used with just 1 attacker or mob will reset.
+            # TODO: GetThreatManager(), IsCharmSpell()
+            #  if len(threat_list) == 1 and is_charm_spell():
+            #     return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
+
+            # Do not use dismounting spells when target is not mounted (there are 4 such spells).
+            # TODO: IsDismountSpell()
+            #  if not target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED and is_dismount_spell:
+            #     return SpellCheckCastResult.SPELL_FAILED_ONLY_MOUNTED;
+
+        # TODO: IsNonMeleeSpellCasted
+        #  if cast_flags & CastFlags.CF_INTERRUPT_PREVIOUS and IsNonMeleeSpellCasted()
+        #     self.interrupt_non_melee_spells()
+
+        # Check chance.
+        # TODO: Probability should be checked after spell_manager do all the proper validations.
+        if probability < randint(0, 99):
+            return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
+
+        # Trigger the cast.
+        # TODO: Need a way for spell_manager to 'prepare' the spell and return us SpellCheckCastResult.
+        return SpellCheckCastResult.SPELL_NO_ERROR
 
     def _perform_random_movement(self, now):
         # Do not wander in combat, while evading or without wander flag.

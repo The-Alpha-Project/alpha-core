@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.world.WorldModels import *
-from game.world.managers.objects.units.creature.CreatureSpellTemplate import CreatureSpellTemplate
+from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureSpellsEntry
 from utils.ConfigManager import *
 from utils.constants.MiscCodes import HighGuid
 
@@ -334,7 +334,7 @@ class WorldDatabaseManager(object):
 
     class CreatureSpellHolder:
         CREATURE_SPELLS_MAX_SPELLS = 8
-        CREATURE_SPELL_TEMPLATE: [int, CreatureSpellTemplate] = {}
+        CREATURE_SPELL_TEMPLATE: [int, CreatureSpellsEntry] = {}
 
         @staticmethod
         def load_creature_spells(creature_spell):
@@ -342,7 +342,7 @@ class WorldDatabaseManager(object):
                 WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry] = []
 
             for index in range(0, WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELLS_MAX_SPELLS):
-                spell_template = CreatureSpellTemplate(creature_spell, index + 1)
+                spell_template = CreatureSpellsEntry(creature_spell, index + 1)
                 WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry].append(spell_template)
 
         @staticmethod
