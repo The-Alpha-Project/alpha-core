@@ -414,8 +414,8 @@ class StatManager(object):
 
         hp_diff = new_hp - current_total_hp
         if new_hp > 0:
-            # Update current health if the new total value is lower and health is currently full.
-            if new_hp < current_total_hp == current_hp:
+            # Update current health if the new total value is lower and health is currently greater than the new total.
+            if current_hp > new_hp < current_total_hp:
                 self.unit_mgr.set_health(new_hp)
             self.unit_mgr.set_max_health(new_hp)
 
@@ -434,8 +434,8 @@ class StatManager(object):
 
         mana_diff = new_mana - current_total_mana
         if new_mana > 0:
-            # Update current mana if the new total value is lower and mana is currently full.
-            if new_mana < current_total_mana == current_mana:
+            # Update current mana if the new total value is lower and mana is currently greater than the new total.
+            if current_mana > new_mana < current_total_mana:
                 self.unit_mgr.set_mana(new_mana)
             self.unit_mgr.set_max_mana(new_mana)
 
