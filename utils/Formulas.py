@@ -142,7 +142,7 @@ class PlayerFormulas(object):
             diff = 0
 
         # Always round to the nearest hundred
-        return int(round(((16 * level) + diff) * PlayerFormulas.base_xp_per_mob(level) + 1, -2))
+        return int(round(((8 * level) + diff) * PlayerFormulas.base_xp_per_mob(level) + 1, -2))
 
     @staticmethod
     def quest_xp_reward(quest_level, player_level, rew_xp):
