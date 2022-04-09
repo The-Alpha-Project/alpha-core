@@ -3,13 +3,14 @@ class CreatureAI(object):
     # https://www.reddit.com/r/wowservers/comments/834nt5/felmyst_ai_system_research/
     CREATURE_CASTING_DELAY = 1200
 
-    def __init__(self, unit, use_ai_at_control, melee_attack, combat_movement, casting_delay=0, last_alert_time=0):
+    def __init__(self, unit):
         self.unit = unit
-        self.use_ai_at_control = use_ai_at_control
-        self.melee_attack = melee_attack
-        self.combat_movement = combat_movement
-        self.casting_delay = casting_delay
-        self.last_alert_time = last_alert_time
+        self.use_ai_at_control = False
+        self.melee_attack = True  # If we allow melee auto attack.
+        self.combat_movement = True  # If we allow targeted movement gen (chasing target).
+        self.casting_delay = 0  # Cool-down before updating spell list again.
+        self.last_alert_time = 0
+        self.creature_spells = []  # Contains the currently used creature_spells template.
         self.set_spell_list()
 
     # Called at World update tick
@@ -25,12 +26,6 @@ class CreatureAI(object):
 
     # Distract creature, if player gets too close while stealth/prowling.
     def trigger_alert(self, unit):
-        pass
-
-    # Called at any Damage from any attacker (before damage apply).
-    # Note: it for recalculation damage or special reaction at damage
-    # for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
-    def damage_taken(self, attacker, damage):
         pass
 
     # Called when the creature is killed.
@@ -179,6 +174,12 @@ class CreatureAI(object):
     def damage_deal(self, unit, damage):
         pass
 
+    # Called at any Damage from any attacker (before damage apply).
+    # Note: it for recalculation damage or special reaction at damage
+    # for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
+    def damage_taken(self, attacker, damage):
+        pass
+
     # Called at any heal cast/item used (call non implemented).
     def healed_by(self):
         pass
@@ -194,8 +195,6 @@ class CreatureAI(object):
     # Called for reaction at stopping attack at no attackers or targets.
     def enter_evade_mode(self):
         pass
-
-
 
 
 
