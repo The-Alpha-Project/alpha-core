@@ -637,6 +637,34 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
     # override
+    def attack_update(self, elapsed):
+        # If we have a combat target, no attackers and target is no longer alive or is evasing, leave combat.
+        if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_evading):
+            target_found = False
+            for guid, attacker in self.attackers.items():
+                if attacker.is_alive and not attacker.is_evading:
+                    self.attack(attacker)
+                    target_found = True
+                    break
+            # If we did not find a target, leave combat.
+            if not target_found:
+                self.leave_combat()
+
+        super().attack_update(elapsed)
+
+    # override
+    def receive_damage(self, amount, source=None, is_periodic=False):
+        super().receive_damage(amount, source, is_periodic)
+
+        # If creature's being attacked by another unit, automatically set combat target.
+        if not self.combat_target and source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
+            # Make sure to first stop any movement right away.
+            if len(self.movement_manager.pending_waypoints) > 0:
+                self.movement_manager.send_move_stop()
+            # Attack.
+            self.attack(source)
+
+    # override
     def respawn(self):
         super().respawn()
         # Set all property values before making this creature visible.

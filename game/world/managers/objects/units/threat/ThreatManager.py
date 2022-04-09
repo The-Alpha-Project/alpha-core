@@ -18,13 +18,13 @@ class ThreatManager:
         self.owner = owner
         self.threats: Dict[int, ThreatHolder] = {}
 
-    def add_threat(self, victim: UnitManager, threat: float):
-        if victim != self:
-            holder = self.threats[victim.guid]
+    def add_threat(self, source: UnitManager, threat: float):
+        if source != self:
+            holder = self.threats[source.guid]
             if holder:
-                self.threats[victim.guid] = holder.plus_threat(threat)
+                self.threats[source.guid] = holder.plus_threat(threat)
             else:
-                self.threats[victim.guid] = ThreatHolder(victim, threat)
+                self.threats[source.guid] = ThreatHolder(source, threat)
 
     def get_hostile_target(self) -> Optional[UnitManager]:
         holders = list(self.threats.values())
