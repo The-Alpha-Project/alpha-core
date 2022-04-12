@@ -186,6 +186,7 @@ class UnitManager(ObjectManager):
         self.has_parry_passive = False
         self.has_dodge_passive = False
 
+        self.unit_ai = None
         self.stat_manager = StatManager(self)
         self.spell_manager = SpellManager(self)
         self.aura_manager = AuraManager(self)
