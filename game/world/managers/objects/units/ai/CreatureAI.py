@@ -11,7 +11,10 @@ class CreatureAI(object):
         self.casting_delay = 0  # Cool-down before updating spell list again.
         self.last_alert_time = 0
         self.creature_spells = []  # Contains the currently used creature_spells template.
-        self.set_spell_list()
+        self.load_spell_list()
+
+    def load_spell_list(self, spell_list):
+        self.creature_spells = spell_list
 
     # Called at World update tick
     def update_ai(self, elapsed):
