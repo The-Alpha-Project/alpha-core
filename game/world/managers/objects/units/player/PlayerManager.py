@@ -713,8 +713,6 @@ class PlayerManager(UnitManager):
         # Do not send loot if player has no permission.
         if loot_type != LootTypes.LOOT_TYPE_NOTALLOWED:
             slot = 0
-            # Set the number of item detail queries we are packing.
-            item_query = pack('<I', len(world_object.loot_manager.current_loot))
             # Slot should match real current_loot indexes.
             for loot in world_object.loot_manager.current_loot:
                 if loot:
