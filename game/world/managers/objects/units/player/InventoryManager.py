@@ -799,7 +799,7 @@ class InventoryManager(object):
 
         # Build a single multiple item query detail packet if items are available.
         # Insert it at position 0 so it's the first packet clients will receive before full item update packets.
-        if item_count > 0:
+        if item_count:
             item_query = pack(f'<I{len(item_query_details_data)}s', item_count, item_query_details_data)
             update_packets.insert(0, PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query))
 
