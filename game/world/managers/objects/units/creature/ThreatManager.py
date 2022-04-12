@@ -1,14 +1,13 @@
-from typing import Dict, NamedTuple, Optional
+from dataclasses import dataclass
+from typing import Dict, Optional
 
 from game.world.managers.objects.units.UnitManager import UnitManager
 
 
-class ThreatHolder(NamedTuple):
+@dataclass
+class ThreatHolder:
     unit: UnitManager
     threat: float
-
-    def plus_threat(self, threat):
-        return ThreatHolder(self.unit, self.threat + threat)
 
 
 class ThreatManager:
@@ -22,7 +21,7 @@ class ThreatManager:
         if source != self:
             source_holder = self.holders.get(source.guid)
             if source_holder:
-                self.holders[source.guid] = source_holder.plus_threat(threat)
+                source_holder.threat += threat
             else:
                 self.holders[source.guid] = ThreatHolder(source, threat)
 
@@ -36,6 +35,10 @@ class ThreatManager:
                 self.current_holder = max_threat_holder
 
         return self._get_current_target()
+
+    def reset(self):
+        self.holders.clear()
+        self.current_holder = None
 
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
         relevant_holders = [holder for holder

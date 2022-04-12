@@ -647,6 +647,7 @@ class CreatureManager(UnitManager):
             self.attack(target)
         else:
             # If we did not find a target, leave combat.
+            self.threat_manager.reset()
             self.leave_combat()
 
         super().attack_update(elapsed)
@@ -657,7 +658,8 @@ class CreatureManager(UnitManager):
 
         if self.is_alive:
             # If creature's being attacked by another unit, automatically set combat target.
-            if not self.combat_target and source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
+            not_gameobject_attacked = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
+            if not self.combat_target and not_gameobject_attacked:
                 # Make sure to first stop any movement right away.
                 if len(self.movement_manager.pending_waypoints) > 0:
                     self.movement_manager.send_move_stop()
