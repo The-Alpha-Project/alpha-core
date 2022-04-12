@@ -774,23 +774,33 @@ class InventoryManager(object):
     def get_single_item_update_packets(self, item, requester):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(requester)))
-        return [update_packet, item.query_details()]
+        return update_packet
 
     def get_inventory_update_packets(self, requester):
         # Edge case where the session might be null at some point.
         if self.owner and not self.owner.session:
             return []
 
+        item_query_details_data = b''
+        item_count = 0
         update_packets = []
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
             if not container.is_backpack:
-                for packet in self.get_single_item_update_packets(container, requester):
-                    update_packets.append(packet)
+                update_packets.append(self.get_single_item_update_packets(container, requester))
+                item_query_details_data += container.query_details_data()
+                item_count += 1
 
             for slot, item in list(container.sorted_slots.items()):
-                for _packet in self.get_single_item_update_packets(item, requester):
-                    update_packets.append(_packet)
+                update_packets.append(self.get_single_item_update_packets(item, requester))
+                item_query_details_data += item.query_details_data()
+                item_count += 1
+
+        # Build a single multiple item query detail packet if items are available.
+        # Insert it at position 0 so it's the first packet clients will receive before full item update packets.
+        if item_count > 0:
+            item_query = pack(f'<I{len(item_query_details_data)}s', item_count, item_query_details_data)
+            update_packets.insert(0, PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query))
 
         return update_packets

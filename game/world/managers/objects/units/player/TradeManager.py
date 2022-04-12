@@ -96,8 +96,8 @@ class TradeManager(object):
                 return
 
             self.items[slot] = item
-            self.player.enqueue_packet(item.query_details())
-            self.other_player.enqueue_packet(item.query_details())
+            self.player.enqueue_packet(item.query_details_packet())
+            self.other_player.enqueue_packet(item.query_details_packet())
 
             self.set_accepted(False)
             self.other_player.trade_data.set_accepted(False)
