@@ -65,7 +65,7 @@ class UnitStats(IntFlag):
     POWER_REGENERATION_PER_5 = auto()
 
     ATTACK_SPEED = auto()
-    THREAT = auto()
+    THREAT_GENERATION = auto()
     STEALTH = auto()
     STEALTH_DETECTION = auto()
     INVISIBILITY = auto()
