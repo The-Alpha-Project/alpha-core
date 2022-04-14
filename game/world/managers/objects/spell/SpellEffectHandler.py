@@ -361,8 +361,10 @@ class SpellEffectHandler(object):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        # Everything here is obviously very temporary, just for testing purposes.
+        caster.pet_manager.add_pet_from_world(target)
 
+        # Everything here is obviously very temporary, just for testing purposes.
+        '''
         target.set_uint32(UnitFields.UNIT_FIELD_SUMMONEDBY, caster.guid)
         target.set_uint32(UnitFields.UNIT_FIELD_CREATEDBY, caster.guid)
         target.faction = caster.faction
@@ -373,8 +375,8 @@ class SpellEffectHandler(object):
 
         signature = f'<QIBBBB{str(bar_slots)}IBB'
         data = [target.guid, 0]  # ?
-        data.append(0)  # React state (0 = passive, 1 = defensive, 2 = aggressive)
-        data.append(0)  # Command state (0 = stay, 1 = follow, 2 = attack, 3 = dismiss)
+        data.append(0)  # React state
+        data.append(0)  # Command state
         data.append(0)  # ?
         data.append(0)  # Enabled? 0x0 : 0x8.
 
@@ -393,7 +395,7 @@ class SpellEffectHandler(object):
 
         packet = pack(signature, *data)
         caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, packet))
-        '''
+
         enum ActiveStates
         {
             ACT_PASSIVE  = 0x01,                                    // 0x01 - passive
