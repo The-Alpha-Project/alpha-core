@@ -244,6 +244,7 @@ class StatManager(object):
         return int((value + flat) * percentual)
 
     def apply_aura_stat_bonus(self, index: int, stat_type: UnitStats, amount: int, misc_value=-1, percentual=False):
+        # Note: percentual modifiers should be passed as ints (ie. 50 -> +50% -> *1.5, -20 -> -20% -> *0.8).
         if percentual:
             self.aura_stats_percentual[index] = (stat_type, amount, misc_value)
         else:
