@@ -11,7 +11,7 @@ from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms
 from utils.constants.UnitCodes import PowerTypes, Classes
 
 
-# Stats that are modified aura effects. Used in StatManager and when accessing stats.
+# Stats that are modified by aura effects and items.
 # Use auto indexing to make expanding much easier.
 class UnitStats(IntFlag):
     STRENGTH = auto()
