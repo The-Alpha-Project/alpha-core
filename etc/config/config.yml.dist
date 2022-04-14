@@ -52,8 +52,8 @@ Server:
     General:
         # Message of the day
         motd: Welcome to the Friends and Family Alpha!
-        disabled_race_mask: 0
-        disabled_class_mask: 0
+        disabled_race_mask: 0  # Blizzlike 0.5.3: 239
+        disabled_class_mask: 0  # Blizzlike 0.5.3: 1102
 
 World:
     Gameplay:

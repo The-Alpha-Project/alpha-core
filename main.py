@@ -3,8 +3,6 @@ import os
 from sys import platform
 from time import sleep
 
-import colorama
-
 from game.realm import RealmManager
 from game.world import WorldManager
 from game.world.managers.maps.MapManager import MapManager
@@ -26,8 +24,6 @@ def release_process(process):
 
 
 if __name__ == '__main__':
-    # Initialize colorama
-    colorama.init()
     # Initialize path
     PathManager.set_root_path(os.path.dirname(os.path.realpath(__file__)))
 

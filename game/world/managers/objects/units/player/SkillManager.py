@@ -10,7 +10,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
-from utils.constants.ItemCodes import ItemClasses
+from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, HitInfo
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields
@@ -230,7 +230,8 @@ class SkillManager(object):
     # Apply armor proficiencies and populate full_proficiency_masks.
     # noinspection PyUnusedLocal
     def load_proficiencies(self):
-        base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.player.race, self.player_mgr.player.class_)
+        base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(self.player_mgr.race,
+                                                                             self.player_mgr.class_)
         if not base_info:
             return
 
@@ -251,9 +252,14 @@ class SkillManager(object):
             if acquire_method != ProficiencyAcquireMethod.ON_CHAR_CREATE:
                 continue
 
-            # Weapon proficiencies have passive spells assigned to them, but armor proficiencies don't.
-            if item_class != ItemClasses.ITEM_CLASS_ARMOR:
-                continue
+            # All weapon proficiencies except misc weapons have passive proficiency spells.
+            # Armor proficiencies learned on character creation do not have associated spells.
+            if item_class == ItemClasses.ITEM_CLASS_WEAPON:
+                misc_weapon_mask = 1 << ItemSubClasses.ITEM_SUBCLASS_MISC_WEAPON
+                if item_subclass_mask & misc_weapon_mask == 0:
+                    continue
+                item_subclass_mask = misc_weapon_mask
+
             self.add_proficiency(item_class, item_subclass_mask, -1)
 
     def add_proficiency(self, item_class, item_subclass_mask, skill_id):

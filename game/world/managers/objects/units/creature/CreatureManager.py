@@ -17,6 +17,7 @@ from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
+from utils.TextUtils import GameTextFormatter
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
@@ -43,12 +44,22 @@ class CreatureManager(UnitManager):
         self.is_summon = is_summon
 
         self.entry = self.creature_template.entry
+        self.class_ = self.creature_template.unit_class
         self.native_display_id = self.generate_display_id()
         self.current_display_id = self.native_display_id
-        self.max_health = self.creature_template.health_max
-        self.power_1 = self.creature_template.mana_min
-        self.max_power_1 = self.creature_template.mana_max
         self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
+
+        # Calculate relative level in order to get health and mana values.
+        rel_level = 0 if self.creature_template.level_max == self.creature_template.level_min else \
+            ((self.level - self.creature_template.level_min) /
+             (self.creature_template.level_max - self.creature_template.level_min))
+        self.max_health = self.creature_template.health_min + int(rel_level * (self.creature_template.health_max -
+                                                                               self.creature_template.health_min))
+        self.max_power_1 = self.creature_template.mana_min + int(rel_level * (self.creature_template.mana_max -
+                                                                              self.creature_template.mana_min))
+
+        self.health = self.max_health
+        self.power_1 = self.max_power_1
         self.resistance_0 = self.creature_template.armor
         self.resistance_1 = self.creature_template.holy_res
         self.resistance_2 = self.creature_template.fire_res
@@ -64,6 +75,7 @@ class CreatureManager(UnitManager):
         self.faction = self.creature_template.faction
         self.creature_type = self.creature_template.type
         self.sheath_state = WeaponMode.NORMALMODE
+        self.regen_flags = self.creature_template.regeneration
         self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
 
         self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
@@ -72,7 +84,6 @@ class CreatureManager(UnitManager):
             self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
 
         self.fully_loaded = False
-        self.is_evading = False
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
         self.respawn_timer = 0
@@ -236,9 +247,11 @@ class CreatureManager(UnitManager):
             train_spell_bytes += data
             train_spell_count += 1
 
-        # TODO: Temp placeholder.
-        greeting: str = f'Hello, {world_session.player_mgr.player.name}! Ready for some training?'
-        greeting_bytes = PacketWriter.string_to_bytes(greeting)
+        # TODO: Placeholder text, although it seems to appear in most of the trainer screenshots.
+        #  https://imgur.com/a/70OcLjv
+        placeholder_greeting: str = f'Hello, $c!  Ready for some training?'
+        greeting_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(world_session.player_mgr,
+                                                                               placeholder_greeting))
         greeting_bytes = pack(
                     f'<{len(greeting_bytes)}s', 
                     greeting_bytes
@@ -300,8 +313,7 @@ class CreatureManager(UnitManager):
                         self.mount(addon_template.mount_display_id)
 
                 self.stat_manager.init_stats()
-                self.stat_manager.apply_bonuses()
-
+                self.stat_manager.apply_bonuses(replenish=True)
                 self.fully_loaded = True
 
     def set_virtual_item(self, slot, item_entry):
@@ -469,16 +481,17 @@ class CreatureManager(UnitManager):
 
     # TODO: Finish implementing evade mechanic.
     def evade(self):
-        # Already fleeing.
-        if self.is_fleeing():
+        # Already evading.
+        if self.is_evading:
             return
 
         # Get the path we are using to get back to spawn location.
         waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
         self.leave_combat(force=True)
-        self.set_health(self.max_health)
-        self.recharge_power()
-        self.set_fleeing(True)
+        if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
+            self.set_health(self.max_health)
+            self.recharge_power()
+        self.is_evading = True
 
         # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
         spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_locked else SplineFlags.SPLINEFLAG_FLYING
@@ -487,11 +500,11 @@ class CreatureManager(UnitManager):
     # TODO: Below return to spawn point logic should be removed once a navmesh is available.
     def _get_return_to_spawn_points(self) -> tuple:  # [waypoints], z_locked bool
         # No points, return just spawn point.
-        if len(self.fleeing_waypoints) == 0:
+        if len(self.evading_waypoints) == 0:
             return [self.spawn_position], False
 
         # Reverse the combat waypoints, so they point back to spawn location.
-        waypoints = [wp for wp in reversed(self.fleeing_waypoints)]
+        waypoints = [wp for wp in reversed(self.evading_waypoints)]
         # Set self location to the latest known point.
         self.location = waypoints[0].copy()
         last_waypoint = self.location
@@ -522,8 +535,8 @@ class CreatureManager(UnitManager):
         return waypoints, z_locked
 
     def _perform_random_movement(self, now):
-        # Do not wander in combat, while fleeing or without wander flag.
-        if not self.in_combat and not self.is_fleeing() and self.creature_instance.movement_type == MovementTypes.WANDER:
+        # Do not wander in combat, while evading or without wander flag.
+        if not self.in_combat and not self.is_evading and self.creature_instance.movement_type == MovementTypes.WANDER:
             if len(self.movement_manager.pending_waypoints) == 0:
                 if now > self.last_random_movement + self.random_movement_wait_time:
                     self.movement_manager.move_random(self.spawn_position,
@@ -533,7 +546,14 @@ class CreatureManager(UnitManager):
 
     def _perform_combat_movement(self):
         if self.combat_target:
-            # TODO: Temp, extremely basic evade / runback mechanic based ONLY on distance. Replace later with a proper one.
+            if not self.combat_target.is_alive and len(self.attackers) == 0:
+                self.evade()
+                return
+
+            # In 0.5.3, evade mechanic was only based on distance, the correct instance remains unknown. Assuming
+            # 50 yd for now.
+            # From 0.5.4 patch notes:
+            #     "Creature pursuit is now timer based rather than distance based."
             if self.location.distance(self.spawn_position) > 50:
                 self.evade()
                 return
@@ -590,6 +610,8 @@ class CreatureManager(UnitManager):
             elapsed = now - self.last_tick
 
             if self.is_alive and self.is_spawned:
+                # Regeneration.
+                self.regenerate(elapsed)
                 # Spell/aura updates
                 self.spell_manager.update(now)
                 self.aura_manager.update(now)
@@ -678,6 +700,12 @@ class CreatureManager(UnitManager):
         else:
             player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite)], self)
 
+    # override
+    def set_max_mana(self, mana):
+        if self.max_power_1 > 0:
+            self.max_power_1 = mana
+            self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
+
     def set_emote_state(self, emote_state):
         self.emote_state = emote_state
         self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
@@ -695,7 +723,7 @@ class CreatureManager(UnitManager):
             self.power_type,  # power type
             self.gender,  # gender
             self.creature_template.unit_class,  # class
-            0  # race (0 for creatures)
+            self.race  # race (0 for creatures)
         )
 
     # override

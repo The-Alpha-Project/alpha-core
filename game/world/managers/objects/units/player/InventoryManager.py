@@ -257,12 +257,12 @@ class InventoryManager(object):
             self.add_bag(source_slot, dest_item)
             RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
-        dest_container.set_item(source_item, dest_slot)
+        dest_container.set_item(source_item, dest_slot, is_swap=True)
         source_item.item_instance.bag = dest_bag
         source_item.item_instance.slot = dest_slot
 
         if dest_item:
-            source_container.set_item(dest_item, source_slot, dest_item.item_instance.stackcount)
+            source_container.set_item(dest_item, source_slot, dest_item.item_instance.stackcount, is_swap=True)
             dest_item.item_instance.bag = source_bag
             dest_item.item_instance.slot = source_slot
 
@@ -321,9 +321,6 @@ class InventoryManager(object):
         if clear_slot:
             self.send_destroy_packet(target_slot, target_container.sorted_slots)
 
-        # Update the quest db state if needed.
-        self.owner.quest_manager.pop_item(target_item.item_template.entry, target_item.item_instance.stackcount)
-
         # We are not replacing this item, set is as removed.
         if not swap_item:
             self.mark_as_removed(target_item)
@@ -341,6 +338,10 @@ class InventoryManager(object):
         if target_container.is_backpack and \
                 self.is_bag_pos(target_slot) and self.get_container(target_slot):  # Equipped bags
             self.remove_bag(target_slot)
+
+        # Update the quest db state if needed. (Destroying item).
+        if not swap_item and clear_slot:
+            self.owner.quest_manager.pop_item(target_item.item_template.entry)
 
     def remove_items(self, entry, count):
         for container_slot in self.containers:
@@ -529,11 +530,17 @@ class InventoryManager(object):
             self.send_equip_error(InventoryError.BAG_NOT_WHILE_DEAD, source_item, dest_item)
             return False
 
-        # Check equipment skill and level requirement
+        # Equipment requirements.
         if self.is_equipment_pos(dest_bag, dest_slot):
+            # If the display id of the item is invalid, prevent equipping it to avoid a client crash on next login.
+            if source_template.display_id > MAX_3368_ITEM_DISPLAY_ID:
+                self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, source_item, dest_item)
+                return False
+            # Check if the player has the required level.
             if source_template.required_level > self.owner.level:
                 self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
                 return False
+            # Check if the player has the required proficiency.
             if not self.owner.skill_manager.can_use_equipment(source_template.class_,
                                                               source_template.subclass):
                 self.send_equip_error(InventoryError.BAG_PROFICIENCY_NEEDED, source_item, dest_item)

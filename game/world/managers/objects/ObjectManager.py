@@ -325,8 +325,8 @@ class ObjectManager(object):
 
         # Creature only checks.
         elif target.get_type_id() == ObjectTypeIds.ID_UNIT:
-            # If the unit is fleeing (evading).
-            if target.is_fleeing():
+            # If the unit is evading.
+            if target.is_evading:
                 return False
 
         # Checks for both players and creatures (all units).
