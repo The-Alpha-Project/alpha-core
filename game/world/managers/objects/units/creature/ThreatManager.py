@@ -39,7 +39,8 @@ class ThreatManager:
     def reset(self):
         self.holders.clear()
         self.current_holder = None
-
+    
+    # TODO: Optimize this method?
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
         relevant_holders = [holder for holder
                             in self.holders.values()
