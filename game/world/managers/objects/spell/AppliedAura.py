@@ -19,8 +19,6 @@ class AppliedAura:
         self.can_stack = ExtendedSpellData.AuraDoseInfo.aura_can_stack(self.spell_id)
         self.max_stacks = ExtendedSpellData.AuraDoseInfo.get_aura_max_stacks(self.spell_id)
 
-        self.period = spell_effect.aura_period
-
         self.passive = casting_spell.is_passive()
         self.harmful = self.resolve_harmful()
 

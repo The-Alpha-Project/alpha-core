@@ -11,7 +11,7 @@ from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms
 from utils.constants.UnitCodes import PowerTypes, Classes, Races
 
 
-# Stats that are modified aura effects. Used in StatManager and when accessing stats.
+# Stats that are modified by aura effects and items.
 # Use auto indexing to make expanding much easier.
 class UnitStats(IntFlag):
     STRENGTH = auto()
@@ -65,7 +65,7 @@ class UnitStats(IntFlag):
     POWER_REGENERATION_PER_5 = auto()
 
     ATTACK_SPEED = auto()
-    THREAT = auto()
+    THREAT_GENERATION = auto()
     STEALTH = auto()
     STEALTH_DETECTION = auto()
     INVISIBILITY = auto()
@@ -269,6 +269,7 @@ class StatManager(object):
         return int((value + flat) * percentual)
 
     def apply_aura_stat_bonus(self, index: int, stat_type: UnitStats, amount: int, misc_value=-1, percentual=False):
+        # Note: percentual modifiers should be passed as ints (ie. 50 -> +50% -> *1.5, -20 -> -20% -> *0.8).
         if percentual:
             self.aura_stats_percentual[index] = (stat_type, amount, misc_value)
         else:
