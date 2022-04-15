@@ -14,7 +14,7 @@ class ItemQuerySingleHandler(object):
                 item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
                 if item_template:
                     query_data = ItemManager.generate_query_details_data(item_template)
-                    world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE,
-                                                                         query_data))
+                    query_packet = PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, query_data)
+                    world_session.enqueue_packet(query_packet)
 
         return 0
