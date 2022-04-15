@@ -1384,6 +1384,15 @@ class PlayerManager(UnitManager):
 
         self.last_tick = now
 
+    # override
+    def attack_update(self, elapsed):
+        # If we have a combat target, no attackers and target is no longer alive or is evasing, leave combat.
+        if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_evading):
+            if len(self.attackers) == 0:
+                self.leave_combat()
+
+        super().attack_update(elapsed)
+
     def send_update_self(self, update_packet=None, create=False):
         if create:
             self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
