@@ -53,6 +53,8 @@ class QuestManager(object):
         return len(self.active_quests) >= MAX_QUEST_LOG
 
     # TODO: Cache the return value by GO guid, flush this cache on any QuestManager state change.
+    #  Need to further investigate some gameobjects that remain usable even with the proper dynamic flag set.
+    #  Client checks 'if ( (m_flags & 1) == 0 && ((m_flags & 4) == 0 || (m_gameObj->m_dynamicFlags & 1) != 0) )'
     def should_interact_with_go(self, game_object):
         if game_object.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             if game_object.gobject_template.data1 != 0:
@@ -63,7 +65,7 @@ class QuestManager(object):
                     return False
                 # Check if any active quests requires this game_object as item source.
                 for active_quest in list(self.active_quests.values()):
-                    if active_quest.need_item_from_go(loot_template):
+                    if active_quest.need_item_from_go(game_object.guid, loot_template):
                         return True
         elif game_object.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             # Grab starters/finishers.
@@ -328,7 +330,11 @@ class QuestManager(object):
         if quest_template.NextQuestInChain > 0 and quest_template.NextQuestInChain in self.completed_quests:
             return False
 
-        # Does the character have the previous quest.
+        # The given quest has to be active in the quest log to get this quest.
+        if quest_template.PrevQuestId < 0 and abs(quest_template.PrevQuestId) not in self.active_quests:
+            return False
+
+        # The given quest needs to be completed prior to getting this quest.
         if quest_template.PrevQuestId > 0 and quest_template.PrevQuestId not in self.completed_quests:
             return False
 
@@ -595,12 +601,14 @@ class QuestManager(object):
         if quest.entry not in self.active_quests and not QuestHelpers.is_instant_complete_quest(quest):
             return
 
-        # While the dialog was open displaying 'Quest Complete' the user destroyed items.
-        # Validate if this quest can be completed.
-        active_quest = self.active_quests[quest.entry]
-        if not active_quest.can_complete_quest():
-            self.send_cant_take_quest_response(QuestFailedReasons.QUEST_FAILED_MISSING_ITEMS)
-            return
+        # If this request is from an active quest (Not an automatic instant complete dialog) validate again.
+        if quest.entry in self.active_quests:
+            # While the dialog was open displaying 'Quest Complete' the user destroyed items.
+            # Validate if this quest can be completed.
+            active_quest = self.active_quests[quest.entry]
+            if not active_quest.can_complete_quest():
+                self.send_cant_take_quest_response(QuestFailedReasons.QUEST_FAILED_MISSING_ITEMS)
+                return
 
         quest_title_bytes = PacketWriter.string_to_bytes(quest.Title)
         display_dialog_text = quest.OfferRewardText
