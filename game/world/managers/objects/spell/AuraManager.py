@@ -11,7 +11,6 @@ from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptF
     SpellAttributesEx, SpellEffects
 from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
-from utils.Logger import Logger
 
 
 class AuraManager:
@@ -54,11 +53,9 @@ class AuraManager:
             # Index and stacks are copied for sending information and updating effect points.
             aura.applied_stacks = similar_aura.applied_stacks
             aura.index = similar_aura.index
-            Logger.debug(f'Similar aura at {similar_aura.index} ({aura.spell_id}) with {aura.applied_stacks} stack(s).')
         else:
             aura.index = self.get_next_aura_index(aura)
             self.active_auras[aura.index] = aura
-            Logger.debug(f'Adding new active aura at {aura.index} ({aura.spell_id}).')
 
         # Handle effects after possible stack increase/refresh to update stats properly.
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target)
@@ -210,23 +207,21 @@ class AuraManager:
             is_similar_and_weaker = applied_aura.spell_effect.effect_index == aura_effect_index and \
                 applied_aura_name == new_aura_name and applied_aura_rank < new_aura_rank
 
-            Logger.debug(f'Comparing aura {new_aura_name} rank {new_aura_rank} ({aura.spell_id}) with {applied_aura_name} rank {applied_aura_rank} ({applied_aura.spell_id}).')
             are_exclusive_by_source = ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(aura.spell_id, applied_aura.spell_id)  # Paladin seals, warlock curses
 
             # Source doesn't matter for unique auras
             is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE or not aura.harmful  # Buffs are unique.
             is_stacking = applied_aura.can_stack
+            is_same_but_different_aura_index = aura.spell_id == applied_aura.spell_id and aura.spell_effect.effect_index != applied_aura.spell_effect.effect_index
 
             casters_are_same = applied_aura.caster.guid == caster_guid
             if is_similar_and_weaker and (is_unique or casters_are_same and not is_stacking) or \
-                    are_exclusive_by_source and casters_are_same:
-                Logger.debug(f'Removing {applied_aura_name} ({applied_aura.spell_id}).')
+                    are_exclusive_by_source and casters_are_same and not is_same_but_different_aura_index:
                 self.remove_aura(applied_aura)
                 continue
 
             if applied_aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
                     aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT:
-                Logger.debug(f'Removing {applied_aura_name} ({applied_aura.spell_id}).')
                 self.remove_aura(applied_aura)  # Player can only be in one shapeshift form
                 continue
 
