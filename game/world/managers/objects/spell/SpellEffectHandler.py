@@ -13,11 +13,11 @@ from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, GameObjectTypes, HighGuid, ObjectTypeIds
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags, PowerTypes
+from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import UnitFields
 
 
-class SpellEffectHandler(object):
+class SpellEffectHandler:
     @staticmethod
     def apply_effect(casting_spell, effect, caster, target):
         if effect.effect_type not in SPELL_EFFECTS:
@@ -46,7 +46,7 @@ class SpellEffectHandler(object):
     def handle_heal_max_health(casting_spell, effect, caster, target):
         if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
-        
+
         healing = caster.max_health
         caster.apply_spell_healing(target, healing, casting_spell)
 

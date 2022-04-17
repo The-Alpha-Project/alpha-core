@@ -8,6 +8,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.spell.EffectTargets import TargetMissInfo
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
@@ -19,7 +20,7 @@ from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMa
     AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets
 
 
-class CastingSpell(object):
+class CastingSpell:
     spell_entry: Spell
     cast_state: SpellState
     cast_flags: SpellCastFlags  # TODO Write proc flag when needed
@@ -28,12 +29,12 @@ class CastingSpell(object):
     initial_target = None
     targeted_unit_on_cast_start = None
 
-    object_target_results = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
+    object_target_results: dict[int, TargetMissInfo] = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
     duration_entry: SpellDuration
     cast_time_entry: SpellCastTimes
-    _effects: list
+    _effects: list[Optional[SpellEffect]]
 
     cast_start_timestamp: float
     cast_end_timestamp: float
@@ -132,7 +133,7 @@ class CastingSpell(object):
 
         effect.targets.resolve_targets()
         effect_info = effect.targets.get_effect_target_miss_results()
-        self.object_target_results = {**self.object_target_results, **effect_info}
+        self.object_target_results = self.object_target_results | effect_info
 
     def get_ammo_for_cast(self) -> Optional[ItemManager]:
         if not self.is_ranged_weapon_attack():

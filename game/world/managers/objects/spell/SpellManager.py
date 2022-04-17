@@ -4,6 +4,7 @@ from struct import pack
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.dbc.DbcModels import Spell
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
@@ -24,12 +25,12 @@ from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode
 
 
-class SpellManager(object):
+class SpellManager:
     def __init__(self, caster):
         self.caster = caster  # GameObject, Unit or Player.
         self.spells = {}
         self.cooldowns = []
-        self.casting_spells = []
+        self.casting_spells: list[CastingSpell] = []
 
     def load_spells(self):
         for spell in RealmDatabaseManager.character_get_spells(self.caster.guid):
@@ -130,15 +131,15 @@ class SpellManager(object):
 
         self.start_spell_cast(spell, spell_target, target_mask, triggered=triggered)
 
-    def try_initialize_spell(self, spell, spell_target, target_mask, source_item=None,
+    def try_initialize_spell(self, spell: Optional[Spell], spell_target, target_mask, source_item=None,
                              triggered=False, validate=True) -> Optional[CastingSpell]:
         spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item, triggered=triggered)
         if not validate:
             return spell
         return spell if self.validate_cast(spell) else None
 
-    def start_spell_cast(self, spell=None, spell_target=None, target_mask=SpellTargetMask.SELF, source_item=None,
-                         triggered=False, initialized_spell=None):
+    def start_spell_cast(self, spell: Optional[Spell]=None, spell_target=None, target_mask=SpellTargetMask.SELF, source_item=None,
+                         triggered=False, initialized_spell: Optional[CastingSpell]=None):
         casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item, triggered=triggered) \
             if not initialized_spell else initialized_spell
 
@@ -172,7 +173,7 @@ class SpellManager(object):
         # Spell is instant, perform cast
         self.perform_spell_cast(casting_spell, validate=False)
 
-    def perform_spell_cast(self, casting_spell, validate=True):
+    def perform_spell_cast(self, casting_spell: CastingSpell, validate=True):
         if validate and not self.validate_cast(casting_spell):
             self.remove_cast(casting_spell)
             return
@@ -214,7 +215,7 @@ class SpellManager(object):
         self.set_on_cooldown(casting_spell)
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
-    def apply_spell_effects(self, casting_spell, remove=False, update=False, partial_targets=None):
+    def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False, partial_targets=None):
         if not update:
             self.handle_procs_for_cast(casting_spell)
 
