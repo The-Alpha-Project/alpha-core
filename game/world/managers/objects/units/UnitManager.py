@@ -515,7 +515,7 @@ class UnitManager(ObjectManager):
                             self.set_energy(self.power_4 + 20)
 
             # Rage decay
-            elif self.power_type == PowerTypes.TYPE_RAGE:
+            if self.power_type == PowerTypes.TYPE_RAGE:
                 if self.power_2 > 0:
                     if not self.in_combat:
                         # Defensive Stance (71) description says:
