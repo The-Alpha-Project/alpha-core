@@ -212,10 +212,11 @@ class AuraManager:
             # Source doesn't matter for unique auras
             is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE or not aura.harmful  # Buffs are unique.
             is_stacking = applied_aura.can_stack
+            is_same_but_different_aura_index = aura.spell_id == applied_aura.spell_id and aura.spell_effect.effect_index != applied_aura.spell_effect.effect_index
 
             casters_are_same = applied_aura.caster.guid == caster_guid
             if is_similar_and_weaker and (is_unique or casters_are_same and not is_stacking) or \
-                    are_exclusive_by_source and casters_are_same:
+                    are_exclusive_by_source and casters_are_same and not is_same_but_different_aura_index:
                 self.remove_aura(applied_aura)
                 continue
 

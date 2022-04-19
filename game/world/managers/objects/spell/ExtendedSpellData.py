@@ -81,7 +81,14 @@ class AuraSourceRestrictions:
                       1490,  # Curse of the Elements
                       1714}  # Curse of Tongues
 
-    groups = [PALADIN_AURAS, PALADIN_SEALS, WARLOCK_CURSES]
+    # Mage and Warlock castable Armors can't overlap as well
+    MAGE_ARMORS = {7302, 7320, # Ice Armor
+                   168, 7300, 7301} # Frost armor
+
+    WARLOCK_ARMORS = {687, 696, # Demon Skin
+                      706, 1086} # Demon Armor
+
+    groups = [PALADIN_AURAS, PALADIN_SEALS, WARLOCK_CURSES, MAGE_ARMORS, WARLOCK_ARMORS]
 
     @staticmethod
     def are_colliding_auras(spell_id_1: int, spell_id_2: int) -> bool:
