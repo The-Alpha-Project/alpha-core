@@ -601,7 +601,7 @@ class QuestManager(object):
         if quest.entry not in self.active_quests and not QuestHelpers.is_instant_complete_quest(quest):
             return
 
-        # If this request is from an active quest (Not an automatic instant complete dialog) validate again.
+        # If this request is from an active quest (not an automatic instant complete dialog) validate again.
         if quest.entry in self.active_quests:
             # While the dialog was open displaying 'Quest Complete' the user destroyed items.
             # Validate if this quest can be completed.

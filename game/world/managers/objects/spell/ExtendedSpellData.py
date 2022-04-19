@@ -59,34 +59,44 @@ class ShapeshiftInfo:
 class AuraSourceRestrictions:
     # Exclusive aura groups don't seem to be labeled in spell.dbc.
 
-    # Only one aura per paladin
-    PALADIN_AURAS = {465, 643, 1032, 7362,  # Devotion Aura
-                     649, 5606, 5609, 7331,  # Healing Aura
-                     3487, 5618,  # Resistance Aura
-                     7294}  # Retribution Aura
+    # Only one aura per paladin.
+    PALADIN_AURAS = {
+        465, 643, 1032, 7362,  # Devotion Aura
+        649, 5606, 5609, 7331,  # Healing Aura
+        3487, 5618,  # Resistance Aura
+        7294  # Retribution Aura
+    }
 
-    PALADIN_SEALS = {94, 5645, 7325,  # Seal of Wisdom
-                     636, 645, 6739,  # Seal of Might
-                     648, 1034,  # Seal of Wrath
-                     1022, 5599,  # Seal of Protection
-                     1036,  # Seal of Fury
-                     1038,  # Seal of Salvation
-                     1052, 5601, 5602,  # Seal of Righteousness
-                     6940}  # Seal of Sacrifice
+    PALADIN_SEALS = {
+        94, 5645, 7325,  # Seal of Wisdom
+        636, 645, 6739,  # Seal of Might
+        48, 1034,  # Seal of Wrath
+        1022, 5599,  # Seal of Protection
+        1036,  # Seal of Fury
+        1038,  # Seal of Salvation
+        1052, 5601, 5602,  # Seal of Righteousness
+        6940  # Seal of Sacrifice
+    }
 
     # "Only one Curse per Warlock can be active on any one target."
-    WARLOCK_CURSES = {702, 1108, 6205, 7646,  # Curse of Weakness
-                      704, 7658, 7659,  # Curse of Recklessness
-                      980, 1014, 6217,  # Curse of Agony
-                      1490,  # Curse of the Elements
-                      1714}  # Curse of Tongues
+    WARLOCK_CURSES = {
+        702, 1108, 6205, 7646,  # Curse of Weakness
+        704, 7658, 7659,  # Curse of Recklessness
+        980, 1014, 6217,  # Curse of Agony
+        1490,  # Curse of the Elements
+        1714  # Curse of Tongues
+    }
 
-    # Mage and Warlock castable Armors can't overlap as well
-    MAGE_ARMORS = {7302, 7320, # Ice Armor
-                   168, 7300, 7301} # Frost armor
+    # Mage and Warlock armor buffs can't overlap.
+    MAGE_ARMORS = {
+        7302, 7320,  # Ice Armor
+        168, 7300, 7301  # Frost Armor
+    }
 
-    WARLOCK_ARMORS = {687, 696, # Demon Skin
-                      706, 1086} # Demon Armor
+    WARLOCK_ARMORS = {
+        687, 696,  # Demon Skin
+        706, 1086  # Demon Armor
+    }
 
     groups = [PALADIN_AURAS, PALADIN_SEALS, WARLOCK_CURSES, MAGE_ARMORS, WARLOCK_ARMORS]
 

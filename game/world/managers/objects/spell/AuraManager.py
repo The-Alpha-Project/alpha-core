@@ -209,7 +209,7 @@ class AuraManager:
 
             are_exclusive_by_source = ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(aura.spell_id, applied_aura.spell_id)  # Paladin seals, warlock curses
 
-            # Source doesn't matter for unique auras
+            # Source doesn't matter for unique auras.
             is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE or not aura.harmful  # Buffs are unique.
             is_stacking = applied_aura.can_stack
             is_same_but_different_aura_index = aura.spell_id == applied_aura.spell_id and aura.spell_effect.effect_index != applied_aura.spell_effect.effect_index
@@ -222,7 +222,7 @@ class AuraManager:
 
             if applied_aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
                     aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT:
-                self.remove_aura(applied_aura)  # Player can only be in one shapeshift form
+                self.remove_aura(applied_aura)  # Player can only be in one shapeshift form.
                 continue
 
         return True
