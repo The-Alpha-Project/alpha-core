@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Optional
 
 from game.world.managers.objects.units.UnitManager import UnitManager
 
@@ -14,7 +14,7 @@ class ThreatManager:
     def __init__(self,
                  owner: UnitManager):
         self.owner = owner
-        self.holders: Dict[int, ThreatHolder] = {}
+        self.holders: dict[int, ThreatHolder] = {}
         self.current_holder: Optional[ThreatHolder] = None
 
     def add_threat(self, source: UnitManager, threat: float):
