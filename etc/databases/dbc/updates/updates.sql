@@ -58,7 +58,7 @@ begin not atomic
         insert into applied_updates values ('040720211');
     end if;
 
-    -- 20/04/2021 1
+    -- 20/04/2022 1
     if (select count(*) from applied_updates where id='200420221') = 0 then
         DROP TABLE IF EXISTS `CreatureFamily`; 
         CREATE TABLE `CreatureFamily` (
@@ -92,7 +92,7 @@ begin not atomic
         INSERT INTO `CreatureFamily` VALUES (21,0.5,1,1.5,70,251,270); 
         INSERT INTO `CreatureFamily` VALUES (23,0.2,1,0.4,70,188,270); 
         
-		INSERT INTO applied_updates VALUES ('200420221');
+        INSERT INTO applied_updates VALUES ('200420221');
     end if;
 
 end $
