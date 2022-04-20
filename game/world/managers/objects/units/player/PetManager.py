@@ -149,25 +149,6 @@ class PetManager:
 		packet = pack(signature, *data)
 		self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, packet))
 
-	'''
-	#define MAKE_UNIT_ACTION_BUTTON(A,T) (uint32(A) | (uint32(T) << 24))
-	
-	void CharmInfo::InitPetActionBar()
-	{
-		// the first 3 SpellOrActions are attack, follow and stay
-		for (uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_START - ACTION_BAR_INDEX_START; ++i)
-			SetActionBar(ACTION_BAR_INDEX_START + i, COMMAND_ATTACK - i, ACT_COMMAND);
-	
-		// middle 4 SpellOrActions are spells/special attacks/abilities
-		for (uint32 i = 0; i < ACTION_BAR_INDEX_PET_SPELL_END - ACTION_BAR_INDEX_PET_SPELL_START; ++i)
-			SetActionBar(ACTION_BAR_INDEX_PET_SPELL_START + i, 0, ACT_DISABLED);
-	
-		// last 3 SpellOrActions are reactions
-		for (uint32 i = 0; i < ACTION_BAR_INDEX_END - ACTION_BAR_INDEX_PET_SPELL_END; ++i)
-			SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, COMMAND_ATTACK - i, ACT_REACTION);
-	}
-	'''
-
 	# TODO As enum.
 	PET_BAR_SLOTS = 10
 	PET_BAR_SPELL_START = 3
