@@ -58,5 +58,42 @@ begin not atomic
         insert into applied_updates values ('040720211');
     end if;
 
+    -- 20/04/2021 1
+    if (select count(*) from applied_updates where id='200420221') = 0 then
+        DROP TABLE IF EXISTS `CreatureFamily`; 
+        CREATE TABLE `CreatureFamily` (
+          `ID` INT NOT NULL DEFAULT '0',
+          `MinScale` FLOAT NOT NULL DEFAULT '0',
+          `MinScaleLevel` INT NOT NULL DEFAULT '0',
+          `MaxScale` FLOAT NOT NULL DEFAULT '0',
+          `MaxScaleLevel` INT NOT NULL DEFAULT '0',
+          `SkillLine_1` INT NOT NULL DEFAULT '0',
+          `SkillLine_2` INT NOT NULL DEFAULT '0',
+          PRIMARY KEY (`ID`)
+          ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+        
+        INSERT INTO `CreatureFamily` VALUES (1,0.5,1,1.2,70,208,270); 
+        INSERT INTO `CreatureFamily` VALUES (2,0.5,1,1.2,70,209,270); 
+        INSERT INTO `CreatureFamily` VALUES (3,0.4,1,0.8,70,203,270); 
+        INSERT INTO `CreatureFamily` VALUES (4,0.5,1,1.2,70,210,270); 
+        INSERT INTO `CreatureFamily` VALUES (5,0.5,1,1.2,70,211,270); 
+        INSERT INTO `CreatureFamily` VALUES (6,0.3,1,0.6,70,212,270); 
+        INSERT INTO `CreatureFamily` VALUES (7,0.5,1,1.1,70,213,270); 
+        INSERT INTO `CreatureFamily` VALUES (8,0.5,1,1.4,70,214,270); 
+        INSERT INTO `CreatureFamily` VALUES (9,0.5,1,1.2,70,215,270); 
+        INSERT INTO `CreatureFamily` VALUES (10,0.5,1,1.5,70,216,270); 
+        INSERT INTO `CreatureFamily` VALUES (11,0.4,1,0.8,70,217,270); 
+        INSERT INTO `CreatureFamily` VALUES (12,0.3,1,0.7,70,218,270); 
+        INSERT INTO `CreatureFamily` VALUES (15,0.5,1,0.8,70,189,0); 
+        INSERT INTO `CreatureFamily` VALUES (16,0.5,1,1,70,204,0); 
+        INSERT INTO `CreatureFamily` VALUES (17,0.5,1,1.5,70,205,0); 
+        INSERT INTO `CreatureFamily` VALUES (19,0.5,1,1.5,70,207,0); 
+        INSERT INTO `CreatureFamily` VALUES (20,0.5,1,1,70,236,270); 
+        INSERT INTO `CreatureFamily` VALUES (21,0.5,1,1.5,70,251,270); 
+        INSERT INTO `CreatureFamily` VALUES (23,0.2,1,0.4,70,188,270); 
+        
+		INSERT INTO applied_updates VALUES ('200420221');
+    end if;
+
 end $
 delimiter ;

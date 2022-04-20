@@ -295,6 +295,26 @@ class DbcDatabaseManager(object):
         dbc_db_session.close()
         return res
 
+    # CreatureFamily
+
+    class CreatureFamilyHolder:
+        CREATURE_FAMILIES: [int, CreatureFamily] = {}
+
+        @staticmethod
+        def load_creature_family(creature_family):
+            DbcDatabaseManager.CreatureFamilyHolder.CREATURE_FAMILIES[creature_family.ID] = creature_family
+
+        @staticmethod
+        def creature_family_get_by_id(family_id) -> Optional[CreatureFamily]:
+            return DbcDatabaseManager.CreatureFamilyHolder.CREATURE_FAMILIES.get(family_id)
+
+    @staticmethod
+    def creature_family_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(CreatureFamily).all()
+        dbc_db_session.close()
+        return res
+
     # CinematicSequences
 
     @staticmethod

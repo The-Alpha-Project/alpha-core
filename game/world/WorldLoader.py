@@ -39,6 +39,7 @@ class WorldLoader:
             WorldLoader.load_creature_quest_finishers()
             WorldLoader.load_creature_display_info()
             WorldLoader.load_creature_model_info()
+            WorldLoader.load_creature_families()
             WorldLoader.load_npc_gossip()
             WorldLoader.load_npc_text()
         else:
@@ -404,6 +405,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading creature model info...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_families():
+        creature_families = DbcDatabaseManager.creature_family_get_all()
+        length = len(creature_families)
+        count = 0
+
+        for creature_family in creature_families:
+            DbcDatabaseManager.CreatureFamilyHolder.load_creature_family(creature_family)
+
+            count += 1
+            Logger.progress('Loading creature families...', count, length)
 
         return length
 

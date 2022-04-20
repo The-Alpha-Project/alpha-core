@@ -26,19 +26,23 @@ class PersistentPet:
 		if not creature_family:
 			return []
 
-		family_skill_line_id = PetManager.PET_FAMILY_SKILL_LINES.get(creature_family, 0)
-		if not family_skill_line_id:
+		family_entry = DbcDatabaseManager.CreatureFamilyHolder.creature_family_get_by_id(creature_family)
+		skill_lines = [family_entry.SkillLine_1, family_entry.SkillLine_2]  # TODO 2 is pet talents or 0, ignore for now.
+
+		if not skill_lines[0]:
 			return []
 
-		skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_by_skill_lines([family_skill_line_id])
+		skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_by_skill_lines([skill_lines[0]])
 		if not skill_line_abilities:
 			return []
 
 		return [skill_line_ability.Spell for skill_line_ability in skill_line_abilities]
 
 	def get_action_bar_values(self):
-		pet_bar = [2 | (0x07 << 24), 1 | (0x07 << 24), 0 | (0x07 << 24),  # Attack, Follow, Stay.
-					2 | (0x06 << 24), 1 | (0x06 << 24), 0 | (0x06 << 24)]  # Aggressive, Defensive, Passive.
+		pet_bar = [
+				2 | (0x07 << 24), 1 | (0x07 << 24), 0 | (0x07 << 24),  # Attack, Follow, Stay.
+				2 | (0x06 << 24), 1 | (0x06 << 24), 0 | (0x06 << 24)  # Aggressive, Defensive, Passive.
+		]
 
 		# All pet actions seem to have |0x1.
 		# Pet action bar flags: 0x40 for auto cast on, 0x80 for castable.
@@ -155,28 +159,3 @@ class PetManager:
 	PET_BAR_SPELL_COUNT = 4
 	PET_BAR_REACTION_START = 7
 
-
-	# TODO Remove after adding CreatureFamily.dbc.
-	PET_TALENTS_SKILL_LINE = 270  # Excluded by warlock pets - 189, 204, 205, 207.
-	PET_FAMILY_SKILL_LINES = {
-		23: 188,  # Imp
-		15: 189,  # Felhunter
-		3: 203,  # Spider
-		16: 204,  # Voidwalker
-		17: 205,  # Succubus
-		-1: 206,  # Infernal - Unused in CreatureFamily
-		19: 207,  # Doomguard
-		1: 208,  # Wolf
-		2: 209,  # Cat
-		4: 210,  # Bear
-		5: 211,  # Boar
-		6: 212,  # Crocilisk
-		7: 213,  # Carrion Bird
-		8: 214,  # Crab
-		9: 215,  # Gorilla
-		10: 216,  # Horse
-		11: 217,  # Raptor
-		20: 218,  # Tall strider
-		21: 236,  # Scorpion
-		21: 251   # Turtle
-	}
