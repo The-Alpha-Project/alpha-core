@@ -10,11 +10,12 @@ from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
 
 
-class PersistentPet:
-	def __init__(self, name: str, template: CreatureTemplate, owner_guid):
+class PetData:
+	def __init__(self, name: str, template: CreatureTemplate, owner_guid, permanent: bool):
 		self.name = name
 		self.creature_template = template
 		self.owner_guid = owner_guid
+		self.permanent = permanent
 
 		self.react_state = 1
 		self.command_state = 1
@@ -66,29 +67,27 @@ class ActivePet(NamedTuple):
 class PetManager:
 	def __init__(self, player):
 		self.player = player
-		self.pets: list[PersistentPet] = []
+		self.pets: list[PetData] = []
 		self.active_pet: Optional[ActivePet] = None
 
-	def add_pet_from_world(self, creature: CreatureManager):
+	def add_pet_from_world(self, creature: CreatureManager, permanent: bool):
 		if self.active_pet:
 			return  # TODO
 
-		self.active_pet = ActivePet(0, creature)
-
 		self._tame_creature(creature)
-		index = self.add_pet(creature.creature_template)
+		index = self.add_pet(creature.creature_template, permanent)
 		self.active_pet = ActivePet(index, creature)
 
 		self._send_pet_spell_info()
 
-	def add_pet(self, creature_template: CreatureTemplate) -> int:
+	def add_pet(self, creature_template: CreatureTemplate, permanent: bool) -> int:
 		# TODO: default name by beast_family - resolve id reference.
 
-		pet = PersistentPet(creature_template.name, creature_template, self.player.guid)
+		pet = PetData(creature_template.name, creature_template, self.player.guid, permanent)
 		self.pets.append(pet)
 		return len(self.pets) - 1
 
-	def _get_active_pet_info(self) -> Optional[PersistentPet]:
+	def _get_active_pet_info(self) -> Optional[PetData]:
 		if not self.active_pet:
 			return None
 
