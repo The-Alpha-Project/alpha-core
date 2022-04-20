@@ -1,7 +1,7 @@
 import math
 from dataclasses import dataclass
 from random import randint, choice
-from struct import unpack, pack
+from struct import pack
 
 from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatures
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -12,6 +12,7 @@ from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
@@ -20,9 +21,10 @@ from utils.Formulas import UnitFormulas
 from utils.TextUtils import GameTextFormatter
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import NpcFlags, ObjectTypeFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, TrainerTypes
+from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, \
+    TrainerTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, MovementTypes, SplineFlags, \
     CreatureStaticFlags, PowerTypes
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
@@ -112,6 +114,8 @@ class CreatureManager(UnitManager):
         self.has_dodge_passive = True
         self.has_parry_passive = True
 
+        self.threat_manager = ThreatManager(self)
+
     @dataclass
     class VirtualItemInfoHolder:
         display_id: int = 0
@@ -174,6 +178,7 @@ class CreatureManager(UnitManager):
         if item_count == 0:
             data += pack('<B', 0)
         else:
+            item_query = pack('<I', len(vendor_data))
             for count, vendor_data_entry in enumerate(vendor_data):
                 data += pack(
                     '<7I',
@@ -185,10 +190,10 @@ class CreatureManager(UnitManager):
                     vendor_data_entry.item_template.max_durability,  # Max durability (not implemented in 0.5.3).
                     vendor_data_entry.item_template.buy_count  # Stack count.
                 )
+                item_query += ItemManager.generate_query_details_data(vendor_data_entry.item_template)
 
-                query_data = ItemManager.generate_query_details_data(vendor_data_entry.item_template)
-                world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE,
-                                                                     query_data))
+            # Send all vendor item query details.
+            world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query))
 
         session.close()
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
@@ -639,6 +644,33 @@ class CreatureManager(UnitManager):
                 self.reset_fields_older_than(now)
 
         self.last_tick = now
+
+    # override
+    def attack_update(self, elapsed):
+        target = self.threat_manager.get_hostile_target()
+        if target:
+            self.attack(target)
+        else:
+            # If we did not find a target, leave combat.
+            self.threat_manager.reset()
+            self.leave_combat()
+
+        super().attack_update(elapsed)
+
+    # override
+    def receive_damage(self, amount, source=None, is_periodic=False):
+        super().receive_damage(amount, source, is_periodic)
+
+        if self.is_alive:
+            # If creature's being attacked by another unit, automatically set combat target.
+            not_gameobject_attacked = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
+            if not self.combat_target and not_gameobject_attacked:
+                # Make sure to first stop any movement right away.
+                if len(self.movement_manager.pending_waypoints) > 0:
+                    self.movement_manager.send_move_stop()
+                # Attack.
+                self.attack(source)
+            self.threat_manager.add_threat(source, amount)
 
     # override
     def respawn(self):

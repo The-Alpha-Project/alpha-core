@@ -111,7 +111,7 @@ class AuraManager:
                 return False
         return True
 
-    def check_aura_interrupts(self, moved=False, negative_aura_applied=False, cast_spell=False, received_damage=False):
+    def check_aura_interrupts(self, moved=False, changed_stand_state=False, negative_aura_applied=False, cast_spell=False, received_damage=False):
         # TODO turning and water-related checks
         # Add once movement information is passed to update.
         flag_cases = {
@@ -123,16 +123,19 @@ class AuraManager:
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage
         }
         for aura in list(self.active_auras.values()):
+            # Food buffs are not labeled and an interrupt for sitting does not exist.
+            # Food/drink spells do claim that the player must remain seated.
+            # In later versions an aurainterrupt exists for this purpose.
+            if aura.source_spell.is_refreshment_spell() and changed_stand_state and \
+                    self.unit_mgr.stand_state != StandState.UNIT_SITTING:
+                self.remove_aura(aura)
+                continue
+
+
             for flag, condition in flag_cases.items():
                 if aura.interrupt_flags & flag and condition:
                     self.remove_aura(aura)
                     continue
-
-                # Food buffs are not labeled and an interrupt for sitting does not exist.
-                # Food/drink spells do claim that the player must remain seated.
-                # In later versions an aurainterrupt exists for this purpose.
-                if aura.source_spell.is_refreshment_spell() and self.unit_mgr.stand_state != StandState.UNIT_SITTING:
-                    self.remove_aura(aura)
 
     # Involved unit is the secondary unit in the proc event.
     # is_receiver is set to false if the player is causing damage and set to true if the player is taking damage.
@@ -206,19 +209,20 @@ class AuraManager:
 
             are_exclusive_by_source = ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(aura.spell_id, applied_aura.spell_id)  # Paladin seals, warlock curses
 
-            # Source doesn't matter for unique auras
+            # Source doesn't matter for unique auras.
             is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE or not aura.harmful  # Buffs are unique.
             is_stacking = applied_aura.can_stack
+            is_same_but_different_aura_index = aura.spell_id == applied_aura.spell_id and aura.spell_effect.effect_index != applied_aura.spell_effect.effect_index
 
             casters_are_same = applied_aura.caster.guid == caster_guid
             if is_similar_and_weaker and (is_unique or casters_are_same and not is_stacking) or \
-                    are_exclusive_by_source and casters_are_same:
+                    are_exclusive_by_source and casters_are_same and not is_same_but_different_aura_index:
                 self.remove_aura(applied_aura)
                 continue
 
             if applied_aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
                     aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT:
-                self.remove_aura(applied_aura)  # Player can only be in one shapeshift form
+                self.remove_aura(applied_aura)  # Player can only be in one shapeshift form.
                 continue
 
         return True

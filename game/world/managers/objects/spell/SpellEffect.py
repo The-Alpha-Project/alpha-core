@@ -3,6 +3,7 @@ import time
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import SpellRadius, SpellDuration
+from game.world.managers.objects.spell.AuraEffectHandler import PERIODIC_AURA_EFFECTS
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from utils.constants.SpellCodes import SpellEffects
 
@@ -48,6 +49,10 @@ class SpellEffect(object):
         self.targets = EffectTargets(casting_spell, self)
         self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index) if self.radius_index else None
         self.duration_entry = casting_spell.duration_entry
+
+        is_periodic = self.aura_type in PERIODIC_AURA_EFFECTS
+        # Descriptions of periodic effects with a period of 0 either imply regeneration every 5s or say "per tick".
+        self.aura_period = (self.aura_period if self.aura_period else 5000) if is_periodic else 0
 
     def update_effect_aura(self, timestamp):
         if self.applied_aura_duration == -1:

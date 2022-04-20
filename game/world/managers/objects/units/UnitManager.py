@@ -249,22 +249,6 @@ class UnitManager(ObjectManager):
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def attack_update(self, elapsed):
-        # If we have a combat target, no attackers and target is no longer alive or is evading, leave combat.
-        if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_evading):
-            if len(self.attackers) == 0:
-                self.leave_combat()
-            # If we have attackers and last target is dead or evading, switch to next alive target (only for creatures).
-            elif not self.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                target_found = False
-                for guid, attacker in self.attackers.items():
-                    if attacker.is_alive and not attacker.is_evading:
-                        self.attack(attacker)
-                        target_found = True
-                        break
-                # If we did not find a target, leave combat.
-                if not target_found:
-                    self.leave_combat()
-
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
         if self.has_offhand_weapon():
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
@@ -531,7 +515,7 @@ class UnitManager(ObjectManager):
                             self.set_energy(self.power_4 + 20)
 
             # Rage decay
-            elif self.power_type == PowerTypes.TYPE_RAGE:
+            if self.power_type == PowerTypes.TYPE_RAGE:
                 if self.power_2 > 0:
                     if not self.in_combat:
                         # Defensive Stance (71) description says:
@@ -584,8 +568,6 @@ class UnitManager(ObjectManager):
         target.receive_damage(damage, source=self, is_periodic=False)
 
     def receive_damage(self, amount, source=None, is_periodic=False):
-        is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
-
         if source is not self and not is_periodic and amount > 0:
             self.aura_manager.check_aura_interrupts(received_damage=True)
             self.spell_manager.check_spell_interrupts(received_damage=True)
@@ -596,17 +578,9 @@ class UnitManager(ObjectManager):
         else:
             damage_info = DamageInfoHolder()
             damage_info.damage = amount
-            damage_info.victim = self                                    
+            damage_info.victim = self
             self.set_health(new_health)
             self.generate_rage(damage_info, is_attacking=False)
-
-        # If unit is a creature and it's being attacked by another unit, automatically set combat target.
-        if not self.combat_target and not is_player and source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
-            # Make sure to first stop any movement right away.
-            if len(self.movement_manager.pending_waypoints) > 0:
-                self.movement_manager.send_move_stop()
-            # Attack.
-            self.attack(source)
 
     def receive_healing(self, amount, source=None):
         new_health = self.health + amount
@@ -778,7 +752,11 @@ class UnitManager(ObjectManager):
         return self.stand_state == StandState.UNIT_SITTING
 
     def set_stand_state(self, stand_state):
+        if stand_state == self.stand_state:
+            return
+
         self.stand_state = stand_state
+        self.aura_manager.check_aura_interrupts(changed_stand_state=True)
 
     def is_stealthed(self):
         return self.unit_flags & UnitFlags.UNIT_FLAG_SNEAK == UnitFlags.UNIT_FLAG_SNEAK

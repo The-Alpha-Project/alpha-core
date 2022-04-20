@@ -708,6 +708,10 @@ class PlayerManager(UnitManager):
             len(world_object.loot_manager.current_loot)
          )
 
+        # Initialize item detail queries data.
+        item_query = b''
+        item_count = 0
+
         # Do not send loot if player has no permission.
         if loot_type != LootTypes.LOOT_TYPE_NOTALLOWED:
             slot = 0
@@ -720,9 +724,9 @@ class PlayerManager(UnitManager):
                         slot += 1
                         continue
 
-                    # Send item query information
-                    query_data = ItemManager.generate_query_details_data(loot.item.item_template)
-                    self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, query_data))
+                    # Add this item to item_query data.
+                    item_query += ItemManager.generate_query_details_data(loot.item.item_template)
+                    item_count += 1
 
                     data += pack(
                         '<B3I',
@@ -735,6 +739,11 @@ class PlayerManager(UnitManager):
 
             # At this point, this player have access to the loot window, add him to the active looters.
             world_object.loot_manager.add_active_looter(self)
+
+        # Send all the packed item detail queries for current loot, if any.
+        if item_count:
+            item_query_data = pack(f'<I{len(item_query)}s', item_count, item_query)
+            self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query_data))
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
         self.enqueue_packet(packet)
@@ -1376,6 +1385,15 @@ class PlayerManager(UnitManager):
                 self.synchronize_db_player()
 
         self.last_tick = now
+
+    # override
+    def attack_update(self, elapsed):
+        # If we have a combat target, no attackers and target is no longer alive or is evasing, leave combat.
+        if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_evading):
+            if len(self.attackers) == 0:
+                self.leave_combat()
+
+        super().attack_update(elapsed)
 
     def send_update_self(self, update_packet=None, create=False):
         if create:

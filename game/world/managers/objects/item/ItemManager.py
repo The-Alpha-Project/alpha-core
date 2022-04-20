@@ -261,7 +261,11 @@ class ItemManager(ObjectManager):
             return item_mgr
         return None
 
-    def query_details(self):
+    def query_details_packet(self):
+        data = self.query_details_data()
+        return PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, data)
+
+    def query_details_data(self):
         data = ItemManager.generate_query_details_data(
             self.item_template,
             self.item_instance.item_flags if self.item_instance else self.item_template.flags,
@@ -269,7 +273,7 @@ class ItemManager(ObjectManager):
             self.damage_stats,
             self.spell_stats
         )
-        return PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, data)
+        return data
 
     @staticmethod
     def generate_query_details_data(item_template, item_flags=-1, stats=None, damage_stats=None, spell_stats=None):

@@ -198,11 +198,17 @@ class CastingSpell(object):
         if not spell_effect:
             return False
 
+        # Food/drink spells aren't labeled,
+        # but they need to be distinguished from other regeneration spells.
+        # All food spells have a period of 3000 and are castable while sitting.
+        # No other spells in 0.5.3 match this condition.
+
+        has_refreshment_period = spell_effect.aura_period == 3000
         has_sitting_attribute = self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_SITTING
         is_regen_buff = spell_effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_HEAL or \
             spell_effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE
 
-        return has_sitting_attribute and is_regen_buff
+        return has_sitting_attribute and is_regen_buff and has_refreshment_period
 
     def has_effect_of_type(self, effect_type: SpellEffects):
         for effect in self.get_effects():

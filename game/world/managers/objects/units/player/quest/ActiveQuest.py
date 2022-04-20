@@ -46,9 +46,9 @@ class ActiveQuest:
         # Return if this quest is finished by this quest giver.
         return self.quest.entry in {quest_entry[1] for quest_entry in involved_relations_list}
 
-    def need_item_from_go(self, go_loot_template):
+    def need_item_from_go(self, quest_giver, go_loot_template):
         # Quest is complete.
-        if self.is_quest_complete(0):
+        if self.is_quest_complete(quest_giver):
             return False
 
         needed_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
