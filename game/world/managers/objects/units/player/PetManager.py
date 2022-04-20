@@ -3,10 +3,12 @@ from typing import Optional, NamedTuple
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldModels import CreatureTemplate
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
+from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -63,13 +65,11 @@ class ActivePet(NamedTuple):
 	creature: CreatureManager
 
 
-# Manager for player-only permanent pets (for now).
-# Should most likely also implement behaviour for temporary pets later on.
 class PetManager:
 	def __init__(self, player):
 		self.player = player
 		self.pets: list[PetData] = []
-		self.active_pet: Optional[ActivePet] = None
+		self.active_pet: Optional[ActivePet] = None  # TODO Multiple active pets - totems?
 
 	def add_pet_from_world(self, creature: CreatureManager, permanent: bool):
 		if self.active_pet:
@@ -92,16 +92,35 @@ class PetManager:
 		# Spell ID or 0/1/2 for default pet bar actions.
 		action_id = action & 0xFFFF
 
+		active_pet_unit = self.active_pet.creature
+		# Single active pet assumed.
+		if active_pet_unit.guid != pet_guid:
+			return
+
+		target_unit = MapManager.get_surrounding_unit_by_guid(active_pet_unit, target_guid, include_players=True)
+		if not target_unit:
+			return
+
 		if action_id > 2:
 			Logger.info(f"Spellcast action: {action_id}")
+			target_mask = SpellTargetMask.SELF if target_unit.guid == active_pet_unit.guid \
+				else SpellTargetMask.UNIT
+			active_pet_unit.spell_manager.handle_cast_attempt(action_id, target_unit, target_mask)
 
 		elif action & (0x01 << 24):
+			if action_id == 2:
+				active_pet_unit.attack(target_unit)
 			Logger.info(f"Attack (2)/Follow (1)/Stay(0): {action_id}")
 
 		else:
 			Logger.info(f"Aggressive (2)/Defensive (1)/Passive(0): {action_id}")
 
+	def handle_cast_result(self, spell_id, result):
+		if result == SpellCheckCastResult.SPELL_NO_ERROR:
+			return
 
+		data = pack('<IB', spell_id, result)
+		self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_CAST_FAILED, data))
 
 	def _get_active_pet_info(self) -> Optional[PetData]:
 		if not self.active_pet:

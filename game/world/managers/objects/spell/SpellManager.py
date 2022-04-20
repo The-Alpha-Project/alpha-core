@@ -22,6 +22,7 @@ from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode
+from utils.constants.UpdateFields import UnitFields
 
 
 class SpellManager(object):
@@ -1010,6 +1011,11 @@ class SpellManager(object):
         #  cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED
 
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            summoner = self.caster.get_uint32(UnitFields.UNIT_FIELD_SUMMONEDBY)
+            # TODO reference to summoner.
+            player = MapManager.get_surrounding_player_by_guid(self.caster, summoner)
+            if player:
+                player.pet_manager.handle_cast_result(spell_id, error)
             return
 
         if error == SpellCheckCastResult.SPELL_NO_ERROR:
