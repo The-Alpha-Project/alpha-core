@@ -5,6 +5,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
+from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
@@ -86,6 +87,21 @@ class PetManager:
 		pet = PetData(creature_template.name, creature_template, self.player.guid, permanent)
 		self.pets.append(pet)
 		return len(self.pets) - 1
+
+	def handle_action(self, pet_guid, target_guid, action):
+		# Spell ID or 0/1/2 for default pet bar actions.
+		action_id = action & 0xFFFF
+
+		if action_id > 2:
+			Logger.info(f"Spellcast action: {action_id}")
+
+		elif action & (0x01 << 24):
+			Logger.info(f"Attack (2)/Follow (1)/Stay(0): {action_id}")
+
+		else:
+			Logger.info(f"Aggressive (2)/Defensive (1)/Passive(0): {action_id}")
+
+
 
 	def _get_active_pet_info(self) -> Optional[PetData]:
 		if not self.active_pet:
