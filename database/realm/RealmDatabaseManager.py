@@ -286,6 +286,13 @@ class RealmDatabaseManager(object):
         return spells
 
     @staticmethod
+    def character_get_spell_by_id(guid, spell_id):
+        realm_db_session = SessionHolder()
+        spell = realm_db_session.query(CharacterSpell).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER, spell=spell_id).first()
+        realm_db_session.close()
+        return spell
+
+    @staticmethod
     def character_add_spell(spell):
         if spell:
             realm_db_session = SessionHolder()
@@ -301,6 +308,17 @@ class RealmDatabaseManager(object):
             realm_db_session.merge(spell)
             realm_db_session.flush()
             realm_db_session.close()
+
+    @staticmethod
+    def character_delete_spell(guid, spell_id):
+        realm_db_session = SessionHolder()
+        spell_to_delete = RealmDatabaseManager.character_get_spell_by_id(guid, spell_id)
+        if spell_to_delete:
+            realm_db_session.delete(spell_to_delete)
+            realm_db_session.flush()
+            realm_db_session.close()
+            return 0
+        return -1
 
     @staticmethod
     def character_get_guild(character):
@@ -363,7 +381,7 @@ class RealmDatabaseManager(object):
             realm_db_session.close()
             return 0
         return -1
-    
+
     @staticmethod
     def character_update_quest_status(quest_status):
         if quest_status:
