@@ -22,8 +22,7 @@ class ThreatManager:
             source_holder = self.holders.get(source.guid)
             if source_holder:
                 new_threat = source_holder.total_threat + threat
-                if new_threat > 0.0:
-                    source_holder.total_threat = new_threat
+                source_holder.total_threat = max(new_threat, 0.0)
             elif threat > 0.0:
                 self.holders[source.guid] = ThreatHolder(source, threat)
 
