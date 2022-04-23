@@ -107,8 +107,8 @@ class SpellManager:
                 break
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_info.spell_id)
             if not spell:
-                Logger.warning(
-                    f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} ({item.item_template.name}) could not be found in the spell database.')
+                Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} '
+                               f'({item.item_template.name}) could not be found in the spell database.')
                 continue
 
             casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, item)
@@ -140,8 +140,7 @@ class SpellManager:
         return spell if self.validate_cast(spell) else None
 
     def start_spell_cast(self, spell: Optional[Spell] = None, spell_target=None, target_mask=SpellTargetMask.SELF,
-                         source_item=None,
-                         triggered=False, initialized_spell: Optional[CastingSpell] = None):
+                         source_item=None, triggered=False, initialized_spell: Optional[CastingSpell] = None):
         casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item, triggered=triggered) \
             if not initialized_spell else initialized_spell
 
@@ -313,8 +312,9 @@ class SpellManager:
                         self.remove_cast(casting_spell)
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:  # Waiting for impact delay.
-                targets_due = [guid for guid, stamp in casting_spell.spell_impact_timestamps.items() if
-                               stamp <= timestamp]
+                targets_due = [guid for guid, stamp
+                               in casting_spell.spell_impact_timestamps.items()
+                               if stamp <= timestamp]
                 if not targets_due:
                     continue
 
@@ -354,8 +354,8 @@ class SpellManager:
                         continue
 
                     # TODO Do crushing blows interrupt channeling too?
-                    if not (
-                            channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT) and hit_info != HitInfo.CRUSHING and \
+                    if not (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT) and \
+                            hit_info != HitInfo.CRUSHING and \
                             flag != SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT:
                         casting_spell.handle_partial_interrupt()
                     else:
@@ -514,7 +514,7 @@ class SpellManager:
         if not casting_spell.is_channeled() or casting_spell.duration_entry.Duration == -1:
             return
         casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
-        channel_end_timestamp = casting_spell.duration_entry.Duration / 1000 + time.time()
+        channel_end_timestamp = casting_spell.duration_entry.Duration/1000 + time.time()
         casting_spell.cast_start_timestamp = time.time()
         casting_spell.cast_end_timestamp = channel_end_timestamp  # Set the new timestamp for cast finish.
 
@@ -642,8 +642,8 @@ class SpellManager:
                 if cooldown.spell_id == spell.ID:
                     cooldown.unlock(timestamp)
                     return
-            Logger.warning(
-                f'[SpellManager]: Attempted to unlock cooldown for spell {spell.ID}, but the cooldown didn\'t exist.')
+            Logger.warning(f'[SpellManager]: Attempted to unlock cooldown for spell {spell.ID}, '
+                           f'but the cooldown didn\'t exist.')
 
         cooldown_entry = CooldownEntry(spell, timestamp, casting_spell.trigger_cooldown_on_aura_remove())
         self.cooldowns.append(cooldown_entry)
@@ -691,8 +691,8 @@ class SpellManager:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
 
-        if (
-                not casting_spell.triggered and not casting_spell.source_item) and casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING and \
+        if (not casting_spell.triggered and not casting_spell.source_item) and \
+                casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING and \
                 self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
                 (not casting_spell.spell_entry or casting_spell.spell_entry.ID not in self.spells):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
@@ -930,8 +930,8 @@ class SpellManager:
                     self.send_cast_result(casting_spell.spell_entry.ID,
                                           SpellCheckCastResult.SPELL_FAILED_NO_CHARGES_REMAIN)
                     return False
-                if charges < 0 and self.caster.inventory.get_item_count(
-                        casting_spell.source_item.item_template.entry) < 1:  # Consumables have negative charges.
+                if charges < 0 and \
+                        self.caster.inventory.get_item_count(casting_spell.source_item.item_template.entry) < 1:  # Consumables have negative charges.
                     self.send_cast_result(casting_spell.spell_entry.ID,
                                           SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)  # Should never really happen but catch this case.
                     return False
@@ -970,8 +970,7 @@ class SpellManager:
             cost = casting_spell.get_resource_cost()
             # Note: resources are consumed after the cast, which means that the caster's power type can change.
             # Pass the required power to get_power_type_value.
-            current_power = self.caster.health if power_type == PowerTypes.TYPE_HEALTH else self.caster.get_power_type_value(
-                power_type)
+            current_power = self.caster.health if power_type == PowerTypes.TYPE_HEALTH else self.caster.get_power_type_value(power_type)
             new_power = current_power - cost
 
         if power_type == PowerTypes.TYPE_MANA:
@@ -1017,7 +1016,7 @@ class SpellManager:
                 self.caster.inventory.remove_items(casting_spell.source_item.item_template.entry, 1)
 
             if charges != 0 and charges != -1:  # don't modify if no charges remain or this item is a consumable.
-                new_charges = charges - 1 if charges > 0 else charges + 1
+                new_charges = charges-1 if charges > 0 else charges+1
                 spell_stats.charges = new_charges
 
         if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
