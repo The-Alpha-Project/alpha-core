@@ -7,7 +7,7 @@ from game.world.managers.objects.units.UnitManager import UnitManager
 @dataclass
 class ThreatHolder:
     unit: UnitManager
-    threat: float
+    total_threat: float
 
 
 class ThreatManager:
@@ -18,11 +18,13 @@ class ThreatManager:
         self.current_holder: Optional[ThreatHolder] = None
 
     def add_threat(self, source: UnitManager, threat: float):
-        if source != self and threat > 0.0:
+        if source != self:
             source_holder = self.holders.get(source.guid)
             if source_holder:
-                source_holder.threat += threat
-            else:
+                new_threat = source_holder.total_threat + threat
+                if new_threat > 0.0:
+                    source_holder.total_threat = new_threat
+            elif threat > 0.0:
                 self.holders[source.guid] = ThreatHolder(source, threat)
 
     def get_hostile_target(self) -> Optional[UnitManager]:
@@ -31,7 +33,7 @@ class ThreatManager:
         if max_threat_holder:
             if not self.current_holder or \
                     not ThreatManager._is_dangerous(self.current_holder.unit) or \
-                    self._is_exceeded_current_threat_melee_range(max_threat_holder.threat):
+                    self._is_exceeded_current_threat_melee_range(max_threat_holder.total_threat):
                 self.current_holder = max_threat_holder
 
         return None if not self.current_holder else self.current_holder.unit
@@ -45,7 +47,7 @@ class ThreatManager:
         relevant_holders = [holder for holder
                             in self.holders.values()
                             if ThreatManager._is_dangerous(holder.unit)]
-        relevant_holders.sort(key=lambda holder: holder.threat)
+        relevant_holders.sort(key=lambda holder: holder.total_threat)
 
         return None if not relevant_holders else relevant_holders[-1]
 
@@ -55,5 +57,5 @@ class ThreatManager:
 
     # TODO Melee/outside of melee range reach
     def _is_exceeded_current_threat_melee_range(self, threat: float):
-        current_threat = 0.0 if not self.current_holder else self.current_holder.threat
+        current_threat = 0.0 if not self.current_holder else self.current_holder.total_threat
         return threat >= current_threat * 1.1
