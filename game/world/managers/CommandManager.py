@@ -559,8 +559,7 @@ class CommandManager(object):
                                                     f'Z: {gobject.location.z}, '
                                                     f'O: {gobject.location.o}, '
                                                     f'Map: {gobject.map_}, '
-                                                    f'Distance: {distance}'
-                                                    )
+                                                    f'Distance: {distance}')
             return 0, f'{found_count} game objects found within {max_distance} distance units.'
         except ValueError:
             return -1, 'please specify a valid distance.'
