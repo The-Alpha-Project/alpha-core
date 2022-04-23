@@ -8,10 +8,10 @@ from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import AttackTypes, ObjectTypeFlags, HitInfo, ObjectTypeIds
 from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms
-from utils.constants.UnitCodes import PowerTypes, Classes
+from utils.constants.UnitCodes import PowerTypes, Classes, Races
 
 
-# Stats that are modified aura effects. Used in StatManager and when accessing stats.
+# Stats that are modified by aura effects and items.
 # Use auto indexing to make expanding much easier.
 class UnitStats(IntFlag):
     STRENGTH = auto()
@@ -65,7 +65,7 @@ class UnitStats(IntFlag):
     POWER_REGENERATION_PER_5 = auto()
 
     ATTACK_SPEED = auto()
-    THREAT = auto()
+    THREAT_GENERATION = auto()
     STEALTH = auto()
     STEALTH_DETECTION = auto()
     INVISIBILITY = auto()
@@ -114,8 +114,19 @@ class StatManager(object):
         base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.class_, self.unit_mgr.level)
 
         if not base_stats:
-            Logger.error(f'Unsupported level ({self.unit_mgr.level}) from unit type {self.unit_mgr.get_type_id()}.')
-            return
+            if self.unit_mgr.level > 60:
+                # Default to max available base stats, level 60.
+                base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.class_, 60)
+                Logger.warning(f'Unsupported base stats for level ({self.unit_mgr.level})'
+                               f' Unit class ({Classes(self.unit_mgr.class_).name})'
+                               f' Unit type ({ObjectTypeIds(self.unit_mgr.get_type_id()).name})'
+                               f' Using level 60 base stats.')
+            else:
+                Logger.error(
+                    f'Unsupported base stats for level ({self.unit_mgr.level})'
+                    f' Unit class ({Classes(self.unit_mgr.class_).name})'
+                    f' Unit type ({ObjectTypeIds(self.unit_mgr.get_type_id()).name}).')
+                return
 
         # Player specific.
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
@@ -123,8 +134,22 @@ class StatManager(object):
                                                                      self.unit_mgr.level,
                                                                      self.unit_mgr.race)
             if not base_attrs:
-                Logger.error(f'Unsupported level ({self.unit_mgr.level}) from player {self.unit_mgr.player.name}.')
-                return
+                if self.unit_mgr.level > 60:
+                    # Default to max available attributes, level 60.
+                    base_attrs = WorldDatabaseManager.player_get_level_stats(self.unit_mgr.class_,
+                                                                             60,
+                                                                             self.unit_mgr.race)
+                    Logger.warning(f'Unsupported base attributes for level ({self.unit_mgr.level})'
+                                   f' Unit type ({ObjectTypeIds(self.unit_mgr.get_type_id()).name})'
+                                   f' Unit class ({Classes(self.unit_mgr.class_).name})'
+                                   f' Unit race ({Races(self.unit_mgr.race).name})'
+                                   f' Using level 60 attributes.')
+                else:
+                    Logger.error(f'Unsupported base attributes for level ({self.unit_mgr.level})'
+                                 f' Unit type ({ObjectTypeIds(self.unit_mgr.get_type_id()).name})'
+                                 f' Unit class ({Classes(self.unit_mgr.class_).name})'
+                                 f' Unit race ({Races(self.unit_mgr.race).name})')
+                    return
 
             self.base_stats[UnitStats.HEALTH] = base_stats.basehp
             self.base_stats[UnitStats.MANA] = base_stats.basemana
@@ -244,6 +269,7 @@ class StatManager(object):
         return int((value + flat) * percentual)
 
     def apply_aura_stat_bonus(self, index: int, stat_type: UnitStats, amount: int, misc_value=-1, percentual=False):
+        # Note: percentual modifiers should be passed as ints (ie. 50 -> +50% -> *1.5, -20 -> -20% -> *0.8).
         if percentual:
             self.aura_stats_percentual[index] = (stat_type, amount, misc_value)
         else:
@@ -389,8 +415,8 @@ class StatManager(object):
 
         hp_diff = new_hp - current_total_hp
         if new_hp > 0:
-            # Update current health if the new total value is lower and health is currently full.
-            if new_hp < current_total_hp == current_hp:
+            # Update current health if the new total value is lower and health is currently greater than the new total.
+            if current_hp > new_hp < current_total_hp:
                 self.unit_mgr.set_health(new_hp)
             self.unit_mgr.set_max_health(new_hp)
 
@@ -409,8 +435,8 @@ class StatManager(object):
 
         mana_diff = new_mana - current_total_mana
         if new_mana > 0:
-            # Update current mana if the new total value is lower and mana is currently full.
-            if new_mana < current_total_mana == current_mana:
+            # Update current mana if the new total value is lower and mana is currently greater than the new total.
+            if current_mana > new_mana < current_total_mana:
                 self.unit_mgr.set_mana(new_mana)
             self.unit_mgr.set_max_mana(new_mana)
 

@@ -40,5 +40,13 @@ begin not atomic
         insert into applied_updates values ('040420221');
     end if;
 
+    -- 20/04/2022 1
+    if (select count(*) from applied_updates where id='200420221') = 0 then
+        -- Fix Grell display id.
+        UPDATE `creature_template` SET `display_id1` = 3023 WHERE `entry` = 1988;
+
+        insert into applied_updates values ('200420221');
+    end if;
+
 end $
 delimiter ;

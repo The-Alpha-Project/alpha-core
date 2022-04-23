@@ -423,6 +423,14 @@ class AuraEffectHandler:
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.BLOCK_CHANCE,
                                                          amount_percent, percentual=False)
 
+    @staticmethod
+    def handle_mod_threat(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
+            return
+        amount = aura.get_effect_points()
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.THREAT_GENERATION, amount, percentual=True)
+
 
 AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
@@ -464,10 +472,22 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_DAMAGE_TAKEN: AuraEffectHandler.handle_mod_damage_taken,
 
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE: AuraEffectHandler.handle_mod_damage_done,
-    AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE_CREATURE: AuraEffectHandler.handle_mod_damage_done_creature
+    AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE_CREATURE: AuraEffectHandler.handle_mod_damage_done_creature,
+
+    AuraTypes.SPELL_AURA_MOD_THREAT: AuraEffectHandler.handle_mod_threat
 }
 
 PROC_AURA_EFFECTS = [
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE
+]
+
+PERIODIC_AURA_EFFECTS = [
+    AuraTypes.SPELL_AURA_PERIODIC_DAMAGE,
+    AuraTypes.SPELL_AURA_PERIODIC_HEAL,
+    AuraTypes.SPELL_AURA_PERIODIC_TRIGGER_SPELL,
+    AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE,
+    AuraTypes.SPELL_AURA_PERIODIC_LEECH,
+    AuraTypes.SPELL_AURA_PERIODIC_MANA_FUNNEL,
+    AuraTypes.SPELL_AURA_PERIODIC_MANA_LEECH
 ]
