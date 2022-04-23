@@ -236,7 +236,8 @@ class CommandManager(object):
     def lspell(world_session, args):
         code, res = CommandManager._parse_spell_id_check_spell_exist(args)
         if code == 0:
-            if not world_session.player_mgr.spell_manager.learn_spell(res):
+            spell_id = res
+            if not world_session.player_mgr.spell_manager.learn_spell(spell_id):
                 return -1, 'you already know that spell.'
             return 0, 'Spell learned.'
         return code, res
@@ -276,11 +277,31 @@ class CommandManager(object):
     def unlspell(world_session, args):
         code, res = CommandManager._parse_spell_id_check_spell_exist(args)
         if code == 0:
-            if world_session.player_mgr.spell_manager.unlearn_spell(res):
-                world_session.player_mgr.aura_manager.cancel_auras_by_spell_id(res)
-                return 0, 'Spell unlearned. Relogin for spellbook update.'
-            return -1, 'you do not know this spell yet.'
+            spell_id = res
+            code, res = CommandManager._unlearn_spell(world_session, spell_id)
+            if code == 0:
+                return 0, f'{res} Relogin for spellbook update.'
         return code, res
+
+    @staticmethod
+    def unltalent(world_session, args):
+        code, res = CommandManager._parse_spell_id_check_spell_exist(args)
+        if code == 0:
+            spell_id = res
+            code, res = CommandManager._unlearn_spell(world_session, spell_id)
+            if code == 0:
+                talent_cost = world_session.player_mgr.talent_manager.get_talent_cost_by_id(spell_id)
+                world_session.player_mgr.add_talent_points(talent_cost)
+                return 0, f'{res} Talent points were returned.'
+            return code, res
+        return code, res
+
+    @staticmethod
+    def _unlearn_spell(world_session, spell_id):
+        if world_session.player_mgr.spell_manager.unlearn_spell(spell_id):
+            world_session.player_mgr.aura_manager.cancel_auras_by_spell_id(spell_id)
+            return 0, 'Spell unlearned.'
+        return -1, 'you do not know this spell yet.'
 
     @staticmethod
     def cast(world_session, args):
@@ -637,6 +658,7 @@ GM_COMMAND_DEFINITIONS = {
     'sspell': CommandManager.sspell,
     'lspell': CommandManager.lspell,
     'unlspell': CommandManager.unlspell,
+    'unltalent': CommandManager.unltalent,
     'lspells': CommandManager.lspells,
     'cast': CommandManager.cast,
     'sskill': CommandManager.sskill,
