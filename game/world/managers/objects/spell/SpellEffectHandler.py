@@ -42,8 +42,6 @@ class SpellEffectHandler:
         healing = effect.get_effect_points(casting_spell.caster_effective_level)
         caster.apply_spell_healing(target, healing, casting_spell)
 
-        SpellEffectHandler._threat_assist(caster, target, healing)
-
     @staticmethod
     def handle_heal_max_health(casting_spell, effect, caster, target):
         if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
@@ -51,20 +49,6 @@ class SpellEffectHandler:
 
         healing = caster.max_health
         caster.apply_spell_healing(target, healing, casting_spell)
-
-        SpellEffectHandler._threat_assist(caster, target, healing)
-
-    @staticmethod
-    def _threat_assist(source, target, source_threat: float):
-        if target.in_combat:
-            creature_observers = [attacker for attacker
-                                  in target.attackers.values()
-                                  if not attacker.object_type_mask & ObjectTypeFlags.TYPE_PLAYER]
-            observers_size = len(creature_observers)
-            if observers_size > 0:
-                threat = source_threat / observers_size
-                for creature in creature_observers:
-                    creature.threat_manager.add_threat(source, threat)
 
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):

@@ -642,6 +642,18 @@ class UnitManager(ObjectManager):
         self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True,
                                         is_periodic=is_periodic)
         target.receive_healing(healing, self)
+        self._threat_assist(target, healing)
+
+    def _threat_assist(self, target, source_threat: float):
+        if target.in_combat:
+            creature_observers = [attacker for attacker
+                                  in target.attackers.values()
+                                  if not attacker.object_type_mask & ObjectTypeFlags.TYPE_PLAYER]
+            observers_size = len(creature_observers)
+            if observers_size > 0:
+                threat = source_threat / observers_size
+                for creature in creature_observers:
+                    creature.threat_manager.add_threat(self, threat)
 
     def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False, is_periodic=False):
         flags = SpellHitFlags.HIT_FLAG_HEALED if healing else SpellHitFlags.HIT_FLAG_DAMAGE
@@ -649,7 +661,8 @@ class UnitManager(ObjectManager):
             flags |= SpellHitFlags.HIT_FLAG_PERIODIC
 
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
-            combat_log_data = pack('<i2Q2i', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
+            combat_log_data = pack('<i2Q2i', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id,
+                                   miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
 
