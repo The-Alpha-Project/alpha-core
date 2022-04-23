@@ -215,7 +215,8 @@ class SpellManager:
         self.set_on_cooldown(casting_spell)
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
-    def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False, partial_targets=None):
+    def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False,
+                            partial_targets: Optional[list[int]]=None):
         if not update:
             self.handle_procs_for_cast(casting_spell)
 

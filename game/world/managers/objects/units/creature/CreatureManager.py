@@ -659,8 +659,8 @@ class CreatureManager(UnitManager):
 
         if self.is_alive:
             # If creature's being attacked by another unit, automatically set combat target.
-            not_gameobject_attacked = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
-            if not self.combat_target and not_gameobject_attacked:
+            not_attacked_by_gameobject = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
+            if not self.combat_target and not_attacked_by_gameobject:
                 # Make sure to first stop any movement right away.
                 if len(self.movement_manager.pending_waypoints) > 0:
                     self.movement_manager.send_move_stop()
