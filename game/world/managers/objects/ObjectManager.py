@@ -257,7 +257,7 @@ class ObjectManager(object):
             return 0
         value = self.update_packet_factory.update_values[index]
         if value_type.lower() == 'q':
-            value_type += self.update_packet_factory.update_values[index + 1]
+            value += self.update_packet_factory.update_values[index + 1]
 
         return unpack(f'<{value_type}', value)[0]
 
