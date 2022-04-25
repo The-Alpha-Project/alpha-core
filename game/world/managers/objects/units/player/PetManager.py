@@ -133,13 +133,18 @@ class PetManager:
 		return self.pets[pet_index]
 
 	def _tame_creature(self, creature: CreatureManager):
-		creature.set_uint32(UnitFields.UNIT_FIELD_SUMMONEDBY, self.player.guid)
-		creature.set_uint32(UnitFields.UNIT_FIELD_CREATEDBY, self.player.guid)
+		creature.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.player.guid)
+		creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.player.guid)
+
 		creature.faction = self.player.faction
 		creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
+		creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, int(time.time()))
 
+		creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, 1)
 		# Just disable random movement for now.
 		creature.creature_instance.movement_type = MovementTypes.IDLE  # TODO pet movement.
+
+		self.player.set_uint64(UnitFields.UNIT_FIELD_SUMMON, creature.guid)
 
 		# Required?
 		# creature.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, casting_spell.spell_entry.ID)
