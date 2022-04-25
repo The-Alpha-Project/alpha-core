@@ -89,7 +89,7 @@ class SpellManager(object):
 
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.caster.guid)
-        
+
         data = pack('<BH', 0, len(self.spells))
         for spell_id, spell in self.spells.items():
             index = spell_buttons[spell.spell] if spell.spell in spell_buttons else 0
@@ -1011,7 +1011,7 @@ class SpellManager(object):
         #  cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED
 
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            summoner = self.caster.get_uint32(UnitFields.UNIT_FIELD_SUMMONEDBY)
+            summoner = self.caster.get_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY)
             # TODO reference to summoner.
             player = MapManager.get_surrounding_player_by_guid(self.caster, summoner)
             if player:
