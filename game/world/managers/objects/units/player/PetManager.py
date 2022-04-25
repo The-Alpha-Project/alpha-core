@@ -1,3 +1,4 @@
+import time
 from struct import pack
 from typing import Optional, NamedTuple
 
@@ -63,6 +64,7 @@ class PetData:
 class ActivePet(NamedTuple):
 	pet_index: int
 	creature: CreatureManager
+	expiration_time: int
 
 
 class PetManager:
@@ -71,22 +73,38 @@ class PetManager:
 		self.pets: list[PetData] = []
 		self.active_pet: Optional[ActivePet] = None  # TODO Multiple active pets - totems?
 
-	def add_pet_from_world(self, creature: CreatureManager, permanent: bool):
+	def add_pet_from_world(self, creature: CreatureManager, lifetime_sec=-1):
 		if self.active_pet:
 			return  # TODO
 
 		self._tame_creature(creature)
-		index = self.add_pet(creature.creature_template, permanent)
-		self.active_pet = ActivePet(index, creature)
+		index = self.add_pet(creature.creature_template, lifetime_sec)
+		self._set_active_pet(index, creature)
 
+	def _set_active_pet(self, pet_index: int, creature: CreatureManager):
+		pet_info = self._get_pet_info(pet_index)
+
+		if self.active_pet or not pet_info:
+			return
+
+		self.active_pet = ActivePet(pet_index, creature, -1 if pet_info.permanent else 60)  # ??
 		self._send_pet_spell_info()
 
-	def add_pet(self, creature_template: CreatureTemplate, permanent: bool) -> int:
+	def add_pet(self, creature_template: CreatureTemplate, lifetime_sec=-1) -> int:
 		# TODO: default name by beast_family - resolve id reference.
 
-		pet = PetData(creature_template.name, creature_template, self.player.guid, permanent)
+		pet = PetData(creature_template.name, creature_template, self.player.guid, permanent=lifetime_sec == -1)
 		self.pets.append(pet)
 		return len(self.pets) - 1
+
+	def update(self, timestamp):
+		if not self.active_pet or self.active_pet.expiration_time == -1:
+			return
+
+		if self.active_pet.expiration_time < timestamp:
+			Logger.info("Pet expired.")
+			self.active_pet.expiration_time = -1
+			return
 
 	def handle_action(self, pet_guid, target_guid, action):
 		# Spell ID or 0/1/2 for default pet bar actions.
@@ -122,11 +140,7 @@ class PetManager:
 		data = pack('<IB', spell_id, result)
 		self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_CAST_FAILED, data))
 
-	def _get_active_pet_info(self) -> Optional[PetData]:
-		if not self.active_pet:
-			return None
-
-		pet_index = self.active_pet.pet_index
+	def _get_pet_info(self, pet_index: int) -> Optional[PetData]:
 		if pet_index < 0 or pet_index >= len(self.pets):
 			return None
 
@@ -156,7 +170,7 @@ class PetManager:
 
 		# This packet contains the both the action bar of the pet and the spellbook entries.
 
-		pet_info = self._get_active_pet_info()
+		pet_info = self._get_pet_info(self.active_pet.pet_index)
 
 		bar_slots = 10
 		# Creature guid, time limit, react state (0 = passive, 1 = defensive, 2 = aggressive),
