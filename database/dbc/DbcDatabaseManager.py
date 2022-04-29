@@ -18,7 +18,7 @@ dbc_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST
 SessionHolder = scoped_session(sessionmaker(bind=dbc_db_engine, autocommit=True, autoflush=True))
 
 
-class DbcDatabaseManager(object):
+class DbcDatabaseManager:
     # ChrRaces
 
     @staticmethod

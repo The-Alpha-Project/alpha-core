@@ -1,5 +1,6 @@
 from struct import error
 
+from game.world.managers.maps.CellAction import CellAction
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units import MovementManager
 from network.packet.PacketReader import *
@@ -10,7 +11,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import StandState
 
 
-class MovementHandler(object):
+class MovementHandler:
 
     @staticmethod
     def handle_movement_status(world_session, socket, reader: PacketReader) -> int:

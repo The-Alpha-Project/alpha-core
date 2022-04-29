@@ -9,7 +9,7 @@ class MapType(IntEnum):
     COMMON = 1
 
 
-class Map(object):
+class Map:
     def __init__(self, map_id, active_cell_callback):
         self.map_ = DbcDatabaseManager.map_get_by_id(map_id)
         self.grid_manager = GridManager(map_id, active_cell_callback)

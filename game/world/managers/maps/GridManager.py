@@ -1,30 +1,36 @@
-import math, time
+from __future__ import annotations
 
+import math
+import time
+from typing import Optional
+
+from game.world.managers.maps.CellAction import CellAction
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds
 
 TOLERANCE = 0.00001
 CELL_SIZE = config.Server.Settings.cell_size
 
 
-class GridManager(object):
+class GridManager:
     def __init__(self, map_id, active_cell_callback, instance_id=0):
         self.map_id = map_id
         self.instance_id = instance_id
-        self.active_cell_keys = set()
-        self.cells = dict()
+        self.active_cell_keys: set[str] = set()
+        self.cells: dict[str, Cell] = {}
         self.active_cell_callback = active_cell_callback
 
     def get_create_cell(self, world_object):
         cell_key = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
         cell = self.cells.get(cell_key)
         if not cell:
-            min_x, min_y, max_x, max_y = GridManager.generate_coord_data(world_object.location.x, world_object.location.y)
+            min_x, min_y, max_x, max_y = GridManager.generate_coord_data(world_object.location.x,
+                                                                         world_object.location.y)
             cell = Cell(min_x, min_y, max_x, max_y, world_object.map_)
             self.cells[cell.key] = cell
         return cell
 
-    def update_object(self, world_object, old_grid_manager, check_pending_changes=False):
+    def update_object(self, world_object, old_grid_manager: Optional[GridManager], check_pending_changes=False):
         source_cell_key = world_object.current_cell
         current_cell_key = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
 
@@ -69,7 +75,7 @@ class GridManager(object):
         if update_players:
             self.update_players(cell.key)
 
-    def activate_cells(self, cells):
+    def activate_cells(self, cells: list[Cell]):
         for cell in cells:
             if cell.key not in self.active_cell_keys:
                 self.active_cell_keys.add(cell.key)
@@ -105,7 +111,7 @@ class GridManager(object):
             if update_players:
                 self.update_players(cell.key)
 
-    def update_players(self, cell_key, exclude_cells=None, world_object=None):
+    def update_players(self, cell_key, exclude_cells=None, world_object=None) -> set[Cell]:
         # Avoid update calls if no players are present.
         if exclude_cells is None:
             exclude_cells = set()
@@ -159,7 +165,8 @@ class GridManager(object):
 
     def get_surrounding_cells_by_object(self, world_object, x_s=-1, x_m=1, y_s=-1, y_m=1):
         vector = world_object.location
-        return self.get_surrounding_cells_by_location(vector.x, vector.y, world_object.map_, x_s=x_s, x_m=x_m, y_s=y_s, y_m=y_m)
+        return self.get_surrounding_cells_by_location(vector.x, vector.y, world_object.map_, x_s=x_s, x_m=x_m, y_s=y_s,
+                                                      y_m=y_m)
 
     def get_surrounding_cells_by_location(self, x, y, map_, x_s=-1, x_m=1, y_s=-1, y_m=1):
         near_cells = set()
@@ -176,7 +183,8 @@ class GridManager(object):
         for cell in self.get_surrounding_cells_by_object(world_object):
             cell.send_all(packet, source=None if include_self else world_object, exclude=exclude, use_ignore=use_ignore)
 
-    def send_surrounding_in_range(self, packet, world_object, range_, include_self=True, exclude=None, use_ignore=False):
+    def send_surrounding_in_range(self, packet, world_object, range_, include_self=True, exclude=None,
+                                  use_ignore=False):
         for cell in self.get_surrounding_cells_by_object(world_object):
             cell.send_all_in_range(
                 packet, range_, world_object, include_self, exclude, use_ignore)
@@ -305,7 +313,7 @@ class GridManager(object):
                 gameobject.update(now)
 
 
-class Cell(object):
+class Cell:
     def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, gameobjects=None,
                  creatures=None, players=None, key=''):
         self.min_x = min_x
@@ -337,8 +345,9 @@ class Cell(object):
             map_ = world_object.map_
 
         if vector and map_:
-            return self.min_x <= round(vector.x, 5) <= self.max_x and self.min_y <= round(vector.y, 5) <= self.max_y \
-                and map_ == self.map_
+            return self.min_x <= round(vector.x, 5) <= self.max_x and \
+                   self.min_y <= round(vector.y, 5) <= self.max_y and \
+                   map_ == self.map_
         return False
 
     def add(self, grid_manager, world_object):

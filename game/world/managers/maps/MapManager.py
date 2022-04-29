@@ -1,6 +1,8 @@
-import traceback
-import math
 import _queue
+import math
+import traceback
+
+from game.world.managers.maps.CellAction import CellAction
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
 from game.world.managers.maps.Map import Map
@@ -8,9 +10,8 @@ from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config
 from utils.Logger import Logger
 
-
-MAPS = {}
-MAP_LIST = DbcDatabaseManager.map_get_all_ids()
+MAPS: dict[int, Map] = {}
+MAP_LIST: list[int] = DbcDatabaseManager.map_get_all_ids()
 AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
 PENDING_LOAD = {}
@@ -18,7 +19,7 @@ PENDING_LOAD_QUEUE = _queue.SimpleQueue()
 
 
 # noinspection PyBroadException
-class MapManager(object):
+class MapManager:
     @staticmethod
     def initialize_maps():
         for map_id in MAP_LIST:
@@ -185,7 +186,8 @@ class MapManager(object):
     @staticmethod
     def get_area_information(map_id, x, y):
         try:
-            map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
+            resolution = RESOLUTION_AREA_INFO - 1
+            map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, resolution)
 
             if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
                 return None
@@ -291,7 +293,8 @@ class MapManager(object):
     @staticmethod
     def should_relocate(world_object, destination, destination_map):
         grid_manager = MapManager.get_grid_manager_by_map_id(destination_map)
-        destination_cells = grid_manager.get_surrounding_cells_by_location(destination.x, destination.y, destination_map)
+        destination_cells = grid_manager.get_surrounding_cells_by_location(destination.x, destination.y,
+                                                                           destination_map)
         current_cell = grid_manager.get_cells()[world_object.current_cell]
         return current_cell in destination_cells
 
@@ -333,7 +336,8 @@ class MapManager(object):
 
     @staticmethod
     def get_surrounding_objects(world_object, object_types):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_objects(world_object, object_types)
+        return MapManager.get_grid_manager_by_map_id(world_object.map_) \
+            .get_surrounding_objects(world_object, object_types)
 
     @staticmethod
     def get_surrounding_players(world_object):
@@ -341,7 +345,8 @@ class MapManager(object):
 
     @staticmethod
     def get_surrounding_units(world_object, include_players=False):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_units(world_object, include_players)
+        return MapManager.get_grid_manager_by_map_id(world_object.map_) \
+            .get_surrounding_units(world_object, include_players)
 
     @staticmethod
     def get_surrounding_units_by_location(vector, target_map, range_, include_players=False):
@@ -363,15 +368,18 @@ class MapManager(object):
 
     @staticmethod
     def get_surrounding_player_by_guid(world_object, guid):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_player_by_guid(world_object, guid)
+        return MapManager.get_grid_manager_by_map_id(world_object.map_) \
+            .get_surrounding_player_by_guid(world_object, guid)
 
     @staticmethod
     def get_surrounding_unit_by_guid(world_object, guid, include_players=False):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_unit_by_guid(world_object, guid, include_players)
+        return MapManager.get_grid_manager_by_map_id(world_object.map_) \
+            .get_surrounding_unit_by_guid(world_object, guid, include_players)
 
     @staticmethod
     def get_surrounding_gameobject_by_guid(world_object, guid):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_gameobject_by_guid(world_object, guid)
+        return MapManager.get_grid_manager_by_map_id(world_object.map_) \
+            .get_surrounding_gameobject_by_guid(world_object, guid)
 
     @staticmethod
     def update_creatures():

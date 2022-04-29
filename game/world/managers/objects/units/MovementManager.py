@@ -1,6 +1,6 @@
-import math
 from struct import pack
 
+from game.world.managers.maps.CellAction import CellAction
 from game.world import WorldManager
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.MapManager import MapManager
@@ -8,17 +8,17 @@ from game.world.managers.objects.units.MovementSpline import MovementSpline
 from game.world.managers.objects.units.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeFlags, MoveFlags, ObjectTypeIds
-from utils.constants.UnitCodes import SplineFlags, SplineType, UnitFlags
+from utils.constants.MiscCodes import MoveFlags, ObjectTypeIds
+from utils.constants.UnitCodes import SplineFlags, SplineType
 
 
-class MovementManager(object):
+class MovementManager:
     def __init__(self, unit):
         self.unit = unit
         self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
         self.should_update_waypoints = False
         self.last_position = None
-        self.pending_waypoints = []
+        self.pending_waypoints: list[PendingWaypoint] = []
         self.total_waypoint_time = 0
         self.total_waypoint_timer = 0
         self.waypoint_timer = 0
@@ -53,7 +53,8 @@ class MovementManager(object):
                     map_id = -1
                 else:
                     map_id = self.unit.map_
-                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location, map_id=map_id)
+                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location,
+                                                                       map_id=map_id)
 
             if new_position:
                 self.waypoint_timer = 0

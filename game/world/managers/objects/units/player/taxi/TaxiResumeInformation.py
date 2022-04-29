@@ -1,10 +1,12 @@
+from typing import Optional
+
 from game.world.managers.abstractions.Vector import Vector
 
 
-class TaxiResumeInformation(object):
+class TaxiResumeInformation:
     def __init__(self, taxi_path_db_state):
         self.taxi_path_db_state = taxi_path_db_state
-        self.start_location = None
+        self.start_location: Optional[Vector] = None
         self.start_node = 0
         self.dest_node = 0
         self.mount_display_id = 0
