@@ -311,9 +311,9 @@ class RealmDatabaseManager(object):
 
     @staticmethod
     def character_delete_spell(guid, spell_id):
-        realm_db_session = SessionHolder()
         spell_to_delete = RealmDatabaseManager.character_get_spell_by_id(guid, spell_id)
         if spell_to_delete:
+            realm_db_session = SessionHolder()
             realm_db_session.delete(spell_to_delete)
             realm_db_session.flush()
             realm_db_session.close()
@@ -373,9 +373,9 @@ class RealmDatabaseManager(object):
 
     @staticmethod
     def character_delete_quest(guid, quest_id):
-        realm_db_session = SessionHolder()
         quest_to_delete = RealmDatabaseManager.character_get_quest_by_id(guid, quest_id)
         if quest_to_delete:
+            realm_db_session = SessionHolder()
             realm_db_session.delete(quest_to_delete)
             realm_db_session.flush()
             realm_db_session.close()
@@ -513,9 +513,9 @@ class RealmDatabaseManager(object):
 
     @staticmethod
     def ticket_delete(ticket_id):
-        realm_db_session = SessionHolder()
         ticket_to_delete = RealmDatabaseManager.ticket_get_by_id(ticket_id)
         if ticket_to_delete:
+            realm_db_session = SessionHolder()
             realm_db_session.delete(ticket_to_delete)
             realm_db_session.flush()
             realm_db_session.close()
