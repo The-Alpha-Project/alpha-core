@@ -49,7 +49,7 @@ begin not atomic
     end if;
 
     -- 20/04/2022 2
-    if (select count(*) from applied_updates where id='040420222') = 0 then
+    if (select count(*) from applied_updates where id='200420222') = 0 then
         -- [PH] Teleport to Auberdine
         UPDATE `spell_target_position` SET `target_position_x` = '6482.042', `target_position_y` = '614.423', `target_position_z` = '5.458', `target_orientation` = '2.893' WHERE (`id` = '6349') and (`target_map` = '1');
         insert into applied_updates values ('200420222');
