@@ -1,6 +1,5 @@
 from struct import pack
 
-from game.world.managers.maps.CellAction import CellAction
 from game.world import WorldManager
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.MapManager import MapManager
@@ -62,6 +61,7 @@ class MovementManager:
                 self.unit.location.x = new_position.x
                 self.unit.location.y = new_position.y
                 self.unit.location.z = new_position.z
+                self.unit.on_relocation()
                 MapManager.update_object(self.unit)
 
                 # TODO: Logic below should be removed once we have some kind of navmesh.

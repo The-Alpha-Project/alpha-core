@@ -1,6 +1,5 @@
 from struct import error
 
-from game.world.managers.maps.CellAction import CellAction
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units import MovementManager
 from network.packet.PacketReader import *
@@ -23,9 +22,10 @@ class MovementHandler:
 
                 # Hacky way to prevent random teleports when colliding with elevators
                 # Also acts as a rudimentary teleport cheat detection
-                if not world_session.player_mgr.pending_taxi_destination and world_session.player_mgr.location.distance(
-                        x=x, y=y, z=z) > 64:
-                    Logger.anticheat(f'Preventing coordinate desync from player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}).')
+                if not world_session.player_mgr.pending_taxi_destination and \
+                        world_session.player_mgr.location.distance(x=x, y=y, z=z) > 64:
+                    Logger.anticheat(f'Preventing coordinate desync from player {world_session.player_mgr.player.name} '
+                                     f'({world_session.player_mgr.guid}).')
                     world_session.player_mgr.teleport(world_session.player_mgr.map_,
                                                       world_session.player_mgr.location, is_instant=True)
 

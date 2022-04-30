@@ -4,7 +4,6 @@ import math
 import time
 from typing import Optional
 
-from game.world.managers.maps.CellAction import CellAction
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypeIds
 

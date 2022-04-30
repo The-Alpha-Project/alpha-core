@@ -1098,6 +1098,10 @@ class UnitManager(ObjectManager):
         pass
 
     # override
+    def on_relocation(self):
+        pass
+
+    # override
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
 
