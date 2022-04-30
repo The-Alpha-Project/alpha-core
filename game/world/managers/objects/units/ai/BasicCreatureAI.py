@@ -2,8 +2,8 @@ from game.world.managers.objects.units.ai.CreatureAI import CreatureAI
 
 
 class BasicCreatureAI(CreatureAI):
-    def __init__(self, can_summon_guards, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, can_summon_guards, creature):
+        super().__init__(creature)
         self.can_summon_guards = can_summon_guards
 
     # override
@@ -24,11 +24,11 @@ class BasicCreatureAI(CreatureAI):
         super().just_respawned()
         pass
 
-    def is_proximity_aggro_allowed_for(self, target):
-        pass
-
     # override
     def summoned_creatures_despawn(self, creature):
+        pass
+
+    def is_proximity_aggro_allowed_for(self, target):
         pass
 
     def summon_guard(self, enemy):

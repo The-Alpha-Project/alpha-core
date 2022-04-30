@@ -1,10 +1,14 @@
+from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureAISpellsEntry
+
+
 class CreatureAI(object):
     # Creature spell lists should be updated every 1.2 seconds according to research.
     # https://www.reddit.com/r/wowservers/comments/834nt5/felmyst_ai_system_research/
     CREATURE_CASTING_DELAY = 1200
 
-    def __init__(self, unit):
-        self.unit = unit
+    def __init__(self, creature):
+        self.creature = creature
         self.use_ai_at_control = False
         self.melee_attack = True  # If we allow melee auto attack.
         self.combat_movement = True  # If we allow targeted movement gen (chasing target).
@@ -13,8 +17,14 @@ class CreatureAI(object):
         self.creature_spells = []  # Contains the currently used creature_spells template.
         self.load_spell_list()
 
-    def load_spell_list(self, spell_list):
-        self.creature_spells = spell_list
+    def load_spell_list(self):
+        spell_list_id = self.creature.creature_template.spell_list_id
+        creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(spell_list_id)
+        # Finish loading each creature_spell.
+        for creature_spell in creature_spells:
+            creature_spell.finish_loading()
+            if creature_spell.has_valid_spell:
+                self.creature_spells.append(CreatureAISpellsEntry(creature_spell))
 
     # Called at World update tick
     def update_ai(self, elapsed):

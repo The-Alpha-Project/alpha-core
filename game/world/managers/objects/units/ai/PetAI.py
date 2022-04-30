@@ -1,9 +1,14 @@
 from game.world.managers.objects.units.ai.CreatureAI import CreatureAI
+from utils.constants.CustomCodes import Permits
 
 
 class PetAI(CreatureAI):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, creature):
+        super().__init__(creature)
+        self.update_allies_timer = 0
+        self.allies = ()
+        self.update_allies()
+        self.has_melee = True if self.creature.entry != 416 else False  # Warlock imp has no melee attack.
 
     # override
     def update_ai(self, elapsed):
@@ -11,7 +16,7 @@ class PetAI(CreatureAI):
 
     # override
     def permissible(self, creature):
-        pass
+        return Permits.PERMIT_BASE_NO
 
     # Overrides Unit::AttackStart to correctly evaluate Pet states.
     # override
@@ -26,7 +31,7 @@ class PetAI(CreatureAI):
     # Called from Unit::Kill() in case where pet or owner kills something.
     # If owner killed this victim, pet may still be attacking something else.
     # override
-    def killed_unit(self):
+    def killed_unit(self, unit):
         pass
 
     # Receives notification when pet reaches stay or follow owner.
@@ -69,11 +74,15 @@ class PetAI(CreatureAI):
     def clear_charm_info_flags(self):
         pass
 
+    # Set allies set based on this pet owner group, if any.
     def update_allies(self):
         pass
 
-    def _need_to_stop(self):
+    def need_to_stop(self):
         pass
 
-    def _stop_attack(self):
+    def stop_attack(self):
+        pass
+
+    def select_next_target(self, allow_auto_select):
         pass

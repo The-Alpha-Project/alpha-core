@@ -30,16 +30,13 @@ from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes,
     TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes, UnitStates
+    CreatureStaticFlags, PowerTypes, UnitStates, CreatureFlagsExtra
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
 # noinspection PyCallByClass
 class CreatureManager(UnitManager):
     CURRENT_HIGHEST_GUID = 0
-    # Creature spell lists should be updated every 1.2 seconds according to research.
-    # https://www.reddit.com/r/wowservers/comments/834nt5/felmyst_ai_system_research/
-    CREATURE_CASTING_DELAY = 1.2  # Seconds
 
     def __init__(self,
                  creature_template,
@@ -85,8 +82,6 @@ class CreatureManager(UnitManager):
         self.faction = self.creature_template.faction
         self.creature_type = self.creature_template.type
         self.spell_list_id = self.creature_template.spell_list_id
-        self.creature_spells = []
-        self.casting_delay = 0
         self.sheath_state = WeaponMode.NORMALMODE
         self.regen_flags = self.creature_template.regeneration
         self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
@@ -341,6 +336,21 @@ class CreatureManager(UnitManager):
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses(replenish=True)
                 self.fully_loaded = True
+
+    def is_guard(self):
+        return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_GUARD
+
+    def is_critter(self):
+        return self.creature_template.type == CreatureTypes.AMBIENT
+
+    # TODO, should be able to check 'ownership' or set a custom flag upon creature creation.
+    def is_pet(self):
+        return False
+
+    # TODO, should be able to check 'ownership' or set a custom flag upon creature creation.
+    def is_totem(self):
+        return False
+
 
     def set_virtual_item(self, slot, item_entry):
         item_template = None

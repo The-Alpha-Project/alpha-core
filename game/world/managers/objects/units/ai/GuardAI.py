@@ -2,8 +2,8 @@ from game.world.managers.objects.units.ai.CreatureAI import CreatureAI
 
 
 class GuardAI(CreatureAI):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, creature):
+        super().__init__(creature)
 
     # override
     def update_ai(self, elapsed):
