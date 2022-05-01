@@ -1,5 +1,10 @@
+from random import randint
+
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureAISpellsEntry
+from utils.constants.ScriptCodes import CastFlags
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask
 
 
 class CreatureAI(object):
@@ -18,13 +23,19 @@ class CreatureAI(object):
         self.load_spell_list()
 
     def load_spell_list(self):
-        spell_list_id = self.creature.creature_template.spell_list_id
-        creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(spell_list_id)
-        # Finish loading each creature_spell.
-        for creature_spell in creature_spells:
-            creature_spell.finish_loading()
-            if creature_spell.has_valid_spell:
-                self.creature_spells.append(CreatureAISpellsEntry(creature_spell))
+        # Load creature spells if available.
+        if self.creature.creature_template.spell_list_id:
+            spell_list_id = self.creature.creature_template.spell_list_id
+            creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(spell_list_id)
+            if creature_spells:
+                # Finish loading each creature_spell.
+                for creature_spell in creature_spells:
+                    creature_spell.finish_loading()
+                    if creature_spell.has_valid_spell:
+                        self.creature_spells.append(CreatureAISpellsEntry(creature_spell))
+
+    def has_spell_list(self):
+        return len(self.creature_spells) > 0
 
     # Called at World update tick
     def update_ai(self, elapsed):
@@ -136,10 +147,73 @@ class CreatureAI(object):
         pass
 
     def update_spell_list(self, elapsed):
-        pass
+        if not self.has_spell_list() or not self.creature.combat_target:
+            return
+
+        print(f'Casting delay {self.casting_delay}')
+        if self.casting_delay <= 0:
+            self.casting_delay = CreatureAI.CREATURE_CASTING_DELAY
+            self.do_spell_list_cast(elapsed)
+        else:
+            self.casting_delay -= elapsed * 1000
 
     def do_spell_list_cast(self, elapsed):
-        pass
+        do_not_cast = False
+        for creature_spell in self.creature_spells:
+            creature_spell.cool_down -= elapsed
+            if creature_spell.cool_down < 0:
+                creature_spell.cool_down = 0
+            creature_spell_entry = creature_spell.creature_spell_entry
+            cast_flags = creature_spell_entry.cast_flags
+            probability = creature_spell_entry.probability
+            print(creature_spell.cool_down)
+            # Check cooldown and if self is casting at the moment.
+            if creature_spell.cool_down <= 0 and not self.creature.is_casting():
+                # Prevent casting multiple spells in the same update.
+                # Only update timers.
+                if not (cast_flags & (CastFlags.CF_TRIGGERED | CastFlags.CF_INTERRUPT_PREVIOUS)):
+                    # TODO: Need a way to check for different kind of spells being casted. IsNonMeleeSpellCasted-VMaNGOS
+                    if do_not_cast:
+                        continue
+
+                target = ScriptManager.get_target_by_type(self.creature,
+                                                          self.creature,
+                                                          creature_spell_entry.cast_target,
+                                                          creature_spell_entry.target_param1,
+                                                          abs(creature_spell_entry.target_param2)
+                                                          )
+
+                # Unable to find target, move on.
+                if not target:
+                    continue
+
+                spell_entry = creature_spell.creature_spell_entry.spell
+                spell_cast_result = self.creature.try_to_cast(target, spell_entry, cast_flags, probability)
+                print(SpellCheckCastResult(spell_cast_result).name)
+                if spell_cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
+                    do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
+                    creature_spell.cool_down = randint(creature_spell_entry.delay_init_min,
+                                                       creature_spell_entry.delay_init_max)
+                    print(f'New cooldown {creature_spell.cool_down}')
+                    # Stop if ranged spell.
+                    if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL and self.creature.is_moving():
+                        self.creature.stop_movement()
+                    # TODO: Stop melee combat without leaving combat.
+                    # TODO: Run script if available.creature_spell_entry
+                    self.creature.spell_manager.handle_cast_attempt(spell_entry.ID, target, SpellTargetMask.UNIT,
+                                                                    cast_flags & CastFlags.CF_TRIGGERED, validate=True)
+                elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_NOPATH \
+                        or spell_cast_result == SpellCheckCastResult.SPELL_FAILED_SPELL_IN_PROGRESS:
+                    continue
+                elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN:
+                    # Probability roll failed, so we reset cooldown.
+                    creature_spell.cool_down = randint(creature_spell_entry.delay_init_min,
+                                                       creature_spell_entry.delay_init_max)
+                    # TODO: Enable movement and combat again if this was a ranged spell.
+                    # if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL:
+                else:
+                    # TODO: Enable movement and combat again if this was a ranged spell.
+                    continue
 
     def do_cast(self, victim, spell_id, triggered):
         pass
@@ -208,10 +282,3 @@ class CreatureAI(object):
     # Called for reaction at stopping attack at no attackers or targets.
     def enter_evade_mode(self):
         pass
-
-
-
-
-
-
-

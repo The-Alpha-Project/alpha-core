@@ -4,7 +4,6 @@ from game.world.managers.objects.units.ai.GuardAI import GuardAI
 from game.world.managers.objects.units.ai.NullCreatureAI import NullCreatureAI
 from game.world.managers.objects.units.ai.PetAI import PetAI
 from game.world.managers.objects.units.ai.TotemAI import TotemAI
-from utils.Logger import Logger
 
 
 class AIFactory:
@@ -30,7 +29,7 @@ class AIFactory:
             ai_name = creature.creature_template.ai_name
             return AIFactory.get_ai_by_ai_name(ai_name, creature)
 
-        return NullCreatureAI(creature)
+        return BasicCreatureAI(creature)
 
     @staticmethod
     def get_ai_by_ai_name(ai_name, creature):
@@ -46,7 +45,6 @@ class AIFactory:
             return PetAI(creature)
         elif ai_name == 'TotemAI':
             return TotemAI(creature)
-        # TODO, EventAI's.
+        # TODO, EventAI's (Scripted)
         else:
-            Logger.warning(f'Unimplemented ai {ai_name}')
             return BasicCreatureAI(creature)

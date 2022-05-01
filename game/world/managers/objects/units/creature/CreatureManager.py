@@ -1,5 +1,4 @@
 import math
-import random
 from dataclasses import dataclass
 from random import randint, choice
 from struct import pack
@@ -9,13 +8,12 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
+from game.world.managers.objects.units.ai.AIFactory import AIFactory
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureAISpellsEntry
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
@@ -323,22 +321,17 @@ class CreatureManager(UnitManager):
                     if addon_template.mount_display_id > 0:
                         self.mount(addon_template.mount_display_id)
 
-                # Load creature spells if available.
-                if self.creature_template.spell_list_id:
-                    spell_list_id = self.creature_template.spell_list_id
-                    creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(spell_list_id)
-                    # Finish loading each creature_spell.
-                    for creature_spell in creature_spells:
-                        creature_spell.finish_loading()
-                        if creature_spell.has_valid_spell:
-                            self.creature_spells.append(CreatureAISpellsEntry(creature_spell))
-
+                # Creature AI.
+                self.unit_ai = AIFactory.build_ai(self)
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses(replenish=True)
                 self.fully_loaded = True
 
     def is_guard(self):
         return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_GUARD
+
+    def can_summon_guards(self):
+        return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_SUMMON_GUARD
 
     def is_critter(self):
         return self.creature_template.type == CreatureTypes.AMBIENT
@@ -350,7 +343,6 @@ class CreatureManager(UnitManager):
     # TODO, should be able to check 'ownership' or set a custom flag upon creature creation.
     def is_totem(self):
         return False
-
 
     def set_virtual_item(self, slot, item_entry):
         item_template = None
@@ -566,72 +558,16 @@ class CreatureManager(UnitManager):
             waypoints.append(self.spawn_position)
         return waypoints, z_locked
 
-    def _update_creature_spell_list(self, elapsed):
-        if not self.creature_spells or not self.combat_target:
-            return
+    def is_moving(self):
+        return self.movement_manager.unit_is_moving()
 
-        if self.casting_delay <= 0:
-            self.casting_delay = CreatureManager.CREATURE_CASTING_DELAY
-            self._do_spell_list_cast(elapsed)
-        else:
-            self.casting_delay -= elapsed
+    def stop_movement(self):
+        self.movement_manager.send_move_stop()
 
-    def _do_spell_list_cast(self, elapsed):
-        # self.spell_manager.handle_creature_spell_list_cast(self.creature_spells)
-        dont_cast = False
-        for creature_spell in self.creature_spells:
-            creature_spell.cool_down -= elapsed
-            if creature_spell.cool_down < 0:
-                creature_spell.cool_down = 0
-            creature_spell_entry = creature_spell.creature_spell_entry
-            cast_flags = creature_spell_entry.cast_flags
-            probability = creature_spell_entry.probability
-            # Check cooldown and if self is casting at the moment.
-            if creature_spell.cool_down <= 0 and not self.spell_manager.is_casting():
-                # Prevent casting multiple spells in the same update.
-                # Only update timers.
-                if not (cast_flags & (CastFlags.CF_TRIGGERED | CastFlags.CF_INTERRUPT_PREVIOUS)):
-                    # TODO: Need a way to check for different kind of spells being casted. IsNonMeleeSpellCasted-VMaNGOS
-                    if dont_cast:
-                        continue
+    def is_casting(self):
+        return self.spell_manager.is_casting()
 
-                target = ScriptManager.get_target_by_type(self,
-                                                          self,
-                                                          creature_spell_entry.cast_target,
-                                                          creature_spell_entry.target_param1,
-                                                          abs(creature_spell_entry.target_param2)
-                                                          )
-
-                # Unable to find target, move on.
-                if not target:
-                    continue
-
-                spell_entry = creature_spell.creature_spell_entry.spell
-                spell_cast_result = self._try_to_cast(target, spell_entry, cast_flags, probability)
-                print(SpellCheckCastResult(spell_cast_result).name)
-                if spell_cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
-                    dont_cast = not cast_flags & CastFlags.CF_TRIGGERED
-                    creature_spell.cool_down = randint(creature_spell_entry.delay_init_min, creature_spell_entry.delay_init_max)
-                    print(f'New cooldown {creature_spell.cool_down}')
-                    # Stop if ranged spell.
-                    if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL and self.movement_manager.unit_is_moving():
-                        self.movement_manager.send_move_stop()
-                    # TODO: Stop melee combat without leaving combat.
-                    # TODO: Run script if available.creature_spell_entry
-                    self.spell_manager.handle_cast_attempt(spell_entry.ID, target, SpellTargetMask.UNIT, cast_flags & CastFlags.CF_TRIGGERED, validate=True)
-                elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_NOPATH \
-                        or spell_cast_result == SpellCheckCastResult.SPELL_FAILED_SPELL_IN_PROGRESS:
-                    continue
-                elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN:
-                    # Probability roll failed, so we reset cooldown.
-                    creature_spell.cool_down = randint(creature_spell_entry.delay_init_min, creature_spell_entry.delay_init_max)
-                    # TODO: Enable movement and combat again if this was a ranged spell.
-                    # if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL:
-                else:
-                    # TODO: Enable movement and combat again if this was a ranged spell.
-                    continue
-
-    def _try_to_cast(self, target, spell_entry, cast_flags, probability):
+    def try_to_cast(self, target, spell_entry, cast_flags, probability):
         # Could not resolver a target.
         if not target:
             return SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS
@@ -702,7 +638,7 @@ class CreatureManager(UnitManager):
         # Check chance.
         # TODO: Probability should be checked after spell_manager do all the proper validations.
         if probability:
-            if probability > randint(0, 99):
+            if not probability > randint(0, 99):
                 return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
 
         # Trigger the cast.
@@ -788,18 +724,19 @@ class CreatureManager(UnitManager):
             if self.is_alive and self.is_spawned:
                 # Regeneration.
                 self.regenerate(elapsed)
-                # Spell/aura updates
+                # Spell/Aura Update.
                 self.spell_manager.update(now)
                 self.aura_manager.update(now)
-                # Movement Updates
+                # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
-                # Random Movement
+                # Random Movement.
                 self._perform_random_movement(now)
-                # Combat movement
+                # Combat Movement.
                 self._perform_combat_movement()
-                # Spell
-                self._update_creature_spell_list(elapsed)
-                # Attack update
+                # AI.
+                if self.unit_ai:
+                    self.unit_ai.update_ai(elapsed)
+                # Attack Update.
                 if self.combat_target and self.is_within_interactable_distance(self.combat_target):
                     self.attack_update(elapsed)
             # Dead
