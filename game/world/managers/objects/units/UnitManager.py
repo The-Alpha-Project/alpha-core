@@ -1102,6 +1102,10 @@ class UnitManager(ObjectManager):
         pass
 
     # override
+    def notify_moved_in_line_of_sight(self, target):
+        pass
+
+    # override
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
 

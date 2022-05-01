@@ -1515,6 +1515,12 @@ class PlayerManager(UnitManager):
         return self.damage
 
     # override
+    def on_relocation(self):
+        units = MapManager.get_surrounding_units(self)
+        for guid, unit in units.items():
+            unit.notify_moved_in_line_of_sight(self)
+
+    # override
     def on_cell_change(self):
         self.quest_manager.update_surrounding_quest_status()
 

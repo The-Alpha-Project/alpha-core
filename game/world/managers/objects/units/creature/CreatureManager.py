@@ -781,17 +781,28 @@ class CreatureManager(UnitManager):
 
     # override
     def on_relocation(self):
-        # Proximity aggro
-        # TODO Fix aggro for not relocating creatures
         if not self.combat_target and not self.is_evading:
             max_distance = self.creature_template.detection_range
             aggro_players = MapManager.get_surrounding_players_by_location(self.location, self.map_, max_distance)
             for guid, victim in aggro_players.items():
-                if self.can_attack_target(victim):
-                    self.attack(victim)
-                    threat_not_to_leave_combat = 0.0
-                    self.threat_manager.add_threat(victim, threat_not_to_leave_combat)
+                if self._try_start_proximity_aggro_attack(victim):
                     break
+
+    # override
+    def notify_moved_in_line_of_sight(self, target):
+        target_is_player = target.get_type_id() == ObjectTypeIds.ID_PLAYER
+        on_same_map = self.map_ == target.map_
+        in_detection_range = self.location.distance(target.location) <= self.creature_template.detection_range
+        if not self.combat_target and not self.is_evading and target_is_player and on_same_map and in_detection_range:
+            self._try_start_proximity_aggro_attack(target)
+
+    def _try_start_proximity_aggro_attack(self, victim):
+        if self.can_attack_target(victim):
+            self.attack(victim)
+            threat_not_to_leave_combat = 0.0
+            self.threat_manager.add_threat(victim, threat_not_to_leave_combat)
+            return True
+        return False
 
     # override
     def has_offhand_weapon(self):
