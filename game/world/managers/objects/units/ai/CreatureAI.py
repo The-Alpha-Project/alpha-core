@@ -153,7 +153,7 @@ class CreatureAI(object):
 
         if self.casting_delay <= 0:
             self.casting_delay = CreatureAI.CREATURE_CASTING_DELAY
-            self.do_spell_list_cast(elapsed)
+            self.do_spell_list_cast(self.casting_delay / 1000)
         else:
             self.casting_delay -= elapsed * 1000
 
@@ -166,7 +166,6 @@ class CreatureAI(object):
             creature_spell_entry = creature_spell.creature_spell_entry
             cast_flags = creature_spell_entry.cast_flags
             probability = creature_spell_entry.probability
-            print(creature_spell.cool_down)
             # Check cooldown and if self is casting at the moment.
             if creature_spell.cool_down <= 0 and not self.creature.is_casting():
                 # Prevent casting multiple spells in the same update.
