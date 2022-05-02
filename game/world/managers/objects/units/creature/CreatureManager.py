@@ -25,7 +25,7 @@ from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes,
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes
+    CreatureStaticFlags, PowerTypes, CreatureReactStates, CreatureFlagsExtra
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -84,6 +84,10 @@ class CreatureManager(UnitManager):
 
         if 0 < self.creature_template.rank < 4:
             self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
+
+        self.react_state = CreatureReactStates.REACT_DEFENSIVE \
+            if self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO \
+            else CreatureReactStates.REACT_AGGRESSIVE
 
         self.fully_loaded = False
         self.wearing_offhand_weapon = False
@@ -797,7 +801,8 @@ class CreatureManager(UnitManager):
             self._try_start_proximity_aggro_attack(target)
 
     def _try_start_proximity_aggro_attack(self, victim):
-        if self.can_attack_target(victim):
+        can_init_attack = self.react_state == CreatureReactStates.REACT_AGGRESSIVE and self.can_attack_target(victim)
+        if can_init_attack:
             self.attack(victim)
             threat_not_to_leave_combat = 0.0
             self.threat_manager.add_threat(victim, threat_not_to_leave_combat)

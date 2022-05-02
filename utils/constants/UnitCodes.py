@@ -37,6 +37,12 @@ class CreatureTypes(IntEnum):
     NOT_SPECIFIED = 10
 
 
+class CreatureReactStates(IntEnum):
+    REACT_PASSIVE = 0
+    REACT_DEFENSIVE = 1
+    REACT_AGGRESSIVE = 2
+
+
 # Also known as CreatureDifficultyFlags.
 # Used internally but Blizzlike.
 class CreatureStaticFlags(IntEnum):
@@ -61,6 +67,10 @@ class CreatureStaticFlags(IntEnum):
     AQUATIC = 262144  # Can only move in water.
     AMPHIBIOUS = 524288  # Can enter water and walk on terrain.
     NO_MELEE = 1048576  # Prevents melee, mostly used by totems.
+
+
+class CreatureFlagsExtra(IntEnum):
+    CREATURE_FLAG_EXTRA_NO_AGGRO = 0x00000002  # Creature is defensive and does not attack nearby hostile targets
 
 
 class Genders(IntEnum):

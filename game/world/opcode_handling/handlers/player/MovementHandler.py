@@ -51,7 +51,9 @@ class MovementHandler:
                 world_session.player_mgr.location.y = y
                 world_session.player_mgr.location.z = z
                 world_session.player_mgr.location.o = o
-                world_session.player_mgr.on_relocation()
+
+                if flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK):
+                    world_session.player_mgr.on_relocation()
 
                 world_session.player_mgr.pitch = pitch
                 world_session.player_mgr.movement_flags = flags
