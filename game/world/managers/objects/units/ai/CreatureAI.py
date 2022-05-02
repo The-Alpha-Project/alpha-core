@@ -13,14 +13,15 @@ class CreatureAI(object):
     CREATURE_CASTING_DELAY = 1200
 
     def __init__(self, creature):
-        self.creature = creature
-        self.use_ai_at_control = False
-        self.melee_attack = True  # If we allow melee auto attack.
-        self.combat_movement = True  # If we allow targeted movement gen (chasing target).
-        self.casting_delay = 0  # Cool-down before updating spell list again.
-        self.last_alert_time = 0
-        self.creature_spells = []  # Contains the currently used creature_spells template.
-        self.load_spell_list()
+        if creature:
+            self.creature = creature
+            self.use_ai_at_control = False
+            self.melee_attack = True  # If we allow melee auto attack.
+            self.combat_movement = True  # If we allow targeted movement gen (chasing target).
+            self.casting_delay = 0  # Cool-down before updating spell list again.
+            self.last_alert_time = 0
+            self.creature_spells = []  # Contains the currently used creature_spells template.
+            self.load_spell_list()
 
     def load_spell_list(self):
         # Load creature spells if available.
@@ -150,7 +151,6 @@ class CreatureAI(object):
         if not self.has_spell_list() or not self.creature.combat_target:
             return
 
-        print(f'Casting delay {self.casting_delay}')
         if self.casting_delay <= 0:
             self.casting_delay = CreatureAI.CREATURE_CASTING_DELAY
             self.do_spell_list_cast(elapsed)

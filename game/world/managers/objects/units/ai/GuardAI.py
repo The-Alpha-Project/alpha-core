@@ -1,4 +1,5 @@
 from game.world.managers.objects.units.ai.CreatureAI import CreatureAI
+from utils.constants.CustomCodes import Permits
 
 
 class GuardAI(CreatureAI):
@@ -7,11 +8,19 @@ class GuardAI(CreatureAI):
 
     # override
     def update_ai(self, elapsed):
-        pass
+        if not self.creature or not self.creature.combat_target:
+            return
+
+        if self.has_spell_list():
+            self.update_spell_list(elapsed)
+
+        self.do_melee_attack_if_ready()
 
     # override
     def permissible(self, creature):
-        pass
+        if creature.is_guard():
+            return Permits.PERMIT_BASE_SPECIAL
+        return Permits.PERMIT_BASE_NO
 
     # override
     def move_in_line_of_sight(self, unit):

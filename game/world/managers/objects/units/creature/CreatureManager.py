@@ -568,13 +568,13 @@ class CreatureManager(UnitManager):
         return self.spell_manager.is_casting()
 
     def try_to_cast(self, target, spell_entry, cast_flags, probability):
-        # Could not resolver a target.
+        # Could not resolve a target.
         if not target:
             return SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS
 
         # Target is fleeing.
         if target.unit_flags & UnitFlags.UNIT_FLAG_FLEEING or target.unit_state & UnitStates.FLEEING:
-            # VMaNGOS uses SPELL_FAILED_FLEEING at 0x1E, not sure if its the same.
+            # VMaNGOS uses SPELL_FAILED_FLEEING at 0x1E, not sure if it's the same.
             return SpellCheckCastResult.SPELL_FAILED_NOPATH
 
         # TODO: Need similar functionality to IsNonMeleeSpellCasted - VMaNGOS.
@@ -657,7 +657,7 @@ class CreatureManager(UnitManager):
                     self.last_random_movement = now
 
     def _perform_combat_movement(self):
-        if self.combat_target and not self.spell_manager.is_casting():
+        if self.combat_target and not self.spell_manager.is_casting() and not self.is_evading:
             if not self.combat_target.is_alive and len(self.attackers) == 0:
                 self.evade()
                 return

@@ -1,4 +1,5 @@
 from game.world.managers.objects.units.ai.CreatureAI import CreatureAI
+from utils.constants.CustomCodes import Permits
 
 
 class CritterAI(CreatureAI):
@@ -12,7 +13,9 @@ class CritterAI(CreatureAI):
 
     # override
     def permissible(self, creature):
-        pass
+        if creature.is_critter():
+            return Permits.PERMIT_BASE_SPECIAL
+        return Permits.PERMIT_BASE_NO
 
     # override
     def damage_taken(self, attacker, damage):

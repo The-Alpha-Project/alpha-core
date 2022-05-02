@@ -5,10 +5,11 @@ from utils.constants.CustomCodes import Permits
 class PetAI(CreatureAI):
     def __init__(self, creature):
         super().__init__(creature)
-        self.update_allies_timer = 0
-        self.allies = ()
-        self.update_allies()
-        self.has_melee = True if self.creature.entry != 416 else False  # Warlock imp has no melee attack.
+        if creature:
+            self.update_allies_timer = 0
+            self.allies = ()
+            self.update_allies()
+            self.has_melee = True if self.creature.entry != 416 else False  # Warlock imp has no melee attack.
 
     # override
     def update_ai(self, elapsed):
@@ -16,6 +17,8 @@ class PetAI(CreatureAI):
 
     # override
     def permissible(self, creature):
+        if creature.is_pet():
+            return Permits.PERMIT_BASE_SPECIAL
         return Permits.PERMIT_BASE_NO
 
     # Overrides Unit::AttackStart to correctly evaluate Pet states.
