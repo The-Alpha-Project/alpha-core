@@ -66,6 +66,15 @@ class SpellManager(object):
         # TODO Teach skill required as well like in CharCreateHandler
         return True
 
+    def unlearn_spell(self, spell_id) -> bool:
+        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
+                RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
+            self.remove_cast_by_id(spell_id)
+            del self.spells[spell_id]
+            return True
+
+        return False
+
     def cast_passive_spells(self):
         # Self-cast all passive spells. This will apply learned skills, proficiencies, talents etc.
         for spell_id in self.spells.keys():
