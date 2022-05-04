@@ -78,7 +78,6 @@ class AIFactory:
             if best_permit != Permits.PERMIT_BASE_NO and best_ai_name:
                 selected_ai = AIFactory.get_ai_by_ai_name(best_ai_name, creature)
 
-        print(selected_ai)
         # Return selected AI if found, else NullCreatureAI.
         return selected_ai if selected_ai else NullCreatureAI(creature)
 

@@ -168,13 +168,12 @@ class CreatureAI(object):
             probability = creature_spell_entry.probability
             # Check cooldown and if self is casting at the moment.
             if creature_spell.cool_down <= 0 and not self.creature.is_casting():
-                # Prevent casting multiple spells in the same update.
-                # Only update timers.
+                # Prevent casting multiple spells in the same update, only update timers.
                 if not (cast_flags & (CastFlags.CF_TRIGGERED | CastFlags.CF_INTERRUPT_PREVIOUS)):
-                    # TODO: Need a way to check for different kind of spells being casted. IsNonMeleeSpellCasted-VMaNGOS
-                    if do_not_cast:
+                    if do_not_cast or self.creature.is_casting():
                         continue
 
+                # Resolve a target.
                 target = ScriptManager.get_target_by_type(self.creature,
                                                           self.creature,
                                                           creature_spell_entry.cast_target,

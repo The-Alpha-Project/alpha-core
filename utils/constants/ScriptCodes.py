@@ -13,6 +13,31 @@ class CastFlags(IntEnum):
     CF_TARGET_CASTING = 0x100  # Only casts if the target is currently casting a spell.
 
 
+# Selection method used by SelectAttackingTarget
+class AttackingTarget(IntEnum):
+    ATTACKING_TARGET_RANDOM = 0  # Just selects a random target.
+    ATTACKING_TARGET_TOPAGGRO = 1  # Selects targets from top aggro to bottom.
+    ATTACKING_TARGET_BOTTOMAGGRO = 2  # Selects targets from bottom aggro to top.
+    ATTACKING_TARGET_NEAREST = 3  # Selects the closest target.
+    ATTACKING_TARGET_FARTHEST = 4  # Selects the farthest away target.
+    ATTACKING_TARGET_RANDOMNOTTOP = 5  # Selects a random target but not top.
+
+
+class SelectFlags(IntEnum):
+    SELECT_FLAG_IN_LOS = 0x001  # Default Selection Requirement for Spell-targets.
+    SELECT_FLAG_PLAYER = 0x002
+    SELECT_FLAG_POWER_MANA = 0x004  # For Energy based spells, like manaburn.
+    SELECT_FLAG_POWER_RAGE = 0x008
+    SELECT_FLAG_POWER_ENERGY = 0x010
+    SELECT_FLAG_IN_MELEE_RANGE = 0x040
+    SELECT_FLAG_NOT_IN_MELEE_RANGE = 0x080
+    SELECT_FLAG_NO_TOTEM = 0x100
+    SELECT_FLAG_PLAYER_NOT_GM = 0x200
+    SELECT_FLAG_PET = 0x400
+    SELECT_FLAG_NOT_PLAYER = 0x800
+    SELECT_FLAG_POWER_NOT_MANA = 0x1000  # Used in some dungeon encounters
+
+
 class ScriptTarget(IntEnum):
     # Object that was provided to the command.
     TARGET_T_PROVIDED_TARGET = 0
@@ -33,7 +58,7 @@ class ScriptTarget(IntEnum):
     # Searches for nearby creature with the given entry.
     # Param1 = creature_entry
     # Param2 = search_radius
-    TARGET_T_CREATURE_WITH_ENTRY = 8
+    TARGET_T_NEAREST_CREATURE_WITH_ENTRY = 8
     # The creature with this database guid.
     # Param1 = db_guid
     TARGET_T_CREATURE_WITH_GUID = 9
@@ -43,7 +68,7 @@ class ScriptTarget(IntEnum):
     # Searches for nearby gameobject with the given entry.
     # Param1 = gameobject_entry
     # Param2 = search_radius
-    TARGET_T_GAMEOBJECT_WITH_ENTRY = 11
+    TARGET_T_NEAREST_GAMEOBJECT_WITH_ENTRY = 11
     # The gameobject with this database guid.
     # Param1 = db_guid
     TARGET_T_GAMEOBJECT_WITH_GUID = 12
@@ -92,3 +117,11 @@ class ScriptTarget(IntEnum):
     # Nearest friendly player within range.
     # Param1 = search-radius
     TARGET_T_NEAREST_FRIENDLY_PLAYER = 25
+    # Searches for random nearby creature with the given entry. Not Self.
+    # Param1 = creature_entry
+    # Param2 = search_radius
+    TARGET_T_RANDOM_CREATURE_WITH_ENTRY = 26
+    # Searches for random nearby gameobject with the given entry.
+    # Param1 = gameobject_entry
+    # Param2 = search_radius
+    TARGET_T_RANDOM_GAMEOBJECT_WITH_ENTRY = 27
