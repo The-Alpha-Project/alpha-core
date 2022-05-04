@@ -196,6 +196,17 @@ class AuraEffectHandler:
         effect_target.set_stealthed(not remove)
 
     @staticmethod
+    def handle_mod_charm(aura, effect_target, remove):
+        if remove:
+            aura.caster.pet_manager.remove_active_pet()
+            # TODO Generate threat?
+            return
+
+        aura.caster.pet_manager.add_pet_from_world(effect_target, aura.get_duration())
+
+    # Stat modifiers
+
+    @staticmethod
     def handle_mod_resistance(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
@@ -447,6 +458,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_TRANSFORM: AuraEffectHandler.handle_transform,
     AuraTypes.SPELL_AURA_MOD_ROOT: AuraEffectHandler.handle_mod_root,
     AuraTypes.SPELL_AURA_MOD_STEALTH: AuraEffectHandler.handle_mod_stealth,
+    AuraTypes.SPELL_AURA_MOD_CHARM: AuraEffectHandler.handle_mod_charm,
 
     # Stat modifiers.
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
