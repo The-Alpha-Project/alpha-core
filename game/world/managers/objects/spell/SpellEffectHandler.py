@@ -369,7 +369,7 @@ class SpellEffectHandler(object):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        caster.pet_manager.add_pet_from_world(target, True)
+        caster.pet_manager.add_pet_from_world(target)
 
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.
