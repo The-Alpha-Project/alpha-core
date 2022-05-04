@@ -64,7 +64,6 @@ class PetData:
 class ActivePet(NamedTuple):
     pet_index: int
     creature: CreatureManager
-    expiration_time: int
 
 
 class PetManager:
@@ -77,6 +76,7 @@ class PetManager:
         if self.active_pet:
             return  # TODO
 
+        creature.leave_combat(force=True)
         self._tame_creature(creature)
         index = self.add_pet(creature.creature_template, lifetime_sec)
         self._set_active_pet(index, creature)
@@ -87,7 +87,7 @@ class PetManager:
         if self.active_pet or not pet_info:
             return
 
-        self.active_pet = ActivePet(pet_index, creature, -1 if pet_info.permanent else 60)  # ??
+        self.active_pet = ActivePet(pet_index, creature)
         self._send_pet_spell_info()
 
     def add_pet(self, creature_template: CreatureTemplate, lifetime_sec=-1) -> int:
@@ -97,14 +97,33 @@ class PetManager:
         self.pets.append(pet)
         return len(self.pets) - 1
 
-    def update(self, timestamp):
-        if not self.active_pet or self.active_pet.expiration_time == -1:
+    def remove_pet(self, pet_index):
+        if self._get_pet_info(pet_index):
+            self.pets.pop(pet_index)
+
+    def remove_active_pet(self):
+        if not self.active_pet:
             return
 
-        if self.active_pet.expiration_time < timestamp:
-            Logger.info("Pet expired.")
-            self.active_pet.expiration_time = -1
-            return
+        creature = self.active_pet.creature
+        self.remove_pet(self.active_pet.pet_index)
+        self.active_pet = None
+
+        creature.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, 0)
+        creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, 0)
+        creature.faction = creature.creature_template.faction
+        creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
+        creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, 0)
+        creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, 0)
+        creature.creature_instance.movement_type = creature.creature_template.movement_type
+
+        self.player.set_uint64(UnitFields.UNIT_FIELD_SUMMON, 0)
+        self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, pack('<Q', 0)))
+
+    def get_active_pet_info(self) -> Optional[PetData]:
+        if not self.active_pet:
+            return None
+        return self._get_pet_info(self.active_pet.pet_index)
 
     def handle_action(self, pet_guid, target_guid, action):
         # Spell ID or 0/1/2 for default pet bar actions.
@@ -162,7 +181,6 @@ class PetManager:
 
         # Required?
         # creature.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, casting_spell.spell_entry.ID)
-
 
     def _send_pet_spell_info(self):
         if not self.active_pet:
