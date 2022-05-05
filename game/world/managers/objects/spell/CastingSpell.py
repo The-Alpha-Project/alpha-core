@@ -8,6 +8,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
@@ -194,8 +195,7 @@ class CastingSpell(object):
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
 
     def is_area_of_effect_spell(self):
-        return self.has_effect_of_type(SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA) \
-               or self.has_effect_of_type(SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA)
+        return any([effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS for effect in self.get_effects()])
 
     def is_target_power_type_valid(self, target):
         if not target:
