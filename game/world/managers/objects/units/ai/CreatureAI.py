@@ -175,19 +175,24 @@ class CreatureAI(object):
                         continue
 
                 spell_template = creature_spell.creature_spell_entry.spell
-                casting_spell = self.creature.spell_manager.try_initialize_spell(spell_template,
-                                                                                 self.creature, SpellTargetMask.UNIT,
-                                                                                 validate=False, triggered=True)
-
                 # Resolve a target.
                 target = ScriptManager.get_target_by_type(self.creature,
                                                           self.creature,
                                                           creature_spell_entry.cast_target,
                                                           creature_spell_entry.target_param1,
                                                           abs(creature_spell_entry.target_param2),
-                                                          casting_spell)
+                                                          spell_template)
                 # Unable to find target, move on.
                 if not target:
+                    continue
+
+                # Do validate the spell for now.
+                casting_spell = self.creature.spell_manager.try_initialize_spell(spell_template,
+                                                                                 target,
+                                                                                 SpellTargetMask.UNIT,
+                                                                                 validate=True)
+                # Invalid spell perhaps.
+                if not casting_spell:
                     continue
 
                 # Validate spell cast.
@@ -203,8 +208,9 @@ class CreatureAI(object):
                     # TODO: Run script if available.
                     # if script_id:
                     #     should run script.
-                    self.creature.spell_manager.handle_cast_attempt(spell_entry.ID, target, SpellTargetMask.UNIT,
-                                                                    cast_flags & CastFlags.CF_TRIGGERED, validate=True)
+
+                    # Trigger the cast.
+                    self.creature.spell_manager.start_spell_cast(initialized_spell=casting_spell)
                 elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_NOPATH \
                         or spell_cast_result == SpellCheckCastResult.SPELL_FAILED_SPELL_IN_PROGRESS:
                     continue

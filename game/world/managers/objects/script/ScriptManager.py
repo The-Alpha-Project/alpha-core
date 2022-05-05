@@ -1,6 +1,7 @@
 from random import choice
 from typing import Optional
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.units.UnitManager import UnitManager
@@ -10,7 +11,7 @@ from utils.constants.ScriptCodes import ScriptTarget, AttackingTarget
 
 class ScriptManager:
     @staticmethod
-    def get_target_by_type(source_world_object, target_world_object, script_target, param1, param2, casting_spell) -> Optional[ObjectManager]:
+    def get_target_by_type(source_world_object, target_world_object, script_target, param1, param2, spell_template) -> Optional[ObjectManager]:
         if script_target == ScriptTarget.TARGET_T_PROVIDED_TARGET:
             return target_world_object
         elif script_target == ScriptTarget.TARGET_T_HOSTILE:
@@ -76,8 +77,7 @@ class ScriptManager:
             exclude_target: Optional[UnitManager] = param2
 
             # Set range if not provided.
-            if not search_range:
-                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
+            search_range = ScriptManager._get_search_range(search_range, spell_template)
 
             friendlies = ScriptManager._get_surrounding_units_and_players(source_world_object,
                                                                           search_range=search_range,
@@ -89,28 +89,26 @@ class ScriptManager:
 
             # Return 1 randomly picked friendly unit.
             return choice(friendlies)
-        elif ScriptTarget.TARGET_T_FRIENDLY_INJURED:
+        elif script_target == ScriptTarget.TARGET_T_FRIENDLY_INJURED:
             if not ScriptManager._validate_is_unit(source_world_object):
                 return None
             search_range: Optional[float] = param1
             hp_percent: Optional[float] = param2
             # Set range if not provided.
-            if not search_range:
-                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
+            search_range = ScriptManager._get_search_range(search_range, spell_template)
             if not hp_percent:
                 hp_percent = 50.0
             injured_friendlies = ScriptManager._get_injured_friendly_units(source_world_object,
                                                                            search_range=search_range,
                                                                            hp_threshold=hp_percent)
             return injured_friendlies[0] if injured_friendlies else None
-        elif ScriptTarget.TARGET_T_FRIENDLY_INJURED_EXCEPT:
+        elif script_target == ScriptTarget.TARGET_T_FRIENDLY_INJURED_EXCEPT:
             if not ScriptManager._validate_is_unit(source_world_object):
                 return None
             search_range: Optional[float] = param1
             hp_percent: Optional[float] = param2
             # Set range if not provided.
-            if not search_range:
-                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
+            search_range = ScriptManager._get_search_range(search_range, spell_template)
             if not hp_percent:
                 hp_percent = 50.0
             injured_friendlies = ScriptManager._get_injured_friendly_units(source_world_object,
@@ -118,23 +116,22 @@ class ScriptManager:
                                                                            hp_threshold=hp_percent,
                                                                            exclude_unit=target_world_object)
             return injured_friendlies[0] if injured_friendlies else None
-        elif ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF:
+        elif script_target == ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF:
             pass
-        elif ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF_EXCEPT:
+        elif script_target == ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF_EXCEPT:
             pass
-        elif ScriptTarget.TARGET_T_FRIENDLY_CC:
+        elif script_target == ScriptTarget.TARGET_T_FRIENDLY_CC:
             pass
-        elif ScriptTarget.TARGET_T_MAP_EVENT_SOURCE:
+        elif script_target == ScriptTarget.TARGET_T_MAP_EVENT_SOURCE:
             pass
-        elif ScriptTarget.TARGET_T_MAP_EVENT_TARGET:
+        elif script_target == ScriptTarget.TARGET_T_MAP_EVENT_TARGET:
             pass
-        elif ScriptTarget.TARGET_T_MAP_EVENT_EXTRA_TARGET:
+        elif script_target == ScriptTarget.TARGET_T_MAP_EVENT_EXTRA_TARGET:
             pass
-        elif ScriptTarget.TARGET_T_NEAREST_PLAYER:
+        elif Sscript_target == criptTarget.TARGET_T_NEAREST_PLAYER:
             search_range: Optional[float] = param1
             # Set range if not provided.
-            if not search_range:
-                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
+            search_range = ScriptManager._get_search_range(search_range, spell_template)
             # Surrounding units.
             surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object, search_range)
             # No surrounding units found.
@@ -148,11 +145,10 @@ class ScriptManager:
             # Sort by distance.
             players.sort(key=lambda player: source_world_object.location.distance(player.location))
             return players[0]
-        elif ScriptTarget.TARGET_T_NEAREST_HOSTILE_PLAYER:
+        elif script_target == ScriptTarget.TARGET_T_NEAREST_HOSTILE_PLAYER:
             search_range: Optional[float] = param1
             # Set range if not provided.
-            if not search_range:
-                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
+            search_range = ScriptManager._get_search_range(search_range, spell_template)
             # Surrounding enemy units.
             surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object, search_range,
                                                                                  enemies_only=True)
@@ -167,11 +163,10 @@ class ScriptManager:
             # Sort by distance.
             enemy_players.sort(key=lambda player: source_world_object.location.distance(player.location))
             return enemy_players[0]
-        elif ScriptTarget.TARGET_T_NEAREST_FRIENDLY_PLAYER:
+        elif script_target == ScriptTarget.TARGET_T_NEAREST_FRIENDLY_PLAYER:
             search_range: Optional[float] = param1
             # Set range if not provided.
-            if not search_range:
-                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
+            search_range = ScriptManager._get_search_range(search_range, spell_template)
             # Surrounding friendly units.
             surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object, search_range,
                                                                                  friends_only=True)
@@ -186,6 +181,17 @@ class ScriptManager:
             # Sort by distance.
             friendly_players.sort(key=lambda player: source_world_object.location.distance(player.location))
             return friendly_players[0]
+
+    @staticmethod
+    def _get_search_range(search_range=None, spell_template=None):
+        if not search_range:
+            if not spell_template:
+                return 30.0
+            range_index = spell_template.RangeIndex
+            range_entry = DbcDatabaseManager.spell_range_get_by_id(range_index)
+            return range_entry.RangeMax
+        else:
+            return search_range
 
     @staticmethod
     def _validate_is_unit(world_object):
@@ -232,7 +238,7 @@ class ScriptManager:
         # Only within search range, if given.
         if search_range > 0:
             surrounding_units_list = [unit for unit in surrounding_units_list if
-                                      unit_caller.location.distance(unit) < search_range]
+                                      unit_caller.location.distance(unit.location) < search_range]
         # Only friendly units, if requested.
         if friends_only:
             surrounding_units_list = [unit for unit in surrounding_units_list if
