@@ -193,6 +193,42 @@ class CastingSpell(object):
         # Return true if the effect has an implicit unit selection target.
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
 
+    def is_area_of_effect_spell(self):
+        return self.has_effect_of_type(SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA) \
+               or self.has_effect_of_type(SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA)
+
+    def is_target_power_type_valid(self, target):
+        if not target:
+            return False
+
+        if len(self._effects) == 0:
+            return True
+
+        for effect in self.get_effects():
+            if (effect.effect_type == SpellEffects.SPELL_EFFECT_POWER_BURN
+                    or effect.effect_type == SpellEffects.SPELL_EFFECT_POWER_DRAIN
+                    or effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_MANA_LEECH) \
+                    and effect.misc_value != target.power_type:
+                continue
+            return True
+        return False
+
+    # TODO, need more checks.
+    #  Refer to 'IsPositiveEffect' in SpellEntry.cpp - vMaNGOS
+    def is_positive_spell(self, victim):
+        return not self.spell_caster.can_attack_target(victim)
+
+    # TODO, Check 'IsImmuneToDamage' - vMaNGOS
+    def is_target_immune_to_damage(self, victim):
+        return False
+
+    def is_charm_spell(self):
+        for effect in self.get_effects():
+            if effect.aura_type == AuraTypes.SPELL_AURA_MOD_CHARM \
+                    or effect.aura_type == AuraTypes.SPELL_AURA_MOD_POSSESS:
+                return True
+        return False
+
     def is_refreshment_spell(self):
         spell_effect = self._effects[0]  # Food/drink effect should be first.
         if not spell_effect:

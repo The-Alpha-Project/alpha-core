@@ -166,6 +166,7 @@ class CreatureAI(object):
             creature_spell_entry = creature_spell.creature_spell_entry
             cast_flags = creature_spell_entry.cast_flags
             probability = creature_spell_entry.probability
+            script_id = creature_spell_entry.script_id
             # Check cooldown and if self is casting at the moment.
             if creature_spell.cool_down <= 0 and not self.creature.is_casting():
                 # Prevent casting multiple spells in the same update, only update timers.
@@ -185,19 +186,22 @@ class CreatureAI(object):
                 if not target:
                     continue
 
-                spell_entry = creature_spell.creature_spell_entry.spell
-                spell_cast_result = self.creature.try_to_cast(target, spell_entry, cast_flags, probability)
-                print(SpellCheckCastResult(spell_cast_result).name)
+                spell_template = creature_spell.creature_spell_entry.spell
+                casting_spell = self.creature.spell_manager.try_initialize_spell(spell_template,
+                                                                                 self.creature, SpellTargetMask.UNIT,
+                                                                                 validate=False, triggered=True)
+                spell_cast_result = self.creature.try_to_cast(target, casting_spell, cast_flags, probability)
                 if spell_cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
                     do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
                     creature_spell.cool_down = randint(creature_spell_entry.delay_init_min,
                                                        creature_spell_entry.delay_init_max)
-                    print(f'New cooldown {creature_spell.cool_down}')
                     # Stop if ranged spell.
                     if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL and self.creature.is_moving():
                         self.creature.stop_movement()
-                    # TODO: Stop melee combat without leaving combat.
-                    # TODO: Run script if available.creature_spell_entry
+
+                    # TODO: Run script if available.
+                    # if script_id:
+                    #     should run script.
                     self.creature.spell_manager.handle_cast_attempt(spell_entry.ID, target, SpellTargetMask.UNIT,
                                                                     cast_flags & CastFlags.CF_TRIGGERED, validate=True)
                 elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_NOPATH \
@@ -207,11 +211,6 @@ class CreatureAI(object):
                     # Probability roll failed, so we reset cooldown.
                     creature_spell.cool_down = randint(creature_spell_entry.delay_init_min,
                                                        creature_spell_entry.delay_init_max)
-                    # TODO: Enable movement and combat again if this was a ranged spell.
-                    # if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL:
-                else:
-                    # TODO: Enable movement and combat again if this was a ranged spell.
-                    continue
 
     def do_cast(self, victim, spell_id, triggered):
         pass
@@ -221,16 +220,6 @@ class CreatureAI(object):
 
     # Will auto attack if the swing timer is ready.
     def do_melee_attack_if_ready(self):
-        pass
-
-    # Might not need below, or just use LootManagers.
-    # Is corpse looting allowed?
-    def can_be_looted(self):
-        return True
-
-    # Might not need below, or just use LootManagers.
-    # Is corpse looting allowed?
-    def fill_loot(self):
         pass
 
     def is_combat_movement_enabled(self):

@@ -567,7 +567,11 @@ class CreatureManager(UnitManager):
     def is_casting(self):
         return self.spell_manager.is_casting()
 
-    def try_to_cast(self, target, spell_entry, cast_flags, probability):
+    def try_to_cast(self, target, casting_spell, cast_flags, probability):
+        # Unable to initialize CastingSpell by caller.
+        if not casting_spell:
+            return SpellCheckCastResult.SPELL_FAILED_ERROR
+
         # Could not resolve a target.
         if not target:
             return SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS
@@ -577,12 +581,12 @@ class CreatureManager(UnitManager):
             # VMaNGOS uses SPELL_FAILED_FLEEING at 0x1E, not sure if it's the same.
             return SpellCheckCastResult.SPELL_FAILED_NOPATH
 
-        # TODO: Need similar functionality to IsNonMeleeSpellCasted - VMaNGOS.
         if cast_flags & CastFlags.CF_TARGET_CASTING and not target.spell.manager.is_casting():
             return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
 
         # This spell should only be cast when target does not have the aura it applies.
-        if cast_flags & CastFlags.CF_AURA_NOT_PRESENT and target.aura_manager.has_aura.has_aura_by_spell_id(spell_entry.ID):
+        if cast_flags & CastFlags.CF_AURA_NOT_PRESENT and target.aura_manager.has_aura.has_aura_by_spell_id(
+                    casting_spell.spell_entry.ID):
             return SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED
 
         # Need to use combat distance.
@@ -596,8 +600,9 @@ class CreatureManager(UnitManager):
         # This spell should only be cast when we cannot get into melee range.
         # TODO: Missing pathfinding to check for reachability.
         #  We need to known which type of movement the unit is 'using', chase, spline, etc..
-        if cast_flags & CastFlags.CF_TARGET_UNREACHABLE and self.is_within_interactable_distance(target) or \
-                self.unit_state & UnitStates.ROOTED:
+        #  For now, if we are not in melee range and rooted or moving, return failed due moving.
+        if (cast_flags & CastFlags.CF_TARGET_UNREACHABLE and not self.is_within_interactable_distance(target)) and \
+                (self.unit_state & UnitStates.ROOTED or self.is_moving()):
             return SpellCheckCastResult.SPELL_FAILED_MOVING
 
         if not cast_flags & CastFlags.CF_FORCE_CAST:
@@ -606,44 +611,38 @@ class CreatureManager(UnitManager):
             if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING or self.unit_state & UnitStates.FLEEING:
                 return SpellCheckCastResult.SPELL_FAILED_NOPATH
 
-            # If the spell requires to be behind the target.
+            # If the spell requires specific unit placement.
             target_is_facing_caster = target.location.has_in_arc(self.location, math.pi)
-            if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(spell_entry.ID, target_is_facing_caster):
+            if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
+                                                                                  target_is_facing_caster):
                 return SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_BEHIND
 
             # If the spell requires the target having a specific power type.
-            # TODO: Spell IsAreaOfEffectSpell, IsTargetPowerTypeValid
-            #  if not is_area_of_effect_spell and not is_target_power_type_valid:
-            #     return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
+            if not casting_spell.is_area_of_effect_spell() and not casting_spell.is_target_power_type_valid(target):
+                return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
 
             # No point in casting if target is immune.
-            # TODO: IsPositiveSpell(), IsImmuneToDamage()
-            #  if target != self and is_positive_spell and target.is_inmune_to_damage(spell_school_mask, spell_info):
-            #     return SpellCheckCastResult.SPELL_FAILED_IMMUNE
+            if target and target != self:
+                if not casting_spell.is_positive_spell() and casting_spell.is_target_immune_to_damage(target):
+                    return SpellCheckCastResult.SPELL_FAILED_ERROR
 
             # Mind control abilities can't be used with just 1 attacker or mob will reset.
-            # TODO: GetThreatManager(), IsCharmSpell()
-            #  if len(threat_list) == 1 and is_charm_spell():
-            #     return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
+            if len(target.attackers) == 1 and casting_spell.is_charm_spell():
+                return SpellCheckCastResult.SPELL_FAILED_CANT_BE_CHARMED
 
-            # Do not use dismounting spells when target is not mounted (there are 4 such spells).
-            # TODO: IsDismountSpell()
-            #  if not target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED and is_dismount_spell:
-            #     return SpellCheckCastResult.SPELL_FAILED_ONLY_MOUNTED;
+        # Interrupt any previous spell.
+        # TODO, not sure if this is the proper way 'remove_all_casts'.
+        if cast_flags & CastFlags.CF_INTERRUPT_PREVIOUS and target.spell.manager.is_casting():
+            self.spell_manager.remove_all_casts()
 
-        # TODO: IsNonMeleeSpellCasted
-        #  if cast_flags & CastFlags.CF_INTERRUPT_PREVIOUS and IsNonMeleeSpellCasted()
-        #     self.interrupt_non_melee_spells()
-
-        # Check chance.
-        # TODO: Probability should be checked after spell_manager do all the proper validations.
+        # Roll chance to cast from script (must be after cast checks, this is why its here)
+        # TODO: Should be checked after spell_manager do all the proper validations.
+        #  Refer to prepare() in Spell.cpp - vMaNGOS
         if probability:
             if not probability > randint(0, 99):
                 return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
 
-        # Trigger the cast.
-        # TODO: Need a way for spell_manager to 'prepare' the spell and return us SpellCheckCastResult.
-        #  Maybe validate_spell should receive the spell_entry and not CastingSpell or something.
+        # Return as succeeded.
         return SpellCheckCastResult.SPELL_NO_ERROR
 
     def _perform_random_movement(self, now):
