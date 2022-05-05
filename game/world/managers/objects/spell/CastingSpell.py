@@ -223,9 +223,10 @@ class CastingSpell(object):
         return False
 
     def is_charm_spell(self):
-        for effect in self.get_effects():
-            if effect.aura_type == AuraTypes.SPELL_AURA_MOD_CHARM \
-                    or effect.aura_type == AuraTypes.SPELL_AURA_MOD_POSSESS:
+        for spell_effect in self.get_effects():
+            if spell_effect.aura_type in [AuraTypes.SPELL_AURA_MOD_CHARM, AuraTypes.SPELL_AURA_MOD_POSSESS]:
+                return True
+            if spell_effect.effect_type == SpellEffects.SPELL_EFFECT_TAME_CREATURE:
                 return True
         return False
 
