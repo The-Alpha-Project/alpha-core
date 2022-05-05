@@ -194,6 +194,7 @@ class CastingSpell(object):
         # Return true if the effect has an implicit unit selection target.
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
 
+    # TODO, refer to IsAreaEffectTarget() in vMaNGOS
     def is_area_of_effect_spell(self):
         return any([effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS for effect in self.get_effects()])
 
