@@ -10,7 +10,7 @@ from utils.constants.ScriptCodes import ScriptTarget, AttackingTarget
 
 class ScriptManager:
     @staticmethod
-    def get_target_by_type(source_world_object, target_world_object, script_target, param1, param2, spell_entry) -> Optional[ObjectManager]:
+    def get_target_by_type(source_world_object, target_world_object, script_target, param1, param2, casting_spell) -> Optional[ObjectManager]:
         if script_target == ScriptTarget.TARGET_T_PROVIDED_TARGET:
             return target_world_object
         elif script_target == ScriptTarget.TARGET_T_HOSTILE:
@@ -74,10 +74,11 @@ class ScriptManager:
                 return None
             search_range: Optional[float] = param1
             exclude_target: Optional[UnitManager] = param2
-            # TODO, retrieve spell range if spell was provided and we have no search range.
-            # if not search_range and spell_entry:
+
+            # Set range if not provided.
             if not search_range:
-                search_range = 30.0
+                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
+
             friendlies = ScriptManager._get_surrounding_units_and_players(source_world_object,
                                                                           search_range=search_range,
                                                                           friends_only=True,
@@ -93,10 +94,9 @@ class ScriptManager:
                 return None
             search_range: Optional[float] = param1
             hp_percent: Optional[float] = param2
-            # TODO, retrieve spell range if spell was provided and we have no search range.
-            # if not search_range and spell_entry:
+            # Set range if not provided.
             if not search_range:
-                search_range = 30.0
+                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
             if not hp_percent:
                 hp_percent = 50.0
             injured_friendlies = ScriptManager._get_injured_friendly_units(source_world_object,
@@ -108,10 +108,9 @@ class ScriptManager:
                 return None
             search_range: Optional[float] = param1
             hp_percent: Optional[float] = param2
-            # TODO, retrieve spell range if spell was provided and we have no search range.
-            # if not search_range and spell_entry:
+            # Set range if not provided.
             if not search_range:
-                search_range = 30.0
+                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
             if not hp_percent:
                 hp_percent = 50.0
             injured_friendlies = ScriptManager._get_injured_friendly_units(source_world_object,
@@ -133,10 +132,9 @@ class ScriptManager:
             pass
         elif ScriptTarget.TARGET_T_NEAREST_PLAYER:
             search_range: Optional[float] = param1
-            # TODO, retrieve spell range if spell was provided and we have no search range.
-            # if not search_range and spell_entry:
+            # Set range if not provided.
             if not search_range:
-                search_range = 30.0
+                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
             # Surrounding units.
             surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object, search_range)
             # No surrounding units found.
@@ -152,10 +150,9 @@ class ScriptManager:
             return players[0]
         elif ScriptTarget.TARGET_T_NEAREST_HOSTILE_PLAYER:
             search_range: Optional[float] = param1
-            # TODO, retrieve spell range if spell was provided and we have no search range.
-            # if not search_range and spell_entry:
+            # Set range if not provided.
             if not search_range:
-                search_range = 30.0
+                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
             # Surrounding enemy units.
             surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object, search_range,
                                                                                  enemies_only=True)
@@ -172,10 +169,9 @@ class ScriptManager:
             return enemy_players[0]
         elif ScriptTarget.TARGET_T_NEAREST_FRIENDLY_PLAYER:
             search_range: Optional[float] = param1
-            # TODO, retrieve spell range if spell was provided and we have no search range.
-            # if not search_range and spell_entry:
+            # Set range if not provided.
             if not search_range:
-                search_range = 30.0
+                search_range = casting_spell.range_entry.RangeMax if casting_spell else 30.0
             # Surrounding friendly units.
             surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object, search_range,
                                                                                  friends_only=True)

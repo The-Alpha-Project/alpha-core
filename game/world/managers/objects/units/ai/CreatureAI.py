@@ -174,22 +174,23 @@ class CreatureAI(object):
                     if do_not_cast or self.creature.is_casting():
                         continue
 
+                spell_template = creature_spell.creature_spell_entry.spell
+                casting_spell = self.creature.spell_manager.try_initialize_spell(spell_template,
+                                                                                 self.creature, SpellTargetMask.UNIT,
+                                                                                 validate=False, triggered=True)
+
                 # Resolve a target.
                 target = ScriptManager.get_target_by_type(self.creature,
                                                           self.creature,
                                                           creature_spell_entry.cast_target,
                                                           creature_spell_entry.target_param1,
-                                                          abs(creature_spell_entry.target_param2)
-                                                          )
-
+                                                          abs(creature_spell_entry.target_param2),
+                                                          casting_spell)
                 # Unable to find target, move on.
                 if not target:
                     continue
 
-                spell_template = creature_spell.creature_spell_entry.spell
-                casting_spell = self.creature.spell_manager.try_initialize_spell(spell_template,
-                                                                                 self.creature, SpellTargetMask.UNIT,
-                                                                                 validate=False, triggered=True)
+                # Validate spell cast.
                 spell_cast_result = self.creature.try_to_cast(target, casting_spell, cast_flags, probability)
                 if spell_cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
                     do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
