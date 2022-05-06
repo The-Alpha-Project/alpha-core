@@ -8,6 +8,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.StatManager import UnitStats
@@ -194,9 +195,12 @@ class CastingSpell(object):
         # Return true if the effect has an implicit unit selection target.
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
 
-    # TODO, refer to IsAreaEffectTarget() in vMaNGOS
     def is_area_of_effect_spell(self):
-        return any([effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS for effect in self.get_effects()])
+        area_targets = {*EffectTargets.AREA_TARGETS}
+        for effect in self.get_effects():
+            if {effect.implicit_target_a, effect.implicit_target_b}.intersection(area_targets):
+                return True
+        return False
 
     def is_target_power_type_valid(self, target):
         if not target:

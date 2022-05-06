@@ -19,6 +19,20 @@ class TargetMissInfo:
 
 
 class EffectTargets:
+    AREA_TARGETS = (
+        SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM,
+        SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA,
+        SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT,
+        SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY,
+        SpellImplicitTargets.TARGET_INFRONT,
+        SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL,
+        SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER,
+        SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA,
+        SpellImplicitTargets.TARGET_ALL_PARTY,
+        SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2,
+        SpellImplicitTargets.TARGET_AREAEFFECT_PARTY,
+    )
+
     def __init__(self, casting_spell, spell_effect):
         self.initial_target = casting_spell.initial_target
         self.effect_source = casting_spell.spell_caster  # The source this effect is applied from. Used for calculating impact delay.
