@@ -1,4 +1,4 @@
-from game.world.managers.objects.units.ai.CreatureAI import CreatureAI
+from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
 
 
@@ -85,7 +85,4 @@ class PetAI(CreatureAI):
         pass
 
     def stop_attack(self):
-        pass
-
-    def select_next_target(self, allow_auto_select):
         pass

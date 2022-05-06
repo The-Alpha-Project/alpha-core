@@ -1,9 +1,9 @@
-from game.world.managers.objects.units.ai.BasicCreatureAI import BasicCreatureAI
-from game.world.managers.objects.units.ai.CritterAI import CritterAI
-from game.world.managers.objects.units.ai.GuardAI import GuardAI
-from game.world.managers.objects.units.ai.NullCreatureAI import NullCreatureAI
-from game.world.managers.objects.units.ai.PetAI import PetAI
-from game.world.managers.objects.units.ai.TotemAI import TotemAI
+from game.world.managers.objects.ai.BasicCreatureAI import BasicCreatureAI
+from game.world.managers.objects.ai.CritterAI import CritterAI
+from game.world.managers.objects.ai.GuardAI import GuardAI
+from game.world.managers.objects.ai.NullCreatureAI import NullCreatureAI
+from game.world.managers.objects.ai.PetAI import PetAI
+from game.world.managers.objects.ai.TotemAI import TotemAI
 from utils.constants.CustomCodes import Permits
 
 

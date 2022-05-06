@@ -11,7 +11,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
-from game.world.managers.objects.units.ai.AIFactory import AIFactory
+from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
@@ -322,7 +322,7 @@ class CreatureManager(UnitManager):
                         self.mount(addon_template.mount_display_id)
 
                 # Creature AI.
-                self.unit_ai = AIFactory.build_ai(self)
+                self.object_ai = AIFactory.build_ai(self)
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses(replenish=True)
                 self.fully_loaded = True
@@ -733,8 +733,8 @@ class CreatureManager(UnitManager):
                 # Combat Movement.
                 self._perform_combat_movement()
                 # AI.
-                if self.unit_ai:
-                    self.unit_ai.update_ai(elapsed)
+                if self.object_ai:
+                    self.object_ai.update_ai(elapsed)
                 # Attack Update.
                 if self.combat_target and self.is_within_interactable_distance(self.combat_target):
                     self.attack_update(elapsed)

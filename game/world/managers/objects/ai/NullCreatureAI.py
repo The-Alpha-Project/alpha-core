@@ -1,8 +1,8 @@
-from game.world.managers.objects.units.ai.CreatureAI import CreatureAI
+from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
 
 
-class TotemAI(CreatureAI):
+class NullCreatureAI(CreatureAI):
     def __init__(self, creature):
         super().__init__(creature)
 
@@ -11,15 +11,17 @@ class TotemAI(CreatureAI):
         pass
 
     # override
-    def permissible(self, creature):
-        if creature.is_totem():
-            return Permits.PERMIT_BASE_SPECIAL
-        return Permits.PERMIT_BASE_NO
-
-    # override
     def move_in_line_of_sight(self, unit):
         pass
 
     # override
     def attack_start(self, victim):
         pass
+
+    # override
+    def attacked_by(self, attacker):
+        pass
+
+    # override
+    def permissible(self, creature):
+        return Permits.PERMIT_BASE_IDLE
