@@ -208,13 +208,13 @@ class SpellEffectHandler(object):
         totem_entry = effect.misc_value
         # TODO Refactor to avoid circular import?
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_,
-                                                 override_faction=caster.faction)
+        creature_manager = CreatureManager.spawn_summoned_creature(totem_entry, target, caster.map_,
+                                                                   override_faction=caster.faction)
 
         if not creature_manager:
             return
 
-        creature_manager.respawn()
+        creature_manager.respawn()  # TODO Really need to call respawn? Map.update is called in spawn_summoned_creature
 
         # TODO This should be handled in creature AI instead
         # TODO Totems are not connected to player (pet etc. handling)

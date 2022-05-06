@@ -941,6 +941,17 @@ class SpawnsCreatures(Base):
     npc_text = relationship('NpcText', secondary='npc_gossip')
 
 
+class SpawnsCreaturesPool(Base):
+    __tablename__ = 'spawns_creatures_pool'
+
+    spawn_id = Column(ForeignKey('spawns_creatures.spawn_id', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True)
+    pool_entry = Column(MEDIUMINT(8), nullable=False, comment='Pool Identifier')
+    chance = Column(Float, nullable=False, server_default=text("'0'"))
+    description = Column(Text)
+
+    spawn = relationship('SpawnsCreatures', lazy='joined')
+
+
 class SpawnsGameobjects(Base):
     __tablename__ = 'spawns_gameobjects'
 

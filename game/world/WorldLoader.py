@@ -6,6 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.units.creature.CreatureRespawnManager import CreatureRespawnManager
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
@@ -127,21 +128,34 @@ class WorldLoader:
 
     @staticmethod
     def load_creatures():
+        WorldLoader.load_creature_spawn_pools()
+
         creature_spawns, session = WorldDatabaseManager.creature_get_all_spawns()
         length = len(creature_spawns)
         count = 0
 
+        all_loaded_ids: set[int] = set()
         for creature in creature_spawns:
-            if creature.creature_template:
-                creature_mgr = CreatureManager(
-                    creature_template=creature.creature_template,
-                    creature_instance=creature
-                )
-                creature_mgr.load()
+            if creature.creature_template and creature.spawn_id not in all_loaded_ids:
+                new_loaded_ids = CreatureRespawnManager.load_creature(creature)
+                all_loaded_ids.update(new_loaded_ids)
             count += 1
             Logger.progress('Spawning creatures...', count, length)
 
         session.close()
+        return length
+
+    @staticmethod
+    def load_creature_spawn_pools():
+        pools = WorldDatabaseManager.creature_get_all_spawn_pools()
+        length = len(pools)
+        count = 0
+
+        for pool in pools:
+            WorldDatabaseManager.SpawnsCreaturesPoolHolder.load_creature_spawn_pool(pool)
+            count += 1
+            Logger.progress('Loading creature spawn pools...', count, length)
+
         return length
 
     @staticmethod

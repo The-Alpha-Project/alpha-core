@@ -3,27 +3,28 @@ from dataclasses import dataclass
 from random import randint, choice
 from struct import pack
 
-from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatures
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatures
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
-from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.units.creature.CreatureRespawnManager import CreatureRespawnManager
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
-from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
+from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
-from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, \
     TrainerTypes
 from utils.constants.OpCodes import OpCode
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, MovementTypes, SplineFlags, \
     CreatureStaticFlags, PowerTypes
 from utils.constants.UpdateFields import ObjectFields, UnitFields
@@ -41,7 +42,6 @@ class CreatureManager(UnitManager):
         super().__init__(**kwargs)
 
         self.creature_template = creature_template
-        self.creature_instance = creature_instance
         self.killed_by = None
         self.is_summon = is_summon
 
@@ -94,19 +94,22 @@ class CreatureManager(UnitManager):
 
         self.loot_manager = CreatureLootManager(self)
 
-        if self.creature_instance:
+        if creature_instance:
             if CreatureManager.CURRENT_HIGHEST_GUID < creature_instance.spawn_id:
                 CreatureManager.CURRENT_HIGHEST_GUID = creature_instance.spawn_id
 
             self.guid = self.generate_object_guid(creature_instance.spawn_id)
-            self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
-            self.map_ = self.creature_instance.map
-            self.spawn_position = Vector(self.creature_instance.position_x,
-                                         self.creature_instance.position_y,
-                                         self.creature_instance.position_z,
-                                         self.creature_instance.orientation)
+            self.health = int((creature_instance.health_percent / 100) * self.max_health)
+            self.map_ = creature_instance.map
+            self.spawn_position = Vector(creature_instance.position_x,
+                                         creature_instance.position_y,
+                                         creature_instance.position_z,
+                                         creature_instance.orientation)
             self.location = self.spawn_position.copy()
-            self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
+            self.respawn_time = randint(creature_instance.spawntimesecsmin, creature_instance.spawntimesecsmax)
+            self.addon_template = creature_instance.addon_template
+            self.movement_type = creature_instance.movement_type
+            self.wander_distance = creature_instance.wander_distance
 
         # All creatures can block, parry and dodge by default.
         # TODO CANT_BLOCK creature extra flag
@@ -115,6 +118,7 @@ class CreatureManager(UnitManager):
         self.has_parry_passive = True
 
         self.threat_manager = ThreatManager(self)
+        self.respawn_manager = CreatureRespawnManager(self, creature_instance)
 
     @dataclass
     class VirtualItemInfoHolder:
@@ -122,11 +126,8 @@ class CreatureManager(UnitManager):
         info_packed: int = 0
         sheath: int = 0
 
-    def load(self):
-        MapManager.update_object(self)
-
     @staticmethod
-    def spawn(entry, location, map_id, override_faction=0, despawn_time=1):
+    def spawn_summoned_creature(entry, location, map_id, override_faction=0, despawn_time=1):
         creature_template = WorldDatabaseManager.creature_get_by_entry(entry)
 
         if not creature_template:
@@ -155,7 +156,7 @@ class CreatureManager(UnitManager):
         if override_faction > 0:
             creature.faction = override_faction
 
-        creature.load()
+        MapManager.update_object(creature)
         return creature
 
     def generate_display_id(self):
@@ -215,7 +216,7 @@ class CreatureManager(UnitManager):
 
         for trainer_spell in trainer_ability_list:  # trainer_spell: The spell the trainer uses to teach the player.
             player_spell_id = trainer_spell.playerspell
-            
+
             ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(player_spell_id)
 
             spell_level: int = trainer_spell.reqlevel  # Use this and not spell data, as there are differences between data source (2003 Game Guide) and what is in spell table.
@@ -258,7 +259,7 @@ class CreatureManager(UnitManager):
         greeting_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(world_session.player_mgr,
                                                                                placeholder_greeting))
         greeting_bytes = pack(
-                    f'<{len(greeting_bytes)}s', 
+                    f'<{len(greeting_bytes)}s',
                     greeting_bytes
         )
 
@@ -266,60 +267,57 @@ class CreatureManager(UnitManager):
         world_session.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
 
     def finish_loading(self, reload=False):
-        if self.creature_instance:
-            if not self.fully_loaded or reload:
-                creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)
-                if creature_model_info:
-                    self.bounding_radius = creature_model_info.bounding_radius
-                    self.combat_reach = creature_model_info.combat_reach
-                    self.gender = creature_model_info.gender
+        if not self.fully_loaded or reload:
+            creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)
+            if creature_model_info:
+                self.bounding_radius = creature_model_info.bounding_radius
+                self.combat_reach = creature_model_info.combat_reach
+                self.gender = creature_model_info.gender
 
-                if self.creature_template.scale == 0:
-                    display_scale = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(self.current_display_id)
-                    if display_scale and display_scale.CreatureModelScale > 0:
-                        self.native_scale = display_scale.CreatureModelScale
-                    else:
-                        self.native_scale = 1
+            if self.creature_template.scale == 0:
+                display_scale = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(self.current_display_id)
+                if display_scale and display_scale.CreatureModelScale > 0:
+                    self.native_scale = display_scale.CreatureModelScale
                 else:
-                    self.native_scale = self.creature_template.scale
-                self.current_scale = self.native_scale
+                    self.native_scale = 1
+            else:
+                self.native_scale = self.creature_template.scale
+            self.current_scale = self.native_scale
 
-                if self.creature_template.equipment_id > 0:
-                    creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
-                        self.creature_template.equipment_id
-                    )
-                    if creature_equip_template:
-                        self.set_virtual_item(0, creature_equip_template.equipentry1)
-                        self.set_virtual_item(1, creature_equip_template.equipentry2)
-                        self.set_virtual_item(2, creature_equip_template.equipentry3)
+            if self.creature_template.equipment_id > 0:
+                creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
+                    self.creature_template.equipment_id)
+                if creature_equip_template:
+                    self.set_virtual_item(0, creature_equip_template.equipentry1)
+                    self.set_virtual_item(1, creature_equip_template.equipentry2)
+                    self.set_virtual_item(2, creature_equip_template.equipentry3)
 
-                addon_template = self.creature_instance.addon_template
-                if addon_template:
-                    self.set_stand_state(addon_template.stand_state)
-                    self.set_weapon_mode(addon_template.sheath_state)
+            if self.addon_template:
+                self.set_stand_state(self.addon_template.stand_state)
+                self.set_weapon_mode(self.addon_template.sheath_state)
 
-                    # Set emote state if available.
-                    if addon_template.emote_state:
-                        self.set_emote_state(addon_template.emote_state)
+                # Set emote state if available.
+                if self.addon_template.emote_state:
+                    self.set_emote_state(self.addon_template.emote_state)
 
-                    # Check auras; 'auras' points to an entry id on Spell dbc.
-                    if addon_template.auras:
-                        spells = str(addon_template.auras).rsplit(' ')
-                        for spell in spells:
-                            self.spell_manager.handle_cast_attempt(int(spell), self, SpellTargetMask.SELF,
-                                                                   validate=False)
+                # Check auras; 'auras' points to an entry id on Spell dbc.
+                if self.addon_template.auras:
+                    spells = str(self.addon_template.auras).rsplit(' ')
+                    for spell in spells:
+                        self.spell_manager.handle_cast_attempt(int(spell), self, SpellTargetMask.SELF,
+                                                               validate=False)
 
-                    # Update display id if available.
-                    if addon_template.display_id:
-                        self.set_display_id(addon_template.display_id)
+                # Update display id if available.
+                if self.addon_template.display_id:
+                    self.set_display_id(self.addon_template.display_id)
 
-                    # Mount this creature if defined.
-                    if addon_template.mount_display_id > 0:
-                        self.mount(addon_template.mount_display_id)
+                # Mount this creature if defined.
+                if self.addon_template.mount_display_id > 0:
+                    self.mount(self.addon_template.mount_display_id)
 
-                self.stat_manager.init_stats()
-                self.stat_manager.apply_bonuses(replenish=True)
-                self.fully_loaded = True
+            self.stat_manager.init_stats()
+            self.stat_manager.apply_bonuses(replenish=True)
+            self.fully_loaded = True
 
     def set_virtual_item(self, slot, item_entry):
         item_template = None
@@ -397,7 +395,7 @@ class CreatureManager(UnitManager):
     def trainer_has_spell(self, spell_id: int) -> bool:
         if not self.is_trainer():
             return False
-        
+
         trainer_spells: list[TrainerTemplate] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
 
         for trainer_spell in trainer_spells:
@@ -537,11 +535,10 @@ class CreatureManager(UnitManager):
 
     def _perform_random_movement(self, now):
         # Do not wander in combat, while evading or without wander flag.
-        if not self.in_combat and not self.is_evading and self.creature_instance.movement_type == MovementTypes.WANDER:
+        if not self.in_combat and not self.is_evading and self.movement_type == MovementTypes.WANDER:
             if len(self.movement_manager.pending_waypoints) == 0:
                 if now > self.last_random_movement + self.random_movement_wait_time:
-                    self.movement_manager.move_random(self.spawn_position,
-                                                      self.creature_instance.wander_distance)
+                    self.movement_manager.move_random(self.spawn_position, self.wander_distance)
                     self.random_movement_wait_time = randint(1, 12)
                     self.last_random_movement = now
 
@@ -629,6 +626,7 @@ class CreatureManager(UnitManager):
             elif not self.is_alive:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
+                    self.respawn_timer = 0
                     self.respawn()
                 # Destroy body when creature is about to respawn.
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
@@ -671,25 +669,7 @@ class CreatureManager(UnitManager):
     # override
     def respawn(self):
         super().respawn()
-        # Set all property values before making this creature visible.
-        self.location = self.spawn_position.copy()
-        self.set_health(self.max_health)
-        self.set_mana(self.max_power_1)
-
-        self.loot_manager.clear()
-        self.set_lootable(False)
-
-        if self.killed_by and self.killed_by.group_manager:
-            self.killed_by.group_manager.clear_looters_for_victim(self)
-        self.killed_by = None
-
-        self.respawn_timer = 0
-        self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
-
-        # Update its cell position if needed (Died far away from spawn location cell)
-        MapManager.update_object(self)
-        # Make this creature visible to its surroundings.
-        MapManager.respawn_object(self)
+        self.respawn_manager.respawn_creature()
 
     # override
     def die(self, killer=None):

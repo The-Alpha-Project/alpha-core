@@ -1,12 +1,13 @@
 import os
-from typing import Optional
 from difflib import SequenceMatcher
+from typing import Optional
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.world.WorldModels import *
 from utils.ConfigManager import *
+from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
@@ -257,6 +258,37 @@ class WorldDatabaseManager(object):
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_UNIT).first()
         return res, world_db_session
+
+    class SpawnsCreaturesPoolHolder:
+        POOLS_BY_POOL_ENTRY: dict[int, list[SpawnsCreaturesPool]] = {}
+        POOLS_BY_SPAWN_ID: dict[int, list[SpawnsCreaturesPool]] = {}
+
+        @staticmethod
+        def load_creature_spawn_pool(pool: SpawnsCreaturesPool):
+            pool_entry: int = pool.pool_entry
+            spawn_id: int = pool.spawn_id
+            if spawn_id not in WorldDatabaseManager.SpawnsCreaturesPoolHolder.POOLS_BY_SPAWN_ID:
+                existing_pools = WorldDatabaseManager.SpawnsCreaturesPoolHolder.POOLS_BY_POOL_ENTRY.get(pool_entry)
+                if existing_pools is None:
+                    new_pools = [pool]
+                    WorldDatabaseManager.SpawnsCreaturesPoolHolder.POOLS_BY_POOL_ENTRY[pool_entry] = new_pools
+                    WorldDatabaseManager.SpawnsCreaturesPoolHolder.POOLS_BY_SPAWN_ID[spawn_id] = new_pools
+                else:
+                    existing_pools.append(pool)
+                    WorldDatabaseManager.SpawnsCreaturesPoolHolder.POOLS_BY_SPAWN_ID[spawn_id] = existing_pools
+            else:
+                Logger.warning(f'Skipping SpawnsCreaturesPool for spawn id {spawn_id}: has already been loaded')
+
+        @staticmethod
+        def creature_spawn_pools_get_by_spawn_id(spawn_id: int) -> Optional[list[SpawnsCreaturesPool]]:
+            return WorldDatabaseManager.SpawnsCreaturesPoolHolder.POOLS_BY_SPAWN_ID.get(spawn_id)
+
+    @staticmethod
+    def creature_get_all_spawn_pools() -> list[SpawnsCreaturesPool]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(SpawnsCreaturesPool).all()
+        world_db_session.close()
+        return res
 
     class CreatureModelInfoHolder:
         CREATURE_MODEL_INFOS: [int, CreatureModelInfo] = {}
