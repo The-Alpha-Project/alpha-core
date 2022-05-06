@@ -128,7 +128,7 @@ class ScriptManager:
             pass
         elif script_target == ScriptTarget.TARGET_T_MAP_EVENT_EXTRA_TARGET:
             pass
-        elif Sscript_target == criptTarget.TARGET_T_NEAREST_PLAYER:
+        elif script_target == ScriptTarget.TARGET_T_NEAREST_PLAYER:
             search_range: Optional[float] = param1
             # Set range if not provided.
             search_range = ScriptManager._get_search_range(search_range, spell_template)
