@@ -567,7 +567,7 @@ class CreatureManager(UnitManager):
     def is_casting(self):
         return self.spell_manager.is_casting()
 
-    def validate_ai_spell_cast(self, target, casting_spell, cast_flags, probability):
+    def validate_ai_script_spell_cast(self, target, casting_spell, cast_flags, probability):
         # Unable to initialize CastingSpell by caller.
         if not casting_spell:
             return SpellCheckCastResult.SPELL_FAILED_ERROR
@@ -631,9 +631,8 @@ class CreatureManager(UnitManager):
                 return SpellCheckCastResult.SPELL_FAILED_CANT_BE_CHARMED
 
         # Interrupt any previous spell.
-        # TODO, not sure if this is the proper way 'remove_all_casts'.
         if cast_flags & CastFlags.CF_INTERRUPT_PREVIOUS and target.spell.manager.is_casting():
-            self.spell_manager.remove_all_casts()
+            self.spell_manager.remove_colliding_casts(casting_spell)
 
         # Roll chance to cast from script (must be after cast checks, this is why its here)
         # TODO: Should be checked after spell_manager do all the proper validations.

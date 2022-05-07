@@ -198,7 +198,7 @@ class CreatureAI(object):
                     continue
 
                 # Validate spell cast.
-                spell_cast_result = self.creature.validate_ai_spell_cast(target, casting_spell, cast_flags, probability)
+                spell_cast_result = self.creature.validate_ai_script_spell_cast(target, casting_spell, cast_flags, probability)
                 if spell_cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
                     do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
                     creature_spell.set_new_random_cool_down()
