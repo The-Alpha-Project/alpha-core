@@ -186,12 +186,13 @@ class CreatureAI(object):
                 if not target:
                     continue
 
-                # TODO: Creature spells should follow all normal rules except required power type?
-                #  So we need a way to avoid that check for creatures on validation.
-                #  Also, need to probably dynamically set the target mask to self if target resolves to self?
+                # Dynamic target mask.
+                spell_target_mask = SpellTargetMask.SELF if target == self.creature else SpellTargetMask.UNIT
+
+                # Try to initialize the spell.
                 casting_spell = self.creature.spell_manager.try_initialize_spell(spell_template,
                                                                                  target,
-                                                                                 SpellTargetMask.UNIT,
+                                                                                 spell_target_mask,
                                                                                  validate=True)
                 # Invalid spell perhaps.
                 if not casting_spell:
