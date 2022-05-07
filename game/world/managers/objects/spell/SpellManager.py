@@ -140,9 +140,8 @@ class SpellManager(object):
         self.start_spell_cast(spell, spell_target, target_mask, triggered=triggered)
 
     def try_initialize_spell(self, spell, spell_target, target_mask, source_item=None,
-                             triggered=False, validate=True, ignore_wrong_power=False) -> Optional[CastingSpell]:
-        spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item, triggered=triggered,
-                             ignore_wrong_power=ignore_wrong_power)
+                             triggered=False, validate=True) -> Optional[CastingSpell]:
+        spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item, triggered=triggered)
         if not validate:
             return spell
         return spell if self.validate_cast(spell) else None
@@ -855,8 +854,11 @@ class SpellManager(object):
         has_health_cost = casting_spell.spell_entry.PowerType == PowerTypes.TYPE_HEALTH
         power_cost = casting_spell.get_resource_cost()
         has_correct_power = self.caster.power_type == casting_spell.spell_entry.PowerType or has_health_cost
+        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+        # Non players are able to cast spells even if they lack the required power.
+        ignore_wrong_power = not is_player
 
-        if not has_health_cost and power_cost and not has_correct_power and not casting_spell.ignore_wrong_power:
+        if not has_health_cost and power_cost and not has_correct_power and not ignore_wrong_power:
             # Doesn't have the correct power type.
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False

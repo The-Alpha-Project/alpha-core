@@ -623,7 +623,7 @@ class CreatureManager(UnitManager):
 
             # No point in casting if target is immune.
             if target and target != self:
-                if not casting_spell.is_positive_spell(target) and casting_spell.is_target_immune_to_damage(target):
+                if not casting_spell.is_positive_spell() and casting_spell.is_target_immune_to_damage():
                     return SpellCheckCastResult.SPELL_FAILED_ERROR
 
             # Mind control abilities can't be used with just 1 attacker or mob will reset.

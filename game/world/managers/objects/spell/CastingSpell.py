@@ -45,14 +45,13 @@ class CastingSpell(object):
     spell_attack_type: int
     used_ranged_attack_item: ItemManager  # Ammo or thrown.
 
-    def __init__(self, spell, caster, initial_target, target_mask, source_item=None, triggered=False, ignore_wrong_power=False):
+    def __init__(self, spell, caster, initial_target, target_mask, source_item=None, triggered=False):
         self.spell_entry = spell
         self.spell_caster = caster
         self.source_item = source_item
         self.initial_target = initial_target
         self.spell_target_mask = target_mask
         self.triggered = triggered
-        self.ignore_wrong_power = ignore_wrong_power
 
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
@@ -203,8 +202,8 @@ class CastingSpell(object):
                 return True
         return False
 
-    def is_target_power_type_valid(self, target):
-        if not target:
+    def is_target_power_type_valid(self):
+        if not self.initial_target:
             return False
 
         if len(self._effects) == 0:
@@ -214,18 +213,18 @@ class CastingSpell(object):
             if (effect.effect_type == SpellEffects.SPELL_EFFECT_POWER_BURN
                     or effect.effect_type == SpellEffects.SPELL_EFFECT_POWER_DRAIN
                     or effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_MANA_LEECH) \
-                    and effect.misc_value != target.power_type:
+                    and effect.misc_value != self.initial_target.power_type:
                 continue
             return True
         return False
 
     # TODO, need more checks.
     #  Refer to 'IsPositiveEffect' in SpellEntry.cpp - vMaNGOS
-    def is_positive_spell(self, victim):
-        return not self.spell_caster.can_attack_target(victim)
+    def is_positive_spell(self):
+        return not self.spell_caster.can_attack_target(self.initial_target)
 
     # TODO, Check 'IsImmuneToDamage' - vMaNGOS
-    def is_target_immune_to_damage(self, victim):
+    def is_target_immune_to_damage(self):
         return False
 
     def is_charm_spell(self):
