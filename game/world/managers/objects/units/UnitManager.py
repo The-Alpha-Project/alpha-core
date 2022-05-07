@@ -328,13 +328,13 @@ class UnitManager(ObjectManager):
 
     def attacker_state_update(self, victim, attack_type, extra):
         if attack_type == AttackTypes.BASE_ATTACK:
-            # No recent extra attack only at any non extra attack
+            # No recent extra attack only at any non-extra attack.
             if not extra and self.extra_attacks > 0:
                 self.execute_extra_attacks()
                 return
 
             if self.spell_manager.cast_queued_melee_ability(attack_type):
-                return  # Melee ability replaces regular attack
+                return  # Melee ability replaces regular attack.
 
         damage_info = self.calculate_melee_damage(victim, attack_type)
         if not damage_info:
@@ -348,7 +348,7 @@ class UnitManager(ObjectManager):
 
         self.send_attack_state_update(damage_info)
 
-        # Extra attack only at any non extra attack
+        # Extra attack only at any non-extra attack.
         if not extra and self.extra_attacks > 0:
             self.execute_extra_attacks()
 
