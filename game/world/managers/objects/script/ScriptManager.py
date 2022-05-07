@@ -11,67 +11,67 @@ from utils.constants.ScriptCodes import ScriptTarget, AttackingTarget
 
 class ScriptManager:
     @staticmethod
-    def get_target_by_type(source_world_object, target_world_object, script_target, param1, param2, spell_template) -> Optional[ObjectManager]:
-        if script_target == ScriptTarget.TARGET_T_PROVIDED_TARGET:
-            return target_world_object
-        elif script_target == ScriptTarget.TARGET_T_HOSTILE:
-            if ScriptManager._validate_is_unit(source_world_object):
-                if source_world_object.combat_target:
-                    return source_world_object.combat_target
-        elif script_target == ScriptTarget.TARGET_T_HOSTILE_SECOND_AGGRO:
-            if ScriptManager._validate_is_unit(source_world_object):
-                return source_world_object.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_TOPAGGRO)
-        elif script_target == ScriptTarget.TARGET_T_HOSTILE_LAST_AGGRO:
-            if ScriptManager._validate_is_unit(source_world_object):
-                return source_world_object.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO)
-        elif script_target == ScriptTarget.TARGET_T_HOSTILE_RANDOM:
-            if ScriptManager._validate_is_unit(source_world_object):
-                return source_world_object.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_RANDOM)
-        elif script_target == ScriptTarget.TARGET_T_HOSTILE_RANDOM_NOT_TOP:
-            if ScriptManager._validate_is_unit(source_world_object):
-                return source_world_object.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP)
-        elif script_target == ScriptTarget.TARGET_T_OWNER_OR_SELF:
+    def get_target_by_type(caster, target, target_type, param1, param2, spell_template) -> Optional[ObjectManager]:
+        if target_type == ScriptTarget.TARGET_T_PROVIDED_TARGET:
+            return target
+        elif target_type == ScriptTarget.TARGET_T_HOSTILE:
+            if ScriptManager._validate_is_unit(caster):
+                if caster.combat_target:
+                    return caster.combat_target
+        elif target_type == ScriptTarget.TARGET_T_HOSTILE_SECOND_AGGRO:
+            if ScriptManager._validate_is_unit(caster):
+                return caster.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_TOPAGGRO)
+        elif target_type == ScriptTarget.TARGET_T_HOSTILE_LAST_AGGRO:
+            if ScriptManager._validate_is_unit(caster):
+                return caster.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO)
+        elif target_type == ScriptTarget.TARGET_T_HOSTILE_RANDOM:
+            if ScriptManager._validate_is_unit(caster):
+                return caster.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_RANDOM)
+        elif target_type == ScriptTarget.TARGET_T_HOSTILE_RANDOM_NOT_TOP:
+            if ScriptManager._validate_is_unit(caster):
+                return caster.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP)
+        elif target_type == ScriptTarget.TARGET_T_OWNER_OR_SELF:
             # TODO
             #  return source.get_charmer_or_self()
             pass
-        elif script_target == ScriptTarget.TARGET_T_OWNER:
+        elif target_type == ScriptTarget.TARGET_T_OWNER:
             # TODO
             #  return source.get_owner(), what does owner means here?
             pass
-        elif script_target == ScriptTarget.TARGET_T_NEAREST_CREATURE_WITH_ENTRY:
+        elif target_type == ScriptTarget.TARGET_T_NEAREST_CREATURE_WITH_ENTRY:
             # TODO, entry -> object type identification.
             #  Based on objects high guids.
             pass
-        elif script_target == ScriptTarget.TARGET_T_RANDOM_CREATURE_WITH_ENTRY:
+        elif target_type == ScriptTarget.TARGET_T_RANDOM_CREATURE_WITH_ENTRY:
             # TODO, entry -> object type identification.
             #  Based on objects high guids.
             pass
-        elif script_target == ScriptTarget.TARGET_T_CREATURE_WITH_GUID:
+        elif target_type == ScriptTarget.TARGET_T_CREATURE_WITH_GUID:
             # TODO, might need to do some guid conversion between low and high?
             unit_guid: Optional[int] = param1
-            unit = MapManager.get_surrounding_unit_by_guid(source_world_object, unit_guid, True)
+            unit = MapManager.get_surrounding_unit_by_guid(caster, unit_guid, True)
             return unit if unit and unit.is_alive else None
-        elif script_target == ScriptTarget.TARGET_T_CREATURE_FROM_INSTANCE_DATA:
+        elif target_type == ScriptTarget.TARGET_T_CREATURE_FROM_INSTANCE_DATA:
             # TODO, instancing.
             pass
-        elif script_target == ScriptTarget.TARGET_T_NEAREST_GAMEOBJECT_WITH_ENTRY:
+        elif target_type == ScriptTarget.TARGET_T_NEAREST_GAMEOBJECT_WITH_ENTRY:
             # TODO, entry -> object type identification.
             #  Based on objects high guids.
             pass
-        elif script_target == ScriptTarget.TARGET_T_RANDOM_GAMEOBJECT_WITH_ENTRY:
+        elif target_type == ScriptTarget.TARGET_T_RANDOM_GAMEOBJECT_WITH_ENTRY:
             # TODO, entry -> object type identification.
             #  Based on objects high guids.
             pass
-        elif script_target == ScriptTarget.TARGET_T_GAMEOBJECT_WITH_GUID:
+        elif target_type == ScriptTarget.TARGET_T_GAMEOBJECT_WITH_GUID:
             # TODO, might need to do some guid conversion between low and high?
             gameobject_guid: Optional[int] = param1
-            gameobject = MapManager.get_surrounding_gameobject_by_guid(source_world_object, gameobject_guid)
+            gameobject = MapManager.get_surrounding_gameobject_by_guid(caster, gameobject_guid)
             return gameobject if gameobject and gameobject.is_spawned else None
-        elif script_target == ScriptTarget.TARGET_T_GAMEOBJECT_FROM_INSTANCE_DATA:
+        elif target_type == ScriptTarget.TARGET_T_GAMEOBJECT_FROM_INSTANCE_DATA:
             # TODO, instancing.
             pass
-        elif script_target == ScriptTarget.TARGET_T_FRIENDLY:
-            if not ScriptManager._validate_is_unit(source_world_object):
+        elif target_type == ScriptTarget.TARGET_T_FRIENDLY:
+            if not ScriptManager._validate_is_unit(caster):
                 return None
             search_range: Optional[float] = param1
             exclude_target: Optional[UnitManager] = param2
@@ -79,7 +79,7 @@ class ScriptManager:
             # Set range if not provided.
             search_range = ScriptManager._get_search_range(search_range, spell_template)
 
-            friendlies = ScriptManager._get_surrounding_units_and_players(source_world_object,
+            friendlies = ScriptManager._get_surrounding_units_and_players(caster,
                                                                           search_range=search_range,
                                                                           friends_only=True,
                                                                           exclude_unit=exclude_target)
@@ -89,8 +89,8 @@ class ScriptManager:
 
             # Return 1 randomly picked friendly unit.
             return choice(friendlies)
-        elif script_target == ScriptTarget.TARGET_T_FRIENDLY_INJURED:
-            if not ScriptManager._validate_is_unit(source_world_object):
+        elif target_type == ScriptTarget.TARGET_T_FRIENDLY_INJURED:
+            if not ScriptManager._validate_is_unit(caster):
                 return None
             search_range: Optional[float] = param1
             hp_percent: Optional[float] = param2
@@ -98,12 +98,12 @@ class ScriptManager:
             search_range = ScriptManager._get_search_range(search_range, spell_template)
             if not hp_percent:
                 hp_percent = 50.0
-            injured_friendlies = ScriptManager._get_injured_friendly_units(source_world_object,
-                                                                           search_range=search_range,
+            injured_friendlies = ScriptManager._get_injured_friendly_units(caster,
+                                                                           radius=search_range,
                                                                            hp_threshold=hp_percent)
             return injured_friendlies[0] if injured_friendlies else None
-        elif script_target == ScriptTarget.TARGET_T_FRIENDLY_INJURED_EXCEPT:
-            if not ScriptManager._validate_is_unit(source_world_object):
+        elif target_type == ScriptTarget.TARGET_T_FRIENDLY_INJURED_EXCEPT:
+            if not ScriptManager._validate_is_unit(caster):
                 return None
             search_range: Optional[float] = param1
             hp_percent: Optional[float] = param2
@@ -111,18 +111,18 @@ class ScriptManager:
             search_range = ScriptManager._get_search_range(search_range, spell_template)
             if not hp_percent:
                 hp_percent = 50.0
-            injured_friendlies = ScriptManager._get_injured_friendly_units(source_world_object,
-                                                                           search_range=search_range,
+            injured_friendlies = ScriptManager._get_injured_friendly_units(caster,
+                                                                           radius=search_range,
                                                                            hp_threshold=hp_percent,
-                                                                           exclude_unit=target_world_object)
+                                                                           exclude_unit=target)
             return injured_friendlies[0] if injured_friendlies else None
-        elif script_target == ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF:
+        elif target_type == ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF:
             search_range: Optional[float] = param1
             spell_id: int = param2
             # Set range if not provided.
             search_range = ScriptManager._get_search_range(search_range, spell_template)
-            # Surrounding units.
-            surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object,
+            # Surrounding friendly units.
+            surrounding_units = ScriptManager._get_surrounding_units_and_players(caster,
                                                                                  search_range,
                                                                                  friends_only=True)
             # No surrounding units found.
@@ -134,16 +134,16 @@ class ScriptManager:
                     return friendly_unit
             # No suitable target found.
             return None
-        elif script_target == ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF_EXCEPT:
+        elif target_type == ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF_EXCEPT:
             search_range: Optional[float] = param1
             spell_id: int = param2
             # Set range if not provided.
             search_range = ScriptManager._get_search_range(search_range, spell_template)
-            # Surrounding units.
-            surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object,
+            # Surrounding friendly units.
+            surrounding_units = ScriptManager._get_surrounding_units_and_players(caster,
                                                                                  search_range,
                                                                                  friends_only=True,
-                                                                                 exclude_unit=target_world_object)
+                                                                                 exclude_unit=target)
             # No surrounding units found.
             if not surrounding_units:
                 return None
@@ -153,20 +153,20 @@ class ScriptManager:
                     return friendly_unit
             # No suitable target found.
             return None
-        elif script_target == ScriptTarget.TARGET_T_FRIENDLY_CC:
+        elif target_type == ScriptTarget.TARGET_T_FRIENDLY_CC:
             pass
-        elif script_target == ScriptTarget.TARGET_T_MAP_EVENT_SOURCE:
+        elif target_type == ScriptTarget.TARGET_T_MAP_EVENT_SOURCE:
             pass
-        elif script_target == ScriptTarget.TARGET_T_MAP_EVENT_TARGET:
+        elif target_type == ScriptTarget.TARGET_T_MAP_EVENT_TARGET:
             pass
-        elif script_target == ScriptTarget.TARGET_T_MAP_EVENT_EXTRA_TARGET:
+        elif target_type == ScriptTarget.TARGET_T_MAP_EVENT_EXTRA_TARGET:
             pass
-        elif script_target == ScriptTarget.TARGET_T_NEAREST_PLAYER:
+        elif target_type == ScriptTarget.TARGET_T_NEAREST_PLAYER:
             search_range: Optional[float] = param1
             # Set range if not provided.
             search_range = ScriptManager._get_search_range(search_range, spell_template)
             # Surrounding units.
-            surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object, search_range)
+            surrounding_units = ScriptManager._get_surrounding_units_and_players(caster, search_range)
             # No surrounding units found.
             if not surrounding_units:
                 return None
@@ -176,14 +176,14 @@ class ScriptManager:
             if len(players) == 0:
                 return None
             # Sort by distance.
-            players.sort(key=lambda player: source_world_object.location.distance(player.location))
+            players.sort(key=lambda player: caster.location.distance(player.location))
             return players[0]
-        elif script_target == ScriptTarget.TARGET_T_NEAREST_HOSTILE_PLAYER:
+        elif target_type == ScriptTarget.TARGET_T_NEAREST_HOSTILE_PLAYER:
             search_range: Optional[float] = param1
             # Set range if not provided.
             search_range = ScriptManager._get_search_range(search_range, spell_template)
             # Surrounding enemy units.
-            surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object, search_range,
+            surrounding_units = ScriptManager._get_surrounding_units_and_players(caster, search_range,
                                                                                  enemies_only=True)
             # No surrounding units found.
             if not surrounding_units:
@@ -194,14 +194,14 @@ class ScriptManager:
             if len(enemy_players) == 0:
                 return None
             # Sort by distance.
-            enemy_players.sort(key=lambda player: source_world_object.location.distance(player.location))
+            enemy_players.sort(key=lambda player: caster.location.distance(player.location))
             return enemy_players[0]
-        elif script_target == ScriptTarget.TARGET_T_NEAREST_FRIENDLY_PLAYER:
+        elif target_type == ScriptTarget.TARGET_T_NEAREST_FRIENDLY_PLAYER:
             search_range: Optional[float] = param1
             # Set range if not provided.
             search_range = ScriptManager._get_search_range(search_range, spell_template)
             # Surrounding friendly units.
-            surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object, search_range,
+            surrounding_units = ScriptManager._get_surrounding_units_and_players(caster, search_range,
                                                                                  friends_only=True)
             # No surrounding units found.
             if not surrounding_units:
@@ -212,7 +212,7 @@ class ScriptManager:
             if len(friendly_players) == 0:
                 return None
             # Sort by distance.
-            friendly_players.sort(key=lambda player: source_world_object.location.distance(player.location))
+            friendly_players.sort(key=lambda player: caster.location.distance(player.location))
             return friendly_players[0]
 
     @staticmethod
@@ -235,9 +235,9 @@ class ScriptManager:
         return unit_caller.health * 100 / unit_caller.max_health
 
     @staticmethod
-    def _get_injured_friendly_units(unit_caller, search_range, hp_threshold, exclude_unit=None) -> Optional[list[UnitManager]]:
+    def _get_injured_friendly_units(caster, radius, hp_threshold, exclude_unit=None) -> Optional[list[UnitManager]]:
         # Surrounding friendly units within range, including players.
-        surrounding_units_and_players = ScriptManager._get_surrounding_units_and_players(unit_caller, search_range,
+        surrounding_units_and_players = ScriptManager._get_surrounding_units_and_players(caster, radius,
                                                                                          friends_only=True,
                                                                                          exclude_unit=exclude_unit)
         # Did not find any injured friendly.
