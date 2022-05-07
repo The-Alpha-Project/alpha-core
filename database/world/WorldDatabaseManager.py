@@ -267,7 +267,13 @@ class WorldDatabaseManager(object):
         def load_creature_spawn_pool(pool: SpawnsCreaturesPool):
             pool_entry: int = pool.pool_entry
             spawn_id: int = pool.spawn_id
-            if spawn_id not in WorldDatabaseManager.SpawnsCreaturesPoolHolder.POOLS_BY_SPAWN_ID:
+            if spawn_id in WorldDatabaseManager.SpawnsCreaturesPoolHolder.POOLS_BY_SPAWN_ID:
+                Logger.warning(f'Skipping creature spawn pool (spawn id {spawn_id}): has already been loaded')
+                return
+            elif 0.0 > pool.chance or pool.chance > 100.0:
+                Logger.warning(f'Skipping creature spawn pool (spawn id {spawn_id}): invalid chance {pool.chance}')
+                return
+            else:
                 existing_pools = WorldDatabaseManager.SpawnsCreaturesPoolHolder.POOLS_BY_POOL_ENTRY.get(pool_entry)
                 if existing_pools is None:
                     new_pools = [pool]
@@ -276,8 +282,6 @@ class WorldDatabaseManager(object):
                 else:
                     existing_pools.append(pool)
                     WorldDatabaseManager.SpawnsCreaturesPoolHolder.POOLS_BY_SPAWN_ID[spawn_id] = existing_pools
-            else:
-                Logger.warning(f'Skipping SpawnsCreaturesPool for spawn id {spawn_id}: has already been loaded')
 
         @staticmethod
         def creature_spawn_pools_get_by_spawn_id(spawn_id: int) -> Optional[list[SpawnsCreaturesPool]]:

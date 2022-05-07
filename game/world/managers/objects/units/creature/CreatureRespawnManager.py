@@ -75,8 +75,18 @@ class CreatureRespawnManager:
 
     @staticmethod
     def _roll_creature_instance(spawns, chances) -> Optional[SpawnsCreatures]:
-        rolled_instances = random.choices(population=spawns + [None], weights=chances + [100.0 - sum(chances)], k=1)
+        total_chance = sum(chances)
+        return CreatureRespawnManager._select_spawn_explicit_chances(spawns, chances) if total_chance <= 100.0 \
+            else CreatureRespawnManager._select_spawn_equal_chances(spawns)
+
+    @staticmethod
+    def _select_spawn_explicit_chances(spawns, chances) -> Optional[SpawnsCreatures]:
+        rolled_instances = random.choices(population=spawns + [None], weights=chances + [100.0 - sum(chances)])
         return next(iter(rolled_instances))
+
+    @staticmethod
+    def _select_spawn_equal_chances(spawns) -> SpawnsCreatures:
+        return random.choice(spawns)
 
     @staticmethod
     def _send_update_if_was_created(creature_manager: Optional[CreatureManager]):
