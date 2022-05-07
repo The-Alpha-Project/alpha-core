@@ -35,7 +35,7 @@ class CreatureSpellsEntry:
 
     # Creature spell templates can be shared across multiple creatures.
     # Make sure we only fully load them once.
-    # Setting the spell here it's because of WorldLoader precedence, and spells later.
+    # Setting the spell here it's because of WorldLoader precedence, we have to spell holders when loading creatures.
     def finish_loading(self):
         if not self.finished_loading:
             if self.spell_id:
