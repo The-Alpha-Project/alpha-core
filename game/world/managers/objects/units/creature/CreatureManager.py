@@ -618,7 +618,7 @@ class CreatureManager(UnitManager):
                 return SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_BEHIND
 
             # If the spell requires the target having a specific power type.
-            if not casting_spell.is_area_of_effect_spell() and not casting_spell.is_target_power_type_valid(target):
+            if not casting_spell.is_area_of_effect_spell() and not casting_spell.is_target_power_type_valid():
                 return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
 
             # No point in casting if target is immune.
