@@ -343,7 +343,7 @@ class QuestManager(object):
     def check_quest_level(self, quest_template, will_send_response):
         if self.player_mgr.level < quest_template.MinLevel:
             if will_send_response:
-                self.send_cant_take_quest_response(QuestFailedReasons.INVALIDREASON_QUEST_FAILED_LOW_LEVEL)
+                self.send_cant_take_quest_response(QuestFailedReasons.QUEST_FAILED_LOW_LEVEL)
             return False
         else:
             return True
