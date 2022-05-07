@@ -117,9 +117,42 @@ class ScriptManager:
                                                                            exclude_unit=target_world_object)
             return injured_friendlies[0] if injured_friendlies else None
         elif script_target == ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF:
-            pass
+            search_range: Optional[float] = param1
+            spell_id: int = param2
+            # Set range if not provided.
+            search_range = ScriptManager._get_search_range(search_range, spell_template)
+            # Surrounding units.
+            surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object,
+                                                                                 search_range,
+                                                                                 friends_only=True)
+            # No surrounding units found.
+            if not surrounding_units:
+                return None
+
+            for friendly_unit in surrounding_units:
+                if not friendly_unit.aura_manager.has_aura_by_spell_id(spell_id):
+                    return friendly_unit
+            # No suitable target found.
+            return None
         elif script_target == ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF_EXCEPT:
-            pass
+            search_range: Optional[float] = param1
+            spell_id: int = param2
+            # Set range if not provided.
+            search_range = ScriptManager._get_search_range(search_range, spell_template)
+            # Surrounding units.
+            surrounding_units = ScriptManager._get_surrounding_units_and_players(source_world_object,
+                                                                                 search_range,
+                                                                                 friends_only=True,
+                                                                                 exclude_unit=target_world_object)
+            # No surrounding units found.
+            if not surrounding_units:
+                return None
+
+            for friendly_unit in surrounding_units:
+                if not friendly_unit.aura_manager.has_aura_by_spell_id(spell_id):
+                    return friendly_unit
+            # No suitable target found.
+            return None
         elif script_target == ScriptTarget.TARGET_T_FRIENDLY_CC:
             pass
         elif script_target == ScriptTarget.TARGET_T_MAP_EVENT_SOURCE:
