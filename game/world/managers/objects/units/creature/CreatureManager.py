@@ -567,7 +567,7 @@ class CreatureManager(UnitManager):
     def is_casting(self):
         return self.spell_manager.is_casting()
 
-    def validate_ai_script_spell_cast(self, target, casting_spell, cast_flags, probability):
+    def validate_ai_script_spell_cast(self, target, casting_spell, cast_flags, chance):
         # Unable to initialize CastingSpell by caller.
         if not casting_spell:
             return SpellCheckCastResult.SPELL_FAILED_ERROR
@@ -637,8 +637,8 @@ class CreatureManager(UnitManager):
         # Roll chance to cast from script (must be after cast checks, this is why its here)
         # TODO: Should be checked after spell_manager do all the proper validations.
         #  Refer to prepare() in Spell.cpp - vMaNGOS
-        if probability:
-            if not probability > randint(0, 99):
+        if chance:
+            if not chance > randint(0, 99):
                 return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
 
         # Return as succeeded.

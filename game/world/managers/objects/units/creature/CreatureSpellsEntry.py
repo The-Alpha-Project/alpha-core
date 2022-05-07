@@ -22,7 +22,7 @@ class CreatureSpellsEntry:
         self.finished_loading = False
         self.has_valid_spell = False
         self.spell_id = eval(f'creature_spell.spellId_{index}')
-        self.probability = eval(f'creature_spell.probability_{index}')
+        self.chance = eval(f'creature_spell.probability_{index}')
         self.cast_target = eval(f'creature_spell.castTarget_{index}')
         self.target_param1 = eval(f'creature_spell.targetParam1_{index}')
         self.target_param2 = eval(f'creature_spell.targetParam2_{index}')
