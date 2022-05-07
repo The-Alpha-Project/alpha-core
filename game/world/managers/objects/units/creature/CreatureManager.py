@@ -567,7 +567,7 @@ class CreatureManager(UnitManager):
     def is_casting(self):
         return self.spell_manager.is_casting()
 
-    def try_to_cast(self, target, casting_spell, cast_flags, probability):
+    def validate_ai_spell_cast(self, target, casting_spell, cast_flags, probability):
         # Unable to initialize CastingSpell by caller.
         if not casting_spell:
             return SpellCheckCastResult.SPELL_FAILED_ERROR

@@ -198,11 +198,10 @@ class CreatureAI(object):
                     continue
 
                 # Validate spell cast.
-                spell_cast_result = self.creature.try_to_cast(target, casting_spell, cast_flags, probability)
+                spell_cast_result = self.creature.validate_ai_spell_cast(target, casting_spell, cast_flags, probability)
                 if spell_cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
                     do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
-                    creature_spell.cool_down = randint(creature_spell_entry.delay_init_min,
-                                                       creature_spell_entry.delay_init_max)
+                    creature_spell.set_new_random_cool_down()
                     # Stop if ranged spell.
                     if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL and self.creature.is_moving():
                         self.creature.stop_movement()
@@ -218,8 +217,7 @@ class CreatureAI(object):
                     continue
                 elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN:
                     # Probability roll failed, so we reset cooldown.
-                    creature_spell.cool_down = randint(creature_spell_entry.delay_init_min,
-                                                       creature_spell_entry.delay_init_max)
+                    creature_spell.set_new_random_cool_down()
 
     def do_cast(self, victim, spell_id, triggered):
         pass
