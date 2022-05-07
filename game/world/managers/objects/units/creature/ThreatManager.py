@@ -50,7 +50,7 @@ class ThreatManager:
                 elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOM:
                     return random.choice(relevant_holders).unit
                 elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP:
-                    return random.choice(relevant_holders[:-2]).unit
+                    return random.choice(relevant_holders[:-2]).unit if len(relevant_holders) > 1 else None
                 # Farthest or Nearest targets.
                 else:
                     surrounding_units = MapManager.get_surrounding_units(self.owner, include_players=True)
