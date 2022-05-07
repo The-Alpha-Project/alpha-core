@@ -576,7 +576,7 @@ class CreatureManager(UnitManager):
                     self.last_random_movement = now
 
     def _perform_combat_movement(self):
-        if self.combat_target and not self.spell_manager.is_casting() and not self.is_evading:
+        if self.combat_target and not self.is_casting() and not self.is_evading:
             if not self.combat_target.is_alive and len(self.attackers) == 0:
                 self.evade()
                 return
