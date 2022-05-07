@@ -253,7 +253,7 @@ class ScriptManager:
             return None
 
         # Sort them by lowest hp percentage.
-        injured_friendly_units.sort(key=lambda _unit: ScriptManager._get_unit_hp_percent(_unit))
+        injured_friendly_units.sort(key=lambda unit: ScriptManager._get_unit_hp_percent(unit))
         return injured_friendly_units
 
     @staticmethod
