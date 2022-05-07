@@ -195,9 +195,8 @@ class CastingSpell(object):
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
 
     def is_area_of_effect_spell(self):
-        area_targets = {*EffectTargets.AREA_TARGETS}
         for effect in self.get_effects():
-            if {effect.implicit_target_a, effect.implicit_target_b}.intersection(area_targets):
+            if {effect.implicit_target_a, effect.implicit_target_b}.intersection(EffectTargets.AREA_TARGETS):
                 return True
         return False
 

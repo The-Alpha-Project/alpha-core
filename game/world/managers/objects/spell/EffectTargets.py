@@ -380,7 +380,7 @@ class EffectTargets:
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     # Used by is_area_of_effect_spell.
-    AREA_TARGETS = (
+    AREA_TARGETS = {
         SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM,
         SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA,
         SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT,
@@ -392,7 +392,7 @@ class EffectTargets:
         SpellImplicitTargets.TARGET_ALL_PARTY,
         SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2,
         SpellImplicitTargets.TARGET_AREAEFFECT_PARTY,
-    )
+    }
 
 
 TARGET_RESOLVERS = {
