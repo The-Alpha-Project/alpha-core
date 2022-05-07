@@ -168,7 +168,7 @@ class CreatureAI(object):
             chance = creature_spell_entry.chance
             script_id = creature_spell_entry.script_id
             # Check cooldown and if self is casting at the moment.
-            if creature_spell.cool_down <= 0 and not self.creature.is_casting():
+            if creature_spell.cool_down <= 0:
                 # Prevent casting multiple spells in the same update, only update timers.
                 if not (cast_flags & (CastFlags.CF_TRIGGERED | CastFlags.CF_INTERRUPT_PREVIOUS)):
                     if do_not_cast or self.creature.is_casting():

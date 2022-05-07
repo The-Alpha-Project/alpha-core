@@ -58,7 +58,7 @@ class AIFactory:
         if not selected_ai and ai_name:
             selected_ai = AIFactory.get_ai_by_ai_name(ai_name, creature)
 
-        if not selected_ai and not creature.is_guard():
+        if not selected_ai and creature.is_guard():
             selected_ai = GuardAI(creature)
 
         if not selected_ai and creature.is_critter():
