@@ -3,6 +3,7 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
@@ -13,7 +14,7 @@ from utils.Logger import Logger
 from utils.constants import UnitCodes
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestMethod, \
-    QuestFlags, GameObjectTypes, ObjectTypeIds
+    QuestFlags, GameObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -21,7 +22,6 @@ from utils.constants.UpdateFields import PlayerFields
 # - active_quest refers to quests in the player's quest log.
 
 MAX_QUEST_LOG = 16
-QUEST_OBJECTIVES_COUNT = 4
 
 
 class QuestManager(object):
@@ -663,6 +663,18 @@ class QuestManager(object):
         if quest_id in self.completed_quests:
             self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ONLY_ONE_TIMED)
             return
+
+        if quest_giver_guid:
+            quest_giver = None
+            high_guid = ObjectManager.extract_high_guid(quest_giver_guid)
+
+            if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
+                quest_giver = MapManager.get_surrounding_gameobject_by_guid(self.player_mgr, quest_giver_guid)
+            elif high_guid == HighGuid.HIGHGUID_UNIT:
+                quest_giver = MapManager.get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
+
+            if not quest_giver:
+                return
 
         quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
         if not quest:
