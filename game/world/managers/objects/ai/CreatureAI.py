@@ -1,5 +1,3 @@
-from random import randint
-
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureAISpellsEntry
@@ -38,7 +36,7 @@ class CreatureAI(object):
     def has_spell_list(self):
         return len(self.creature_spells) > 0
 
-    # Called at World update tick
+    # Called at World update tick.
     def update_ai(self, elapsed):
         pass
 
@@ -74,12 +72,10 @@ class CreatureAI(object):
         pass
 
     # Called only for pets.
-    # override
     def owner_attacked_by(self, attacker):
         pass
 
     # Called only for pets.
-    # override
     def owner_attacked(self, target):
         pass
 
@@ -165,7 +161,7 @@ class CreatureAI(object):
                 creature_spell.cool_down = 0
             creature_spell_entry = creature_spell.creature_spell_entry
             cast_flags = creature_spell_entry.cast_flags
-            probability = creature_spell_entry.probability
+            chance = creature_spell_entry.chance
             script_id = creature_spell_entry.script_id
             # Check cooldown and if self is casting at the moment.
             if creature_spell.cool_down <= 0 and not self.creature.is_casting():
@@ -199,9 +195,10 @@ class CreatureAI(object):
                     continue
 
                 # Validate spell cast.
-                spell_cast_result = self.creature.validate_ai_script_spell_cast(target, casting_spell, cast_flags, probability)
-                if spell_cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
+                cast_result = self.creature.validate_ai_script_spell_cast(target, casting_spell, cast_flags, chance)
+                if cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
                     do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
+                    # Set a new random cool-down for this spell.
                     creature_spell.set_new_random_cool_down()
                     # Stop if ranged spell.
                     if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL and self.creature.is_moving():
@@ -213,11 +210,11 @@ class CreatureAI(object):
 
                     # Trigger the cast.
                     self.creature.spell_manager.start_spell_cast(initialized_spell=casting_spell)
-                elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_NOPATH \
-                        or spell_cast_result == SpellCheckCastResult.SPELL_FAILED_SPELL_IN_PROGRESS:
+                elif cast_result == SpellCheckCastResult.SPELL_FAILED_NOPATH \
+                        or cast_result == SpellCheckCastResult.SPELL_FAILED_SPELL_IN_PROGRESS:
                     continue
-                elif spell_cast_result == SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN:
-                    # Probability roll failed, so we reset cooldown.
+                elif cast_result == SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN:
+                    # Chance roll failed, so we set a new random cool-down.
                     creature_spell.set_new_random_cool_down()
 
     def do_cast(self, victim, spell_id, triggered):
