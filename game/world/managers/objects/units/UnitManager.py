@@ -565,7 +565,7 @@ class UnitManager(ObjectManager):
             if not target.in_combat:
                 target.enter_combat()
 
-        target.receive_damage(damage, source=self, is_periodic=False)
+        target.receive_damage(damage, source=self, is_periodic=is_periodic)
 
     def receive_damage(self, amount, source=None, is_periodic=False):
         if source is not self and not is_periodic and amount > 0:
