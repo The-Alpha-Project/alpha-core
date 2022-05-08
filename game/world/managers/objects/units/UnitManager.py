@@ -623,11 +623,13 @@ class UnitManager(ObjectManager):
             damage_info.hit_info = HitInfo.MISS
             damage_info.proc_victim |= ProcFlags.NONE
 
-        if casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack():  # TODO Should other spells give skill too?
+        is_cast_on_swing = casting_spell.casts_on_swing()
+        if is_cast_on_swing or casting_spell.is_ranged_weapon_attack():  # TODO Should other spells give skill too?
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
-        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID, is_periodic=is_periodic)
+        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID, is_periodic=is_periodic,
+                                        is_cast_on_swing=is_cast_on_swing)
 
         self.deal_damage(target, damage, is_periodic)
 
@@ -637,7 +639,7 @@ class UnitManager(ObjectManager):
         self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True, is_periodic=is_periodic)
         target.receive_healing(healing, self)
 
-    def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False, is_periodic=False):
+    def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False, is_periodic=False, is_cast_on_swing=False):
         flags = SpellHitFlags.HIT_FLAG_HEALED if healing else SpellHitFlags.HIT_FLAG_DAMAGE
         if is_periodic:  # Periodic damage/healing does not show in combat log - only on character frame.
             flags |= SpellHitFlags.HIT_FLAG_PERIODIC
@@ -660,6 +662,11 @@ class UnitManager(ObjectManager):
                                miss_reason, spell_id, damage_info.attacker.guid)
             MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
                                         include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
+            # TODO: SMSG_DAMAGE_DONE gets handled differently by the client by using 'DEFERREDDAMAGE' on all
+            #  cast_on_swing spells, damage never gets displayed on the client,
+            #  send SMSG_ATTACKERSTATEUPDATE in this case for now.
+            if is_cast_on_swing:
+                self.send_attack_state_update(damage_info)
 
     def set_current_target(self, guid):
         self.current_target = guid
