@@ -420,7 +420,7 @@ class UnitManager(ObjectManager):
 
         return damage_info
 
-    def send_attack_state_update(self, damage_info):
+    def send_attack_state_update(self, damage_info, deal_damage=True):
         data = pack('<I2QIBIf7I',
                     damage_info.hit_info,
                     damage_info.attacker.guid,
@@ -438,8 +438,9 @@ class UnitManager(ObjectManager):
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATE, data), self,
                                     include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
-        # Damage effects
-        self.deal_damage(damage_info.target, damage_info.total_damage)
+        if deal_damage:
+            # Damage effects
+            self.deal_damage(damage_info.target, damage_info.total_damage)
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target, apply_bonuses=True):
         min_damage, max_damage = self.calculate_min_max_damage(attack_type, attack_school, target)
@@ -666,7 +667,7 @@ class UnitManager(ObjectManager):
             #  cast_on_swing spells, damage never gets displayed on the client,
             #  send SMSG_ATTACKERSTATEUPDATE in this case for now.
             if is_cast_on_swing:
-                self.send_attack_state_update(damage_info)
+                self.send_attack_state_update(damage_info, deal_damage=False)
 
     def set_current_target(self, guid):
         self.current_target = guid
