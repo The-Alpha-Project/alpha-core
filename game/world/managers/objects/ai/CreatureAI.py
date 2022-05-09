@@ -239,7 +239,7 @@ class CreatureAI(object):
             return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
 
         # This spell should only be cast when target does not have the aura it applies.
-        if cast_flags & CastFlags.CF_AURA_NOT_PRESENT and target.aura_manager.has_aura.has_aura_by_spell_id(
+        if cast_flags & CastFlags.CF_AURA_NOT_PRESENT and target.aura_manager.has_aura_by_spell_id(
                     casting_spell.spell_entry.ID):
             return SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED
 
