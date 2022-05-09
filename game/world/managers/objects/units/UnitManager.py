@@ -284,7 +284,8 @@ class UnitManager(ObjectManager):
             swing_error = AttackSwingError.NOTSTANDING
         # Dead target
         elif not self.combat_target.is_alive:
-            self.attackers.pop(self.combat_target.guid)
+            if self.combat_target.guid in self.attackers:
+                self.attackers.pop(self.combat_target.guid)
             swing_error = AttackSwingError.DEADTARGET
         else:
             # Main hand attack
