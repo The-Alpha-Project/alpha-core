@@ -58,7 +58,7 @@ class SpellEffectHandler:
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
                                                             casting_spell.spell_entry.School,
                                                             target,
-                                                            apply_bonuses=False)  # Bonuses are applied on spell damage
+                                                            apply_bonuses=False)  # Bonuses are applied on spell damage.
 
         damage = weapon_damage + effect.get_effect_points(casting_spell.caster_effective_level)
         caster.apply_spell_damage(target, damage, casting_spell)
@@ -71,7 +71,7 @@ class SpellEffectHandler:
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
                                                             casting_spell.spell_entry.School,
                                                             target,
-                                                            apply_bonuses=False)  # Bonuses are applied on spell damage
+                                                            apply_bonuses=False)  # Bonuses are applied on spell damage.
 
         damage_bonus = effect.get_effect_points(casting_spell.caster_effective_level)
 
@@ -194,9 +194,9 @@ class SpellEffectHandler:
         current_targets = effect.targets.resolved_targets_a
 
         new_targets = [unit for unit in current_targets if
-                       unit not in previous_targets]  # Targets that can't have the aura yet
+                       unit not in previous_targets]  # Targets that can't have the aura yet.
         missing_targets = [unit for unit in previous_targets if
-                           unit not in current_targets]  # Targets that moved out of the area
+                           unit not in current_targets]  # Targets that moved out of the area.
 
         for target in new_targets:
             new_aura = AppliedAura(caster, casting_spell, effect, target)
