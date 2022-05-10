@@ -51,7 +51,7 @@ class WorldSessionStateHandler(object):
             WorldSessionStateHandler.pop_active_player(session.player_mgr)
 
     @staticmethod
-    def disonnect_old_session(new_session):
+    def disconnect_old_session(new_session):
         if not new_session or not new_session.account_mgr:
             return
 

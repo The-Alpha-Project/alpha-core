@@ -18,7 +18,7 @@ dbc_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST
 SessionHolder = scoped_session(sessionmaker(bind=dbc_db_engine, autocommit=True, autoflush=True))
 
 
-class DbcDatabaseManager(object):
+class DbcDatabaseManager:
     # ChrRaces
 
     @staticmethod
@@ -112,10 +112,10 @@ class DbcDatabaseManager(object):
     # Spell
 
     class SpellHolder:
-        SPELLS = {}
+        SPELLS: dict[int, Spell] = {}
 
         @staticmethod
-        def load_spell(spell):
+        def load_spell(spell: Spell):
             DbcDatabaseManager.SpellHolder.SPELLS[spell.ID] = spell
 
         @staticmethod
@@ -268,7 +268,7 @@ class DbcDatabaseManager(object):
     # CreatureDisplayInfo
 
     class CreatureDisplayInfoHolder:
-        CREATURE_DISPLAY_INFOS: [int, CreatureDisplayInfo] = {}
+        CREATURE_DISPLAY_INFOS: dict[int, CreatureDisplayInfo] = {}
 
         @staticmethod
         def load_creature_display_info(creature_display_info):

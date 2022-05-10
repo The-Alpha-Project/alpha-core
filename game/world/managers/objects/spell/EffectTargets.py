@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import math
 from typing import Union, Optional
 
@@ -12,10 +13,10 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects
 
 
+@dataclass
 class TargetMissInfo:
-    def __init__(self, target, result):
-        self.target = target
-        self.result = result
+    target: ObjectManager
+    result: SpellMissReason
 
 
 class EffectTargets:
