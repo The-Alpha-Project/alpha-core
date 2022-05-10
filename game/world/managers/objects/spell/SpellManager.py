@@ -743,7 +743,7 @@ class SpellManager:
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
                                                                                   target_is_facing_caster):
                 self.send_cast_result(casting_spell.spell_entry.ID,
-                                      SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
+                                      SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # No code for target must be facing caster?
                 return False
 
         # Check if the caster is within range of the (world) target to cast the spell.
@@ -867,7 +867,7 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             else:
                 self.send_cast_result(casting_spell.spell_entry.ID,
-                                      SpellCheckCastResult.SPELL_NO_ERROR)  # Health cost fail displays on client before server response
+                                      SpellCheckCastResult.SPELL_NO_ERROR)  # Health cost fail displays on client before server response.
             return False
 
         # Player only checks
