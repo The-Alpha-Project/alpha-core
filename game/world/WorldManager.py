@@ -9,6 +9,7 @@ from database.world.WorldDatabaseManager import *
 from game.world.WorldLoader import WorldLoader
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
@@ -25,13 +26,13 @@ def get_seconds_since_startup():
     return time() - STARTUP_TIME
 
 
-class WorldServerSessionHandler(object):
+class WorldServerSessionHandler:
     def __init__(self, request, client_address):
         self.request = request
         self.client_address = client_address
 
         self.account_mgr = None
-        self.player_mgr = None
+        self.player_mgr: Optional[PlayerManager] = None
         self.keep_alive = False
 
         self.incoming_pending = _queue.SimpleQueue()

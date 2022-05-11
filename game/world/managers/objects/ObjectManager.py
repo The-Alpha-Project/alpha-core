@@ -14,7 +14,7 @@ from utils.constants.UpdateFields \
     import ObjectFields
 
 
-class ObjectManager(object):
+class ObjectManager:
     def __init__(self,
                  guid=0,
                  entry=0,

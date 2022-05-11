@@ -8,7 +8,7 @@ from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from utils.constants.SpellCodes import SpellEffects
 
 
-class SpellEffect(object):
+class SpellEffect:
     effect_type: SpellEffects
     die_sides: int
     base_dice: int

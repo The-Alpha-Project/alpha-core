@@ -1,7 +1,7 @@
 import time
 
 
-class CooldownEntry(object):
+class CooldownEntry:
     spell_id: int
     cooldown_category: int
     cooldown_length: int

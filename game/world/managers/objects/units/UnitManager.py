@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 import random
 from struct import pack
@@ -5,21 +7,20 @@ from struct import pack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
-from game.world.managers.objects.units.MovementManager import MovementManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.units.player.StatManager import StatManager, UnitStats
 from game.world.managers.objects.spell.AuraManager import AuraManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
+from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
+from game.world.managers.objects.units.MovementManager import MovementManager
+from game.world.managers.objects.units.player.StatManager import StatManager, UnitStats
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
-    ProcFlagsExLegacy,HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
+    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, SplineFlags, PowerTypes, SplineType, \
-    UnitStates, Races, RegenStatsFlags, CreatureStaticFlags
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -172,7 +173,7 @@ class UnitManager(ObjectManager):
         self.disarmed_offhand = False
         self.last_regen = 0
         self.regen_flags = RegenStatsFlags.NO_REGENERATION
-        self.attackers = {}
+        self.attackers: dict[int, UnitManager] = {}
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
@@ -195,7 +196,7 @@ class UnitManager(ObjectManager):
         current_distance = self.location.distance(victim.location)
         return current_distance <= UnitFormulas.interactable_distance(self, victim)
 
-    def attack(self, victim, is_melee=True):
+    def attack(self, victim: UnitManager, is_melee=True):
         if not victim or victim == self:
             return False
 
@@ -267,7 +268,8 @@ class UnitManager(ObjectManager):
                 self.leave_combat()
             return False
 
-        if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK) or self.spell_manager.is_casting():
+        if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and \
+                not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK) or self.spell_manager.is_casting():
             return False
 
         # Out of reach
@@ -443,7 +445,8 @@ class UnitManager(ObjectManager):
             # Damage effects
             self.deal_damage(damage_info.target, damage_info.total_damage)
 
-    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target, apply_bonuses=True):
+    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target,
+                                     apply_bonuses=True):
         min_damage, max_damage = self.calculate_min_max_damage(attack_type, attack_school, target)
 
         if min_damage > max_damage:
@@ -547,7 +550,8 @@ class UnitManager(ObjectManager):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
     # Implemented by PlayerManager
-    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
+    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target,
+                               spell_attack_type: AttackTypes = -1):
         return base_damage
 
     def deal_damage(self, target, damage, is_periodic=False):
@@ -615,7 +619,8 @@ class UnitManager(ObjectManager):
         if target.is_evading:
             miss_reason = SpellMissReason.MISS_REASON_EVADED
 
-        damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target, casting_spell.spell_attack_type)
+        damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target,
+                                             casting_spell.spell_attack_type)
 
         # TODO Handle misses, absorbs etc. for spells.
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
@@ -638,8 +643,21 @@ class UnitManager(ObjectManager):
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
         miss_info = casting_spell.object_target_results[target.guid].result
         damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
-        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True, is_periodic=is_periodic)
+        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True,
+                                        is_periodic=is_periodic)
         target.receive_healing(healing, self)
+        self._threat_assist(target, healing)
+
+    def _threat_assist(self, target, source_threat: float):
+        if target.in_combat:
+            creature_observers = [attacker for attacker
+                                  in target.attackers.values()
+                                  if not attacker.object_type_mask & ObjectTypeFlags.TYPE_PLAYER]
+            observers_size = len(creature_observers)
+            if observers_size > 0:
+                threat = source_threat / observers_size
+                for creature in creature_observers:
+                    creature.threat_manager.add_threat(self, threat)
 
     def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False, is_periodic=False, is_cast_on_swing=False):
         flags = SpellHitFlags.HIT_FLAG_HEALED if healing else SpellHitFlags.HIT_FLAG_DAMAGE
@@ -647,7 +665,8 @@ class UnitManager(ObjectManager):
             flags |= SpellHitFlags.HIT_FLAG_PERIODIC
 
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
-            combat_log_data = pack('<i2Q2i', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
+            combat_log_data = pack('<i2Q2i', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id,
+                                   miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
 
@@ -813,7 +832,8 @@ class UnitManager(ObjectManager):
         return True
 
     def mount(self, mount_display_id):
-        if mount_display_id > 0 and DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):
+        if mount_display_id > 0 and \
+                DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):
             self.mount_display_id = mount_display_id
             self.unit_flags |= UnitFlags.UNIT_MASK_MOUNTED
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)

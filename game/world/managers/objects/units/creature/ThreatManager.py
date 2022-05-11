@@ -10,7 +10,7 @@ from utils.constants.ScriptCodes import AttackingTarget
 @dataclass
 class ThreatHolder:
     unit: UnitManager
-    threat: float
+    total_threat: float
 
 
 class ThreatManager:
@@ -24,20 +24,21 @@ class ThreatManager:
         if source != self:
             source_holder = self.holders.get(source.guid)
             if source_holder:
-                source_holder.threat += threat
-            else:
+                new_threat = source_holder.total_threat + threat
+                source_holder.total_threat = max(new_threat, 0.0)
+            elif threat > 0.0:
                 self.holders[source.guid] = ThreatHolder(source, threat)
 
     def get_hostile_target(self) -> Optional[UnitManager]:
         max_threat_holder = self._get_max_threat_holder()
 
         if max_threat_holder:
-            # TODO Meele/outside of meele range reach
-            exceed_meele_range = max_threat_holder.threat >= self._get_current_threat() * 1.1
-            if exceed_meele_range:
+            if not self.current_holder or \
+                    not ThreatManager._is_dangerous(self.current_holder.unit) or \
+                    self._is_exceeded_current_threat_melee_range(max_threat_holder.total_threat):
                 self.current_holder = max_threat_holder
 
-        return self._get_current_target()
+        return None if not self.current_holder else self.current_holder.unit
 
     def select_attacking_target(self, attacking_target) -> Optional[UnitManager]:
         if attacking_target == AttackingTarget.ATTACKING_TARGET_TOPAGGRO:
@@ -69,21 +70,24 @@ class ThreatManager:
     def reset(self):
         self.holders.clear()
         self.current_holder = None
-    
+
     # TODO: Optimize this method?
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
         relevant_holders = self._get_sorted_threat_collection()
         return None if not relevant_holders else relevant_holders[-1]
 
-    def _get_sorted_threat_collection(self) -> list[ThreatHolder]:
+    def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = [holder for holder
                             in self.holders.values()
-                            if holder.unit.is_alive and not holder.unit.is_evading]
-        relevant_holders.sort(key=lambda holder: holder.threat)
+                            if ThreatManager._is_dangerous(holder.unit)]
+        relevant_holders.sort(key=lambda holder: holder.total_threat)
         return relevant_holders
 
-    def _get_current_threat(self) -> float:
-        return 0 if not self.current_holder else self.current_holder.threat
+    @staticmethod
+    def _is_dangerous(unit: UnitManager):
+        return unit.is_alive and not unit.is_evading
 
-    def _get_current_target(self) -> Optional[UnitManager]:
-        return None if not self.current_holder else self.current_holder.unit
+    # TODO Melee/outside of melee range reach
+    def _is_exceeded_current_threat_melee_range(self, threat: float):
+        current_threat = 0.0 if not self.current_holder else self.current_holder.total_threat
+        return threat >= current_threat * 1.1
