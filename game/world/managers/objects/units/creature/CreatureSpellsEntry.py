@@ -4,7 +4,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 
 # References a CreatureSpellEntry, but has unit specific cool-downs.
 # This might later be somehow handled by SpellManager, and this wrapper could be deprecated then.
-class CreatureAISpellsEntry(object):
+class CreatureAISpellsEntry:
     def __init__(self, creature_spell_entry):
         self.creature_spell_entry = creature_spell_entry
         self.cool_down = randint(self.creature_spell_entry.delay_init_min, self.creature_spell_entry.delay_init_max)
