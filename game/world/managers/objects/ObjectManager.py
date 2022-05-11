@@ -276,7 +276,7 @@ class ObjectManager:
         low_guid = self.guid & ~ObjectManager.extract_high_guid(self.guid)
         return [
             f'Guid: {low_guid}, Entry: {self.entry}, Display ID: {self.current_display_id}',
-            f'X: {self.location.x}, Y: {self.location.y}, Z: {self.location.z}, O: {self.location.o}'
+            f'X: {self.location.x:.3f}, Y: {self.location.y:.3f}, Z: {self.location.z:.3f}, O: {self.location.o:.3f}'
         ]
 
     # override
