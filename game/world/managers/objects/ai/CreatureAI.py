@@ -160,15 +160,15 @@ class CreatureAI:
     def do_spell_list_cast(self, elapsed):
         do_not_cast = False
         for creature_spell in self.creature_spells:
-            creature_spell.cool_down -= elapsed
-            if creature_spell.cool_down < 0:
-                creature_spell.cool_down = 0
+            creature_spell.cooldown -= elapsed
+            if creature_spell.cooldown < 0:
+                creature_spell.cooldown = 0
             creature_spell_entry = creature_spell.creature_spell_entry
             cast_flags = creature_spell_entry.cast_flags
             chance = creature_spell_entry.chance
             script_id = creature_spell_entry.script_id
             # Check cooldown and if self is casting at the moment.
-            if creature_spell.cool_down <= 0:
+            if creature_spell.cooldown <= 0:
                 # Prevent casting multiple spells in the same update, only update timers.
                 if not (cast_flags & (CastFlags.CF_TRIGGERED | CastFlags.CF_INTERRUPT_PREVIOUS)):
                     if do_not_cast or self.creature.is_casting():
@@ -203,7 +203,7 @@ class CreatureAI:
                 if cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
                     do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
                     # Set a new random cool-down for this spell.
-                    creature_spell.set_new_random_cool_down()
+                    creature_spell.set_new_random_cooldown()
                     # Stop if ranged spell.
                     if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL and self.creature.is_moving():
                         self.creature.stop_movement()
@@ -219,7 +219,7 @@ class CreatureAI:
                     continue
                 elif cast_result == SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN:
                     # Chance roll failed, so we set a new random cool-down.
-                    creature_spell.set_new_random_cool_down()
+                    creature_spell.set_new_random_cooldown()
 
     def try_to_cast(self, target, casting_spell, cast_flags, chance):
         # Unable to initialize CastingSpell by caller.
