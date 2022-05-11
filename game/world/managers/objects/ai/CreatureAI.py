@@ -20,7 +20,7 @@ class CreatureAI:
             self.use_ai_at_control = False
             self.melee_attack = True  # If we allow melee auto attack.
             self.combat_movement = True  # If we allow targeted movement gen (chasing target).
-            self.casting_delay = 0  # Cool-down before updating spell list again.
+            self.casting_delay = 0  # Cooldown before updating spell list again.
             self.last_alert_time = 0
             self.creature_spells = []  # Contains the currently used creature_spells template.
             self.load_spell_list()
@@ -202,7 +202,7 @@ class CreatureAI:
                 cast_result = self.try_to_cast(target, casting_spell, cast_flags, chance)
                 if cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
                     do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
-                    # Set a new random cool-down for this spell.
+                    # Set a new random cooldown for this spell.
                     creature_spell.set_new_random_cooldown()
                     # Stop if ranged spell.
                     if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL and self.creature.is_moving():
@@ -218,7 +218,7 @@ class CreatureAI:
                         or cast_result == SpellCheckCastResult.SPELL_FAILED_SPELL_IN_PROGRESS:
                     continue
                 elif cast_result == SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN:
-                    # Chance roll failed, so we set a new random cool-down.
+                    # Chance roll failed, so we set a new random cooldown.
                     creature_spell.set_new_random_cooldown()
 
     def try_to_cast(self, target, casting_spell, cast_flags, chance):
