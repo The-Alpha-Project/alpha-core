@@ -371,6 +371,13 @@ class SpellEffectHandler(object):
 
         caster.pet_manager.add_pet_from_world(target)
 
+    @staticmethod
+    def handle_summon_pet(casting_spell, effect, caster, target):
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        caster.pet_manager.summon_pet(effect.misc_value)
+
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
@@ -440,6 +447,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_BIND: SpellEffectHandler.handle_bind,
     SpellEffects.SPELL_EFFECT_LEAP: SpellEffectHandler.handle_leap,
     SpellEffects.SPELL_EFFECT_TAME_CREATURE: SpellEffectHandler.handle_tame_creature,
+    SpellEffects.SPELL_EFFECT_SUMMON_PET: SpellEffectHandler.handle_summon_pet,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

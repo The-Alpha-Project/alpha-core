@@ -41,7 +41,8 @@ class PetData:
         if not skill_line_abilities:
             return []
 
-        return [skill_line_ability.Spell for skill_line_ability in skill_line_abilities]
+        # TODO Just returning highest ranks for now.
+        return [skill_line_ability.Spell for skill_line_ability in skill_line_abilities if not skill_line_ability.SupercededBySpell]
 
     def get_action_bar_values(self):
         pet_bar = [
@@ -54,7 +55,7 @@ class PetData:
 
         spells_index = PetManager.PET_BAR_SPELL_START
 
-        spell_ids = [spell | ((0x1 | 0x40 | 0x80) << 24) for spell in self.spells]
+        spell_ids = [spell | ((0x1 | 0x40 | 0x80) << 24) for spell in self.spells[:4]]
         spell_ids += [0] * (PetManager.PET_BAR_SPELL_COUNT - len(spell_ids))  # Always 4 spells, pad with 0.
         pet_bar[spells_index:spells_index] = spell_ids  # Insert spells to action bar.
 
@@ -96,6 +97,20 @@ class PetManager:
         pet = PetData(creature_template.name, creature_template, self.player.guid, permanent=lifetime_sec == -1)
         self.pets.append(pet)
         return len(self.pets) - 1
+
+    def summon_pet(self, creature_id=0):
+        if self.active_pet:
+            return
+
+        if not creature_id:
+            if not len(self.pets):
+                return
+            creature_id = self.pets[0].creature_template.entry
+
+        creature = CreatureManager.spawn(creature_id, self.player.location, self.player.map_, override_faction=self.player.faction)
+
+        self.add_pet_from_world(creature)
+        creature.respawn()
 
     def remove_pet(self, pet_index):
         if self._get_pet_info(pet_index):
