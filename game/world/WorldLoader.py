@@ -32,6 +32,7 @@ class WorldLoader:
 
         # Creature spawns
         if config.Server.Settings.load_creatures:
+            WorldLoader.load_creature_spells()
             WorldLoader.load_creature_loot_templates()
             WorldLoader.load_creature_equip_templates()
             WorldLoader.load_creatures()
@@ -142,6 +143,19 @@ class WorldLoader:
             Logger.progress('Spawning creatures...', count, length)
 
         session.close()
+        return length
+
+    @staticmethod
+    def load_creature_spells():
+        creature_spells = WorldDatabaseManager.creature_get_spell()
+        length = len(creature_spells)
+        count = 0
+
+        for creature_spell in creature_spells:
+            WorldDatabaseManager.CreatureSpellHolder.load_creature_spells(creature_spell)
+            count += 1
+            Logger.progress('Loading creature spells...', count, length)
+
         return length
 
     @staticmethod

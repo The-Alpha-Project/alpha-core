@@ -329,13 +329,13 @@ class UnitManager(ObjectManager):
 
     def attacker_state_update(self, victim, attack_type, extra):
         if attack_type == AttackTypes.BASE_ATTACK:
-            # No recent extra attack only at any non extra attack
+            # No recent extra attack only at any non-extra attack.
             if not extra and self.extra_attacks > 0:
                 self.execute_extra_attacks()
                 return
 
             if self.spell_manager.cast_queued_melee_ability(attack_type):
-                return  # Melee ability replaces regular attack
+                return  # Melee ability replaces regular attack.
 
         damage_info = self.calculate_melee_damage(victim, attack_type)
         if not damage_info:
@@ -349,7 +349,7 @@ class UnitManager(ObjectManager):
 
         self.send_attack_state_update(damage_info)
 
-        # Extra attack only at any non extra attack
+        # Extra attack only at any non-extra attack.
         if not extra and self.extra_attacks > 0:
             self.execute_extra_attacks()
 
@@ -421,7 +421,7 @@ class UnitManager(ObjectManager):
 
         return damage_info
 
-    def send_attack_state_update(self, damage_info):
+    def send_attack_state_update(self, damage_info, deal_damage=True):
         data = pack('<I2QIBIf7I',
                     damage_info.hit_info,
                     damage_info.attacker.guid,
@@ -439,8 +439,9 @@ class UnitManager(ObjectManager):
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATE, data), self,
                                     include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
-        # Damage effects
-        self.deal_damage(damage_info.target, damage_info.total_damage)
+        if deal_damage:
+            # Damage effects
+            self.deal_damage(damage_info.target, damage_info.total_damage)
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target,
                                      apply_bonuses=True):
@@ -568,7 +569,7 @@ class UnitManager(ObjectManager):
             if not target.in_combat:
                 target.enter_combat()
 
-        target.receive_damage(damage, source=self, is_periodic=False)
+        target.receive_damage(damage, source=self, is_periodic=is_periodic)
 
     def receive_damage(self, amount, source=None, is_periodic=False):
         if source is not self and not is_periodic and amount > 0:
@@ -627,11 +628,13 @@ class UnitManager(ObjectManager):
             damage_info.hit_info = HitInfo.MISS
             damage_info.proc_victim |= ProcFlags.NONE
 
-        if casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack():  # TODO Should other spells give skill too?
+        is_cast_on_swing = casting_spell.casts_on_swing()
+        if is_cast_on_swing or casting_spell.is_ranged_weapon_attack():  # TODO Should other spells give skill too?
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
-        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID, is_periodic=is_periodic)
+        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID, is_periodic=is_periodic,
+                                        is_cast_on_swing=is_cast_on_swing)
 
         self.deal_damage(target, damage, is_periodic)
 
@@ -654,7 +657,7 @@ class UnitManager(ObjectManager):
                 for creature in creature_observers:
                     creature.threat_manager.add_threat(self, threat)
 
-    def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False, is_periodic=False):
+    def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False, is_periodic=False, is_cast_on_swing=False):
         flags = SpellHitFlags.HIT_FLAG_HEALED if healing else SpellHitFlags.HIT_FLAG_DAMAGE
         if is_periodic:  # Periodic damage/healing does not show in combat log - only on character frame.
             flags |= SpellHitFlags.HIT_FLAG_PERIODIC
@@ -678,6 +681,11 @@ class UnitManager(ObjectManager):
                                miss_reason, spell_id, damage_info.attacker.guid)
             MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
                                         include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
+            # TODO: SMSG_DAMAGE_DONE gets handled differently by the client by using 'DEFERREDDAMAGE' on all
+            #  cast_on_swing spells, damage never gets displayed on the client,
+            #  send SMSG_ATTACKERSTATEUPDATE in this case for now.
+            if is_cast_on_swing:
+                self.send_attack_state_update(damage_info, deal_damage=False)
 
     def set_current_target(self, guid):
         self.current_target = guid

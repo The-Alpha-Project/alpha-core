@@ -7,7 +7,7 @@ from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes, MoveFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags
 from utils.constants.UpdateFields \
@@ -66,6 +66,7 @@ class ObjectManager:
         self.current_cell = ''
         self.last_tick = 0
         self.movement_spline = None
+        self.object_ai = None
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

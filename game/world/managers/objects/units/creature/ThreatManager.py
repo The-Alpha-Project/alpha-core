@@ -1,7 +1,10 @@
+import random
 from dataclasses import dataclass
 from typing import Optional
 
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
+from utils.constants.ScriptCodes import AttackingTarget
 
 
 @dataclass
@@ -37,18 +40,48 @@ class ThreatManager:
 
         return None if not self.current_holder else self.current_holder.unit
 
+    def select_attacking_target(self, attacking_target: AttackingTarget) -> Optional[UnitManager]:
+        if attacking_target == AttackingTarget.ATTACKING_TARGET_TOPAGGRO:
+            return self.get_hostile_target()
+        else:
+            relevant_holders = self._get_sorted_threat_collection()
+            if relevant_holders and len(relevant_holders) > 0:
+                if attacking_target == AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO:
+                    return relevant_holders[0].unit
+                elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOM:
+                    return random.choice(relevant_holders).unit
+                elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP:
+                    return random.choice(relevant_holders[:-2]).unit if len(relevant_holders) > 1 else None
+                # Farthest or Nearest targets.
+                else:
+                    surrounding_units = MapManager.get_surrounding_units(self.owner, include_players=True)
+                    units_in_range = list(surrounding_units[0].values()) + list(surrounding_units[1].values())
+                    units_in_aggro_list = [h.unit for h in relevant_holders if h.unit in units_in_range]
+                    if len(units_in_aggro_list) > 0:
+                        # Sort found units by distance.
+                        units_in_aggro_list.sort(key=lambda player: player.location.distance(self.owner.location))
+                        if attacking_target == AttackingTarget.ATTACKING_TARGET_NEAREST:
+                            return units_in_aggro_list[0]
+                        elif attacking_target == AttackingTarget.ATTACKING_TARGET_FARTHEST:
+                            return units_in_aggro_list[-1]
+        # No suitable target found.
+        return None
+
     def reset(self):
         self.holders.clear()
         self.current_holder = None
 
     # TODO: Optimize this method?
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
+        relevant_holders = self._get_sorted_threat_collection()
+        return None if not relevant_holders else relevant_holders[-1]
+
+    def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = [holder for holder
                             in self.holders.values()
                             if ThreatManager._is_dangerous(holder.unit)]
         relevant_holders.sort(key=lambda holder: holder.total_threat)
-
-        return None if not relevant_holders else relevant_holders[-1]
+        return relevant_holders
 
     @staticmethod
     def _is_dangerous(unit: UnitManager):

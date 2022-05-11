@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.world.WorldModels import *
+from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureSpellsEntry
 from utils.ConfigManager import *
 from utils.constants.MiscCodes import HighGuid
 
@@ -328,6 +329,30 @@ class WorldDatabaseManager(object):
     def creature_equip_template_get_all() -> Optional[list[CreatureEquipTemplate]]:
         world_db_session = SessionHolder()
         res = world_db_session.query(CreatureEquipTemplate).all()
+        world_db_session.close()
+        return res
+
+    class CreatureSpellHolder:
+        CREATURE_SPELLS_MAX_SPELLS = 8
+        CREATURE_SPELL_TEMPLATE: [int, CreatureSpellsEntry] = {}
+
+        @staticmethod
+        def load_creature_spells(creature_spell):
+            if creature_spell.entry not in WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE:
+                WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry] = []
+
+            for index in range(0, WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELLS_MAX_SPELLS):
+                spell_template = CreatureSpellsEntry(creature_spell, index + 1)
+                WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry].append(spell_template)
+
+        @staticmethod
+        def get_creature_spell_by_spell_list_id(spell_list_id) -> Optional[list[CreatureSpell]]:
+            return WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE.get(spell_list_id)
+
+    @staticmethod
+    def creature_get_spell() -> Optional[list[CreatureSpell]]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureSpell).all()
         world_db_session.close()
         return res
 

@@ -380,6 +380,21 @@ class EffectTargets:
     def resolve_gameobject_script_near_caster(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
+    # Used by is_area_of_effect_spell.
+    AREA_TARGETS = {
+        SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM,
+        SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA,
+        SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT,
+        SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY,
+        SpellImplicitTargets.TARGET_INFRONT,
+        SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL,
+        SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER,
+        SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA,
+        SpellImplicitTargets.TARGET_ALL_PARTY,
+        SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2,
+        SpellImplicitTargets.TARGET_AREAEFFECT_PARTY,
+    }
+
 
 TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_RANDOM_ENEMY_CHAIN_IN_AREA: EffectTargets.resolve_random_enemy_chain_in_area,

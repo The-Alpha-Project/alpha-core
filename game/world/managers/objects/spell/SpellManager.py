@@ -865,25 +865,34 @@ class SpellManager:
             return True  # Skip checks for non-unit casters.
 
         has_health_cost = casting_spell.spell_entry.PowerType == PowerTypes.TYPE_HEALTH
-        if not has_health_cost and casting_spell.spell_entry.PowerType != self.caster.power_type and \
-                casting_spell.spell_entry.ManaCost != 0:  # Doesn't have the correct power type.
+        power_cost = casting_spell.get_resource_cost()
+        has_correct_power = self.caster.power_type == casting_spell.spell_entry.PowerType or has_health_cost
+        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+        # Non players are able to cast spells even if they lack the required power.
+        ignore_wrong_power = not is_player
+
+        if not has_health_cost and power_cost and not has_correct_power and not ignore_wrong_power:
+            # Doesn't have the correct power type.
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 
         current_power = self.caster.health if has_health_cost else self.caster.get_power_type_value()
-        if casting_spell.get_resource_cost() > current_power:  # Doesn't have enough power
+        if power_cost > current_power and has_correct_power:
+            # Doesn't have enough power. Check for correct power to properly ignore wrong power if necessary.
             if not has_health_cost:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             else:
-                self.send_cast_result(casting_spell.spell_entry.ID,
-                                      SpellCheckCastResult.SPELL_NO_ERROR)  # Health cost fail displays on client before server response.
+                # Health cost fail displays on client before server response.
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
             return False
 
         # Player only checks
         if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Check if player has required combo points.
             if casting_spell.requires_combo_points() and \
-                    (casting_spell.initial_target.guid != self.caster.combo_target or self.caster.combo_points == 0):  # Doesn't have required combo points.
+                    (casting_spell.initial_target.guid != self.caster.combo_target or
+                     # Doesn't have required combo points.
+                     self.caster.combo_points == 0):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
                 return False
 
