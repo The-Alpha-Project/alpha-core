@@ -40,7 +40,7 @@ class ThreatManager:
 
         return None if not self.current_holder else self.current_holder.unit
 
-    def select_attacking_target(self, attacking_target) -> Optional[UnitManager]:
+    def select_attacking_target(self, attacking_target: AttackingTarget) -> Optional[UnitManager]:
         if attacking_target == AttackingTarget.ATTACKING_TARGET_TOPAGGRO:
             return self.get_hostile_target()
         else:
