@@ -272,26 +272,25 @@ class UnitManager(ObjectManager):
                 not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK) or self.spell_manager.is_casting():
             return False
 
-        # Out of reach
+        # Out of reach.
         if not self.is_within_interactable_distance(self.combat_target):
             swing_error = AttackSwingError.NOTINRANGE
-        # Not proper angle
+        # Not proper angle.
         elif not self.location.has_in_arc(self.combat_target.location, combat_angle):
             swing_error = AttackSwingError.BADFACING
-        # Moving
+        # Moving.
         elif self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK:
             swing_error = AttackSwingError.MOVING
-        # Not standing
+        # Not standing.
         elif self.stand_state != StandState.UNIT_STANDING:
             swing_error = AttackSwingError.NOTSTANDING
-        # Dead target
+        # Dead target.
         elif not self.combat_target.is_alive:
-            self.attackers.pop(self.combat_target.guid)
             swing_error = AttackSwingError.DEADTARGET
         else:
-            # Main hand attack
+            # Main hand attack.
             if self.is_attack_ready(AttackTypes.BASE_ATTACK):
-                # Prevent both and attacks at the same time
+                # Prevent both hand attacks at the same time.
                 if self.has_offhand_weapon():
                     if self.attack_timers[AttackTypes.OFFHAND_ATTACK] < 500:
                         self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 500)
@@ -299,9 +298,9 @@ class UnitManager(ObjectManager):
                 self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK, False)
                 self.set_attack_timer(AttackTypes.BASE_ATTACK, self.base_attack_time)
 
-            # Off hand attack
+            # Off hand attack.
             if self.has_offhand_weapon() and self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
-                # Prevent both and attacks at the same time
+                # Prevent both hand attacks at the same time.
                 if self.attack_timers[AttackTypes.BASE_ATTACK] < 500:
                     self.set_attack_timer(AttackTypes.BASE_ATTACK, 500)
 
