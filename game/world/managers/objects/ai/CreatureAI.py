@@ -9,7 +9,7 @@ from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, UnitStates
 
 
-class CreatureAI(object):
+class CreatureAI:
     # Creature spell lists should be updated every 1.2 seconds according to research.
     # https://www.reddit.com/r/wowservers/comments/834nt5/felmyst_ai_system_research/
     CREATURE_CASTING_DELAY = 1200
