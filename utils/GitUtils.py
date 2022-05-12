@@ -30,7 +30,7 @@ class GitUtils:
             return None
 
         try:
-            refs_path = path.join(PathManager.get_git_path(), GitUtils.get_head_path())
+            refs_path = path.join(PathManager.get_git_path(), head_path)
             # Get the commit hash.
             with open(refs_path, 'r') as git_head_ref_file:
                 commit_id = git_head_ref_file.read()
