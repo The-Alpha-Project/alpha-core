@@ -8,6 +8,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
+from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import HighGuid
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
@@ -638,6 +639,13 @@ class CommandManager(object):
 
         return 0, ''
 
+    @staticmethod
+    def serverinfo(world_session, args):
+        current_commit_hash = GitUtils.get_current_commit_hash()
+        message = f'Commit: {current_commit_hash}'
+
+        return 0, message
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help,
@@ -683,5 +691,6 @@ GM_COMMAND_DEFINITIONS = {
     'kick': CommandManager.kick,
     'worldoff': CommandManager.worldoff,
     'guildcreate': CommandManager.guildcreate,
-    'alltaxis': CommandManager.alltaxis
+    'alltaxis': CommandManager.alltaxis,
+    'serverinfo': CommandManager.serverinfo
 }

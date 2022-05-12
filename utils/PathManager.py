@@ -4,12 +4,15 @@ from os import path
 class PathManager:
     ROOT_PATH = ''
 
-    # Config
+    # Config.
     CONFIG_RELATIVE_PATH = 'etc/config/'
     CONFIG_FILE_NAME = 'config.yml'
 
-    # Maps
+    # Maps.
     MAPS_RELATIVE_PATH = 'etc/maps/'
+
+    # Git.
+    GIT_RELATIVE_PATH = '.git/'
 
     @staticmethod
     def set_root_path(root_path):
@@ -30,3 +33,7 @@ class PathManager:
     @staticmethod
     def get_map_file_path(map_file):
         return path.join(PathManager.get_maps_path(), map_file)
+
+    @staticmethod
+    def get_git_path():
+        return path.join(PathManager.ROOT_PATH, PathManager.GIT_RELATIVE_PATH)
