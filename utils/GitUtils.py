@@ -13,14 +13,17 @@ class GitUtils:
                 # Contains e.g. ref: ref/heads/master if on "master".
                 git_head_data = str(git_head_file.read())
                 return git_head_data.split(' ')[1].strip()
-        except FileNotFoundError:
+        except (FileNotFoundError, KeyError):
             return None
 
     @staticmethod
     def get_current_branch():
         head_path = GitUtils.get_head_path()
         if head_path:
-            return head_path.split('/')[-1]
+            try:
+                return head_path.split('/')[-1]
+            except KeyError:
+                return None
         return None
 
     @staticmethod
