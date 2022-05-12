@@ -311,8 +311,8 @@ class AuraManager:
         for aura in list(self.active_auras.values()):
             self.remove_aura(aura)
 
-    def build_update(self, send_durations=False):
-        [self.write_aura_to_unit(aura, send_duration=send_durations) for aura in list(self.active_auras.values())]
+    def build_update(self):
+        [self.write_aura_to_unit(aura, send_duration=False) for aura in list(self.active_auras.values())]
 
     def cancel_auras_by_spell_id(self, spell_id):
         auras = self.get_auras_by_spell_id(spell_id)

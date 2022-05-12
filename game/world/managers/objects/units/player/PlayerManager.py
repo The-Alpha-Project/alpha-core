@@ -517,11 +517,10 @@ class PlayerManager(UnitManager):
             self.map_ = self.pending_teleport_destination_map
             self.location = Vector(self.pending_teleport_destination.x, self.pending_teleport_destination.y, self.pending_teleport_destination.z, self.pending_teleport_destination.o)
 
-        # Player changed map. Send initial spells, applied auras, action buttons and create packet.
+        # Player changed map. Send initial spells, action buttons and create packet.
         if not self.is_relocating:
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
-            self.aura_manager.build_update(send_durations=False)
             self.enqueue_packet(self.generate_create_packet(requester=self))
 
         self.unmount()
@@ -1073,6 +1072,9 @@ class PlayerManager(UnitManager):
 
         # Quests
         self.quest_manager.build_update()
+
+        # Auras
+        self.aura_manager.build_update()
 
         return self.get_object_create_packet(requester)
 
