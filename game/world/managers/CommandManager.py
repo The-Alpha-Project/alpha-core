@@ -645,7 +645,7 @@ class CommandManager(object):
 
     @staticmethod
     def serverinfo(world_session, args):
-        os_platform = f'{platform.version()} ({platform.system()} {platform.release()})'
+        os_platform = f'{platform.system()} {platform.release()} ({platform.version()})'
         message = f'Platform: {os_platform}.\n'
 
         server_time = f'{datetime.now()}'
