@@ -4,7 +4,7 @@ from utils.PathManager import PathManager
 
 
 class GitUtils:
-    HEAD_FILE_NAME = 'HEADx'
+    HEAD_FILE_NAME = 'HEAD'
 
     @staticmethod
     def get_head_path():
