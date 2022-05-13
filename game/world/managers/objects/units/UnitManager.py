@@ -1108,14 +1108,16 @@ class UnitManager(ObjectManager):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
 
         fields_data = b''
+        dynamic_mask = self.update_packet_factory.update_mask.copy()
         for index in range(0, self.update_packet_factory.update_mask.field_count):
             # Requester will retrieve all values from UnitFields.UNIT_FIELD_AURA the first time they meet a new unit.
             if self.update_packet_factory.is_aura_field(index) and requester != self and is_create:
-                self.set_uint32(index, self.get_uint32(index))
+                fields_data += pack('<I', self.get_uint32(index))
+                dynamic_mask[index] = 1
             elif self.update_packet_factory.update_mask.is_set(index):
                 fields_data += self.update_packet_factory.update_values[index]
 
-        data += self.update_packet_factory.update_mask.to_bytes()
+        data += dynamic_mask.to_bytes()
         data += fields_data
 
         return data

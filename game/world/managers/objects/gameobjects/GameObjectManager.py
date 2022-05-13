@@ -278,13 +278,15 @@ class GameObjectManager(ObjectManager):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
 
         fields_data = b''
+        dynamic_mask = self.update_packet_factory.update_mask.copy()
         for index in range(0, self.update_packet_factory.update_mask.field_count):
             if self.update_packet_factory.is_dynamic_field(index):
-                self.set_uint32(index, self.generate_dynamic_field_value(requester))
+                fields_data += pack('<I', self.generate_dynamic_field_value(requester))
+                dynamic_mask[index] = 1
             elif self.update_packet_factory.update_mask.is_set(index):
                 fields_data += self.update_packet_factory.update_values[index]
 
-        data += self.update_packet_factory.update_mask.to_bytes()
+        data += dynamic_mask.to_bytes()
         data += fields_data
 
         return data
