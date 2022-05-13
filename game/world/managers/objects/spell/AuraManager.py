@@ -362,9 +362,7 @@ class AuraManager:
 
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index
         new_value = aura.spell_id if not clear else 0
-        # Update this field only if necessary, else the owner and other players will see as if the aura was reapplied.
-        if self.unit_mgr.should_set_uint32(field_index, new_value):
-            self.unit_mgr.set_uint32(field_index, new_value)
+        self.unit_mgr.set_uint32(field_index, new_value)
 
         self._write_aura_flag_to_unit(aura, clear)
 

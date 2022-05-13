@@ -16,7 +16,7 @@ class UpdatePacketFactory(object):
     def init_values(self, fields_size):
         self.fields_size = fields_size
         self.update_timestamps = [0] * self.fields_size
-        self.update_values = [0] * self.fields_size
+        self.update_values = [b'\x00\x00\x00\x00'] * self.fields_size
         self.update_mask.set_count(self.fields_size)
 
     def reset(self):
