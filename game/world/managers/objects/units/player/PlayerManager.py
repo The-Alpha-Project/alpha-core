@@ -528,6 +528,9 @@ class PlayerManager(UnitManager):
         # Get us in a new cell and check for pending changes.
         MapManager.update_object(self, check_pending_changes=True)
 
+        # Restore auras after teleport, else they don't show up on client.
+        self.aura_manager.restore_aura_fields()
+
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None
         self.update_lock = False
@@ -1072,9 +1075,6 @@ class PlayerManager(UnitManager):
 
         # Quests
         self.quest_manager.build_update()
-
-        # Auras
-        self.aura_manager.build_update()
 
         return self.get_object_create_packet(requester)
 

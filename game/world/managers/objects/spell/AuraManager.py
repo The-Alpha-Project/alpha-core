@@ -311,8 +311,14 @@ class AuraManager:
         for aura in list(self.active_auras.values()):
             self.remove_aura(aura)
 
-    def build_update(self):
-        [self.write_aura_to_unit(aura, send_duration=False) for aura in list(self.active_auras.values())]
+    def restore_aura_fields(self):
+        for aura in list(self.active_auras.values()):
+            if aura.passive:
+                continue
+            field_index = UnitFields.UNIT_FIELD_AURA + aura.index
+            if aura.spell_id:
+                self.unit_mgr.set_uint32(field_index, aura.spell_id)
+                self._write_aura_flag_to_unit(aura, False)
 
     def cancel_auras_by_spell_id(self, spell_id):
         auras = self.get_auras_by_spell_id(spell_id)
@@ -355,7 +361,11 @@ class AuraManager:
             return
 
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index
-        self.unit_mgr.set_uint32(field_index, aura.spell_id if not clear else 0)
+        new_value = aura.spell_id if not clear else 0
+        # Update this field only if necessary, else the owner and other players will see as if the aura was reapplied.
+        if self.unit_mgr.should_set_uint32(field_index, new_value):
+            self.unit_mgr.set_uint32(field_index, new_value)
+
         self._write_aura_flag_to_unit(aura, clear)
 
     def _write_aura_flag_to_unit(self, aura, clear=False):
@@ -367,7 +377,8 @@ class AuraManager:
         else:
             self.current_flags &= ~(0x9 << byte)
 
-        self.unit_mgr.set_uint32(UnitFields.UNIT_FIELD_AURAFLAGS + (aura.index >> 3), self.current_flags)
+        field_index = UnitFields.UNIT_FIELD_AURAFLAGS + (aura.index >> 3)
+        self.unit_mgr.set_uint32(field_index, self.current_flags)
 
     def get_next_aura_index(self, aura) -> int:
         if aura.passive:

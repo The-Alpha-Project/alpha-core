@@ -474,9 +474,6 @@ class CreatureManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
 
-        # Auras
-        self.aura_manager.build_update()
-
         for slot, virtual_item in self.virtual_item_info.items():
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, virtual_item.display_id)
             self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item.info_packed)

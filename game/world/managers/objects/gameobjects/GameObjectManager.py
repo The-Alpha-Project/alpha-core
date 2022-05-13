@@ -274,7 +274,7 @@ class GameObjectManager(ObjectManager):
         return True
 
     # override
-    def _get_fields_update(self, requester):
+    def _get_fields_update(self, is_create, requester):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
 
         # Use a temporary bit mask in case we need to set more bits.
