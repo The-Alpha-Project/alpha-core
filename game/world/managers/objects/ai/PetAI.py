@@ -1,5 +1,9 @@
+import math
+
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
+from utils.Formulas import UnitFormulas
 from utils.constants.CustomCodes import Permits
+from utils.constants.UnitCodes import SplineFlags
 
 
 class PetAI(CreatureAI):
@@ -13,6 +17,20 @@ class PetAI(CreatureAI):
 
     # override
     def update_ai(self, elapsed):
+        owner = self.creature.summoner
+        combat_position_distance = UnitFormulas.combat_distance(self.creature, owner)
+        current_distance = self.creature.location.distance(owner.location)
+
+        # If target is within combat distance, don't move but do check creature orientation.
+        if current_distance <= combat_position_distance:
+            # If this creature is not facing the attacker, update its orientation (server-side).
+            if not self.creature.location.has_in_arc(owner.location, math.pi):
+                self.creature.location.face_point(owner.location)
+            return
+
+        combat_location = owner.location.get_point_in_between(combat_position_distance, vector=self.creature.location)
+        self.creature.movement_manager.send_move_normal([combat_location], self.creature.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+
         pass
 
     # override

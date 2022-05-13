@@ -736,9 +736,7 @@ class CreatureManager(UnitManager):
         if killer.get_type_id != ObjectTypeIds.ID_PLAYER:
             # Attribute non-player kills to the creature's summoner.
             # TODO Does this also apply for player mind control?
-            owner = killer.get_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY)
-            if owner:
-                killer = MapManager.get_surrounding_player_by_guid(killer, owner)
+            killer = killer.summoner if killer.summoner else killer
 
         if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.loot_manager.generate_loot(killer)

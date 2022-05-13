@@ -5,6 +5,7 @@ from typing import Optional, NamedTuple
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
@@ -124,13 +125,14 @@ class PetManager:
         self.remove_pet(self.active_pet.pet_index)
         self.active_pet = None
 
-        creature.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, 0)
+        creature.set_summoned_by(None)
         creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, 0)
         creature.faction = creature.creature_template.faction
         creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
         creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, 0)
         creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, 0)
         creature.creature_instance.movement_type = creature.creature_template.movement_type
+        creature.object_ai = AIFactory.build_ai(creature)
 
         self.player.set_uint64(UnitFields.UNIT_FIELD_SUMMON, 0)
         self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, pack('<Q', 0)))
@@ -181,18 +183,19 @@ class PetManager:
         return self.pets[pet_index]
 
     def _tame_creature(self, creature: CreatureManager):
-        creature.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.player.guid)
+        creature.set_summoned_by(self.player)
         creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.player.guid)
 
         creature.faction = self.player.faction
         creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
-        creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, int(time.time()))
+        creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, int(time.time()))  # TODO?
 
         creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, 1)
         # Just disable random movement for now.
         creature.creature_instance.movement_type = MovementTypes.IDLE  # TODO pet movement.
 
         self.player.set_uint64(UnitFields.UNIT_FIELD_SUMMON, creature.guid)
+        creature.object_ai = AIFactory.build_ai(creature)
 
         # Required?
         # creature.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, casting_spell.spell_entry.ID)

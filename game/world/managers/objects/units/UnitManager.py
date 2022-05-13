@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import random
 from struct import pack
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -90,6 +91,7 @@ class UnitManager(ObjectManager):
                  bytes_2=0,  # combo points, 0, 0, 0
                  current_target=0,  # guid
                  combat_target=None,  # victim
+                 summoner=None,
                  **kwargs):
         super().__init__(**kwargs)
 
@@ -159,6 +161,7 @@ class UnitManager(ObjectManager):
         self.damage = damage  # current damage, max damage
         self.bytes_2 = bytes_2  # combo points, 0, 0, 0
         self.current_target = current_target
+        self.summoner = summoner
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_UNIT
         self.update_packet_factory.init_values(UnitFields.UNIT_END)
@@ -850,6 +853,10 @@ class UnitManager(ObjectManager):
     # Implemented by Creature/PlayerManager.
     def update_power_type(self):
         pass
+
+    def set_summoned_by(self, summoner: Optional[UnitManager]):
+        self.summoner = summoner
+        self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, summoner.guid if summoner else 0)
 
     def get_power_type_value(self, power_type=-1):
         if power_type == -1:
