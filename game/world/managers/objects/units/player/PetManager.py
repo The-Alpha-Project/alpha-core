@@ -9,6 +9,7 @@ from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
+from utils.constants.PetCodes import PetActionBarIndex
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
@@ -53,10 +54,11 @@ class PetData:
         # All pet actions seem to have |0x1.
         # Pet action bar flags: 0x40 for auto cast on, 0x80 for castable.
 
-        spells_index = PetManager.PET_BAR_SPELL_START
+        spells_index = PetActionBarIndex.INDEX_SPELL_START
+        max_spell_count = PetActionBarIndex.INDEX_REACT_START - spells_index
 
         spell_ids = [spell | ((0x1 | 0x40 | 0x80) << 24) for spell in self.spells[:4]]
-        spell_ids += [0] * (PetManager.PET_BAR_SPELL_COUNT - len(spell_ids))  # Always 4 spells, pad with 0.
+        spell_ids += [0] * (max_spell_count - len(spell_ids))  # Always 4 spells, pad with 0.
         pet_bar[spells_index:spells_index] = spell_ids  # Insert spells to action bar.
 
         return pet_bar
@@ -75,7 +77,7 @@ class PetManager:
 
     def add_pet_from_world(self, creature: CreatureManager, lifetime_sec=-1):
         if self.active_pet:
-            return  # TODO
+            return
 
         creature.leave_combat(force=True)
         self._tame_creature(creature)
@@ -165,6 +167,7 @@ class PetManager:
             active_pet_unit.spell_manager.handle_cast_attempt(action_id, target_unit, target_mask)
 
         elif action & (0x01 << 24):
+            # Command state action.
             self.get_active_pet_info().command_state = action_id
             self.active_pet.creature.object_ai.command_state_update()
             if action_id == 2 and target_unit:
@@ -200,11 +203,12 @@ class PetManager:
 
         creature.faction = self.player.faction
         creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
-        creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, int(time.time()))  # TODO?
 
+        # TODO pet naming/pet number?
+        creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, int(time.time()))
         creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, 1)
         # Just disable random movement for now.
-        creature.creature_instance.movement_type = MovementTypes.IDLE  # TODO pet movement.
+        creature.creature_instance.movement_type = MovementTypes.IDLE
 
         self.player.set_uint64(UnitFields.UNIT_FIELD_SUMMON, creature.guid)
         creature.object_ai = AIFactory.build_ai(creature)
@@ -220,11 +224,10 @@ class PetManager:
 
         pet_info = self._get_pet_info(self.active_pet.pet_index)
 
-        bar_slots = 10
         # Creature guid, time limit, react state (0 = passive, 1 = defensive, 2 = aggressive),
         # command state (0 = stay, 1 = follow, 2 = attack, 3 = dismiss),
         # ??, Enabled (0x0 : 0x8)
-        signature = f'<QI4B{bar_slots}I2B'
+        signature = f'<QI4B{PetActionBarIndex.INDEX_END}I2B'
         data = [self.active_pet.creature.guid, 0, pet_info.react_state, pet_info.command_state, 0, 0]
 
         data.extend(pet_info.get_action_bar_values())
@@ -234,10 +237,3 @@ class PetManager:
 
         packet = pack(signature, *data)
         self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, packet))
-
-    # TODO As enum.
-    PET_BAR_SLOTS = 10
-    PET_BAR_SPELL_START = 3
-    PET_BAR_SPELL_COUNT = 4
-    PET_BAR_REACTION_START = 7
-

@@ -3,6 +3,7 @@ import math
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.Formulas import UnitFormulas
 from utils.constants.CustomCodes import Permits
+from utils.constants.PetCodes import PetCommandState
 from utils.constants.UnitCodes import SplineFlags, CreatureStaticFlags
 
 
@@ -123,15 +124,17 @@ class PetAI(CreatureAI):
             self.creature.movement_manager.send_move_stop()
             self.creature.movement_manager.pending_waypoints.clear()
 
-        if self._get_command_state() != 2:
-            self.creature.attack_stop()
+        if self._get_command_state() != PetCommandState.COMMAND_ATTACK:
+            self.creature.attack_stop()  # Always stop attacking if new state isn't attack.
 
-        if self._get_command_state() == 0:  # Stay
+        if self._get_command_state() == PetCommandState.COMMAND_STAY:
+            # Stop in place place and update stay position.
             if not self.creature.combat_target:
                 self.is_at_home = True
             self.stay_position = self.creature.location.copy()
 
-        if self._get_command_state() == 1:  # Follow
+        if self._get_command_state() == PetCommandState.COMMAND_FOLLOW:
+            # Clear stay position, constantly follow player.
             self.stay_position = None
             self.is_at_home = False
 
