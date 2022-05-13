@@ -1117,7 +1117,7 @@ class UnitManager(ObjectManager):
             elif self.update_packet_factory.update_mask.is_set(index):
                 fields_data += self.update_packet_factory.update_values[index]
 
-        data += dynamic_mask.to_bytes()
+        data += dynamic_mask.tobytes()
         data += fields_data
 
         return data
