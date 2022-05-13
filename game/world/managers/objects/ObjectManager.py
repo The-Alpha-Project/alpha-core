@@ -215,23 +215,13 @@ class ObjectManager:
 
     def _get_fields_update(self, is_create, requester):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
-
-        fields_data = b''
-        for index in range(0, self.update_packet_factory.update_mask.field_count):
-            # Requester will retrieve all values from UnitFields.UNIT_FIELD_AURA the first time they meet a new unit.
-            if self.is_aura_field(index) and requester != self and is_create:
-                self.set_uint32(index, self.get_uint32(index))
-            elif self.update_packet_factory.update_mask.is_set(index):
-                fields_data += self.update_packet_factory.update_values[index]
-
         data += self.update_packet_factory.update_mask.to_bytes()
-        data += fields_data
+
+        for i in range(0, self.update_packet_factory.update_mask.field_count):
+            if self.update_packet_factory.update_mask.is_set(i):
+                data += self.update_packet_factory.update_values[i]
 
         return data
-
-    # noinspection PyMethodMayBeStatic
-    def is_aura_field(self, index):
-        return UnitFields.UNIT_FIELD_AURA <= index <= UnitFields.UNIT_FIELD_AURA + 55
 
     def set_int32(self, index, value):
         if self.get_int32(index) != value:

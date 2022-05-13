@@ -279,7 +279,7 @@ class GameObjectManager(ObjectManager):
 
         fields_data = b''
         for index in range(0, self.update_packet_factory.update_mask.field_count):
-            if self.is_dynamic_field(index):
+            if self.update_packet_factory.is_dynamic_field(index):
                 self.set_uint32(index, self.generate_dynamic_field_value(requester))
             elif self.update_packet_factory.update_mask.is_set(index):
                 fields_data += self.update_packet_factory.update_values[index]
@@ -288,10 +288,6 @@ class GameObjectManager(ObjectManager):
         data += fields_data
 
         return data
-
-    def is_dynamic_field(self, index):
-        # TODO: Check more fields?
-        return index == GameObjectFields.GAMEOBJECT_DYN_FLAGS
 
     def generate_dynamic_field_value(self, requester):
         # TODO: Handle more dynamic cases.
