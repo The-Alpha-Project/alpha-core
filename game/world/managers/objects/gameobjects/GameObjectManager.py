@@ -277,24 +277,19 @@ class GameObjectManager(ObjectManager):
     def _get_fields_update(self, is_create, requester):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
 
-        # Use a temporary bit mask in case we need to set more bits.
-        temporal_mask = self.update_packet_factory.update_mask.copy()
         fields_data = b''
+        dynamic_mask = self.update_packet_factory.update_mask.copy()
         for index in range(0, self.update_packet_factory.update_mask.field_count):
-            if self.is_dynamic_field(index):
-                fields_data += self.generate_dynamic_field_value(requester)
-                temporal_mask[index] = 1
+            if self.update_packet_factory.is_dynamic_field(index):
+                fields_data += pack('<I', self.generate_dynamic_field_value(requester))
+                dynamic_mask[index] = 1
             elif self.update_packet_factory.update_mask.is_set(index):
                 fields_data += self.update_packet_factory.update_values[index]
 
-        data += temporal_mask.tobytes()
+        data += dynamic_mask.tobytes()
         data += fields_data
 
         return data
-
-    def is_dynamic_field(self, index):
-        # TODO: Check more fields?
-        return index == GameObjectFields.GAMEOBJECT_DYN_FLAGS
 
     def generate_dynamic_field_value(self, requester):
         # TODO: Handle more dynamic cases.
@@ -302,8 +297,8 @@ class GameObjectManager(ObjectManager):
         if self.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
                 self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             if requester.quest_manager.should_interact_with_go(self):
-                return pack('<I', 1)
-        return pack('<I', 0)
+                return 1
+        return 0
 
     # override
     def get_full_update_packet(self, requester):

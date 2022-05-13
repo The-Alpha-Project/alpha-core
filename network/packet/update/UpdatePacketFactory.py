@@ -4,8 +4,10 @@ from struct import pack
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdateMask import UpdateMask
 from utils.constants.OpCodes import OpCode
+from utils.constants.UpdateFields import GameObjectFields, UnitFields
 
 
+# noinspection PyMethodMayBeStatic
 class UpdatePacketFactory(object):
     def __init__(self):
         self.fields_size = 0
@@ -16,7 +18,7 @@ class UpdatePacketFactory(object):
     def init_values(self, fields_size):
         self.fields_size = fields_size
         self.update_timestamps = [0] * self.fields_size
-        self.update_values = [0] * self.fields_size
+        self.update_values = [b'\x00\x00\x00\x00'] * self.fields_size
         self.update_mask.set_count(self.fields_size)
 
     def reset(self):
@@ -46,6 +48,13 @@ class UpdatePacketFactory(object):
             self.update_timestamps[index] = time.time()
             self.update_values[index] = pack(f'<{value_type}', value)
             self.update_mask.set_bit(index)
+
+    def is_dynamic_field(self, index):
+        # TODO: Check more cases?
+        return index == GameObjectFields.GAMEOBJECT_DYN_FLAGS
+
+    def is_aura_field(self, index):
+        return UnitFields.UNIT_FIELD_AURA <= index <= UnitFields.UNIT_FIELD_AURA + 55
 
     @staticmethod
     def compress_if_needed(update_packet):
