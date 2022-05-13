@@ -3,7 +3,7 @@ import math
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.Formulas import UnitFormulas
 from utils.constants.CustomCodes import Permits
-from utils.constants.UnitCodes import SplineFlags
+from utils.constants.UnitCodes import SplineFlags, CreatureStaticFlags
 
 
 class PetAI(CreatureAI):
@@ -13,7 +13,8 @@ class PetAI(CreatureAI):
             self.update_allies_timer = 0
             self.allies = ()
             self.update_allies()
-            self.has_melee = True if self.creature.entry != 416 else False  # Warlock imp has no melee attack.
+
+            self.has_melee = self.creature.static_flags & CreatureStaticFlags.NO_MELEE != 0
 
             # TODO Current pet behavior is quite temporary.
             # Pets are still controlled by the existing combat behavior in CreatureManager,
