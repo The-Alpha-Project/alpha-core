@@ -8,7 +8,6 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
-from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import MovementTypes
@@ -152,22 +151,28 @@ class PetManager:
             return
 
         target_unit = MapManager.get_surrounding_unit_by_guid(active_pet_unit, target_guid, include_players=True)
-        if not target_unit:
-            return
 
         if action_id > 2:
-            Logger.info(f"Spellcast action: {action_id}")
-            target_mask = SpellTargetMask.SELF if target_unit.guid == active_pet_unit.guid \
+            target_mask = SpellTargetMask.SELF if not target_unit or target_unit.guid == active_pet_unit.guid \
                 else SpellTargetMask.UNIT
             active_pet_unit.spell_manager.handle_cast_attempt(action_id, target_unit, target_mask)
 
         elif action & (0x01 << 24):
-            if action_id == 2:
-                active_pet_unit.attack(target_unit)
-            Logger.info(f"Attack (2)/Follow (1)/Stay(0): {action_id}")
+            self.get_active_pet_info().command_state = action_id
+            self.active_pet.creature.object_ai.command_state_update()
+            if action_id == 2 and target_unit:
+                self.active_pet.creature.object_ai.attack_start(target_unit)
 
         else:
-            Logger.info(f"Aggressive (2)/Defensive (1)/Passive(0): {action_id}")
+            self.get_active_pet_info().react_state = action_id
+
+
+    def get_active_pet_command_state(self):
+        pet_info = self.get_active_pet_info()
+        if not pet_info:
+            return 0
+
+        return pet_info.command_state
 
     def handle_cast_result(self, spell_id, result):
         if result == SpellCheckCastResult.SPELL_NO_ERROR:
