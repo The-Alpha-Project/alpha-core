@@ -87,7 +87,7 @@ class PetAI(CreatureAI):
         current_distance = self.creature.location.distance(target_location)
 
         # If target point is within combat distance, don't move.
-        if abs(current_distance - combat_position_distance) < 0.01:
+        if current_distance <= combat_position_distance:
             return
 
         max_distance_loc = target_location.get_point_in_between(combat_position_distance, vector=self.creature.location)
@@ -133,7 +133,6 @@ class PetAI(CreatureAI):
         if self._get_command_state() == 1:  # Follow
             self.stay_position = None
             self.is_at_home = False
-
 
     def _get_command_state(self):
         pet_info = self.creature.summoner.pet_manager.get_active_pet_info()
