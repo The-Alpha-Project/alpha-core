@@ -517,7 +517,7 @@ class PlayerManager(UnitManager):
             self.map_ = self.pending_teleport_destination_map
             self.location = Vector(self.pending_teleport_destination.x, self.pending_teleport_destination.y, self.pending_teleport_destination.z, self.pending_teleport_destination.o)
 
-        # Player changed map, send initial spells, action buttons and create packet.
+        # Player changed map. Send initial spells, action buttons and create packet.
         if not self.is_relocating:
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
@@ -527,6 +527,9 @@ class PlayerManager(UnitManager):
 
         # Get us in a new cell and check for pending changes.
         MapManager.update_object(self, check_pending_changes=True)
+
+        # Restore auras after teleport, else they don't show up on client.
+        self.aura_manager.restore_aura_fields()
 
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None
