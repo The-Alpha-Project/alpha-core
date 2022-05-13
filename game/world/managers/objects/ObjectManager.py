@@ -224,8 +224,7 @@ class ObjectManager:
         return data
 
     def set_int32(self, index, value):
-        if self.get_int32(index) != value:
-            self.update_packet_factory.update(index, value, 'i')
+        self.update_packet_factory.update(index, value, 'i')
 
     def get_int32(self, index):
         if self.update_packet_factory.update_mask.is_set(index):
@@ -233,8 +232,7 @@ class ObjectManager:
         return 0
 
     def set_uint32(self, index, value):
-        if self.get_uint32(index) != value:
-            self.update_packet_factory.update(index, value, 'I')
+        self.update_packet_factory.update(index, value, 'I')
 
     def get_uint32(self, index):
         if self.update_packet_factory.update_mask.is_set(index):
@@ -242,8 +240,7 @@ class ObjectManager:
         return 0
 
     def set_int64(self, index, value):
-        if self.get_int64(index) != value:
-            self.update_packet_factory.update(index, value, 'q')
+        self.update_packet_factory.update(index, value, 'q')
 
     def get_int64(self, index):
         if self.update_packet_factory.update_mask.is_set(index):
@@ -252,8 +249,7 @@ class ObjectManager:
         return 0
 
     def set_uint64(self, index, value):
-        if self.get_uint64(index) != value:
-            self.update_packet_factory.update(index, value, 'Q')
+        self.update_packet_factory.update(index, value, 'Q')
 
     def get_uint64(self, index):
         if self.update_packet_factory.update_mask.is_set(index):
@@ -262,8 +258,7 @@ class ObjectManager:
         return 0
 
     def set_float(self, index, value):
-        if self.get_float(index) != value:
-            self.update_packet_factory.update(index, value, 'f')
+        self.update_packet_factory.update(index, value, 'f')
 
     def get_float(self, index):
         if self.update_packet_factory.update_mask.is_set(index):
