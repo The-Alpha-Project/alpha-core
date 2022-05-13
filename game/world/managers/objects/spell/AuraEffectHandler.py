@@ -198,7 +198,7 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mod_charm(aura, effect_target, remove):
         if remove:
-            aura.caster.pet_manager.remove_active_pet()
+            aura.caster.pet_manager.detach_active_pet()
             # TODO Generate threat?
             return
 

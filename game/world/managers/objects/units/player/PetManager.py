@@ -116,13 +116,20 @@ class PetManager:
         if self._get_pet_info(pet_index):
             self.pets.pop(pet_index)
 
-    def remove_active_pet(self):
+    def detach_active_pet(self):
         if not self.active_pet:
             return
 
         creature = self.active_pet.creature
-        self.remove_pet(self.active_pet.pet_index)
+        is_permanent = self.get_active_pet_info().permanent
+        pet_index = self.active_pet.pet_index
         self.active_pet = None
+
+        if is_permanent:
+            creature.despawn()
+            return
+        else:
+            self.remove_pet(pet_index)
 
         creature.set_summoned_by(None)
         creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, 0)

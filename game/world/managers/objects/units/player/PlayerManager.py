@@ -270,6 +270,7 @@ class PlayerManager(UnitManager):
 
         self.spell_manager.remove_all_casts()
         self.aura_manager.remove_all_auras()
+        self.pet_manager.detach_active_pet()
         self.leave_combat(force=True)
 
         # Channels weren't saved on logout until Patch 0.5.5
