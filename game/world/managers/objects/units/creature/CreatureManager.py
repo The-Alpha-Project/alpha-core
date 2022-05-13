@@ -10,6 +10,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
+from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
@@ -24,8 +25,8 @@ from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, \
     TrainerTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
+    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -76,6 +77,7 @@ class CreatureManager(UnitManager):
         self.emote_state = 0
         self.faction = self.creature_template.faction
         self.creature_type = self.creature_template.type
+        self.spell_list_id = self.creature_template.spell_list_id
         self.sheath_state = WeaponMode.NORMALMODE
         self.regen_flags = self.creature_template.regeneration
         self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
@@ -317,9 +319,28 @@ class CreatureManager(UnitManager):
                     if addon_template.mount_display_id > 0:
                         self.mount(addon_template.mount_display_id)
 
+                # Creature AI.
+                self.object_ai = AIFactory.build_ai(self)
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses(replenish=True)
                 self.fully_loaded = True
+
+    def is_guard(self):
+        return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_GUARD
+
+    def can_summon_guards(self):
+        return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_SUMMON_GUARD
+
+    def is_critter(self):
+        return self.creature_template.type == CreatureTypes.AMBIENT
+
+    # TODO, should be able to check 'ownership' or set a custom flag upon creature creation.
+    def is_pet(self):
+        return False
+
+    # TODO, should be able to check 'ownership' or set a custom flag upon creature creation.
+    def is_totem(self):
+        return False
 
     def set_virtual_item(self, slot, item_entry):
         item_template = None
@@ -539,6 +560,15 @@ class CreatureManager(UnitManager):
             waypoints.append(self.spawn_position)
         return waypoints, z_locked
 
+    def is_moving(self):
+        return self.movement_manager.unit_is_moving()
+
+    def stop_movement(self):
+        self.movement_manager.send_move_stop()
+
+    def is_casting(self):
+        return self.spell_manager.is_casting()
+
     def _perform_random_movement(self, now):
         # Do not wander in combat, while evading or without wander flag.
         if not self.in_combat and not self.is_evading and self.creature_instance.movement_type == MovementTypes.WANDER:
@@ -550,7 +580,7 @@ class CreatureManager(UnitManager):
                     self.last_random_movement = now
 
     def _perform_combat_movement(self):
-        if self.combat_target:
+        if self.combat_target and not self.is_casting() and not self.is_evading:
             if not self.combat_target.is_alive and len(self.attackers) == 0:
                 self.evade()
                 return
@@ -617,16 +647,19 @@ class CreatureManager(UnitManager):
             if self.is_alive and self.is_spawned:
                 # Regeneration.
                 self.regenerate(elapsed)
-                # Spell/aura updates
+                # Spell/Aura Update.
                 self.spell_manager.update(now)
                 self.aura_manager.update(now)
-                # Movement Updates
+                # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
-                # Random Movement
+                # Random Movement.
                 self._perform_random_movement(now)
-                # Combat movement
+                # Combat Movement.
                 self._perform_combat_movement()
-                # Attack update
+                # AI.
+                if self.object_ai:
+                    self.object_ai.update_ai(elapsed)
+                # Attack Update.
                 if self.combat_target and self.is_within_interactable_distance(self.combat_target):
                     self.attack_update(elapsed)
             # Dead
@@ -663,8 +696,8 @@ class CreatureManager(UnitManager):
 
         if self.is_alive:
             # If creature's being attacked by another unit, automatically set combat target.
-            not_gameobject_attacked = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
-            if not self.combat_target and not_gameobject_attacked:
+            not_attacked_by_gameobject = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
+            if not self.combat_target and not_attacked_by_gameobject:
                 # Make sure to first stop any movement right away.
                 if len(self.movement_manager.pending_waypoints) > 0:
                     self.movement_manager.send_move_stop()

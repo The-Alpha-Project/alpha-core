@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -8,10 +10,13 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
+from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import HighGuid
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UpdateFields import PlayerFields
+
+import platform
 
 
 # noinspection SpellCheckingInspection,PyUnusedLocal
@@ -638,10 +643,28 @@ class CommandManager(object):
 
         return 0, ''
 
+    @staticmethod
+    def serverinfo(world_session, args):
+        os_platform = f'{platform.system()} {platform.release()} ({platform.version()})'
+        message = f'Platform: {os_platform}.\n'
+
+        server_time = f'{datetime.now()}'
+        message += f'Server Time: {server_time}.\n'
+
+        server_uptime = timedelta(seconds=WorldManager.get_seconds_since_startup())
+        message += f'Uptime: {server_uptime}.\n'
+
+        current_commit_hash = GitUtils.get_current_commit_hash()
+        current_branch = GitUtils.get_current_branch()
+        message += f'Commit: [{current_branch}] {current_commit_hash}.'
+
+        return 0, message
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help,
-    'suicide': CommandManager.suicide
+    'suicide': CommandManager.suicide,
+    'serverinfo': CommandManager.serverinfo
 }
 
 # noinspection SpellCheckingInspection

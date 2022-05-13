@@ -40,7 +40,7 @@ class AuthSessionHandler(object):
                 else:
                     auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT
 
-        WorldSessionStateHandler.disonnect_old_session(world_session)
+        WorldSessionStateHandler.disconnect_old_session(world_session)
         WorldSessionStateHandler.add(world_session)
 
         data = pack('<B', auth_code)

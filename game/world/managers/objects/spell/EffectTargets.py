@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import math
 from typing import Union, Optional
 
@@ -12,10 +13,10 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects
 
 
+@dataclass
 class TargetMissInfo:
-    def __init__(self, target, result):
-        self.target = target
-        self.result = result
+    target: ObjectManager
+    result: SpellMissReason
 
 
 class EffectTargets:
@@ -419,6 +420,21 @@ class EffectTargets:
     @staticmethod
     def resolve_gameobject_script_near_caster(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
+
+    # Used by is_area_of_effect_spell.
+    AREA_TARGETS = {
+        SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM,
+        SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA,
+        SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT,
+        SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY,
+        SpellImplicitTargets.TARGET_INFRONT,
+        SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL,
+        SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER,
+        SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA,
+        SpellImplicitTargets.TARGET_ALL_PARTY,
+        SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2,
+        SpellImplicitTargets.TARGET_AREAEFFECT_PARTY,
+    }
 
 
 TARGET_RESOLVERS = {

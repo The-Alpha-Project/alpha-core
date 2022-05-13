@@ -4,6 +4,7 @@ from struct import pack
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.dbc.DbcModels import Spell
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterSpell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
@@ -25,12 +26,12 @@ from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode
 from utils.constants.UpdateFields import UnitFields
 
 
-class SpellManager(object):
+class SpellManager:
     def __init__(self, caster):
         self.caster = caster  # GameObject, Unit or Player.
-        self.spells = {}
-        self.cooldowns = []
-        self.casting_spells = []
+        self.spells: dict[int, CharacterSpell] = {}
+        self.cooldowns: list[CooldownEntry] = []
+        self.casting_spells: list[CastingSpell] = []
 
     def load_spells(self):
         for spell in RealmDatabaseManager.character_get_spells(self.caster.guid):
@@ -116,7 +117,8 @@ class SpellManager(object):
                 break
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_info.spell_id)
             if not spell:
-                Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} ({item.item_template.name}) could not be found in the spell database.')
+                Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} '
+                               f'({item.item_template.name}) could not be found in the spell database.')
                 continue
 
             casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, item)
@@ -140,15 +142,15 @@ class SpellManager(object):
 
         self.start_spell_cast(spell, spell_target, target_mask, triggered=triggered)
 
-    def try_initialize_spell(self, spell, spell_target, target_mask, source_item=None,
+    def try_initialize_spell(self, spell: Optional[Spell], spell_target, target_mask, source_item=None,
                              triggered=False, validate=True) -> Optional[CastingSpell]:
         spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item, triggered=triggered)
         if not validate:
             return spell
         return spell if self.validate_cast(spell) else None
 
-    def start_spell_cast(self, spell=None, spell_target=None, target_mask=SpellTargetMask.SELF, source_item=None,
-                         triggered=False, initialized_spell=None):
+    def start_spell_cast(self, spell: Optional[Spell]=None, spell_target=None, target_mask=SpellTargetMask.SELF,
+                         source_item=None, triggered=False, initialized_spell: Optional[CastingSpell]=None):
         casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item, triggered=triggered) \
             if not initialized_spell else initialized_spell
 
@@ -182,7 +184,7 @@ class SpellManager(object):
         # Spell is instant, perform cast
         self.perform_spell_cast(casting_spell, validate=False)
 
-    def perform_spell_cast(self, casting_spell, validate=True):
+    def perform_spell_cast(self, casting_spell: CastingSpell, validate=True):
         if validate and not self.validate_cast(casting_spell):
             self.remove_cast(casting_spell)
             return
@@ -224,7 +226,8 @@ class SpellManager(object):
         self.set_on_cooldown(casting_spell)
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
-    def apply_spell_effects(self, casting_spell, remove=False, update=False, partial_targets=None):
+    def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False,
+                            partial_targets: Optional[list[int]]=None):
         if not update:
             self.handle_procs_for_cast(casting_spell)
 
@@ -305,7 +308,8 @@ class SpellManager(object):
 
             cast_finished = casting_spell.cast_end_timestamp <= timestamp
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:  # Channel tick/spells that need updates.
-                self.handle_spell_effect_update(casting_spell, timestamp)  # Update effects if the cast wasn't interrupted.
+                self.handle_spell_effect_update(casting_spell,
+                                                timestamp)  # Update effects if the cast wasn't interrupted.
 
                 if casting_spell.is_channeled() and cast_finished:
                     self.remove_cast(casting_spell)
@@ -318,7 +322,9 @@ class SpellManager(object):
                         self.remove_cast(casting_spell)
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:  # Waiting for impact delay.
-                targets_due = [guid for guid, stamp in casting_spell.spell_impact_timestamps.items() if stamp <= timestamp]
+                targets_due = [guid for guid, stamp
+                               in casting_spell.spell_impact_timestamps.items()
+                               if stamp <= timestamp]
                 if not targets_due:
                     continue
 
@@ -358,7 +364,8 @@ class SpellManager(object):
                         continue
 
                     # TODO Do crushing blows interrupt channeling too?
-                    if not (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT) and hit_info != HitInfo.CRUSHING and \
+                    if not (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT) and \
+                            hit_info != HitInfo.CRUSHING and \
                             flag != SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT:
                         casting_spell.handle_partial_interrupt()
                     else:
@@ -390,7 +397,8 @@ class SpellManager(object):
             for miss_info in casting_spell.object_target_results.values():  # Get the last effect application results.
                 if not miss_info.target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
                     continue
-                miss_info.target.aura_manager.cancel_auras_by_spell_id(casting_spell.spell_entry.ID)  # Cancel effects from this aura.
+                miss_info.target.aura_manager.cancel_auras_by_spell_id(
+                    casting_spell.spell_entry.ID)  # Cancel effects from this aura.
 
         if casting_spell.is_channeled():
             self.handle_channel_end(casting_spell)
@@ -426,7 +434,7 @@ class SpellManager(object):
             # Interrupt handling
             if not casting_spell.initial_target_is_unit_or_player() or \
                     (casting_spell.spell_target_mask == SpellTargetMask.SELF and not
-                        casting_spell.requires_implicit_initial_unit_target()) or \
+                    casting_spell.requires_implicit_initial_unit_target()) or \
                     (casting_spell.is_instant_cast() and not casting_spell.is_channeled()):
                 # Ignore spells that are non-unit targeted, self-cast or instant.
                 continue
@@ -529,7 +537,8 @@ class SpellManager(object):
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        data = pack('<2I', casting_spell.spell_entry.ID, casting_spell.duration_entry.Duration)  # No channeled spells with duration per level.
+        data = pack('<2I', casting_spell.spell_entry.ID,
+                    casting_spell.duration_entry.Duration)  # No channeled spells with duration per level.
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
         # TODO Channeling animations do not play
 
@@ -643,7 +652,8 @@ class SpellManager(object):
                 if cooldown.spell_id == spell.ID:
                     cooldown.unlock(timestamp)
                     return
-            Logger.warning(f'[SpellManager]: Attempted to unlock cooldown for spell {spell.ID}, but the cooldown didn\'t exist.')
+            Logger.warning(f'[SpellManager]: Attempted to unlock cooldown for spell {spell.ID}, '
+                           f'but the cooldown didn\'t exist.')
 
         cooldown_entry = CooldownEntry(spell, timestamp, casting_spell.trigger_cooldown_on_aura_remove())
         self.cooldowns.append(cooldown_entry)
@@ -682,7 +692,7 @@ class SpellManager(object):
         for spell in list(self.casting_spells):
             if spell.spell_entry.ID == spell_id and \
                     (spell.cast_state == SpellState.SPELL_STATE_CASTING or
-                        (spell.is_channeled() and spell.cast_state == SpellState.SPELL_STATE_ACTIVE)):
+                     (spell.is_channeled() and spell.cast_state == SpellState.SPELL_STATE_ACTIVE)):
                 return True
         return False
 
@@ -691,7 +701,8 @@ class SpellManager(object):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
 
-        if (not casting_spell.triggered and not casting_spell.source_item) and casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING and \
+        if (not casting_spell.triggered and not casting_spell.source_item) and \
+                casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING and \
                 self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
                 (not casting_spell.spell_entry or casting_spell.spell_entry.ID not in self.spells):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
@@ -739,8 +750,10 @@ class SpellManager(object):
 
         if casting_spell.initial_target_is_unit_or_player():  # Orientation checks.
             target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location, math.pi)
-            if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID, target_is_facing_caster):
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # no code for target must be facing caster?
+            if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
+                                                                                  target_is_facing_caster):
+                self.send_cast_result(casting_spell.spell_entry.ID,
+                                      SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # No code for target must be facing caster?
                 return False
 
         # Check if the caster is within range of the (world) target to cast the spell.
@@ -877,24 +890,34 @@ class SpellManager(object):
             return True  # Skip checks for non-unit casters.
 
         has_health_cost = casting_spell.spell_entry.PowerType == PowerTypes.TYPE_HEALTH
-        if not has_health_cost and casting_spell.spell_entry.PowerType != self.caster.power_type and \
-                casting_spell.spell_entry.ManaCost != 0:  # Doesn't have the correct power type.
+        power_cost = casting_spell.get_resource_cost()
+        has_correct_power = self.caster.power_type == casting_spell.spell_entry.PowerType or has_health_cost
+        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+        # Non players are able to cast spells even if they lack the required power.
+        ignore_wrong_power = not is_player
+
+        if not has_health_cost and power_cost and not has_correct_power and not ignore_wrong_power:
+            # Doesn't have the correct power type.
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             return False
 
         current_power = self.caster.health if has_health_cost else self.caster.get_power_type_value()
-        if casting_spell.get_resource_cost() > current_power:  # Doesn't have enough power
+        if power_cost > current_power and has_correct_power:
+            # Doesn't have enough power. Check for correct power to properly ignore wrong power if necessary.
             if not has_health_cost:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
             else:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)  # Health cost fail displays on client before server response
+                # Health cost fail displays on client before server response.
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
             return False
 
         # Player only checks
         if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Check if player has required combo points.
             if casting_spell.requires_combo_points() and \
-                    (casting_spell.initial_target.guid != self.caster.combo_target or self.caster.combo_points == 0):  # Doesn't have required combo points.
+                    (casting_spell.initial_target.guid != self.caster.combo_target or
+                     # Doesn't have required combo points.
+                     self.caster.combo_points == 0):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
                 return False
 
@@ -916,7 +939,8 @@ class SpellManager(object):
                     return False
                 subclass_mask = 1 << equipped_weapon.item_template.subclass
                 if not required_weapon_mask & subclass_mask:
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_EQUIPPED_ITEM_CLASS)
+                    self.send_cast_result(casting_spell.spell_entry.ID,
+                                          SpellCheckCastResult.SPELL_FAILED_EQUIPPED_ITEM_CLASS)
                     return False
 
                 required_ammo = equipped_weapon.item_template.ammo_type
@@ -948,7 +972,8 @@ class SpellManager(object):
                     self.send_cast_result(casting_spell.spell_entry.ID,
                                           SpellCheckCastResult.SPELL_FAILED_NO_CHARGES_REMAIN)
                     return False
-                if charges < 0 and self.caster.inventory.get_item_count(casting_spell.source_item.item_template.entry) < 1:  # Consumables have negative charges.
+                if charges < 0 and \
+                        self.caster.inventory.get_item_count(casting_spell.source_item.item_template.entry) < 1:  # Consumables have negative charges.
                     self.send_cast_result(casting_spell.spell_entry.ID,
                                           SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)  # Should never really happen but catch this case.
                     return False
@@ -1019,8 +1044,8 @@ class SpellManager(object):
 
             # Projectiles and thrown weapons are consumed on use.
             is_consumable = ammo_class == ItemClasses.ITEM_CLASS_PROJECTILE or \
-                (ammo_class == ItemClasses.ITEM_CLASS_WEAPON and
-                    ammo_subclass == ItemSubClasses.ITEM_SUBCLASS_THROWN)
+                            (ammo_class == ItemClasses.ITEM_CLASS_WEAPON and
+                             ammo_subclass == ItemSubClasses.ITEM_SUBCLASS_THROWN)
             if is_consumable:
                 self.caster.inventory.remove_from_container(used_ammo_or_weapon.item_template.entry, 1,
                                                             used_ammo_or_weapon.item_instance.bag)

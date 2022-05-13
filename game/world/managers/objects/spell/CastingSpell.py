@@ -8,6 +8,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.spell.EffectTargets import TargetMissInfo, EffectTargets
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
@@ -19,7 +20,7 @@ from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMa
     AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets
 
 
-class CastingSpell(object):
+class CastingSpell:
     spell_entry: Spell
     cast_state: SpellState
     cast_flags: SpellCastFlags  # TODO Write proc flag when needed
@@ -28,12 +29,12 @@ class CastingSpell(object):
     initial_target = None
     targeted_unit_on_cast_start = None
 
-    object_target_results = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
+    object_target_results: dict[int, TargetMissInfo] = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
     duration_entry: SpellDuration
     cast_time_entry: SpellCastTimes
-    _effects: list
+    _effects: list[Optional[SpellEffect]]
 
     cast_start_timestamp: float
     cast_end_timestamp: float
@@ -132,7 +133,7 @@ class CastingSpell(object):
 
         effect.targets.resolve_targets()
         effect_info = effect.targets.get_effect_target_miss_results()
-        self.object_target_results = {**self.object_target_results, **effect_info}
+        self.object_target_results = self.object_target_results | effect_info
 
     def get_ammo_for_cast(self) -> Optional[ItemManager]:
         if not self.is_ranged_weapon_attack():
@@ -192,6 +193,45 @@ class CastingSpell(object):
 
         # Return true if the effect has an implicit unit selection target.
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
+
+    def is_area_of_effect_spell(self):
+        for effect in self.get_effects():
+            if {effect.implicit_target_a, effect.implicit_target_b}.intersection(EffectTargets.AREA_TARGETS):
+                return True
+        return False
+
+    def is_target_power_type_valid(self):
+        if not self.initial_target:
+            return False
+
+        if len(self._effects) == 0:
+            return True
+
+        for effect in self.get_effects():
+            if (effect.effect_type == SpellEffects.SPELL_EFFECT_POWER_BURN
+                    or effect.effect_type == SpellEffects.SPELL_EFFECT_POWER_DRAIN
+                    or effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_MANA_LEECH) \
+                    and effect.misc_value != self.initial_target.power_type:
+                continue
+            return True
+        return False
+
+    # TODO, need more checks.
+    #  Refer to 'IsPositiveEffect' in SpellEntry.cpp - vMaNGOS
+    def is_positive_spell(self):
+        return not self.spell_caster.can_attack_target(self.initial_target)
+
+    # TODO, Check 'IsImmuneToDamage' - vMaNGOS
+    def is_target_immune_to_damage(self):
+        return False
+
+    def is_charm_spell(self):
+        for spell_effect in self.get_effects():
+            if spell_effect.aura_type in [AuraTypes.SPELL_AURA_MOD_CHARM, AuraTypes.SPELL_AURA_MOD_POSSESS]:
+                return True
+            if spell_effect.effect_type == SpellEffects.SPELL_EFFECT_TAME_CREATURE:
+                return True
+        return False
 
     def is_refreshment_spell(self):
         spell_effect = self._effects[0]  # Food/drink effect should be first.

@@ -54,5 +54,13 @@ begin not atomic
         UPDATE `spell_target_position` SET `target_position_x` = '6482.042', `target_position_y` = '614.423', `target_position_z` = '5.458', `target_orientation` = '2.893' WHERE (`id` = '6349') and (`target_map` = '1');
         insert into applied_updates values ('200420222');
     end if;
+
+    -- 12/05/2022 1
+    if (select count(*) from applied_updates where id='120520221') = 0 then
+        -- Fix Duel Flag display id.
+        UPDATE `gameobject_template` SET `displayId` = 327 WHERE `entry` = 21680;
+
+        insert into applied_updates values ('120520221');
+    end if;
 end $
 delimiter ;

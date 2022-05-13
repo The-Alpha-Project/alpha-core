@@ -7,14 +7,14 @@ from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes, MoveFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags
 from utils.constants.UpdateFields \
-    import ObjectFields
+    import ObjectFields, UnitFields
 
 
-class ObjectManager(object):
+class ObjectManager:
     def __init__(self,
                  guid=0,
                  entry=0,
@@ -66,6 +66,7 @@ class ObjectManager(object):
         self.current_cell = ''
         self.last_tick = 0
         self.movement_spline = None
+        self.object_ai = None
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -114,7 +115,7 @@ class ObjectManager(object):
         )
 
         # Normal update fields.
-        data += self._get_fields_update(requester)
+        data += self._get_fields_update(True, requester)
 
         return data
 
@@ -123,7 +124,7 @@ class ObjectManager(object):
         data = self._get_base_structure(UpdateTypes.PARTIAL)
 
         # Normal update fields.
-        data += self._get_fields_update(requester)
+        data += self._get_fields_update(False, requester)
 
         return data
 
@@ -212,7 +213,7 @@ class ObjectManager(object):
 
         return data
 
-    def _get_fields_update(self, requester):
+    def _get_fields_update(self, is_create, requester):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
         data += self.update_packet_factory.update_mask.to_bytes()
 
@@ -282,7 +283,7 @@ class ObjectManager(object):
         low_guid = self.guid & ~ObjectManager.extract_high_guid(self.guid)
         return [
             f'Guid: {low_guid}, Entry: {self.entry}, Display ID: {self.current_display_id}',
-            f'X: {self.location.x}, Y: {self.location.y}, Z: {self.location.z}, O: {self.location.o}'
+            f'X: {self.location.x:.3f}, Y: {self.location.y:.3f}, Z: {self.location.z:.3f}, O: {self.location.o:.3f}'
         ]
 
     # override
