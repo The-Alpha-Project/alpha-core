@@ -524,13 +524,15 @@ class PlayerManager(UnitManager):
         if not self.is_relocating:
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
-            self.aura_manager.restore_aura_fields()
             self.enqueue_packet(self.generate_create_packet(requester=self))
 
         self.unmount()
 
         # Get us in a new cell and check for pending changes.
         MapManager.update_object(self, check_pending_changes=True)
+
+        # Restore auras after teleport, else they don't show up on client.
+        self.aura_manager.restore_aura_fields()
 
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None

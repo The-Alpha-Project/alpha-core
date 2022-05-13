@@ -215,13 +215,46 @@ class ObjectManager:
 
     def _get_fields_update(self, is_create, requester):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
-        data += self.update_packet_factory.update_mask.to_bytes()
+        # Use a temporary bit mask in case we need to set more bits.
+        temporal_mask = self.update_packet_factory.update_mask.copy()
+        fields_data = b''
+        for index in range(0, self.update_packet_factory.update_mask.field_count):
+            # Requester will retrieve all values from UnitFields.UNIT_FIELD_AURA the first time they meet a new unit.
+            if self.is_aura_field(index) and requester != self and is_create:
+                aura_value = self.get_uint32(index)
+                fields_data += pack('<I', aura_value)
+                temporal_mask[index] = 1
+            elif self.update_packet_factory.update_mask.is_set(index):
+                fields_data += self.update_packet_factory.update_values[index]
 
-        for i in range(0, self.update_packet_factory.update_mask.field_count):
-            if self.update_packet_factory.update_mask.is_set(i):
-                data += self.update_packet_factory.update_values[i]
+        data += temporal_mask.tobytes()
+        data += fields_data
 
         return data
+
+    # noinspection PyMethodMayBeStatic
+    def is_aura_field(self, index):
+        return UnitFields.UNIT_FIELD_AURA <= index <= UnitFields.UNIT_FIELD_AURA + 55
+
+    def should_set_int32(self, index, value):
+        current = self.get_int32(index)
+        return value != current
+
+    def should_set_uint32(self, index, value):
+        current = self.get_uint32(index)
+        return value != current
+
+    def should_set_int64(self, index, value):
+        current = self.get_int64(index)
+        return value != current
+
+    def should_set_uint64(self, index, value):
+        current = self.get_uint64(index)
+        return value != current
+
+    def should_set_float(self, index, value):
+        current = self.get_float(index)
+        return value != current
 
     def set_int32(self, index, value):
         self.update_packet_factory.update(index, value, 'i')
