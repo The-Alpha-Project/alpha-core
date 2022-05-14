@@ -242,16 +242,16 @@ class ObjectManager:
     # Generate an update packet based on fields that has been previously touched.
     # This is used mostly for create packets requested by players that just met a new world object.
     def _get_fields_timestamp_based(self):
-        temporal_mask = self.update_packet_factory.update_mask.copy()
+        mask_copy = self.update_packet_factory.update_mask.copy()
         fields_data = b''
         for i in range(0, self.update_packet_factory.update_mask.field_count):
             # Value is not 0 and bit mask is on or has a timestamp.
             if self.update_packet_factory.update_values[i] != 0 and \
-                    self.update_packet_factory.update_mask.is_set(i) or\
+                    self.update_packet_factory.update_mask.is_set(i) or \
                     self.update_packet_factory.update_timestamps[i]:
                 fields_data += self.update_packet_factory.update_values_bytes[i]
-                temporal_mask[i] = 1
-        data = temporal_mask.tobytes() + fields_data
+                mask_copy[i] = 1
+        data = mask_copy.tobytes() + fields_data
         return data
 
     # noinspection PyMethodMayBeStatic

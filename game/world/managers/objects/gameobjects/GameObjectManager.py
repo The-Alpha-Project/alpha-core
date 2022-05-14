@@ -279,21 +279,21 @@ class GameObjectManager(ObjectManager):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
 
         # Use a temporary bit mask in case we need to set more bits.
-        temporal_mask = self.update_packet_factory.update_mask.copy()
+        mask_copy = self.update_packet_factory.update_mask.copy()
         fields_data = b''
         for i in range(0, self.update_packet_factory.update_mask.field_count):
             if self.is_dynamic_field(i):
                 fields_data += pack('<I', self.generate_dynamic_field_value(requester))
-                temporal_mask[i] = 1  # Turn this extra bit.
+                mask_copy[i] = 1  # Turn on this extra bit.
             elif self.update_packet_factory.update_mask.is_set(i):
                 fields_data += self.update_packet_factory.update_values_bytes[i]
             # If bit is not set but this is a create request, check if it's a touched value and greater than 0.
             elif is_create and self.update_packet_factory.update_timestamps[i] and \
                     self.update_packet_factory.update_values[i] != 0:
                 fields_data += self.update_packet_factory.update_values_bytes[i]
-                temporal_mask[i] = 1  # Turn this extra bit.
+                mask_copy[i] = 1  # Turn on this extra bit.
 
-        data += temporal_mask.tobytes()
+        data += mask_copy.tobytes()
         data += fields_data
 
         return data
