@@ -57,6 +57,7 @@ class GameObjectManager(ObjectManager):
         self.object_type_mask |= ObjectTypeFlags.TYPE_GAMEOBJECT
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
 
+        self.initialized = False
         self.respawn_timer = 0
         self.loot_manager = None
 
@@ -278,16 +279,21 @@ class GameObjectManager(ObjectManager):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
 
         # Use a temporary bit mask in case we need to set more bits.
-        temporal_mask = self.update_packet_factory.update_mask.copy()
+        mask_copy = self.update_packet_factory.update_mask.copy()
         fields_data = b''
-        for index in range(0, self.update_packet_factory.update_mask.field_count):
-            if self.is_dynamic_field(index):
-                fields_data += self.generate_dynamic_field_value(requester)
-                temporal_mask[index] = 1
-            elif self.update_packet_factory.update_mask.is_set(index):
-                fields_data += self.update_packet_factory.update_values[index]
+        for i in range(0, self.update_packet_factory.update_mask.field_count):
+            if self.is_dynamic_field(i):
+                fields_data += pack('<I', self.generate_dynamic_field_value(requester))
+                mask_copy[i] = 1  # Turn on this extra bit.
+            elif self.update_packet_factory.update_mask.is_set(i):
+                fields_data += self.update_packet_factory.update_values_bytes[i]
+            # If bit is not set but this is a create request, check if it's a touched value and greater than 0.
+            elif is_create and self.update_packet_factory.update_timestamps[i] and \
+                    self.update_packet_factory.update_values[i] != 0:
+                fields_data += self.update_packet_factory.update_values_bytes[i]
+                mask_copy[i] = 1  # Turn on this extra bit.
 
-        data += temporal_mask.tobytes()
+        data += mask_copy.tobytes()
         data += fields_data
 
         return data
@@ -302,12 +308,14 @@ class GameObjectManager(ObjectManager):
         if self.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
                 self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             if requester.quest_manager.should_interact_with_go(self):
-                return pack('<I', 1)
-        return pack('<I', 0)
+                return 1
+        return 0
 
     # override
     def get_full_update_packet(self, requester):
-        if self.gobject_template and self.gobject_instance:
+        # Initialize values just once, future changes to fields should be properly set
+        # through methods. We do return the creation packet at the end, always.
+        if not self.initialized and self.gobject_template and self.gobject_instance:
             # Object fields
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
             self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
@@ -337,7 +345,9 @@ class GameObjectManager(ObjectManager):
             self.set_float(GameObjectFields.GAMEOBJECT_POS_Z, self.location.z)
             self.set_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
 
-            return self.get_object_create_packet(requester)
+            self.initialized = True
+
+        return self.get_object_create_packet(requester)
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.gobject_template.name)
@@ -383,13 +393,13 @@ class GameObjectManager(ObjectManager):
                 if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
                     self.trap_manager.update(elapsed)
 
+                # SpellManager update.
+                self.spell_manager.update(now)
+
                 # Check if this game object should be updated yet or not.
                 if self.has_pending_updates():
                     MapManager.update_object(self, check_pending_changes=True)
                     self.reset_fields_older_than(now)
-
-                # SpellManager update.
-                self.spell_manager.update(now)
             # Not spawned.
             else:
                 self.respawn_timer += elapsed
