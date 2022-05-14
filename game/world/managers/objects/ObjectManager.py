@@ -263,37 +263,44 @@ class ObjectManager:
             self.update_packet_factory.update(index, value, 'i')
 
     def get_int32(self, index):
-        return unpack('<i', self.update_packet_factory.update_values_bytes[index])[0]
+        return self._get_value_by_type_at('i', index)
 
     def set_uint32(self, index, value):
         if self.update_packet_factory.should_update(index, value, 'I'):
             self.update_packet_factory.update(index, value, 'I')
 
     def get_uint32(self, index):
-        return unpack('<I', self.update_packet_factory.update_values_bytes[index])[0]
+        return self._get_value_by_type_at('I', index)
 
     def set_int64(self, index, value):
         if self.update_packet_factory.should_update(index, value, 'q'):
             self.update_packet_factory.update(index, value, 'q')
 
     def get_int64(self, index):
-        return unpack('<q', self.update_packet_factory.update_values_bytes[index] +
-                      self.update_packet_factory.update_values_bytes[index + 1])[0]
+        return self._get_value_by_type_at('q', index)
 
     def set_uint64(self, index, value):
         if self.update_packet_factory.should_update(index, value, 'Q'):
             self.update_packet_factory.update(index, value, 'Q')
 
     def get_uint64(self, index):
-        return unpack('<Q', self.update_packet_factory.update_values_bytes[index] +
-                      self.update_packet_factory.update_values_bytes[index + 1])[0]
+        return self._get_value_by_type_at('Q', index)
 
     def set_float(self, index, value):
         if self.update_packet_factory.should_update(index, value, 'f'):
             self.update_packet_factory.update(index, value, 'f')
 
     def get_float(self, index):
-        return unpack('<f', self.update_packet_factory.update_values_bytes[index])[0]
+        return self._get_value_by_type_at('f', index)
+
+    def _get_value_by_type_at(self, value_type, index):
+        if not self.update_packet_factory.update_values[index]:
+            return 0
+        value = self.update_packet_factory.update_values[index]
+        if value_type.lower() == 'q':
+            value += self.update_packet_factory.update_values[index + 1]
+
+        return unpack(f'<{value_type}', value)[0]
 
     # override
     def update(self, now):

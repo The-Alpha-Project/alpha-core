@@ -23,6 +23,7 @@ from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode
+from utils.constants.UpdateFields import UnitFields
 
 
 class SpellManager:
@@ -776,6 +777,30 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED)
                 return False
 
+        # Creature type check.
+        if casting_spell.initial_target_is_unit_or_player():
+            req_creature_type = casting_spell.spell_entry.TargetCreatureType
+            if req_creature_type and validation_target.creature_type != req_creature_type:
+                error = SpellCheckCastResult.SPELL_FAILED_TARGET_IS_PLAYER if \
+                    validation_target.get_type_id() == ObjectTypeIds.ID_PLAYER \
+                    else SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS
+
+                self.send_cast_result(casting_spell.spell_entry.ID, error)
+                return False
+
+        # Charm checks.
+        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and casting_spell.is_charm_spell():
+            if not self.caster.can_attack_target(validation_target):
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
+
+            active_pet = self.caster.pet_manager.get_active_pet_info()
+            if active_pet:
+                error = SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_SUMMON if active_pet.permanent \
+                    else SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_CHARM
+                self.send_cast_result(casting_spell.spell_entry.ID, error)
+                return False
+
         # Special case of Ritual of Summoning.
         summoning_channel_id = 698
         if casting_spell.spell_entry.ID == summoning_channel_id and not self._validate_summon_cast(casting_spell):
@@ -1044,6 +1069,8 @@ class SpellManager:
         #  cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED
 
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            if self.caster.summoner:
+                self.caster.summoner.pet_manager.handle_cast_result(spell_id, error)
             return
 
         if error == SpellCheckCastResult.SPELL_NO_ERROR:

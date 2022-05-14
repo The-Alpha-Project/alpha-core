@@ -9,6 +9,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
+from game.world.managers.objects.units.player.PetManager import PetManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
 from game.world.managers.objects.units.player.TalentManager import TalentManager
 from game.world.managers.objects.units.player.TradeManager import TradeManager
@@ -149,6 +150,7 @@ class PlayerManager(UnitManager):
             self.friends_manager = FriendsManager(self)
             self.reputation_manager = ReputationManager(self)
             self.taxi_manager = TaxiManager(self)
+            self.pet_manager = PetManager(self)
             self.duel_manager = None
             self.guild_manager = None
             self.has_pending_group_invite = False
@@ -266,6 +268,7 @@ class PlayerManager(UnitManager):
 
         self.spell_manager.remove_all_casts()
         self.aura_manager.remove_all_auras()
+        self.pet_manager.detach_active_pet()
         self.leave_combat(force=True)
 
         # Channels weren't saved on logout until Patch 0.5.5
@@ -522,6 +525,9 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
             self.enqueue_packet(self.generate_create_packet(requester=self))
+
+        # Remove the player's active pet.
+        self.pet_manager.detach_active_pet()
 
         self.unmount()
 
@@ -1429,6 +1435,8 @@ class PlayerManager(UnitManager):
         if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
             death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
             self.enqueue_packet(death_notify_packet)
+
+        self.pet_manager.detach_active_pet()
 
         TradeManager.cancel_trade(self)
         self.spirit_release_timer = 0

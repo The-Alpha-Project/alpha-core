@@ -34,7 +34,7 @@ class ThreatManager:
 
         if max_threat_holder:
             if not self.current_holder or \
-                    not ThreatManager._is_dangerous(self.current_holder.unit) or \
+                    not self._is_dangerous(self.current_holder.unit) or \
                     self._is_exceeded_current_threat_melee_range(max_threat_holder.total_threat):
                 self.current_holder = max_threat_holder
 
@@ -79,13 +79,13 @@ class ThreatManager:
     def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = [holder for holder
                             in self.holders.values()
-                            if ThreatManager._is_dangerous(holder.unit)]
+                            if self._is_dangerous(holder.unit)]
         relevant_holders.sort(key=lambda holder: holder.total_threat)
         return relevant_holders
 
-    @staticmethod
-    def _is_dangerous(unit: UnitManager):
-        return unit.is_alive and not unit.is_evading
+    def _is_dangerous(self, unit: UnitManager):
+        # TODO Checking pet relation until friendliness can be evaluated properly.
+        return unit.is_alive and not unit.is_evading and unit != self.owner.summoner
 
     # TODO Melee/outside of melee range reach
     def _is_exceeded_current_threat_melee_range(self, threat: float):

@@ -40,6 +40,8 @@ class AIFactory:
 
         # TODO, Explicit check for isControlled() and owner type to allow guardian, mini-pets and pets controlled
         #  by NPCs to be scripted by EventAI
+        if creature.summoner:
+            selected_ai = PetAI(creature)  # TODO use full workflow below.
         #  if creature.is_pet() and creature.is_controlled() and \
         #          creature.owner.get_type_id() == ObjectTypeIds.ID_PLAYER or creature.is_charmed():
         #      selected_ai = PetAI(creature)

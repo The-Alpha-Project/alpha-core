@@ -400,6 +400,10 @@ class CreatureManager(UnitManager):
     def is_trainer(self) -> bool:
         return self.npc_flags & NpcFlags.NPC_FLAG_TRAINER
 
+    # override
+    def is_tameable(self) -> bool:
+        return self.static_flags & CreatureStaticFlags.TAMEABLE
+
     # TODO: Validate trainer_spell field and Pet trainers.
     def can_train(self, player_mgr) -> bool:
         if not self.is_trainer():
@@ -732,9 +736,14 @@ class CreatureManager(UnitManager):
         if not super().die(killer):
             return False
 
-        self.loot_manager.generate_loot(killer)
+        if killer.get_type_id != ObjectTypeIds.ID_PLAYER:
+            # Attribute non-player kills to the creature's summoner.
+            # TODO Does this also apply for player mind control?
+            killer = killer.summoner if killer.summoner else killer
 
         if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self.loot_manager.generate_loot(killer)
+
             self.reward_kill_xp(killer)
             self.killed_by = killer
             # If the player/group requires the kill, reward it to them.

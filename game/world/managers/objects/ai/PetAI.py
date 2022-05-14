@@ -1,5 +1,10 @@
+import math
+
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
+from utils.Formulas import UnitFormulas
 from utils.constants.CustomCodes import Permits
+from utils.constants.PetCodes import PetCommandState
+from utils.constants.UnitCodes import SplineFlags, CreatureStaticFlags
 
 
 class PetAI(CreatureAI):
@@ -9,11 +14,25 @@ class PetAI(CreatureAI):
             self.update_allies_timer = 0
             self.allies = ()
             self.update_allies()
-            self.has_melee = True if self.creature.entry != 416 else False  # Warlock imp has no melee attack.
+
+            self.has_melee = self.creature.static_flags & CreatureStaticFlags.NO_MELEE != 0
+
+            # TODO Current pet behavior is quite temporary.
+            # Pets are still controlled by the existing combat behavior in CreatureManager,
+            # and all movement logic is contained in PetAI.
+            # These may all still change, but the current handling in PetAI is fitting for the time being.
+            self.stay_position = None
+            self.is_at_home = False
 
     # override
     def update_ai(self, elapsed):
-        pass
+        # Set spawn point to the owner's location. This fixes issues with evading and returning after charm.
+        self.creature.spawn_position = self.creature.summoner.location.copy()
+
+        if self.is_at_home or self.creature.combat_target:
+            return
+
+        self.handle_return_movement()
 
     # override
     def permissible(self, creature):
@@ -24,7 +43,10 @@ class PetAI(CreatureAI):
     # Overrides Unit::AttackStart to correctly evaluate Pet states.
     # override
     def attack_start(self, victim):
-        pass
+        self.creature.attack(victim)
+        # TODO This is bad, but a workaround for now until a valid solution is discussed.
+        self.creature.threat_manager.add_threat(victim, 10)
+        self.is_at_home = False
 
     # Called when pet takes damage. This function helps keep pets from running off simply due to gaining aggro.
     # override
@@ -62,7 +84,18 @@ class PetAI(CreatureAI):
     # Handles moving the pet back to stay or owner.
     # Prevent activating movement when under control of spells.
     def handle_return_movement(self):
-        pass
+        owner = self.creature.summoner
+        target_location = self.stay_position if self.stay_position else owner.location
+
+        combat_position_distance = UnitFormulas.combat_distance(self.creature, owner)
+        current_distance = self.creature.location.distance(target_location)
+
+        # If target point is within combat distance, don't move.
+        if current_distance <= combat_position_distance:
+            return
+
+        max_distance_loc = target_location.get_point_in_between(combat_position_distance, vector=self.creature.location)
+        self.creature.movement_manager.send_move_normal([max_distance_loc], self.creature.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # Handles attack with or without chase and also resets flags for next update / creature kill.
     def do_attack(self, target, chase):
@@ -85,4 +118,28 @@ class PetAI(CreatureAI):
         pass
 
     def stop_attack(self):
+        self.handle_return_movement()
         pass
+
+    def command_state_update(self):
+        if not self.creature.combat_target:
+            self.creature.movement_manager.send_move_stop()
+            self.creature.movement_manager.pending_waypoints.clear()
+
+        if self._get_command_state() != PetCommandState.COMMAND_ATTACK:
+            self.creature.attack_stop()  # Always stop attacking if new state isn't attack.
+
+        if self._get_command_state() == PetCommandState.COMMAND_STAY:
+            # Stop in place place and update stay position.
+            if not self.creature.combat_target:
+                self.is_at_home = True
+            self.stay_position = self.creature.location.copy()
+
+        if self._get_command_state() == PetCommandState.COMMAND_FOLLOW:
+            # Clear stay position, constantly follow player.
+            self.stay_position = None
+            self.is_at_home = False
+
+    def _get_command_state(self):
+        pet_info = self.creature.summoner.pet_manager.get_active_pet_info()
+        return pet_info.command_state
