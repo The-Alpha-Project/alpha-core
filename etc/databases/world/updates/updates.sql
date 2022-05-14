@@ -62,5 +62,13 @@ begin not atomic
 
         insert into applied_updates values ('120520221');
     end if;
+
+    -- 14/05/2022 1
+    if (select count(*) from applied_updates where id='140520221') = 0 then
+        -- Fix Warlock Imp display id.
+        UPDATE `creature_template` SET `display_id1` = 1213 WHERE `entry` = 416;
+
+        insert into applied_updates values ('140520221');
+    end if;
 end $
 delimiter ;
