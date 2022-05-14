@@ -250,15 +250,6 @@ class CastingSpell:
 
         return has_sitting_attribute and is_regen_buff and has_refreshment_period
 
-    def is_charm_spell(self):
-        for spell_effect in self.get_effects():
-            if spell_effect.aura_type in [AuraTypes.SPELL_AURA_MOD_CHARM, AuraTypes.SPELL_AURA_MOD_POSSESS]:
-                return True
-            if spell_effect.effect_type == SpellEffects.SPELL_EFFECT_TAME_CREATURE:
-                return True
-
-        return False
-
     def has_effect_of_type(self, effect_type: SpellEffects):
         for effect in self.get_effects():
             if effect.effect_type == effect_type:
