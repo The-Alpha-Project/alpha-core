@@ -40,7 +40,6 @@ class PetAI(CreatureAI):
             return Permits.PERMIT_BASE_SPECIAL
         return Permits.PERMIT_BASE_NO
 
-    # Overrides Unit::AttackStart to correctly evaluate Pet states.
     # override
     def attack_start(self, victim):
         self.creature.attack(victim)
