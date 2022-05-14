@@ -103,7 +103,7 @@ class CreatureAI:
     def spell_hit_target(self, unit, spell_entry):
         pass
 
-    # Called when creature is spawned or respawned (for reseting variables).
+    # Called when creature is spawned or respawned (for resetting variables).
     def just_respawned(self):
         # Reset spells template to default on respawn.
         # Reset combat movement and melee attack.
@@ -133,7 +133,7 @@ class CreatureAI:
     def attacked_by(self, attacker):
         pass
 
-    # Called when creature attack expected (if creature can and no have current victim).
+    # Called when creature attack is expected (if creature can and doesn't have current victim).
     # Note: for reaction at hostile action must be called AttackedBy function.
     def attack_start(self, victim):
         pass

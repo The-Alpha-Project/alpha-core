@@ -68,7 +68,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else [],
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if target_is_gameobject else [],
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
-            SpellImplicitTargets.TARGET_MASTER: [],  # TODO
+            SpellImplicitTargets.TARGET_MASTER: caster.summoner if caster.summoner else [],
             SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start if targeted_unit_is_hostile else [],
             SpellImplicitTargets.TARGET_SELF_FISHING: caster
         }
