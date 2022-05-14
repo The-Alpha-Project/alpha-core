@@ -9,7 +9,7 @@ from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
-from utils.constants.PetCodes import PetActionBarIndex
+from utils.constants.PetCodes import PetActionBarIndex, PetCommandState
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
@@ -152,7 +152,7 @@ class PetManager:
         return self._get_pet_info(self.active_pet.pet_index)
 
     def handle_action(self, pet_guid, target_guid, action):
-        # Spell ID or 0/1/2 for default pet bar actions.
+        # Spell ID or 0/1/2/3 for setting command/react state.
         action_id = action & 0xFFFF
 
         active_pet_unit = self.active_pet.creature
@@ -162,7 +162,7 @@ class PetManager:
 
         target_unit = MapManager.get_surrounding_unit_by_guid(active_pet_unit, target_guid, include_players=True)
 
-        if action_id > 2:
+        if action_id > PetCommandState.COMMAND_DISMISS:  # Highest action ID.
             target_mask = SpellTargetMask.SELF if not target_unit or target_unit.guid == active_pet_unit.guid \
                 else SpellTargetMask.UNIT
             active_pet_unit.spell_manager.handle_cast_attempt(action_id, target_unit, target_mask)
@@ -171,8 +171,10 @@ class PetManager:
             # Command state action.
             self.get_active_pet_info().command_state = action_id
             self.active_pet.creature.object_ai.command_state_update()
-            if action_id == 2 and target_unit:
+            if action_id == PetCommandState.COMMAND_ATTACK and target_unit:
                 self.active_pet.creature.object_ai.attack_start(target_unit)
+            if action_id == PetCommandState.COMMAND_DISMISS:
+                self.detach_active_pet()
 
         else:
             self.get_active_pet_info().react_state = action_id

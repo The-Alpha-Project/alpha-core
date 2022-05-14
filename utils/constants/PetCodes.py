@@ -11,6 +11,7 @@ class PetCommandState(IntEnum):
 	COMMAND_STAY = 0,
 	COMMAND_FOLLOW = 1,
 	COMMAND_ATTACK = 2,
+	COMMAND_DISMISS = 3
 
 
 class PetActionBarIndex(IntEnum):
