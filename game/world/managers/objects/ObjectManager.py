@@ -261,8 +261,6 @@ class ObjectManager:
     def set_int32(self, index, value):
         if self.update_packet_factory.should_update(index, value, 'i'):
             self.update_packet_factory.update(index, value, 'i')
-        # else:
-        #     print('Skip int32')
 
     def get_int32(self, index):
         return unpack('<i', self.update_packet_factory.update_values_bytes[index])[0]
@@ -270,8 +268,6 @@ class ObjectManager:
     def set_uint32(self, index, value):
         if self.update_packet_factory.should_update(index, value, 'I'):
             self.update_packet_factory.update(index, value, 'I')
-        # else:
-        #     print('Skip uint32')
 
     def get_uint32(self, index):
         return unpack('<I', self.update_packet_factory.update_values_bytes[index])[0]
@@ -279,8 +275,6 @@ class ObjectManager:
     def set_int64(self, index, value):
         if self.update_packet_factory.should_update(index, value, 'q'):
             self.update_packet_factory.update(index, value, 'q')
-        # else:
-        #     print('Skip int64')
 
     def get_int64(self, index):
         return unpack('<q', self.update_packet_factory.update_values_bytes[index] +
@@ -289,8 +283,6 @@ class ObjectManager:
     def set_uint64(self, index, value):
         if self.update_packet_factory.should_update(index, value, 'Q'):
             self.update_packet_factory.update(index, value, 'Q')
-        # else:
-        #     print('Skip uint64')
 
     def get_uint64(self, index):
         return unpack('<Q', self.update_packet_factory.update_values_bytes[index] +
@@ -299,8 +291,6 @@ class ObjectManager:
     def set_float(self, index, value):
         if self.update_packet_factory.should_update(index, value, 'f'):
             self.update_packet_factory.update(index, value, 'f')
-        # else:
-        #     print('Skip float')
 
     def get_float(self, index):
         return unpack('<f', self.update_packet_factory.update_values_bytes[index])[0]
