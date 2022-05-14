@@ -44,6 +44,8 @@ class PetAI(CreatureAI):
     # override
     def attack_start(self, victim):
         self.creature.attack(victim)
+        # TODO This is bad, but a workaround for now until a valid solution is discussed.
+        self.creature.threat_manager.add_threat(victim, 10)
         self.is_at_home = False
 
     # Called when pet takes damage. This function helps keep pets from running off simply due to gaining aggro.
