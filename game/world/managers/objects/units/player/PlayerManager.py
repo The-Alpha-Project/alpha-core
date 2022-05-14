@@ -1,5 +1,4 @@
 import math
-from struct import unpack
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -11,7 +10,6 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
-from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.units.player.TalentManager import TalentManager
 from game.world.managers.objects.units.player.TradeManager import TradeManager
 from game.world.managers.objects.units.player.quest.QuestManager import QuestManager
@@ -65,7 +63,6 @@ class PlayerManager(UnitManager):
         self.pending_teleport_destination = None
         self.pending_teleport_destination_map = -1
         self.update_lock = False
-        self.is_relocating = False
         self.known_objects = dict()
 
         self.player = player
@@ -235,7 +232,8 @@ class PlayerManager(UnitManager):
             self.set_taxi_flying_state(True, taxi_resume_info.mount_display_id)
 
         # Notify player with create packet.
-        self.send_update_self(create=True)
+        self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
+        self.enqueue_packet(self.generate_create_packet(requester=self))
 
         # Place player in a world cell.
         MapManager.update_object(self)
@@ -324,10 +322,12 @@ class PlayerManager(UnitManager):
                 for update_packet in world_object.inventory.get_inventory_update_packets(self):
                     self.enqueue_packet(update_packet)
             # Update self with known world object update packet.
-            self.enqueue_packet(world_object.generate_partial_packet(requester=self))
+            if world_object.has_pending_updates():
+                self.enqueue_packet(world_object.generate_partial_packet(requester=self))
         # Self (Player), send proper update packets to self.
         elif world_object.guid == self.guid:
-            self.enqueue_packet(self.generate_partial_packet(requester=self))
+            if self.has_pending_updates():
+                self.enqueue_packet(self.generate_partial_packet(requester=self))
             if self.dirty_inventory:
                 for update_packet in self.inventory.get_inventory_update_packets(self):
                     self.enqueue_packet(update_packet)
@@ -472,9 +472,6 @@ class PlayerManager(UnitManager):
 
         # Same map.
         if self.map_ == self.pending_teleport_destination_map:
-            if MapManager.should_relocate(self, self.pending_teleport_destination, self.pending_teleport_destination_map):
-                self.is_relocating = True
-
             data = pack(
                 '<Q9fI',
                 self.transport_id,
@@ -512,13 +509,16 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
 
     def spawn_player_from_teleport(self):
+        # Check if player changed maps before setting the new value.
+        changed_map = self.map_ != self.pending_teleport_destination_map
+
         # Update new coordinates and map.
         if self.pending_teleport_destination_map != -1 and self.pending_teleport_destination:
             self.map_ = self.pending_teleport_destination_map
             self.location = Vector(self.pending_teleport_destination.x, self.pending_teleport_destination.y, self.pending_teleport_destination.z, self.pending_teleport_destination.o)
 
         # Player changed map. Send initial spells, action buttons and create packet.
-        if not self.is_relocating:
+        if changed_map:
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
             self.enqueue_packet(self.generate_create_packet(requester=self))
@@ -526,15 +526,11 @@ class PlayerManager(UnitManager):
         self.unmount()
 
         # Get us in a new cell and check for pending changes.
-        MapManager.update_object(self, check_pending_changes=True)
-
-        # Restore auras after teleport, else they don't show up on client.
-        self.aura_manager.restore_aura_fields()
+        MapManager.update_object(self)
 
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None
         self.update_lock = False
-        self.is_relocating = False
 
         # Update managers.
         self.friends_manager.send_update_to_friends()
@@ -544,9 +540,7 @@ class PlayerManager(UnitManager):
     def set_root(self, active):
         if not self.session:
             return
-
         super().set_root(active)
-
         if active:
             opcode = OpCode.SMSG_FORCE_MOVE_ROOT
         else:
@@ -966,117 +960,133 @@ class PlayerManager(UnitManager):
         return self.liquid_information.liquid_type == LiquidTypes.DEEP
 
     def update_liquid_information(self):
-        # Retrieve latest liquid information, only if player is swimming.
+        # Retrieve the latest liquid information, only if player is swimming.
         if self.is_swimming():
             self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
 
     # override
     def get_full_update_packet(self, requester):
-        self.bytes_0 = self.get_bytes_0()
-        self.bytes_1 = self.get_bytes_1()
-        self.bytes_2 = self.get_bytes_2()
-        self.player_bytes_2 = self.get_player_bytes_2()
+        # Only self will trigger writes on fields values. This packet is only requested by a player upon login or when
+        # changing maps, other requesters that meet this player for the first time will grab the plain create packet
+        # plus touched fields values.
+        if requester == self:
+            self.update_packet_factory.set_override_state(True)
 
-        # Object fields
-        self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.player.guid)
-        self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
-        self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
-        self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
+            self.bytes_0 = self.get_bytes_0()
+            self.bytes_1 = self.get_bytes_1()
+            self.bytes_2 = self.get_bytes_2()
+            self.player_bytes_2 = self.get_player_bytes_2()
 
-        # Unit fields
-        self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
-        self.set_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
-        self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER1, self.power_1)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER2, self.power_2)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER3, self.power_3)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER4, self.power_4)
-        self.set_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)
-        self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, self.max_power_1)
-        self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER2, self.max_power_2)
-        self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER3, self.max_power_3)
-        self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER4, self.max_power_4)
-        self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
-        self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT0, self.str)
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT1, self.agi)
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT2, self.sta)
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT3, self.int)
-        self.set_uint32(UnitFields.UNIT_FIELD_STAT4, self.spi)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT0, self.base_str)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT1, self.base_agi)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT2, self.base_sta)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT3, self.base_int)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT4, self.base_spi)
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-        self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
-        self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.offhand_attack_time)
-        self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
-        self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
-        self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
-        self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
-        self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
-        self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, self.resistance_buff_mods_positive_0)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, self.resistance_buff_mods_positive_1)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, self.resistance_buff_mods_positive_2)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, self.resistance_buff_mods_positive_3)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, self.resistance_buff_mods_positive_4)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, self.resistance_buff_mods_positive_5)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, self.resistance_buff_mods_negative_0)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, self.resistance_buff_mods_negative_1)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, self.resistance_buff_mods_negative_2)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, self.resistance_buff_mods_negative_3)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, self.resistance_buff_mods_negative_4)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, self.resistance_buff_mods_negative_5)
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
-        self.set_float(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
-        self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
-        self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
+            # Object fields
+            self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.player.guid)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
+            self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
-        # Player fields
-        self.set_uint32(PlayerFields.PLAYER_FIELD_NUM_INV_SLOTS, self.num_inv_slots)
-        self.set_uint32(PlayerFields.PLAYER_BYTES, self.player_bytes)
-        self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
-        self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
-        self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.player_bytes_2)
-        self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS1, self.talent_points)
-        self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
-        self.set_float(PlayerFields.PLAYER_BLOCK_PERCENTAGE, self.block_percentage)
-        self.set_float(PlayerFields.PLAYER_DODGE_PERCENTAGE, self.dodge_percentage)
-        self.set_float(PlayerFields.PLAYER_PARRY_PERCENTAGE, self.parry_percentage)
-        self.set_uint32(PlayerFields.PLAYER_BASE_MANA, self.base_mana)
+            # Unit fields
+            self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
+            self.set_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
+            self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
+            self.set_uint32(UnitFields.UNIT_FIELD_POWER1, self.power_1)
+            self.set_uint32(UnitFields.UNIT_FIELD_POWER2, self.power_2)
+            self.set_uint32(UnitFields.UNIT_FIELD_POWER3, self.power_3)
+            self.set_uint32(UnitFields.UNIT_FIELD_POWER4, self.power_4)
+            self.set_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)
+            self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, self.max_power_1)
+            self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER2, self.max_power_2)
+            self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER3, self.max_power_3)
+            self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER4, self.max_power_4)
+            self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
+            self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
+            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
+            self.set_uint32(UnitFields.UNIT_FIELD_STAT0, self.str)
+            self.set_uint32(UnitFields.UNIT_FIELD_STAT1, self.agi)
+            self.set_uint32(UnitFields.UNIT_FIELD_STAT2, self.sta)
+            self.set_uint32(UnitFields.UNIT_FIELD_STAT3, self.int)
+            self.set_uint32(UnitFields.UNIT_FIELD_STAT4, self.spi)
+            self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT0, self.base_str)
+            self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT1, self.base_agi)
+            self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT2, self.base_sta)
+            self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT3, self.base_int)
+            self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT4, self.base_spi)
+            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+            self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
+            self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
+            self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.offhand_attack_time)
+            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
+            self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
+            self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
+            self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
+            self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
+            self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, self.resistance_buff_mods_positive_0)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, self.resistance_buff_mods_positive_1)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, self.resistance_buff_mods_positive_2)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, self.resistance_buff_mods_positive_3)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, self.resistance_buff_mods_positive_4)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, self.resistance_buff_mods_positive_5)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, self.resistance_buff_mods_negative_0)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, self.resistance_buff_mods_negative_1)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, self.resistance_buff_mods_negative_2)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, self.resistance_buff_mods_negative_3)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, self.resistance_buff_mods_negative_4)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, self.resistance_buff_mods_negative_5)
+            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+            self.set_float(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
+            self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+            self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
+            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
-        # Skills
-        self.skill_manager.build_update()
+            # Player fields
+            self.set_uint32(PlayerFields.PLAYER_FIELD_NUM_INV_SLOTS, self.num_inv_slots)
+            self.set_uint32(PlayerFields.PLAYER_BYTES, self.player_bytes)
+            self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
+            self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
+            self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.player_bytes_2)
+            self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS1, self.talent_points)
+            self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
+            self.set_float(PlayerFields.PLAYER_BLOCK_PERCENTAGE, self.block_percentage)
+            self.set_float(PlayerFields.PLAYER_DODGE_PERCENTAGE, self.dodge_percentage)
+            self.set_float(PlayerFields.PLAYER_PARRY_PERCENTAGE, self.parry_percentage)
+            self.set_uint32(PlayerFields.PLAYER_BASE_MANA, self.base_mana)
 
-        # Guild
-        if self.guild_manager:
-            self.guild_manager.build_update(self)
-        else:
-            self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
+            # Skills
+            self.skill_manager.build_update()
 
-        # Duel
-        if self.duel_manager:
-            self.duel_manager.build_update(self)
+            # Guild
+            if self.guild_manager:
+                self.guild_manager.build_update(self)
+            else:
+                self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 
-        # Inventory
-        for update_packet in self.inventory.get_inventory_update_packets(self):
-            self.enqueue_packet(update_packet)
-        self.inventory.build_update()
+            # Duel
+            if self.duel_manager:
+                self.duel_manager.build_update(self)
 
-        # Quests
-        self.quest_manager.build_update()
+            # Inventory
+            for update_packet in self.inventory.get_inventory_update_packets(self):
+                self.enqueue_packet(update_packet)
+            self.inventory.build_update()
 
-        return self.get_object_create_packet(requester)
+            # Auras
+            self.aura_manager.build_update()
+
+            # Quests
+            self.quest_manager.build_update()
+
+        # The actual create packet.
+        create_packet = self.get_object_create_packet(requester)
+
+        # Disable override if this request was made by self.
+        if requester == self:
+            self.update_packet_factory.set_override_state(False)
+
+        return create_packet
 
     def set_current_selection(self, guid):
         self.current_selection = guid
@@ -1395,22 +1405,6 @@ class PlayerManager(UnitManager):
                 self.leave_combat()
 
         super().attack_update(elapsed)
-
-    def send_update_self(self, update_packet=None, create=False):
-        if create:
-            self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
-        else:
-            if self.dirty_inventory:
-                for update_packet in self.inventory.get_inventory_update_packets(self):
-                    self.enqueue_packet(update_packet)
-
-        if not update_packet:
-            if create:
-                update_packet = self.generate_create_packet(requester=self)
-            else:
-                update_packet = self.generate_partial_packet(requester=self)
-
-        self.enqueue_packet(update_packet)
 
     def teleport_deathbind(self):
         self.teleport(self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,

@@ -311,20 +311,14 @@ class AuraManager:
         for aura in list(self.active_auras.values()):
             self.remove_aura(aura)
 
-    def restore_aura_fields(self):
-        for aura in list(self.active_auras.values()):
-            if aura.passive:
-                continue
-            field_index = UnitFields.UNIT_FIELD_AURA + aura.index
-            if aura.spell_id:
-                self.unit_mgr.set_uint32(field_index, aura.spell_id)
-                self._write_aura_flag_to_unit(aura, False)
-
     def cancel_auras_by_spell_id(self, spell_id):
         auras = self.get_auras_by_spell_id(spell_id)
 
         for aura in auras:
             self.remove_aura(aura, canceled=True)
+
+    def build_update(self):
+        [self.write_aura_to_unit(aura, send_duration=False) for aura in list(self.active_auras.values())]
 
     def handle_player_cancel_aura_request(self, spell_id):
         auras = self.get_auras_by_spell_id(spell_id)
@@ -361,11 +355,7 @@ class AuraManager:
             return
 
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index
-        new_value = aura.spell_id if not clear else 0
-        # Update this field only if necessary, else the owner and other players will see as if the aura was reapplied.
-        if self.unit_mgr.should_set_uint32(field_index, new_value):
-            self.unit_mgr.set_uint32(field_index, new_value)
-
+        self.unit_mgr.set_uint32(field_index, aura.spell_id if not clear else 0)
         self._write_aura_flag_to_unit(aura, clear)
 
     def _write_aura_flag_to_unit(self, aura, clear=False):
