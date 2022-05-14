@@ -13,6 +13,7 @@ from game.world.managers.objects.spell.AuraManager import AuraManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.MovementManager import MovementManager
+from game.world.managers.objects.units.player.PetManager import PetManager
 from game.world.managers.objects.units.player.StatManager import StatManager, UnitStats
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ByteUtils import ByteUtils
@@ -194,6 +195,8 @@ class UnitManager(ObjectManager):
         self.spell_manager = SpellManager(self)
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
+        # TODO: Support for CreatureManager is not added yet.
+        self.pet_manager = PetManager(self)
 
     def is_within_interactable_distance(self, victim):
         current_distance = self.location.distance(victim.location)

@@ -62,7 +62,7 @@ class EffectTargets:
         return {
             SpellImplicitTargets.TARGET_INITIAL: self.initial_target,  # Only accept in A.
             SpellImplicitTargets.TARGET_SELF: caster,
-            SpellImplicitTargets.TARGET_PET: [],  # TODO
+            SpellImplicitTargets.TARGET_PET: caster.pet_manager.active_pet if not caster_is_gameobject and caster.pet_manager.active_pet else [],
             SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: caster.get_deathbind_coordinates() if target_is_player and caster_is_player else [],
             SpellImplicitTargets.TARGET_11: [],  # Word of Recall Other - seems deprecated so return nothing
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else [],
@@ -320,7 +320,6 @@ class EffectTargets:
         effect_type = target_effect.effect_type
         initial_target = casting_spell.initial_target
         caster = casting_spell.spell_caster
-
 
         if effect_type == SpellEffects.SPELL_EFFECT_DUEL:
             # Only friendly duel targets.
