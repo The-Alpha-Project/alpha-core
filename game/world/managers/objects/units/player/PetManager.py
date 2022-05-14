@@ -132,7 +132,7 @@ class PetManager:
 
         if is_permanent:
             # TODO Not sure what correct behavior is here.
-            creature.despawn()
+            creature.despawn(destroy=True)
             return
         else:
             self.remove_pet(pet_index)
@@ -178,7 +178,6 @@ class PetManager:
 
         else:
             self.get_active_pet_info().react_state = action_id
-
 
     def get_active_pet_command_state(self):
         pet_info = self.get_active_pet_info()
@@ -235,8 +234,8 @@ class PetManager:
 
         data.extend(pet_info.get_action_bar_values())
 
-        data.append(0)  # Spellbook entry count. TODO
-        data.append(0)  # Cooldown count. TODO
+        data.append(0)  # TODO: Spellbook entry count.
+        data.append(0)  # TODO: Cooldown count.
 
         packet = pack(signature, *data)
         self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, packet))
