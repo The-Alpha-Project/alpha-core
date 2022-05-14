@@ -525,6 +525,7 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
             self.enqueue_packet(self.generate_create_packet(requester=self))
+            self.stat_manager.apply_bonuses()
 
         # Remove the player's active pet.
         self.pet_manager.detach_active_pet()
@@ -976,8 +977,6 @@ class PlayerManager(UnitManager):
         # changing maps, other requesters that meet this player for the first time will grab the plain create packet
         # plus touched fields values.
         if requester == self:
-            self.update_packet_factory.set_override_state(True)
-
             self.bytes_0 = self.get_bytes_0()
             self.bytes_1 = self.get_bytes_1()
             self.bytes_2 = self.get_bytes_2()
@@ -1085,14 +1084,7 @@ class PlayerManager(UnitManager):
             # Quests.
             self.quest_manager.build_update()
 
-        # The actual create packet.
-        create_packet = self.get_object_create_packet(requester)
-
-        # Disable override if this request was made by self.
-        if requester == self:
-            self.update_packet_factory.set_override_state(False)
-
-        return create_packet
+        return self.get_object_create_packet(requester)
 
     def set_current_selection(self, guid):
         self.current_selection = guid

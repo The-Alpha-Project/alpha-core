@@ -13,7 +13,6 @@ class UpdatePacketFactory(object):
         self.update_values_bytes = []  # Values bytes representation, used for update packets.
         self.update_values = []  # Raw values, used to compare current vs new without having to pack or unpack.
         self.update_mask = UpdateMask()
-        self.allow_override = False   # Allow players to override values when they need to receive a create packet.
 
     def init_values(self, fields_size):
         self.fields_size = fields_size
@@ -41,15 +40,8 @@ class UpdatePacketFactory(object):
 
         return all_clear
 
-    def set_override_state(self, state):
-        self.allow_override = state
-
     # Check if the new value is different from the field known value.
     def should_update(self, index, value, value_type):
-        # Allow values to be written, even if they did not change.
-        if self.allow_override and value != 0:
-            return True
-
         if value_type.lower() == 'q':
             field_0 = int(value & 0xFFFFFFFF)
             field_1 = int(value >> 32)

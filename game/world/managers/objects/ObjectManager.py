@@ -217,16 +217,13 @@ class ObjectManager:
     def _get_fields_update(self, is_create, requester):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
 
-        is_self = requester.guid == self.guid
-        self_type = self.get_type_id()
-        is_item = self_type == ObjectTypeIds.ID_ITEM
-        is_container = self_type == ObjectTypeIds.ID_CONTAINER
-
-        # Partial update, self updates, items or containers, follow normal field value acquisition.
-        if not is_create or is_self or is_item or is_container:
-            data += self._get_fields_bit_mask_based()
-        else:
+        # Create packets are always timestamp based, since fields might not be dirty but already touched.
+        # Because of the way we handle items/containers updates atm, those will land here as well, always.
+        if is_create:
             data += self._get_fields_timestamp_based()
+        # Partial updates will follow normal field value acquisition based on bit mask.
+        else:
+            data += self._get_fields_bit_mask_based()
 
         return data
 
