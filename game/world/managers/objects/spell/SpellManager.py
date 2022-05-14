@@ -1068,9 +1068,12 @@ class SpellManager:
         # TODO CAST_SUCCESS_KEEP_TRACKING
         #  cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED
 
-        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if self.caster.get_type_id() == ObjectTypeIds.ID_UNIT:
             if self.caster.summoner:
                 self.caster.summoner.pet_manager.handle_cast_result(spell_id, error)
+            return
+
+        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         if error == SpellCheckCastResult.SPELL_NO_ERROR:
