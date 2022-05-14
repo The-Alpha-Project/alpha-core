@@ -44,7 +44,7 @@ class UpdatePacketFactory(object):
     def set_override_state(self, state):
         self.allow_override = state
 
-    # Check if the new value it's different from the field known value.
+    # Check if the new value is different from the field known value.
     def should_update(self, index, value, value_type):
         # Allow values to be written, even if they did not change.
         if self.allow_override and value != 0:
