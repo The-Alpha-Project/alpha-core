@@ -1072,6 +1072,10 @@ class UnitManager(ObjectManager):
         if len(self.movement_manager.pending_waypoints) > 0:
             self.movement_manager.send_move_stop()
 
+        # Detach from controller if this unit is a pet.
+        if self.summoner:
+            self.summoner.pet_manager.detach_active_pet()
+
         self.set_health(0)
         self.set_stand_state(StandState.UNIT_DEAD)
 

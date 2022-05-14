@@ -1439,6 +1439,8 @@ class PlayerManager(UnitManager):
             death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
             self.enqueue_packet(death_notify_packet)
 
+        self.pet_manager.detach_active_pet()
+
         TradeManager.cancel_trade(self)
         self.spirit_release_timer = 0
         self.mirror_timers_manager.stop_all()

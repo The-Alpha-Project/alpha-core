@@ -127,7 +127,11 @@ class PetManager:
         pet_index = self.active_pet.pet_index
         self.active_pet = None
 
+        self.player.set_uint64(UnitFields.UNIT_FIELD_SUMMON, 0)
+        self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, pack('<Q', 0)))
+
         if is_permanent:
+            # TODO Not sure what correct behavior is here.
             creature.despawn()
             return
         else:
@@ -141,9 +145,6 @@ class PetManager:
         creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, 0)
         creature.creature_instance.movement_type = creature.creature_template.movement_type
         creature.object_ai = AIFactory.build_ai(creature)
-
-        self.player.set_uint64(UnitFields.UNIT_FIELD_SUMMON, 0)
-        self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, pack('<Q', 0)))
 
     def get_active_pet_info(self) -> Optional[PetData]:
         if not self.active_pet:
