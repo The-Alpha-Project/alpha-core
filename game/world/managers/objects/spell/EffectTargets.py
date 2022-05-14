@@ -311,30 +311,11 @@ class EffectTargets:
         return units_in_range_front
 
     @staticmethod
-    def resolve_duel_vs_player(casting_spell, target_effect):
-        # Seems to be used by a variety of spells.
-        # All single unit targets. Some can target both friendly and hostile,
-        # some seem to be npc spells cast on players.
-
-        # The client allows spells with this implicit target to be cast on any unit,
-        # regardless of what the spell should target by description.
-
-        # Some npc spells (cast in a quest context on the player): Mark of Shame (6767), Proudmoore's Defense (7120).
-        # Beast taming and charm spells.
-
-        # Since there doesn't seem to be a consistent pattern,
-        # handle special-case target filters here similar to effect_select.
-
-        # Effects using this target type are:
-        # SpellEffects.SPELL_EFFECT_DUMMY (Fake Shot/copy - 7105/7764, Simple Teleport Other - 7079).
-        # SpellEffects.SPELL_EFFECT_HEAL_MAX_HEALTH (First aid - 7162).
-        # SpellEffects.SPELL_EFFECT_TELEPORT_UNITS (Test of Faith/Test of Banishment - 6714/6766)
-        # SpellEffects.SPELL_EFFECT_DISPEL (Dispel Magic - 527/988 (both), Fix Car (??) - 7085).
-        # SpellEffects.SPELL_EFFECT_APPLY_AURA (>10 spells - some mentioned above. None player-accessible?).
-        # SpellEffects.SPELL_EFFECT_BIND_SIGHT (Mind Vision - 2096).
-        # SpellEffects.SPELL_EFFECT_DUEL (Duel - 7266).
-        # SpellEffects.SPELL_EFFECT_TAME_CREATURE (Tame Pet (TEST) - 2650, Beast Taming - 1515)
-
+    def resolve_unit(casting_spell, target_effect):
+        # Some effects using this can resolve to any kind of unit target (npc-cast spells, mind vision etc.)
+        # while some have special restrictions based on effect (DUEL, TAME_CREATURE etc.)
+        # Implement effect-specific restrictions here or just return the original targets.
+        # Effect IDs using this: {3, 5, 6, 38, 55, 82, 83}
 
         effect_type = target_effect.effect_type
         initial_target = casting_spell.initial_target
@@ -441,7 +422,7 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_RANDOM_ENEMY_CHAIN_IN_AREA: EffectTargets.resolve_random_enemy_chain_in_area,
     SpellImplicitTargets.TARGET_UNIT_NEAR_CASTER: EffectTargets.resolve_unit_near_caster,
     SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM: EffectTargets.resolve_area_effect_custom,
-    SpellImplicitTargets.TARGET_CHAIN_DAMAGE: EffectTargets.resolve_chain_damage,
+    SpellImplicitTargets.TARGET_ENEMY_UNIT: EffectTargets.resolve_chain_damage,
     SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA: EffectTargets.resolve_all_enemy_in_area,
     SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT: EffectTargets.resolve_all_enemy_in_area_instant,
     SpellImplicitTargets.TARGET_TABLE_X_Y_Z_COORDINATES: EffectTargets.resolve_table_coordinates,
@@ -449,7 +430,7 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY: EffectTargets.resolve_party_around_caster,
     SpellImplicitTargets.TARGET_ALL_AROUND_CASTER: EffectTargets.resolve_all_around_caster,
     SpellImplicitTargets.TARGET_INFRONT: EffectTargets.resolve_enemy_infront,
-    SpellImplicitTargets.TARGET_DUEL_VS_PLAYER: EffectTargets.resolve_duel_vs_player,
+    SpellImplicitTargets.TARGET_UNIT: EffectTargets.resolve_unit,
     SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL: EffectTargets.resolve_aoe_enemy_channel,
     SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER: EffectTargets.resolve_all_friendly_around_caster,
     SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA: EffectTargets.resolve_all_friendly_in_area,
@@ -469,7 +450,7 @@ FRIENDLY_IMPLICIT_TARGETS = [
     SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY,
     SpellImplicitTargets.TARGET_SELECTED_FRIEND,
     # SpellImplicitTargets.TARGET_INFRONT,  # Only hostile
-    # SpellImplicitTargets.TARGET_DUEL_VS_PLAYER = 25  # Can target both - resolved by checking target hostility
+    # SpellImplicitTargets.TARGET_UNIT  # Can target both - resolved by checking target hostility
     SpellImplicitTargets.TARGET_MASTER,
     SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER,
     SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA,
@@ -478,5 +459,5 @@ FRIENDLY_IMPLICIT_TARGETS = [
     SpellImplicitTargets.TARGET_ALL_PARTY_AROUND_CASTER_2,
     SpellImplicitTargets.TARGET_SINGLE_PARTY,
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY,  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
-    # SpellImplicitTargets.TARGET_SCRIPT = 38  # Resolved separately
+    # SpellImplicitTargets.TARGET_SCRIPT  # Resolved separately
 ]
