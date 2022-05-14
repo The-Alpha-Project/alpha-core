@@ -526,8 +526,8 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(self.get_action_buttons())
             self.enqueue_packet(self.generate_create_packet(requester=self))
 
-            # Remove the player's active pet.
-            self.pet_manager.detach_active_pet()
+        # Remove the player's active pet.
+        self.pet_manager.detach_active_pet()
 
         self.unmount()
 
