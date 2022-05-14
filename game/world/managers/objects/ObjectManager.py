@@ -120,6 +120,7 @@ class ObjectManager:
         return data
 
     def get_partial_update_packet(self, requester):
+
         # Base structure.
         data = self._get_base_structure(UpdateTypes.PARTIAL)
 
@@ -215,88 +216,84 @@ class ObjectManager:
 
     def _get_fields_update(self, is_create, requester):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
-        # Use a temporary bit mask in case we need to set more bits.
+
+        is_self = requester.guid == self.guid
+        self_type = self.get_type_id()
+        is_item = self_type == ObjectTypeIds.ID_ITEM
+        is_container = self_type == ObjectTypeIds.ID_CONTAINER
+
+        # Partial update, self updates, items or containers, follow normal field value acquisition.
+        if not is_create or is_self or is_item or is_container:
+            data += self._get_fields_bit_mask_based()
+        else:
+            data += self._get_fields_timestamp_based()
+
+        return data
+
+    # Generate an update packet based on which fields are currently touched.
+    # Usually used by any partial update requested by a player who already knows this world object.
+    def _get_fields_bit_mask_based(self):
+        data = self.update_packet_factory.update_mask.to_bytes()
+        for i in range(0, self.update_packet_factory.update_mask.field_count):
+            if self.update_packet_factory.update_mask.is_set(i):
+                data += self.update_packet_factory.update_values_bytes[i]
+        return data
+
+    # Generate an update packet based on fields that has been previously touched.
+    # This is used mostly for create packets requested by players that just met a new world object.
+    def _get_fields_timestamp_based(self):
         temporal_mask = self.update_packet_factory.update_mask.copy()
         fields_data = b''
-        for index in range(0, self.update_packet_factory.update_mask.field_count):
-            # Requester will retrieve all values from UnitFields.UNIT_FIELD_AURA the first time they meet a new unit.
-            if self.is_aura_field(index) and requester != self and is_create:
-                aura_value = self.get_uint32(index)
-                fields_data += pack('<I', aura_value)
-                temporal_mask[index] = 1
-            elif self.update_packet_factory.update_mask.is_set(index):
-                fields_data += self.update_packet_factory.update_values[index]
-
-        data += temporal_mask.tobytes()
-        data += fields_data
-
+        for i in range(0, self.update_packet_factory.update_mask.field_count):
+            # Value is not 0 and bit mask is on or has a timestamp.
+            if self.update_packet_factory.update_values[i] != 0 and \
+                    self.update_packet_factory.update_mask.is_set(i) or\
+                    self.update_packet_factory.update_timestamps[i]:
+                fields_data += self.update_packet_factory.update_values_bytes[i]
+                temporal_mask[i] = 1
+        data = temporal_mask.tobytes() + fields_data
         return data
 
     # noinspection PyMethodMayBeStatic
     def is_aura_field(self, index):
         return UnitFields.UNIT_FIELD_AURA <= index <= UnitFields.UNIT_FIELD_AURA + 55
 
-    def should_set_int32(self, index, value):
-        current = self.get_int32(index)
-        return value != current
-
-    def should_set_uint32(self, index, value):
-        current = self.get_uint32(index)
-        return value != current
-
-    def should_set_int64(self, index, value):
-        current = self.get_int64(index)
-        return value != current
-
-    def should_set_uint64(self, index, value):
-        current = self.get_uint64(index)
-        return value != current
-
-    def should_set_float(self, index, value):
-        current = self.get_float(index)
-        return value != current
-
     def set_int32(self, index, value):
-        self.update_packet_factory.update(index, value, 'i')
+        if self.update_packet_factory.should_update(index, value, 'i'):
+            self.update_packet_factory.update(index, value, 'i')
 
     def get_int32(self, index):
-        if isinstance(self.update_packet_factory.update_values[index], bytes):
-            return unpack('<i', self.update_packet_factory.update_values[index])[0]
-        return 0  # Not set, yet.
+        return unpack('<i', self.update_packet_factory.update_values_bytes[index])[0]
 
     def set_uint32(self, index, value):
-        self.update_packet_factory.update(index, value, 'I')
+        if self.update_packet_factory.should_update(index, value, 'I'):
+            self.update_packet_factory.update(index, value, 'I')
 
     def get_uint32(self, index):
-        if isinstance(self.update_packet_factory.update_values[index], bytes):
-            return unpack('<I', self.update_packet_factory.update_values[index])[0]
-        return 0  # Not set, yet.
+        return unpack('<I', self.update_packet_factory.update_values_bytes[index])[0]
 
     def set_int64(self, index, value):
-        self.update_packet_factory.update(index, value, 'q')
+        if self.update_packet_factory.should_update(index, value, 'q'):
+            self.update_packet_factory.update(index, value, 'q')
 
     def get_int64(self, index):
-        if isinstance(self.update_packet_factory.update_values[index], bytes):
-            return unpack('<q', self.update_packet_factory.update_values[index] +
-                          self.update_packet_factory.update_values[index + 1])[0]
-        return 0  # Not set, yet.
+        return unpack('<q', self.update_packet_factory.update_values_bytes[index] +
+                      self.update_packet_factory.update_values_bytes[index + 1])[0]
 
     def set_uint64(self, index, value):
-        self.update_packet_factory.update(index, value, 'Q')
+        if self.update_packet_factory.should_update(index, value, 'Q'):
+            self.update_packet_factory.update(index, value, 'Q')
 
     def get_uint64(self, index):
-        if isinstance(self.update_packet_factory.update_values[index], bytes):
-            return unpack('<Q', self.update_packet_factory.update_values[index] +
-                          self.update_packet_factory.update_values[index + 1])[0]
-        return 0  # Not set, yet.
+        return unpack('<Q', self.update_packet_factory.update_values_bytes[index] +
+                      self.update_packet_factory.update_values_bytes[index + 1])[0]
 
     def set_float(self, index, value):
-        self.update_packet_factory.update(index, value, 'f')
+        if self.update_packet_factory.should_update(index, value, 'f'):
+            self.update_packet_factory.update(index, value, 'f')
 
     def get_float(self, index):
-        if isinstance(self.update_packet_factory.update_values[index], bytes):
-            return unpack('<f', self.update_packet_factory.update_values[index])[0]
-        return 0  # Not set, yet.
+        return unpack('<f', self.update_packet_factory.update_values_bytes[index])[0]
 
     # override
     def update(self, now):
