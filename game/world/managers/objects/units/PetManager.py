@@ -70,8 +70,8 @@ class ActivePet(NamedTuple):
 
 
 class PetManager:
-    def __init__(self, player):
-        self.player = player
+    def __init__(self, owner):
+        self.owner = owner
         self.pets: list[PetData] = []
         self.active_pet: Optional[ActivePet] = None  # TODO Multiple active pets - totems?
 
@@ -96,7 +96,7 @@ class PetManager:
     def add_pet(self, creature_template: CreatureTemplate, lifetime_sec=-1) -> int:
         # TODO: default name by beast_family - resolve id reference.
 
-        pet = PetData(creature_template.name, creature_template, self.player.guid, permanent=lifetime_sec == -1)
+        pet = PetData(creature_template.name, creature_template, self.owner.guid, permanent=lifetime_sec == -1)
         self.pets.append(pet)
         return len(self.pets) - 1
 
@@ -109,7 +109,7 @@ class PetManager:
                 return
             creature_id = self.pets[0].creature_template.entry
 
-        creature = CreatureManager.spawn(creature_id, self.player.location, self.player.map_, override_faction=self.player.faction)
+        creature = CreatureManager.spawn(creature_id, self.owner.location, self.owner.map_, override_faction=self.owner.faction)
 
         self.add_pet_from_world(creature)
         creature.respawn()
@@ -127,8 +127,8 @@ class PetManager:
         pet_index = self.active_pet.pet_index
         self.active_pet = None
 
-        self.player.set_uint64(UnitFields.UNIT_FIELD_SUMMON, 0)
-        self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, pack('<Q', 0)))
+        self.owner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, 0)
+        self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, pack('<Q', 0)))
 
         if is_permanent:
             # TODO Not sure what correct behavior is here.
@@ -161,7 +161,7 @@ class PetManager:
             return
 
         if target_guid == 0:
-            target_unit = self.player
+            target_unit = self.owner
         else:
             target_unit = MapManager.get_surrounding_unit_by_guid(active_pet_unit, target_guid, include_players=True)
 
@@ -193,7 +193,7 @@ class PetManager:
             return
 
         data = pack('<IB', spell_id, result)
-        self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_CAST_FAILED, data))
+        self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_CAST_FAILED, data))
 
     def _get_pet_info(self, pet_index: int) -> Optional[PetData]:
         if pet_index < 0 or pet_index >= len(self.pets):
@@ -202,10 +202,10 @@ class PetManager:
         return self.pets[pet_index]
 
     def _tame_creature(self, creature: CreatureManager):
-        creature.set_summoned_by(self.player)
-        creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.player.guid)
+        creature.set_summoned_by(self.owner)
+        creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.owner.guid)
 
-        creature.faction = self.player.faction
+        creature.faction = self.owner.faction
         creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
 
         # TODO pet naming/pet number?
@@ -214,7 +214,7 @@ class PetManager:
         # Just disable random movement for now.
         creature.creature_instance.movement_type = MovementTypes.IDLE
 
-        self.player.set_uint64(UnitFields.UNIT_FIELD_SUMMON, creature.guid)
+        self.owner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, creature.guid)
         creature.object_ai = AIFactory.build_ai(creature)
 
         # Required?
@@ -240,4 +240,4 @@ class PetManager:
         data.append(0)  # TODO: Cooldown count.
 
         packet = pack(signature, *data)
-        self.player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, packet))
+        self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, packet))

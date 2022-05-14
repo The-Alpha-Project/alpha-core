@@ -195,7 +195,7 @@ class UnitManager(ObjectManager):
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
         # TODO: Support for CreatureManager is not added yet.
-        from game.world.managers.objects.units.player.PetManager import PetManager
+        from game.world.managers.objects.units.PetManager import PetManager
         self.pet_manager = PetManager(self)
 
     def is_within_interactable_distance(self, victim):
