@@ -359,14 +359,14 @@ class ItemManager(ObjectManager):
         if self.item_template and self.item_instance:
             from game.world.managers.objects.item.ContainerManager import ContainerManager
 
-            # Object fields
+            # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
             self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.item_template.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, 1)
             self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
-            # Item fields
+            # Item fields.
             self.set_uint64(ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner)
             self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)
             self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
@@ -384,7 +384,7 @@ class ItemManager(ObjectManager):
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, enchantment[1])  # Duration
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, enchantment[2])  # Charges
 
-            # Container fields
+            # Container fields.
             if self.is_container() and isinstance(self, ContainerManager):
                 self.build_container_update_packet()
 

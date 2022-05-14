@@ -316,14 +316,14 @@ class GameObjectManager(ObjectManager):
         # Initialize values just once, future changes to fields should be properly set
         # through methods. We do return the creation packet at the end, always.
         if not self.initialized and self.gobject_template and self.gobject_instance:
-            # Object fields
+            # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
             self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
             self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
-            # Gameobject fields
+            # Gameobject fields.
             self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
             self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.gobject_template.flags)
             self.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.faction)

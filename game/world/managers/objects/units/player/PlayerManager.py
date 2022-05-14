@@ -983,13 +983,13 @@ class PlayerManager(UnitManager):
             self.bytes_2 = self.get_bytes_2()
             self.player_bytes_2 = self.get_player_bytes_2()
 
-            # Object fields
+            # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.player.guid)
             self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
-            # Unit fields
+            # Unit fields.
             self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
             self.set_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
             self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
@@ -1048,7 +1048,7 @@ class PlayerManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
-            # Player fields
+            # Player fields.
             self.set_uint32(PlayerFields.PLAYER_FIELD_NUM_INV_SLOTS, self.num_inv_slots)
             self.set_uint32(PlayerFields.PLAYER_BYTES, self.player_bytes)
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
@@ -1061,28 +1061,28 @@ class PlayerManager(UnitManager):
             self.set_float(PlayerFields.PLAYER_PARRY_PERCENTAGE, self.parry_percentage)
             self.set_uint32(PlayerFields.PLAYER_BASE_MANA, self.base_mana)
 
-            # Skills
+            # Skills.
             self.skill_manager.build_update()
 
-            # Guild
+            # Guild.
             if self.guild_manager:
                 self.guild_manager.build_update(self)
             else:
                 self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 
-            # Duel
+            # Duel.
             if self.duel_manager:
                 self.duel_manager.build_update(self)
 
-            # Inventory
+            # Inventory.
             for update_packet in self.inventory.get_inventory_update_packets(self):
                 self.enqueue_packet(update_packet)
             self.inventory.build_update()
 
-            # Auras
+            # Auras.
             self.aura_manager.build_update()
 
-            # Quests
+            # Quests.
             self.quest_manager.build_update()
 
         # The actual create packet.

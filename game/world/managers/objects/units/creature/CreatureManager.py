@@ -321,8 +321,11 @@ class CreatureManager(UnitManager):
 
                 # Creature AI.
                 self.object_ai = AIFactory.build_ai(self)
+
+                # Stats.
                 self.stat_manager.init_stats()
                 self.stat_manager.apply_bonuses(replenish=True)
+
                 self.fully_loaded = True
 
     def is_guard(self):
@@ -443,13 +446,13 @@ class CreatureManager(UnitManager):
             self.bytes_2 = self.get_bytes_2()
             self.damage = self.get_damages()
 
-            # Object fields
+            # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
             self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
-            # Unit fields
+            # Unit fields.
             self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
             self.set_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
             self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)

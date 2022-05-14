@@ -168,11 +168,11 @@ class ObjectManager:
         self.set_scale(self.native_scale)
 
     def reset_fields(self):
-        # Reset updated fields
+        # Reset updated fields.
         self.update_packet_factory.reset()
 
     def reset_fields_older_than(self, timestamp):
-        # Reset updated fields older than the specified timestamp
+        # Reset updated fields older than the specified timestamp.
         return self.update_packet_factory.reset_older_than(timestamp)
 
     def _get_base_structure(self, update_type):
