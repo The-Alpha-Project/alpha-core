@@ -265,12 +265,12 @@ class InventoryManager(object):
             RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
         dest_container.set_item(source_item, dest_slot, is_swap=True)
-        source_item.item_instance.set_bag(dest_bag)
+        source_item.set_bag(dest_bag)
         source_item.item_instance.slot = dest_slot
 
         if dest_item:
             source_container.set_item(dest_item, source_slot, dest_item.item_instance.stackcount, is_swap=True)
-            dest_item.item_instance.set_bag(source_bag)
+            dest_item.set_bag(source_bag)
             dest_item.item_instance.slot = source_slot
 
         # Equipment-specific behaviour: binding, offhand unequip, equipment update packet etc.
@@ -408,7 +408,7 @@ class InventoryManager(object):
 
         # Update items' bag slot field
         for item in self.containers[slot].sorted_slots.values():
-            item.item_instance.set_bag(slot.value)
+            item.set_bag(slot.value)
         return True
 
     def remove_bag(self, slot):
