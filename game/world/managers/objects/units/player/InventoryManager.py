@@ -175,9 +175,11 @@ class InventoryManager(object):
                 if item_template.entry == dest_item.item_template.entry:
                     diff = dest_item.item_template.stackable - dest_item.item_instance.stackcount
                     if diff >= count:
-                        dest_item.item_instance.stackcount += count
+                        new_stack_count = dest_item.item_instance.stackcount + count
+                        dest_item.set_stack_count(new_stack_count)
                     else:
-                        dest_item.item_instance.stackcount += diff
+                        new_stack_count = dest_item.item_instance.stackcount + diff
+                        dest_item.set_stack_count(new_stack_count)
                         self.add_item(item_template=item_template, count=count-diff, handle_error=False)
 
                     RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
@@ -231,20 +233,25 @@ class InventoryManager(object):
                 and dest_item.item_template.stackable > dest_item.item_instance.stackcount:
             diff = dest_item.item_template.stackable - dest_item.item_instance.stackcount
             if diff >= source_item.item_instance.stackcount:
-                dest_item.item_instance.stackcount += source_item.item_instance.stackcount  # Add items to dest stack
-                self.remove_item(source_bag, source_slot, True)  # Remove the source item
+                new_stack_count = dest_item.item_instance.stackcount + source_item.item_instance.stackcount
+                dest_item.set_stack_count(new_stack_count)
+                # Add items to dest stack.
+                self.remove_item(source_bag, source_slot, True)  # Remove the source item.
             else:
-                # Update stack values
-                source_item.item_instance.stackcount -= diff
-                dest_item.item_instance.stackcount = dest_item.item_template.stackable
+                # Update stack values.
+                new_stack_count = source_item.item_instance.stackcount - diff
+                source_item.set_stack_count(new_stack_count)
+                new_stack_count = dest_item.item_template.stackable
+                dest_item.set_stack_count(new_stack_count)
                 RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
 
             RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
             return
 
-        # Remove source and dest item
+        # Remove source item.
         self.remove_item(source_bag, source_slot, False, dest_item)
 
+        # Remove dest item, if any.
         if dest_item:
             self.remove_item(dest_bag, dest_slot, False, source_item)
 
@@ -258,12 +265,12 @@ class InventoryManager(object):
             RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
         dest_container.set_item(source_item, dest_slot, is_swap=True)
-        source_item.item_instance.bag = dest_bag
+        source_item.item_instance.set_bag(dest_bag)
         source_item.item_instance.slot = dest_slot
 
         if dest_item:
             source_container.set_item(dest_item, source_slot, dest_item.item_instance.stackcount, is_swap=True)
-            dest_item.item_instance.bag = source_bag
+            dest_item.item_instance.set_bag(source_bag)
             dest_item.item_instance.slot = source_slot
 
         # Equipment-specific behaviour: binding, offhand unequip, equipment update packet etc.
@@ -362,7 +369,8 @@ class InventoryManager(object):
         for slot, item in list(target_container.sorted_slots.items()):
             if item.item_template.entry == item_entry:
                 if item_count < item.item_instance.stackcount:
-                    item.item_instance.stackcount -= item_count
+                    new_stack_count = item.item_instance.stackcount - item_count
+                    item.set_stack_count(new_stack_count)
                     item_count = 0
                     RealmDatabaseManager.character_inventory_update_item(item.item_instance)
                     break
@@ -400,7 +408,7 @@ class InventoryManager(object):
 
         # Update items' bag slot field
         for item in self.containers[slot].sorted_slots.values():
-            item.item_instance.bag = slot.value
+            item.item_instance.set_bag(slot.value)
         return True
 
     def remove_bag(self, slot):

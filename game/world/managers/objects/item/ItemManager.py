@@ -176,6 +176,10 @@ class ItemManager(ObjectManager):
                 return player_mgr.inventory.get_container(self.item_instance.bag).guid
         return 0
 
+    def set_bag(self, bag):
+        self.item_instance.bag = bag
+        self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
+
     @staticmethod
     def get_inv_slot_by_type(inventory_type):
         return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0].value
@@ -389,6 +393,11 @@ class ItemManager(ObjectManager):
                 self.build_container_update_packet()
 
             return self.get_object_create_packet(requester)
+
+    def set_stack_count(self, count):
+        if self.item_instance:
+            self.item_instance.stackcount = count
+            self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
 
     def set_enchantment(self, slot, value, duration, charges):
         self.enchantments[slot] = (value, duration, charges)

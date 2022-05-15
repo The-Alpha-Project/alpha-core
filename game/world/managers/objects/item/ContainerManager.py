@@ -114,12 +114,14 @@ class ContainerManager(ItemManager):
                     item_mgr.item_instance.stackcount < item_mgr.item_template.stackable:
                 stack_missing = item_template.stackable - item_mgr.item_instance.stackcount
                 if stack_missing >= amount_left:
-                    item_mgr.item_instance.stackcount += amount_left
+                    new_stack_count = item_mgr.item_instance.stackcount + amount_left
+                    item_mgr.set_stack_count(new_stack_count)
                     amount_left = 0
                     RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
                     break
                 else:
-                    item_mgr.item_instance.stackcount += stack_missing
+                    new_stack_count = item_mgr.item_instance.stackcount + stack_missing
+                    item_mgr.set_stack_count(new_stack_count)
                     amount_left -= stack_missing
                     RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
         return amount_left
