@@ -233,6 +233,8 @@ class PlayerManager(UnitManager):
 
         # Notify player with create packet.
         self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
+        for update_packet in self.inventory.get_inventory_update_packets(self):
+            self.enqueue_packet(update_packet)
         self.enqueue_packet(self.generate_create_packet(requester=self))
 
         # Place player in a world cell.
@@ -311,8 +313,9 @@ class PlayerManager(UnitManager):
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
     def set_dirty_inventory(self):
-        self.inventory.build_update()
-        self.dirty_inventory = True
+        #self.inventory.build_update()
+        #self.dirty_inventory = True
+        pass
 
     # Retrieve update packets from world objects, this is called only if object has pending changes.
     # (update_mask bits set).
@@ -327,12 +330,17 @@ class PlayerManager(UnitManager):
                 self.enqueue_packet(world_object.generate_partial_packet(requester=self))
         # Self (Player), send proper update packets to self.
         elif world_object.guid == self.guid:
-            if self.has_pending_updates():
-                self.enqueue_packet(self.generate_partial_packet(requester=self))
-            if self.dirty_inventory:
+            if self.inventory.has_pending_updates():
+                print('Sending inventory updates to self.')
                 for update_packet in self.inventory.get_inventory_update_packets(self):
                     self.enqueue_packet(update_packet)
-                self.inventory.build_update()
+            if self.has_pending_updates():
+                self.enqueue_packet(self.generate_partial_packet(requester=self))
+
+            #if self.dirty_inventory:
+                #for update_packet in self.inventory.get_inventory_update_packets(self):
+                #    self.enqueue_packet(update_packet)
+                #self.inventory.build_update()
 
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
@@ -1072,8 +1080,6 @@ class PlayerManager(UnitManager):
                 self.duel_manager.build_update(self)
 
             # Inventory.
-            for update_packet in self.inventory.get_inventory_update_packets(self):
-                self.enqueue_packet(update_packet)
             self.inventory.build_update()
 
             # Auras.
@@ -1331,7 +1337,7 @@ class PlayerManager(UnitManager):
 
     # override
     def has_pending_updates(self):
-        return self.update_packet_factory.has_pending_updates() or self.dirty_inventory
+        return self.update_packet_factory.has_pending_updates() or self.inventory.has_pending_updates()
 
     # override
     def update(self, now):
@@ -1378,10 +1384,11 @@ class PlayerManager(UnitManager):
                     self.logout()
                     return
 
-            # Check if player has pending updates.
-            if self.has_pending_updates() and self.online:
+            # Check if player has pending fields updates.
+            if self.online and self.has_pending_updates() or self.inventory.has_pending_updates():
                 MapManager.update_object(self, check_pending_changes=True)
                 self.reset_fields_older_than(now)
+                self.inventory.reset_fields_older_than(now)
                 if self.dirty_inventory:
                     self.dirty_inventory = False
             # Not dirty, has a pending teleport and a teleport is not ongoing.

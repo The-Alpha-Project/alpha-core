@@ -770,15 +770,27 @@ class InventoryManager(object):
         for slot, item in self.get_backpack().sorted_slots.items():
             self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid)
 
-    # noinspection PyMethodMayBeStatic
-    def get_single_item_update_packet(self, item, requester):
-        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(requester)))
-        return update_packet
+    def reset_fields_older_than(self, now):
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                continue
+            container.reset_fields_older_than(now)
+            for slot, item in list(container.sorted_slots.items()):
+                item.reset_fields_older_than(now)
+
+    def has_pending_updates(self):
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                continue
+            if container.update_packet_factory.has_pending_updates():
+                return True
+            for slot, item in list(container.sorted_slots.items()):
+                if item.update_packet_factory.has_pending_updates():
+                    return True
 
     def get_inventory_update_packets(self, requester):
-        # Edge case where the session might be null at some point.
-        if self.owner and not self.owner.session:
+        # Edge case where the requester session might be null at some point.
+        if requester and not requester.session:
             return []
 
         item_query_details_data = b''
@@ -787,13 +799,13 @@ class InventoryManager(object):
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
-            if not container.is_backpack:
-                update_packets.append(self.get_single_item_update_packet(container, requester))
+            if not container.is_backpack and requester == self.owner:
+                update_packets.append(self._get_single_item_full_update_packet(container, requester))
                 item_query_details_data += container.query_details_data()
                 item_count += 1
 
             for slot, item in list(container.sorted_slots.items()):
-                update_packets.append(self.get_single_item_update_packet(item, requester))
+                update_packets.append(self._get_single_item_full_update_packet(item, requester))
                 item_query_details_data += item.query_details_data()
                 item_count += 1
 
@@ -804,3 +816,15 @@ class InventoryManager(object):
             update_packets.insert(0, PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query))
 
         return update_packets
+
+    # noinspection PyMethodMayBeStatic
+    def _get_single_item_full_update_packet(self, item, requester):
+        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(requester)))
+        return update_packet
+
+    # noinspection PyMethodMayBeStatic
+    def _get_single_item_partial_update_packet(self, item, requester):
+        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT, item.get_partial_update_packet(requester)))
+        return update_packet

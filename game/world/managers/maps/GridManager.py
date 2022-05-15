@@ -44,8 +44,13 @@ class GridManager(object):
             # Update new location surroundings, excluding intersecting cells from previous call.
             self.update_players(current_cell_key, exclude_cells=affected_cells)
 
-        # If this world object has pending updates, trigger an update on interested players.
+        # If this world object has pending field updates, trigger an update on interested players.
         if check_pending_changes and world_object.has_pending_updates():
+            self.update_players(current_cell_key, world_object=world_object)
+
+        # Check for pending inventory updates.
+        is_player = world_object.get_type_id() == ObjectTypeIds.ID_PLAYER
+        if check_pending_changes and is_player and world_object.inventory.has_pending_updates():
             self.update_players(current_cell_key, world_object=world_object)
 
         # Notify cell changed if needed.
