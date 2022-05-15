@@ -43,6 +43,110 @@ class CreatureReactStates(IntEnum):
     REACT_AGGRESSIVE = 2
 
 
+class CreatureTypeFlags(IntEnum):
+    # Tameable by any hunter.
+    CREATURE_TYPEFLAGS_TAMEABLE = 0x00000001
+    # Used in CanInteract function by client, can't be attacked.
+    CREATURE_TYPEFLAGS_GHOST_VISIBLE = 0x00000002
+    # Changes creature's visible level to "??" in the creature's portrait.
+    CREATURE_TYPEFLAGS_BOSS = 0x00000004
+    # Disables "wounded" animations at spell taken.
+    CREATURE_TYPEFLAGS_NO_WOUND_ANIM = 0x00000008
+    # Controls something in client tooltip related to creature faction.
+    CREATURE_TYPEFLAGS_HIDE_FACTION_TOOLTIP = 0x00000010
+    # May be sound related.
+    CREATURE_TYPEFLAGS_UNK6 = 0x00000020
+    # May be related to attackable / not attackable creatures with spells.
+    CREATURE_TYPEFLAGS_SPELL_ATTACKABLE = 0x00000040
+
+
+class CreatureFamily(IntEnum):
+    CREATURE_FAMILY_WOLF = 1
+    CREATURE_FAMILY_CAT = 2
+    CREATURE_FAMILY_SPIDER = 3
+    CREATURE_FAMILY_BEAR = 4
+    CREATURE_FAMILY_BOAR = 5
+    CREATURE_FAMILY_CROCOLISK = 6
+    CREATURE_FAMILY_CARRION_BIRD = 7
+    CREATURE_FAMILY_CRAB = 8
+    CREATURE_FAMILY_GORILLA = 9
+    CREATURE_FAMILY_HORSE = 10
+    CREATURE_FAMILY_RAPTOR = 11
+    CREATURE_FAMILY_TALLSTRIDER = 12
+    CREATURE_FAMILY_FELHUNTER = 15
+    CREATURE_FAMILY_VOIDWALKER = 16
+    CREATURE_FAMILY_SUCCUBUS = 17
+    CREATURE_FAMILY_DOOMGUARD = 19
+    CREATURE_FAMILY_SCORPID = 20
+    CREATURE_FAMILY_TURTLE = 21
+    CREATURE_FAMILY_IMP = 23
+
+
+class CreatureEliteType(IntEnum):
+    CREATURE_ELITE_NORMAL = 0
+    CREATURE_ELITE_ELITE = 1
+    CREATURE_ELITE_RAREELITE = 2
+    CREATURE_ELITE_WORLDBOSS = 3
+    CREATURE_ELITE_RARE = 4
+
+
+class CreatureFlagsExtra(IntEnum):
+    # 1        Killing this creature will bind players to the raid.
+    CREATURE_FLAG_EXTRA_INSTANCE_BIND = 0x00000001
+    # 2        Creature is defensive and does not attack nearby hostile targets.
+    CREATURE_FLAG_EXTRA_NO_AGGRO = 0x00000002
+    # 4        Creature can't parry
+    CREATURE_FLAG_EXTRA_NO_PARRY = 0x00000004
+    # 8        Creature summons a guard if an opposite faction player gets near or attacks.
+    CREATURE_FLAG_EXTRA_SUMMON_GUARD = 0x00000008
+    # 16       Creature can't block.
+    CREATURE_FLAG_EXTRA_NO_BLOCK = 0x00000010
+    # 32       Creature can't do crush attacks.
+    CREATURE_FLAG_EXTRA_NO_CRUSH = 0x00000020
+    # 64       Creature does not fall.
+    CREATURE_FLAG_EXTRA_FIXED_Z = 0x00000040
+    # 128      Creature is always invisible for player (mostly trigger creatures).
+    CREATURE_FLAG_EXTRA_INVISIBLE = 0x00000080
+    # 256      Creature is immune to taunt auras and effect attack me.
+    CREATURE_FLAG_EXTRA_NOT_TAUNTABLE = 0x00000100
+    # 512      Creature sets itself in combat with zone on aggro.
+    CREATURE_FLAG_EXTRA_AGGRO_ZONE = 0x00000200
+    # 1024     Creature is a guard.
+    CREATURE_FLAG_EXTRA_GUARD = 0x00000400
+    # 2048     Creature does not select targets based on threat.
+    CREATURE_FLAG_EXTRA_NO_THREAT_LIST = 0x00000800
+    # 4096     Creature keeps positive auras at reset.
+    CREATURE_FLAG_EXTRA_KEEP_POSITIVE_AURAS_ON_EVADE = 0x00001000
+    # 8192     Creature always roll a crushing melee outcome when not miss/crit/dodge/parry/block.
+    CREATURE_FLAG_EXTRA_ALWAYS_CRUSH = 0x00002000
+    # 16384    Creature is immune to AoE.
+    CREATURE_FLAG_EXTRA_IMMUNE_AOE = 0x00004000
+    # 32768    Creature does not move back when target is within bounding radius.
+    CREATURE_FLAG_EXTRA_CHASE_GEN_NO_BACKING = 0x00008000
+    # 65536    Creature does not aggro when nearby creatures aggro.
+    CREATURE_FLAG_EXTRA_NO_ASSIST = 0x00010000
+    # 131072   Creature is passive and does not acquire targets.
+    CREATURE_FLAG_EXTRA_NO_TARGET = 0x00020000
+    # 262144   Creature can only be seen by friendly units.
+    CREATURE_FLAG_EXTRA_ONLY_VISIBLE_TO_FRIENDLY = 0x00040000
+    # 524288   Creature has pvp unit flag set by default.
+    CREATURE_FLAG_EXTRA_PVP = 0x00080000
+    # 1048576  CREATURE_TYPEFLAGS_CAN_ASSIST from TBC.
+    CREATURE_FLAG_EXTRA_CAN_ASSIST = 0x00100000
+    # 2097152  CREATURE_DIFFICULTYFLAGS_LARGE_AOI (200 yards).
+    CREATURE_FLAG_EXTRA_LARGE_AOI = 0x00200000
+    # 4194304  CREATURE_DIFFICULTYFLAGS_3_GIGANTIC_AOI (400 yards).
+    CREATURE_FLAG_EXTRA_GIGANTIC_AOI = 0x00400000
+    # 8388606  CREATURE_DIFFICULTYFLAGS_3_INFINITE_AOI.
+    CREATURE_FLAG_EXTRA_INFINITE_AOI = 0x00800000
+    # 16777216 Creature will not pause movement when player talks to it.
+    CREATURE_FLAG_EXTRA_NO_MOVEMENT_PAUSE = 0x01000000
+    # 33554432 Creature will use run speed out of combat.
+    CREATURE_FLAG_EXTRA_ALWAYS_RUN = 0x02000000
+    # 67108864 Creature will not evade due to target being unreachable.
+    CREATURE_FLAG_EXTRA_NO_UNREACHABLE_EVADE = 0x04000000
+
+
 # Also known as CreatureDifficultyFlags.
 # Used internally but Blizzlike.
 class CreatureStaticFlags(IntEnum):
@@ -67,10 +171,6 @@ class CreatureStaticFlags(IntEnum):
     AQUATIC = 262144  # Can only move in water.
     AMPHIBIOUS = 524288  # Can enter water and walk on terrain.
     NO_MELEE = 1048576  # Prevents melee, mostly used by totems.
-
-
-class CreatureFlagsExtra(IntEnum):
-    CREATURE_FLAG_EXTRA_NO_AGGRO = 0x00000002  # Creature is defensive and does not attack nearby hostile targets
 
 
 class Genders(IntEnum):

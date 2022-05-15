@@ -9,13 +9,15 @@ from utils.constants.OpCodes import OpCode
 class UpdatePacketFactory(object):
     def __init__(self):
         self.fields_size = 0
-        self.update_timestamps = []
-        self.update_values = []
+        self.update_timestamps = []  # Timestamps for each field once it's touched.
+        self.update_values_bytes = []  # Values bytes representation, used for update packets.
+        self.update_values = []  # Raw values, used to compare current vs new without having to pack or unpack.
         self.update_mask = UpdateMask()
 
     def init_values(self, fields_size):
         self.fields_size = fields_size
         self.update_timestamps = [0] * self.fields_size
+        self.update_values_bytes = [b'\x00\x00\x00\x00'] * self.fields_size
         self.update_values = [0] * self.fields_size
         self.update_mask.set_count(self.fields_size)
 
@@ -38,13 +40,23 @@ class UpdatePacketFactory(object):
 
         return all_clear
 
+    # Check if the new value is different from the field known value.
+    def should_update(self, index, value, value_type):
+        if value_type.lower() == 'q':
+            field_0 = int(value & 0xFFFFFFFF)
+            field_1 = int(value >> 32)
+            return self.update_values[index] != field_0 or self.update_values[index + 1] != field_1
+        else:
+            return self.update_values[index] != value
+
     def update(self, index, value, value_type):
         if value_type.lower() == 'q':
             self.update(index, int(value & 0xFFFFFFFF), 'I')
             self.update(index + 1, int(value >> 32), 'I')
         else:
             self.update_timestamps[index] = time.time()
-            self.update_values[index] = pack(f'<{value_type}', value)
+            self.update_values[index] = value
+            self.update_values_bytes[index] = pack(f'<{value_type}', value)
             self.update_mask.set_bit(index)
 
     @staticmethod

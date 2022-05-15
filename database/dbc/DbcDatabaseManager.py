@@ -112,10 +112,10 @@ class DbcDatabaseManager:
     # Spell
 
     class SpellHolder:
-        SPELLS = {}
+        SPELLS: dict[int, Spell] = {}
 
         @staticmethod
-        def load_spell(spell):
+        def load_spell(spell: Spell):
             DbcDatabaseManager.SpellHolder.SPELLS[spell.ID] = spell
 
         @staticmethod
@@ -268,7 +268,7 @@ class DbcDatabaseManager:
     # CreatureDisplayInfo
 
     class CreatureDisplayInfoHolder:
-        CREATURE_DISPLAY_INFOS: [int, CreatureDisplayInfo] = {}
+        CREATURE_DISPLAY_INFOS: dict[int, CreatureDisplayInfo] = {}
 
         @staticmethod
         def load_creature_display_info(creature_display_info):
@@ -292,6 +292,26 @@ class DbcDatabaseManager:
     def gameobject_display_info_get_by_id(display_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(GameObjectDisplayInfo).filter_by(ID=display_id).first()
+        dbc_db_session.close()
+        return res
+
+    # CreatureFamily
+
+    class CreatureFamilyHolder:
+        CREATURE_FAMILIES: [int, CreatureFamily] = {}
+
+        @staticmethod
+        def load_creature_family(creature_family):
+            DbcDatabaseManager.CreatureFamilyHolder.CREATURE_FAMILIES[creature_family.ID] = creature_family
+
+        @staticmethod
+        def creature_family_get_by_id(family_id) -> Optional[CreatureFamily]:
+            return DbcDatabaseManager.CreatureFamilyHolder.CREATURE_FAMILIES.get(family_id)
+
+    @staticmethod
+    def creature_family_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(CreatureFamily).all()
         dbc_db_session.close()
         return res
 

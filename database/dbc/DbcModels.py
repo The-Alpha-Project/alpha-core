@@ -320,6 +320,18 @@ class CreatureDisplayInfoExtra(Base):
     BakeName = Column(Text)
 
 
+class CreatureFamily(Base):
+    __tablename__ = 'CreatureFamily'
+
+    ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
+    MinScale = Column(Float, nullable=False, server_default=text("'0'"))
+    MinScaleLevel = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    MaxScale = Column(Float, nullable=False, server_default=text("'0'"))
+    MaxScaleLevel = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    SkillLine_1 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    SkillLine_2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+
+
 class Emote(Base):
     __tablename__ = 'Emotes'
 

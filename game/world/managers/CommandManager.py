@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -8,10 +10,13 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
+from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import HighGuid
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UpdateFields import PlayerFields
+
+import platform
 
 
 # noinspection SpellCheckingInspection,PyUnusedLocal
@@ -234,19 +239,24 @@ class CommandManager(object):
 
     @staticmethod
     def lspell(world_session, args):
+        code, res = CommandManager._parse_spell_id_check_spell_exist(args)
+        if code == 0:
+            spell_id = res
+            if not world_session.player_mgr.spell_manager.learn_spell(spell_id):
+                return -1, 'you already know that spell.'
+            return 0, 'Spell learned.'
+        return code, res
+
+    @staticmethod
+    def _parse_spell_id_check_spell_exist(args):
         try:
             spell_id = int(args)
             if not spell_id:
                 return -1, 'please specify a spell ID.'
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
-            if not spell:
-                return -1, 'The spell was not found.'
-
-            if not world_session.player_mgr.spell_manager.learn_spell(spell_id):
-                return -1, 'You already know that spell.'
-            return 0, 'Spell learned.'
+            return (-1, 'the spell was not found.') if not spell else (0, spell_id)
         except ValueError:
-            return -1, 'Invalid ID.'
+            return -1, 'invalid ID.'
 
     @staticmethod
     def lspells(world_session, args):
@@ -267,6 +277,36 @@ class CommandManager(object):
                 return 0, f'Spell ID(s) {", ".join(added)} learned.'
         except ValueError:
             return -1, 'please specify one or more valid spell ID(s).'
+
+    @staticmethod
+    def unlspell(world_session, args):
+        code, res = CommandManager._parse_spell_id_check_spell_exist(args)
+        if code == 0:
+            spell_id = res
+            code, res = CommandManager._unlearn_spell(world_session, spell_id)
+            if code == 0:
+                return 0, f'{res} Relogin for spellbook update.'
+        return code, res
+
+    @staticmethod
+    def unltalent(world_session, args):
+        code, res = CommandManager._parse_spell_id_check_spell_exist(args)
+        if code == 0:
+            spell_id = res
+            code, res = CommandManager._unlearn_spell(world_session, spell_id)
+            if code == 0:
+                talent_cost = world_session.player_mgr.talent_manager.get_talent_cost_by_id(spell_id)
+                world_session.player_mgr.add_talent_points(talent_cost)
+                return 0, f'{res} Talent points were returned.'
+            return code, res
+        return code, res
+
+    @staticmethod
+    def _unlearn_spell(world_session, spell_id):
+        if world_session.player_mgr.spell_manager.unlearn_spell(spell_id):
+            world_session.player_mgr.aura_manager.cancel_auras_by_spell_id(spell_id)
+            return 0, 'Spell unlearned.'
+        return -1, 'you do not know this spell yet.'
 
     @staticmethod
     def cast(world_session, args):
@@ -515,16 +555,16 @@ class CommandManager(object):
                 distance = world_session.player_mgr.location.distance(gobject.location)
                 if distance <= max_distance:
                     found_count += 1
-                    ChatManager.send_system_message(world_session, f'[{gobject.gobject_template.name}] - Guid: {gobject.guid & ~HighGuid.HIGHGUID_GAMEOBJECT}, '
-                                                                   f'Entry: {gobject.gobject_template.entry}, '
-                                                                   f'Display ID: {gobject.current_display_id}, '
-                                                                   f'X: {gobject.location.x}, '
-                                                                   f'Y: {gobject.location.y}, '
-                                                                   f'Z: {gobject.location.z}, '
-                                                                   f'O: {gobject.location.o}, '
-                                                                   f'Map: {gobject.map_}, '
-                                                                   f'Distance: {distance}'
-                                                    )
+                    ChatManager.send_system_message(world_session,
+                                                    f'[{gobject.gobject_template.name}] - Guid: {gobject.guid & ~HighGuid.HIGHGUID_GAMEOBJECT}, '
+                                                    f'Entry: {gobject.gobject_template.entry}, '
+                                                    f'Display ID: {gobject.current_display_id}, '
+                                                    f'X: {gobject.location.x}, '
+                                                    f'Y: {gobject.location.y}, '
+                                                    f'Z: {gobject.location.z}, '
+                                                    f'O: {gobject.location.o}, '
+                                                    f'Map: {gobject.map_}, '
+                                                    f'Distance: {distance}')
             return 0, f'{found_count} game objects found within {max_distance} distance units.'
         except ValueError:
             return -1, 'please specify a valid distance.'
@@ -603,10 +643,28 @@ class CommandManager(object):
 
         return 0, ''
 
+    @staticmethod
+    def serverinfo(world_session, args):
+        os_platform = f'{platform.system()} {platform.release()} ({platform.version()})'
+        message = f'Platform: {os_platform}.\n'
+
+        server_time = f'{datetime.now()}'
+        message += f'Server Time: {server_time}.\n'
+
+        server_uptime = timedelta(seconds=WorldManager.get_seconds_since_startup())
+        message += f'Uptime: {server_uptime}.\n'
+
+        current_commit_hash = GitUtils.get_current_commit_hash()
+        current_branch = GitUtils.get_current_branch()
+        message += f'Commit: [{current_branch}] {current_commit_hash}.'
+
+        return 0, message
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': CommandManager.help,
-    'suicide': CommandManager.suicide
+    'suicide': CommandManager.suicide,
+    'serverinfo': CommandManager.serverinfo
 }
 
 # noinspection SpellCheckingInspection
@@ -621,6 +679,8 @@ GM_COMMAND_DEFINITIONS = {
     'additems': CommandManager.additems,
     'sspell': CommandManager.sspell,
     'lspell': CommandManager.lspell,
+    'unlspell': CommandManager.unlspell,
+    'unltalent': CommandManager.unltalent,
     'lspells': CommandManager.lspells,
     'cast': CommandManager.cast,
     'sskill': CommandManager.sskill,

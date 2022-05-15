@@ -1,4 +1,5 @@
 from game.world.opcode_handling.handlers.player.BootMeHandler import BootMeHandler
+from game.world.opcode_handling.handlers.pet.PetActionHandler import PetActionHandler
 from game.world.opcode_handling.handlers.player.cheats.RechargeHandler import RechargeHandler
 from game.world.opcode_handling.handlers.player.cheats.CreateItemHandler import CreateItemHandler
 from game.world.opcode_handling.handlers.channel.ChannelAnnounceHandler import ChannelAnnounceHandler
@@ -317,6 +318,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_SETDEATHBINDPOINT: SetDeathBindPointHandler.handle,
     OpCode.CMSG_GETDEATHBINDZONE: GetDeathBindPointHandler.handle,
     OpCode.CMSG_BOOTME: BootMeHandler.handle,
+    OpCode.CMSG_PET_ACTION: PetActionHandler.handle,
 
     # Movement packets
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
@@ -354,7 +356,7 @@ HANDLER_DEFINITIONS = {
 }
 
 
-class Definitions(object):
+class Definitions:
 
     @staticmethod
     def get_handler_from_packet(world_session, opcode):
@@ -362,8 +364,7 @@ class Definitions(object):
             opcode = OpCode(opcode)
             if opcode in HANDLER_DEFINITIONS:
                 return HANDLER_DEFINITIONS.get(OpCode(opcode)), True
-            else:
-                Logger.warning(f'[{world_session.client_address[0]}] Received {opcode.name} OpCode but is not handled.')
+            Logger.warning(f'[{world_session.client_address[0]}] Received {opcode.name} OpCode but is not handled.')
         except ValueError:
             # No handler, OpCode not found
             return None, False

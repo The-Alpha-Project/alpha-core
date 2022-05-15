@@ -5,19 +5,19 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.spell.AuraManager import AppliedAura
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
-from game.world.managers.objects.spell.AuraManager import AppliedAura
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, GameObjectTypes, HighGuid, ObjectTypeIds
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags, PowerTypes
+from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import UnitFields
 
 
-class SpellEffectHandler(object):
+class SpellEffectHandler:
     @staticmethod
     def apply_effect(casting_spell, effect, caster, target):
         if effect.effect_type not in SPELL_EFFECTS:
@@ -46,7 +46,7 @@ class SpellEffectHandler(object):
     def handle_heal_max_health(casting_spell, effect, caster, target):
         if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
-        
+
         healing = caster.max_health
         caster.apply_spell_healing(target, healing, casting_spell)
 
@@ -55,8 +55,10 @@ class SpellEffectHandler(object):
         if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type, casting_spell.spell_entry.School,
-                                                            target, apply_bonuses=False)  # Bonuses are applied on spell damage
+        weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
+                                                            casting_spell.spell_entry.School,
+                                                            target,
+                                                            apply_bonuses=False)  # Bonuses are applied on spell damage.
 
         damage = weapon_damage + effect.get_effect_points(casting_spell.caster_effective_level)
         caster.apply_spell_damage(target, damage, casting_spell)
@@ -66,8 +68,10 @@ class SpellEffectHandler(object):
         if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type, casting_spell.spell_entry.School,
-                                                            target, apply_bonuses=False)  # Bonuses are applied on spell damage
+        weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
+                                                            casting_spell.spell_entry.School,
+                                                            target,
+                                                            apply_bonuses=False)  # Bonuses are applied on spell damage.
 
         damage_bonus = effect.get_effect_points(casting_spell.caster_effective_level)
 
@@ -155,7 +159,8 @@ class SpellEffectHandler(object):
             return
 
         target.inventory.add_item(effect.item_type,
-                                  count=effect.get_effect_points(casting_spell.caster_effective_level), update_inventory=True)
+                                  count=effect.get_effect_points(casting_spell.caster_effective_level),
+                                  update_inventory=True)
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
@@ -188,8 +193,10 @@ class SpellEffectHandler(object):
         previous_targets = effect.targets.previous_targets_a if effect.targets.previous_targets_a else []
         current_targets = effect.targets.resolved_targets_a
 
-        new_targets = [unit for unit in current_targets if unit not in previous_targets]  # Targets that can't have the aura yet
-        missing_targets = [unit for unit in previous_targets if unit not in current_targets]  # Targets that moved out of the area
+        new_targets = [unit for unit in current_targets if
+                       unit not in previous_targets]  # Targets that can't have the aura yet.
+        missing_targets = [unit for unit in previous_targets if
+                           unit not in current_targets]  # Targets that moved out of the area.
 
         for target in new_targets:
             new_aura = AppliedAura(caster, casting_spell, effect, target)
@@ -364,6 +371,20 @@ class SpellEffectHandler(object):
         # Instant teleport.
         caster.teleport(caster.map_, charge_location, is_instant=True)
 
+    @staticmethod
+    def handle_tame_creature(casting_spell, effect, caster, target):
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        caster.pet_manager.add_pet_from_world(target)
+
+    @staticmethod
+    def handle_summon_pet(casting_spell, effect, caster, target):
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        caster.pet_manager.summon_pet(effect.misc_value)
+
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
@@ -432,6 +453,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_CREATE_HOUSE: SpellEffectHandler.handle_summon_object,
     SpellEffects.SPELL_EFFECT_BIND: SpellEffectHandler.handle_bind,
     SpellEffects.SPELL_EFFECT_LEAP: SpellEffectHandler.handle_leap,
+    SpellEffects.SPELL_EFFECT_TAME_CREATURE: SpellEffectHandler.handle_tame_creature,
+    SpellEffects.SPELL_EFFECT_SUMMON_PET: SpellEffectHandler.handle_summon_pet,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

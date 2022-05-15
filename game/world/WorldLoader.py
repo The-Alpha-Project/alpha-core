@@ -32,6 +32,7 @@ class WorldLoader:
 
         # Creature spawns
         if config.Server.Settings.load_creatures:
+            WorldLoader.load_creature_spells()
             WorldLoader.load_creature_loot_templates()
             WorldLoader.load_creature_equip_templates()
             WorldLoader.load_creatures()
@@ -39,6 +40,7 @@ class WorldLoader:
             WorldLoader.load_creature_quest_finishers()
             WorldLoader.load_creature_display_info()
             WorldLoader.load_creature_model_info()
+            WorldLoader.load_creature_families()
             WorldLoader.load_npc_gossip()
             WorldLoader.load_npc_text()
         else:
@@ -142,6 +144,19 @@ class WorldLoader:
             Logger.progress('Spawning creatures...', count, length)
 
         session.close()
+        return length
+
+    @staticmethod
+    def load_creature_spells():
+        creature_spells = WorldDatabaseManager.creature_get_spell()
+        length = len(creature_spells)
+        count = 0
+
+        for creature_spell in creature_spells:
+            WorldDatabaseManager.CreatureSpellHolder.load_creature_spells(creature_spell)
+            count += 1
+            Logger.progress('Loading creature spells...', count, length)
+
         return length
 
     @staticmethod
@@ -404,6 +419,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading creature model info...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_families():
+        creature_families = DbcDatabaseManager.creature_family_get_all()
+        length = len(creature_families)
+        count = 0
+
+        for creature_family in creature_families:
+            DbcDatabaseManager.CreatureFamilyHolder.load_creature_family(creature_family)
+
+            count += 1
+            Logger.progress('Loading creature families...', count, length)
 
         return length
 

@@ -7,6 +7,9 @@ class BugHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         if len(reader.data) >= 4:  # Avoid handling empty bug packet.
+            if not world_session.account_mgr or not world_session.player_mgr:
+                return 0
+
             is_bug = unpack('<I', reader.data[:4])[0] == 0
             full_body = PacketReader.read_string(reader.data, 8)
             # This packet is even sending the password in plain text, so we don't want that, we only care about the text

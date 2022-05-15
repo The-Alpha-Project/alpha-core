@@ -63,11 +63,7 @@ class AuraManager:
         # TODO Some aura applications appear twice in the combat log.
         # For example, the proc effect from frost armor appears twice.
         # Gouge seems to appear twice against players (tested in duels), but not against NPCs.
-        if not aura.passive:
-            if not is_refresh:
-                self.write_aura_to_unit(aura)
-                self.write_aura_flag_to_unit(aura)
-            self.send_aura_duration(aura)
+        self.write_aura_to_unit(aura, is_refresh=is_refresh)
 
     def update(self, timestamp):
         for aura in list(self.active_auras.values()):
@@ -227,6 +223,12 @@ class AuraManager:
 
         return True
 
+    def has_aura_by_spell_id(self, spell_id):
+        for aura in self.active_auras.values():
+            if aura.spell_id == spell_id:
+                return True
+        return False
+
     def get_auras_by_spell_id(self, spell_id) -> list[AppliedAura]:
         auras = []
         for aura in self.active_auras.values():
@@ -303,11 +305,7 @@ class AuraManager:
         if aura.source_spell.trigger_cooldown_on_aura_remove():
             self.unit_mgr.spell_manager.set_on_cooldown(aura.source_spell, start_locked_cooldown=True)
 
-        if aura.passive:
-            return  # Passive auras aren't written to unit.
-
         self.write_aura_to_unit(aura, clear=True)
-        self.write_aura_flag_to_unit(aura, clear=True)
 
     def remove_all_auras(self):
         for aura in list(self.active_auras.values()):
@@ -318,6 +316,9 @@ class AuraManager:
 
         for aura in auras:
             self.remove_aura(aura, canceled=True)
+
+    def build_update(self):
+        [self.write_aura_to_unit(aura, send_duration=False) for aura in list(self.active_auras.values())]
 
     def handle_player_cancel_aura_request(self, spell_id):
         auras = self.get_auras_by_spell_id(spell_id)
@@ -342,11 +343,22 @@ class AuraManager:
         data = pack('<Bi', aura.index, int(aura.get_duration()))
         self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))
 
-    def write_aura_to_unit(self, aura, clear=False):
+    def write_aura_to_unit(self, aura, clear=False, is_refresh=False, send_duration=True):
+        if aura.passive:
+            return  # Passive auras are server-side only.
+
+        if send_duration:
+            self.send_aura_duration(aura)
+
+        if is_refresh:
+            # When refreshing auras, only a duration update is sent.
+            return
+
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index
         self.unit_mgr.set_uint32(field_index, aura.spell_id if not clear else 0)
+        self._write_aura_flag_to_unit(aura, clear)
 
-    def write_aura_flag_to_unit(self, aura, clear=False):
+    def _write_aura_flag_to_unit(self, aura, clear=False):
         if not aura:
             return
         byte = (aura.index & 7) << 2  # magic value for AuraFlags.
@@ -355,7 +367,8 @@ class AuraManager:
         else:
             self.current_flags &= ~(0x9 << byte)
 
-        self.unit_mgr.set_uint32(UnitFields.UNIT_FIELD_AURAFLAGS + (aura.index >> 3), self.current_flags)
+        field_index = UnitFields.UNIT_FIELD_AURAFLAGS + (aura.index >> 3)
+        self.unit_mgr.set_uint32(field_index, self.current_flags)
 
     def get_next_aura_index(self, aura) -> int:
         if aura.passive:

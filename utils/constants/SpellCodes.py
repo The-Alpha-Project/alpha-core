@@ -507,7 +507,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_RANDOM_ENEMY_CHAIN_IN_AREA = 2  # Only one spell has this one but regardless it's a target type after all
     TARGET_UNIT_NEAR_CASTER = 4
     TARGET_PET = 5
-    TARGET_CHAIN_DAMAGE = 6
+    TARGET_ENEMY_UNIT = 6
     TARGET_AREAEFFECT_CUSTOM = 7  # VMaNGOS: "TARGET_ENUM_UNITS_SCRIPT_AOE_AT_SRC_LOC" Most likely correct definition - includes cozy fire effect etc. TODO
     TARGET_INNKEEPER_COORDINATES = 9  # Used in teleport to innkeeper spells
     TARGET_11 = 11  # Only used by "Word of Recall Other" (4)
@@ -520,7 +520,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_ALL_AROUND_CASTER = 22  # Used only in TargetA target selection dependent from TargetB
     TARGET_SELECTED_GAMEOBJECT = 23
     TARGET_INFRONT = 24
-    TARGET_DUEL_VS_PLAYER = 25  # Used when part of spell is casted on another target TODO rename?
+    TARGET_UNIT = 25  # Used when part of spell is casted on another target
     TARGET_GAMEOBJECT_AND_ITEM = 26
     TARGET_MASTER = 27  # not tested
     TARGET_AREA_EFFECT_ENEMY_CHANNEL = 28

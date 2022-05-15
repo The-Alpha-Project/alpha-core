@@ -9,6 +9,7 @@ from database.world.WorldDatabaseManager import *
 from game.world.WorldLoader import WorldLoader
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
@@ -25,13 +26,13 @@ def get_seconds_since_startup():
     return time() - STARTUP_TIME
 
 
-class WorldServerSessionHandler(object):
+class WorldServerSessionHandler:
     def __init__(self, request, client_address):
         self.request = request
         self.client_address = client_address
 
         self.account_mgr = None
-        self.player_mgr = None
+        self.player_mgr: Optional[PlayerManager] = None
         self.keep_alive = False
 
         self.incoming_pending = _queue.SimpleQueue()
@@ -258,7 +259,7 @@ class WorldServerSessionHandler(object):
         WorldServerSessionHandler.schedule_background_tasks()
 
         real_binding = server_socket.getsockname()
-        Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}')
+        Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
         while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
             try:
                 (client_socket, client_address) = server_socket.accept()

@@ -48,5 +48,27 @@ begin not atomic
         insert into applied_updates values ('200420221');
     end if;
 
+    -- 20/04/2022 2
+    if (select count(*) from applied_updates where id='200420222') = 0 then
+        -- [PH] Teleport to Auberdine
+        UPDATE `spell_target_position` SET `target_position_x` = '6482.042', `target_position_y` = '614.423', `target_position_z` = '5.458', `target_orientation` = '2.893' WHERE (`id` = '6349') and (`target_map` = '1');
+        insert into applied_updates values ('200420222');
+    end if;
+
+    -- 12/05/2022 1
+    if (select count(*) from applied_updates where id='120520221') = 0 then
+        -- Fix Duel Flag display id.
+        UPDATE `gameobject_template` SET `displayId` = 327 WHERE `entry` = 21680;
+
+        insert into applied_updates values ('120520221');
+    end if;
+
+    -- 14/05/2022 1
+    if (select count(*) from applied_updates where id='140520221') = 0 then
+        -- Fix Warlock Imp display id.
+        UPDATE `creature_template` SET `display_id1` = 1213 WHERE `entry` = 416;
+
+        insert into applied_updates values ('140520221');
+    end if;
 end $
 delimiter ;

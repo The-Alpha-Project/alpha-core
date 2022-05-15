@@ -7,14 +7,14 @@ from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes, MoveFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags
 from utils.constants.UpdateFields \
-    import ObjectFields
+    import ObjectFields, UnitFields
 
 
-class ObjectManager(object):
+class ObjectManager:
     def __init__(self,
                  guid=0,
                  entry=0,
@@ -66,6 +66,7 @@ class ObjectManager(object):
         self.current_cell = ''
         self.last_tick = 0
         self.movement_spline = None
+        self.object_ai = None
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -114,16 +115,17 @@ class ObjectManager(object):
         )
 
         # Normal update fields.
-        data += self._get_fields_update(requester)
+        data += self._get_fields_update(True, requester)
 
         return data
 
     def get_partial_update_packet(self, requester):
+
         # Base structure.
         data = self._get_base_structure(UpdateTypes.PARTIAL)
 
         # Normal update fields.
-        data += self._get_fields_update(requester)
+        data += self._get_fields_update(False, requester)
 
         return data
 
@@ -166,11 +168,11 @@ class ObjectManager(object):
         self.set_scale(self.native_scale)
 
     def reset_fields(self):
-        # Reset updated fields
+        # Reset updated fields.
         self.update_packet_factory.reset()
 
     def reset_fields_older_than(self, timestamp):
-        # Reset updated fields older than the specified timestamp
+        # Reset updated fields older than the specified timestamp.
         return self.update_packet_factory.reset_older_than(timestamp)
 
     def _get_base_structure(self, update_type):
@@ -212,47 +214,90 @@ class ObjectManager(object):
 
         return data
 
-    def _get_fields_update(self, requester):
+    def _get_fields_update(self, is_create, requester):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
-        data += self.update_packet_factory.update_mask.to_bytes()
 
-        for i in range(0, self.update_packet_factory.update_mask.field_count):
-            if self.update_packet_factory.update_mask.is_set(i):
-                data += self.update_packet_factory.update_values[i]
+        # Create packets are always timestamp based, since fields might not be dirty but already touched.
+        # Because of the way we handle items/containers updates atm, those will land here as well, always.
+        if is_create:
+            data += self._get_fields_timestamp_based()
+        # Partial updates will follow normal field value acquisition based on bit mask.
+        else:
+            data += self._get_fields_bit_mask_based()
 
         return data
 
+    # Generate an update packet based on which fields are currently touched.
+    # Usually used by any partial update requested by a player who already knows this world object.
+    def _get_fields_bit_mask_based(self):
+        data = self.update_packet_factory.update_mask.to_bytes()
+        for i in range(0, self.update_packet_factory.update_mask.field_count):
+            if self.update_packet_factory.update_mask.is_set(i):
+                data += self.update_packet_factory.update_values_bytes[i]
+        return data
+
+    # Generate an update packet based on fields that has been previously touched.
+    # This is used mostly for create packets requested by players that just met a new world object.
+    def _get_fields_timestamp_based(self):
+        mask_copy = self.update_packet_factory.update_mask.copy()
+        fields_data = b''
+        for i in range(0, self.update_packet_factory.update_mask.field_count):
+            # Value is not 0 and bit mask is on or has a timestamp.
+            if self.update_packet_factory.update_values[i] != 0 and \
+                    self.update_packet_factory.update_mask.is_set(i) or \
+                    self.update_packet_factory.update_timestamps[i]:
+                fields_data += self.update_packet_factory.update_values_bytes[i]
+                mask_copy[i] = 1
+        data = mask_copy.tobytes() + fields_data
+        return data
+
+    # noinspection PyMethodMayBeStatic
+    def is_aura_field(self, index):
+        return UnitFields.UNIT_FIELD_AURA <= index <= UnitFields.UNIT_FIELD_AURA + 55
+
     def set_int32(self, index, value):
-        self.update_packet_factory.update(index, value, 'i')
+        if self.update_packet_factory.should_update(index, value, 'i'):
+            self.update_packet_factory.update(index, value, 'i')
 
     def get_int32(self, index):
-        return unpack('<i', self.update_packet_factory.update_values[index])[0]
+        return self._get_value_by_type_at('i', index)
 
     def set_uint32(self, index, value):
-        self.update_packet_factory.update(index, value, 'I')
+        if self.update_packet_factory.should_update(index, value, 'I'):
+            self.update_packet_factory.update(index, value, 'I')
 
     def get_uint32(self, index):
-        return unpack('<I', self.update_packet_factory.update_values[index])[0]
+        return self._get_value_by_type_at('I', index)
 
     def set_int64(self, index, value):
-        self.update_packet_factory.update(index, value, 'q')
+        if self.update_packet_factory.should_update(index, value, 'q'):
+            self.update_packet_factory.update(index, value, 'q')
 
     def get_int64(self, index):
-        return unpack('<q', self.update_packet_factory.update_values[index] +
-                      self.update_packet_factory.update_values[index + 1])[0]
+        return self._get_value_by_type_at('q', index)
 
     def set_uint64(self, index, value):
-        self.update_packet_factory.update(index, value, 'Q')
+        if self.update_packet_factory.should_update(index, value, 'Q'):
+            self.update_packet_factory.update(index, value, 'Q')
 
     def get_uint64(self, index):
-        return unpack('<Q', self.update_packet_factory.update_values[index] +
-                      self.update_packet_factory.update_values[index + 1])[0]
+        return self._get_value_by_type_at('Q', index)
 
     def set_float(self, index, value):
-        self.update_packet_factory.update(index, value, 'f')
+        if self.update_packet_factory.should_update(index, value, 'f'):
+            self.update_packet_factory.update(index, value, 'f')
 
     def get_float(self, index):
-        return unpack('<f', self.update_packet_factory.update_values[index])[0]
+        return self._get_value_by_type_at('f', index)
+
+    def _get_value_by_type_at(self, value_type, index):
+        if not self.update_packet_factory.update_values[index]:
+            return 0
+        value = self.update_packet_factory.update_values[index]
+        if value_type.lower() == 'q':
+            value += self.update_packet_factory.update_values[index + 1]
+
+        return unpack(f'<{value_type}', value)[0]
 
     # override
     def update(self, now):
@@ -275,7 +320,7 @@ class ObjectManager(object):
         low_guid = self.guid & ~ObjectManager.extract_high_guid(self.guid)
         return [
             f'Guid: {low_guid}, Entry: {self.entry}, Display ID: {self.current_display_id}',
-            f'X: {self.location.x}, Y: {self.location.y}, Z: {self.location.z}, O: {self.location.o}'
+            f'X: {self.location.x:.3f}, Y: {self.location.y:.3f}, Z: {self.location.z:.3f}, O: {self.location.o:.3f}'
         ]
 
     # override
