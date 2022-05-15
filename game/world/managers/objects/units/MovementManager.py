@@ -61,7 +61,7 @@ class MovementManager:
                 self.unit.location.x = new_position.x
                 self.unit.location.y = new_position.y
                 self.unit.location.z = new_position.z
-                self.unit.on_relocation()
+                self.unit.set_has_moved(True)
                 MapManager.update_object(self.unit)
 
                 # TODO: Logic below should be removed once we have some kind of navmesh.

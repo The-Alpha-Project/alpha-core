@@ -190,6 +190,8 @@ class UnitManager(ObjectManager):
         self.has_parry_passive = False
         self.has_dodge_passive = False
 
+        self.has_moved = False
+
         self.stat_manager = StatManager(self)
         self.spell_manager = SpellManager(self)
         self.aura_manager = AuraManager(self)
@@ -1149,6 +1151,9 @@ class UnitManager(ObjectManager):
     # override
     def notify_moved_in_line_of_sight(self, target):
         pass
+
+    def set_has_moved(self, has_moved):
+        self.has_moved = has_moved
 
     # override
     def get_type_id(self):

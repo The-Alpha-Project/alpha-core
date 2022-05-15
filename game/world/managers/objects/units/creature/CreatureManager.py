@@ -3,28 +3,28 @@ from dataclasses import dataclass
 from random import randint, choice
 from struct import pack
 
-from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatures
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatures
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.ai.AIFactory import AIFactory
+from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
-from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
-from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
-from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
+from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
-from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, \
     TrainerTypes
 from utils.constants.OpCodes import OpCode
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
     CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
@@ -662,6 +662,9 @@ class CreatureManager(UnitManager):
                 self.aura_manager.update(now)
                 # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
+                if self.has_moved:
+                    self.on_relocation()
+                    self.set_has_moved(False)
                 # Random Movement.
                 self._perform_random_movement(now)
                 # Combat Movement.
@@ -849,7 +852,8 @@ class CreatureManager(UnitManager):
             self._try_start_proximity_aggro_attack(target)
 
     def _try_start_proximity_aggro_attack(self, victim):
-        can_init_attack = self.react_state == CreatureReactStates.REACT_AGGRESSIVE and self.can_attack_target(victim)
+        is_aggressive = self.react_state == CreatureReactStates.REACT_AGGRESSIVE
+        can_init_attack = is_aggressive and self.can_attack_target(victim)
         if can_init_attack:
             self.attack(victim)
             threat_not_to_leave_combat = 0.0

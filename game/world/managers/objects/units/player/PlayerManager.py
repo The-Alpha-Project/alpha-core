@@ -1348,6 +1348,9 @@ class PlayerManager(UnitManager):
             self.attack_update(elapsed)
             # Waypoints (mostly flying paths) update.
             self.movement_manager.update_pending_waypoints(elapsed)
+            if self.has_moved:
+                self.on_relocation()
+                self.set_has_moved(False)
             # Check swimming state.
             self.check_swimming_state(elapsed)
 
