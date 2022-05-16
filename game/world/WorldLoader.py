@@ -30,7 +30,7 @@ class WorldLoader:
         else:
             Logger.info('Skipped game object loading.')
 
-        # # Creature spawns
+        # Creature spawns
         if config.Server.Settings.load_creatures:
             WorldLoader.load_creature_spells()
             WorldLoader.load_creature_loot_templates()
