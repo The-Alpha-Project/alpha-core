@@ -410,6 +410,10 @@ class ItemManager(ObjectManager):
     def set_charges(self, spell_id, charges):
         for index, spell_stats in enumerate(self.spell_stats):
             if spell_stats.spell_id == spell_id:
+                spell_stats.charges = charges
+                # Update our item_instance, else charges wont serialize properly.
+                if self.item_instance:
+                    eval(f'self.item_instance.SpellCharges{index} = {charges}')
                 self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)
                 break
 
