@@ -1385,8 +1385,10 @@ class PlayerManager(UnitManager):
             # Check if player has pending fields or inventory updates.
             if self.online and has_changes or has_inventory_changes:
                 MapManager.update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
-                self.reset_fields_older_than(now)
-                self.inventory.reset_fields_older_than(now)
+                if has_changes:
+                    self.reset_fields_older_than(now)
+                if has_inventory_changes:
+                    self.inventory.reset_fields_older_than(now)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
             elif not self.has_pending_updates() and self.pending_teleport_destination and not self.update_lock:
                 self.trigger_teleport()
