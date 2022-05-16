@@ -7,8 +7,7 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError, ItemSubClasses, BagFamilies, \
-    ItemClasses
+from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError, ItemSubClasses, ItemClasses
 from utils.constants.MiscCodes import BankSlots, ItemBondingTypes
 from utils.constants.UpdateFields import PlayerFields
 
@@ -466,7 +465,7 @@ class InventoryManager(object):
                     if item_mgr.item_template.entry == item_template.entry:
                         amount -= item_template.stackable - item_mgr.item_instance.stackcount
         else:
-            for x in range(InventorySlots.SLOT_BANK_ITEM_START, InventorySlots.SLOT_ITEM_BANK_END):
+            for x in range(InventorySlots.SLOT_BANK_ITEM_START, InventorySlots.SLOT_BANK_ITEM_END):
                 if x not in self.get_backpack().sorted_slots:
                     amount -= item_template.stackable
                     continue
