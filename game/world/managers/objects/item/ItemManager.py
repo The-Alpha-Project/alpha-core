@@ -413,7 +413,7 @@ class ItemManager(ObjectManager):
                 spell_stats.charges = charges
                 # Update our item_instance, else charges wont serialize properly.
                 if self.item_instance:
-                    eval(f'self.item_instance.SpellCharges{index} = {charges}')
+                    eval(f'self.item_instance.SpellCharges{index + 1} = {charges}')
                 self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)
                 break
 
