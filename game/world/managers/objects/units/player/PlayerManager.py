@@ -324,19 +324,17 @@ class PlayerManager(UnitManager):
             # Check for inventory updates (Containers and Items)
             if is_player and has_inventory_changes:
                 # This is a known player and has inventory changes.
-                sent = 0
                 for update_packet in world_object.inventory.get_inventory_update_packets(self):
-                    sent += 1
                     self.enqueue_packet(update_packet)
-                print(f'{self.player.name} received {sent} inventory updates from {world_object.player.name}')
-            # Update self with known world object update packet.
+            # Update self with known world object partial update packet.
             if has_changes:
                 self.enqueue_packet(world_object.generate_partial_packet(requester=self))
-        # Self (Player), send proper update packets to self.
-        elif world_object.guid == self.guid:
+        elif world_object.guid == self.guid:  # Self (Player)
+            # Update self inventory if needed.
             if has_inventory_changes:
                 for update_packet in self.inventory.get_inventory_update_packets(self):
                     self.enqueue_packet(update_packet)
+            # Send self a partial update if needed.
             if has_changes:
                 self.enqueue_packet(self.generate_partial_packet(requester=self))
 
