@@ -100,6 +100,7 @@ class InventoryManager(object):
                     continue
                 amount_left = container.add_item_to_existing_stacks(item_template, amount_left)
                 if amount_left <= 0:
+                    target_bag_slot = slot
                     break
 
             if amount_left > 0:
@@ -125,8 +126,9 @@ class InventoryManager(object):
             # Update quest item count, if needed.
             self.owner.quest_manager.reward_item(item_template.entry, item_count=count)
 
-            if update_inventory:
-                self.owner.set_dirty_inventory()
+            # Refresh backpack slot fields if needed.
+            if target_bag_slot == InventorySlots.SLOT_INBACKPACK:
+                self.build_update()
 
         return items_added
 
@@ -202,6 +204,10 @@ class InventoryManager(object):
                 (self.is_equipment_pos(dest_bag_slot, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
             self.handle_equipment_change(generated_item)
             RealmDatabaseManager.character_inventory_update_item(generated_item.item_instance)
+
+        # Backpack was touched, refresh slot fields.
+        if dest_container.is_backpack:
+            self.build_update()
 
         return True
 
@@ -283,6 +289,10 @@ class InventoryManager(object):
         RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
         if dest_item:
             RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
+
+        # Backpack was touched, refresh slot fields.
+        if dest_container.is_backpack or source_container.is_backpack:
+            self.build_update()
 
     def get_item_count(self, entry):
         count = 0
@@ -790,10 +800,10 @@ class InventoryManager(object):
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
-            if container.update_packet_factory.has_pending_updates():
+            if container.has_pending_updates():
                 return True
             for slot, item in list(container.sorted_slots.items()):
-                if item.update_packet_factory.has_pending_updates():
+                if item.has_pending_updates():
                     return True
 
     def get_inventory_update_packets(self, requester):

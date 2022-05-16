@@ -89,7 +89,6 @@ class PlayerManager(UnitManager):
         self.last_swimming_check = 0
         self.spirit_release_timer = 0
         self.logout_timer = -1
-        self.dirty_inventory = False
         self.pending_taxi_destination = None
         self.explored_areas = bitarray(MAX_EXPLORED_AREAS, 'little')
         self.explored_areas.setall(0)
@@ -312,16 +311,11 @@ class PlayerManager(UnitManager):
             )
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
-    def set_dirty_inventory(self):
-        #self.inventory.build_update()
-        #self.dirty_inventory = True
-        pass
-
     # Retrieve update packets from world objects, this is called only if object has pending changes.
     # (update_mask bits set).
     def update_world_object_on_me(self, world_object):
         if world_object.guid in self.known_objects:
-            if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and world_object.dirty_inventory:
+            if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and world_object.inventory.has_pending_updates():
                 # This is a known player and has inventory changes.
                 for update_packet in world_object.inventory.get_inventory_update_packets(self):
                     self.enqueue_packet(update_packet)
@@ -874,9 +868,9 @@ class PlayerManager(UnitManager):
         self.player.bankslots += 1
         self.player_bytes_2 = self.get_player_bytes_2()
         self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.player_bytes_2)
-        self.mod_money(-slot_cost, update_inventory=True)
+        self.mod_money(-slot_cost)
 
-    def mod_money(self, amount, update_inventory=False):
+    def mod_money(self, amount):
         if self.coinage + amount < 0:
             amount = -self.coinage
 
@@ -887,10 +881,6 @@ class PlayerManager(UnitManager):
             self.coinage += amount
 
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
-
-        # Only override to True.
-        if update_inventory and not self.dirty_inventory:
-            self.dirty_inventory = True
 
     def on_zone_change(self, new_zone):
         # Update player zone.
@@ -1389,8 +1379,6 @@ class PlayerManager(UnitManager):
                 MapManager.update_object(self, check_pending_changes=True)
                 self.reset_fields_older_than(now)
                 self.inventory.reset_fields_older_than(now)
-                if self.dirty_inventory:
-                    self.dirty_inventory = False
             # Not dirty, has a pending teleport and a teleport is not ongoing.
             elif not self.has_pending_updates() and self.pending_teleport_destination and not self.update_lock:
                 self.trigger_teleport()

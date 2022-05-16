@@ -69,6 +69,8 @@ class ContainerManager(ItemManager):
             if item_mgr:
                 item_mgr.current_slot = slot
                 self.sorted_slots[slot] = item_mgr
+                self.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + slot, item_mgr.guid)
+
                 RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
 
             if item_mgr.item_template.bonding == ItemBondingTypes.BIND_WHEN_PICKED_UP:
@@ -92,7 +94,6 @@ class ContainerManager(ItemManager):
                 if not self.is_full():
                     if amount_left > item_template.stackable:
                         self.set_item(item_template, self.next_available_slot(), item_template.stackable)
-
                         amount_left -= item_template.stackable
                     else:
                         self.set_item(item_template, self.next_available_slot(), amount_left)
@@ -148,6 +149,7 @@ class ContainerManager(ItemManager):
     def remove_item_in_slot(self, slot):
         if slot in self.sorted_slots:
             self.sorted_slots.pop(slot)
+            self.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + slot, 0)
             return True
         return False
 

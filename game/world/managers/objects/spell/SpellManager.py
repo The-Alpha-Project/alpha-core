@@ -1059,10 +1059,7 @@ class SpellManager:
 
             if charges != 0 and charges != -1:  # don't modify if no charges remain or this item is a consumable.
                 new_charges = charges-1 if charges > 0 else charges+1
-                spell_stats.charges = new_charges
-
-        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            self.caster.set_dirty_inventory()
+                casting_spell.source_item.set_charges(casting_spell.spell_entry.ID, new_charges)
 
     def send_cast_result(self, spell_id, error):
         # TODO CAST_SUCCESS_KEEP_TRACKING

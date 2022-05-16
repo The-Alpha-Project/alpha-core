@@ -377,11 +377,11 @@ class ItemManager(ObjectManager):
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
             self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
 
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES, self.item_instance.SpellCharges1)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 1, self.item_instance.SpellCharges2)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 2, self.item_instance.SpellCharges3)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 3, self.item_instance.SpellCharges4)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 4, self.item_instance.SpellCharges5)
+            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES, self.spell_stats[0].charges)
+            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 1, self.spell_stats[1].charges)
+            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 2, self.spell_stats[2].charges)
+            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 3, self.spell_stats[3].charges)
+            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 4, self.spell_stats[4].charges)
 
             for slot, enchantment in self.enchantments.items():
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, enchantment[0])  # Value/Id
@@ -398,6 +398,11 @@ class ItemManager(ObjectManager):
         if self.item_instance:
             self.item_instance.stackcount = count
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
+
+    def set_charges(self, spell_id, charges):
+        for index, spell_stats in enumerate(self.spell_stats):
+            if spell_stats.spell_id == spell_id:
+                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)
 
     def set_enchantment(self, slot, value, duration, charges):
         self.enchantments[slot] = (value, duration, charges)

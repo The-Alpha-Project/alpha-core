@@ -44,6 +44,5 @@ class AutostoreBagItemHandler(object):
                 inventory.send_equip_error(InventoryError.BAG_LOOT_GONE, source_item, None)
                 return 0
             inventory.swap_item(source_bag_slot, source_slot, dest_bag_slot, dest_slot)
-            world_session.player_mgr.set_dirty_inventory()
 
         return 0
