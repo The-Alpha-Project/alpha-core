@@ -184,8 +184,9 @@ class ItemManager(ObjectManager):
         return 0
 
     def set_bag(self, bag):
-        self.item_instance.bag = bag
-        self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
+        if self.item_instance:
+            self.item_instance.bag = bag
+            self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
 
     @staticmethod
     def get_inv_slot_by_type(inventory_type):
