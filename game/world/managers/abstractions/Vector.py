@@ -124,3 +124,11 @@ class Vector(object):
         z, z_locked = Vector.calculate_z(x, y, map_id, self.z)
 
         return Vector(x, y, z, z_locked=z_locked)
+
+    def get_point_in_radius_and_angle(self, radius, angle, final_orientation=-1, map_id=-1):
+        x = self.x + (radius * math.cos(self.o + angle))
+        y = self.y + (radius * math.sin(self.o + angle))
+        z, z_locked = Vector.calculate_z(x, y, map_id, self.z)
+        o = self.o if final_orientation == -1 else final_orientation
+
+        return Vector(x, y, z, o, z_locked=z_locked)

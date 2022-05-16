@@ -163,10 +163,7 @@ class SummonedObjectPositions:
         totem_angle = math.pi / float(TotemSlots.MAX_TOTEM_SLOT) - (
                 totem_slot * 2 * math.pi / float(TotemSlots.MAX_TOTEM_SLOT))
 
-        totem_angle += caster_location.o  # Orientation
-        position = Vector(2 * math.cos(totem_angle), 2 * math.sin(totem_angle)) + caster_location
-        position.o = caster_location.o
-        return position
+        return caster_location.get_point_in_radius_and_angle(2, totem_angle)
 
     @staticmethod
     def get_position_for_duel_flag(caster_location, target_location):
@@ -174,7 +171,4 @@ class SummonedObjectPositions:
 
     @staticmethod
     def get_position_in_front(caster_location):
-        orientation = caster_location.o
-        position = Vector(math.cos(orientation) * 2, math.sin(orientation) * 2) + caster_location
-        position.o = orientation
-        return position
+        return caster_location.get_point_in_radius_and_angle(2, 0)

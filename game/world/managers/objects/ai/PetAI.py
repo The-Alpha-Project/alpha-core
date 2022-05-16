@@ -1,13 +1,15 @@
 import math
 
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
-from utils.Formulas import UnitFormulas
 from utils.constants.CustomCodes import Permits
 from utils.constants.PetCodes import PetCommandState
 from utils.constants.UnitCodes import SplineFlags, CreatureStaticFlags
 
 
 class PetAI(CreatureAI):
+    PET_FOLLOW_DISTANCE = 2.0
+    PET_FOLLOW_ANGLE = math.pi / 2
+
     def __init__(self, creature):
         super().__init__(creature)
         if creature:
@@ -86,15 +88,16 @@ class PetAI(CreatureAI):
         owner = self.creature.summoner
         target_location = self.stay_position if self.stay_position else owner.location
 
-        combat_position_distance = UnitFormulas.combat_distance(self.creature, owner)
         current_distance = self.creature.location.distance(target_location)
 
-        # If target point is within combat distance, don't move.
-        if current_distance <= combat_position_distance:
+        # If target point is within expected distance, don't move.
+        if current_distance <= PetAI.PET_FOLLOW_DISTANCE:
             return
 
-        max_distance_loc = target_location.get_point_in_between(combat_position_distance, vector=self.creature.location)
-        self.creature.movement_manager.send_move_normal([max_distance_loc], self.creature.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+        destination_loc = target_location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
+                                                                        PetAI.PET_FOLLOW_ANGLE)
+        self.creature.movement_manager.send_move_normal([destination_loc], self.creature.running_speed,
+                                                        SplineFlags.SPLINEFLAG_RUNMODE)
 
     # Handles attack with or without chase and also resets flags for next update / creature kill.
     def do_attack(self, target, chase):
