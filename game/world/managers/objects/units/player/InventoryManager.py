@@ -82,7 +82,7 @@ class InventoryManager(object):
         return InventorySlots.SLOT_INBACKPACK.value
 
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False,
-                 send_message=True, show_item_get=True, update_inventory=False):
+                 send_message=True, show_item_get=True):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         amount_left = count
@@ -114,21 +114,22 @@ class InventoryManager(object):
                     if amount_left <= 0:
                         break
 
+        # Default to backpack if bag slot was not set.
+        if target_bag_slot == -1:
+            target_bag_slot = InventorySlots.SLOT_INBACKPACK
+
         items_added = amount_left != count
         if items_added:
             if show_item_get:
-                # Default to backpack so we can prefer highest slot ID to receive message (backpack ID is highest).
-                if target_bag_slot == -1:
-                    target_bag_slot = InventorySlots.SLOT_INBACKPACK
                 self.send_item_receive_message(self.owner.guid, item_template.entry,
                                                target_bag_slot, looted, send_message)
 
             # Update quest item count, if needed.
             self.owner.quest_manager.reward_item(item_template.entry, item_count=count)
 
-            # Refresh backpack slot fields if needed.
-            if target_bag_slot == InventorySlots.SLOT_INBACKPACK:
-                self.build_update()
+        # Refresh backpack slot fields if needed.
+        if target_bag_slot == InventorySlots.SLOT_INBACKPACK:
+            self.build_update()
 
         return items_added
 
@@ -816,15 +817,33 @@ class InventoryManager(object):
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
+
+            # # There are no pending updates on this container or its items, move along.
+            # if not container.has_pending_updates():
+            #     continue
+
+            # Other players do not care about items out of their scope.
+            if not container.is_backpack and requester != self.owner:
+                continue
+
             if not container.is_backpack and requester == self.owner:
                 update_packets.append(self._get_single_item_full_update_packet(container, requester))
-                item_query_details_data += container.query_details_data()
-                item_count += 1
+                # Add item query details if the requester does not know this item.
+                if container.guid not in requester.known_items:
+                    requester.known_items[container.guid] = container
+                    item_query_details_data += container.query_details_data()
+                    item_count += 1
 
             for slot, item in list(container.sorted_slots.items()):
+                # Other players do not care about bag slots.
+                if self.is_bag_pos(slot) and requester != self.owner:
+                    continue
                 update_packets.append(self._get_single_item_full_update_packet(item, requester))
-                item_query_details_data += item.query_details_data()
-                item_count += 1
+                # Add item query details if the requester does not know this item.
+                if item.guid not in requester.known_items:
+                    requester.known_items[item.guid] = item
+                    item_query_details_data += item.query_details_data()
+                    item_count += 1
 
         # Build a single multiple item query detail packet if items are available.
         # Insert it at position 0 so it's the first packet clients will receive before full item update packets.

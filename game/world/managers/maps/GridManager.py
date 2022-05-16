@@ -44,10 +44,10 @@ class GridManager(object):
             # Update new location surroundings, excluding intersecting cells from previous call.
             self.update_players(current_cell_key, exclude_cells=affected_cells)
 
-        world_object_has_changes = has_changes or has_inventory_changes
-        # If this world object has pending field updates, trigger an update on interested players.
-        if world_object_has_changes:
-            self.update_players(current_cell_key, world_object=world_object)
+        # If this world object has pending field/inventory updates, trigger an update on interested players.
+        if has_changes or has_inventory_changes:
+            self.update_players(current_cell_key, world_object=world_object, has_changes=has_changes,
+                                has_inventory_changes=has_inventory_changes)
 
         # Notify cell changed if needed.
         if old_grid_manager and old_grid_manager != self or current_cell_key != source_cell_key:
@@ -106,7 +106,7 @@ class GridManager(object):
             if update_players:
                 self.update_players(cell.key)
 
-    def update_players(self, cell_key, exclude_cells=None, world_object=None):
+    def update_players(self, cell_key, exclude_cells=None, world_object=None, has_changes=False, has_inventory_changes=False):
         # Avoid update calls if no players are present.
         if exclude_cells is None:
             exclude_cells = set()
@@ -118,7 +118,7 @@ class GridManager(object):
         if source_cell:
             for cell in self.get_surrounding_cells_by_cell(source_cell):
                 if cell not in exclude_cells:
-                    cell.update_players(world_object=world_object)
+                    cell.update_players(world_object=world_object, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
                     affected_cells.add(cell)
 
         return affected_cells
@@ -354,10 +354,10 @@ class Cell(object):
             self.gameobjects[world_object.guid] = world_object
 
     # Make each player update its surroundings, adding, removing or updating world objects as needed.
-    def update_players(self, world_object=None):
+    def update_players(self, world_object=None, has_changes=False, has_inventory_changes=False):
         for player in list(self.players.values()):
             if world_object:
-                player.update_world_object_on_me(world_object)
+                player.update_world_object_on_me(world_object, has_changes, has_inventory_changes)
             else:
                 player.update_known_world_objects()
 

@@ -400,7 +400,7 @@ class ItemManager(ObjectManager):
             if self.is_container() and isinstance(self, ContainerManager):
                 self.build_container_update_packet()
 
-            return self.get_object_create_packet(requester)
+        return self.get_object_create_packet(requester)
 
     def set_stack_count(self, count):
         if self.item_instance:

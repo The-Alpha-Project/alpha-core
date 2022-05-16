@@ -64,6 +64,7 @@ class PlayerManager(UnitManager):
         self.pending_teleport_destination_map = -1
         self.update_lock = False
         self.known_objects = dict()
+        self.known_items = dict()
 
         self.player = player
         self.online = online
@@ -281,6 +282,10 @@ class PlayerManager(UnitManager):
         self.friends_manager.send_offline_notification()
         self.session.save_character()
 
+        # Flush known items/objects cache.
+        self.known_items.clear()
+        self.known_objects.clear()
+
         WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
         self.session = None
@@ -313,30 +318,27 @@ class PlayerManager(UnitManager):
 
     # Retrieve update packets from world objects, this is called only if object has pending changes.
     # (update_mask bits set).
-    def update_world_object_on_me(self, world_object):
+    def update_world_object_on_me(self, world_object, has_changes=False, has_inventory_changes=False):
         if world_object.guid in self.known_objects:
             is_player = world_object.get_type_id() == ObjectTypeIds.ID_PLAYER
             # Check for inventory updates (Containers and Items)
-            if is_player and world_object.has_pending_inventory_updates():
+            if is_player and has_inventory_changes:
                 # This is a known player and has inventory changes.
+                sent = 0
                 for update_packet in world_object.inventory.get_inventory_update_packets(self):
+                    sent += 1
                     self.enqueue_packet(update_packet)
+                print(f'{self.player.name} received {sent} inventory updates from {world_object.player.name}')
             # Update self with known world object update packet.
-            if world_object.has_pending_updates():
+            if has_changes:
                 self.enqueue_packet(world_object.generate_partial_packet(requester=self))
         # Self (Player), send proper update packets to self.
         elif world_object.guid == self.guid:
-            if self.has_pending_inventory_updates(requester=self):
-                print('Sending inventory updates to self.')
+            if has_inventory_changes:
                 for update_packet in self.inventory.get_inventory_update_packets(self):
                     self.enqueue_packet(update_packet)
-            if self.has_pending_updates():
+            if has_changes:
                 self.enqueue_packet(self.generate_partial_packet(requester=self))
-
-            #if self.dirty_inventory:
-                #for update_packet in self.inventory.get_inventory_update_packets(self):
-                #    self.enqueue_packet(update_packet)
-                #self.inventory.build_update()
 
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
@@ -524,9 +526,14 @@ class PlayerManager(UnitManager):
 
         # Player changed map. Send initial spells, action buttons and create packet.
         if changed_map:
+            # Flush known items/objects cache.
+            self.known_items.clear()
+            self.known_objects.clear()
+            # Send initial packets for spells, action buttons and player creation.
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
             self.enqueue_packet(self.generate_create_packet(requester=self))
+            # Apply stat bonuses again.
             self.stat_manager.apply_bonuses()
 
         # Remove the player's active pet.
@@ -651,7 +658,7 @@ class PlayerManager(UnitManager):
             if world_obj_target and world_obj_target.loot_manager.has_loot():
                 loot = world_obj_target.loot_manager.get_loot_in_slot(slot)
                 if loot and loot.item:
-                    if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True, update_inventory=True):
+                    if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
                         world_obj_target.loot_manager.do_loot(slot)
                         data = pack('<B', slot)
                         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)

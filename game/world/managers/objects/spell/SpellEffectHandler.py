@@ -159,8 +159,7 @@ class SpellEffectHandler:
             return
 
         target.inventory.add_item(effect.item_type,
-                                  count=effect.get_effect_points(casting_spell.caster_effective_level),
-                                  update_inventory=True)
+                                  count=effect.get_effect_points(casting_spell.caster_effective_level))
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):

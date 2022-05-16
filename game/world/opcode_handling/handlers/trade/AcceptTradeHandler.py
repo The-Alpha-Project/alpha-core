@@ -60,8 +60,7 @@ class AcceptTradeHandler(object):
                 if other_player_item:
                     player.inventory.add_item(item_template=other_player_item.item_template,
                                               count=other_player_item.item_instance.stackcount,
-                                              show_item_get=False,
-                                              update_inventory=True)
+                                              show_item_get=False)
 
                     other_player.inventory.remove_item(other_player_item.item_instance.bag,
                                                        other_player_item.current_slot, True)
@@ -69,8 +68,7 @@ class AcceptTradeHandler(object):
                 if player_item:
                     other_player.inventory.add_item(item_template=player_item.item_template,
                                                     count=player_item.item_instance.stackcount,
-                                                    show_item_get=False,
-                                                    update_inventory=True)
+                                                    show_item_get=False)
 
                     player.inventory.remove_item(player_item.item_instance.bag,
                                                  player_item.current_slot, True)
