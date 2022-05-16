@@ -411,6 +411,7 @@ class ItemManager(ObjectManager):
         for index, spell_stats in enumerate(self.spell_stats):
             if spell_stats.spell_id == spell_id:
                 self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)
+                break
 
     def set_enchantment(self, slot, value, duration, charges):
         self.enchantments[slot] = (value, duration, charges)
