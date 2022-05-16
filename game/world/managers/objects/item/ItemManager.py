@@ -385,13 +385,12 @@ class ItemManager(ObjectManager):
             self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
             self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
-
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES, self.spell_stats[0].charges)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 1, self.spell_stats[1].charges)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 2, self.spell_stats[2].charges)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 3, self.spell_stats[3].charges)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 4, self.spell_stats[4].charges)
-
+            
+            # Spell stats.
+            for slot, spell_stat in enumerate(self.spell_stats):
+                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + slot, self.spell_stats[slot].charges)
+            
+            # Enchantments.
             for slot, enchantment in self.enchantments.items():
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, enchantment[0])  # Value/Id
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, enchantment[1])  # Duration
