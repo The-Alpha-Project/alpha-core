@@ -398,7 +398,7 @@ class GameObjectManager(ObjectManager):
 
                 # Check if this game object should be updated yet or not.
                 if self.has_pending_updates():
-                    MapManager.update_object(self, check_pending_changes=True)
+                    MapManager.update_object(self, has_changes=True)
                     self.reset_fields_older_than(now)
             # Not spawned.
             else:

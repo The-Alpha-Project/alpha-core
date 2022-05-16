@@ -41,6 +41,11 @@ class ContainerManager(ItemManager):
             item_instance=item_manager.item_instance
         )
 
+    # override
+    def has_pending_updates(self):
+        # Check for either self dirtiness or any residing item dirtiness.
+        return super().has_pending_updates() or any(item.has_pending_updates() for item in self.sorted_slots.values())
+
     def build_container_update_packet(self):
         self.set_uint32(ContainerFields.CONTAINER_FIELD_NUM_SLOTS, self.item_template.container_slots)
 

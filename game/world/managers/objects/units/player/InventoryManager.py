@@ -796,14 +796,13 @@ class InventoryManager(object):
             for slot, item in list(container.sorted_slots.items()):
                 item.reset_fields_older_than(now)
 
-    def has_pending_updates(self):
-        for container_slot, container in list(self.containers.items()):
-            if not container:
-                continue
-            if container.has_pending_updates():
-                return True
-            for slot, item in list(container.sorted_slots.items()):
-                if item.has_pending_updates():
+    def has_pending_updates(self, requester):
+        # Other player do not care of items outside their scope.
+        if requester != self.owner:
+            return self.get_backpack().has_pending_updates()
+        else:
+            for container_slot, container in list(self.containers.items()):
+                if container and container.has_pending_updates():
                     return True
 
     def get_inventory_update_packets(self, requester):

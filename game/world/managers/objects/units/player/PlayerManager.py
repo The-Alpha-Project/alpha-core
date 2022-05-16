@@ -315,7 +315,9 @@ class PlayerManager(UnitManager):
     # (update_mask bits set).
     def update_world_object_on_me(self, world_object):
         if world_object.guid in self.known_objects:
-            if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and world_object.inventory.has_pending_updates():
+            is_player = world_object.get_type_id() == ObjectTypeIds.ID_PLAYER
+            # Check for inventory updates (Containers and Items)
+            if is_player and world_object.has_pending_inventory_updates():
                 # This is a known player and has inventory changes.
                 for update_packet in world_object.inventory.get_inventory_update_packets(self):
                     self.enqueue_packet(update_packet)
@@ -324,7 +326,7 @@ class PlayerManager(UnitManager):
                 self.enqueue_packet(world_object.generate_partial_packet(requester=self))
         # Self (Player), send proper update packets to self.
         elif world_object.guid == self.guid:
-            if self.inventory.has_pending_updates():
+            if self.has_pending_inventory_updates(requester=self):
                 print('Sending inventory updates to self.')
                 for update_packet in self.inventory.get_inventory_update_packets(self):
                     self.enqueue_packet(update_packet)
@@ -1325,9 +1327,8 @@ class PlayerManager(UnitManager):
             elif not self.is_swimming() and self.liquid_information:
                 self.update_swimming_state(False)
 
-    # override
-    def has_pending_updates(self):
-        return self.update_packet_factory.has_pending_updates() or self.inventory.has_pending_updates()
+    def has_pending_inventory_updates(self, requester):
+        return self.inventory.has_pending_updates(requester)
 
     # override
     def update(self, now):
@@ -1374,9 +1375,11 @@ class PlayerManager(UnitManager):
                     self.logout()
                     return
 
-            # Check if player has pending fields updates.
-            if self.online and self.has_pending_updates() or self.inventory.has_pending_updates():
-                MapManager.update_object(self, check_pending_changes=True)
+            has_changes = self.has_pending_updates()
+            has_inventory_changes = self.has_pending_inventory_updates(requester=self)
+            # Check if player has pending fields or inventory updates.
+            if self.online and has_changes or has_inventory_changes:
+                MapManager.update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
                 self.reset_fields_older_than(now)
                 self.inventory.reset_fields_older_than(now)
             # Not dirty, has a pending teleport and a teleport is not ongoing.

@@ -24,7 +24,7 @@ class GridManager(object):
             self.cells[cell.key] = cell
         return cell
 
-    def update_object(self, world_object, old_grid_manager, check_pending_changes=False):
+    def update_object(self, world_object, old_grid_manager, has_changes=False, has_inventory_changes=False):
         source_cell_key = world_object.current_cell
         current_cell_key = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
 
@@ -44,13 +44,9 @@ class GridManager(object):
             # Update new location surroundings, excluding intersecting cells from previous call.
             self.update_players(current_cell_key, exclude_cells=affected_cells)
 
+        world_object_has_changes = has_changes or has_inventory_changes
         # If this world object has pending field updates, trigger an update on interested players.
-        if check_pending_changes and world_object.has_pending_updates():
-            self.update_players(current_cell_key, world_object=world_object)
-
-        # Check for pending inventory updates.
-        is_player = world_object.get_type_id() == ObjectTypeIds.ID_PLAYER
-        if check_pending_changes and is_player and world_object.inventory.has_pending_updates():
+        if world_object_has_changes:
             self.update_players(current_cell_key, world_object=world_object)
 
         # Notify cell changed if needed.

@@ -296,7 +296,7 @@ class MapManager(object):
         return current_cell in destination_cells
 
     @staticmethod
-    def update_object(world_object, check_pending_changes=False):
+    def update_object(world_object, has_changes=False, has_inventory_changes=False):
         if world_object.current_cell:
             old_map = int(world_object.current_cell.split(':')[-1])
             old_grid_manager = MapManager.get_grid_manager_by_map_id(old_map)
@@ -305,7 +305,8 @@ class MapManager(object):
 
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
         if grid_manager:
-            grid_manager.update_object(world_object, old_grid_manager, check_pending_changes=check_pending_changes)
+            grid_manager.update_object(world_object, old_grid_manager, has_changes=has_changes,
+                                       has_inventory_changes=has_inventory_changes)
         else:
             Logger.warning(f'Warning, did not find grid_manager for map: {world_object.map_}')
 

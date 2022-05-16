@@ -30,9 +30,8 @@ class UpdatePacketFactory(object):
     def reset_older_than(self, timestamp_to_compare):
         all_clear = True
         for index, timestamp in enumerate(self.update_timestamps):
-            if timestamp == 0:
+            if not timestamp:
                 continue
-
             if timestamp <= timestamp_to_compare:
                 self.update_mask.unset_bit(index)
             else:

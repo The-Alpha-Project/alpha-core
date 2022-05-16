@@ -68,7 +68,7 @@ class ItemManager(ObjectManager):
 
             self.stats = ItemManager.Stat.generate_stat_list(self.item_template)
             self.damage_stats = ItemManager.DamageStat.generate_damage_stat_list(self.item_template)
-            self.spell_stats = ItemManager.SpellStat.generate_spell_stat_list(self.item_template)
+            self.spell_stats = ItemManager.SpellStat.generate_spell_stat_list(self.item_template, self.item_instance)
 
             # Load loot_manager if needed.
             if item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
@@ -123,23 +123,30 @@ class ItemManager(ObjectManager):
             self.category_cooldown = category_cooldown
 
         @staticmethod
-        def generate_spell_stat_list(item_template):
+        def generate_spell_stat_list(item_template, item_instance=None):
+            # Spell charges will use item template if there is no item instance available. This should allow for
+            # serialization to work for charges as well.
             return [
                 ItemManager.SpellStat(item_template.spellid_1, item_template.spelltrigger_1,
-                                      item_template.spellcharges_1, item_template.spellcooldown_1,
-                                      item_template.spellcategory_1, item_template.spellcategorycooldown_1),
+                                      item_template.spellcharges_1 if not item_instance else item_instance.SpellCharges1,
+                                      item_template.spellcooldown_1, item_template.spellcategory_1,
+                                      item_template.spellcategorycooldown_1),
                 ItemManager.SpellStat(item_template.spellid_2, item_template.spelltrigger_2,
-                                      item_template.spellcharges_2, item_template.spellcooldown_2,
-                                      item_template.spellcategory_2, item_template.spellcategorycooldown_2),
+                                      item_template.spellcharges_2 if not item_instance else item_instance.SpellCharges2,
+                                      item_template.spellcooldown_2, item_template.spellcategory_2,
+                                      item_template.spellcategorycooldown_2),
                 ItemManager.SpellStat(item_template.spellid_3, item_template.spelltrigger_3,
-                                      item_template.spellcharges_3, item_template.spellcooldown_3,
-                                      item_template.spellcategory_3, item_template.spellcategorycooldown_3),
+                                      item_template.spellcharges_3 if not item_instance else item_instance.SpellCharges3,
+                                      item_template.spellcooldown_3, item_template.spellcategory_3,
+                                      item_template.spellcategorycooldown_3),
                 ItemManager.SpellStat(item_template.spellid_4, item_template.spelltrigger_4,
-                                      item_template.spellcharges_4, item_template.spellcooldown_4,
-                                      item_template.spellcategory_4, item_template.spellcategorycooldown_4),
+                                      item_template.spellcharges_4 if not item_instance else item_instance.SpellCharges4,
+                                      item_template.spellcooldown_4, item_template.spellcategory_4,
+                                      item_template.spellcategorycooldown_4),
                 ItemManager.SpellStat(item_template.spellid_5, item_template.spelltrigger_5,
-                                      item_template.spellcharges_5, item_template.spellcooldown_5,
-                                      item_template.spellcategory_5, item_template.spellcategorycooldown_5)
+                                      item_template.spellcharges_5 if not item_instance else item_instance.SpellCharges5,
+                                      item_template.spellcooldown_5, item_template.spellcategory_5,
+                                      item_template.spellcategorycooldown_5)
             ]
 
     def is_container(self):
@@ -275,19 +282,20 @@ class ItemManager(ObjectManager):
             self.item_instance.item_flags if self.item_instance else self.item_template.flags,
             self.stats,
             self.damage_stats,
-            self.spell_stats
+            self.spell_stats,
+            self.item_instance
         )
         return data
 
     @staticmethod
-    def generate_query_details_data(item_template, item_flags=-1, stats=None, damage_stats=None, spell_stats=None):
+    def generate_query_details_data(item_template, item_flags=-1, stats=None, damage_stats=None, spell_stats=None, item_instance=None):
         # Initialize stat values if none are supplied.
         if not stats:
             stats = ItemManager.Stat.generate_stat_list(item_template)
         if not damage_stats:
             damage_stats = ItemManager.DamageStat.generate_damage_stat_list(item_template)
         if not spell_stats:
-            spell_stats = ItemManager.SpellStat.generate_spell_stat_list(item_template)
+            spell_stats = ItemManager.SpellStat.generate_spell_stat_list(item_template, item_instance)
 
         item_name_bytes = PacketWriter.string_to_bytes(item_template.name)
         data = pack(
