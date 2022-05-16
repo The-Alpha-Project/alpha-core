@@ -818,10 +818,6 @@ class InventoryManager(object):
             if not container:
                 continue
 
-            # # There are no pending updates on this container or its items, move along.
-            # if not container.has_pending_updates():
-            #     continue
-
             # Other players do not care about items out of their scope.
             if not container.is_backpack and requester != self.owner:
                 continue
