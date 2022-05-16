@@ -9,7 +9,7 @@ from utils.ConfigManager import config
 class Vector(object):
     """Class to represent points in a 3D space and utilities to work with them within the game."""
 
-    def __init__(self, x=0, y=0, z=0, o=0, z_locked = False):
+    def __init__(self, x=0, y=0, z=0, o=0, z_locked=False):
         self.x = x
         self.y = y
         self.z = z
