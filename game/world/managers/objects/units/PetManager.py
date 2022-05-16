@@ -1,4 +1,3 @@
-import math
 import time
 from struct import pack
 from typing import Optional, NamedTuple
