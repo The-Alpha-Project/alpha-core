@@ -798,7 +798,7 @@ class InventoryManager(object):
                 item.reset_fields_older_than(now)
 
     def has_pending_updates(self, requester):
-        # Other player do not care of items outside their scope.
+        # Other player do not care for items outside their scope.
         if requester != self.owner:
             return self.get_backpack().has_pending_updates()
         else:
