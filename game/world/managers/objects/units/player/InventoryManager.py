@@ -859,6 +859,7 @@ class InventoryManager(object):
             OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(requester)))
         return update_packet
 
+    # TODO: Use partials when possible.
     # noinspection PyMethodMayBeStatic
     def _get_single_item_partial_update_packet(self, item, requester):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
