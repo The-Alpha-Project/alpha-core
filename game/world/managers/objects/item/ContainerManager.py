@@ -47,6 +47,7 @@ class ContainerManager(ItemManager):
         return self.update_packet_factory.has_pending_updates() or\
                any(item.has_pending_updates() for item in self.sorted_slots.values())
 
+    # Check just this container fields for dirtiness.
     def has_container_updates(self):
         return self.update_packet_factory.has_pending_updates()
 

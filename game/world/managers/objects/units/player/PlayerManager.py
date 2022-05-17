@@ -231,10 +231,11 @@ class PlayerManager(UnitManager):
             # Set player flags.
             self.set_taxi_flying_state(True, taxi_resume_info.mount_display_id)
 
-        # Notify player with create packet.
+        # Notify player with create related packets:
         self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
-        for update_packet in self.inventory.get_inventory_update_packets(self):
-            self.enqueue_packet(update_packet)
+        # Initial inventory create packets.
+        self.enqueue_packets(self.inventory.get_inventory_update_packets(self))
+        # Player create packet.
         self.enqueue_packet(self.generate_create_packet(requester=self))
 
         # Place player in a world cell.
@@ -321,19 +322,17 @@ class PlayerManager(UnitManager):
     def update_world_object_on_me(self, world_object, has_changes=False, has_inventory_changes=False):
         if world_object.guid in self.known_objects:
             is_player = world_object.get_type_id() == ObjectTypeIds.ID_PLAYER
-            # Check for inventory updates (Containers and Items)
+            # Check for inventory updates.
             if is_player and has_inventory_changes:
                 # This is a known player and has inventory changes.
-                for update_packet in world_object.inventory.get_inventory_update_packets(self):
-                    self.enqueue_packet(update_packet)
+                self.enqueue_packets(world_object.inventory.get_inventory_update_packets(self))
             # Update self with known world object partial update packet.
             if has_changes:
                 self.enqueue_packet(world_object.generate_partial_packet(requester=self))
         elif world_object.guid == self.guid:  # Self (Player)
             # Update self inventory if needed.
             if has_inventory_changes:
-                for update_packet in self.inventory.get_inventory_update_packets(self):
-                    self.enqueue_packet(update_packet)
+                self.enqueue_packets(self.inventory.get_inventory_update_packets(self))
             # Send self a partial update if needed.
             if has_changes:
                 self.enqueue_packet(self.generate_partial_packet(requester=self))
@@ -1314,6 +1313,12 @@ class PlayerManager(UnitManager):
         data = pack('<IQ', amount, source.guid)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
 
+    def enqueue_packets(self, packets):
+        if self.session:
+            self.session.enqueue_packets(packets)
+        else:
+            Logger.warning('Tried to send packet to null session.')
+
     def enqueue_packet(self, data):
         if self.session:
             self.session.enqueue_packet(data)
@@ -1331,9 +1336,6 @@ class PlayerManager(UnitManager):
                 self.update_swimming_state(True)
             elif not self.is_swimming() and self.liquid_information:
                 self.update_swimming_state(False)
-
-    def has_pending_inventory_updates(self, requester):
-        return self.inventory.has_pending_updates(requester)
 
     # override
     def update(self, now):
@@ -1381,7 +1383,7 @@ class PlayerManager(UnitManager):
                     return
 
             has_changes = self.has_pending_updates()
-            has_inventory_changes = self.has_pending_inventory_updates(requester=self)
+            has_inventory_changes = self.inventory.has_pending_updates()
             # Check if player has pending fields or inventory updates.
             if self.online and has_changes or has_inventory_changes:
                 MapManager.update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)

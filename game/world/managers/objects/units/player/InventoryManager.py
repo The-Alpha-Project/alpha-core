@@ -797,25 +797,18 @@ class InventoryManager(object):
             for slot, item in list(container.sorted_slots.items()):
                 item.reset_fields_older_than(now)
 
-    def has_pending_updates(self, requester):
-        # Other player do not care for items outside their scope.
-        if requester != self.owner:
-            return self.get_backpack().has_pending_updates()
-        else:
-            if self.has_backpack_changes():
-                return True
-            for container_slot, container in list(self.containers.items()):
-                if container and container.has_pending_updates():
-                    return True
+    # Owner will check for backpack/inventory changes, and if it has pending changes on other bags/items.
+    def has_pending_updates(self):
+        if self.has_backpack_changes():
+            return True
+        return any(container.has_pending_updates() for container in list(self.containers.values()) if container)
 
     # Backpack items are changed on PlayerFields.
-    # So if any of those fields is touched, that means player do have pending updates, but we also need to know
-    # if those player fields are inventory related or not.
+    # Owner must know if he has pending changes in inventory or main bag.
     def has_backpack_changes(self):
-        for slot, item in self.get_backpack().sorted_slots.items():
-            slot_index = PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2
-            if self.owner.update_packet_factory.update_mask.is_set(slot_index):
-                return True
+        inv_slot_start = PlayerFields.PLAYER_FIELD_INV_SLOT_1
+        slots = [inv_slot_start + item.current_slot * 2 for item in self.get_backpack().sorted_slots.values()]
+        return any(self.owner.update_packet_factory.update_mask.is_set(slot) for slot in slots)
 
     def get_inventory_update_packets(self, requester):
         # Edge case where the requester session might be null at some point.
@@ -823,7 +816,7 @@ class InventoryManager(object):
             return []
 
         item_query_details_data = b''
-        item_count = 0
+        item_query_count = 0
         update_packets = []
         for container_slot, container in list(self.containers.items()):
             if not container:
@@ -836,16 +829,18 @@ class InventoryManager(object):
             if not container.is_backpack and requester == self.owner:
                 # Add item query details if the requester does not know this item.
                 if container.guid not in requester.known_items:
+                    print(f'Sending full container to {requester.player.name}')
                     update_packets.append(self._get_single_item_full_update_packet(container, requester))
                     requester.known_items[container.guid] = container
                     item_query_details_data += container.query_details_data()
-                    item_count += 1
+                    item_query_count += 1
+                # Requester knows this container, send a partial update.
                 elif container.has_container_updates():
                     update_packets.append(self._get_single_item_partial_update_packet(container, requester))
 
             for slot, item in list(container.sorted_slots.items()):
-                # Other players do not care about bag slots.
-                if self.is_bag_pos(slot) and requester != self.owner:
+                # Other players do not care about other items outside the inventory of another player.
+                if self.is_bag_pos(slot) or self.is_inventory_pos(container_slot, slot) and requester != self.owner:
                     continue
 
                 # Add item query details if the requester does not know this item.
@@ -853,14 +848,19 @@ class InventoryManager(object):
                     update_packets.append(self._get_single_item_full_update_packet(item, requester))
                     requester.known_items[item.guid] = item
                     item_query_details_data += item.query_details_data()
-                    item_count += 1
+                    item_query_count += 1
+                # Requester knows this item, send a partial update.
                 elif item.has_pending_updates():
                     update_packets.append(self._get_single_item_partial_update_packet(item, requester))
 
-        # Build a single multiple item query detail packet if items are available.
+            # Exit loop if this a request from another player.
+            if container.is_backpack and requester != self.owner:
+                break
+
+        # Build a single multiple item query detail packet if item queries are available.
         # Insert it at position 0 so it's the first packet clients will receive before full item update packets.
-        if item_count:
-            item_query = pack(f'<I{len(item_query_details_data)}s', item_count, item_query_details_data)
+        if item_query_count:
+            item_query = pack(f'<I{len(item_query_details_data)}s', item_query_count, item_query_details_data)
             update_packets.insert(0, PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query))
 
         return update_packets
