@@ -53,6 +53,7 @@ class ItemManager(ObjectManager):
 
         self.item_template = item_template
         self.item_instance = item_instance
+
         self.guid = self.generate_object_guid(item_instance.guid if item_instance else 0)
         self.current_slot = item_instance.slot if item_instance else 0
         self.is_backpack = False

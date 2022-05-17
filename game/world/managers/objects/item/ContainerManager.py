@@ -44,10 +44,15 @@ class ContainerManager(ItemManager):
     # override
     def has_pending_updates(self):
         # Check for either self dirtiness or any residing item dirtiness.
-        return super().has_pending_updates() or any(item.has_pending_updates() for item in self.sorted_slots.values())
+        return self.update_packet_factory.has_pending_updates() or\
+               any(item.has_pending_updates() for item in self.sorted_slots.values())
+
+    def has_container_updates(self):
+        return self.update_packet_factory.has_pending_updates()
 
     def build_container_update_packet(self):
-        self.set_uint32(ContainerFields.CONTAINER_FIELD_NUM_SLOTS, self.item_template.container_slots)
+        if self.item_template:
+            self.set_uint32(ContainerFields.CONTAINER_FIELD_NUM_SLOTS, self.item_template.container_slots)
 
         for x in range(0, MAX_BAG_SLOTS):
             guid = self.sorted_slots[x].guid if x in self.sorted_slots else 0
@@ -74,7 +79,9 @@ class ContainerManager(ItemManager):
             if item_mgr:
                 item_mgr.current_slot = slot
                 self.sorted_slots[slot] = item_mgr
-                self.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + slot, item_mgr.guid)
+                # Update slot fields.
+                if not self.is_backpack:
+                    self.build_container_update_packet()
 
                 RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
 
@@ -154,7 +161,7 @@ class ContainerManager(ItemManager):
     def remove_item_in_slot(self, slot):
         if slot in self.sorted_slots:
             self.sorted_slots.pop(slot)
-            self.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + slot, 0)
+            self.build_container_update_packet()
             return True
         return False
 

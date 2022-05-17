@@ -110,6 +110,7 @@ class InventoryManager(object):
                     amount_left = container.add_item(item_template, amount_left, False)
                     if slot != InventorySlots.SLOT_INBACKPACK and prev_left > amount_left and slot > target_bag_slot:
                         target_bag_slot = slot
+                        container.build_container_update_packet()
                     if amount_left <= 0:
                         break
 
@@ -801,9 +802,20 @@ class InventoryManager(object):
         if requester != self.owner:
             return self.get_backpack().has_pending_updates()
         else:
+            if self.has_backpack_changes():
+                return True
             for container_slot, container in list(self.containers.items()):
                 if container and container.has_pending_updates():
                     return True
+
+    # Backpack items are changed on PlayerFields.
+    # So if any of those fields is touched, that means player do have pending updates, but we also need to know
+    # if those player fields are inventory related or not.
+    def has_backpack_changes(self):
+        for slot, item in self.get_backpack().sorted_slots.items():
+            slot_index = PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2
+            if self.owner.update_packet_factory.update_mask.is_set(slot_index):
+                return True
 
     def get_inventory_update_packets(self, requester):
         # Edge case where the requester session might be null at some point.
@@ -822,23 +834,28 @@ class InventoryManager(object):
                 continue
 
             if not container.is_backpack and requester == self.owner:
-                update_packets.append(self._get_single_item_full_update_packet(container, requester))
                 # Add item query details if the requester does not know this item.
                 if container.guid not in requester.known_items:
+                    update_packets.append(self._get_single_item_full_update_packet(container, requester))
                     requester.known_items[container.guid] = container
                     item_query_details_data += container.query_details_data()
                     item_count += 1
+                elif container.has_container_updates():
+                    update_packets.append(self._get_single_item_partial_update_packet(container, requester))
 
             for slot, item in list(container.sorted_slots.items()):
                 # Other players do not care about bag slots.
                 if self.is_bag_pos(slot) and requester != self.owner:
                     continue
-                update_packets.append(self._get_single_item_full_update_packet(item, requester))
+
                 # Add item query details if the requester does not know this item.
                 if item.guid not in requester.known_items:
+                    update_packets.append(self._get_single_item_full_update_packet(item, requester))
                     requester.known_items[item.guid] = item
                     item_query_details_data += item.query_details_data()
                     item_count += 1
+                elif item.has_pending_updates():
+                    update_packets.append(self._get_single_item_partial_update_packet(item, requester))
 
         # Build a single multiple item query detail packet if items are available.
         # Insert it at position 0 so it's the first packet clients will receive before full item update packets.
@@ -854,7 +871,6 @@ class InventoryManager(object):
             OpCode.SMSG_UPDATE_OBJECT, item.get_full_update_packet(requester)))
         return update_packet
 
-    # TODO: Use partials when possible.
     # noinspection PyMethodMayBeStatic
     def _get_single_item_partial_update_packet(self, item, requester):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
