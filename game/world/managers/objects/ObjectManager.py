@@ -120,7 +120,6 @@ class ObjectManager:
         return data
 
     def get_partial_update_packet(self, requester):
-
         # Base structure.
         data = self._get_base_structure(UpdateTypes.PARTIAL)
 
