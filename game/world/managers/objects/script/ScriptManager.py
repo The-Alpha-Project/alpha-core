@@ -3,7 +3,6 @@ from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.ScriptCodes import ScriptTarget, AttackingTarget
