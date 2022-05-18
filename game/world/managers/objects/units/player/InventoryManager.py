@@ -791,11 +791,9 @@ class InventoryManager(object):
 
     def reset_fields_older_than(self, now):
         for container_slot, container in list(self.containers.items()):
-            if not container:
-                continue
-            container.reset_fields_older_than(now)
-            for slot, item in list(container.sorted_slots.items()):
-                item.reset_fields_older_than(now)
+            if container:
+                container.reset_fields_older_than(now)
+                [item.reset_fields_older_than(now) for item in container.sorted_slots.values()]
 
     # Owner will check for backpack/inventory changes, and if it has pending changes on other bags/items.
     def has_pending_updates(self):
