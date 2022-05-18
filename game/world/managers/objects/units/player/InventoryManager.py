@@ -827,7 +827,7 @@ class InventoryManager(object):
                 continue
 
             if not container.is_backpack and requester == self.owner:
-                # Add item query details if the requester does not know this item.
+                # Add item query details if the requester does not know container item.
                 if container.guid not in requester.known_items:
                     update_packets.append(self._get_single_item_full_update_packet(container, requester))
                     requester.known_items[container.guid] = container
