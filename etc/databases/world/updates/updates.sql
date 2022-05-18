@@ -84,5 +84,23 @@ begin not atomic
 
         insert into applied_updates values ('150520221');
     end if;
+
+    -- 17/05/2022 1
+    if (select count(*) from applied_updates where id='170520221') = 0 then
+        DROP TABLE IF EXISTS `spell_enchant_charges`;
+        CREATE TABLE IF NOT EXISTS `spell_enchant_charges` (
+        `entry` INT unsigned NOT NULL,
+        `charges` INT unsigned NOT NULL DEFAULT '0',
+        PRIMARY KEY (`entry`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+        
+        -- Poison Damage, Poison Damage II, Mind-numbing Poison
+        INSERT INTO `spell_enchant_charges` (`entry`, `charges`) VALUES
+        (2823, 60),
+        (2824, 75),
+        (5761, 50),
+
+        insert into applied_updates values ('170520221');
+    end if;
 end $
 delimiter ;
