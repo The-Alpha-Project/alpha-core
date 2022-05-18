@@ -441,8 +441,6 @@ class ItemManager(ObjectManager):
         self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)
         self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, charges)
 
-        self.item_instance.
-
         # Notify player with duration.
         if slot != EnchantmentSlots.PermanentSlot:
             self.send_enchantment_duration(slot)
