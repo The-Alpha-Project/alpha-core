@@ -182,6 +182,13 @@ class DbcDatabaseManager:
         dbc_db_session.close()
         return res
 
+    @staticmethod
+    def spell_get_item_enchantment(enchantment_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellItemEnchantment).filter_by(ID=enchantment_id).first()
+        dbc_db_session.close()
+        return res
+
     # Skill
 
     class SkillHolder:

@@ -313,3 +313,8 @@ class ItemDynFlags(IntEnum):
     ITEM_DYNFLAG_TRANSLATED = 0x2
     ITEM_DYNFLAG_UNLOCKED = 0x4  # have meaning only for item with proto->LockId, if not set show as "Locked, req. lockpicking N"
     ITEM_DYNFLAG_WRAPPED = 0x8  # mark item as wrapped into wrapper container
+
+
+class EnchantmentSlots(IntEnum):
+    PermanentSlot = 0
+    TemporarySlot = 1

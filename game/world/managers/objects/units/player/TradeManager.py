@@ -1,7 +1,35 @@
 from struct import pack
+from typing import Optional
+
+from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
+from utils.constants.ItemCodes import EnchantmentSlots
 from utils.constants.MiscCodes import TradeStatus
 from utils.constants.OpCodes import OpCode
+
+
+class ProposedEnchantment:
+    def __init__(self, trade_slot=0, spell_id=0, enchant_slot=0, enchant_entry=0, duration=0, charges=0):
+        self.trade_slot: int = trade_slot
+        self.spell_id: int = spell_id
+        self.enchantment_slot: EnchantmentSlots = EnchantmentSlots(enchant_slot)
+        self.enchantment_entry: int = enchant_entry
+        self.duration: int = duration
+        self.charges: int = charges
+
+    def set_enchantment(self, spell_id, enchant_slot, enchant_entry, duration, charges):
+        self.spell_id = spell_id
+        self.enchantment_slot = enchant_slot
+        self.enchantment_entry = enchant_entry
+        self.duration = duration
+        self.charges = charges
+
+    def flush(self):
+        self.trade_slot = 0
+        self.spell_id = 0
+        self.enchantment_slot = 0
+        self.duration = 0
+        self.charges = 0
 
 
 class TradeManager(object):
@@ -18,8 +46,7 @@ class TradeManager(object):
         else:
             data += pack('<I', status)
 
-        if player.session:
-            player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS, data))
+        player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS, data))
 
     @staticmethod
     def cancel_trade(player):
@@ -27,8 +54,7 @@ class TradeManager(object):
             return
 
         if player.trade_data and player.trade_data.other_player:
-            TradeManager.send_trade_status(player.trade_data.other_player,
-                                           TradeStatus.TRADE_STATUS_CANCELLED)
+            TradeManager.send_trade_status(player.trade_data.other_player, TradeStatus.TRADE_STATUS_CANCELLED)
             player.trade_data.other_player.trade_data = None
 
             TradeManager.send_trade_status(player, TradeStatus.TRADE_STATUS_CANCELLED)
@@ -44,8 +70,8 @@ class TradeManager(object):
             1 if is_target else 0,
             TradeManager.TradeData.TRADE_SLOT_COUNT,
             trade_data.money,
-            0,  # proposedEnchantmentSlot ?
-            0  # proposedEnchantmentSpellI ?
+            trade_data.proposed_enchantment.spell_id if trade_data.proposed_enchantment else 0,
+            trade_data.proposed_enchantment.trade_slot if trade_data.proposed_enchantment else 0,
         )
 
         for slot in range(TradeManager.TradeData.TRADE_SLOT_COUNT):
@@ -56,12 +82,11 @@ class TradeManager(object):
                 item.item_template.entry if item else 0,
                 item.item_template.display_id if item else 0,
                 item.item_instance.stackcount if item and item.item_instance else 0,
-                0,  # data << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
-                0  # data << item->GetGuidValue(ITEM_FIELD_CREATOR);
+                item.get_creator_guid() if item else 0,  # Wrapped items, creator guid.
+                item.get_permanent_enchant_value() if item else 0  # Permanent enchant value.
             )
 
-        if player.session:
-            player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS_EXTENDED, data))
+        player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS_EXTENDED, data))
 
     @staticmethod
     def send_trade_request(player, other_player):
@@ -88,8 +113,29 @@ class TradeManager(object):
             self.other_player = other_player
             self.is_accepted = is_accepted
             self.money = money
+            self.proposed_enchantment: ProposedEnchantment = ProposedEnchantment()
+            self.items: list[Optional[ItemManager]] = [None] * TradeManager.TradeData.TRADE_SLOT_COUNT
 
-            self.items = [None] * TradeManager.TradeData.TRADE_SLOT_COUNT
+        def get_item_by_guid(self, guid) -> Optional[ItemManager]:
+            for item in self.items:
+                if item and item.guid == guid:
+                    return item
+            return None
+
+        def get_item_by_slot(self, slot) -> Optional[ItemManager]:
+            return self.items[slot]
+
+        def set_proposed_enchantment_trade_slot(self, trade_slot):
+            # Flush previous provided enchants, if any.
+            self.proposed_enchantment.flush()
+            # Make sure clients update their trade slots enchant caches.
+            self.update_trade_status()
+            # Set the new proposed trade slot, actual update will trigger upon set_proposed_enchant.
+            self.proposed_enchantment.trade_slot = trade_slot
+
+        def set_proposed_enchant(self, spell_id, enchantment_slot, entry, duration, charges):
+            self.proposed_enchantment.set_enchantment(spell_id, enchantment_slot, entry, duration, charges)
+            self.update_trade_status()
 
         def set_item(self, slot, item):
             if self.items[slot] and self.items[slot] == item:
@@ -106,7 +152,6 @@ class TradeManager(object):
 
         def clear_item(self, slot):
             self.items[slot] = None
-
             self.update_trade_status()
 
         def set_money(self, money):

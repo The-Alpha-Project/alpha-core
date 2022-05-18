@@ -1,5 +1,5 @@
 from struct import pack, unpack
-
+from typing import NamedTuple
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterInventory
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -8,7 +8,8 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.item.ItemLootManager import ItemLootManager
 from utils.ByteUtils import ByteUtils
-from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags
+from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags, \
+    EnchantmentSlots
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.UpdateFields import ObjectFields, ItemFields
 
@@ -43,6 +44,12 @@ AVAILABLE_EQUIP_SLOTS = [
 ]
 
 
+class SpellEnchantment(NamedTuple):
+    entry: int
+    duration: int
+    charges: int
+
+
 class ItemManager(ObjectManager):
     def __init__(self,
                  item_template,
@@ -57,7 +64,7 @@ class ItemManager(ObjectManager):
         self.guid = self.generate_object_guid(item_instance.guid if item_instance else 0)
         self.current_slot = item_instance.slot if item_instance else 0
         self.is_backpack = False
-        self.enchantments = {}
+        self.enchantments: dict[int, SpellEnchantment] = {}
 
         self.stats = []
         self.damage_stats = []
@@ -382,7 +389,7 @@ class ItemManager(ObjectManager):
 
             # Item fields.
             self.set_uint64(ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner)
-            self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)
+            self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)  # Wrapped Items
             self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
             self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
@@ -393,15 +400,25 @@ class ItemManager(ObjectManager):
             
             # Enchantments.
             for slot, enchantment in self.enchantments.items():
-                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, enchantment[0])  # Value/Id
-                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, enchantment[1])  # Duration
-                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, enchantment[2])  # Charges
+                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, enchantment.entry)
+                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, enchantment.duration)
+                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, enchantment.charges)
 
             # Container fields.
             if self.is_container() and isinstance(self, ContainerManager):
                 self.build_container_update_packet()
 
         return self.get_object_create_packet(requester)
+
+    def get_owner_guid(self):
+        return self.item_instance.owner if self.item_instance else 0
+
+    def get_creator_guid(self):
+        return self.item_instance.creator if self.item_instance else 0
+
+    def get_permanent_enchant_value(self):
+        return self.enchantments[EnchantmentSlots.PermanentSlot].entry if \
+            EnchantmentSlots.PermanentSlot in self.enchantments else 0
 
     def set_stack_count(self, count):
         if self.item_instance:
@@ -419,10 +436,25 @@ class ItemManager(ObjectManager):
                 break
 
     def set_enchantment(self, slot, value, duration, charges):
-        self.enchantments[slot] = (value, duration, charges)
+        self.enchantments[slot] = SpellEnchantment(value, duration, charges)
         self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, value)
         self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)
         self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, charges)
+
+        self.item_instance.
+
+        # Notify player with duration.
+        if slot != EnchantmentSlots.PermanentSlot:
+            self.send_enchantment_duration(slot)
+
+    def send_enchantment_duration(self, slot):
+        if slot not in self.enchantments:
+            return
+        player = WorldSessionStateHandler.find_player_by_guid(self.get_owner_guid())
+        if player:
+            duration = int(self.enchantments[slot].duration / 1000) * 60  # Minutes
+            data = pack('<Q2IQ', self.guid, slot, duration, player.guid)
+            player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_ENCHANT_TIME_UPDATE, data))
 
     def set_binding(self, bind=True):
         if bind:

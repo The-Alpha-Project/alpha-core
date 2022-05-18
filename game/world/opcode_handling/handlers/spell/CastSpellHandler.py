@@ -34,9 +34,16 @@ class CastSpellHandler:
             return target_info
         if target_mask & SpellTargetMask.UNIT and target_info != caster:
             return MapManager.get_surrounding_unit_by_guid(caster, target_info, include_players=True)
-        if target_mask & SpellTargetMask.ITEM_TARGET_MASK:
+        if target_mask & SpellTargetMask.ITEM_TARGET_MASK and not target_mask & SpellTargetMask.TRADE_ITEM:
             return caster.inventory.get_item_info_by_guid(target_info)[3]  # (container_slot, container, slot, item).
-        if target_mask & SpellTargetMask.CAN_TARGET_OBJECTS:  # Can also include items so we check for that first.
+        if target_mask & SpellTargetMask.CAN_TARGET_OBJECTS:  # Can also include items, so we check for that first.
             return MapManager.get_surrounding_gameobject_by_guid(caster, target_info)
+        if target_mask & SpellTargetMask.ITEM_TARGET_MASK and target_mask & SpellTargetMask.TRADE_ITEM:
+            if caster.trade_data and caster.trade_data.other_player and caster.trade_data.other_player.trade_data:
+                # Update the proposed trade slot.
+                caster.trade_data.other_player.trade_data.set_proposed_enchantment_trade_slot(target_info)
+                caster.trade_data.set_proposed_enchantment_trade_slot(target_info)
+                # Retrieve the trade item from the other player.
+                return caster.trade_data.other_player.trade_data.get_item_by_slot(target_info)
 
         return caster  # Assume self cast for now. Invalid target will be resolved later.

@@ -53,6 +53,7 @@ class CastingSpell:
         self.triggered = triggered
 
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
+        print(f'Duration {self.duration_entry}')
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
@@ -217,11 +218,11 @@ class CastingSpell:
         return False
 
     # TODO, need more checks.
-    #  Refer to 'IsPositiveEffect' in SpellEntry.cpp - vMaNGOS
+    #  Refer to 'IsPositiveEffect' in SpellEntry.cpp - VMaNGOS
     def is_positive_spell(self):
         return not self.spell_caster.can_attack_target(self.initial_target)
 
-    # TODO, Check 'IsImmuneToDamage' - vMaNGOS
+    # TODO, Check 'IsImmuneToDamage' - VMaNGOS
     def is_target_immune_to_damage(self):
         return False
 

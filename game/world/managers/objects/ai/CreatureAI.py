@@ -290,7 +290,7 @@ class CreatureAI:
 
         # Roll chance to cast from script (must be after cast checks, this is why its here)
         # TODO: Should be checked after spell_manager do all the proper validations.
-        #  Refer to prepare() in Spell.cpp - vMaNGOS
+        #  Refer to prepare() in Spell.cpp - VMaNGOS
         if chance:
             if not chance > randint(0, 99):
                 return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN

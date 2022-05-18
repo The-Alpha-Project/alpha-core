@@ -542,6 +542,13 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    @staticmethod
+    def spell_enchant_charges_get_by_spell(spell_id) -> Optional[SpellEnchantCharges]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(SpellEnchantCharges).filter_by(entry=spell_id).first()
+        world_db_session.close()
+        return res.charges if res else 0
+
     # Gossip
 
     class QuestGossipHolder:

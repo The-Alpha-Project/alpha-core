@@ -293,9 +293,15 @@ class ObjectManager:
     def _get_value_by_type_at(self, value_type, index):
         if not self.update_packet_factory.update_values[index]:
             return 0
-        value = self.update_packet_factory.update_values[index]
+
+        # Return the raw value directly if not 64 bits.
+        if value_type.lower() != 'q':
+            return self.update_packet_factory.update_values[index]
+
+        # Unpack from two field bytes.
+        value = self.update_packet_factory.update_values_bytes[index]
         if value_type.lower() == 'q':
-            value += self.update_packet_factory.update_values[index + 1]
+            value += self.update_packet_factory.update_values_bytes[index + 1]
 
         return unpack(f'<{value_type}', value)[0]
 

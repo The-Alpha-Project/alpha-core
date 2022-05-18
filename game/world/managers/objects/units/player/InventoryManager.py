@@ -809,10 +809,6 @@ class InventoryManager(object):
         return any(self.owner.update_packet_factory.update_mask.is_set(slot) for slot in slots)
 
     def get_inventory_update_packets(self, requester):
-        # Edge case where the requester session might be null at some point.
-        if requester and not requester.session:
-            return []
-
         item_query_details_data = b''
         item_query_count = 0
         update_packets = []

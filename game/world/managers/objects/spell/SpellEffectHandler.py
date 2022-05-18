@@ -1,16 +1,20 @@
 from struct import pack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
+from utils.constants.ItemCodes import EnchantmentSlots
 from utils.constants.MiscCodes import ObjectTypeFlags, GameObjectTypes, HighGuid, ObjectTypeIds
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
@@ -384,6 +388,61 @@ class SpellEffectHandler:
 
         caster.pet_manager.summon_pet(effect.misc_value)
 
+    @staticmethod
+    def handle_temporary_enchant(casting_spell, effect, caster, target):
+        SpellEffectHandler.handle_permanent_enchant(casting_spell, effect, caster, target, True)
+
+    # TODO: Missing target item validations, e.g. Enchant boots is able to enchant any type of item.
+    # TODO: Handle ITEM_ENCHANTMENT_TYPE, e.g. Damage, Stats modifiers, etc
+    @staticmethod
+    def handle_permanent_enchant(casting_spell, effect, caster, target, is_temporary=False):
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        # Target should resolve to ItemManager.
+        if not isinstance(target, ItemManager):
+            return
+
+        # Enchantment ID.
+        if not effect.misc_value:
+            return
+
+        # Grab Item owner guid.
+        owner_guid = target.get_owner_guid()
+        if not owner_guid:
+            return
+
+        # Validate player is online.
+        owner_player = WorldSessionStateHandler.find_player_by_guid(owner_guid)
+        if not owner_player:
+            return
+
+        # Validate if the item enchantment exist.
+        enchantment = DbcDatabaseManager.spell_get_item_enchantment(effect.misc_value)
+        if not enchantment:
+            return
+
+        # Calculate slot, duration and charges.
+        enchantment_slot = EnchantmentSlots.PermanentSlot if not is_temporary else EnchantmentSlots.TemporarySlot
+        effect_index = effect.get_effect_points(casting_spell.caster_effective_level)
+        duration = 0 if not is_temporary else int(eval(f'enchantment.EffectPointsMin_{effect_index}')) * 1000
+        charges = 0 if not is_temporary else \
+            int(WorldDatabaseManager.spell_enchant_charges_get_by_spell(casting_spell.spell_entry.ID))
+
+        # If this enchantment is being applied on a trade, update trade status with proposed enchant.
+        # Enchant will be applied after trade is accepted.
+        if owner_player != caster:
+            if caster.trade_data and caster.trade_data.other_player and caster.trade_data.other_player.trade_data:
+                caster.trade_data.set_proposed_enchant(casting_spell.spell_entry.ID, enchantment_slot,
+                                                       effect.misc_value, duration, charges)
+                caster.trade_data.other_player.trade_data.set_proposed_enchant(casting_spell.spell_entry.ID,
+                                                                               enchantment_slot, effect.misc_value,
+                                                                               duration, charges)
+                return
+
+        # Apply permanent enchantment.
+        target.set_enchantment(enchantment_slot, effect.misc_value, duration, charges)
+
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
@@ -454,6 +513,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_LEAP: SpellEffectHandler.handle_leap,
     SpellEffects.SPELL_EFFECT_TAME_CREATURE: SpellEffectHandler.handle_tame_creature,
     SpellEffects.SPELL_EFFECT_SUMMON_PET: SpellEffectHandler.handle_summon_pet,
+    SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT: SpellEffectHandler.handle_permanent_enchant,
+    SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

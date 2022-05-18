@@ -551,8 +551,6 @@ class PlayerManager(UnitManager):
             self.group_manager.send_update()
 
     def set_root(self, active):
-        if not self.session:
-            return
         super().set_root(active)
         if active:
             opcode = OpCode.SMSG_FORCE_MOVE_ROOT
