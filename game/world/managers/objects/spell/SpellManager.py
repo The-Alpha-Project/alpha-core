@@ -771,6 +771,23 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
                 return False
 
+        # Validate enchants.
+        if casting_spell.is_enchantment_spell():
+            # Invalid target.
+            if not casting_spell.initial_target_is_item():
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)
+                return False
+
+            # Validate target item class and subclass, if needed.
+            if casting_spell.spell_entry.EquippedItemClass != -1 and casting_spell.spell_entry.EquippedItemSubclass != 1:
+                required_item_class = casting_spell.spell_entry.EquippedItemClass
+                required_item_sub_class = casting_spell.spell_entry.EquippedItemSubclass
+                item_class = casting_spell.initial_target.item_template.class_
+                item_subclass_mask = casting_spell.initial_target.item_template.subclass
+                if required_item_class != item_class or required_item_sub_class & item_subclass_mask == 0:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                    return False
+
         # Aura bounce check.
         if casting_spell.initial_target_is_unit_or_player():
             if not validation_target.aura_manager.are_spell_effects_applicable(casting_spell):

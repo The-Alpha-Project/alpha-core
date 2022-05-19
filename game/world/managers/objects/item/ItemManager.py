@@ -416,6 +416,9 @@ class ItemManager(ObjectManager):
     def get_creator_guid(self):
         return self.item_instance.creator if self.item_instance else 0
 
+    def has_enchantment_in_slot(self, slot: [EnchantmentSlots]):
+        return slot in self.enchantments and self.enchantments[slot].entry
+
     def get_permanent_enchant_value(self):
         return self.enchantments[EnchantmentSlots.PermanentSlot].entry if \
             EnchantmentSlots.PermanentSlot in self.enchantments else 0

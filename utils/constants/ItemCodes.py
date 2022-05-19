@@ -315,6 +315,14 @@ class ItemDynFlags(IntEnum):
     ITEM_DYNFLAG_WRAPPED = 0x8  # mark item as wrapped into wrapper container
 
 
+class ItemEnchantment(IntEnum):
+    ITEM_ENCHANTMENT_MISC = 0x0
+    ITEM_ENCHANTMENT_PROC = 0x1
+    ITEM_ENCHANTMENT_DAMAGE = 0x2
+    ITEM_ENCHANTMENT_BUFF_EQUIPPED = 0x3
+    ITEM_ENCHANTMENT_ADD_ARMOR = 0x4
+
+
 class EnchantmentSlots(IntEnum):
     PermanentSlot = 0
     TemporarySlot = 1

@@ -233,6 +233,11 @@ class CastingSpell:
                 return True
         return False
 
+    def is_enchantment_spell(self):
+        enchantment_effects = [SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT,
+                               SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY]
+        return any(effect.effect_type in enchantment_effects for effect in self.get_effects())
+
     def is_refreshment_spell(self):
         spell_effect = self._effects[0]  # Food/drink effect should be first.
         if not spell_effect:
