@@ -70,5 +70,12 @@ begin not atomic
 		insert into applied_updates values ('200620211');
     end if;
 
+    -- 18/05/2022 1
+	if (select count(*) from applied_updates where id='180520221') = 0 then
+        ALTER TABLE `character_inventory` 
+        ADD COLUMN `duration` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `item_flags`,
+        ADD COLUMN `enchantments` MEDIUMTEXT NOT NULL DEFAULT "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" AFTER `duration`;
+		insert into applied_updates values ('180520221');
+    end if;
 end $
 delimiter ;

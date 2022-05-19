@@ -50,7 +50,6 @@ class SellItemHandler(object):
                 if sell_amount < stack_count:
                     new_stack_count = item.item_instance.stackcount - sell_amount
                     item.set_stack_count(new_stack_count)
-                    RealmDatabaseManager.character_inventory_update_item(item.item_instance)
                 else:
                     world_session.player_mgr.inventory.remove_item(container_slot, slot)
 

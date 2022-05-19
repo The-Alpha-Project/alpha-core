@@ -113,6 +113,8 @@ class CharacterInventory(Base):
     SpellCharges4 = Column(INTEGER(11), nullable=False, server_default=text("-1"))
     SpellCharges5 = Column(INTEGER(11), nullable=False, server_default=text("-1"))
     item_flags = Column(INTEGER(10), nullable=False, server_default=text("0"))
+    duration = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    enchantments = Column(String(255), nullable=False, server_default=text("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"))
 
     character = relationship('Character')
 

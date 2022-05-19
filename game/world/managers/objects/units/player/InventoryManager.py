@@ -67,8 +67,11 @@ class InventoryManager(object):
                         item_template=item_template,
                         item_instance=item_instance
                     )
+
                 if item_instance.bag in self.containers and self.containers[item_instance.bag]:
                     self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
+
+                item_mgr.load_enchantments()
 
     def get_backpack(self):
         return self.containers[InventorySlots.SLOT_INBACKPACK]
@@ -184,8 +187,6 @@ class InventoryManager(object):
                         new_stack_count = dest_item.item_instance.stackcount + diff
                         dest_item.set_stack_count(new_stack_count)
                         self.add_item(item_template=item_template, count=count-diff, handle_error=False)
-
-                    RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
                     return True
                 else:
                     if handle_error:
@@ -204,7 +205,7 @@ class InventoryManager(object):
         if dest_container.is_backpack and \
                 (self.is_equipment_pos(dest_bag_slot, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
             self.handle_equipment_change(generated_item)
-            RealmDatabaseManager.character_inventory_update_item(generated_item.item_instance)
+            generated_item.save()
 
         # Backpack was touched, refresh slot fields.
         if dest_container.is_backpack:
@@ -250,9 +251,7 @@ class InventoryManager(object):
                 source_item.set_stack_count(new_stack_count)
                 new_stack_count = dest_item.item_template.stackable
                 dest_item.set_stack_count(new_stack_count)
-                RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
 
-            RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
             return
 
         # Remove source item.
@@ -287,9 +286,9 @@ class InventoryManager(object):
             self.handle_equipment_change(source_item, dest_item)
 
         # Finally, update items and client
-        RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
+        source_item.save()
         if dest_item:
-            RealmDatabaseManager.character_inventory_update_item(dest_item.item_instance)
+            dest_item.save()
 
         # Backpack was touched, refresh slot fields.
         if dest_container.is_backpack or source_container.is_backpack:
@@ -383,7 +382,6 @@ class InventoryManager(object):
                     new_stack_count = item.item_instance.stackcount - item_count
                     item.set_stack_count(new_stack_count)
                     item_count = 0
-                    RealmDatabaseManager.character_inventory_update_item(item.item_instance)
                     break
                 elif item_count >= item.item_instance.stackcount:
                     self.remove_item(container_slot, slot, True)
@@ -618,6 +616,13 @@ class InventoryManager(object):
             return False
 
         return True
+
+    def apply_enchantments_duration(self):
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                return
+            for item in container.sorted_slots.values():
+                item.apply_enchantments_duration()
 
     def handle_equipment_change(self, source_item, dest_item=None):
         # Binding

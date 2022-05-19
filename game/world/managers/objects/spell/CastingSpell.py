@@ -8,6 +8,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.item.Stats import SpellStat
 from game.world.managers.objects.spell.EffectTargets import TargetMissInfo, EffectTargets
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.StatManager import UnitStats
@@ -372,7 +373,7 @@ class CastingSpell:
                (self.spell_entry.Reagent_5, self.spell_entry.ReagentCount_5), (self.spell_entry.Reagent_6, self.spell_entry.ReagentCount_6), \
                (self.spell_entry.Reagent_7, self.spell_entry.ReagentCount_7), (self.spell_entry.Reagent_8, self.spell_entry.ReagentCount_8)
 
-    def get_item_spell_stats(self) -> Optional[ItemManager.SpellStat]:
+    def get_item_spell_stats(self) -> Optional[SpellStat]:
         if not self.source_item:
             return None
         for spell_info in self.source_item.spell_stats:

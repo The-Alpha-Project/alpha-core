@@ -218,6 +218,9 @@ class PlayerManager(UnitManager):
         # Calculate stat bonuses at this point.
         self.stat_manager.apply_bonuses(replenish=first_login)
 
+        # Apply temporary enchantment duration.
+        self.inventory.apply_enchantments_duration()
+
         # Join default channels.
         ChannelManager.join_default_channels(self)
 

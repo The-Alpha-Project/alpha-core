@@ -83,8 +83,8 @@ class ContainerManager(ItemManager):
                 # Update slot fields.
                 if not self.is_backpack:
                     self.build_container_update_packet()
-
-                RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
+                # Persist.
+                item_mgr.save()
 
             if item_mgr.item_template.bonding == ItemBondingTypes.BIND_WHEN_PICKED_UP:
                 item_mgr.set_binding(True)
@@ -131,13 +131,11 @@ class ContainerManager(ItemManager):
                     new_stack_count = item_mgr.item_instance.stackcount + amount_left
                     item_mgr.set_stack_count(new_stack_count)
                     amount_left = 0
-                    RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
                     break
                 else:
                     new_stack_count = item_mgr.item_instance.stackcount + stack_missing
                     item_mgr.set_stack_count(new_stack_count)
                     amount_left -= stack_missing
-                    RealmDatabaseManager.character_inventory_update_item(item_mgr.item_instance)
         return amount_left
 
     def contains_item(self, item_template):
