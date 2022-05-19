@@ -29,6 +29,7 @@ class ProposedEnchantment:
         self.trade_slot = 0
         self.spell_id = 0
         self.enchantment_slot = 0
+        self.enchantment_entry = 0
         self.duration = 0
         self.charges = 0
 

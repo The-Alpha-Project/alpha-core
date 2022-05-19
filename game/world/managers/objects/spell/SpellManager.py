@@ -778,7 +778,7 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)
                 return False
 
-            # Do not allow temporary enchantments in trade slot for some types.
+            # Do not allow temporary enchantments in trade slot.
             if casting_spell.is_temporary_enchant_spell():
                 # TODO: Further research needed, we have neither SPELL_FAILED_NOT_TRADEABLE or 'Slot' in
                 #   SpellItemEnchantment. Refer to VMaNGOS Spell.cpp 7822.
