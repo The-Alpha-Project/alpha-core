@@ -771,11 +771,26 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
                 return False
 
-        # Validate enchants.
+        # Validate enchantments.
         if casting_spell.is_enchantment_spell():
             # Invalid target.
             if not casting_spell.initial_target_is_item():
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)
+                return False
+
+            # Do not allow temporary enchantments in trade slot for some types.
+            if casting_spell.is_temporary_enchant_spell():
+                # TODO: Further research needed, we have neither SPELL_FAILED_NOT_TRADEABLE or 'Slot' in
+                #   SpellItemEnchantment. Refer to VMaNGOS Spell.cpp 7822.
+                if casting_spell.initial_target.get_owner_guid() != casting_spell.spell_caster.guid:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
+                    return False
+
+            # Validate enchantment exist.
+            enchantment_id = casting_spell.get_enchantment_id()
+            enchantment = DbcDatabaseManager.spell_get_item_enchantment(enchantment_id)
+            if not enchantment:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
                 return False
 
             # Validate target item class and subclass, if needed.
