@@ -1,7 +1,7 @@
 from struct import unpack
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.units.player.TradeManager import TradeManager
+from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
 from utils.constants.MiscCodes import TradeStatus
 
 

@@ -11,7 +11,7 @@ from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
 from game.world.managers.objects.units.player.TalentManager import TalentManager
-from game.world.managers.objects.units.player.TradeManager import TradeManager
+from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
 from game.world.managers.objects.units.player.quest.QuestManager import QuestManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.player.FriendsManager import FriendsManager
