@@ -783,7 +783,7 @@ class SpellManager:
                 required_item_class = casting_spell.spell_entry.EquippedItemClass
                 required_item_sub_class = casting_spell.spell_entry.EquippedItemSubclass
                 item_class = casting_spell.initial_target.item_template.class_
-                item_subclass_mask = casting_spell.initial_target.item_template.subclass
+                item_subclass_mask = 1 << casting_spell.initial_target.item_template.subclass
                 if required_item_class != item_class or required_item_sub_class & item_subclass_mask == 0:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                     return False
