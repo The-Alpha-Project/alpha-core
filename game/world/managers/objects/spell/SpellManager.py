@@ -779,7 +779,7 @@ class SpellManager:
                 return False
 
             # Validate target item class and subclass, if needed.
-            if casting_spell.spell_entry.EquippedItemClass != -1 and casting_spell.spell_entry.EquippedItemSubclass != 1:
+            if casting_spell.spell_entry.EquippedItemClass != -1:
                 required_item_class = casting_spell.spell_entry.EquippedItemClass
                 required_item_sub_class = casting_spell.spell_entry.EquippedItemSubclass
                 item_class = casting_spell.initial_target.item_template.class_
