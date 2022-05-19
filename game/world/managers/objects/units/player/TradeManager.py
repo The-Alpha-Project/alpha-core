@@ -17,7 +17,8 @@ class ProposedEnchantment:
         self.duration: int = duration
         self.charges: int = charges
 
-    def set_enchantment(self, spell_id, enchant_slot, enchant_entry, duration, charges):
+    def set_enchantment(self, trade_slot, spell_id, enchant_slot, enchant_entry, duration, charges):
+        self.trade_slot = trade_slot
         self.spell_id = spell_id
         self.enchantment_slot = enchant_slot
         self.enchantment_entry = enchant_entry
@@ -125,16 +126,20 @@ class TradeManager(object):
         def get_item_by_slot(self, slot) -> Optional[ItemManager]:
             return self.items[slot]
 
-        def set_proposed_enchantment_trade_slot(self, trade_slot):
+        def get_slot_by_item(self, item) -> Optional[int]:
+            for slot, trade_item in enumerate(self.items):
+                if trade_item == item:
+                    return slot
+            return None
+
+        def set_proposed_enchant(self, trade_slot, spell_id, enchantment_slot, entry, duration, charges):
             # Flush previous provided enchants, if any.
             self.proposed_enchantment.flush()
             # Make sure clients update their trade slots enchant caches.
             self.update_trade_status()
-            # Set the new proposed trade slot, actual update will trigger upon set_proposed_enchant.
-            self.proposed_enchantment.trade_slot = trade_slot
-
-        def set_proposed_enchant(self, spell_id, enchantment_slot, entry, duration, charges):
-            self.proposed_enchantment.set_enchantment(spell_id, enchantment_slot, entry, duration, charges)
+            # Update the proposed enchant.
+            self.proposed_enchantment.set_enchantment(trade_slot, spell_id, enchantment_slot, entry, duration, charges)
+            # Update trade status, we need both update calls within this method.
             self.update_trade_status()
 
         def set_item(self, slot, item):

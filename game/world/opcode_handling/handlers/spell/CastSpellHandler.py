@@ -40,10 +40,6 @@ class CastSpellHandler:
             return MapManager.get_surrounding_gameobject_by_guid(caster, target_info)
         if target_mask & SpellTargetMask.ITEM_TARGET_MASK and target_mask & SpellTargetMask.TRADE_ITEM:
             if caster.trade_data and caster.trade_data.other_player and caster.trade_data.other_player.trade_data:
-                # Update the proposed trade slot.
-                caster.trade_data.other_player.trade_data.set_proposed_enchantment_trade_slot(target_info)
-                caster.trade_data.set_proposed_enchantment_trade_slot(target_info)
-                # Retrieve the trade item from the other player.
                 return caster.trade_data.other_player.trade_data.get_item_by_slot(target_info)
 
         return caster  # Assume self cast for now. Invalid target will be resolved later.

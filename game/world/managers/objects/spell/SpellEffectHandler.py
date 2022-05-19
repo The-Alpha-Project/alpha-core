@@ -433,10 +433,21 @@ class SpellEffectHandler:
         # Enchant will be applied after trade is accepted.
         if owner_player != caster:
             if caster.trade_data and caster.trade_data.other_player and caster.trade_data.other_player.trade_data:
-                caster.trade_data.set_proposed_enchant(casting_spell.spell_entry.ID, enchantment_slot,
-                                                       effect.misc_value, duration, charges)
-                caster.trade_data.other_player.trade_data.set_proposed_enchant(casting_spell.spell_entry.ID,
-                                                                               enchantment_slot, effect.misc_value,
+                # Get the trade slot for the item being enchanted.
+                trade_slot = caster.trade_data.other_player.trade_data.get_slot_by_item(target)
+
+                # Update proposed enchantment on caster.
+                caster.trade_data.set_proposed_enchant(trade_slot,
+                                                       casting_spell.spell_entry.ID,
+                                                       enchantment_slot,
+                                                       effect.misc_value,
+                                                       duration, charges)
+
+                # Update proposed enchantment on receiver.
+                caster.trade_data.other_player.trade_data.set_proposed_enchant(trade_slot,
+                                                                               casting_spell.spell_entry.ID,
+                                                                               enchantment_slot,
+                                                                               effect.misc_value,
                                                                                duration, charges)
                 return
 
