@@ -218,9 +218,6 @@ class PlayerManager(UnitManager):
         # Calculate stat bonuses at this point.
         self.stat_manager.apply_bonuses(replenish=first_login)
 
-        # Apply temporary enchantment duration.
-        self.inventory.apply_enchantments_duration()
-
         # Join default channels.
         ChannelManager.join_default_channels(self)
 
@@ -240,6 +237,9 @@ class PlayerManager(UnitManager):
         self.enqueue_packets(self.inventory.get_inventory_update_packets(self))
         # Player create packet.
         self.enqueue_packet(self.generate_create_packet(requester=self))
+
+        # Apply temporary enchantment duration, should be sent after creation.
+        self.inventory.apply_enchantments_duration()
 
         # Place player in a world cell.
         MapManager.update_object(self)
@@ -532,9 +532,14 @@ class PlayerManager(UnitManager):
             # Send initial packets for spells, action buttons and player creation.
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
+            # Inventory updates before spawning.
+            self.enqueue_packets(self.inventory.get_inventory_update_packets(requester=self))
+            # Create packet.
             self.enqueue_packet(self.generate_create_packet(requester=self))
             # Apply stat bonuses again.
             self.stat_manager.apply_bonuses()
+            # Send enchantments duration.
+            self.inventory.apply_enchantments_duration()
 
         # Remove the player's active pet.
         self.pet_manager.detach_active_pet()
