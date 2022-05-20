@@ -58,8 +58,8 @@ class TradeManager(object):
                 item.item_template.entry if item else 0,
                 item.item_template.display_id if item else 0,
                 item.item_instance.stackcount if item and item.item_instance else 0,
-                item.get_creator_guid() if item else 0,  # Wrapped items, creator guid.
-                item.get_permanent_enchant_value() if item else 0  # Permanent enchant value.
+                item.get_permanent_enchant_value() if item else 0,  # Permanent enchant value.
+                item.get_creator_guid() if item else 0  # Wrapped/Crafted items, creator guid.
             )
 
         player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRADE_STATUS_EXTENDED, data))
