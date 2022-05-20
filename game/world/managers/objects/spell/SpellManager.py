@@ -786,6 +786,11 @@ class SpellManager:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
                     return False
 
+            # Do not allow to enchant if it has an existent permanent enchantment.
+            if casting_spell.initial_target.get_permanent_enchant_value() != 0:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
+                return False
+
             # Validate enchantment exist.
             enchantment_id = casting_spell.get_enchantment_id()
             enchantment = DbcDatabaseManager.spell_get_item_enchantment(enchantment_id)
