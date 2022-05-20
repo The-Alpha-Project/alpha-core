@@ -369,7 +369,7 @@ class CastingSpell:
         # Use a fixed-length list to avoid indexing issues caused by invalid effects.
         self._effects = [None, None, None]
         effect_ids = [self.spell_entry.Effect_1, self.spell_entry.Effect_2, self.spell_entry.Effect_3]
-        for i in range(0, 3):
+        for i in range(3):
             if not effect_ids[i]:
                 continue
             self._effects[i] = SpellEffect(self, i)

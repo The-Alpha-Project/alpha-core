@@ -77,7 +77,7 @@ class SpellEffect:
         tick_count = int(duration / self.aura_period)
 
         ticks = []
-        for i in range(0, tick_count):
+        for i in range(tick_count):
             ticks.append(period * i)
         return ticks
 

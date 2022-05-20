@@ -55,7 +55,7 @@ class ContainerManager(ItemManager):
         if self.item_template:
             self.set_uint32(ContainerFields.CONTAINER_FIELD_NUM_SLOTS, self.item_template.container_slots)
 
-        for x in range(0, MAX_BAG_SLOTS):
+        for x in range(MAX_BAG_SLOTS):
             guid = self.sorted_slots[x].guid if x in self.sorted_slots else 0
             self.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + x * 2, guid)
 
