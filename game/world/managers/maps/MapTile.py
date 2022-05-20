@@ -18,9 +18,9 @@ class MapTile(object):
         self.cell_x = tile_x
         self.cell_y = tile_y
         self.cell_map = map_id
-        self.area_information = [[None for r in range(RESOLUTION_AREA_INFO)] for c in range(RESOLUTION_AREA_INFO)]
-        self.liquid_information = [[None for r in range(RESOLUTION_LIQUIDS)] for c in range(RESOLUTION_LIQUIDS)]
-        self.z_height_map = [[0 for r in range(RESOLUTION_ZMAP)] for c in range(RESOLUTION_ZMAP)]
+        self.area_information = [[None for r in range(0, RESOLUTION_AREA_INFO)] for c in range(0, RESOLUTION_AREA_INFO)]
+        self.liquid_information = [[None for r in range(0, RESOLUTION_LIQUIDS)] for c in range(0, RESOLUTION_LIQUIDS)]
+        self.z_height_map = [[0 for r in range(0, RESOLUTION_ZMAP)] for c in range(0, RESOLUTION_ZMAP)]
         self.load()
 
     def load(self):
@@ -42,13 +42,13 @@ class MapTile(object):
                     return
 
                 # Height Map
-                for x in range(RESOLUTION_ZMAP):
-                    for y in range(RESOLUTION_ZMAP):
+                for x in range(0, RESOLUTION_ZMAP):
+                    for y in range(0, RESOLUTION_ZMAP):
                         self.z_height_map[x][y] = unpack('<f', map_tiles.read(4))[0]
 
                 # ZoneID, AreaNumber, AreaFlags, AreaLevel, AreaExploreFlag(Bit), AreaFactionMask
-                for x in range(RESOLUTION_AREA_INFO):
-                    for y in range(RESOLUTION_AREA_INFO):
+                for x in range(0, RESOLUTION_AREA_INFO):
+                    for y in range(0, RESOLUTION_AREA_INFO):
                         zone_id = unpack('<i', map_tiles.read(4))[0]
                         if zone_id == -1:  # No area information.
                             continue
@@ -61,8 +61,8 @@ class MapTile(object):
                         self.area_information[x][y] = AreaInformation(zone_id, area_number, area_flags, area_level, area_explore_bit, area_faction_mask)
 
                 # Liquids
-                for x in range(RESOLUTION_LIQUIDS):
-                    for y in range(RESOLUTION_LIQUIDS):
+                for x in range(0, RESOLUTION_LIQUIDS):
+                    for y in range(0, RESOLUTION_LIQUIDS):
                         liquid_type = unpack('<b', map_tiles.read(1))[0]
                         if liquid_type == -1:  # No liquid information / not rendered.
                             continue

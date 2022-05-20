@@ -583,7 +583,7 @@ class QuestManager(object):
         req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(quest)))
         req_items_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(quest)))
         data += pack('<I', len(req_items))
-        for index in range(len(req_items)):
+        for index in range(0, len(req_items)):
             data += self._gen_item_struct(req_items[index], req_items_count_list[index])
 
         data += pack(
@@ -921,7 +921,7 @@ class QuestManager(object):
 
     def build_update(self):
         active_quest_list = list(self.active_quests.keys())
-        for slot in range(MAX_QUEST_LOG):
+        for slot in range(0, MAX_QUEST_LOG):
             self.update_single_quest(active_quest_list[slot] if slot < len(active_quest_list) else 0, slot)
 
     def _create_db_quest_status(self, quest):

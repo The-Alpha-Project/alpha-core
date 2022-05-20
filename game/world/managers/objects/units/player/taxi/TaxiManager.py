@@ -38,7 +38,7 @@ class TaxiManager(object):
         waypoints = []
         nodes = DbcDatabaseManager.TaxiPathNodesHolder.taxi_nodes_get_by_path_id(taxi_path.ID)
 
-        for i in range(len(nodes)):
+        for i in range(0, len(nodes)):
             waypoints.append(Vector(nodes[i].LocX, nodes[i].LocY, nodes[i].LocZ))
 
         if remaining_wp:

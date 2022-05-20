@@ -230,7 +230,7 @@ class ObjectManager:
     # Usually used by any partial update requested by a player who already knows this world object.
     def _get_fields_bit_mask_based(self):
         data = self.update_packet_factory.update_mask.to_bytes()
-        for i in range(self.update_packet_factory.update_mask.field_count):
+        for i in range(0, self.update_packet_factory.update_mask.field_count):
             if self.update_packet_factory.update_mask.is_set(i):
                 data += self.update_packet_factory.update_values_bytes[i]
         return data
@@ -240,7 +240,7 @@ class ObjectManager:
     def _get_fields_timestamp_based(self):
         mask_copy = self.update_packet_factory.update_mask.copy()
         fields_data = b''
-        for i in range(self.update_packet_factory.update_mask.field_count):
+        for i in range(0, self.update_packet_factory.update_mask.field_count):
             # Value is not 0 and bit mask is on or has a timestamp.
             if self.update_packet_factory.update_values[i] != 0 and \
                     self.update_packet_factory.update_mask.is_set(i) or \

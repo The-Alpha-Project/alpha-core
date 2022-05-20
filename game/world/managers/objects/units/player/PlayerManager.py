@@ -301,7 +301,7 @@ class PlayerManager(UnitManager):
     def get_action_buttons(self):
         data = b''
         player_buttons = RealmDatabaseManager.character_get_buttons(self.player.guid)
-        for x in range(MAX_ACTION_BUTTONS):
+        for x in range(0, MAX_ACTION_BUTTONS):
             if player_buttons and x in player_buttons:
                 data += pack('<i', player_buttons[x])
             else:

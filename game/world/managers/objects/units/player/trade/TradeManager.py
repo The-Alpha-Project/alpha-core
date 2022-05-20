@@ -56,7 +56,7 @@ class TradeManager(object):
         )
 
         # Trade items updates.
-        for slot in range(TradeManager.TRADE_SLOT_COUNT):
+        for slot in range(0, TradeManager.TRADE_SLOT_COUNT):
             data += pack('<B', slot)
             item = trade_data.items[slot]
             data += pack(

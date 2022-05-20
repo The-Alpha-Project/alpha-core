@@ -83,11 +83,11 @@ class InventoryManager(object):
                 return slot
         return InventorySlots.SLOT_INBACKPACK.value
 
-    def add_item(self, entry=0, item_template=None, item_mgr=None, count=1, handle_error=True, looted=False,
+    def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False,
                  send_message=True, show_item_get=True):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
-        amount_left = count if not item_mgr else item_mgr.item_instance.stackcount
+        amount_left = count
         target_bag_slot = -1  # Highest bag slot items were added to
         if item_template:
             error = self.can_store_item(item_template, count)
@@ -110,8 +110,7 @@ class InventoryManager(object):
                     if not container or not container.can_contain_item(item_template):
                         continue
                     prev_left = amount_left
-                    amount_left = container.add_item(item_template, amount_left, item_mgr=item_mgr,
-                                                     check_existing=False)
+                    amount_left = container.add_item(item_template, amount_left, False)
                     if slot != InventorySlots.SLOT_INBACKPACK and prev_left > amount_left and slot > target_bag_slot:
                         target_bag_slot = slot
                         container.build_container_update_packet()
@@ -328,7 +327,7 @@ class InventoryManager(object):
         return None
 
     # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
-    def remove_item(self, target_bag, target_slot, clear_slot=True, switch_owner=False, swap_item=None):
+    def remove_item(self, target_bag, target_slot, clear_slot=True, swap_item=None):
         target_container = self.get_container(target_bag)
         if not target_container:
             return
@@ -350,8 +349,7 @@ class InventoryManager(object):
         if not swap_item:
             target_container.remove_item_in_slot(target_slot)
 
-        # Only remove from db if ownership is not being transferred.
-        if clear_slot and not switch_owner:
+        if clear_slot:
             RealmDatabaseManager.character_inventory_delete(target_item.item_instance)
 
         if target_container.is_backpack and \

@@ -341,7 +341,7 @@ class WorldDatabaseManager(object):
             if creature_spell.entry not in WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE:
                 WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry] = []
 
-            for index in range(WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELLS_MAX_SPELLS):
+            for index in range(0, WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELLS_MAX_SPELLS):
                 spell_template = CreatureSpellsEntry(creature_spell, index + 1)
                 WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry].append(spell_template)
 

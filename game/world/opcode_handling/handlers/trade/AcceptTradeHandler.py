@@ -72,26 +72,20 @@ class AcceptTradeHandler(object):
                         continue
 
                 if other_player_item:
-                    # Swap ItemManager ownership.
-                    if player.inventory.add_item(item_template=other_player_item.item_template,
-                                                 item_mgr=other_player_item,
-                                                 show_item_get=False):
-                        # Only remove from other player if we were able to add it to player.
-                        other_player.inventory.remove_item(other_player_item.item_instance.bag,
-                                                           other_player_item.current_slot,
-                                                           clear_slot=True,
-                                                           switch_owner=True)
+                    player.inventory.add_item(item_template=other_player_item.item_template,
+                                              count=other_player_item.item_instance.stackcount,
+                                              show_item_get=False)
+
+                    other_player.inventory.remove_item(other_player_item.item_instance.bag,
+                                                       other_player_item.current_slot, True)
 
                 if player_item:
-                    # Swap ItemManager ownership.
-                    if other_player.inventory.add_item(item_template=player_item.item_template,
-                                                       item_mgr=player_item,
-                                                       show_item_get=False):
-                        # Only remove from player if we were able to add it to other player.
-                        player.inventory.remove_item(player_item.item_instance.bag,
-                                                     player_item.current_slot,
-                                                     clear_slot=True,
-                                                     switch_owner=True)
+                    other_player.inventory.add_item(item_template=player_item.item_template,
+                                                    count=player_item.item_instance.stackcount,
+                                                    show_item_get=False)
+
+                    player.inventory.remove_item(player_item.item_instance.bag,
+                                                 player_item.current_slot, True)
 
             # Apply enchantment to item.
             if item_to_receive_enchant:
