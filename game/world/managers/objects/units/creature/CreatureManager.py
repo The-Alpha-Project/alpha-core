@@ -739,7 +739,7 @@ class CreatureManager(UnitManager):
         if not super().die(killer):
             return False
 
-        if killer.get_type_id != ObjectTypeIds.ID_PLAYER:
+        if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
             # Attribute non-player kills to the creature's summoner.
             # TODO Does this also apply for player mind control?
             killer = killer.summoner if killer.summoner else killer
