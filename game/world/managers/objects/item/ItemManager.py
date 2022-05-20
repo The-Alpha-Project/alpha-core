@@ -71,7 +71,7 @@ class ItemManager(ObjectManager):
             self.display_id = item_template.display_id
             self.equip_slot = self.get_inv_slot_by_type(self.item_template.inventory_type)
 
-            self.enchantments = [EnchantmentHolder() for _ in range(0, MAX_ENCHANTMENTS)]
+            self.enchantments = [EnchantmentHolder() for _ in range(MAX_ENCHANTMENTS)]
             self.stats = Stat.generate_stat_list(self.item_template)
             self.damage_stats = DamageStat.generate_damage_stat_list(self.item_template)
             self.spell_stats = SpellStat.generate_spell_stat_list(self.item_template, self.item_instance)
@@ -325,7 +325,7 @@ class ItemManager(ObjectManager):
                 self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + slot, self.spell_stats[slot].charges)
             
             # Enchantments.
-            for slot in range(0, MAX_ENCHANTMENTS):
+            for slot in range(MAX_ENCHANTMENTS):
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, self.enchantments[slot].entry)
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, self.enchantments[slot].duration)
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, self.enchantments[slot].charges)
@@ -343,15 +343,22 @@ class ItemManager(ObjectManager):
         db_enchantments = self.item_instance.enchantments
         if db_enchantments:
             values = db_enchantments.rsplit(',')
-            for index in range(0, MAX_ENCHANTMENTS):
+            for index in range(MAX_ENCHANTMENTS):
                 self.enchantments[index].entry = int(values[index * 3 + 0])
                 self.enchantments[index].duration = int(values[index * 3 + 1])
                 self.enchantments[index].charges = int(values[index * 3 + 2])
 
+    def remove_temporary_enchantments(self):
+        for index in range(EnchantmentSlots.TemporarySlot, MAX_ENCHANTMENTS):
+            self.enchantments[index].entry = 0
+            self.enchantments[index].duration = 0
+            self.enchantments[index].charges = 0
+        self.save()
+
     def save_enchantments(self):
         if self.item_instance:
             db_enchantments = ''
-            for index in range(0, MAX_ENCHANTMENTS):
+            for index in range(MAX_ENCHANTMENTS):
                 db_enchantments += str(self.enchantments[index].entry) + ','
                 db_enchantments += str(self.enchantments[index].duration) + ','
                 db_enchantments += str(self.enchantments[index].charges) + (',' if index != MAX_ENCHANTMENTS - 1 else '')

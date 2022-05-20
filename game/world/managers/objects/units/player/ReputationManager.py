@@ -22,7 +22,7 @@ class ReputationManager(object):
 
     def send_initialize_factions(self, set_visible=True):
         data = pack('<I', CLIENT_MAX)
-        for x in range(0, CLIENT_MAX):
+        for x in range(CLIENT_MAX):
             if x in self.reputations:
                 faction = DbcDatabaseManager.FactionHolder.faction_get_by_index(x)
                 data += pack('<Bi', self.reputations[x].flags, self.reputations[x].standing - faction.ReputationBase_1)

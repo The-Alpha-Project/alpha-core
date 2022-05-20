@@ -55,7 +55,7 @@ class ContainerManager(ItemManager):
         if self.item_template:
             self.set_uint32(ContainerFields.CONTAINER_FIELD_NUM_SLOTS, self.item_template.container_slots)
 
-        for x in range(0, MAX_BAG_SLOTS):
+        for x in range(MAX_BAG_SLOTS):
             guid = self.sorted_slots[x].guid if x in self.sorted_slots else 0
             self.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + x * 2, guid)
 
@@ -78,6 +78,12 @@ class ContainerManager(ItemManager):
                 item_mgr = ItemManager.generate_item(item, self.owner, self.current_slot, slot, count=count)
 
             if item_mgr:
+                # Update ownership of item if necessary.
+                if item_mgr.item_instance.owner != self.owner:
+                    item_mgr.item_instance.owner = self.owner
+                    # Remove any temporary enchantments if needed.
+                    item_mgr.remove_temporary_enchantments()
+
                 item_mgr.current_slot = slot
                 self.sorted_slots[slot] = item_mgr
                 # Update slot fields.
@@ -91,7 +97,7 @@ class ContainerManager(ItemManager):
             return item_mgr
         return None
 
-    def add_item(self, item_template, count, check_existing=True):
+    def add_item(self, item_template, count, item_mgr=None, check_existing=True):
         amount_left = count
         if not self.can_contain_item(item_template):
             return amount_left
@@ -105,11 +111,13 @@ class ContainerManager(ItemManager):
                 if x in self.sorted_slots:
                     continue  # Skip any reserved slots
                 if not self.is_full():
+                    # Creating or swapping item ownership.
+                    item = item_template if not item_mgr else item_mgr
                     if amount_left > item_template.stackable:
-                        self.set_item(item_template, self.next_available_slot(), item_template.stackable)
+                        self.set_item(item, self.next_available_slot(), item_template.stackable)
                         amount_left -= item_template.stackable
                     else:
-                        self.set_item(item_template, self.next_available_slot(), amount_left)
+                        self.set_item(item, self.next_available_slot(), amount_left)
                         amount_left = 0
                         break
         return amount_left

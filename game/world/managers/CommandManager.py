@@ -66,7 +66,7 @@ class CommandManager(object):
 
         def _split_command_text(commands, n=8):
             command_list = list(commands)
-            for i in range(0, len(command_list), n):
+            for i in range(len(command_list), n):
                 yield command_list[i:i + n]
 
         # If player is GM, send GM commands first.

@@ -140,7 +140,7 @@ class GameObjectManager(ObjectManager):
 
         if slots > 0:
             orthogonal_orientation = self.location.o + pi * 0.5
-            for x in range(0, slots):
+            for x in range(slots):
                 relative_distance = (self.current_scale * x) - (self.current_scale * (slots - 1) / 2.0)
                 x_i = self.location.x + relative_distance * cos(orthogonal_orientation)
                 y_i = self.location.y + relative_distance * sin(orthogonal_orientation)
@@ -281,7 +281,7 @@ class GameObjectManager(ObjectManager):
         # Use a temporary bit mask in case we need to set more bits.
         mask_copy = self.update_packet_factory.update_mask.copy()
         fields_data = b''
-        for i in range(0, self.update_packet_factory.update_mask.field_count):
+        for i in range(self.update_packet_factory.update_mask.field_count):
             if self.is_dynamic_field(i):
                 fields_data += pack('<I', self.generate_dynamic_field_value(requester))
                 mask_copy[i] = 1  # Turn on this extra bit.
