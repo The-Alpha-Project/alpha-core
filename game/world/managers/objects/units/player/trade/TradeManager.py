@@ -50,7 +50,7 @@ class TradeManager(object):
 
         # Proposed enchantments.
         data += pack(
-            '<2I',
+            '<2i',
             trade_data.proposed_enchantment.spell_id,
             trade_data.proposed_enchantment.trade_slot
         )
