@@ -2,7 +2,7 @@ from utils.constants.ItemCodes import EnchantmentSlots
 
 
 class ProposedEnchantment:
-    def __init__(self, trade_slot=0, spell_id=0, enchant_slot=0, enchant_entry=0, duration=0, charges=0):
+    def __init__(self, trade_slot=-1, spell_id=0, enchant_slot=0, enchant_entry=0, duration=0, charges=0):
         self.trade_slot: int = trade_slot
         self.spell_id: int = spell_id
         self.enchantment_slot: EnchantmentSlots = EnchantmentSlots(enchant_slot)
