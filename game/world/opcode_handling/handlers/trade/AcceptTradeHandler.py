@@ -23,7 +23,7 @@ class AcceptTradeHandler(object):
             return 0
 
         # Cancel if any item is soulbound.
-        for slot in range(TradeManager.TradeData.TRADE_SLOT_COUNT):
+        for slot in range(TradeManager.TRADE_SLOT_COUNT):
             if player_trade.items[slot] and player_trade.items[slot].is_soulbound():
                 TradeManager.cancel_trade(player_trade)
                 return 0
@@ -34,7 +34,7 @@ class AcceptTradeHandler(object):
 
         if other_player_trade.is_accepted:
             # Inventory checks.
-            for slot in range(TradeManager.TradeData.TRADE_SLOT_COUNT):
+            for slot in range(TradeManager.TRADE_SLOT_COUNT):
                 # Search for item to receive enchantment.
                 if not item_to_receive_enchant and player_trade.proposed_enchantment.enchantment_entry and \
                         player_trade.proposed_enchantment.trade_slot == slot:
@@ -62,7 +62,7 @@ class AcceptTradeHandler(object):
 
             # Transfer items.
             # TODO: Change item instance owner instead of cloning the item
-            for slot in range(TradeManager.TradeData.TRADE_SLOT_COUNT):
+            for slot in range(TradeManager.TRADE_SLOT_COUNT):
                 player_item = player_trade.items[slot]
                 other_player_item = other_player_trade.items[slot]
 

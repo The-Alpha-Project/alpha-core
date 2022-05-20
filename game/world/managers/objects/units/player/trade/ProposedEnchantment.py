@@ -19,9 +19,9 @@ class ProposedEnchantment:
         self.charges = charges
 
     def flush(self):
-        self.trade_slot = 0
-        self.spell_id = 0
-        self.enchantment_slot = 0
-        self.enchantment_entry = 0
+        self.trade_slot = -1
+        self.spell_id = -1
+        self.enchantment_slot = 0  # Used to apply enchantment after trade.
+        self.enchantment_entry = 0  # ItemEnchantment id.
         self.duration = 0
         self.charges = 0

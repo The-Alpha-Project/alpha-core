@@ -449,6 +449,9 @@ class SpellEffectHandler:
                                                                                enchantment_slot,
                                                                                effect.misc_value,
                                                                                duration, charges)
+
+                # Update trade status, this will propagate to both players.
+                caster.trade_data.update_trade_status()
                 return
 
         # Apply permanent enchantment.
