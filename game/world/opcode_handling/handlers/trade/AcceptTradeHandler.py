@@ -61,7 +61,8 @@ class AcceptTradeHandler(object):
                         return 0
 
             # Transfer items.
-            # TODO: Change item instance owner instead of cloning the item
+            # TODO: Change item instance owner instead of cloning the item.
+            #   Transfer permanent enchants that already existed on the item.
             for slot in range(TradeManager.TRADE_SLOT_COUNT):
                 player_item = player_trade.items[slot]
                 other_player_item = other_player_trade.items[slot]
@@ -72,20 +73,18 @@ class AcceptTradeHandler(object):
                         continue
 
                 if other_player_item:
-                    player.inventory.add_item(item_template=other_player_item.item_template,
-                                              count=other_player_item.item_instance.stackcount,
-                                              show_item_get=False)
-
-                    other_player.inventory.remove_item(other_player_item.item_instance.bag,
-                                                       other_player_item.current_slot, True)
+                    if player.inventory.add_item(item_template=other_player_item.item_template,
+                                                 count=other_player_item.item_instance.stackcount,
+                                                 show_item_get=False):
+                        other_player.inventory.remove_item(other_player_item.item_instance.bag,
+                                                           other_player_item.current_slot, True)
 
                 if player_item:
-                    other_player.inventory.add_item(item_template=player_item.item_template,
-                                                    count=player_item.item_instance.stackcount,
-                                                    show_item_get=False)
-
-                    player.inventory.remove_item(player_item.item_instance.bag,
-                                                 player_item.current_slot, True)
+                    if other_player.inventory.add_item(item_template=player_item.item_template,
+                                                       count=player_item.item_instance.stackcount,
+                                                       show_item_get=False):
+                        player.inventory.remove_item(player_item.item_instance.bag,
+                                                     player_item.current_slot, True)
 
             # Apply enchantment to item.
             if item_to_receive_enchant:
