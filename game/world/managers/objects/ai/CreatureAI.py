@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import math
 from random import randint
+from typing import TYPE_CHECKING, Optional
+
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
@@ -8,13 +12,18 @@ from utils.constants.ScriptCodes import CastFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, UnitStates
 
+if TYPE_CHECKING:
+    from game.world.managers.objects.units.UnitManager import UnitManager
+    from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+
 
 class CreatureAI:
     # Creature spell lists should be updated every 1.2 seconds according to research.
     # https://www.reddit.com/r/wowservers/comments/834nt5/felmyst_ai_system_research/
     CREATURE_CASTING_DELAY = 1200
 
-    def __init__(self, creature):
+    def __init__(self,
+                 creature: Optional[CreatureManager]):
         if creature:
             self.creature = creature
             self.use_ai_at_control = False
@@ -29,7 +38,8 @@ class CreatureAI:
         # Load creature spells if available.
         if self.creature.creature_template.spell_list_id:
             spell_list_id = self.creature.creature_template.spell_list_id
-            creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(spell_list_id)
+            creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(
+                spell_list_id)
             if creature_spells:
                 # Finish loading each creature_spell.
                 for creature_spell in creature_spells:
@@ -114,7 +124,7 @@ class CreatureAI:
         pass
 
     # Called at waypoint reached or point movement finished.
-    def movement_inform(self, move_type, data):
+    def movement_inform(self, move_type=None, data=None):
         pass
 
     # Called at text emote receive from player.
@@ -240,7 +250,7 @@ class CreatureAI:
 
         # This spell should only be cast when target does not have the aura it applies.
         if cast_flags & CastFlags.CF_AURA_NOT_PRESENT and target.aura_manager.has_aura_by_spell_id(
-                    casting_spell.spell_entry.ID):
+                casting_spell.spell_entry.ID):
             return SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED
 
         # Need to use combat distance.
@@ -348,8 +358,8 @@ class CreatureAI:
     def just_reached_home(self):
         pass
 
-    # Called when an unit moves within visibility distance.
-    def move_in_line_of_sight(self, unit):
+    # Called when a unit moves within visibility distance.
+    def move_in_line_of_sight(self, unit: UnitManager):
         pass
 
     # Called for reaction at stopping attack at no attackers or targets.

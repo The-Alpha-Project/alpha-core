@@ -1,10 +1,18 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from game.world.managers.objects.ai.BasicCreatureAI import BasicCreatureAI
+from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from game.world.managers.objects.ai.CritterAI import CritterAI
 from game.world.managers.objects.ai.GuardAI import GuardAI
 from game.world.managers.objects.ai.NullCreatureAI import NullCreatureAI
 from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.ai.TotemAI import TotemAI
 from utils.constants.CustomCodes import Permits
+
+if TYPE_CHECKING:
+    from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 
 
 class AIFactory:
@@ -24,7 +32,7 @@ class AIFactory:
 
     # TODO, scripted AI's, EventAI.
     @staticmethod
-    def build_ai(creature):
+    def build_ai(creature: CreatureManager) -> CreatureAI:
         # TODO
         #  if not creature.is_pet() and creature.is_charmed_by_player() and creature.is_possessed():
         #      return new NullCreatureAI(creature);
@@ -58,7 +66,7 @@ class AIFactory:
 
         # Select by script name.
         if not selected_ai and ai_name:
-            selected_ai = AIFactory.get_ai_by_ai_name(ai_name, creature)
+            selected_ai = AIFactory._get_ai_by_ai_name(ai_name, creature)
 
         if not selected_ai and creature.is_guard():
             selected_ai = GuardAI(creature)
@@ -78,13 +86,13 @@ class AIFactory:
                     best_ai_name = ai_name
 
             if best_permit != Permits.PERMIT_BASE_NO and best_ai_name:
-                selected_ai = AIFactory.get_ai_by_ai_name(best_ai_name, creature)
+                selected_ai = AIFactory._get_ai_by_ai_name(best_ai_name, creature)
 
         # Return selected AI if found, else NullCreatureAI.
         return selected_ai if selected_ai else NullCreatureAI(creature)
 
     @staticmethod
-    def get_ai_by_ai_name(ai_name, creature):
+    def _get_ai_by_ai_name(ai_name, creature):
         if ai_name == 'NullAI':
             return NullCreatureAI(creature)
         elif ai_name == 'BasicAI':

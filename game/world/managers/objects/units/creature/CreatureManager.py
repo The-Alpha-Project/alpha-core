@@ -663,7 +663,7 @@ class CreatureManager(UnitManager):
                 # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
                 if self.has_moved:
-                    self.on_relocation()
+                    self._on_relocation()
                     self.set_has_moved(False)
                 # Random Movement.
                 self._perform_random_movement(now)
@@ -834,32 +834,12 @@ class CreatureManager(UnitManager):
             int(self.creature_template.dmg_min)
         )
 
-    # override
-    def on_relocation(self):
-        if not self.combat_target and not self.is_evading:
-            max_distance = self.creature_template.detection_range
-            aggro_players = MapManager.get_surrounding_players_by_location(self.location, self.map_, max_distance)
-            for guid, victim in aggro_players.items():
-                if self._try_start_proximity_aggro_attack(victim):
-                    break
+    def _on_relocation(self):
+        self.object_ai.movement_inform()
 
     # override
     def notify_moved_in_line_of_sight(self, target):
-        target_is_player = target.get_type_id() == ObjectTypeIds.ID_PLAYER
-        on_same_map = self.map_ == target.map_
-        in_detection_range = self.location.distance(target.location) <= self.creature_template.detection_range
-        if not self.combat_target and not self.is_evading and target_is_player and on_same_map and in_detection_range:
-            self._try_start_proximity_aggro_attack(target)
-
-    def _try_start_proximity_aggro_attack(self, victim):
-        is_aggressive = self.react_state == CreatureReactStates.REACT_AGGRESSIVE
-        can_init_attack = is_aggressive and self.can_attack_target(victim)
-        if can_init_attack:
-            self.attack(victim)
-            threat_not_to_leave_combat = 0.0
-            self.threat_manager.add_threat(victim, threat_not_to_leave_combat)
-            return True
-        return False
+        self.object_ai.move_in_line_of_sight(target)
 
     # override
     def has_offhand_weapon(self):

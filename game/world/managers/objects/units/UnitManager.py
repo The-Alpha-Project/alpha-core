@@ -224,7 +224,7 @@ class UnitManager(ObjectManager):
                     return True
                 return False
 
-            self.attack_stop(target_switch=True)
+            self.attack_stop()
 
         self.set_current_target(victim.guid)
         self.combat_target = victim
@@ -238,7 +238,7 @@ class UnitManager(ObjectManager):
 
         return True
 
-    def attack_stop(self, target_switch=False):
+    def attack_stop(self):
         # Clear target
         self.set_current_target(0)
         victim = self.combat_target
@@ -1142,10 +1142,6 @@ class UnitManager(ObjectManager):
 
     # override
     def on_cell_change(self):
-        pass
-
-    # override
-    def on_relocation(self):
         pass
 
     # override
