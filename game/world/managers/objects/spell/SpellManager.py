@@ -124,6 +124,7 @@ class SpellManager:
             casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, item)
             if not casting_spell:
                 continue
+
             if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here
                 self.caster.set_stand_state(StandState.UNIT_SITTING)
 
@@ -172,9 +173,13 @@ class SpellManager:
         self.casting_spells.append(casting_spell)
         casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
 
-        # If the spell uses a ranged weapon, draw it.
-        if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT and casting_spell.is_ranged_weapon_attack():
-            self.caster.set_weapon_mode(WeaponMode.RANGEDMODE)
+        if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+            # If the spell uses a ranged weapon, draw it if needed.
+            if casting_spell.is_ranged_weapon_attack():
+                self.caster.set_weapon_mode(WeaponMode.RANGEDMODE)
+            # If the spell uses a fishing pole, draw it if needed.
+            if casting_spell.requires_fishing_pole():
+                self.caster.set_weapon_mode(WeaponMode.NORMALMODE)
 
         if not casting_spell.is_instant_cast():
             if not casting_spell.triggered:
@@ -567,8 +572,12 @@ class SpellManager:
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        if self.caster.channel_object:  # Interrupting Ritual of Summoning required special handling.
-            self._handle_summoning_channel_end()
+        if self.caster.channel_object:
+            if casting_spell.is_fishing_spell():
+                self._handle_fishing_node_end()
+            else:
+                # Interrupting Ritual of Summoning required special handling.
+                self._handle_summoning_channel_end()
 
         self.caster.set_channel_object(0)
         self.caster.set_channel_spell(0)
@@ -727,17 +736,18 @@ class SpellManager:
 
         # Target validation.
         validation_target = casting_spell.initial_target
-        # In the case of the spell requiring an unit target but being cast on self,
+        # In the case of the spell requiring a unit target but being cast on self,
         # validate the spell against the caster's current unit selection instead.
-        if casting_spell.spell_target_mask == SpellTargetMask.SELF and \
+        if casting_spell.spell_target_mask == SpellTargetMask.SELF and not casting_spell.is_fishing_spell() and \
                 casting_spell.requires_implicit_initial_unit_target():
             validation_target = casting_spell.targeted_unit_on_cast_start
-
             if validation_target and not self.caster.can_attack_target(validation_target):
                 # All secondary initial unit targets are hostile. Unlike (nearly?) all other spells,
                 # the target for arcane missiles is not validated by the client (script effect). Catch that case here.
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
+
+        # TODO: Need to validate fishing before effect triggers.
 
         if not validation_target:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
@@ -758,20 +768,21 @@ class SpellManager:
 
                 return False
 
-        # Check if the caster is within range of the (world) target to cast the spell.
-        if not casting_spell.initial_target_is_item() and \
-                casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
-            if casting_spell.initial_target_is_terrain():
-                distance = validation_target.distance(self.caster.location)
-            else:
-                distance = validation_target.location.distance(self.caster.location)
+        # Range validations, if needed.
+        if not casting_spell.is_fishing_spell() and not casting_spell.initial_target_is_item():
+            # Check if the caster is within range of the (world) target to cast the spell.
+            if casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
+                if casting_spell.initial_target_is_terrain():
+                    distance = validation_target.distance(self.caster.location)
+                else:
+                    distance = validation_target.location.distance(self.caster.location)
 
-            if distance > casting_spell.range_entry.RangeMax:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
-                return False
-            if distance < casting_spell.range_entry.RangeMin:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
-                return False
+                if distance > casting_spell.range_entry.RangeMax:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
+                    return False
+                if distance < casting_spell.range_entry.RangeMin:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
+                    return False
 
         # Validate enchantments.
         if casting_spell.is_enchantment_spell():
@@ -897,6 +908,14 @@ class SpellManager:
             return False
 
         return True
+
+    def _handle_fishing_node_end(self):
+        if not self.caster.channel_object:
+            return
+        fishing_node_object = MapManager.get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
+        if not fishing_node_object or fishing_node_object.gobject_template.type != GameObjectTypes.TYPE_FISHINGNODE:
+            return
+        MapManager.remove_object(fishing_node_object)
 
     def _handle_summoning_channel_end(self):
         # Specific handling of ritual of summoning interrupting.

@@ -73,8 +73,9 @@ class CastingSpell:
         self.spell_impact_timestamps = {}
 
         if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            selection_guid = self.spell_caster.current_selection if self.spell_caster.current_selection else caster.guid
             self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(
-                self.spell_caster, self.spell_caster.current_selection, include_players=True)
+                self.spell_caster, selection_guid, include_players=True)
 
         self.load_effects()
 
@@ -180,7 +181,7 @@ class CastingSpell:
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNELED
 
     def generates_threat(self):
-        return not (self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT)
+        return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
 
     def requires_implicit_initial_unit_target(self):
         # Some spells are self casts, but require an implicit unit target when casted.
@@ -194,6 +195,9 @@ class CastingSpell:
 
         # Return true if the effect has an implicit unit selection target.
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
+
+    def is_fishing_spell(self):
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IS_FISHING
 
     def is_area_of_effect_spell(self):
         for effect in self.get_effects():
@@ -299,6 +303,12 @@ class CastingSpell:
                       (1 << ItemSubClasses.ITEM_SUBCLASS_WAND)
 
         return self.spell_entry.EquippedItemSubclass & ranged_mask != 0
+
+    def requires_fishing_pole(self):
+        if self.spell_entry.EquippedItemClass != ItemClasses.ITEM_CLASS_WEAPON:
+            return False
+
+        return self.spell_entry.EquippedItemSubclass & (1 << ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE)  != 0
 
     def requires_combo_points(self):
         cp_att = SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import math
+from random import randint
 from typing import Union, Optional
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -52,10 +53,11 @@ class EffectTargets:
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
         target_is_item = self.casting_spell.initial_target_is_item()
 
-        target_is_friendly = not caster_is_gameobject and self.casting_spell.initial_target_is_unit_or_player() and not \
+        target_is_friendly = not self.casting_spell.is_fishing_spell() and not caster_is_gameobject \
+            and self.casting_spell.initial_target_is_unit_or_player() and not \
             caster.can_attack_target(self.casting_spell.initial_target)
 
-        targeted_unit_is_hostile = not caster_is_gameobject and \
+        targeted_unit_is_hostile = not self.casting_spell.is_fishing_spell() and not caster_is_gameobject and \
             self.casting_spell.requires_implicit_initial_unit_target() and \
             caster.can_attack_target(self.casting_spell.targeted_unit_on_cast_start)
 
@@ -70,7 +72,6 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
             SpellImplicitTargets.TARGET_MASTER: caster.summoner if caster.summoner else [],
             SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start if targeted_unit_is_hostile else [],
-            SpellImplicitTargets.TARGET_SELF_FISHING: caster
         }
 
     def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
@@ -383,6 +384,17 @@ class EffectTargets:
         return EffectTargets.get_party_members_from_unit_list(resolved_a, casting_spell.spell_caster)
 
     @staticmethod
+    def resolve_fishing_target(casting_spell, target_effect):
+        initial_target = casting_spell.initial_target
+        caster_location = casting_spell.spell_caster.location
+        distance = randint(casting_spell.range_entry.RangeMin, casting_spell.range_entry.RangeMax)
+        fx = caster_location.x + distance * math.cos(caster_location.o)
+        fy = caster_location.y + distance * math.sin(caster_location.o)
+        fz = caster_location.z
+        liquid_information = MapManager.get_liquid_information(casting_spell.spell_caster.map_, fx, fy, fz, ignore_z=True)
+        return [Vector(fx, fy, liquid_information.height)] if liquid_information else [initial_target]
+
+    @staticmethod
     def resolve_party_around_caster_2(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
@@ -440,6 +452,7 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_SINGLE_PARTY: EffectTargets.resolve_single_party,
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY: EffectTargets.resolve_aoe_party,
     SpellImplicitTargets.TARGET_SCRIPT: EffectTargets.resolve_script,
+    SpellImplicitTargets.TARGET_SELF_FISHING: EffectTargets.resolve_fishing_target,
     SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: EffectTargets.resolve_gameobject_script_near_caster
 }
 

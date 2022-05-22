@@ -218,7 +218,7 @@ class SpellEffectHandler:
         totem_entry = effect.misc_value
         # TODO Refactor to avoid circular import?
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_,
+        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_, summoned_by=caster,
                                                  override_faction=caster.faction)
 
         if not creature_manager:
@@ -239,13 +239,24 @@ class SpellEffectHandler:
     @staticmethod
     def handle_summon_object(casting_spell, effect, caster, target):
         object_entry = effect.misc_value
-        go_manager = GameObjectManager.spawn(object_entry, target, caster.map_, override_faction=caster.faction)
-        if not go_manager:
+
+        # Validate go template existence.
+        go_template = WorldDatabaseManager.gameobject_template_get_by_entry(object_entry)
+        if not go_template:
             Logger.error(f'Gameobject with entry {object_entry} not found for spell {casting_spell.spell_entry.ID}.')
             return
 
-        if go_manager.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
-            go_manager.ritual_caster = caster
+        target = None
+        if isinstance(effect.targets.resolved_targets_a[0], ObjectManager):
+            target = effect.targets.resolved_targets_a[0].location
+        elif isinstance(effect.targets.resolved_targets_a[0], Vector):
+            target = effect.targets.resolved_targets_a[0]
+
+        if not target:
+            Logger.error(f'Unable to resolve target, go entry {object_entry}, spell {casting_spell.spell_entry.ID}.')
+            return
+
+        GameObjectManager.spawn(object_entry, target, caster.map_, summoned_by=caster, override_faction=caster.faction)
 
     @staticmethod
     def handle_summon_player(casting_spell, effect, caster, target):

@@ -25,13 +25,13 @@ class GameObjectManager(ObjectManager):
     def __init__(self,
                  gobject_template,
                  gobject_instance=None,
-                 is_summon=False,
+                 summoned_by=None,
                  **kwargs):
         super().__init__(**kwargs)
 
         self.gobject_template = gobject_template
         self.gobject_instance = gobject_instance
-        self.is_summon = is_summon
+        self.summoned_by = summoned_by
 
         self.entry = self.gobject_template.entry
         self.native_display_id = self.gobject_template.display_id
@@ -81,7 +81,7 @@ class GameObjectManager(ObjectManager):
         MapManager.update_object(self)
 
     @staticmethod
-    def spawn(entry, location, map_id, override_faction=0, despawn_time=1):
+    def spawn(entry, location, map_id, summoned_by=None, override_faction=0, despawn_time=1):
         go_template = WorldDatabaseManager.gameobject_template_get_by_entry(entry)
 
         if not go_template:
@@ -108,10 +108,15 @@ class GameObjectManager(ObjectManager):
         gameobject = GameObjectManager(
             gobject_template=go_template,
             gobject_instance=instance,
-            is_summon=True
+            summoned_by=summoned_by
         )
         if override_faction > 0:
             gameobject.faction = override_faction
+
+        # Set channeled object for fishing nodes.
+        if summoned_by and summoned_by.get_type_id() == ObjectTypeIds.ID_PLAYER and \
+                go_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+            summoned_by.set_channel_object(gameobject.guid)
 
         gameobject.load()
         return gameobject
@@ -404,7 +409,7 @@ class GameObjectManager(ObjectManager):
             else:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
-                    if self.is_summon:
+                    if self.summoned_by:
                         self.despawn(destroy=True)
                     else:
                         self.respawn()
