@@ -144,7 +144,8 @@ class EffectTargets:
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not caster.group_manager:
             return []
 
-        friendly_units = EffectTargets.get_friends_from_unit_list(units, caster)  # Party members can be hostile while dueling
+        # Party members can be hostile while dueling
+        friendly_units = EffectTargets.get_friends_from_unit_list(units, caster)
         return [unit for unit in friendly_units if caster.group_manager.is_party_member(unit.guid)]
 
     @staticmethod

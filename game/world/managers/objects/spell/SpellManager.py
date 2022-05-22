@@ -726,7 +726,6 @@ class SpellManager:
                 return True
 
         # Target validation.
-
         validation_target = casting_spell.initial_target
         # In the case of the spell requiring an unit target but being cast on self,
         # validate the spell against the caster's current unit selection instead.
@@ -752,8 +751,11 @@ class SpellManager:
             target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location, math.pi)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
                                                                                   target_is_facing_caster):
-                self.send_cast_result(casting_spell.spell_entry.ID,
-                                      SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # No code for target must be facing caster?
+                if ExtendedSpellData.CastPositionRestrictions.is_from_behind(casting_spell.spell_entry.ID):
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)
+                else:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT)
+
                 return False
 
         # Check if the caster is within range of the (world) target to cast the spell.

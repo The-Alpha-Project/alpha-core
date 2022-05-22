@@ -269,7 +269,9 @@ class CreatureAI:
             target_is_facing_caster = target.location.has_in_arc(self.creature.location, math.pi)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
                                                                                   target_is_facing_caster):
-                return SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_BEHIND
+                if ExtendedSpellData.CastPositionRestrictions.is_from_behind(casting_spell.spell_entry.ID):
+                    return SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_BEHIND
+                return SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT
 
             # If the spell requires the target having a specific power type.
             if not casting_spell.is_area_of_effect_spell() and not casting_spell.is_target_power_type_valid():
