@@ -392,7 +392,6 @@ class SpellEffectHandler:
     def handle_temporary_enchant(casting_spell, effect, caster, target):
         SpellEffectHandler.handle_permanent_enchant(casting_spell, effect, caster, target, True)
 
-    # TODO: Missing target item validations, e.g. Enchant boots is able to enchant any type of item.
     # TODO: Handle ITEM_ENCHANTMENT_TYPE, e.g. Damage, Stats modifiers, etc
     @staticmethod
     def handle_permanent_enchant(casting_spell, effect, caster, target, is_temporary=False):

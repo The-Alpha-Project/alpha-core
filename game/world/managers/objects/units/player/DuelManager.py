@@ -18,7 +18,6 @@ class PlayerDuelInformation(object):
         self.is_target = is_target  # Player which accepted the duel.
 
 
-# TODO: Need to figure a way to make both players hostile to each other while duel is ongoing.
 # TODO: Missing checks before requesting a duel, is the map allow duel, etc.
 class DuelManager(object):
     BOUNDARY_RADIUS = 50
