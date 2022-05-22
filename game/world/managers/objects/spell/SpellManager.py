@@ -747,14 +747,10 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
-        # Validate fishing cast.
-        if casting_spell.spell_target_mask == SpellTargetMask.SELF and casting_spell.is_fishing_spell() and \
-                not casting_spell.has_liquids_in_front_range():
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
-            return False
-
         if not validation_target:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
+            result = SpellCheckCastResult.SPELL_FAILED_NOT_FISHABLE if casting_spell.is_fishing_spell() \
+                else SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS
+            self.send_cast_result(casting_spell.spell_entry.ID, result)
             return False
 
         if casting_spell.initial_target_is_unit_or_player() and not validation_target.is_alive:  # TODO dead targets (resurrect)

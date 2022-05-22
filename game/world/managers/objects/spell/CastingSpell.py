@@ -277,11 +277,6 @@ class CastingSpell:
 
         return has_sitting_attribute and is_regen_buff and has_refreshment_period
 
-    def has_liquids_in_front_range(self):
-        if not self.range_entry:
-            return False
-        return True if isinstance(self.initial_target, Vector) else False
-
     def has_effect_of_type(self, effect_type: SpellEffects):
         for effect in self.get_effects():
             if effect.effect_type == effect_type:
