@@ -142,7 +142,6 @@ class PetManager:
             self.remove_pet(pet_index)
 
         creature.set_summoned_by(None)
-        creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, 0)
         creature.faction = creature.creature_template.faction
         creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
         creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, 0)
@@ -207,7 +206,6 @@ class PetManager:
 
     def _tame_creature(self, creature: CreatureManager):
         creature.set_summoned_by(self.owner)
-        creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.owner.guid)
 
         creature.faction = self.owner.faction
         creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)

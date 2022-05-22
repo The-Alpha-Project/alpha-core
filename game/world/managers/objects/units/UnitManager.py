@@ -162,8 +162,6 @@ class UnitManager(ObjectManager):
         self.bytes_2 = bytes_2  # combo points, 0, 0, 0
         self.current_target = current_target
         self.summoner = summoner
-        self.my_summon_guid = 0
-        self.created_by = 0
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_UNIT
         self.update_packet_factory.init_values(UnitFields.UNIT_END)
@@ -841,10 +839,6 @@ class UnitManager(ObjectManager):
         self.mount(creature_template.display_id1)
         return True
 
-    def set_my_summon_guid(self, summon_guid):
-        self.my_summon_guid = summon_guid
-        self.set_uint64(UnitFields.UNIT_FIELD_SUMMON, self.my_summon_guid)
-
     def mount(self, mount_display_id):
         if mount_display_id > 0 and \
                 DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):
@@ -866,10 +860,6 @@ class UnitManager(ObjectManager):
     def set_summoned_by(self, summoner: Optional[UnitManager]):
         self.summoner = summoner
         self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.summoner.guid if self.summoner else 0)
-
-    def set_created_by(self, summoner: Optional[UnitManager]):
-        self.created_by = summoner
-        self.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.created_by.guid if self.created_by else 0)
 
     def get_power_type_value(self, power_type=-1):
         if power_type == -1:
