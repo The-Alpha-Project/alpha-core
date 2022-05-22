@@ -1066,6 +1066,7 @@ class PlayerManager(UnitManager):
             self.set_float(PlayerFields.PLAYER_DODGE_PERCENTAGE, self.dodge_percentage)
             self.set_float(PlayerFields.PLAYER_PARRY_PERCENTAGE, self.parry_percentage)
             self.set_uint32(PlayerFields.PLAYER_BASE_MANA, self.base_mana)
+            self.set_uint64(UnitFields.UNIT_FIELD_SUMMON, self.my_summon_guid)
 
             # Skills.
             self.skill_manager.build_update()

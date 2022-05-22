@@ -196,5 +196,5 @@ class DuelManager(object):
     @staticmethod
     def create_arbiter(requester, target, arbiter_entry):
         in_between_pos = requester.location.get_point_in_middle(target.location)
-        return GameObjectManager.spawn(arbiter_entry, in_between_pos, requester.map_, summoned_by=requester,
+        return GameObjectManager.spawn(arbiter_entry, in_between_pos, requester.map_, spawned_by=requester,
                                        override_faction=requester.faction, despawn_time=3600)

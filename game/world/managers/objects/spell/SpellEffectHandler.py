@@ -218,7 +218,7 @@ class SpellEffectHandler:
         totem_entry = effect.misc_value
         # TODO Refactor to avoid circular import?
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_, summoned_by=caster,
+        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_, spawned_by=caster,
                                                  override_faction=caster.faction)
 
         if not creature_manager:
@@ -256,7 +256,7 @@ class SpellEffectHandler:
             Logger.error(f'Unable to resolve target, go entry {object_entry}, spell {casting_spell.spell_entry.ID}.')
             return
 
-        GameObjectManager.spawn(object_entry, target, caster.map_, summoned_by=caster, override_faction=caster.faction)
+        GameObjectManager.spawn(object_entry, target, caster.map_, spawned_by=caster, override_faction=caster.faction)
 
     @staticmethod
     def handle_summon_player(casting_spell, effect, caster, target):

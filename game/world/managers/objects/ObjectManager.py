@@ -62,7 +62,7 @@ class ObjectManager:
         self.update_packet_factory = UpdatePacketFactory()
 
         self.is_spawned = True
-        self.summoned_by = None
+        self.spawned_by = None
         self.current_cell = ''
         self.last_tick = 0
         self.movement_spline = None
