@@ -749,7 +749,7 @@ class SpellManager:
 
         # Validate fishing cast.
         if casting_spell.spell_target_mask == SpellTargetMask.SELF and casting_spell.is_fishing_spell() and \
-                not casting_spell.targeted_liquid_on_cast_start:
+                not casting_spell.has_liquids_in_front_range():
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
             return False
 

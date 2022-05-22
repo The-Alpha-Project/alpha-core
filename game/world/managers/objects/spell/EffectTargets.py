@@ -72,7 +72,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
             SpellImplicitTargets.TARGET_MASTER: caster.summoner if caster.summoner else [],
             SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start if targeted_unit_is_hostile else [],
-            SpellImplicitTargets.TARGET_SELF_FISHING: self.casting_spell.targeted_liquid_on_cast_start
+            SpellImplicitTargets.TARGET_SELF_FISHING: self.initial_target
         }
 
     def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
