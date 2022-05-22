@@ -29,6 +29,7 @@ class CastingSpell:
     source_item = None
     initial_target = None
     targeted_unit_on_cast_start = None
+    targeted_liquid_on_cast_start = None
 
     object_target_results: dict[int, TargetMissInfo] = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
@@ -73,9 +74,15 @@ class CastingSpell:
         self.spell_impact_timestamps = {}
 
         if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            selection_guid = self.spell_caster.current_selection if self.spell_caster.current_selection else caster.guid
-            self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(
-                self.spell_caster, selection_guid, include_players=True)
+            if not self.is_fishing_spell():
+                selection_guid = self.spell_caster.current_selection if self.spell_caster.current_selection else caster.guid
+                self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(
+                    self.spell_caster, selection_guid, include_players=True)
+            else:
+                # Locate liquid vector in front of the caster.
+                self.targeted_liquid_on_cast_start = MapManager.find_liquid_location_in_range(self.spell_caster,
+                                                                                              self.range_entry.RangeMin,
+                                                                                              self.range_entry.RangeMax)
 
         self.load_effects()
 
@@ -270,6 +277,11 @@ class CastingSpell:
             spell_effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE
 
         return has_sitting_attribute and is_regen_buff and has_refreshment_period
+
+    def has_liquids_in_front_range(self):
+        if not self.range_entry:
+            return False
+        return True if self.targeted_liquid_on_cast_start else False
 
     def has_effect_of_type(self, effect_type: SpellEffects):
         for effect in self.get_effects():

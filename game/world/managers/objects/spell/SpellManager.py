@@ -747,7 +747,11 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
-        # TODO: Need to validate fishing before effect triggers.
+        # Validate fishing cast.
+        if casting_spell.spell_target_mask == SpellTargetMask.SELF and casting_spell.is_fishing_spell() and \
+                not casting_spell.targeted_liquid_on_cast_start:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
+            return False
 
         if not validation_target:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)

@@ -72,6 +72,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
             SpellImplicitTargets.TARGET_MASTER: caster.summoner if caster.summoner else [],
             SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start if targeted_unit_is_hostile else [],
+            SpellImplicitTargets.TARGET_SELF_FISHING: self.casting_spell.targeted_liquid_on_cast_start
         }
 
     def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
@@ -384,17 +385,6 @@ class EffectTargets:
         return EffectTargets.get_party_members_from_unit_list(resolved_a, casting_spell.spell_caster)
 
     @staticmethod
-    def resolve_fishing_target(casting_spell, target_effect):
-        initial_target = casting_spell.initial_target
-        caster_location = casting_spell.spell_caster.location
-        distance = randint(casting_spell.range_entry.RangeMin, casting_spell.range_entry.RangeMax)
-        fx = caster_location.x + distance * math.cos(caster_location.o)
-        fy = caster_location.y + distance * math.sin(caster_location.o)
-        fz = caster_location.z
-        liquid_information = MapManager.get_liquid_information(casting_spell.spell_caster.map_, fx, fy, fz, ignore_z=True)
-        return [Vector(fx, fy, liquid_information.height)] if liquid_information else [initial_target]
-
-    @staticmethod
     def resolve_party_around_caster_2(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
@@ -452,7 +442,6 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_SINGLE_PARTY: EffectTargets.resolve_single_party,
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY: EffectTargets.resolve_aoe_party,
     SpellImplicitTargets.TARGET_SCRIPT: EffectTargets.resolve_script,
-    SpellImplicitTargets.TARGET_SELF_FISHING: EffectTargets.resolve_fishing_target,
     SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: EffectTargets.resolve_gameobject_script_near_caster
 }
 
