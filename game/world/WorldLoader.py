@@ -23,10 +23,10 @@ class WorldLoader:
 
         # Gameobject spawns
         if config.Server.Settings.load_gameobjects:
-            WorldLoader.load_gameobjects()
             WorldLoader.load_gameobject_loot_templates()
             WorldLoader.load_gameobject_quest_starters()
             WorldLoader.load_gameobject_quest_finishers()
+            WorldLoader.load_gameobjects()
         else:
             Logger.info('Skipped game object loading.')
 

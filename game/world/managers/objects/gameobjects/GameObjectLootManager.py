@@ -16,10 +16,6 @@ class GameObjectLootManager(LootManager):
     def generate_loot(self, requester):
         self.clear()
 
-        # TODO: Even if called on parent, this is not properly set as with CreatureLootManager.
-        if len(self.loot_template) == 0:
-            self.loot_template = self.populate_loot_template()
-
         # For now, randomly pick 3..7 items.
         for loot_item in choices(self.loot_template, k=randint(min(3, len(self.loot_template)), min(7, len(self.loot_template)))):
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
