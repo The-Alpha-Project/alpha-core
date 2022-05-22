@@ -60,9 +60,6 @@ class AuraManager:
         # Handle effects after possible stack increase/refresh to update stats properly.
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target)
 
-        # TODO Some aura applications appear twice in the combat log.
-        # For example, the proc effect from frost armor appears twice.
-        # Gouge seems to appear twice against players (tested in duels), but not against NPCs.
         self.write_aura_to_unit(aura, is_refresh=is_refresh)
 
     def update(self, timestamp):
