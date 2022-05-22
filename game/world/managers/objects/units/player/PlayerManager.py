@@ -1398,8 +1398,10 @@ class PlayerManager(UnitManager):
                 if has_inventory_changes:
                     self.inventory.reset_fields_older_than(now)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
-            elif not self.has_pending_updates() and self.pending_teleport_destination and not self.update_lock:
+            elif not has_changes and not has_inventory_changes and self.pending_teleport_destination \
+                    and not self.update_lock:
                 self.trigger_teleport()
+            # Do normal update.
             else:
                 MapManager.update_object(self)
                 self.synchronize_db_player()
