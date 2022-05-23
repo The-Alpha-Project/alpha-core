@@ -61,6 +61,7 @@ class ObjectManager:
         self.object_type_mask = ObjectTypeFlags.TYPE_OBJECT
         self.update_packet_factory = UpdatePacketFactory()
 
+        self.initialized = False
         self.is_spawned = True
         self.spawned_by = None
         self.current_cell = ''
@@ -82,9 +83,12 @@ class ObjectManager:
     def generate_create_packet(self, requester):
         return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
-            self.get_full_update_packet(requester)))
+            self.get_object_create_packet(requester)))
 
     def generate_partial_packet(self, requester):
+        if not self.initialized:
+            self.initialize_field_values()
+
         return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
             self.get_partial_update_packet(requester)))
@@ -93,6 +97,9 @@ class ObjectManager:
         from game.world.managers.objects.units import UnitManager
 
         is_self = requester.guid == self.guid
+
+        if not self.initialized:
+            self.initialize_field_values()
 
         # Base structure.
         data = self._get_base_structure(UpdateTypes.CREATE_OBJECT)
@@ -309,7 +316,7 @@ class ObjectManager:
         pass
 
     # override
-    def get_full_update_packet(self, requester):
+    def initialize_field_values(self):
         pass
 
     # override

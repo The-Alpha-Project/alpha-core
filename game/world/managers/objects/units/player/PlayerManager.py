@@ -985,11 +985,9 @@ class PlayerManager(UnitManager):
             self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
 
     # override
-    def get_full_update_packet(self, requester):
-        # Only self will trigger writes on fields values. This packet is only requested by a player upon login or when
-        # changing maps, other requesters that meet this player for the first time will grab the plain create packet
-        # plus touched fields values.
-        if requester == self:
+    def initialize_field_values(self):
+        # Initial field values, after this, fields must be modified by setters or directly writing values to them.
+        if not self.initialized:
             self.bytes_0 = self.get_bytes_0()
             self.bytes_1 = self.get_bytes_1()
             self.bytes_2 = self.get_bytes_2()
@@ -1079,8 +1077,6 @@ class PlayerManager(UnitManager):
             # Guild.
             if self.guild_manager:
                 self.guild_manager.build_update(self)
-            else:
-                self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 
             # Duel.
             if self.duel_manager:
@@ -1095,7 +1091,7 @@ class PlayerManager(UnitManager):
             # Quests.
             self.quest_manager.build_update()
 
-        return self.get_object_create_packet(requester)
+            self.initialized = True
 
     def set_current_selection(self, guid):
         self.current_selection = guid

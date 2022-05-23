@@ -436,10 +436,10 @@ class CreatureManager(UnitManager):
         return False
 
     # override
-    def get_full_update_packet(self, requester):
-        # Finish loading and initialize values just once, future changes to fields should be properly set
-        # through methods. We do return the creation packet at the end, always.
-        if self.creature_instance and not self.fully_loaded:
+    def initialize_field_values(self):
+        # Finish loading and initialize values,
+        # After this, fields must be modified by setters or directly writing values to them.
+        if not self.initialized and self.creature_instance and not self.fully_loaded:
             self.finish_loading()
 
             self.bytes_0 = self.get_bytes_0()
@@ -490,7 +490,7 @@ class CreatureManager(UnitManager):
                 self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item.info_packed)
                 self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, virtual_item.sheath)
 
-        return self.get_object_create_packet(requester)
+            self.initialized = True
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.creature_template.name)

@@ -21,7 +21,7 @@ class CorpseManager(ObjectManager):
         self.guid = CorpseManager.CURRENT_HIGHEST_GUID
 
     # override
-    def get_full_update_packet(self, requester):
+    def initialize_field_values(self):
         # Object fields.
         self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
         self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
@@ -36,7 +36,7 @@ class CorpseManager(ObjectManager):
         self.set_float(CorpseFields.CORPSE_FIELD_POS_Z, self.location.z)
         self.set_uint32(CorpseFields.CORPSE_FIELD_DISPLAY_ID, self.native_display_id)
 
-        return self.get_object_create_packet(requester)
+        self.initialized = True
 
     # override
     def get_type_id(self):

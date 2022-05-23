@@ -61,7 +61,6 @@ class GameObjectManager(ObjectManager):
         self.object_type_mask |= ObjectTypeFlags.TYPE_GAMEOBJECT
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
 
-        self.initialized = False
         self.respawn_timer = 0
         self.loot_manager = None
 
@@ -352,9 +351,8 @@ class GameObjectManager(ObjectManager):
         return 0
 
     # override
-    def get_full_update_packet(self, requester):
-        # Initialize values just once, future changes to fields should be properly set
-        # through methods. We do return the creation packet at the end, always.
+    def initialize_field_values(self):
+        # Initial field values, after this, fields must be modified by setters or directly writing values to them.
         if not self.initialized and self.gobject_template and self.gobject_instance:
             # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
@@ -386,8 +384,6 @@ class GameObjectManager(ObjectManager):
             self.set_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
 
             self.initialized = True
-
-        return self.get_object_create_packet(requester)
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.gobject_template.name)
