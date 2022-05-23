@@ -83,7 +83,7 @@ class InventoryManager(object):
                 return slot
         return InventorySlots.SLOT_INBACKPACK.value
 
-    def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False,
+    def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False, created_by=None,
                  send_message=True, show_item_get=True):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
@@ -110,7 +110,8 @@ class InventoryManager(object):
                     if not container or not container.can_contain_item(item_template):
                         continue
                     prev_left = amount_left
-                    amount_left = container.add_item(item_template, amount_left, False)
+                    amount_left = container.add_item(item_template, amount_left,
+                                                     check_existing=False, created_by=created_by)
                     if slot != InventorySlots.SLOT_INBACKPACK and prev_left > amount_left and slot > target_bag_slot:
                         target_bag_slot = slot
                         container.build_container_update_packet()

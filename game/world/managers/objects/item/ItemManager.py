@@ -316,7 +316,7 @@ class ItemManager(ObjectManager):
 
             # Item fields.
             self.set_uint64(ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner)
-            self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)  # Wrapped Items
+            self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)  # Wrapped/Crafted Items.
             self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
             self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
