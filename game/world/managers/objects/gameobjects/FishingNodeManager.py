@@ -12,6 +12,7 @@ class FishingNodeManager(object):
         self.fishing_timer = randint(1, 21)
         self.became_active_time = 0
         self.hook_result = False
+        self.got_away = False
 
     # TODO: Chance, SMSG_FISH_ESCAPED.
     def try_hook_attempt(self, player):
@@ -19,15 +20,30 @@ class FishingNodeManager(object):
             self.hook_result = False
         elif self.fishing_timer > 0:
             self.hook_result = False
+        elif not self.fishing_node.loot_manager.has_loot() or not FishingNodeManager.roll_chance():
+            self.got_away = True
+            self.hook_result = False
         else:
             diff = time.time() - self.became_active_time
             self.hook_result = diff < 1.3  # Reaction time, find proper value.
 
         # Notify error to player.
         if not self.hook_result:
-            FishingNodeManager._notify_not_hooked(player)
+            if self.got_away:
+                FishingNodeManager._notify_got_away(player)
+            else:
+                FishingNodeManager._notify_not_hooked(player)
 
         return self.hook_result
+
+    # TODO, proper chance.
+    @staticmethod
+    def roll_chance():
+        return randint(0, 100) > 15
+
+    @staticmethod
+    def _notify_got_away(player):
+        player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FISH_ESCAPED))
 
     @staticmethod
     def _notify_not_hooked(player):
