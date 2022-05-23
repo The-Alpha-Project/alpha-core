@@ -11,22 +11,23 @@ class FishingNodeManager(object):
         self.fishing_node = fishing_node
         self.fishing_timer = randint(1, 21)
         self.became_active_time = 0
+        self.hook_result = False
 
     # TODO: Chance, SMSG_FISH_ESCAPED.
     def try_hook_attempt(self, player):
         if self.fishing_node.state != GameObjectStates.GO_STATE_ACTIVE:
-            result = False
+            self.hook_result = False
         elif self.fishing_timer > 0:
-            result = False
+            self.hook_result = False
         else:
             diff = time.time() - self.became_active_time
-            result = diff < 1.3  # Reaction time, find proper value.
+            self.hook_result = diff < 1.3  # Reaction time, find proper value.
 
         # Notify error to player.
-        if not result:
+        if not self.hook_result:
             FishingNodeManager._notify_not_hooked(player)
 
-        return result
+        return self.hook_result
 
     @staticmethod
     def _notify_not_hooked(player):

@@ -915,7 +915,10 @@ class SpellManager:
         fishing_node_object = MapManager.get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
         if not fishing_node_object or fishing_node_object.gobject_template.type != GameObjectTypes.TYPE_FISHINGNODE:
             return
-        MapManager.remove_object(fishing_node_object)
+        # If this was an interrupt or miss hook, remove the bobber.
+        # Else, it will be removed upon CMSG_LOOT_RELEASE.
+        if not fishing_node_object.fishing_node_manager.hook_result:
+            MapManager.remove_object(fishing_node_object)
 
     def _handle_summoning_channel_end(self):
         # Specific handling of ritual of summoning interrupting.

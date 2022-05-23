@@ -699,7 +699,7 @@ class PlayerManager(UnitManager):
                 if game_object.loot_manager.has_loot():
                     game_object.set_ready()
                 else:
-                    game_object.despawn()
+                    game_object.despawn(True if game_object.spawned_by else False)
         elif high_guid == HighGuid.HIGHGUID_ITEM:
             item_mgr = self.inventory.get_item_by_guid(self.current_loot_selection)
             if item_mgr and not item_mgr.loot_manager.has_loot():
@@ -760,6 +760,7 @@ class PlayerManager(UnitManager):
         # Append item data and send all the packed item detail queries for current loot, if any.
         if item_count:
             data += item_data
+            # Item queries.
             item_query_data = pack(f'<I{len(item_query)}s', item_count, item_query)
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query_data))
 

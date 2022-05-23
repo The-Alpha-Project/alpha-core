@@ -178,9 +178,9 @@ class GameObjectManager(ObjectManager):
             player.quest_manager.handle_quest_giver_hello(target, target.guid)
 
     def _handle_fishing_node(self, player):
-        # Remove cast.
-        player.spell_manager.remove_cast_by_id(self.spell_id)
         if self.fishing_node_manager.try_hook_attempt(player):
+            # Remove cast.
+            player.spell_manager.remove_cast_by_id(self.spell_id)
             # Generate loot if it's empty.
             if not self.loot_manager.has_loot():
                 self.loot_manager.generate_loot(player)
