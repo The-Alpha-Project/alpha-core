@@ -80,6 +80,9 @@ class ItemManager(ObjectManager):
             if item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
                 self.loot_manager = ItemLootManager(self)
 
+        if item_instance:
+            self.load_enchantments()
+
         self.object_type_mask |= ObjectTypeFlags.TYPE_ITEM
         self.update_packet_factory.init_values(ItemFields.ITEM_END)
 
@@ -178,7 +181,16 @@ class ItemManager(ObjectManager):
         return None
 
     @staticmethod
-    def generate_item(item_template, owner, bag, slot, creator=0, count=1):
+    def get_enchantments_db_initialization(permanent_enchant=0):
+        db_enchantments = ''
+        for index in range(MAX_ENCHANTMENTS):
+            db_enchantments += str(permanent_enchant if index == 0 else 0) + ','
+            db_enchantments += str(0) + ','
+            db_enchantments += str(0) + (',' if index != MAX_ENCHANTMENTS - 1 else '')
+        return db_enchantments
+
+    @staticmethod
+    def generate_item(item_template, owner, bag, slot, perm_enchant=0, creator=0, count=1):
         if item_template and item_template.entry > 0:
             item = CharacterInventory(
                 owner=owner,
@@ -186,9 +198,11 @@ class ItemManager(ObjectManager):
                 item_template=item_template.entry,
                 stackcount=count,
                 slot=slot,
+                enchantments=ItemManager.get_enchantments_db_initialization(perm_enchant),
                 bag=bag,
                 item_flags=item_template.flags
             )
+
             RealmDatabaseManager.character_inventory_add_item(item)
 
             if item_template.inventory_type == InventoryTypes.BAG:

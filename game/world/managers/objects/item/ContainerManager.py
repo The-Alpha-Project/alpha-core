@@ -68,7 +68,7 @@ class ContainerManager(ItemManager):
             return True
         return False
 
-    def set_item(self, item, slot, count=1, is_swap=False, created_by=None):
+    def set_item(self, item, slot, count=1, is_swap=False, perm_enchant=0, created_by=None):
         if self.can_set_item(item, slot, is_swap=is_swap):
             if isinstance(item, ItemManager):
                 item_mgr = item
@@ -77,7 +77,7 @@ class ContainerManager(ItemManager):
             else:
                 item_creator = 0 if not created_by else created_by.guid
                 item_mgr = ItemManager.generate_item(item, self.owner, self.current_slot, slot,
-                                                     count=count, creator=item_creator)
+                                                     count=count, perm_enchant=perm_enchant, creator=item_creator)
 
             if item_mgr:
                 item_mgr.current_slot = slot
@@ -93,7 +93,7 @@ class ContainerManager(ItemManager):
             return item_mgr
         return None
 
-    def add_item(self, item_template, count, check_existing=True, created_by=None):
+    def add_item(self, item_template, count, check_existing=True, created_by=None, perm_enchant=0):
         amount_left = count
         if not self.can_contain_item(item_template):
             return amount_left
@@ -109,11 +109,11 @@ class ContainerManager(ItemManager):
                 if not self.is_full():
                     if amount_left > item_template.stackable:
                         self.set_item(item_template, self.next_available_slot(),
-                                      item_template.stackable, created_by=created_by)
+                                      count=item_template.stackable, perm_enchant=perm_enchant, created_by=created_by)
                         amount_left -= item_template.stackable
                     else:
                         self.set_item(item_template, self.next_available_slot(),
-                                      amount_left, created_by=created_by)
+                                      count=amount_left, perm_enchant=perm_enchant, created_by=created_by)
                         amount_left = 0
                         break
         return amount_left

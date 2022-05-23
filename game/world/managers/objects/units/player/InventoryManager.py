@@ -84,7 +84,7 @@ class InventoryManager(object):
         return InventorySlots.SLOT_INBACKPACK.value
 
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False, created_by=None,
-                 send_message=True, show_item_get=True):
+                 perm_enchant=0, send_message=True, show_item_get=True):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         amount_left = count
@@ -110,7 +110,7 @@ class InventoryManager(object):
                     if not container or not container.can_contain_item(item_template):
                         continue
                     prev_left = amount_left
-                    amount_left = container.add_item(item_template, amount_left,
+                    amount_left = container.add_item(item_template, count=amount_left, perm_enchant=perm_enchant,
                                                      check_existing=False, created_by=created_by)
                     if slot != InventorySlots.SLOT_INBACKPACK and prev_left > amount_left and slot > target_bag_slot:
                         target_bag_slot = slot
@@ -168,11 +168,11 @@ class InventoryManager(object):
             dest_slot = dest_container.next_available_slot()
             remaining = count
 
-            if not dest_slot == -1:  # If the target container has a slot open
-                remaining = dest_container.add_item(item_template, count)  # Add items to target container
+            if not dest_slot == -1:  # If the target container has a slot open.
+                remaining = dest_container.add_item(item_template, count=count)  # Add items to target container.
 
             if remaining > 0:
-                self.add_item(item_template=item_template, count=remaining)  # Overflow to inventory
+                self.add_item(item_template=item_template, count=remaining)  # Overflow to inventory.
 
             return True
 
@@ -198,7 +198,7 @@ class InventoryManager(object):
                     self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, item, dest_item)
                 return
 
-        generated_item = dest_container.set_item(item_template, dest_slot, count)
+        generated_item = dest_container.set_item(item_template, dest_slot, count=count)
         # Add to containers if a bag was dragged to bag slots
         if dest_container.is_backpack and self.is_bag_pos(dest_slot):
             self.add_bag(dest_slot, generated_item)
@@ -276,7 +276,7 @@ class InventoryManager(object):
         source_item.item_instance.slot = dest_slot
 
         if dest_item:
-            source_container.set_item(dest_item, source_slot, dest_item.item_instance.stackcount, is_swap=True)
+            source_container.set_item(dest_item, source_slot, count=dest_item.item_instance.stackcount, is_swap=True)
             dest_item.set_bag(source_bag)
             dest_item.item_instance.slot = source_slot
 

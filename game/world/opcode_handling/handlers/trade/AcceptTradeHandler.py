@@ -62,7 +62,6 @@ class AcceptTradeHandler(object):
 
             # Transfer items.
             # TODO: Change item instance owner instead of cloning the item.
-            #   Transfer permanent enchants that already existed on the item.
             for slot in range(TradeManager.TRADE_SLOT_COUNT):
                 player_item = player_trade.items[slot]
                 other_player_item = other_player_trade.items[slot]
@@ -75,6 +74,8 @@ class AcceptTradeHandler(object):
                 if other_player_item:
                     if player.inventory.add_item(item_template=other_player_item.item_template,
                                                  count=other_player_item.item_instance.stackcount,
+                                                 created_by=other_player_item.item_instance.creator,
+                                                 perm_enchant=other_player_item.get_permanent_enchant_value(),
                                                  show_item_get=False):
                         other_player.inventory.remove_item(other_player_item.item_instance.bag,
                                                            other_player_item.current_slot, True)
@@ -82,6 +83,8 @@ class AcceptTradeHandler(object):
                 if player_item:
                     if other_player.inventory.add_item(item_template=player_item.item_template,
                                                        count=player_item.item_instance.stackcount,
+                                                       created_by=player_item.item_instance.creator,
+                                                       perm_enchant=player_item.get_permanent_enchant_value(),
                                                        show_item_get=False):
                         player.inventory.remove_item(player_item.item_instance.bag,
                                                      player_item.current_slot, True)
