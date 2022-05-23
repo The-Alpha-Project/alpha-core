@@ -1,6 +1,7 @@
 from random import randint, uniform, choices
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.LootHolder import LootHolder
 from game.world.managers.objects.units.LootManager import LootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -17,7 +18,9 @@ class GameObjectLootManager(LootManager):
         self.clear()
 
         # For now, randomly pick 3..7 items.
-        for loot_item in choices(self.loot_template, k=randint(min(3, len(self.loot_template)), min(7, len(self.loot_template)))):
+
+        for loot_item in choices(self.loot_template, k=randint(min(3, len(self.loot_template)),
+                                                               min(7, len(self.loot_template)))):
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:
@@ -46,8 +49,13 @@ class GameObjectLootManager(LootManager):
             loot_template_id = self.world_object.gobject_template.data1
             return WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_entry(loot_template_id)
 
+        if self.world_object.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+            return WorldDatabaseManager.FishingLootTemplateHolder.flishing_loot_template_get_by_entry(self.world_object.zone)
+
         return []
 
     # override
     def get_loot_type(self, player, gameobject):
+        if gameobject.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+            return LootTypes.LOOT_TYPE_FISHING
         return LootTypes.LOOT_TYPE_CORPSE

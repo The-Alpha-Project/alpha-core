@@ -238,6 +238,39 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[entry]\
                 if entry in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES else []
 
+    # Fishing Loot
+
+    @staticmethod
+    def fishing_template_get_by_entry(entry) -> Optional[FishingLootTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(FishingLootTemplate).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def fishing_get_loot_template() -> list[FishingLootTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(FishingLootTemplate).all()
+        world_db_session.close()
+        return res
+
+    class FishingLootTemplateHolder:
+        FISHING_LOOT_TEMPLATES: [int, list[FishingLootTemplate]] = {}
+
+        @staticmethod
+        def load_fishing_loot_template(fishing_template):
+            if fishing_template.entry not in WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES:
+                WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[
+                    fishing_template.entry] = []
+
+            WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[fishing_template.entry] \
+                .append(fishing_template)
+
+        @staticmethod
+        def flishing_loot_template_get_by_entry(entry) -> list[FishingLootTemplate]:
+            return WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[entry] \
+                if entry in WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES else []
+
     # Creature stuff
 
     @staticmethod

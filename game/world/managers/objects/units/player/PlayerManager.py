@@ -713,13 +713,7 @@ class PlayerManager(UnitManager):
     def send_loot(self, world_object):
         self.current_loot_selection = world_object.guid
         loot_type = world_object.loot_manager.get_loot_type(self, world_object)
-        data = pack(
-            '<QBIB',
-            world_object.guid,
-            loot_type,
-            world_object.loot_manager.current_money,
-            len(world_object.loot_manager.current_loot)
-         )
+        item_data = b''
 
         # Initialize item detail queries data.
         item_query = b''
@@ -741,20 +735,30 @@ class PlayerManager(UnitManager):
                     item_query += ItemManager.generate_query_details_data(loot.item.item_template)
                     item_count += 1
 
-                    data += pack(
+                    item_data += pack(
                         '<B3I',
                         slot,
                         loot.item.item_template.entry,
                         loot.quantity,
-                        loot.item.item_template.display_id
+                        loot.item.item_template.display_id,
                     )
                 slot += 1
 
-            # At this point, this player have access to the loot window, add him to the active looters.
+            # At this point, this player has access to the loot window, add him to the active looters.
             world_object.loot_manager.add_active_looter(self)
 
-        # Send all the packed item detail queries for current loot, if any.
+        # Set the header, know that we know how many actual items were sent.
+        data = pack(
+            '<QBIB',
+            world_object.guid,
+            loot_type,
+            world_object.loot_manager.current_money,
+            item_count
+        )
+
+        # Append item data and send all the packed item detail queries for current loot, if any.
         if item_count:
+            data += item_data
             item_query_data = pack(f'<I{len(item_query)}s', item_count, item_query)
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query_data))
 

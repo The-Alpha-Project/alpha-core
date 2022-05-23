@@ -256,7 +256,8 @@ class SpellEffectHandler:
             Logger.error(f'Unable to resolve target, go entry {object_entry}, spell {casting_spell.spell_entry.ID}.')
             return
 
-        GameObjectManager.spawn(object_entry, target, caster.map_, spawned_by=caster, override_faction=caster.faction)
+        GameObjectManager.spawn(object_entry, target, caster.map_, spawned_by=caster,
+                                spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction)
 
     @staticmethod
     def handle_summon_player(casting_spell, effect, caster, target):

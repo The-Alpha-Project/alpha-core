@@ -24,6 +24,7 @@ class WorldLoader:
         # Gameobject spawns
         if config.Server.Settings.load_gameobjects:
             WorldLoader.load_gameobject_loot_templates()
+            WorldLoader.load_fishing_loot_templates()
             WorldLoader.load_gameobject_quest_starters()
             WorldLoader.load_gameobject_quest_finishers()
             WorldLoader.load_gameobjects()
@@ -169,6 +170,19 @@ class WorldLoader:
             WorldDatabaseManager.CreatureLootTemplateHolder.load_creature_loot_template(loot_template)
             count += 1
             Logger.progress('Loading creature loot templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_fishing_loot_templates():
+        fishing_loot_templates = WorldDatabaseManager.fishing_get_loot_template()
+        length = len(fishing_loot_templates)
+        count = 0
+
+        for loot_template in fishing_loot_templates:
+            WorldDatabaseManager.FishingLootTemplateHolder.load_fishing_loot_template(loot_template)
+            count += 1
+            Logger.progress('Loading fishing loot templates...', count, length)
 
         return length
 

@@ -7,15 +7,17 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager, SpawnsGameobjects
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.gameobjects.FishingNodeManager import FishingNodeManager
 from game.world.managers.objects.gameobjects.TrapManager import TrapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
+from game.world.opcode_handling.handlers.social.PlayerMacroHandler import PlayerMacroHandler
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.UnitCodes import StandState, SplineFlags
+from utils.constants.UnitCodes import StandState
 from utils.constants.UpdateFields import ObjectFields, GameObjectFields
 
 
@@ -32,6 +34,7 @@ class GameObjectManager(ObjectManager):
         self.gobject_template = gobject_template
         self.gobject_instance = gobject_instance
         self.spawned_by = spawned_by
+        self.spell_id = 0  # TODO, can't use DYNAMICOBJECT_SPELLID because it overlaps GameObjectFields?
 
         self.entry = self.gobject_template.entry
         self.native_display_id = self.gobject_template.display_id
@@ -50,7 +53,8 @@ class GameObjectManager(ObjectManager):
             self.location.y = self.gobject_instance.spawn_positionY
             self.location.z = self.gobject_instance.spawn_positionZ
             self.location.o = self.gobject_instance.spawn_orientation
-            self.map_ = self.gobject_instance.spawn_map
+            self.map_ = self.gobject_instance.spawn_map if not self.spawned_by else self.spawned_by.map_
+            self.zone = self.spawned_by.zone if self.spawned_by else 0
             self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
                                         self.gobject_instance.spawn_spawntimemax)
 
@@ -64,9 +68,14 @@ class GameObjectManager(ObjectManager):
         from game.world.managers.objects.spell.SpellManager import SpellManager  # Local due to circular imports.
         self.spell_manager = SpellManager(self)
 
-        # Chest only initializations.
+        # Chest initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             self.loot_manager = GameObjectLootManager(self)
+
+        # Fishing node initialization.
+        if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+            self.loot_manager = GameObjectLootManager(self)
+            self.fishing_node_manager = FishingNodeManager(self)
 
         # Ritual initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
@@ -81,7 +90,7 @@ class GameObjectManager(ObjectManager):
         MapManager.update_object(self)
 
     @staticmethod
-    def spawn(entry, location, map_id, spawned_by=None, override_faction=0, despawn_time=1):
+    def spawn(entry, location, map_id, spawned_by=None, spell_id=0, override_faction=0, despawn_time=1):
         go_template = WorldDatabaseManager.gameobject_template_get_by_entry(entry)
 
         if not go_template:
@@ -110,8 +119,13 @@ class GameObjectManager(ObjectManager):
             gobject_instance=instance,
             spawned_by=spawned_by
         )
-        if override_faction > 0:
+
+        if spell_id:
+            gameobject.spell_id = spell_id
+
+        if override_faction:
             gameobject.faction = override_faction
+            gameobject.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, override_faction)
 
         # Set channeled object for fishing nodes.
         if spawned_by and spawned_by.get_type_id() == ObjectTypeIds.ID_PLAYER:
@@ -162,6 +176,15 @@ class GameObjectManager(ObjectManager):
     def _handle_use_quest_giver(self, player, target):
         if target:
             player.quest_manager.handle_quest_giver_hello(target, target.guid)
+
+    def _handle_fishing_node(self, player):
+        # Remove cast.
+        player.spell_manager.remove_cast_by_id(self.spell_id)
+        if self.fishing_node_manager.try_hook_attempt(player):
+            # Generate loot if it's empty.
+            if not self.loot_manager.has_loot():
+                self.loot_manager.generate_loot(player)
+            player.send_loot(self)
 
     def _handle_use_chest(self, player):
         # Activate chest open animation, while active, it won't let any other player loot.
@@ -252,6 +275,8 @@ class GameObjectManager(ObjectManager):
             self._handle_use_goober(player)
         elif self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             self._handle_use_quest_giver(player, target)
+        elif self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+            self._handle_fishing_node(player)
 
     def set_state(self, state):
         self.state = state
@@ -302,6 +327,14 @@ class GameObjectManager(ObjectManager):
         data += fields_data
 
         return data
+
+    # There are only 3 possible animations that can be used here.
+    # Effect might depend on the gameobject type, apparently. e.g. Fishing bobber do its animation by sending 0.
+    # TODO: See if we can retrieve the animation names.
+    def send_custom_animation(self, animation):
+        data = pack('<QI', self.guid, animation)
+        packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_CUSTOM_ANIM, data)
+        MapManager.send_surrounding(packet, self, include_self=False)
 
     def is_dynamic_field(self, index):
         # TODO: Check more fields?
@@ -397,6 +430,9 @@ class GameObjectManager(ObjectManager):
                 # Logic for Trap GameObjects (type 6).
                 if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
                     self.trap_manager.update(elapsed)
+                # Logic for Fishing node.
+                if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+                    self.fishing_node_manager.update(elapsed)
 
                 # SpellManager update.
                 self.spell_manager.update(now)
