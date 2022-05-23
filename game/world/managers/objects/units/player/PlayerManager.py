@@ -713,8 +713,9 @@ class PlayerManager(UnitManager):
     def send_loot(self, world_object):
         self.current_loot_selection = world_object.guid
         loot_type = world_object.loot_manager.get_loot_type(self, world_object)
-        item_data = b''
 
+        # Loot item data.
+        item_data = b''
         # Initialize item detail queries data.
         item_query = b''
         item_count = 0
