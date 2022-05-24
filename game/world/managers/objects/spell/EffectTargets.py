@@ -364,7 +364,6 @@ class EffectTargets:
         caster_location = casting_spell.spell_caster.location
         if target_effect.effect_type == SpellEffects.SPELL_EFFECT_DUEL:
             target_location = target_effect.targets.resolved_targets_a[0].location
-            # TODO flag is spawned by DuelManager for now
             return [SummonedObjectPositions.get_position_for_duel_flag(caster_location, target_location)]
 
         elif target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_TOTEM:

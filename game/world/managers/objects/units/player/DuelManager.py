@@ -33,7 +33,7 @@ class DuelManager(object):
         self.map = player1.map_
 
     @staticmethod
-    def request_duel(requester, target, arbiter_entry):
+    def request_duel(requester, target, arbiter):
         # If target is already dueling, fail Duel spell cast.
         if target.duel_manager:
             return 0
@@ -42,7 +42,6 @@ class DuelManager(object):
         if requester.duel_manager:
             requester.duel_manager.force_duel_end(requester, retreat=False)
 
-        arbiter = DuelManager.create_arbiter(requester, target, arbiter_entry=arbiter_entry)
         if arbiter:
             duel_manager = DuelManager(requester, target, arbiter)
             duel_manager.duel_state = DuelState.DUEL_STATE_REQUESTED
@@ -192,9 +191,3 @@ class DuelManager(object):
         else:
             player_mgr.unit_flags &= ~UnitFlags.UNIT_FLAG_DUELING
         player_mgr.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player_mgr.unit_flags)
-
-    @staticmethod
-    def create_arbiter(requester, target, arbiter_entry):
-        in_between_pos = requester.location.get_point_in_middle(target.location)
-        return GameObjectManager.spawn(arbiter_entry, in_between_pos, requester.map_, spawned_by=requester,
-                                       override_faction=requester.faction, despawn_time=3600)

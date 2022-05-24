@@ -101,7 +101,11 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
-        duel_result = DuelManager.request_duel(caster, target, effect.misc_value)
+        arbiter = GameObjectManager.spawn(effect.misc_value, effect.targets.resolved_targets_b[0], caster.map_,
+                                          spawned_by=caster, despawn_time=3600, spell_id=casting_spell.spell_entry.ID,
+                                          override_faction=caster.faction)
+
+        duel_result = DuelManager.request_duel(caster, target, arbiter)
         if duel_result == 1:
             result = SpellCheckCastResult.SPELL_NO_ERROR
         elif duel_result == 0:
