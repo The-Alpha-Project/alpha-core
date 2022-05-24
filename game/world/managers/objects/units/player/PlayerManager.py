@@ -26,7 +26,7 @@ from utils.ByteUtils import ByteUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
-from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
+from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import SpellSchools, SpellTargetMask
@@ -564,6 +564,26 @@ class PlayerManager(UnitManager):
         else:
             opcode = OpCode.SMSG_FORCE_MOVE_UNROOT
         self.enqueue_packet(PacketWriter.get_packet(opcode))
+
+    # override
+    def mount(self, mount_display_id):
+        if super().mount(mount_display_id):
+            # TODO, validate mount.
+            data = pack('<QI', self.guid, MountResults.MOUNTRESULT_OK)
+            packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
+            self.enqueue_packet(packet)
+        else:
+            data = pack('<QI', self.guid, MountResults.MOUNTRESULT_INVALID_MOUNTEE)
+            packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
+            self.enqueue_packet(packet)
+
+    # override
+    def unmount(self):
+        super().unmount()
+        # TODO, validate dismount.
+        data = pack('<QI', self.guid, DismountResults.DISMOUNT_RESULT_OK)
+        packet = PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, data)
+        self.enqueue_packet(packet)
 
     # TODO Maybe merge all speed changes in one method
     # override

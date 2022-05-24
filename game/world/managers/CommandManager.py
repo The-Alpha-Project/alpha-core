@@ -488,7 +488,8 @@ class CommandManager(object):
         try:
             mount_display_id = int(args)
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-            player_mgr.mount(mount_display_id)
+            if not player_mgr.mount(mount_display_id):
+                return -1, 'please specify a valid mount display id.'
             return 0, ''
         except ValueError:
             return -1, 'please specify a valid mount display id.'
