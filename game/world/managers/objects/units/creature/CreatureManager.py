@@ -110,11 +110,10 @@ class CreatureManager(UnitManager):
             self.location = self.spawn_position.copy()
             self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
-        # Creatures block, parry and dodge.
-        # TODO, DODGE FLAG? Nothing related on creature extra flags.
-        self.has_block_passive = not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_BLOCK
+        # All creatures can block, parry and dodge by default.
+        self.has_block_passive = True
         self.has_dodge_passive = True
-        self.has_parry_passive = not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_PARRY
+        self.has_parry_passive = True
 
         self.threat_manager = ThreatManager(self)
 
