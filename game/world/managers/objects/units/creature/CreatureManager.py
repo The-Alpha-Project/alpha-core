@@ -110,11 +110,11 @@ class CreatureManager(UnitManager):
             self.location = self.spawn_position.copy()
             self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
-        # All creatures can block, parry and dodge by default.
-        # TODO CANT_BLOCK creature extra flag
-        self.has_block_passive = True
+        # Creatures block, parry and dodge.
+        # TODO, DODGE FLAG? Nothing related on creature extra flags.
+        self.has_block_passive = not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_BLOCK
         self.has_dodge_passive = True
-        self.has_parry_passive = True
+        self.has_parry_passive = not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_PARRY
 
         self.threat_manager = ThreatManager(self)
 
@@ -740,7 +740,7 @@ class CreatureManager(UnitManager):
 
     # override
     def die(self, killer=None):
-        if not super().die(killer):
+        if not self.is_alive:
             return False
 
         if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -767,7 +767,7 @@ class CreatureManager(UnitManager):
         if self.loot_manager.has_loot():
             self.set_lootable(True)
 
-        return True
+        return super().die(killer)
 
     def reward_kill_xp(self, player):
         if self.static_flags & CreatureStaticFlags.NO_XP:

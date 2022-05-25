@@ -1450,12 +1450,12 @@ class PlayerManager(UnitManager):
 
     # override
     def die(self, killer=None):
+        if not self.is_alive:
+            return False
+
         if killer and self.duel_manager and self.duel_manager.is_player_involved(killer):
             self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
             self.set_health(1)
-            return False
-
-        if not super().die(killer):
             return False
 
         if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
@@ -1469,7 +1469,7 @@ class PlayerManager(UnitManager):
         self.mirror_timers_manager.stop_all()
         self.update_swimming_state(False)
 
-        return True
+        return super().die(killer)
 
     # override
     def respawn(self):
