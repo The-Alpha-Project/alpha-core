@@ -98,7 +98,7 @@ begin not atomic
         INSERT INTO `spell_enchant_charges` (`entry`, `charges`) VALUES
         (2823, 60),
         (2824, 75),
-        (5761, 50),
+        (5761, 50);
 
         insert into applied_updates values ('170520221');
     end if;
