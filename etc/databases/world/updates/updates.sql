@@ -102,5 +102,252 @@ begin not atomic
 
         insert into applied_updates values ('170520221');
     end if;
+
+    -- 26/05/2022 1 - Item updates, mostly display_id and spell1.
+    if (select count(*) from applied_updates where id='260520221') = 0 then
+        -- Hammer of the Northern Wind -> 2004-08-24 15:48:53 -> spelleffect1 changed from '116' to '13439', dmg_low changed from '50' to '62', dmg_high changed from '93' to '117'
+        UPDATE `alpha_world`.`item_template` SET `dmg_max1` = '93', `dmg_min1` = '50', `spellid_1` = '116' WHERE (`entry` = '810');
+
+        -- Axe of the Deep Woods -> 2004-08-22 12:15:54 -> dmg_high changed from '117' to '146', dmg_low changed from '62' to '78'
+        UPDATE `alpha_world`.`item_template` SET `dmg_max1` = '117', `dmg_min1` = '62' WHERE (`entry` = '811');
+
+        -- Warden Staff -> 2004-08-23 15:02:37 -> displayinfo changed from '5098' to '20256', dmg_high changed from '109' to '143', dmg_low changed from '72' to '95' 
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '5098', `dmg_max1` = '109', `dmg_min1` = '72' WHERE (`entry` = '943');
+
+        -- Tough Condor Meat -> 2004-10-14 12:15:49 -> displayinfo changed from '7416' to '25475'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '7416' WHERE (`entry` = '1080');
+
+        -- Skullflame Shield -> 2004-08-20 10:26:39 -> armor changed from '248' to '908'
+        UPDATE `alpha_world`.`item_template` SET `armor` = '248' WHERE (`entry` = '1168');
+
+        -- Blackskull Shield -> 2004-07-08 17:58:29 -> displayinfo changed from '6271' to '18816', armor changed from '208' to '743'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '6271', `armor` = '208' WHERE (`entry` = '1169');
+
+        -- Wall of the Dead -> 2004-10-12 18:27:21 -> armor changed from '864' to '900'
+        UPDATE `alpha_world`.`item_template` SET `armor` = '864' WHERE (`entry` = '1979');
+
+        -- Nightblade -> 2004-07-08 15:50:25 -> dmg_high changed from '133' to '117', dmg_low changed from '88' to '77', spelleffect1 changed from '0' to '13440' (Still wrong, might had no spell) 
+        -- displayinfo changed from '5058' to '20191'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '5058', `dmg_max1` = '133', `dmg_min1` = '88', `spellid_1` = '13440' WHERE (`entry` = '1982');
+
+        -- Pressed Felt Robe -> 2004-05-24 19:11:41 -> armor changed from '23' to '25
+        UPDATE `alpha_world`.`item_template` SET `armor` = '23' WHERE (`entry` = '1997');
+
+        -- Hillborne Axe -> 2004-07-12 15:16:32 -> displayinfo changed from '18340' to '19400' (Still off) -> dmg_high changed from '45' to '43', dmg_low changed from '23' to '22'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '18340', `dmg_max1` = '45', `dmg_min1` = '23' WHERE (`entry` = '2080');
+
+        -- Dwarven Hand Cannon -> 2004-10-01 02:33:42 -> displayinfo changed from '6598' to '24652'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '6598', `dmg_max2` = '11', `dmg_min2` = '1' WHERE (`entry` = '2099');
+
+        -- Conjured Purified Water -> 2004-05-05 19:48:37 -> displayinfo changed from '6341' to '15849'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '6341' WHERE (`entry` = '2136');
+
+        -- ShadowBlade -> 2004-08-24 09:02:58 -> displayinfo changed from '6444' to '20291'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '6444', `dmg_max1` = '61', `dmg_min1` = '32', `spellid_1` = '0' WHERE (`entry` = '2163');
+
+        -- Staff of the Shade -> 2004-04-30 15:42:39 -> spelleffect1 changed from '2263' to '8472'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '2263' WHERE (`entry` = '2549');
+
+        -- Crude Flint -> 2004-06-18 19:18:14 -> displayinfo changed from '1502' to '18107', stacksize changed from '10' to '20'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '1502', `stackable` = '10' WHERE (`entry` = '2611');
+
+        -- Latched Belt -> 2004-11-08 02:46:30 -> displayinfo changed from '6963' to '28201'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '6963' WHERE (`entry` = '2690');
+
+        -- Antipodean Rod -> 2004-06-21 11:55:20 -> spelleffect1 changed from '2246' to '7684', spelleffect2 changed from '2250' to '7698'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '2246', `spellid_2` = '2250' WHERE (`entry` = '2879');
+
+        -- Eye of Flame -> 2004-08-20 11:50:42 -> spelleffect1 changed from '7689' to '9298'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '7689' WHERE (`entry` = '3075');
+
+        -- Melrache's Cape -> 2004-07-15 11:07:13 -> name1 changed from 'Scarlet Cloak' to 'Melrache's Cape'
+        UPDATE `alpha_world`.`item_template` SET `name` = 'Scarlet Cloak' WHERE (`entry` = '3331');
+
+        -- Elixir of Wisdom -> 2004-04-22 13:47:13 -> displayinfo changed from '1215' to '15745'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '1215' WHERE (`entry` = '3383');
+
+        -- Elixir of Poison Resistance -> 2004-05-28 12:19:47 -> displayinfo changed from '2345' to '15750'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '2345' WHERE (`entry` = '3386');
+
+        -- Limited Invulnerability Potion -> 2004-11-08 19:25:07 -> displayinfo changed from '2348' to '24213', level changed from '25' to '50'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '2348', `required_level` = '25' WHERE (`entry` = '3387');
+
+        -- Strong Troll's Blood Elixir -> 2004-07-02 14:58:22 -> displayinfo changed from '3664' to '15770'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '3664', `required_level` = '25' WHERE (`entry` = '3388');
+
+        -- Elixir of Defense -> 2004-07-02 14:58:22 -> displayinfo changed from '2345' to '15773'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '2345' WHERE (`entry` = '3389');
+
+        -- Gray Bear Tongue -> 2004-09-04 02:08:23 -> displayinfo changed from '3759' to '20898', stacksize changed from '10' to '20'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '3759', `stackable` = '10' WHERE (`entry` = '3476');
+
+        -- Mudsnout Blossoms -> 2004-09-04 02:08:23 -> displayinfo changed from '2793' to '17459', stacksize changed from '10' to '20'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '2793', `stackable` = '10' WHERE (`entry` = '3502');
+
+        -- Turtle Meat -> 2004-10-13 23:43:10 -> displayinfo changed from '2599' to '25472'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '2599' WHERE (`entry` = '3712');
+
+        -- Crippling Poison -> 2004-07-19 16:33:22 -> displayinfo changed from '2947' to '13708'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '2947' WHERE (`entry` = '3775');
+
+        -- Stranglekelp -> 2004-06-21 11:55:17 -> displayinfo changed from '7406' to '18089'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '7406' WHERE (`entry` = '3820');
+
+        -- Frost Oil -> 2006-03-08 02:25:21 -> displayinfo changed from '178' to '15794'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '178' WHERE (`entry` = '3829');
+
+        -- Mithril Ore -> 2004-08-20 11:50:29 -> displayinfo changed from '4691' to '20661'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '4691' WHERE (`entry` = '3858');
+
+        -- Blocking Targe -> 2004-07-17 18:13:55 -> block changed from '42' to '20', armor changed from '51' to '102'
+        UPDATE `alpha_world`.`item_template` SET `armor` = '51', `block` = '42' WHERE (`entry` = '3989');
+
+        -- Crested Buckler -> 2004-10-09 19:22:47 -> block changed from '17' to '23', armor changed from '609' to '756'
+        UPDATE `alpha_world`.`item_template` SET `armor` = '609', `block` = '17' WHERE (`entry` = '3990');
+
+        -- Coarse Gorilla Hair -> 2004-06-21 11:55:20 -> displayinfo changed from '1007' to '18096'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '1007' WHERE (`entry` = '4096');
+
+        -- Master Hunter's Bow -> 2004-08-20 10:23:59 -> displayinfo changed from '4441' to '20555', dmg_high changed from '113' to '102', dmg_low changed from '60' to '54'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '4441', `dmg_max1` = '113', `dmg_min1` = '60' WHERE (`entry` = '4110');
+
+        -- Mechanical Squirrel Box -> 2004-06-21 11:55:34 -> displayinfo changed from '7387' to '16536'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '7387' WHERE (`entry` = '4401');
+
+        -- Soft Bushy Tail -> 2004-07-29 15:49:43 -> displayinfo changed from '12862' to '1809
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '12862' WHERE (`entry` = '4582');
+
+        -- Goblin Fishing Pole -> 2004-07-19 15:13:01 -> displayinfo changed from '6384' to '18063'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '6384' WHERE (`entry` = '4598');
+
+        -- Firebloom -> 2004-06-21 11:55:16 -> displayinfo changed from '7364' to '2788'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '7364' WHERE (`entry` = '4625');
+
+        -- Ceremonial Cloak -> 2004-06-22 17:08:06 -> displayinfo changed from '8760' to '15084'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '8760' WHERE (`entry` = '4692');
+
+        -- Explosive Stick of Gann -> 2004-09-04 02:08:24 -> displayinfo changed from '6384' to '18062'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '6384' WHERE (`entry` = '5021');
+
+        -- Shadow Hunter Knife -> 2004-09-28 17:19:53 -> displayinfo changed from '6444' to '20321'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '6444' WHERE (`entry` = '5040');
+
+        -- Impaling Harpoon -> 2004-09-28 17:19:53 -> displayinfo changed from '12562' to '5949'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '5949' WHERE (`entry` = '5200');
+
+        -- Raptor Punch -> 2004-06-22 17:08:06 -> displayinfo changed from '6245' to '18099'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '6245' WHERE (`entry` = '5342');
+
+        -- Key to Searing Gorge -> 2004-07-15 11:07:13 -> displayinfo changed from '7827' to '13824
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '7827' WHERE (`entry` = '5396');
+
+        -- Kaldorei Spider Kabob -> 2004-09-02 19:03:38 -> name1 changed from 'Kaldorei Caviar' to 'Kaldorei Spider Kabob', displayinfo changed from '7991' to '21327
+        UPDATE `alpha_world`.`item_template` SET `name` = 'Kaldorei Caviar', `display_id` = '7991' WHERE (`entry` = '5472');
+
+        -- Clam Meat -> 2004-09-23 19:49:10 -> displayinfo changed from '6350' to '22193'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '6350' WHERE (`entry` = '5503');
+
+        -- Unrefined Ore Sample ->2004-07-19 15:54:42 -> displayinfo changed from '9142' to '18107'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '9142' WHERE (`entry` = '5842');
+
+        -- Regent's Cloak -> 2004-09-25 10:22:04 -> displayinfo changed from '15179' to '23059'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '15179' WHERE (`entry` = '5969');
+
+        -- All patterns, plans. 2004-12-22 03:54:35 -> displayinfo changed from '1102' to '15274'
+        UPDATE `item_template` SET `display_id` = '1102' WHERE (`display_id` = '15274');
+
+        -- Fire Oil -> 2004-07-02 14:58:21 -> displayinfo changed from '11461' to '15771'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '11461' WHERE (`entry` = '6371');
+
+        -- Blackforge Greaves -> 2004-11-08 07:05:03 -> displayinfo changed from '11629' to '26077'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '11629' WHERE (`entry` = '6423');
+
+        -- Imperial Leather Breastplate -> 2004-06-21 11:55:34 -> displayinfo changed from '14699' to '18471'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '14699' WHERE (`entry` = '6430');
+
+        -- Glowing Lizardscale Cloak -> 2004-04-22 13:47:13 -> displayinfo changed from '8787' to '15187', armor changed from '27' to '30'
+        UPDATE `alpha_world`.`item_template` SET `display_id` = '8787', `armor` = '27' WHERE (`entry` = '6449');
+
+        -- Dazzling Longsword -> 2004-08-20 11:51:08 -> spelleffect1 changed from '770' to '13424'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '770' WHERE (`entry` = '869');
+
+        -- Fiery War Axe -> 2004-08-22 12:15:45 -> spelleffect1 changed from '143' to '13438'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '143' WHERE (`entry` = '870');
+
+        -- Flurry Axe -> 2004-08-20 10:23:58 -> spelleffect1 changed from '8815' to '13679'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '8815' WHERE (`entry` = '871');
+
+        -- Freezing Band -> 2004-08-20 11:51:08 -> spelleffect1 changed from '5151' to '0'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '5151', `spellid_2` = '0' WHERE (`entry` = '942');
+
+        -- Night Reaver -> 2004-07-19 15:54:42 -> spelleffect1 changed from '695' to '0'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '695' WHERE (`entry` = '1318');
+
+        -- Ring of Healing -> 2004-08-20 10:24:00 -> spelleffect1 changed from '2053' to '14053'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '2053' WHERE (`entry` = '1713');
+
+        -- Tanglewood Staff -> 2004-04-19 11:36:41 -> spelleffect1 changed from '2305' to '9354'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '2305' WHERE (`entry` = '1720');
+
+        -- Orb of Deception -> 2004-07-08 16:22:40 -> spelleffect1 changed from '700' to '12854'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '700' WHERE (`entry` = '1973');
+
+        -- Bloodscalp Channeling Staff -> 2004-08-20 11:51:01 -> spelleffect1 changed from '7695' to '9357'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '7695' WHERE (`entry` = '1998');
+
+        -- Phytoblade -> 2004-08-20 11:50:59 -> spelleffect1 changed from '5178' to '14119'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '5178' WHERE (`entry` = '2263');
+
+        -- Staff of the Blessed Seer -> 2004-07-09 10:07:13 -> spelleffect1 changed from '7676' to '8475'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '7676' WHERE (`entry` = '2289');
+
+        -- Burning War Axe -> 2004-06-23 13:32:14 -> spelleffect1 changed from '0' to '7711'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '7711' WHERE (`entry` = '2299');
+
+        -- Elven Spirit Claws -> 2004-06-20 23:31:05 -> spelleffect1 changed from '2258' to '7692'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '2258' WHERE (`entry` = '2564');
+
+        -- Rod of Molten Fire -> 2004-06-23 13:32:16 -> spelleffect1 changed from '2267' to '7687'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '2267' WHERE (`entry` = '2565');
+
+        -- Blazing Emblem -> 2004-08-20 10:24:00 -> spelleffect1 changed from '2120' to '13744'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '2120' WHERE (`entry` = '2802');
+
+        -- Nifty Stopwatch -> 2004-08-20 10:24:00 -> spelleffect1 changed from '246' to '14530'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '246' WHERE (`entry` = '2820');
+
+        -- Black Malice -> 2004-07-19 15:54:39 -> spelleffect1 changed from '695' to '0'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '695' WHERE (`entry` = '3194');
+
+        -- Smotts' Compass -> 2004-07-08 16:09:19 -> spelleffect1 changed from '0' to '7598'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '7598' WHERE (`entry` = '4130');
+
+        -- Black Husk Shield -> 2004-08-20 18:08:42 -> spelleffect1 changed from '2893' to '14253'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '2893' WHERE (`entry` = '4444');
+
+        -- Drink IV.
+        UPDATE `item_template` SET `spellid_1` = '1133' WHERE (`spellid_1` = '11009');
+
+        -- Faintly Glowing Skull -> 2004-09-28 17:19:53 -> spelleffect1 changed from '2006' to '16375'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '3' WHERE (`entry` = '4945');
+
+        -- Shiver Blade -> 2004-08-25 15:17:38 -> pelleffect1 changed from '113' to '13439'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '113' WHERE (`entry` = '5182');
+
+        -- Cruel Barb -> 2004-06-21 16:17:35 -> spelleffect1 changed from '5258' to '7597'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '5258' WHERE (`entry` = '5191');
+
+        -- Everglow Lantern -> 2004-04-19 11:37:40 -> spelleffect1 changed from '635' to '647'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '635' WHERE (`entry` = '5323');
+
+        -- Ornate Spyglass -> 2004-08-23 11:35:19 -> spelleffect1 changed from '6197' to '12883'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '6197' WHERE (`entry` = '5507');
+
+        -- Stinging Viper -> 2004-08-24 15:56:48 -> spelleffect1 changed from '3396' to '13518'
+        UPDATE `alpha_world`.`item_template` SET `spellid_1` = '3396' WHERE (`entry` = '6472');
+
+
+        insert into applied_updates values ('260520221');
+    end if;
 end $
 delimiter ;
