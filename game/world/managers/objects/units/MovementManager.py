@@ -1,15 +1,15 @@
-import math
 from struct import pack
 
 from game.world import WorldManager
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.units.MovementSpline import MovementSpline
 from game.world.managers.objects.units.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeFlags, MoveFlags, ObjectTypeIds
-from utils.constants.UnitCodes import SplineFlags, SplineType, UnitFlags
+from utils.constants.MiscCodes import MoveFlags, ObjectTypeIds
+from utils.constants.UnitCodes import SplineFlags, SplineType
 
 
 class MovementManager(object):
@@ -47,13 +47,14 @@ class MovementManager(object):
             # Guess current position based on speed and time.
             else:
                 guessed_distance = self.unit.movement_spline.speed * self.waypoint_timer
-                # If player is flying, don't take terrain Z into account to generate the position.
+                # If player is flying, don't guess in between locations, use waypoints only.
                 if self.is_player and self.unit.movement_spline and \
                         self.unit.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
-                    map_id = -1
-                else:
-                    map_id = self.unit.map_
-                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location, map_id=map_id)
+                    return
+
+                # Guess the unit new position.
+                new_position = self.unit.location.get_point_in_between_movement(waypoint=current_waypoint,
+                                                                                guessed_distance=guessed_distance)
 
             if new_position:
                 self.waypoint_timer = 0
