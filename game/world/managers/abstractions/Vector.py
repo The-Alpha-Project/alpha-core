@@ -115,9 +115,10 @@ class Vector(object):
         z = waypoint.location.z - self.z
         z_bar = math.fabs(z)
 
-        new_x = self.x + (x / (x_bar + y_bar + z_bar)) * guessed_distance
-        new_y = self.y + (y / (x_bar + y_bar + z_bar)) * guessed_distance
-        new_z = self.z + (z / (x_bar + y_bar + z_bar)) * guessed_distance
+        sum_xyz_fab = x_bar + y_bar + z_bar
+        new_x = self.x + x / sum_xyz_fab * guessed_distance
+        new_y = self.y + y / sum_xyz_fab * guessed_distance
+        new_z = self.z + z / sum_xyz_fab * guessed_distance
 
         return Vector(new_x, new_y, new_z)
 
