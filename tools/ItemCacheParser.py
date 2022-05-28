@@ -52,7 +52,7 @@ class ItemCacheParser:
                 # Keep our names, unless they come from 3494 or earlier.
                 if displayName != item_template.name and version <= 3494:
                     sql_field_comment.append(f"-- name, from {item_template.name} to {displayName}")
-                    sql_field_updates.append(f"`name` = `{displayName}`")
+                    sql_field_updates.append(f"`name` = '{displayName}'")
                     sql_field_updates[-1] = sql_field_updates[-1].replace("'", "''")
 
                 displayName = PacketReader.read_string(data[index:], 0)
@@ -279,7 +279,7 @@ class ItemCacheParser:
                 index += len(PacketWriter.string_to_bytes(description))
                 if ItemCacheParser._should_update(description, item_template.description) and len(description) > 0:
                     sql_field_comment.append(f"-- description, from {item_template.description} to {description}")
-                    sql_field_updates.append(f"`description` = `{description}`")
+                    sql_field_updates.append(f"`description` = '{description}'")
                     sql_field_updates[-1] = sql_field_updates[-1].replace("'", "''")
 
                 page_text = unpack('<i', data[index: index + 4])[0]
