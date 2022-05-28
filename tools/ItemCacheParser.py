@@ -154,11 +154,11 @@ class ItemCacheParser:
                         sql_field_updates.append(f"`stat_value{x + 1}` = {stat_value}")
 
                 for x in range(5):
-                    index, dmg_min = ItemCacheParser._read_float(data, index) if version < 3925 \
-                        else ItemCacheParser._read_int(data, index)
+                    index, dmg_min = ItemCacheParser._read_int(data, index) if version < 3925 \
+                        else ItemCacheParser._read_float(data, index)
                     current_min = eval(f'item_template.dmg_min{x + 1}')
-                    index, dmg_max = ItemCacheParser._read_float(data, index) if version < 3925 \
-                        else ItemCacheParser._read_int(data, index)
+                    index, dmg_max = ItemCacheParser._read_int(data, index) if version < 3925 \
+                        else ItemCacheParser._read_float(data, index)
                     current_max = eval(f'item_template.dmg_max{x + 1}')
                     index, dmg_type = ItemCacheParser._read_int(data, index)
                     current_dmg_type = eval(f' item_template.dmg_type{x + 1}')
@@ -290,8 +290,8 @@ class ItemCacheParser:
                 if len(sql_field_updates) > 1:
                     applied_item_update_sql = ''
                     applied_update = WorldDatabaseManager.get_item_applied_update(entry_id)
-                    # Do not update items which have been updates with a previous version.
-                    if applied_update and applied_update.version < version:
+                    # Do not update items which have been updated with the same version or lower.
+                    if applied_update and applied_update.version <= version:
                         continue
 
                     if not applied_update:
@@ -302,6 +302,7 @@ class ItemCacheParser:
                     # Update AppliedItemUpdates.
                     applied_update.entry = entry_id
                     applied_update.version = version
+
                     # Update db.
                     WorldDatabaseManager.update_item_applied_update(applied_update)
 
