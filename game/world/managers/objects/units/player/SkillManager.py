@@ -6,6 +6,8 @@ from typing import NamedTuple
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
+from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
@@ -409,6 +411,39 @@ class SkillManager(object):
 
         return True
 
+    def handle_fishing_attempt_chance(self):
+        skill = self.skills.get(SkillTypes.FISHING, None)
+        if not skill:
+            return False
+
+        # Search the skill zone by parent zone id.
+        zone_skill = WorldDatabaseManager.fishing_skill_get_by_entry(
+            MapManager.get_parent_zone_id(self.player_mgr.zone, self.player_mgr.map_))
+        if not zone_skill:
+            return False
+
+        # Get zone skill value.
+        zone_skill_value = zone_skill.skill
+
+        # Consider bonus for roll.
+        skill_total = self.get_total_skill_value(12)
+        chance = skill_total - zone_skill_value + 5
+        roll = random.randint(1, 100)
+
+        # Hook chance.
+        success = skill_total >= zone_skill_value and chance >= roll
+        if not success:
+            return False
+
+        # Skill gain chance.
+        gain_chance = 100 if skill.value < 75 else 2500 / (skill.value - 50)
+        if gain_chance <= 0:
+            return False
+
+        self.set_skill(SkillTypes.FISHING, skill.value + 1)
+        self.build_update()
+        return True
+
     def can_use_equipment(self, item_class, item_subclass):
         if item_class not in self.proficiencies:
             return False
@@ -423,11 +458,11 @@ class SkillManager(object):
 
         return self.full_proficiency_masks.get(item_class, 0) & item_subclass_mask
 
-    def get_total_skill_value(self, skill_id):
+    def get_total_skill_value(self, skill_id, no_bonus=False):
         if skill_id not in self.skills:
             return -1
         skill = self.skills[skill_id]
-        bonus_skill = self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
+        bonus_skill = 0 if no_bonus else self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
         return skill.value + bonus_skill
 
     def get_skill_value_for_spell_id(self, spell_id):

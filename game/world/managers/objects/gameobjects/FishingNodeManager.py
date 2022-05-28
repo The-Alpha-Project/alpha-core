@@ -14,13 +14,12 @@ class FishingNodeManager(object):
         self.hook_result = False
         self.got_away = False
 
-    # TODO: Chance, SMSG_FISH_ESCAPED.
     def try_hook_attempt(self, player):
         if self.fishing_node.state != GameObjectStates.GO_STATE_ACTIVE:
             self.hook_result = False
         elif self.fishing_timer > 0:
             self.hook_result = False
-        elif not self.fishing_node.loot_manager.has_loot() or not FishingNodeManager.roll_chance():
+        elif not self.fishing_node.loot_manager.has_loot() or not FishingNodeManager.roll_chance(player):
             self.got_away = True
             self.hook_result = False
         else:
@@ -36,10 +35,9 @@ class FishingNodeManager(object):
 
         return self.hook_result
 
-    # TODO, proper chance.
     @staticmethod
-    def roll_chance():
-        return randint(0, 100) > 15
+    def roll_chance(player):
+        return player.skill_manager.handle_fishing_attempt_chance()
 
     @staticmethod
     def _notify_got_away(player):

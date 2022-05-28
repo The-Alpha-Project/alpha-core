@@ -349,7 +349,6 @@ class CreatureManager(UnitManager):
         return False
 
     def set_virtual_item(self, slot, item_entry):
-        print(item_entry)
         item_template = None
         if item_entry > 0:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)

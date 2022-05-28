@@ -809,6 +809,13 @@ class FishingLootTemplate(Base):
     item_template = relationship('ItemTemplate')
 
 
+class SkillFishingBaseLevel(Base):
+    __tablename__ = 'skill_fishing_base_level'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    skill = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+
+
 class ItemLootTemplate(Base):
     __tablename__ = 'item_loot_template'
 

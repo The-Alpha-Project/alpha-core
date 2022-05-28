@@ -21,7 +21,7 @@ SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autocommit=Tru
 
 
 class WorldDatabaseManager(object):
-    # Player stuff
+    # Player stuff.
 
     @staticmethod
     def player_create_info_get(race, class_) -> Optional[Playercreateinfo]:
@@ -65,7 +65,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Area stuff
+    # Area stuff.
 
     @staticmethod
     def area_trigger_teleport_get_by_id(trigger_id) -> Optional[AreatriggerTeleport]:
@@ -95,7 +95,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Exploration stuff
+    # Exploration stuff.
 
     @staticmethod
     def exploration_base_xp_get_by_level(level) -> Optional[ExplorationBaseXP]:
@@ -104,7 +104,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res.base_xp
 
-    # Worldport stuff
+    # Worldport stuff.
 
     @staticmethod
     def worldport_get_by_name(name, return_all=False) -> [list, Optional[Worldports]]:
@@ -124,7 +124,7 @@ class WorldDatabaseManager(object):
                 best_matching_location = location
         return best_matching_location
 
-    # Item stuff
+    # Item stuff.
 
     @staticmethod
     def get_item_applied_update(entry):
@@ -208,7 +208,7 @@ class WorldDatabaseManager(object):
                 best_matching_item = item
         return best_matching_item
 
-    # Page text stuff
+    # Page text stuff.
 
     @staticmethod
     def page_text_get_by_id(page_id) -> Optional[PageText]:
@@ -217,7 +217,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Gameobject stuff
+    # Gameobject stuff.
 
     @staticmethod
     def gameobject_get_all_spawns() -> [list[SpawnsGameobjects], scoped_session]:
@@ -261,7 +261,7 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[entry]\
                 if entry in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES else []
 
-    # Fishing Loot
+    # Fishing.
 
     @staticmethod
     def fishing_template_get_by_entry(entry) -> Optional[FishingLootTemplate]:
@@ -294,7 +294,15 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[entry] \
                 if entry in WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES else []
 
-    # Creature stuff
+    # Fishing skill by zone.
+    @staticmethod
+    def fishing_skill_get_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(SkillFishingBaseLevel).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
+    # Creature stuff.
 
     @staticmethod
     def creature_get_by_entry(entry) -> Optional[CreatureTemplate]:
@@ -412,7 +420,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Quest stuff
+    # Quest stuff.
 
     class QuestRelationHolder:
         QUEST_CREATURE_STARTERS: [int, list[t_creature_quest_starter]] = {}
@@ -518,7 +526,7 @@ class WorldDatabaseManager(object):
         def quest_get_by_entry(entry) -> Optional[QuestTemplate]:
             return WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES.get(entry)
 
-    # Trainer stuff
+    # Trainer stuff.
 
     class TrainerSpellHolder:
         TRAINER_SPELLS: dict[tuple[int, int], TrainerTemplate] = {}
@@ -605,7 +613,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res.charges if res else 0
 
-    # Gossip
+    # Gossip.
 
     class QuestGossipHolder:
         NPC_GOSSIPS: dict[int, NpcGossip] = {}
