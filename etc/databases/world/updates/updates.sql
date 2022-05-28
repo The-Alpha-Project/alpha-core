@@ -407,7 +407,7 @@ begin not atomic
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3440, 3368);
         -- Blacksmith's Hammer
         -- description, from Needed for Blacksmithing to Needed for Blacksmithing.
-        UPDATE `item_template` SET `description` = `Needed for Blacksmithing.` WHERE (`entry` = 5956);
+        UPDATE `item_template` SET `description` = 'Needed for Blacksmithing.' WHERE (`entry` = 5956);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5956, 3368);
         -- Round Buckler
         -- allowable_class, from 2047 to 32767
@@ -482,7 +482,7 @@ begin not atomic
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6185, 3494);
         -- Rustic Belt
         -- name, from Dwarven Chain Belt to Rustic Belt
-        UPDATE `item_template` SET `name` = `Rustic Belt` WHERE (`entry` = 2172);
+        UPDATE `item_template` SET `name` = 'Rustic Belt' WHERE (`entry` = 2172);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2172, 3494);
         -- Tough Wolf Meat
         -- stackable, from 20 to 10
@@ -547,7 +547,7 @@ begin not atomic
         -- Copper Rod
         -- class, from 2 to 7
         -- description, from Needed for an Enchanter to make his runed copper rod. to Needed by an Enchanter to make a runed copper rod.
-        UPDATE `item_template` SET `class` = 7, `description` = `Needed by an Enchanter to make a runed copper rod.` WHERE (`entry` = 6217);
+        UPDATE `item_template` SET `class` = 7, `description` = 'Needed by an Enchanter to make a runed copper rod.' WHERE (`entry` = 6217);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6217, 3494);
         -- Mild Spices
         -- buy_price, from 4 to 10
@@ -713,7 +713,7 @@ begin not atomic
         -- Patchwork Belt
         -- name, from Patchwork Cloth Belt to Patchwork Belt
         -- required_level, from 1 to 3
-        UPDATE `item_template` SET `name` = `Patchwork Belt`, `required_level` = 3 WHERE (`entry` = 3370);
+        UPDATE `item_template` SET `name` = 'Patchwork Belt', `required_level` = 3 WHERE (`entry` = 3370);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3370, 3596);
         -- Long Bo Staff
         -- required_level, from 1 to 5
@@ -992,7 +992,7 @@ begin not atomic
         -- Knitted Tunic
         -- name, from Knitted Vest to Knitted Tunic
         -- required_level, from 1 to 5
-        UPDATE `item_template` SET `name` = `Knitted Tunic`, `required_level` = 5 WHERE (`entry` = 795);
+        UPDATE `item_template` SET `name` = 'Knitted Tunic', `required_level` = 5 WHERE (`entry` = 795);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (795, 3596);
         -- Knitted Belt
         -- required_level, from 1 to 5
@@ -1016,7 +1016,7 @@ begin not atomic
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (793, 3596);
         -- Patchwork Cloak
         -- name, from Patchwork Cloth Cloak to Patchwork Cloak
-        UPDATE `item_template` SET `name` = `Patchwork Cloak` WHERE (`entry` = 1429);
+        UPDATE `item_template` SET `name` = 'Patchwork Cloak' WHERE (`entry` = 1429);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1429, 3596);
         -- Worn Leather Boots
         -- required_level, from 1 to 3
@@ -1061,7 +1061,7 @@ begin not atomic
         -- buy_price, from 2017 to 2168
         -- sell_price, from 403 to 433
         -- required_level, from 6 to 11
-        UPDATE `item_template` SET `name` = `Bard''s Buckler`, `buy_price` = 2168, `sell_price` = 433, `required_level` = 11 WHERE (`entry` = 6559);
+        UPDATE `item_template` SET `name` = 'Bard''s Buckler', `buy_price` = 2168, `sell_price` = 433, `required_level` = 11 WHERE (`entry` = 6559);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6559, 3596);
         -- Weighted Throwing Axe
         -- dmg_min1, from 6.0 to 2
@@ -1165,7 +1165,7 @@ begin not atomic
         -- Patchwork Armor
         -- name, from Patchwork Cloth Vest to Patchwork Armor
         -- required_level, from 1 to 2
-        UPDATE `item_template` SET `name` = `Patchwork Armor`, `required_level` = 2 WHERE (`entry` = 1433);
+        UPDATE `item_template` SET `name` = 'Patchwork Armor', `required_level` = 2 WHERE (`entry` = 1433);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1433, 3596);
         -- Worn Leather Belt
         -- required_level, from 1 to 2
@@ -1234,7 +1234,7 @@ begin not atomic
         -- sell_price, from 86 to 42
         -- item_level, from 13 to 10
         -- required_level, from 3 to 5
-        UPDATE `item_template` SET `name` = `Journeyman''s Boots`, `buy_price` = 213, `sell_price` = 42, `item_level` = 10, `required_level` = 5 WHERE (`entry` = 2959);
+        UPDATE `item_template` SET `name` = 'Journeyman''s Boots', `buy_price` = 213, `sell_price` = 42, `item_level` = 10, `required_level` = 5 WHERE (`entry` = 2959);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2959, 3596);
         -- Rough Leather Bracers
         -- required_level, from 1 to 5
@@ -1278,7 +1278,7 @@ begin not atomic
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2946, 3596);
         -- Small Leather Collar
         -- name, from Discolored Fang to Small Leather Collar
-        UPDATE `item_template` SET `name` = `Small Leather Collar` WHERE (`entry` = 4813);
+        UPDATE `item_template` SET `name` = 'Small Leather Collar' WHERE (`entry` = 4813);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4813, 3596);
         -- Rough Leather Gloves
         -- required_level, from 1 to 5
@@ -1291,12 +1291,12 @@ begin not atomic
         -- Patchwork Pants
         -- name, from Patchwork Cloth Pants to Patchwork Pants
         -- required_level, from 1 to 3
-        UPDATE `item_template` SET `name` = `Patchwork Pants`, `required_level` = 3 WHERE (`entry` = 1431);
+        UPDATE `item_template` SET `name` = 'Patchwork Pants', `required_level` = 3 WHERE (`entry` = 1431);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1431, 3596);
         -- Journeyman's Bracers
         -- name, from Strapped Bracers to Journeyman's Bracers
         -- required_level, from 1 to 5
-        UPDATE `item_template` SET `name` = `Journeyman''s Bracers`, `required_level` = 5 WHERE (`entry` = 3641);
+        UPDATE `item_template` SET `name` = 'Journeyman''s Bracers', `required_level` = 5 WHERE (`entry` = 3641);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3641, 3596);
         -- Footman Sword
         -- dmg_min1, from 11.0 to 6
@@ -1335,7 +1335,7 @@ begin not atomic
         -- Patchwork Gloves
         -- name, from Patchwork Cloth Gloves to Patchwork Gloves
         -- required_level, from 1 to 2
-        UPDATE `item_template` SET `name` = `Patchwork Gloves`, `required_level` = 2 WHERE (`entry` = 1430);
+        UPDATE `item_template` SET `name` = 'Patchwork Gloves', `required_level` = 2 WHERE (`entry` = 1430);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1430, 3596);
         -- Warrior's Tunic
         -- buy_price, from 1481 to 1185
@@ -1389,7 +1389,7 @@ begin not atomic
         -- Patchwork Bracers
         -- name, from Patchwork Cloth Bracers to Patchwork Bracers
         -- required_level, from 1 to 4
-        UPDATE `item_template` SET `name` = `Patchwork Bracers`, `required_level` = 4 WHERE (`entry` = 3373);
+        UPDATE `item_template` SET `name` = 'Patchwork Bracers', `required_level` = 4 WHERE (`entry` = 3373);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3373, 3596);
         -- White Linen Robe
         -- required_level, from 1 to 5
@@ -1416,7 +1416,7 @@ begin not atomic
         -- required_level, from 1 to 5
         -- dmg_min1, from 7.0 to 3
         -- dmg_max1, from 11.0 to 7
-        UPDATE `item_template` SET `name` = `Feeble Sword`, `required_level` = 5, `dmg_min1` = 3, `dmg_max1` = 7 WHERE (`entry` = 1413);
+        UPDATE `item_template` SET `name` = 'Feeble Sword', `required_level` = 5, `dmg_min1` = 3, `dmg_max1` = 7 WHERE (`entry` = 1413);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1413, 3596);
         -- Strong Fishing Pole
         -- buy_price, from 901 to 22
@@ -1487,7 +1487,7 @@ begin not atomic
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5246, 3596);
         -- Discolored Fang
         -- name, from Mouse Tail to Discolored Fang
-        UPDATE `item_template` SET `name` = `Discolored Fang` WHERE (`entry` = 4814);
+        UPDATE `item_template` SET `name` = 'Discolored Fang' WHERE (`entry` = 4814);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4814, 3596);
         -- Shackled Girdle
         -- required_level, from 1 to 6
@@ -1512,7 +1512,7 @@ begin not atomic
         -- required_level, from 5 to 10
         -- stat_type1, from 0 to 7
         -- stat_value1, from 0 to 1
-        UPDATE `item_template` SET `name` = `Hunting Tunic`, `required_level` = 10, `stat_type1` = 7, `stat_value1` = 1 WHERE (`entry` = 2973);
+        UPDATE `item_template` SET `name` = 'Hunting Tunic', `required_level` = 10, `stat_type1` = 7, `stat_value1` = 1 WHERE (`entry` = 2973);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2973, 3596);
         -- Harvester's Pants
         -- required_level, from 5 to 10
@@ -1553,12 +1553,12 @@ begin not atomic
         -- Patchwork Shoes
         -- name, from Patchwork Cloth Boots to Patchwork Shoes
         -- required_level, from 1 to 5
-        UPDATE `item_template` SET `name` = `Patchwork Shoes`, `required_level` = 5 WHERE (`entry` = 1427);
+        UPDATE `item_template` SET `name` = 'Patchwork Shoes', `required_level` = 5 WHERE (`entry` = 1427);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1427, 3596);
         -- Tanned Leather Jerkin
         -- name, from Tanned Leather Vest to Tanned Leather Jerkin
         -- required_level, from 7 to 12
-        UPDATE `item_template` SET `name` = `Tanned Leather Jerkin`, `required_level` = 12 WHERE (`entry` = 846);
+        UPDATE `item_template` SET `name` = 'Tanned Leather Jerkin', `required_level` = 12 WHERE (`entry` = 846);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (846, 3596);
         -- Tanned Leather Belt
         -- required_level, from 7 to 12
@@ -1731,7 +1731,7 @@ begin not atomic
         -- Heavy Weave Shoes
         -- name, from Heavy Weave Boots to Heavy Weave Shoes
         -- required_level, from 7 to 12
-        UPDATE `item_template` SET `name` = `Heavy Weave Shoes`, `required_level` = 12 WHERE (`entry` = 840);
+        UPDATE `item_template` SET `name` = 'Heavy Weave Shoes', `required_level` = 12 WHERE (`entry` = 840);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (840, 3596);
         -- Heavy Weave Bracers
         -- required_level, from 7 to 12
@@ -1750,7 +1750,7 @@ begin not atomic
         -- Warped Leather Belt
         -- name, from Patched Leather Belt to Warped Leather Belt
         -- required_level, from 4 to 9
-        UPDATE `item_template` SET `name` = `Warped Leather Belt`, `required_level` = 9 WHERE (`entry` = 1502);
+        UPDATE `item_template` SET `name` = 'Warped Leather Belt', `required_level` = 9 WHERE (`entry` = 1502);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1502, 3596);
         -- Frontier Britches
         -- required_level, from 7 to 12
@@ -1774,7 +1774,7 @@ begin not atomic
         -- buy_price, from 10 to 100
         -- sell_price, from 2 to 25
         -- item_level, from 1 to 10
-        UPDATE `item_template` SET `name` = `Scroll of Protection`, `buy_price` = 100, `sell_price` = 25, `item_level` = 10 WHERE (`entry` = 3013);
+        UPDATE `item_template` SET `name` = 'Scroll of Protection', `buy_price` = 100, `sell_price` = 25, `item_level` = 10 WHERE (`entry` = 3013);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3013, 3596);
         -- Cracked Sledge
         -- required_level, from 1 to 6
@@ -1790,7 +1790,7 @@ begin not atomic
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2957, 3596);
         -- Mageroyal
         -- name, from Common Magebloom to Mageroyal
-        UPDATE `item_template` SET `name` = `Mageroyal` WHERE (`entry` = 785);
+        UPDATE `item_template` SET `name` = 'Mageroyal' WHERE (`entry` = 785);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (785, 3596);
         -- Skinning Knife
         -- buy_price, from 54 to 82
@@ -2004,7 +2004,7 @@ begin not atomic
         -- Blackrock Boots
         -- name, from Blackrock Chain Boots to Blackrock Boots
         -- required_level, from 9 to 14
-        UPDATE `item_template` SET `name` = `Blackrock Boots`, `required_level` = 14 WHERE (`entry` = 1446);
+        UPDATE `item_template` SET `name` = 'Blackrock Boots', `required_level` = 14 WHERE (`entry` = 1446);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1446, 3596);
         -- Veteran Bracers
         -- required_level, from 6 to 11
@@ -2094,12 +2094,12 @@ begin not atomic
         -- Magister's Boots
         -- name, from Magister's Shoes to Magister's Boots
         -- required_level, from 5 to 10
-        UPDATE `item_template` SET `name` = `Magister''s Boots`, `required_level` = 10 WHERE (`entry` = 2971);
+        UPDATE `item_template` SET `name` = 'Magister''s Boots', `required_level` = 10 WHERE (`entry` = 2971);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2971, 3596);
         -- Patched Leather Shoulderpads
         -- name, from Rawhide Shoulderpads to Patched Leather Shoulderpads
         -- required_level, from 10 to 15
-        UPDATE `item_template` SET `name` = `Patched Leather Shoulderpads`, `required_level` = 15 WHERE (`entry` = 1793);
+        UPDATE `item_template` SET `name` = 'Patched Leather Shoulderpads', `required_level` = 15 WHERE (`entry` = 1793);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1793, 3596);
         -- Cured Leather Boots
         -- required_level, from 12 to 17
@@ -2218,7 +2218,7 @@ begin not atomic
         -- required_level, from 12 to 17
         -- dmg_min1, from 21.0 to 11
         -- dmg_max1, from 32.0 to 21
-        UPDATE `item_template` SET `name` = `Pearl-handled Dagger`, `required_level` = 17, `dmg_min1` = 11, `dmg_max1` = 21 WHERE (`entry` = 5540);
+        UPDATE `item_template` SET `name` = 'Pearl-handled Dagger', `required_level` = 17, `dmg_min1` = 11, `dmg_max1` = 21 WHERE (`entry` = 5540);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5540, 3596);
         -- Hook Dagger
         -- name, from Wavy Blladed Knife to Hook Dagger
@@ -2226,7 +2226,7 @@ begin not atomic
         -- required_level, from 8 to 13
         -- dmg_min1, from 16.0 to 8
         -- dmg_max1, from 24.0 to 15
-        UPDATE `item_template` SET `name` = `Hook Dagger`, `display_id` = 6468, `required_level` = 13, `dmg_min1` = 8, `dmg_max1` = 15 WHERE (`entry` = 3184);
+        UPDATE `item_template` SET `name` = 'Hook Dagger', `display_id` = 6468, `required_level` = 13, `dmg_min1` = 8, `dmg_max1` = 15 WHERE (`entry` = 3184);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3184, 3596);
         -- Hillman's Shoulders
         -- required_level, from 16 to 21
@@ -2621,7 +2621,7 @@ begin not atomic
         -- Blackrock Pauldrons
         -- name, from Blackrock Chain Pauldrons to Blackrock Pauldrons
         -- required_level, from 13 to 18
-        UPDATE `item_template` SET `name` = `Blackrock Pauldrons`, `required_level` = 18 WHERE (`entry` = 1445);
+        UPDATE `item_template` SET `name` = 'Blackrock Pauldrons', `required_level` = 18 WHERE (`entry` = 1445);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1445, 3596);
         -- Chestplate of Kor
         -- buy_price, from 6874 to 7094
@@ -2641,7 +2641,7 @@ begin not atomic
         -- name, from Blackrock Chain Gauntlets to Blackrock Gauntlets
         -- required_level, from 10 to 15
         -- stat_value1, from 0 to 1
-        UPDATE `item_template` SET `name` = `Blackrock Gauntlets`, `required_level` = 15, `stat_value1` = 1 WHERE (`entry` = 1448);
+        UPDATE `item_template` SET `name` = 'Blackrock Gauntlets', `required_level` = 15, `stat_value1` = 1 WHERE (`entry` = 1448);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1448, 3596);
         -- Clergy Ring
         -- required_level, from 12 to 17
@@ -2702,7 +2702,7 @@ begin not atomic
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3039, 3596);
         -- Brass Collar
         -- description, from Princess - First Prize to "Princess - First Prize"
-        UPDATE `item_template` SET `description` = `"Princess - First Prize"` WHERE (`entry` = 1006);
+        UPDATE `item_template` SET `description` = 'Princess - First Prize' WHERE (`entry` = 1006);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1006, 3596);
         -- Bishop's Miter
         -- bonding, from 1 to 2
@@ -2892,7 +2892,7 @@ begin not atomic
         -- Chainmail Armor
         -- name, from Chainmail Vest to Chainmail Armor
         -- required_level, from 7 to 12
-        UPDATE `item_template` SET `name` = `Chainmail Armor`, `required_level` = 12 WHERE (`entry` = 847);
+        UPDATE `item_template` SET `name` = 'Chainmail Armor', `required_level` = 12 WHERE (`entry` = 847);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (847, 3596);
         -- Scouting Belt
         -- buy_price, from 2535 to 2111
@@ -2940,7 +2940,7 @@ begin not atomic
         -- dmg_min1, from 22.0 to 13
         -- dmg_max1, from 34.0 to 24
         -- delay, from 2700 to 1400
-        UPDATE `item_template` SET `name` = `Opaque Wand`, `required_level` = 14, `dmg_min1` = 13, `dmg_max1` = 24, `delay` = 1400 WHERE (`entry` = 5207);
+        UPDATE `item_template` SET `name` = 'Opaque Wand', `required_level` = 14, `dmg_min1` = 13, `dmg_max1` = 24, `delay` = 1400 WHERE (`entry` = 5207);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5207, 3596);
         -- Magister's Pants
         -- required_level, from 6 to 11
@@ -2967,7 +2967,7 @@ begin not atomic
         -- required_level, from 15 to 20
         -- stat_value1, from 0 to 1
         -- stat_value2, from 0 to 2
-        UPDATE `item_template` SET `name` = `Forest Leather Chestpiece`, `display_id` = 9056, `required_level` = 20, `stat_value1` = 1, `stat_value2` = 2 WHERE (`entry` = 3055);
+        UPDATE `item_template` SET `name` = 'Forest Leather Chestpiece', `display_id` = 9056, `required_level` = 20, `stat_value1` = 1, `stat_value2` = 2 WHERE (`entry` = 3055);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3055, 3596);
         -- Dervish Leggings
         -- buy_price, from 6474 to 6656
@@ -3042,7 +3042,7 @@ begin not atomic
         -- name, from Studded Leather Cap to Studded Hat
         -- required_level, from 27 to 32
         -- stat_value1, from 0 to 4
-        UPDATE `item_template` SET `name` = `Studded Hat`, `required_level` = 32, `stat_value1` = 4 WHERE (`entry` = 3890);
+        UPDATE `item_template` SET `name` = 'Studded Hat', `required_level` = 32, `stat_value1` = 4 WHERE (`entry` = 3890);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3890, 3596);
         -- Barbaric Shoulders
         -- required_level, from 25 to 30
@@ -3084,7 +3084,7 @@ begin not atomic
         -- name, from Magister's Sash to Magister's Belt
         -- required_level, from 5 to 10
         -- stat_value1, from 0 to 4
-        UPDATE `item_template` SET `name` = `Magister''s Belt`, `required_level` = 10, `stat_value1` = 4 WHERE (`entry` = 4684);
+        UPDATE `item_template` SET `name` = 'Magister''s Belt', `required_level` = 10, `stat_value1` = 4 WHERE (`entry` = 4684);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4684, 3596);
         -- Riding Gloves
         -- required_level, from 10 to 15
@@ -3217,7 +3217,7 @@ begin not atomic
         -- Rawhide Shoulderpads
         -- name, from Tough Leather Shoulderpads to Rawhide Shoulderpads
         -- required_level, from 15 to 20
-        UPDATE `item_template` SET `name` = `Rawhide Shoulderpads`, `required_level` = 20 WHERE (`entry` = 1801);
+        UPDATE `item_template` SET `name` = 'Rawhide Shoulderpads', `required_level` = 20 WHERE (`entry` = 1801);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1801, 3596);
         -- Robes of Antiquity
         -- required_level, from 15 to 20
@@ -3575,7 +3575,7 @@ begin not atomic
         -- required_level, from 20 to 25
         -- stat_type1, from 0 to 6
         -- stat_value1, from 0 to 5
-        UPDATE `item_template` SET `name` = `Azure Silk Vest`, `buy_price` = 9373, `sell_price` = 1874, `inventory_type` = 5, `required_level` = 25, `stat_type1` = 6, `stat_value1` = 5 WHERE (`entry` = 4324);
+        UPDATE `item_template` SET `name` = 'Azure Silk Vest', `buy_price` = 9373, `sell_price` = 1874, `inventory_type` = 5, `required_level` = 25, `stat_type1` = 6, `stat_value1` = 5 WHERE (`entry` = 4324);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4324, 3596);
         -- Dark Runner Boots
         -- required_level, from 15 to 20
@@ -3673,7 +3673,7 @@ begin not atomic
         -- Feet of the Lynx
         -- name, from Thick-soled Boots to Feet of the Lynx
         -- stat_value1, from 0 to 3
-        UPDATE `item_template` SET `name` = `Feet of the Lynx`, `stat_value1` = 3 WHERE (`entry` = 1121);
+        UPDATE `item_template` SET `name` = 'Feet of the Lynx', `stat_value1` = 3 WHERE (`entry` = 1121);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1121, 3596);
         -- Silver-plated Shotgun
         -- required_level, from 16 to 21
@@ -3904,7 +3904,7 @@ begin not atomic
         -- required_level, from 26 to 31
         -- stat_value1, from 0 to 2
         -- stat_value3, from 0 to 10
-        UPDATE `item_template` SET `name` = `Insignia Cap`, `required_level` = 31, `stat_value1` = 2, `stat_value3` = 10 WHERE (`entry` = 4052);
+        UPDATE `item_template` SET `name` = 'Insignia Cap', `required_level` = 31, `stat_value1` = 2, `stat_value3` = 10 WHERE (`entry` = 4052);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4052, 3596);
         -- Insignia Gloves
         -- required_level, from 25 to 30
@@ -4056,7 +4056,7 @@ begin not atomic
         -- Padded Gloves
         -- name, from Padded Cloth Gloves to Padded Gloves
         -- required_level, from 17 to 22
-        UPDATE `item_template` SET `name` = `Padded Gloves`, `required_level` = 22 WHERE (`entry` = 2158);
+        UPDATE `item_template` SET `name` = 'Padded Gloves', `required_level` = 22 WHERE (`entry` = 2158);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2158, 3596);
         -- Defender Leggings
         -- required_level, from 10 to 15
@@ -4176,7 +4176,7 @@ begin not atomic
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6487, 3596);
         -- Tattered Cloth Boots
         -- name, from Tattered Cloth Shoes to Tattered Cloth Boots
-        UPDATE `item_template` SET `name` = `Tattered Cloth Boots` WHERE (`entry` = 195);
+        UPDATE `item_template` SET `name` = 'Tattered Cloth Boots' WHERE (`entry` = 195);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (195, 3596);
         -- Peon Sword
         -- dmg_min1, from 9.0 to 3
@@ -4262,7 +4262,7 @@ begin not atomic
         -- name, from Jagged Knife to Small Knife
         -- dmg_min1, from 5.0 to 2
         -- dmg_max1, from 8.0 to 4
-        UPDATE `item_template` SET `name` = `Small Knife`, `dmg_min1` = 2, `dmg_max1` = 4 WHERE (`entry` = 2484);
+        UPDATE `item_template` SET `name` = 'Small Knife', `dmg_min1` = 2, `dmg_max1` = 4 WHERE (`entry` = 2484);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2484, 3596);
         -- Acolyte Staff
         -- dmg_min1, from 10.0 to 6
@@ -4422,7 +4422,7 @@ begin not atomic
         -- sell_price, from 45 to 36
         -- item_level, from 12 to 11
         -- required_level, from 2 to 6
-        UPDATE `item_template` SET `name` = `Ancestral Belt`, `buy_price` = 183, `sell_price` = 36, `item_level` = 11, `required_level` = 6 WHERE (`entry` = 4672);
+        UPDATE `item_template` SET `name` = 'Ancestral Belt', `buy_price` = 183, `sell_price` = 36, `item_level` = 11, `required_level` = 6 WHERE (`entry` = 4672);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4672, 3596);
         -- Ancestral Gloves
         -- buy_price, from 302 to 193
@@ -4504,7 +4504,7 @@ begin not atomic
         -- buy_price, from 933 to 560
         -- sell_price, from 186 to 112
         -- required_level, from 7 to 12
-        UPDATE `item_template` SET `name` = `Willow Belt`, `quality` = 1, `buy_price` = 560, `sell_price` = 112, `required_level` = 12 WHERE (`entry` = 6539);
+        UPDATE `item_template` SET `name` = 'Willow Belt', `quality` = 1, `buy_price` = 560, `sell_price` = 112, `required_level` = 12 WHERE (`entry` = 6539);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6539, 3596);
         -- Ley Orb
         -- spellcooldown_1, from 1800000 to 3600000
@@ -4804,7 +4804,7 @@ begin not atomic
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4566, 3925);
         -- Gnarlpine Necklace
         -- description, from The glowing emerald just needs to be pulled out... to Emits a strange green glow...
-        UPDATE `item_template` SET `description` = `Emits a strange green glow...` WHERE (`entry` = 8049);
+        UPDATE `item_template` SET `description` = 'Emits a strange green glow...' WHERE (`entry` = 8049);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (8049, 3925);
         -- Brushwood Blade
         -- buy_price, from 1505 to 1504
