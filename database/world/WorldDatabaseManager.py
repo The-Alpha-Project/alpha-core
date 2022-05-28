@@ -127,6 +127,29 @@ class WorldDatabaseManager(object):
     # Item stuff
 
     @staticmethod
+    def get_item_applied_update(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(AppliedItemUpdates).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def create_item_applied_update(entry, version):
+        world_db_session = SessionHolder()
+        applied_item_update = AppliedItemUpdates(entry=entry, version=version)
+        world_db_session.add(applied_item_update)
+        world_db_session.flush()
+        world_db_session.refresh(applied_item_update)
+        world_db_session.close()
+
+    @staticmethod
+    def update_item_applied_update(item_applied_update):
+        world_db_session = SessionHolder()
+        world_db_session.merge(item_applied_update)
+        world_db_session.flush()
+        world_db_session.close()
+
+    @staticmethod
     def item_get_loot_template() -> list[ItemLootTemplate]:
         world_db_session = SessionHolder()
         res = world_db_session.query(ItemLootTemplate).all()

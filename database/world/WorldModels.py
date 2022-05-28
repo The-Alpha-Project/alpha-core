@@ -424,6 +424,13 @@ class ItemTemplate(Base):
     extra_flags = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
 
+class AppliedItemUpdates(Base):
+    __tablename__ = 'applied_item_updates'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
+    version = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+
 class NpcText(Base):
     __tablename__ = 'npc_text'
 
