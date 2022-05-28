@@ -346,6 +346,127 @@ begin not atomic
         -- Stinging Viper -> 2004-08-24 15:56:48 -> spelleffect1 changed from '3396' to '13518'
         UPDATE `item_template` SET `spellid_1` = '3396' WHERE (`entry` = '6472');
 
+       
+        -- WDB 3368 missing updates:
+
+        -- Flimsy Chain Cloak
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `material` = `5`, WHERE (`entry` = `2652`);
+        -- Worn Mace
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `material` = `1`, WHERE (`entry` = `36`);
+        -- Brawler's Pants
+        -- display_id, from 9988 to 9993
+        UPDATE `item_template` SET `display_id` = `9993`, WHERE (`entry` = `139`);
+        -- Ragged Leather Cloak
+        -- material, from 7 to 8
+        UPDATE `item_template` SET `material` = `8`, WHERE (`entry` = `1372`);
+        -- Forsaken Mace
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `material` = `1`, WHERE (`entry` = `3269`);
+        -- Executor Staff
+        -- display_id, from 3405 to 4995
+        UPDATE `item_template` SET `display_id` = `4995`, WHERE (`entry` = `3277`);
+        -- Conjured Bread
+        -- display_id, from 6342 to 6413
+        UPDATE `item_template` SET `display_id` = `6413`, WHERE (`entry` = `5349`);
+        -- Worn Leather Cloak
+        -- material, from 7 to 8
+        UPDATE `item_template` SET `material` = `8`, WHERE (`entry` = `1421`);
+        -- Battle Shield
+        -- display_id, from 2632 to 2633
+        UPDATE `item_template` SET `display_id` = `2633`, WHERE (`entry` = `3650`);
+        -- Ancestral Gloves
+        -- display_id, from 11392 to 11393
+        UPDATE `item_template` SET `display_id` = `11393`, WHERE (`entry` = `3290`);
+        -- Loose Chain Cloak
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `material` = `5`, WHERE (`entry` = `2644`);
+        -- Tribal Cloak
+        -- material, from 7 to 8
+        UPDATE `item_template` SET `material` = `8`, WHERE (`entry` = `4674`);
+        -- Light Hammer
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `material` = `1`, WHERE (`entry` = `2500`);
+        -- Battle Chain Cloak
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `material` = `5`, WHERE (`entry` = `4668`);
+        -- Billy Club
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `material` = `1`, WHERE (`entry` = `4563`);
+        -- Bonecracker
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `material` = `1`, WHERE (`entry` = `3440`);
+        -- Chainmail Vest
+        -- display_id, from 1019 to 2257
+        UPDATE `item_template` SET `display_id` = `2257`, WHERE (`entry` = `847`);
+        -- Ceremonial Leather Boots
+        -- stat_type2, from 6 to 1
+        UPDATE `item_template` SET `stat_type2` = `1`, WHERE (`entry` = `3311`);
+        -- Barbaric Linen Vest
+        -- stat_type2, from 6 to 2
+        UPDATE `item_template` SET `stat_type2` = `2`, WHERE (`entry` = `2578`);
+        -- Blacksmith's Hammer
+        -- description, from Needed for Blacksmithing to Needed for Blacksmithing.
+        UPDATE `item_template` SET `description` = `Needed for Blacksmithing.`, WHERE (`entry` = `5956`);
+        -- Round Buckler
+        -- allowable_class, from 2047 to 32767
+        -- allowable_race, from 255 to 511
+        UPDATE `item_template` SET `allowable_class` = `32767`,`allowable_race` = `511`, WHERE (`entry` = `2377`);
+        -- Chainmail Pants
+        -- display_id, from 697 to 1229
+        UPDATE `item_template` SET `display_id` = `1229`, WHERE (`entry` = `848`);
+        -- High Robe of the Adjudicator
+        -- stat_type2, from 6 to 4
+        UPDATE `item_template` SET `stat_type2` = `4`, WHERE (`entry` = `3461`);
+        -- Bonegrinding Pestle
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `material` = `1`, WHERE (`entry` = `3570`);
+        -- Worn Mail Cloak
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `material` = `5`, WHERE (`entry` = `1733`);
+        -- Sergeant's Warhammer
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `material` = `1`, WHERE (`entry` = `2079`);
+        -- Buckled Cloth Trousers
+        -- stat_type2, from 7 to 2
+        UPDATE `item_template` SET `stat_type2` = `2`, WHERE (`entry` = `3457`);
+        -- Solstice Robe
+        -- stat_type2, from 6 to 2
+        UPDATE `item_template` SET `stat_type2` = `2`, WHERE (`entry` = `4782`);
+        -- Acid Proof Cloak
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `material` = `5`, WHERE (`entry` = `3582`);
+        -- Staunch Mace
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `material` = `1`, WHERE (`entry` = `4569`);
+        -- Sturdy Flail
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `material` = `1`, WHERE (`entry` = `852`);
+        -- Double-stitched Woolen Shoulders
+        -- display_id, from 9997 to 9998
+        UPDATE `item_template` SET `display_id` = `9998`, WHERE (`entry` = `4314`);
+        -- Cranial Thumper
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `material` = `1`, WHERE (`entry` = `4303`);
+        -- Ceremonial Leather Tunic
+        -- stat_type2, from 6 to 2
+        UPDATE `item_template` SET `stat_type2` = `2`, WHERE (`entry` = `3313`);
+        -- Inscribed Leather Cloak
+        -- material, from 7 to 8
+        UPDATE `item_template` SET `material` = `8`, WHERE (`entry` = `4701`);
+        -- Ornamental Mace
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `material` = `1`, WHERE (`entry` = `1815`);
+        -- Brackwater Cloak
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `material` = `5`, WHERE (`entry` = `4680`);
+        -- Brackwater Leggings
+        -- stat_type2, from 7 to 2
+        UPDATE `item_template` SET `stat_type2` = `2`, WHERE (`entry` = `3305`);
+        -- Linked Chain Cloak
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `material` = `5`, WHERE (`entry` = `1749`);
 
         insert into applied_updates values ('260520221');
     end if;
