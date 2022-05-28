@@ -49,7 +49,8 @@ class ItemCacheParser:
                 displayName = PacketReader.read_string(data[8:], 0)
                 sql_field_comment.insert(0, f'-- {displayName}')
                 index = 8 + len(PacketWriter.string_to_bytes(displayName))
-                if displayName != item_template.name:
+                # Keep our names, unless they come from 3494 or earlier.
+                if displayName != item_template.name and version <= 3494:
                     sql_field_comment.append(f"-- name, from {item_template.name} to {displayName}")
                     sql_field_updates.append(f"`name` = `{displayName}`")
                     sql_field_updates[-1] = sql_field_updates[-1].replace("'", "''")
@@ -120,7 +121,8 @@ class ItemCacheParser:
 
                 required_level = unpack('<i', data[index: index + 4])[0]
                 index += 4
-                if ItemCacheParser._should_update(required_level, item_template.required_level):
+                # Assume some items required a minor level in early stages due to level caps.
+                if ItemCacheParser._should_update(required_level, item_template.required_level) and version <= 3494:
                     sql_field_comment.append(f"-- required_level, from {item_template.required_level} to {required_level}")
                     sql_field_updates.append(f"`required_level` = {required_level}")
 
@@ -163,8 +165,8 @@ class ItemCacheParser:
                     index += 4
                     current_stat_type = eval(f'item_template.stat_type{x + 1}')
                     stat_value = unpack('<i', data[index: index + 4])[0]
-                    current_stat_value = eval(f'item_template.stat_value{x + 1}')
                     index += 4
+                    current_stat_value = eval(f'item_template.stat_value{x + 1}')
                     if ItemCacheParser._should_update(stat_type, current_stat_type):
                         sql_field_comment.append(f"-- stat_type{x + 1}, from {current} to {stat_type}")
                         sql_field_updates.append(f"`stat_type{x + 1}` = {stat_type}")
@@ -172,18 +174,10 @@ class ItemCacheParser:
                         sql_field_comment.append(f"-- stat_value{x + 1}, from {current} to {stat_value}")
                         sql_field_updates.append(f"`stat_value{x + 1}` = {stat_value}")
 
-                # for x in range(10):
-                #     stat_value = unpack('<i', data[index: index + 4])[0]
-                #     index += 4
-                #     current = eval(f'item_template.stat_value{x + 1}')
-                #     if ItemCacheParser._should_update(stat_value, current):
-                #         sql_field_comment.append(f"-- stat_value{x + 1}, from {current} to {stat_value}")
-                #         sql_field_updates.append(f"`stat_value{x + 1}` = {stat_value}")
-
                 for x in range(5):
-                    dmg_min = unpack('<i', data[index: index + 4])[0]
+                    dmg_min = unpack(f'{"<i" if version < 3925 else "<f"}', data[index: index + 4])[0]
                     index += 4
-                    dmg_max = unpack('<i', data[index: index + 4])[0]
+                    dmg_max = unpack(f'{"<i" if version < 3925 else "<f"}', data[index: index + 4])[0]
                     index += 4
                     dmg_type = unpack('<i', data[index: index + 4])[0]
                     index += 4
@@ -200,17 +194,17 @@ class ItemCacheParser:
                         sql_field_comment.append(f"-- dmg_type{x + 1}, from {current_dmg_type} to {dmg_type}")
                         sql_field_updates.append(f"`dmg_type{x + 1}` = {dmg_type}")
 
+                if version == 3925:
+                    index += 4  # Extra resistance? Should we consider this armor?
+
                 resistances = ['fire_res', 'holy_res', 'arcane_res', 'frost_res', 'nature_res', 'shadow_res']
                 for x in range(6):
-                    res = unpack('<i', data[index: index + 4])[0]
+                    resistance = unpack('<i', data[index: index + 4])[0]
                     index += 4
                     current = eval(f' item_template.{resistances[x]}')
-                    if ItemCacheParser._should_update(res, current):
-                        sql_field_comment.append(f"-- {resistances[x]}, from {current} to {res}")
-                        sql_field_updates.append(f"`{resistances[x]}` = {res}")
-
-                if version == 3925:
-                    index += 4  # Extra resistance?
+                    if ItemCacheParser._should_update(resistance, current):
+                        sql_field_comment.append(f"-- {resistances[x]}, from {current} to {resistance}")
+                        sql_field_updates.append(f"`{resistances[x]}` = {resistance}")
 
                 delay = unpack('<i', data[index: index + 4])[0]
                 index += 4
@@ -224,11 +218,12 @@ class ItemCacheParser:
                     sql_field_comment.append(f"-- ammo_type, from {item_template.ammo_type} to {ammo_type}")
                     sql_field_updates.append(f"`ammo_type` = {ammo_type}")
 
-                max_durability = unpack('<i', data[index: index + 4])[0]
-                index += 4
-                if ItemCacheParser._should_update(max_durability, item_template.max_durability):
-                    sql_field_comment.append(f"-- max_durability, from {item_template.max_durability} to {max_durability}")
-                    sql_field_updates.append(f"`max_durability` = {max_durability}")
+                if version < 3925:  # RangeModifier.
+                    max_durability = unpack('<i', data[index: index + 4])[0]
+                    index += 4
+                    if ItemCacheParser._should_update(max_durability, item_template.max_durability):
+                        sql_field_comment.append(f"-- max_durability, from {item_template.max_durability} to {max_durability}")
+                        sql_field_updates.append(f"`max_durability` = {max_durability}")
 
                 for x in range(5):
                     spellid = unpack('<i', data[index: index + 4])[0]
@@ -333,6 +328,8 @@ class ItemCacheParser:
                     index += 4  # Durability.
                     index += 4  # Random Property.
 
+                #print(record_size)
+                #print(index)
                 if len(sql_field_updates) > 1:
                     applied_item_update_sql = ''
                     applied_update = WorldDatabaseManager.get_item_applied_update(entry_id)
@@ -357,8 +354,6 @@ class ItemCacheParser:
                         print(comment)
                     sql_update_command = sql_field_updates[0] + ', '.join(
                         update for update in sql_field_updates[1:]) + f" WHERE (`entry` = {entry_id});"
-                    print(sql_update_command)
-                    print(applied_item_update_sql)
 
     @staticmethod
     def _should_update(new, old):
