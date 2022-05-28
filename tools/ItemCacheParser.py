@@ -354,6 +354,8 @@ class ItemCacheParser:
                         print(comment)
                     sql_update_command = sql_field_updates[0] + ', '.join(
                         update for update in sql_field_updates[1:]) + f" WHERE (`entry` = {entry_id});"
+                    print(sql_update_command)
+                    print(applied_item_update_sql)
 
     @staticmethod
     def _should_update(new, old):
