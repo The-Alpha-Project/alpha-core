@@ -1,5 +1,4 @@
 from struct import unpack
-
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import AppliedItemUpdates
 from network.packet.PacketReader import PacketReader
@@ -32,108 +31,93 @@ class ItemCacheParser:
                 # Load byte chunk.
                 data = wdb.read(record_size)
 
+                # Pointer.
+                index = 0
+
                 item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry_id)
                 if not item_template:
                     continue
 
-                class_ = unpack('<i', data[:4])[0]
+                index, class_ = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(class_, item_template.class_):
                     sql_field_comment.append(f"-- class, from {item_template.class_} to {class_}")
                     sql_field_updates.append(f"`class` = {class_}")
 
-                subclass = unpack('<i', data[4:8])[0]
+                index, subclass = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(subclass, item_template.subclass):
                     sql_field_comment.append(f"-- subclass, from {item_template.subclass} to {subclass}")
                     sql_field_updates.append(f"`subclass` = {subclass}")
 
-                displayName = PacketReader.read_string(data[8:], 0)
+                index, displayName = ItemCacheParser._read_string(data, index)
                 sql_field_comment.insert(0, f'-- {displayName}')
-                index = 8 + len(PacketWriter.string_to_bytes(displayName))
                 # Keep our names, unless they come from 3494 or earlier.
                 if displayName != item_template.name and version <= 3494:
                     sql_field_comment.append(f"-- name, from {item_template.name} to {displayName}")
                     sql_field_updates.append(f"`name` = '{displayName}'")
                     sql_field_updates[-1] = sql_field_updates[-1].replace("'", "''")
 
-                displayName = PacketReader.read_string(data[index:], 0)
-                index += len(PacketWriter.string_to_bytes(displayName))
+                index, displayName_2 = ItemCacheParser._read_string(data, index)
+                index, displayName_3 = ItemCacheParser._read_string(data, index)
+                index, displayName_4 = ItemCacheParser._read_string(data, index)
 
-                displayName = PacketReader.read_string(data[index:], 0)
-                index += len(PacketWriter.string_to_bytes(displayName))
-
-                displayName = PacketReader.read_string(data[index:], 0)
-                index += len(PacketWriter.string_to_bytes(displayName))
-
-                display_id = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, display_id = ItemCacheParser._read_int(data, index)
                 # Only allow display_id downgrade for now.
                 if ItemCacheParser._should_update(display_id, item_template.display_id) and display_id < item_template.display_id:
                     sql_field_comment.append(f"-- display_id, from {item_template.display_id} to {display_id}")
                     sql_field_updates.append(f"`display_id` = {display_id}")
 
-                quality = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, quality = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(quality, item_template.quality):
                     sql_field_comment.append(f"-- quality, from {item_template.quality} to {quality}")
                     sql_field_updates.append(f"`quality` = {quality}")
 
-                flags = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, flags = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(flags, item_template.flags):
                     sql_field_comment.append(f"-- flags, from {item_template.flags} to {flags}")
                     sql_field_updates.append(f"`flags` = {flags}")
 
-                buy_price = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, buy_price = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(buy_price, item_template.buy_price):
                     sql_field_comment.append(f"-- buy_price, from {item_template.buy_price} to {buy_price}")
                     sql_field_updates.append(f"`buy_price` = {buy_price}")
 
-                sell_price = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, sell_price = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(sell_price, item_template.sell_price):
                     sql_field_comment.append(f"-- sell_price, from {item_template.sell_price} to {sell_price}")
                     sql_field_updates.append(f"`sell_price` = {sell_price}")
 
-                inventory_type = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, inventory_type = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(inventory_type, item_template.inventory_type):
                     sql_field_comment.append(f"-- inventory_type, from {item_template.inventory_type} to {inventory_type}")
                     sql_field_updates.append(f"`inventory_type` = {inventory_type}")
 
-                allowable_class = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, allowable_class = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(allowable_class, item_template.allowable_class):
                     sql_field_comment.append(f"-- allowable_class, from {item_template.allowable_class} to {allowable_class}")
                     sql_field_updates.append(f"`allowable_class` = {allowable_class}")
 
-                allowable_race = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, allowable_race = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(allowable_race, item_template.allowable_race):
                     sql_field_comment.append(f"-- allowable_race, from {item_template.allowable_race} to {allowable_race}")
                     sql_field_updates.append(f"`allowable_race` = {allowable_race}")
 
-                item_level = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, item_level = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(item_level, item_template.item_level):
                     sql_field_comment.append(f"-- item_level, from {item_template.item_level} to {item_level}")
                     sql_field_updates.append(f"`item_level` = {item_level}")
 
-                required_level = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, required_level = ItemCacheParser._read_int(data, index)
                 # Assume some items required a minor level in early stages due to level caps.
                 if ItemCacheParser._should_update(required_level, item_template.required_level) and version <= 3494:
                     sql_field_comment.append(f"-- required_level, from {item_template.required_level} to {required_level}")
                     sql_field_updates.append(f"`required_level` = {required_level}")
 
-                required_skill = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, required_skill = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(required_skill, item_template.required_skill):
                     sql_field_comment.append(f"-- required_skill, from {item_template.required_skill} to {required_skill}")
                     sql_field_updates.append(f"`required_skill` = {required_skill}")
 
-                required_skill_rank = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, required_skill_rank = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(required_skill_rank, item_template.required_skill_rank):
                     sql_field_comment.append(f"-- required_skill_rank, from {item_template.required_skill_rank} to {required_skill_rank}")
                     sql_field_updates.append(f"`required_skill_rank` = {required_skill_rank}")
@@ -141,31 +125,26 @@ class ItemCacheParser:
                 if version == 3925:
                     index += 12  # Unknown fields.
 
-                max_count = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, max_count = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(max_count, item_template.max_count):
                     sql_field_comment.append(f"-- max_count, from {item_template.max_count} to {max_count}")
                     sql_field_updates.append(f"`max_count` = {max_count}")
 
-                stackable = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, stackable = ItemCacheParser._read_int(data, index)
                 # Assume anything older had less stackable amount.
                 if ItemCacheParser._should_update(stackable, item_template.stackable) and stackable < item_template.stackable:
                     sql_field_comment.append(f"-- stackable, from {item_template.stackable} to {stackable}")
                     sql_field_updates.append(f"`stackable` = {stackable}")
 
-                container_slots = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, container_slots = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(container_slots, item_template.container_slots):
                     sql_field_comment.append(f"-- container_slots, from {item_template.container_slots} to {container_slots}")
                     sql_field_updates.append(f"`container_slots` = {container_slots}")
 
                 for x in range(10):
-                    stat_type = unpack('<i', data[index: index + 4])[0]
-                    index += 4
+                    index, stat_type = ItemCacheParser._read_int(data, index)
                     current_stat_type = eval(f'item_template.stat_type{x + 1}')
-                    stat_value = unpack('<i', data[index: index + 4])[0]
-                    index += 4
+                    index, stat_value = ItemCacheParser._read_int(data, index)
                     current_stat_value = eval(f'item_template.stat_value{x + 1}')
                     if ItemCacheParser._should_update(stat_type, current_stat_type):
                         sql_field_comment.append(f"-- stat_type{x + 1}, from {current} to {stat_type}")
@@ -175,14 +154,13 @@ class ItemCacheParser:
                         sql_field_updates.append(f"`stat_value{x + 1}` = {stat_value}")
 
                 for x in range(5):
-                    dmg_min = unpack(f'{"<i" if version < 3925 else "<f"}', data[index: index + 4])[0]
-                    index += 4
-                    dmg_max = unpack(f'{"<i" if version < 3925 else "<f"}', data[index: index + 4])[0]
-                    index += 4
-                    dmg_type = unpack('<i', data[index: index + 4])[0]
-                    index += 4
+                    index, dmg_min = ItemCacheParser._read_float(data, index) if version < 3925 \
+                        else ItemCacheParser._read_int(data, index)
                     current_min = eval(f'item_template.dmg_min{x + 1}')
+                    index, dmg_max = ItemCacheParser._read_float(data, index) if version < 3925 \
+                        else ItemCacheParser._read_int(data, index)
                     current_max = eval(f'item_template.dmg_max{x + 1}')
+                    index, dmg_type = ItemCacheParser._read_int(data, index)
                     current_dmg_type = eval(f' item_template.dmg_type{x + 1}')
                     if ItemCacheParser._should_update(dmg_min, current_min):
                         sql_field_comment.append(f"-- dmg_min{x + 1}, from {current_min} to {dmg_min}")
@@ -199,55 +177,45 @@ class ItemCacheParser:
 
                 resistances = ['fire_res', 'holy_res', 'arcane_res', 'frost_res', 'nature_res', 'shadow_res']
                 for x in range(6):
-                    resistance = unpack('<i', data[index: index + 4])[0]
-                    index += 4
+                    index, resistance = ItemCacheParser._read_int(data, index)
                     current = eval(f' item_template.{resistances[x]}')
                     if ItemCacheParser._should_update(resistance, current):
                         sql_field_comment.append(f"-- {resistances[x]}, from {current} to {resistance}")
                         sql_field_updates.append(f"`{resistances[x]}` = {resistance}")
 
-                delay = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, delay = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(delay, item_template.delay):
                     sql_field_comment.append(f"-- delay, from {item_template.delay} to {delay}")
                     sql_field_updates.append(f"`delay` = {delay}")
 
-                ammo_type = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, ammo_type = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(ammo_type, item_template.ammo_type):
                     sql_field_comment.append(f"-- ammo_type, from {item_template.ammo_type} to {ammo_type}")
                     sql_field_updates.append(f"`ammo_type` = {ammo_type}")
 
                 if version < 3925:  # RangeModifier.
-                    max_durability = unpack('<i', data[index: index + 4])[0]
-                    index += 4
+                    index, max_durability = ItemCacheParser._read_int(data, index)
                     if ItemCacheParser._should_update(max_durability, item_template.max_durability):
                         sql_field_comment.append(f"-- max_durability, from {item_template.max_durability} to {max_durability}")
                         sql_field_updates.append(f"`max_durability` = {max_durability}")
 
                 for x in range(5):
-                    spellid = unpack('<i', data[index: index + 4])[0]
-                    index += 4
+                    index, spellid = ItemCacheParser._read_int(data, index)
                     current_spellid = eval(f' item_template.spellid_{x + 1}')
 
-                    spelltrigger = unpack('<i', data[index: index + 4])[0]
-                    index += 4
+                    index, spelltrigger = ItemCacheParser._read_int(data, index)
                     current_spelltrigger = eval(f' item_template.spelltrigger_{x + 1}')
 
-                    spellcharges = unpack('<i', data[index: index + 4])[0]
-                    index += 4
+                    index, spellcharges = ItemCacheParser._read_int(data, index)
                     current_spellcharges = eval(f' item_template.spellcharges_{x + 1}')
 
-                    spellcooldown = unpack('<i', data[index: index + 4])[0]
-                    index += 4
+                    index, spellcooldown = ItemCacheParser._read_int(data, index)
                     current_spellcooldown = eval(f' item_template.spellcooldown_{x + 1}')
 
-                    spellcategory = unpack('<i', data[index: index + 4])[0]
-                    index += 4
+                    index, spellcategory = ItemCacheParser._read_int(data, index)
                     current_spellcategory = eval(f' item_template.spellcategory_{x + 1}')
 
-                    spellcategorycooldown = unpack('<i', data[index: index + 4])[0]
-                    index += 4
+                    index, spellcategorycooldown = ItemCacheParser._read_int(data, index)
                     current_spellcategorycooldown = eval(f' item_template.spellcategorycooldown_{x + 1}')
 
                     if ItemCacheParser._should_update(spellid, current_spellid) and spellid < 7913:  # 0.5.3 max.
@@ -269,57 +237,48 @@ class ItemCacheParser:
                         sql_field_comment.append(f"-- spellcategorycooldown_{x + 1}, from {current_spellcategorycooldown} to {spellcategorycooldown}")
                         sql_field_updates.append(f"`spellcategorycooldown_{x + 1}` = {spellcategorycooldown}")
 
-                bonding = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, bonding = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(bonding, item_template.bonding):
                     sql_field_comment.append(f"-- bonding, from {item_template.bonding} to {bonding}")
                     sql_field_updates.append(f"`bonding` = {bonding}")
 
-                description = PacketReader.read_string(data[index:], 0)
-                index += len(PacketWriter.string_to_bytes(description))
+                index, description = ItemCacheParser._read_string(data, index)
                 if ItemCacheParser._should_update(description, item_template.description) and len(description) > 0:
                     sql_field_comment.append(f"-- description, from {item_template.description} to {description}")
                     sql_field_updates.append(f"`description` = '{description}'")
                     sql_field_updates[-1] = sql_field_updates[-1].replace("'", "''")
 
-                page_text = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, page_text = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(page_text, item_template.page_text):
                     sql_field_comment.append(f"-- page_text, from {item_template.page_text} to {page_text}")
                     sql_field_updates.append(f"`page_text` = {page_text}")
 
-                page_language = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, page_language = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(page_language, item_template.page_language):
                     sql_field_comment.append(f"-- page_language, from {item_template.page_language} to {page_language}")
                     sql_field_updates.append(f"`page_language` = {page_language}")
 
-                page_material = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, page_material = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(page_material, item_template.page_material) and page_material < 6:
                     sql_field_comment.append(f"-- page_material, from {item_template.page_material} to {page_material}")
                     sql_field_updates.append(f"`page_material` = {page_material}")
 
-                start_quest = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, start_quest = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(start_quest, item_template.start_quest):
                     sql_field_comment.append(f"-- start_quest, from {item_template.start_quest} to {start_quest}")
                     sql_field_updates.append(f"`start_quest` = {start_quest}")
 
-                lock_id = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, lock_id = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(lock_id, item_template.lock_id):
                     sql_field_comment.append(f"-- lock_id, from {item_template.lock_id} to {lock_id}")
                     sql_field_updates.append(f"`lock_id` = {lock_id}")
 
-                material = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, material = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(material, item_template.material):
                     sql_field_comment.append(f"-- material, from {item_template.material} to {material}")
                     sql_field_updates.append(f"`material` = {material}")
 
-                sheath = unpack('<i', data[index: index + 4])[0]
-                index += 4
+                index, sheath = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(sheath, item_template.sheath):
                     sql_field_comment.append(f"-- sheath, from {item_template.sheath} to {sheath}")
                     sql_field_updates.append(f"`sheath` = {sheath}")
@@ -328,14 +287,11 @@ class ItemCacheParser:
                     index += 4  # Durability.
                     index += 4  # Random Property.
 
-                #print(record_size)
-                #print(index)
                 if len(sql_field_updates) > 1:
                     applied_item_update_sql = ''
                     applied_update = WorldDatabaseManager.get_item_applied_update(entry_id)
                     # Do not update items which have been updates with a previous version.
-                    if applied_update and applied_update.version < version or \
-                            applied_update and applied_update.version == version:
+                    if applied_update and applied_update.version < version:
                         continue
 
                     if not applied_update:
@@ -356,6 +312,20 @@ class ItemCacheParser:
                         update for update in sql_field_updates[1:]) + f" WHERE (`entry` = {entry_id});"
                     print(sql_update_command)
                     print(applied_item_update_sql)
+
+    @staticmethod
+    def _read_int(data, index):
+        return index + 4, unpack('<i', data[index: index + 4])[0]
+
+    @staticmethod
+    def _read_float(data, index):
+        return index + 4, unpack('<f', data[index: index + 4])[0]
+
+    @staticmethod
+    def _read_string(data, index):
+        text = PacketReader.read_string(data[index:], 0)
+        text_byte_length = len(PacketWriter.string_to_bytes(text))
+        return index + text_byte_length, text
 
     @staticmethod
     def _should_update(new, old):
