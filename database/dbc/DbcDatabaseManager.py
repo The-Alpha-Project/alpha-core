@@ -162,6 +162,13 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    def spell_visual_get_by_id(spell_visual_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellVisual).filter_by(ID=spell_visual_id).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
     def spell_range_get_by_id(range_index):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellRange).filter_by(ID=range_index).first()

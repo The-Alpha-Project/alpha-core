@@ -576,8 +576,8 @@ class SpellManager:
 
     def handle_visual_animation(self, casting_spell):
         # Send spell visual ID, if available.
-        if casting_spell.has_visual_id():
-            data = pack('<QI', self.caster.guid, casting_spell.spell_entry.SpellVisualID)
+        if casting_spell.has_spell_visual_pre_cast():
+            data = pack('<QI', self.caster.guid, casting_spell.spell_visual_entry.ID)
             packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
             MapManager.send_surrounding(packet, self.caster,
                                         include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)

@@ -3,7 +3,7 @@ from struct import pack
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import Spell, SpellRange, SpellDuration, SpellCastTimes
+from database.dbc.DbcModels import Spell, SpellRange, SpellDuration, SpellCastTimes, SpellVisual
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
@@ -35,6 +35,7 @@ class CastingSpell:
     range_entry: SpellRange
     duration_entry: SpellDuration
     cast_time_entry: SpellCastTimes
+    spell_visual_entry: SpellVisual
     _effects: list[Optional[SpellEffect]]
 
     cast_start_timestamp: float
@@ -57,6 +58,7 @@ class CastingSpell:
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
+        self.spell_visual_entry = DbcDatabaseManager.spell_visual_get_by_id(spell.SpellVisualID)
 
         if self.spell_caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
@@ -202,8 +204,8 @@ class CastingSpell:
         # Return true if the effect has an implicit unit selection target.
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
 
-    def has_visual_id(self):
-        return self.spell_entry.SpellVisualID > 0
+    def has_spell_visual_pre_cast(self):
+        return self.spell_visual_entry and self.spell_visual_entry.PrecastKit > 0
 
     def is_fishing_spell(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IS_FISHING
