@@ -1041,7 +1041,8 @@ class UnitManager(ObjectManager):
             self.mount(mount_display_id)
             self.unit_flags |= (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
         else:
-            self.unmount()
+            if self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+                self.unmount()
             self.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
 
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)

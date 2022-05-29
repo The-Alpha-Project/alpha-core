@@ -461,7 +461,11 @@ class PlayerManager(UnitManager):
         if self.movement_manager.unit_is_moving():
             self.movement_manager.reset()
 
-        # TODO: Stop any movement, cancel spell cast, etc.
+        # Remove any ongoing cast.
+        if self.spell_manager.is_casting():
+            self.spell_manager.remove_all_casts()
+
+        # TODO: Stop any movement, rotation?
         # New destination we will use when we receive an acknowledge message from client.
         self.pending_teleport_destination_map = map_
         self.pending_teleport_destination = Vector(location.x, location.y, location.z, location.o)
@@ -543,9 +547,16 @@ class PlayerManager(UnitManager):
         # Remove the player's active pet.
         self.pet_manager.detach_active_pet()
 
-        self.unmount()
+        # Remove taxi flying state, if any.
+        if self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+            self.set_taxi_flying_state(False)
+            self.pending_taxi_destination = None
 
-        # Get us in a new cell and check for pending changes.
+        # Unmount if needed.
+        if self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+            self.unmount()
+
+        # Get us in a new cell.
         MapManager.update_object(self)
 
         self.pending_teleport_destination_map = -1

@@ -220,11 +220,13 @@ class QuestManager(object):
             elif quest_entry in quest_giver_finish_quests and quest_state == QuestState.QUEST_ACCEPTED:
                 quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_QUEST, QuestState.QUEST_ACCEPTED)
 
-        # No quest menu items, do not display anything.
-        if len(quest_menu.items) == 0:
+        has_greeting, greeting_text, emote = QuestManager.get_quest_giver_gossip_string(quest_giver)
+
+        # No quest menu items but has greeting, display that.
+        if len(quest_menu.items) == 0 and has_greeting:
+            self.send_quest_giver_quest_list(greeting_text, emote, quest_giver_guid, quest_menu.items)
             return
 
-        has_greeting, greeting_text, emote = QuestManager.get_quest_giver_gossip_string(quest_giver)
         # If we only have 1 quest menu item, and it has no custom greeting, send the appropriate packet directly.
         if len(quest_menu.items) == 1 and not has_greeting:
             quest_menu_item = list(quest_menu.items.values())[0]
