@@ -202,6 +202,9 @@ class CastingSpell:
         # Return true if the effect has an implicit unit selection target.
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
 
+    def has_visual_id(self):
+        return self.spell_entry.SpellVisualID > 0
+
     def is_fishing_spell(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IS_FISHING
 

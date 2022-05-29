@@ -839,6 +839,7 @@ class UnitManager(ObjectManager):
         self.mount(creature_template.display_id1)
         return True
 
+    # TODO, this should be moved to specific creature and player implementations.
     def mount(self, mount_display_id):
         if mount_display_id > 0 and \
                 DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):

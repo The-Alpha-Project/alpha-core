@@ -221,7 +221,7 @@ class SpellManager:
 
         casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
         if casting_spell.is_channeled():
-            self.handle_channel_start(casting_spell)  # Channeled spells require more setup before effect application
+            self.handle_channel_start(casting_spell)  # Channeled spells require more setup before effect application.
         else:
             self.apply_spell_effects(casting_spell)  # Apply effects
             # Some spell effect handlers will set the spell state to active as the handler needs to be called on updates
@@ -509,7 +509,8 @@ class SpellManager:
         if not self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return  # Non-unit casters should not broadcast their casts.
 
-        data = [self.caster.guid, self.caster.guid,
+        source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
+        data = [source_guid, self.caster.guid,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags, casting_spell.get_base_cast_time(),
                 casting_spell.spell_target_mask]
 
@@ -525,9 +526,14 @@ class SpellManager:
             data.append(casting_spell.used_ranged_attack_item.item_template.display_id)
             data.append(casting_spell.used_ranged_attack_item.item_template.inventory_type)
 
+        # Spell start.
         data = pack(signature, *data)
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.caster,
+        packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data)
+        MapManager.send_surrounding(packet, self.caster,
                                     include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
+
+        # Send visual animation if available.
+        self.handle_visual_animation(casting_spell)
 
     def handle_channel_start(self, casting_spell):
         if not casting_spell.is_channeled() or casting_spell.duration_entry.Duration == -1:
@@ -549,7 +555,6 @@ class SpellManager:
         data = pack('<2I', casting_spell.spell_entry.ID,
                     casting_spell.duration_entry.Duration)  # No channeled spells with duration per level.
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
-        # TODO Channeling animations do not play
 
     def handle_spell_effect_update(self, casting_spell, timestamp):
         for effect in casting_spell.get_effects():
@@ -568,6 +573,14 @@ class SpellManager:
             # Area spell effect update.
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 self.apply_spell_effects(casting_spell, update=True)
+
+    def handle_visual_animation(self, casting_spell):
+        # Send spell visual ID, if available.
+        if casting_spell.has_visual_id():
+            data = pack('<QI', self.caster.guid, casting_spell.spell_entry.SpellVisualID)
+            packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
+            MapManager.send_surrounding(packet, self.caster,
+                                        include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():

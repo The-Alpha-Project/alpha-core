@@ -78,7 +78,7 @@ class GameObjectManager(ObjectManager):
 
         # Ritual initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
-            self.ritual_caster = None
+            self.ritual_caster = None if not spawned_by else spawned_by
             self.ritual_participants = []
 
         # Trap collision initializations.
@@ -199,8 +199,11 @@ class GameObjectManager(ObjectManager):
         player.send_loot(self)
 
     def _handle_use_ritual(self, player):
+        # Caster is no longer in a group.
+        if not self.ritual_caster.group_manager:
+            return
         # Participant group limitations.
-        if not self.ritual_caster.group_manager or not self.ritual_caster.group_manager.is_party_member(player.guid):
+        if not self.ritual_caster.group_manager.is_party_member(player.guid):
             return
 
         ritual_channel_spell_id = self.gobject_template.data2
