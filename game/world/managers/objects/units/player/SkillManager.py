@@ -411,6 +411,15 @@ class SkillManager(object):
 
         return True
 
+    def handle_craft_skill_gain(self, skill_type):
+        skill = self.skills.get(skill_type, None)
+        if not skill:
+            return False
+
+        self.set_skill(skill_type, skill.value + 1)
+        self.build_update()
+        return True
+
     def handle_fishing_attempt_chance(self):
         skill = self.skills.get(SkillTypes.FISHING, None)
         if not skill:

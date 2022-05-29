@@ -15,6 +15,7 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
+from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses
@@ -23,7 +24,6 @@ from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode
-from utils.constants.UpdateFields import UnitFields
 
 
 class SpellManager:
@@ -227,6 +227,10 @@ class SpellManager:
             # Some spell effect handlers will set the spell state to active as the handler needs to be called on updates
             if casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
                 self.remove_cast(casting_spell)
+
+        # Handle enchanting skill gain here for now.
+        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and casting_spell.is_enchantment_spell():
+            self.caster.skill_manager.handle_craft_skill_gain(SkillTypes.ENCHANTING)
 
         self.set_on_cooldown(casting_spell)
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
