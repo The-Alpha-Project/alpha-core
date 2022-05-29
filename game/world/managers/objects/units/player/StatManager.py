@@ -5,9 +5,10 @@ from struct import pack, unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from game.world.managers.objects.units.player.SkillManager import SkillTypes, SkillManager
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
+from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses, \
+    ItemEnchantmentType
 from utils.constants.MiscCodes import AttackTypes, ObjectTypeFlags, HitInfo, ObjectTypeIds
-from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms
+from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms, SpellTargetMask
 from utils.constants.UnitCodes import PowerTypes, Classes, Races
 
 
@@ -345,15 +346,33 @@ class StatManager(object):
             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = self.unit_mgr.level * 1.25 * (attack_delay / 1000)
             self.item_stats[UnitStats.MAIN_HAND_DELAY] = attack_delay
 
+        # Regenerate item stats.
         for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
-            # Check only equipped items
+            # Check equipped items.
             if item.current_slot <= InventorySlots.SLOT_TABARD:
+                # Handle normal item stats.
                 for stat in item.stats:
-                    if stat.value == 0:
-                        continue
-                    stat_type = INVENTORY_STAT_TO_UNIT_STAT[stat.stat_type]
+                    if stat.value != 0:
+                        stat_type = INVENTORY_STAT_TO_UNIT_STAT[stat.stat_type]
+                        current = self.item_stats.get(stat_type, 0)
+                        self.item_stats[stat_type] = current + stat.value
+                # Handle stat mod enchantments.
+                if item.has_enchantments_effect_by_type(ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_STAT):
+                    enchantment_type = ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_STAT
+                    effect_value = item.get_enchantments_effect_value_by_type(enchantment_type)
+                    stat_type = INVENTORY_STAT_TO_UNIT_STAT[effect_value]
                     current = self.item_stats.get(stat_type, 0)
-                    self.item_stats[stat_type] = current + stat.value
+                    self.item_stats[stat_type] = current + effect_value
+                # Handle equip spell.
+                if item.has_enchantments_effect_by_type(ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL):
+                    enchantment_type = ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL
+                    effect_spell_value = item.get_enchantment_spell_effect_by_type(enchantment_type)
+                    # Check if player already has the triggered aura active.
+                    if effect_spell_value and not self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
+                        # Learn spell if needed and cast.
+                        self.unit_mgr.spell_manager.learn_spell(effect_spell_value)
+                        self.unit_mgr.spell_manager.handle_cast_attempt(effect_spell_value, self.unit_mgr,
+                                                                        SpellTargetMask.SELF)
 
                 # Add resistances/block
                 separate_stats = {UnitStats.RESISTANCE_PHYSICAL: item.item_template.armor,

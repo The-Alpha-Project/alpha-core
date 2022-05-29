@@ -1,4 +1,5 @@
 from struct import pack
+
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterInventory
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -10,7 +11,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.item.ItemLootManager import ItemLootManager
 from utils.ByteUtils import ByteUtils
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags, \
-    EnchantmentSlots
+    EnchantmentSlots, ItemEnchantmentType
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.UpdateFields import ObjectFields, ItemFields
 
@@ -359,9 +360,10 @@ class ItemManager(ObjectManager):
         if db_enchantments:
             values = db_enchantments.rsplit(',')
             for index in range(MAX_ENCHANTMENTS):
-                self.enchantments[index].entry = int(values[index * 3 + 0])
-                self.enchantments[index].duration = int(values[index * 3 + 1])
-                self.enchantments[index].charges = int(values[index * 3 + 2])
+                entry = int(values[index * 3 + 0])
+                duration = int(values[index * 3 + 1])
+                charges = int(values[index * 3 + 2])
+                self.enchantments[index].update(entry, duration, charges)
 
     def save_enchantments(self):
         if self.item_instance:
@@ -379,11 +381,31 @@ class ItemManager(ObjectManager):
     def get_creator_guid(self):
         return self.item_instance.creator if self.item_instance else 0
 
+    def has_enchantments(self):
+        return any(enchantment.entry > 0 for enchantment in self.enchantments)
+
     def has_enchantment_in_slot(self, slot: [EnchantmentSlots]):
         return self.enchantments[slot].entry if slot < MAX_ENCHANTMENTS else False
 
     def get_permanent_enchant_value(self):
         return self.enchantments[EnchantmentSlots.PermanentSlot].entry
+
+    def has_enchantments_effect_by_type(self, enchantment_type):
+        return any(enchantment.has_enchantment_effect(enchantment_type) for enchantment in self.enchantments)
+
+    def get_enchantments_effect_value_by_type(self, enchantment_type):
+        for enchantment in self.enchantments:
+            effect_value = enchantment.get_enchantment_effect_points_by_type(enchantment_type)
+            if effect_value:
+                return effect_value
+        return 0
+
+    def get_enchantment_spell_effect_by_type(self, enchantment_type):
+        for enchantment in self.enchantments:
+            effect_spell_value = enchantment.get_enchantment_spell_effect_by_type(enchantment_type)
+            if effect_spell_value:
+                return effect_spell_value
+        return 0
 
     def set_stack_count(self, count):
         if self.item_instance:
@@ -403,9 +425,7 @@ class ItemManager(ObjectManager):
                 break
 
     def set_enchantment(self, slot, value, duration, charges):
-        self.enchantments[slot].entry = value
-        self.enchantments[slot].duration = duration
-        self.enchantments[slot].charges = charges
+        self.enchantments[slot].update(value, duration, charges)
 
         self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, value)
         self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)

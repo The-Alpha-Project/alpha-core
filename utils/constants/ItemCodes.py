@@ -323,6 +323,16 @@ class ItemEnchantment(IntEnum):
     ITEM_ENCHANTMENT_ADD_ARMOR = 0x4
 
 
+class ItemEnchantmentType(IntEnum):
+    ITEM_ENCHANTMENT_TYPE_NONE = 0
+    ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL = 1
+    ITEM_ENCHANTMENT_TYPE_DAMAGE = 2
+    ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL = 3
+    ITEM_ENCHANTMENT_TYPE_RESISTANCE = 4
+    ITEM_ENCHANTMENT_TYPE_STAT = 5
+    ITEM_ENCHANTMENT_TYPE_TOTEM = 6
+
+
 class EnchantmentSlots(IntEnum):
     PermanentSlot = 0
     TemporarySlot = 1

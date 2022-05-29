@@ -7,7 +7,8 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError, ItemSubClasses, ItemClasses
+from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError, ItemSubClasses, ItemClasses, \
+    ItemEnchantmentType
 from utils.constants.MiscCodes import BankSlots, ItemBondingTypes
 from utils.constants.UpdateFields import PlayerFields
 
@@ -643,11 +644,26 @@ class InventoryManager(object):
             # Remove the offhand item from OH and add it to inventory.
             # This is necessary in case of a stacking offhand (3675) - otherwise swap_item to free slot would be valid.
             self.add_item(item_template=current_oh.item_template, count=current_oh.item_instance.stackcount,
-                          send_message=False, show_item_get=False)  #
+                          send_message=False, show_item_get=False)
             self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
+
+        # Handle enchantments auras removal.
+        self.handle_item_unequipped_enchantment_aura_removal(source_item)
+        self.handle_item_unequipped_enchantment_aura_removal(dest_item)
 
         # Bonus application.
         self.owner.stat_manager.apply_bonuses()
+
+    def handle_item_unequipped_enchantment_aura_removal(self, item):
+        if not item:
+            return
+        # Remove auras if the item is no longer equipped.
+        if item.current_slot > InventorySlots.SLOT_TABARD:
+            if item.has_enchantments_effect_by_type(ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL):
+                enchantment_type = ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL
+                effect_spell_value = item.get_enchantment_spell_effect_by_type(enchantment_type)
+                if effect_spell_value and self.owner.aura_manager.has_aura_by_spell_id(effect_spell_value):
+                    self.owner.aura_manager.cancel_auras_by_spell_id(effect_spell_value)
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
