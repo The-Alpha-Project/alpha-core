@@ -9,7 +9,7 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError, ItemSubClasses, ItemClasses, \
     ItemEnchantmentType
-from utils.constants.MiscCodes import BankSlots, ItemBondingTypes
+from utils.constants.MiscCodes import BankSlots, ItemBondingTypes, HighGuid
 from utils.constants.UpdateFields import PlayerFields
 
 MAX_3368_ITEM_DISPLAY_ID = 11802
@@ -39,10 +39,10 @@ class InventoryManager(object):
                     item_instance=item_instance
                 )
                 if self.is_bag_pos(container_mgr.current_slot):
-                    # TODO, some bug where bags moved to other bags and then equipped end up with wrong bag slot.
                     if item_instance.bag > 23:
-                        Logger.warning(f'Modified bad slot to {23} from {item_instance.bag} for guid {container_mgr.guid}')
-                        item_instance.bag = 23
+                        low_guid = container_mgr.guid &~ HighGuid.HIGHGUID_CONTAINER
+                        Logger.warning(f'Invalid bag slot {item_instance.bag} for guid {low_guid} owner {self.owner.guid}')
+                        continue
                     self.containers[item_instance.bag].sorted_slots[container_mgr.current_slot] = container_mgr
                     self.containers[container_mgr.current_slot] = container_mgr
 
