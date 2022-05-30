@@ -357,11 +357,6 @@ class StatManager(object):
                     if stat.value != 0:
                         current = self.item_stats.get(stat_type, 0)
                         self.item_stats[stat_type] = current + stat.value
-                    # Check for mod stats from enchantments.
-                    if EnchantmentManager.has_enchantments_effect_by_type(item, ItemEnchantmentType.STAT):
-                        current = self.item_stats.get(stat_type, 0)
-                        enchantment_mod_stat_value = EnchantmentManager.get_stat_value_for_stat_type(item, stat_type)
-                        self.item_stats[stat_type] = current + enchantment_mod_stat_value
 
                 # Add resistances/block
                 separate_stats = {UnitStats.RESISTANCE_PHYSICAL: item.item_template.armor,
@@ -380,7 +375,6 @@ class StatManager(object):
                 weapon_min_damage = int(item.item_template.dmg_min1)
                 weapon_max_damage = int(item.item_template.dmg_max1)
                 weapon_delay = item.item_template.delay
-
 
                 if item.current_slot == InventorySlots.SLOT_MAINHAND:
                     self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage

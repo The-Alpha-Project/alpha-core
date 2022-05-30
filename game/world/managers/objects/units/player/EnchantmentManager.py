@@ -81,37 +81,27 @@ class EnchantmentManager(object):
 
     def _handle_aura_removal(self, item):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
-        for effect in EnchantmentManager.get_enchantments_effects_by_type(item, enchantment_type):
-            effect_spell_value = effect.get_enchantment_spell_effect_by_type(enchantment_type)
+        for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
+            effect_spell_value = enchantment.get_enchantment_spell_effect_by_type(enchantment_type)
             if effect_spell_value and self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
                 self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value)
 
     def _handle_aura_proc(self, item):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
-        for effect in EnchantmentManager.get_enchantments_effects_by_type(item, enchantment_type):
-            effect_spell_value = effect.get_enchantment_spell_effect_by_type(enchantment_type)
+        for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
+            effect_spell_value = enchantment.get_enchantment_spell_effect_by_type(enchantment_type)
             # Check if player already has the triggered aura active.
             if effect_spell_value and not self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
                 # Learn spell if needed and cast.
                 self.unit_mgr.spell_manager.learn_spell(effect_spell_value)
                 self.unit_mgr.spell_manager.handle_cast_attempt(effect_spell_value, self.unit_mgr, SpellTargetMask.SELF)
 
-    # TODO, need to test with an enchant that does stat mod, so far most of them trigger a spell instead.
-    @staticmethod
-    def get_stat_value_for_stat_type(item, stat_type):
-        if not item:
-            return 0
-        stat_value = 0
-        for enchantment in EnchantmentManager.get_enchantments_effects_by_type(item, stat_type):
-            stat_value += enchantment.get_enchantment_effect_points_by_type(stat_type)
-        return stat_value
-
     @staticmethod
     def get_effect_value_for_enchantment_type(item, enchantment_type):
         if not item:
             return 0
         effect_value = 0
-        for enchantment in EnchantmentManager.get_enchantments_effects_by_type(item, enchantment_type):
+        for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
             effect_value += enchantment.get_enchantment_effect_points_by_type(enchantment_type)
         return effect_value
 
@@ -128,6 +118,6 @@ class EnchantmentManager(object):
         return any(enchantment.has_enchantment_effect(enchantment_type) for enchantment in item.enchantments)
 
     @staticmethod
-    def get_enchantments_effects_by_type(item, enchantment_type):
+    def get_enchantments_by_type(item, enchantment_type):
         return [enchantment for enchantment in item.enchantments
                 if enchantment.has_enchantment_effect(enchantment_type)]
