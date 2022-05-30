@@ -471,7 +471,10 @@ class SpellEffectHandler:
                 return
 
         # Apply permanent enchantment.
-        target.set_enchantment(enchantment_slot, effect.misc_value, duration, charges)
+        owner_player.enchantment_manager.set_item_enchantment(target, enchantment_slot, effect.misc_value,
+                                                              duration, charges)
+        # Save item.
+        target.save()
 
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.

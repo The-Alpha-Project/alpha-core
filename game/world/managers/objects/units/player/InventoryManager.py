@@ -39,6 +39,10 @@ class InventoryManager(object):
                     item_instance=item_instance
                 )
                 if self.is_bag_pos(container_mgr.current_slot):
+                    # TODO, some bug where bags moved to other bags and then equipped end up with wrong bag slot.
+                    if item_instance.bag > 23:
+                        Logger.warning(f'Modified bad slot to {23} from {item_instance.bag} for guid {container_mgr.guid}')
+                        item_instance.bag = 23
                     self.containers[item_instance.bag].sorted_slots[container_mgr.current_slot] = container_mgr
                     self.containers[container_mgr.current_slot] = container_mgr
 
@@ -71,8 +75,6 @@ class InventoryManager(object):
 
                 if item_instance.bag in self.containers and self.containers[item_instance.bag]:
                     self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
-
-                item_mgr.load_enchantments()
 
     def get_backpack(self):
         return self.containers[InventorySlots.SLOT_INBACKPACK]
@@ -111,8 +113,16 @@ class InventoryManager(object):
                     if not container or not container.can_contain_item(item_template):
                         continue
                     prev_left = amount_left
-                    amount_left = container.add_item(item_template, count=amount_left, perm_enchant=perm_enchant,
-                                                     check_existing=False, created_by=created_by)
+                    amount_left, item_mgr = container.add_item(item_template, count=amount_left,
+                                                               perm_enchant=perm_enchant, check_existing=False,
+                                                               created_by=created_by)
+                    # New item, apply enchantments and persist.
+                    if item_mgr:
+                        # Load enchantments, if any.
+                        self.owner.enchantment_manager.load_enchantments_for_item(item_mgr)
+                        # Persist.
+                        item_mgr.save()
+
                     if slot != InventorySlots.SLOT_INBACKPACK and prev_left > amount_left and slot > target_bag_slot:
                         target_bag_slot = slot
                         container.build_container_update_packet()
@@ -170,7 +180,7 @@ class InventoryManager(object):
             remaining = count
 
             if not dest_slot == -1:  # If the target container has a slot open.
-                remaining = dest_container.add_item(item_template, count=count)  # Add items to target container.
+                remaining, item_mgr = dest_container.add_item(item_template, count=count)  # Add items to target container.
 
             if remaining > 0:
                 self.add_item(item_template=item_template, count=remaining)  # Overflow to inventory.
@@ -619,13 +629,6 @@ class InventoryManager(object):
 
         return True
 
-    def apply_enchantments_duration(self):
-        for container_slot, container in list(self.containers.items()):
-            if not container:
-                return
-            for item in container.sorted_slots.values():
-                item.apply_enchantments_duration()
-
     def handle_equipment_change(self, source_item, dest_item=None):
         # Binding
         if source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED:
@@ -648,22 +651,11 @@ class InventoryManager(object):
             self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
 
         # Handle enchantments auras removal.
-        self.handle_item_unequipped_enchantment_aura_removal(source_item)
-        self.handle_item_unequipped_enchantment_aura_removal(dest_item)
+        self.owner.enchantment_manager.handle_equipment_change(source_item)
+        self.owner.enchantment_manager.handle_equipment_change(dest_item)
 
         # Bonus application.
         self.owner.stat_manager.apply_bonuses()
-
-    def handle_item_unequipped_enchantment_aura_removal(self, item):
-        if not item:
-            return
-        # Remove auras if the item is no longer equipped.
-        if item.current_slot > InventorySlots.SLOT_TABARD:
-            if item.has_enchantments_effect_by_type(ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL):
-                enchantment_type = ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL
-                effect_spell_value = item.get_enchantment_spell_effect_by_type(enchantment_type)
-                if effect_spell_value and self.owner.aura_manager.has_aura_by_spell_id(effect_spell_value):
-                    self.owner.aura_manager.cancel_auras_by_spell_id(effect_spell_value)
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \

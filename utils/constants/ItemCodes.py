@@ -315,24 +315,18 @@ class ItemDynFlags(IntEnum):
     ITEM_DYNFLAG_WRAPPED = 0x8  # mark item as wrapped into wrapper container
 
 
-class ItemEnchantment(IntEnum):
-    ITEM_ENCHANTMENT_MISC = 0x0
-    ITEM_ENCHANTMENT_PROC = 0x1
-    ITEM_ENCHANTMENT_DAMAGE = 0x2
-    ITEM_ENCHANTMENT_BUFF_EQUIPPED = 0x3
-    ITEM_ENCHANTMENT_ADD_ARMOR = 0x4
-
-
+# Only 4 types in 0.5.3.
 class ItemEnchantmentType(IntEnum):
-    ITEM_ENCHANTMENT_TYPE_NONE = 0
-    ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL = 1
-    ITEM_ENCHANTMENT_TYPE_DAMAGE = 2
-    ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL = 3
-    ITEM_ENCHANTMENT_TYPE_RESISTANCE = 4
-    ITEM_ENCHANTMENT_TYPE_STAT = 5
-    ITEM_ENCHANTMENT_TYPE_TOTEM = 6
+    NONE = 0
+    PROC_SPELL = 1
+    DAMAGE = 2
+    BUFF_EQUIPPED = 3
+    RESISTANCE = 4
 
 
 class EnchantmentSlots(IntEnum):
     PermanentSlot = 0
     TemporarySlot = 1
+    Optional_Enchantment_0 = 2
+    Optional_Enchantment_1 = 3
+    Optional_Enchantment_2 = 4

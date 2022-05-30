@@ -1,5 +1,6 @@
 from struct import pack
 
+from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import TradeStatus
 from utils.constants.OpCodes import OpCode
@@ -64,7 +65,7 @@ class TradeManager(object):
                 item.item_template.entry if item else 0,
                 item.item_template.display_id if item else 0,
                 item.item_instance.stackcount if item and item.item_instance else 0,
-                item.get_permanent_enchant_value() if item else 0,  # Permanent enchant value.
+                EnchantmentManager.get_permanent_enchant_value(item) if item else 0,  # Permanent enchant value.
                 item.get_creator_guid() if item else 0  # Wrapped/Crafted items, creator guid.
             )
 

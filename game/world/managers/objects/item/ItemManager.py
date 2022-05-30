@@ -7,6 +7,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.EnchantmentHolder import EnchantmentHolder
 from game.world.managers.objects.item.Stats import DamageStat, Stat, SpellStat
+from game.world.managers.objects.units.player.EnchantmentManager import MAX_ENCHANTMENTS
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.item.ItemLootManager import ItemLootManager
 from utils.ByteUtils import ByteUtils
@@ -45,8 +46,6 @@ AVAILABLE_EQUIP_SLOTS = [
     InventorySlots.SLOT_RANGED  # Ranged right
 ]
 
-MAX_ENCHANTMENTS = 5
-
 
 class ItemManager(ObjectManager):
     def __init__(self,
@@ -63,7 +62,7 @@ class ItemManager(ObjectManager):
         self.current_slot = item_instance.slot if item_instance else 0
         self.is_backpack = False
 
-        self.enchantments = []
+        self.enchantments = []  # Handled by EnchantmentManager.
         self.stats = []
         self.damage_stats = []
         self.spell_stats = []
@@ -80,9 +79,6 @@ class ItemManager(ObjectManager):
             # Load loot_manager if needed.
             if item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
                 self.loot_manager = ItemLootManager(self)
-
-        if item_instance:
-            self.load_enchantments()
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_ITEM
         self.update_packet_factory.init_values(ItemFields.ITEM_END)
@@ -182,15 +178,6 @@ class ItemManager(ObjectManager):
         return None
 
     @staticmethod
-    def get_enchantments_db_initialization(permanent_enchant=0):
-        db_enchantments = ''
-        for index in range(MAX_ENCHANTMENTS):
-            db_enchantments += str(permanent_enchant if index == 0 else 0) + ','
-            db_enchantments += str(0) + ','
-            db_enchantments += str(0) + (',' if index != MAX_ENCHANTMENTS - 1 else '')
-        return db_enchantments
-
-    @staticmethod
     def generate_item(item_template, owner, bag, slot, perm_enchant=0, creator=0, count=1):
         if item_template and item_template.entry > 0:
             item = CharacterInventory(
@@ -199,7 +186,7 @@ class ItemManager(ObjectManager):
                 item_template=item_template.entry,
                 stackcount=count,
                 slot=slot,
-                enchantments=ItemManager.get_enchantments_db_initialization(perm_enchant),
+                enchantments=ItemManager._get_enchantments_db_initialization(perm_enchant),
                 bag=bag,
                 item_flags=item_template.flags
             )
@@ -352,60 +339,11 @@ class ItemManager(ObjectManager):
 
             self.initialized = True
 
-    # TODO:
-    #   ItemManager should be inside Update() calls. Player Update() should also call Update() on items in order to
-    #   handle item duration and enchants durations.
-    def load_enchantments(self):
-        db_enchantments = self.item_instance.enchantments
-        if db_enchantments:
-            values = db_enchantments.rsplit(',')
-            for index in range(MAX_ENCHANTMENTS):
-                entry = int(values[index * 3 + 0])
-                duration = int(values[index * 3 + 1])
-                charges = int(values[index * 3 + 2])
-                self.enchantments[index].update(entry, duration, charges)
-
-    def save_enchantments(self):
-        if self.item_instance:
-            db_enchantments = ''
-            for index in range(MAX_ENCHANTMENTS):
-                db_enchantments += str(self.enchantments[index].entry) + ','
-                db_enchantments += str(self.enchantments[index].duration) + ','
-                db_enchantments += str(self.enchantments[index].charges) + (',' if index != MAX_ENCHANTMENTS - 1 else '')
-            self.item_instance.enchantments = db_enchantments
-            self.save()
-
     def get_owner_guid(self):
         return self.item_instance.owner if self.item_instance else 0
 
     def get_creator_guid(self):
         return self.item_instance.creator if self.item_instance else 0
-
-    def has_enchantments(self):
-        return any(enchantment.entry > 0 for enchantment in self.enchantments)
-
-    def has_enchantment_in_slot(self, slot: [EnchantmentSlots]):
-        return self.enchantments[slot].entry if slot < MAX_ENCHANTMENTS else False
-
-    def get_permanent_enchant_value(self):
-        return self.enchantments[EnchantmentSlots.PermanentSlot].entry
-
-    def has_enchantments_effect_by_type(self, enchantment_type):
-        return any(enchantment.has_enchantment_effect(enchantment_type) for enchantment in self.enchantments)
-
-    def get_enchantments_effect_value_by_type(self, enchantment_type):
-        for enchantment in self.enchantments:
-            effect_value = enchantment.get_enchantment_effect_points_by_type(enchantment_type)
-            if effect_value:
-                return effect_value
-        return 0
-
-    def get_enchantment_spell_effect_by_type(self, enchantment_type):
-        for enchantment in self.enchantments:
-            effect_spell_value = enchantment.get_enchantment_spell_effect_by_type(enchantment_type)
-            if effect_spell_value:
-                return effect_spell_value
-        return 0
 
     def set_stack_count(self, count):
         if self.item_instance:
@@ -424,32 +362,6 @@ class ItemManager(ObjectManager):
                 self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)
                 break
 
-    def set_enchantment(self, slot, value, duration, charges):
-        self.enchantments[slot].update(value, duration, charges)
-
-        self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, value)
-        self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)
-        self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, charges)
-
-        # Notify player with duration.
-        if slot != EnchantmentSlots.PermanentSlot:
-            self.send_enchantment_duration(slot)
-
-        self.save_enchantments()
-
-    def apply_enchantments_duration(self):
-        for slot in range(EnchantmentSlots.TemporarySlot, MAX_ENCHANTMENTS):
-            if self.enchantments[slot].duration:
-                self.send_enchantment_duration(slot)
-
-    def send_enchantment_duration(self, slot):
-        if slot < MAX_ENCHANTMENTS:
-            player = WorldSessionStateHandler.find_player_by_guid(self.get_owner_guid())
-            if player:
-                duration = int(self.enchantments[slot].duration / 1000) * 60  # Minutes
-                data = pack('<Q2IQ', self.guid, slot, duration, player.guid)
-                player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_ENCHANT_TIME_UPDATE, data))
-
     def set_binding(self, bind=True):
         if bind:
             self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_BOUND
@@ -464,8 +376,34 @@ class ItemManager(ObjectManager):
         # flags = 0x0001 (ITEM_DYNFLAG_BOUND) and static flags = 0x0000.
         return ByteUtils.shorts_to_int(self.item_instance.item_flags, self.item_template.flags)
 
+    # Enchantments.
+
+    def has_enchantments(self):
+        return any(enchantment.entry > 0 for enchantment in self.enchantments)
+
+    @staticmethod
+    # Initial enchantment db state, empty or initialized with given permanent enchant. (Used for trade)
+    def _get_enchantments_db_initialization(permanent_enchant=0):
+        db_enchantments = ''
+        for index in range(MAX_ENCHANTMENTS):
+            db_enchantments += str(permanent_enchant if index == 0 else 0) + ','
+            db_enchantments += str(0) + ','
+            db_enchantments += str(0) + (',' if index != MAX_ENCHANTMENTS - 1 else '')
+        return db_enchantments
+
+    # Enchantments persistence.
+    def _get_enchantments_db_string(self):
+        db_enchantments = ''
+        for index in range(MAX_ENCHANTMENTS):
+            db_enchantments += str(self.enchantments[index].entry) + ','
+            db_enchantments += str(self.enchantments[index].duration) + ','
+            db_enchantments += str(self.enchantments[index].charges) + (',' if index != MAX_ENCHANTMENTS - 1 else '')
+        return db_enchantments
+
+    # Persist item in database.
     def save(self):
         if self.item_instance:
+            self.item_instance.enchantments = self._get_enchantments_db_string()
             RealmDatabaseManager.character_inventory_update_item(self.item_instance)
 
     # override

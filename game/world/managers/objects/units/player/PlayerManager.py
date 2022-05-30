@@ -9,6 +9,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
+from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
 from game.world.managers.objects.units.player.TalentManager import TalentManager
 from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
@@ -143,6 +144,7 @@ class PlayerManager(UnitManager):
             self.object_type_mask |= ObjectTypeFlags.TYPE_PLAYER
             self.update_packet_factory.init_values(PlayerFields.PLAYER_END)
 
+            self.enchantment_manager = EnchantmentManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.quest_manager = QuestManager(self)
@@ -215,9 +217,6 @@ class PlayerManager(UnitManager):
     def complete_login(self, first_login=False):
         self.online = True
 
-        # Calculate stat bonuses at this point.
-        self.stat_manager.apply_bonuses(replenish=first_login)
-
         # Join default channels.
         ChannelManager.join_default_channels(self)
 
@@ -238,8 +237,11 @@ class PlayerManager(UnitManager):
         # Player create packet.
         self.enqueue_packet(self.generate_create_packet(requester=self))
 
-        # Apply temporary enchantment duration, should be sent after creation.
-        self.inventory.apply_enchantments_duration()
+        # Load & Apply enchantments.
+        self.enchantment_manager.apply_enchantments(load=True)
+
+        # Apply stat bonuses.
+        self.stat_manager.apply_bonuses(replenish=first_login)
 
         # Place player in a world cell.
         MapManager.update_object(self)
@@ -539,10 +541,10 @@ class PlayerManager(UnitManager):
             self.enqueue_packets(self.inventory.get_inventory_update_packets(requester=self))
             # Create packet.
             self.enqueue_packet(self.generate_create_packet(requester=self))
+            # Apply enchantments again.
+            self.enchantment_manager.apply_enchantments()
             # Apply stat bonuses again.
             self.stat_manager.apply_bonuses()
-            # Send enchantments duration.
-            self.inventory.apply_enchantments_duration()
 
         # Remove the player's active pet.
         self.pet_manager.detach_active_pet()

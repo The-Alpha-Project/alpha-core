@@ -15,6 +15,7 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
+from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
@@ -817,7 +818,7 @@ class SpellManager:
                     return False
 
             # Do not allow to enchant if it has an existent permanent enchantment.
-            if casting_spell.initial_target.get_permanent_enchant_value() != 0:
+            if EnchantmentManager.get_permanent_enchant_value(casting_spell.initial_target) != 0:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
                 return False
 

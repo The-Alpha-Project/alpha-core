@@ -1,3 +1,4 @@
+from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.MiscCodes import TradeStatus
@@ -75,7 +76,7 @@ class AcceptTradeHandler(object):
                     if player.inventory.add_item(item_template=other_player_item.item_template,
                                                  count=other_player_item.item_instance.stackcount,
                                                  created_by=other_player_item.item_instance.creator,
-                                                 perm_enchant=other_player_item.get_permanent_enchant_value(),
+                                                 perm_enchant=EnchantmentManager.get_permanent_enchant_value(other_player_item),
                                                  show_item_get=False):
                         other_player.inventory.remove_item(other_player_item.item_instance.bag,
                                                            other_player_item.current_slot, True)
@@ -84,7 +85,7 @@ class AcceptTradeHandler(object):
                     if other_player.inventory.add_item(item_template=player_item.item_template,
                                                        count=player_item.item_instance.stackcount,
                                                        created_by=player_item.item_instance.creator,
-                                                       perm_enchant=player_item.get_permanent_enchant_value(),
+                                                       perm_enchant=EnchantmentManager.get_permanent_enchant_value(player_item),
                                                        show_item_get=False):
                         player.inventory.remove_item(player_item.item_instance.bag,
                                                      player_item.current_slot, True)

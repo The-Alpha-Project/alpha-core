@@ -3,6 +3,7 @@ from enum import auto, IntFlag
 from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
+from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes, SkillManager
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses, \
@@ -352,27 +353,15 @@ class StatManager(object):
             if item.current_slot <= InventorySlots.SLOT_TABARD:
                 # Handle normal item stats.
                 for stat in item.stats:
+                    stat_type = INVENTORY_STAT_TO_UNIT_STAT[stat.stat_type]
                     if stat.value != 0:
-                        stat_type = INVENTORY_STAT_TO_UNIT_STAT[stat.stat_type]
                         current = self.item_stats.get(stat_type, 0)
                         self.item_stats[stat_type] = current + stat.value
-                # Handle stat mod enchantments.
-                if item.has_enchantments_effect_by_type(ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_STAT):
-                    enchantment_type = ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_STAT
-                    effect_value = item.get_enchantments_effect_value_by_type(enchantment_type)
-                    stat_type = INVENTORY_STAT_TO_UNIT_STAT[effect_value]
-                    current = self.item_stats.get(stat_type, 0)
-                    self.item_stats[stat_type] = current + effect_value
-                # Handle equip spell.
-                if item.has_enchantments_effect_by_type(ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL):
-                    enchantment_type = ItemEnchantmentType.ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL
-                    effect_spell_value = item.get_enchantment_spell_effect_by_type(enchantment_type)
-                    # Check if player already has the triggered aura active.
-                    if effect_spell_value and not self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
-                        # Learn spell if needed and cast.
-                        self.unit_mgr.spell_manager.learn_spell(effect_spell_value)
-                        self.unit_mgr.spell_manager.handle_cast_attempt(effect_spell_value, self.unit_mgr,
-                                                                        SpellTargetMask.SELF)
+                    # Check for mod stats from enchantments.
+                    if EnchantmentManager.has_enchantments_effect_by_type(item, ItemEnchantmentType.STAT):
+                        current = self.item_stats.get(stat_type, 0)
+                        enchantment_mod_stat_value = EnchantmentManager.get_stat_value_for_stat_type(item, stat_type)
+                        self.item_stats[stat_type] = current + enchantment_mod_stat_value
 
                 # Add resistances/block
                 separate_stats = {UnitStats.RESISTANCE_PHYSICAL: item.item_template.armor,
@@ -391,6 +380,7 @@ class StatManager(object):
                 weapon_min_damage = int(item.item_template.dmg_min1)
                 weapon_max_damage = int(item.item_template.dmg_max1)
                 weapon_delay = item.item_template.delay
+
 
                 if item.current_slot == InventorySlots.SLOT_MAINHAND:
                     self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
@@ -780,6 +770,15 @@ class StatManager(object):
         for school in SpellSchools:
             flat_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school) + \
                 self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, misc_value=subclass_mask, misc_value_is_mask=True)
+
+            # Check weapons enchantments.
+            if school == SpellSchools.SPELL_SCHOOL_NORMAL:
+                off_hand = self.unit_mgr.inventory.get_offhand()
+                main_hand_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(main_hand,
+                                                                                           ItemEnchantmentType.DAMAGE)
+                off_hand_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(off_hand,
+                                                                                          ItemEnchantmentType.DAMAGE)
+                flat_bonuses += main_hand_bonus + off_hand_bonus
 
             percentual_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school, percentual=True) * \
                 self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, misc_value=subclass_mask, percentual=True, misc_value_is_mask=True)

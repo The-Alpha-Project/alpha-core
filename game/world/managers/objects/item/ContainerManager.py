@@ -85,8 +85,6 @@ class ContainerManager(ItemManager):
                 # Update slot fields.
                 if not self.is_backpack:
                     self.build_container_update_packet()
-                # Persist.
-                item_mgr.save()
 
             if item_mgr.item_template.bonding == ItemBondingTypes.BIND_WHEN_PICKED_UP:
                 item_mgr.set_binding(True)
@@ -96,27 +94,30 @@ class ContainerManager(ItemManager):
     def add_item(self, item_template, count, check_existing=True, created_by=None, perm_enchant=0):
         amount_left = count
         if not self.can_contain_item(item_template):
-            return amount_left
+            return amount_left, None
 
         # Check occupied slots for stacking
         if check_existing:
             amount_left = self.add_item_to_existing_stacks(item_template, amount_left)
 
+        item_mgr = None
         if amount_left > 0:
             for x in range(self.start_slot, self.max_slot):
+                if amount_left == 0:
+                    break
                 if x in self.sorted_slots:
                     continue  # Skip any reserved slots
                 if not self.is_full():
                     if amount_left > item_template.stackable:
-                        self.set_item(item_template, self.next_available_slot(),
-                                      count=item_template.stackable, perm_enchant=perm_enchant, created_by=created_by)
+                        item_mgr = self.set_item(item_template, self.next_available_slot(),
+                                                 count=item_template.stackable, perm_enchant=perm_enchant,
+                                                 created_by=created_by)
                         amount_left -= item_template.stackable
                     else:
-                        self.set_item(item_template, self.next_available_slot(),
-                                      count=amount_left, perm_enchant=perm_enchant, created_by=created_by)
+                        item_mgr = self.set_item(item_template, self.next_available_slot(),
+                                                 count=amount_left, perm_enchant=perm_enchant, created_by=created_by)
                         amount_left = 0
-                        break
-        return amount_left
+        return amount_left, item_mgr
 
     def add_item_to_existing_stacks(self, item_template, count):
         amount_left = count
