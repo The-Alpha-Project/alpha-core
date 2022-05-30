@@ -82,14 +82,14 @@ class EnchantmentManager(object):
     def _handle_aura_removal(self, item):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
-            effect_spell_value = enchantment.get_enchantment_spell_effect_by_type(enchantment_type)
+            effect_spell_value = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
             if effect_spell_value and self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
                 self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value)
 
     def _handle_aura_proc(self, item):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
-            effect_spell_value = enchantment.get_enchantment_spell_effect_by_type(enchantment_type)
+            effect_spell_value = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
             # Check if player already has the triggered aura active.
             if effect_spell_value and not self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
                 # Learn spell if needed and cast.
