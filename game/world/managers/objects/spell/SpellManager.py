@@ -130,6 +130,7 @@ class SpellManager:
                 self.caster.set_stand_state(StandState.UNIT_SITTING)
 
             self.start_spell_cast(initialized_spell=casting_spell)
+            self.handle_visual_pre_cast_animation_kit(casting_spell)
 
     def handle_cast_attempt(self, spell_id, spell_target, target_mask, triggered=False, validate=True):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
@@ -402,7 +403,7 @@ class SpellManager:
 
         # Cancel auras applied by an active spell if the spell was interrupted.
         # If the cast finished normally, auras should wear off because of duration.
-        # Since spell update happens before aura update, last ticks will be skipped if auras are cancelled on cast finish.
+        # Spell update happens before aura update, last ticks will be skipped if auras are cancelled on cast finish.
         if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE and interrupted:
             for miss_info in casting_spell.object_target_results.values():  # Get the last effect application results.
                 if not miss_info.target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
@@ -533,8 +534,8 @@ class SpellManager:
         MapManager.send_surrounding(packet, self.caster,
                                     include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
-        # Send visual animation if available.
-        self.handle_visual_animation(casting_spell)
+        # Send visual animation pre cast kit if available.
+        self.handle_visual_pre_cast_animation_kit(casting_spell)
 
     def handle_channel_start(self, casting_spell):
         if not casting_spell.is_channeled() or casting_spell.duration_entry.Duration == -1:
@@ -575,10 +576,11 @@ class SpellManager:
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 self.apply_spell_effects(casting_spell, update=True)
 
-    def handle_visual_animation(self, casting_spell):
-        # Send spell visual pre cast kit animation ID, if available.
+    # Sends spell visual pre cast kit animation, if available.
+    def handle_visual_pre_cast_animation_kit(self, casting_spell):
         if casting_spell.has_spell_visual_pre_cast_kit():
-            data = pack('<QI', self.caster.guid, casting_spell.spell_visual_entry.PrecastKit)
+            pre_cast_kit_id = casting_spell.spell_visual_entry.PrecastKit
+            data = pack('<QI', self.caster.guid, pre_cast_kit_id)
             packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
             MapManager.send_surrounding(packet, self.caster,
                                         include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
