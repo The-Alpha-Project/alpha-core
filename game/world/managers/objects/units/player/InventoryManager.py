@@ -155,7 +155,7 @@ class InventoryManager(object):
         if not item_template:
             if handle_error:
                 self.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
-            return
+            return False
 
         dest_container = self.get_container(dest_bag_slot)
         if not dest_container:
@@ -168,12 +168,12 @@ class InventoryManager(object):
         if error != InventoryError.BAG_OK:
             if handle_error:
                 self.send_equip_error(error)
-            return
+            return False
 
         is_valid_target_slot = self.item_can_be_moved_to_slot(item_template, dest_slot, dest_bag_slot, item)
 
         if not is_valid_target_slot:
-            return
+            return False
 
         if dest_slot == 0xFF:  # Dragging an item to bag bar. Acts like adding item but with container priority
             dest_slot = dest_container.next_available_slot()
@@ -203,11 +203,11 @@ class InventoryManager(object):
                 else:
                     if handle_error:
                         self.send_equip_error(InventoryError.BAG_CANT_STACK, item, dest_item)
-                    return
+                    return False
             else:
                 if handle_error:
                     self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, item, dest_item)
-                return
+                return False
 
         generated_item = dest_container.set_item(item_template, dest_slot, count=count)
         # Add to containers if a bag was dragged to bag slots
@@ -240,11 +240,9 @@ class InventoryManager(object):
             return
 
         source_to_dest = self.item_can_be_moved_to_slot(source_item.item_template, dest_slot, dest_bag, source_item, source_container)
-
         dest_to_source = True  # If dest_item doesn't exist, default to True
         if dest_item:
             dest_to_source = self.item_can_be_moved_to_slot(dest_item.item_template, source_slot, source_bag, dest_item, dest_container)
-
         if not source_to_dest or (dest_item and not dest_to_source):
             return
 
@@ -364,7 +362,7 @@ class InventoryManager(object):
         if clear_slot:
             RealmDatabaseManager.character_inventory_delete(target_item.item_instance)
 
-        if target_container.is_backpack and \
+        if not swap_item and target_container.is_backpack and \
                 self.is_bag_pos(target_slot) and self.get_container(target_slot):  # Equipped bags
             self.remove_bag(target_slot)
 
