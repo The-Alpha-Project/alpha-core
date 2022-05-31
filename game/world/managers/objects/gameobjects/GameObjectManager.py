@@ -53,6 +53,7 @@ class GameObjectManager(ObjectManager):
             self.location.y = self.gobject_instance.spawn_positionY
             self.location.z = self.gobject_instance.spawn_positionZ
             self.location.o = self.gobject_instance.spawn_orientation
+            # If spawned by another unit, use that unit map and zone.
             self.map_ = self.gobject_instance.spawn_map if not self.spawned_by else self.spawned_by.map_
             self.zone = self.spawned_by.zone if self.spawned_by else 0
             self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,

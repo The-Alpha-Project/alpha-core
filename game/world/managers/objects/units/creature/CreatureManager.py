@@ -100,7 +100,9 @@ class CreatureManager(UnitManager):
 
             self.guid = self.generate_object_guid(creature_instance.spawn_id)
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
-            self.map_ = self.creature_instance.map
+            # If spawned by another unit, use that unit map and zone.
+            self.map_ = self.creature_instance.map if not self.spawned_by else self.spawned_by.map_
+            self.zone = self.spawned_by.zone if self.spawned_by else 0
             self.spawn_position = Vector(self.creature_instance.position_x,
                                          self.creature_instance.position_y,
                                          self.creature_instance.position_z,
