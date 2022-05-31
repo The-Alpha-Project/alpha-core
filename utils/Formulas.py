@@ -75,7 +75,7 @@ class UnitFormulas(object):
             factor = 2.5
 
         # Get rage regen value based on supplied variables.
-        regen = damage_info.damage / UnitFormulas.rage_conversion_value(level) * factor
+        regen = (damage_info.damage / UnitFormulas.rage_conversion_value(level)) * factor
         # Rage is measured 0 - 1000, multiply it by 10.
         return int(regen * 10)
 

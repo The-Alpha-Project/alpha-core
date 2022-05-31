@@ -328,12 +328,14 @@ class GameObjectManager(ObjectManager):
         self.state = state
         self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
 
-        if state == GameObjectStates.GO_STATE_ACTIVE:
-            self.flags |= GameObjectFlags.IN_USE
-            self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
-        else:
-            self.flags &= ~GameObjectFlags.IN_USE
-            self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
+        # If not a fishing node, set this go in_use flag.
+        if not self.fishing_node_manager:
+            if state == GameObjectStates.GO_STATE_ACTIVE:
+                self.flags |= GameObjectFlags.IN_USE
+                self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
+            else:
+                self.flags &= ~GameObjectFlags.IN_USE
+                self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
 
     def has_flag(self, flag: GameObjectFlags):
         return self.flags & flag

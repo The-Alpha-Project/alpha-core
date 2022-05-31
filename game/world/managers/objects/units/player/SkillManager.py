@@ -481,7 +481,7 @@ class SkillManager(object):
         zone_skill_value = zone_skill.skill
 
         # Consider bonus for roll.
-        skill_total = self.get_total_skill_value(12)
+        skill_total = self.get_total_skill_value(SkillTypes.FISHING)
         chance = skill_total - zone_skill_value + 5
         roll = random.randint(1, 100)
 

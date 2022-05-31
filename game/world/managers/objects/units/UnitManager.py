@@ -534,12 +534,17 @@ class UnitManager(ObjectManager):
                         rage_decay_value = 10 if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) else 20
                         self.set_rage(self.power_2 - rage_decay_value)
 
+    # Warrior Stances and Bear Form.
+    # Defensive Stance (71): "A defensive stance that reduces rage decay when out of combat.
+    # Generate rage when you are hit."
+    # Battle Stance (2457): "A balanced combat stance. Generate rage when hit and when you strike an opponent."
+    # Berserker Stance (2458): "An aggressive stance. Generate rage when you strike an opponent."
     def generate_rage(self, damage_info, is_attacking=True):
-        # Warrior Stances and Bear Form.
-        # Defensive Stance (71): "A defensive stance that reduces rage decay when out of combat.
-        # Generate rage when you are hit."
-        # Battle Stance (2457): "A balanced combat stance. Generate rage when hit and when you strike an opponent."
-        # Berserker Stance (2458): "An aggressive stance. Generate rage when you strike an opponent."
+        # Avoid regen if unit has no rage power type.
+        if self.get_type_id() == ObjectTypeIds.ID_UNIT:
+            if self.power_type != PowerTypes.TYPE_RAGE:
+                return
+
         if not is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) \
                 or is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE) \
                 or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE) \
