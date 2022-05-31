@@ -1,3 +1,4 @@
+from random import randint
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -8,14 +9,16 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
-from utils.constants.ItemCodes import EnchantmentSlots
-from utils.constants.MiscCodes import ObjectTypeFlags, GameObjectTypes, HighGuid, ObjectTypeIds
+from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, GameObjectTypes, HighGuid, ObjectTypeIds, LockType
+from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import UnitFields
@@ -116,11 +119,74 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_open_lock(casting_spell, effect, caster, target):
-        # TODO Skill checks etc.
-        if caster and target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:  # TODO other object types, ie. lockboxes
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return
+
+        lock_id = 0
+        if casting_spell.initial_target_is_object():
+            lock_id = target.lock
+            # Already open (0).
+            if not lock_id:
+                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                      SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
+                return
+
+            # TODO, 'gameobject_requirement' table.
+            # Already being used.
+            if target.is_active() or target.has_flag(GameObjectFlags.IN_USE):
+                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                     SpellCheckCastResult.SPELL_FAILED_CHEST_IN_USE)
+                return
+        elif casting_spell.initial_target_is_item():
+            # Grab Item owner guid.
+            owner_guid = target.get_owner_guid()
+            if not owner_guid:
+                return
+
+            # Validate player is online.
+            owner_player = WorldSessionStateHandler.find_player_by_guid(owner_guid)
+            if not owner_player:
+                return
+
+            lock_id = target.lock
+            # Already unlocked.
+            if not lock_id or target.has_flag(ItemDynFlags.ITEM_DYNFLAG_UNLOCKED):
+                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                      SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
+                return
+        else:  # Bad target.
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return
+
+        lock_type = effect.misc_value
+        bonus_points = effect.get_effect_points(casting_spell.caster_effective_level)
+        lock_result = LockManager.can_open_lock(caster, lock_type, lock_id, bonus_points=bonus_points)
+        if lock_result.result != SpellCheckCastResult.SPELL_NO_ERROR:
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, lock_result.result)
+            return
+
+        raw_skill_value = lock_result.raw_skill_value
+        bonus_skill_value = lock_result.bonus_skill_value
+        required_skill_value = lock_result.required_skill_value
+        skill_type = lock_result.skill_type
+
+        # Chance for fail at orange mining, herbs or lock picking.
+        if (skill_type == SkillTypes.HERBALISM or skill_type == SkillTypes.MINING
+                or lock_result.skill_type == SkillTypes.LOCKPICKING):
+            can_fail_at_max_skill = skill_type != SkillTypes.HERBALISM and skill_type != SkillTypes.MINING
+            if can_fail_at_max_skill and required_skill_value > randint(bonus_skill_value - 25, bonus_skill_value + 37):
+                return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
+
+        if caster and target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            caster.skill_manager.handle_gather_skill_gain(skill_type, raw_skill_value, required_skill_value)
             target.use(caster, target)
-            caster.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
-            caster.set_uint32(UnitFields.UNIT_FIELD_FLAGS, caster.unit_flags)
+        elif target:
+            Logger.debug(f'Unimplemented open lock spell effect for type {ObjectTypeIds(target.get_type_id()).name}.')
+        else:
+            Logger.debug(f'Unimplemented open lock spell effect.')
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):

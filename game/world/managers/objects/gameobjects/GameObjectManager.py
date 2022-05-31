@@ -16,10 +16,11 @@ from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates
+from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.UnitCodes import StandState
-from utils.constants.UpdateFields import ObjectFields, GameObjectFields
+from utils.constants.UnitCodes import StandState, UnitFlags
+from utils.constants.UpdateFields import ObjectFields, GameObjectFields, UnitFields
 
 
 class GameObjectManager(ObjectManager):
@@ -43,6 +44,8 @@ class GameObjectManager(ObjectManager):
         self.native_scale = self.gobject_template.scale
         self.current_scale = self.native_scale
         self.faction = self.gobject_template.faction
+        self.lock = 0  # Unlocked.
+        self.flags = self.gobject_template.flags
 
         if gobject_instance:
             if GameObjectManager.CURRENT_HIGHEST_GUID < gobject_instance.spawn_id:
@@ -64,13 +67,17 @@ class GameObjectManager(ObjectManager):
         self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
 
         self.respawn_timer = 0
-        self.loot_manager = None
+        self.loot_manager = None  # Optional.
+        self.trap_manager = None  # Optional.
+        self.fishing_node_manager = None  # Optional.
+        self.mining_node_manager = None  # Optional.
 
         from game.world.managers.objects.spell.SpellManager import SpellManager  # Local due to circular imports.
         self.spell_manager = SpellManager(self)
 
         # Chest initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            self.lock = self.gobject_template.data0
             self.loot_manager = GameObjectLootManager(self)
             # Mining node.
             if self.gobject_template.data4 != 0 and self.gobject_template.data5 > self.gobject_template.data4:
@@ -87,8 +94,21 @@ class GameObjectManager(ObjectManager):
             self.ritual_participants = []
 
         # Trap collision initializations.
+        self.lock = self.gobject_template.data0
         if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
             self.trap_manager = TrapManager.generate(self)
+
+        # Lock initialization for button and door.
+        if self.gobject_template.type == GameObjectTypes.TYPE_BUTTON or \
+                self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
+            self.lock = self.gobject_template.data1
+
+        # Lock initialization for quest giver, goober and camera.
+        if self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER or \
+                self.gobject_template.type == GameObjectTypes.TYPE_GOOBER or \
+                self.gobject_template.type == GameObjectTypes.TYPE_CAMERA:
+            self.lock = gobject_template.data0
+
 
     def load(self):
         MapManager.update_object(self)
@@ -206,6 +226,9 @@ class GameObjectManager(ObjectManager):
         player.spell_manager.remove_cast_by_id(self.spell_id)
 
     def _handle_use_chest(self, player):
+        player.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
+        player.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player.unit_flags)
+
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.state == GameObjectStates.GO_STATE_READY:
             self.set_state(GameObjectStates.GO_STATE_ACTIVE)
@@ -305,11 +328,24 @@ class GameObjectManager(ObjectManager):
         self.state = state
         self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
 
+        if state == GameObjectStates.GO_STATE_ACTIVE:
+            self.flags |= GameObjectFlags.IN_USE
+            self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
+        else:
+            self.flags &= ~GameObjectFlags.IN_USE
+            self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
+
+    def has_flag(self, flag: GameObjectFlags):
+        return self.flags & flag
+
     def set_active(self):
         if self.state == GameObjectStates.GO_STATE_READY:
             self.set_state(GameObjectStates.GO_STATE_ACTIVE)
             return True
         return False
+
+    def is_active(self):
+        return self.state == GameObjectStates.GO_STATE_ACTIVE
 
     def set_ready(self):
         if self.state != GameObjectStates.GO_STATE_READY:
@@ -385,7 +421,7 @@ class GameObjectManager(ObjectManager):
 
             # Gameobject fields.
             self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
-            self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.gobject_template.flags)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
             self.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.faction)
             self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
             self.set_float(GameObjectFields.GAMEOBJECT_ROTATION, self.gobject_instance.spawn_rotation0)

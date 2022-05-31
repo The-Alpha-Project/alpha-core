@@ -60,6 +60,7 @@ class WorldLoader:
         WorldLoader.load_taxi_path_nodes()
         WorldLoader.load_factions()
         WorldLoader.load_faction_templates()
+        WorldLoader.load_locks()
 
         # Character related data
         WorldLoader.load_groups()
@@ -223,6 +224,20 @@ class WorldLoader:
             WorldDatabaseManager.ItemLootTemplateHolder.load_item_loot_template(item_loot_template)
             count += 1
             Logger.progress('Loading item loot templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_locks():
+        locks = DbcDatabaseManager.locks_get_all()
+        length = len(locks)
+        count = 0
+
+        for lock in locks:
+            DbcDatabaseManager.LocksHolder.load_lock(lock)
+
+            count += 1
+            Logger.progress('Loading locks...', count, length)
 
         return length
 

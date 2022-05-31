@@ -66,6 +66,7 @@ class ItemManager(ObjectManager):
         self.stats = []
         self.damage_stats = []
         self.spell_stats = []
+        self.lock = 0  # Unlocked (0)
 
         if item_template:
             self.display_id = item_template.display_id
@@ -75,6 +76,7 @@ class ItemManager(ObjectManager):
             self.stats = Stat.generate_stat_list(self.item_template)
             self.damage_stats = DamageStat.generate_damage_stat_list(self.item_template)
             self.spell_stats = SpellStat.generate_spell_stat_list(self.item_template, self.item_instance)
+            self.lock = item_template.lock_id
 
             # Load loot_manager if needed.
             if item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
@@ -361,6 +363,14 @@ class ItemManager(ObjectManager):
                     self.save()
                 self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)
                 break
+
+    def set_unlocked(self):
+        self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNLOCKED
+        self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
+        self.save()
+
+    def has_flag(self, flag: ItemDynFlags):
+        return self.item_instance.flags & flag
 
     def set_binding(self, bind=True):
         if bind:

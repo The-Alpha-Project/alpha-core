@@ -377,7 +377,7 @@ class SkillManager(object):
         return True
 
     def handle_defense_skill_gain_chance(self, damage_info):
-        # Vanilla formulae
+        # Vanilla formula.
         target_skill_type = SkillTypes.BLOCK if damage_info.hit_info == HitInfo.BLOCK else SkillTypes.DEFENSE
         skill = self.skills.get(target_skill_type, None)
         if not skill:
@@ -419,6 +419,52 @@ class SkillManager(object):
         self.set_skill(skill_type, skill.value + 1)
         self.build_update()
         return True
+
+    def handle_gather_skill_gain(self, skill_type, raw_skill_value, required_skill_value):
+        gather_skill_gain_factor = 1  # TODO, configurable.
+        if skill_type == SkillTypes.HERBALISM or skill_type == SkillTypes.LOCKPICKING:
+            self.update_skill_profession(
+                skill_type,
+                self.skill_gain_chance(raw_skill_value,
+                                       required_skill_value + 100,
+                                       required_skill_value + 50,
+                                       required_skill_value + 25),
+                gather_skill_gain_factor)
+        elif skill_type == SkillTypes.MINING:
+            mining_skill_chance_steps = 75  # TODO, configurable.
+            self.update_skill_profession(
+                skill_type,
+                self.skill_gain_chance(raw_skill_value,
+                                       required_skill_value + 100,
+                                       required_skill_value + 50,
+                                       required_skill_value + 25) >> int(raw_skill_value / mining_skill_chance_steps),
+                gather_skill_gain_factor)
+
+    # noinspection PyMethodMayBeStatic
+    def skill_gain_chance(self, skill_value, gray_level, green_level, yellow_level):
+        if skill_value >= gray_level:
+            return 0 * 10
+        elif skill_value >= green_level:
+            return 25 * 10
+        elif skill_value >= yellow_level:
+            return 75 * 10
+        return 100 * 10
+
+    def update_skill_profession(self, skill_type, chance, step):
+        if not skill_type:
+            return False
+
+        if chance <= 0:
+            return False
+
+        skill = self.skills.get(skill_type, None)
+        if not skill:
+            return False
+
+        roll = random.randint(1, 1000)
+        if roll < chance:
+            self.set_skill(skill_type, skill.value + step)
+            self.build_update()
 
     def handle_fishing_attempt_chance(self):
         skill = self.skills.get(SkillTypes.FISHING, None)

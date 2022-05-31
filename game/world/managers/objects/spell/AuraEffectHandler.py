@@ -153,7 +153,7 @@ class AuraEffectHandler:
                 return
             # Release loot if any.
             if effect_target.current_loot_selection != 0:
-                effect_target.send_loot_release()
+                effect_target.send_loot_release(effect_target.current_loot_selection)
 
         # Root (or unroot) unit.
         effect_target.set_root(not remove)

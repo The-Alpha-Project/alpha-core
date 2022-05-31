@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.dbc.DbcModels import *
+from game.world.managers.objects.locks.LockHolder import LockHolder
 from utils.ConfigManager import *
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
@@ -425,6 +426,27 @@ class DbcDatabaseManager:
     def taxi_path_nodes_get_all():
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(TaxiPathNode).order_by(TaxiPathNode.NodeIndex.asc()).all()
+        dbc_db_session.close()
+        return res
+
+    # Locks
+    class LocksHolder:
+        LOCKS = {}
+
+        @staticmethod
+        def load_lock(lock: Lock):
+            DbcDatabaseManager.LocksHolder.LOCKS[lock.ID] = LockHolder(lock)
+
+        @staticmethod
+        def get_lock_by_id(lock_id):
+            if lock_id in DbcDatabaseManager.LocksHolder.LOCKS:
+                return DbcDatabaseManager.LocksHolder.LOCKS[lock_id]
+            return 0
+
+    @staticmethod
+    def locks_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(Lock).all()
         dbc_db_session.close()
         return res
 
