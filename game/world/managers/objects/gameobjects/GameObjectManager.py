@@ -8,11 +8,12 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager, SpawnsGame
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.FishingNodeManager import FishingNodeManager
+from game.world.managers.objects.gameobjects.MiningNodeManager import MiningNodeManager
 from game.world.managers.objects.gameobjects.TrapManager import TrapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
-from game.world.opcode_handling.handlers.social.PlayerMacroHandler import PlayerMacroHandler
 from network.packet.PacketWriter import PacketWriter
+from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates
 from utils.constants.OpCodes import OpCode
@@ -71,6 +72,9 @@ class GameObjectManager(ObjectManager):
         # Chest initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             self.loot_manager = GameObjectLootManager(self)
+            # Mining node.
+            if self.gobject_template.data4 != 0 and self.gobject_template.data5 > self.gobject_template.data4:
+                self.mining_node_manager = MiningNodeManager(self)
 
         # Fishing node initialization.
         if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
@@ -134,6 +138,19 @@ class GameObjectManager(ObjectManager):
 
         gameobject.load()
         return gameobject
+
+    def handle_looted(self, player):
+        if self.loot_manager:
+            # Normal chest.
+            if not self.mining_node_manager:
+                # Chest still have loot.
+                if self.loot_manager.has_loot():
+                    self.set_ready()
+                else: # Despawn or destroy.
+                    self.despawn(True if self.spawned_by else False)
+            # Mining node.
+            else:
+                self.mining_node_manager.handle_looted(player)
 
     def _handle_use_door(self, player):
         # TODO: Check locks etc.
@@ -261,6 +278,7 @@ class GameObjectManager(ObjectManager):
         target.receive_healing(healing, self)
 
     def _handle_use_goober(self, player):
+        Logger.debug(f'Unimplemented gameobject use for type Gobber')
         pass
 
     def use(self, player, target=None):

@@ -17,10 +17,9 @@ class GameObjectLootManager(LootManager):
     def generate_loot(self, requester):
         self.clear()
 
-        # For now, randomly pick 3..7 items.
-
-        for loot_item in choices(self.loot_template, k=randint(min(3, len(self.loot_template)),
-                                                               min(7, len(self.loot_template)))):
+        # For now, randomly pick 2..4 items.
+        for loot_item in choices(self.loot_template, k=randint(min(2, len(self.loot_template)),
+                                                               min(4, len(self.loot_template)))):
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:

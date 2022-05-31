@@ -729,10 +729,7 @@ class PlayerManager(UnitManager):
         elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
             game_object = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
             if game_object:
-                if game_object.loot_manager.has_loot():
-                    game_object.set_ready()
-                else:
-                    game_object.despawn(True if game_object.spawned_by else False)
+                game_object.handle_looted(self)
         elif high_guid == HighGuid.HIGHGUID_ITEM:
             item_mgr = self.inventory.get_item_by_guid(self.current_loot_selection)
             if item_mgr and not item_mgr.loot_manager.has_loot():
