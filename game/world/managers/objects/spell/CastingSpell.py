@@ -204,7 +204,7 @@ class CastingSpell:
         # Return true if the effect has an implicit unit selection target.
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
 
-    def has_spell_visual_pre_cast(self):
+    def has_spell_visual_pre_cast_kit(self):
         return self.spell_visual_entry and self.spell_visual_entry.PrecastKit > 0
 
     def is_fishing_spell(self):
