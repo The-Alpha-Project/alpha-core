@@ -27,7 +27,7 @@ class WorldLoader:
             WorldLoader.load_fishing_loot_templates()
             WorldLoader.load_gameobject_quest_starters()
             WorldLoader.load_gameobject_quest_finishers()
-            WorldLoader.load_gameobjects()
+            WorldLoader.load_gameobjects()  # Order matters.
         else:
             Logger.info('Skipped game object loading.')
 
@@ -48,6 +48,8 @@ class WorldLoader:
             Logger.info('Skipped creature loading.')
 
         WorldLoader.load_item_templates()
+        WorldLoader.load_reference_loot_templates()
+        WorldLoader.load_pickpocketing_loot_templates()
         WorldLoader.load_item_loot_templates()
         WorldLoader.load_quests()
         WorldLoader.load_spells()
@@ -224,6 +226,32 @@ class WorldLoader:
             WorldDatabaseManager.ItemLootTemplateHolder.load_item_loot_template(item_loot_template)
             count += 1
             Logger.progress('Loading item loot templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_pickpocketing_loot_templates():
+        pickpocketing_loot_templates = WorldDatabaseManager.pickpocketing_loot_template_get_all()
+        length = len(pickpocketing_loot_templates)
+        count = 0
+
+        for pickpocketing_loot_template in pickpocketing_loot_templates:
+            WorldDatabaseManager.PickPocketingLootTemplateHolder.load_pickpocketing_loot_template(pickpocketing_loot_template)
+            count += 1
+            Logger.progress('Loading pickpocketing loot templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_reference_loot_templates():
+        reference_loot_templates = WorldDatabaseManager.reference_loot_template_get_all()
+        length = len(reference_loot_templates)
+        count = 0
+
+        for reference_loot_template in reference_loot_templates:
+            WorldDatabaseManager.ReferenceLootTemplateHolder.load_reference_loot_template(reference_loot_template)
+            count += 1
+            Logger.progress('Loading reference loot templates...', count, length)
 
         return length
 

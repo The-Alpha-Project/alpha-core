@@ -1,7 +1,6 @@
 from random import randint, uniform, choices
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.LootHolder import LootHolder
 from game.world.managers.objects.units.LootManager import LootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -17,9 +16,11 @@ class GameObjectLootManager(LootManager):
     def generate_loot(self, requester):
         self.clear()
 
+        # TODO, handle referenced loot. (negative mincountOrRef)
+        #  This points to any other loot table.
+        loot_items = [loot_item for loot_item in self.loot_template if loot_item.mincountOrRef > 0]
         # For now, randomly pick 2..4 items.
-        for loot_item in choices(self.loot_template, k=randint(min(2, len(self.loot_template)),
-                                                               min(4, len(self.loot_template)))):
+        for loot_item in choices(loot_items, k=randint(min(2, len(loot_items)), min(4, len(loot_items)))):
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:
@@ -35,9 +36,6 @@ class GameObjectLootManager(LootManager):
                 if item_chance >= 100 or chance - item_chance < 0 or loot_item.ChanceOrQuestChance == 0:
                     item = ItemManager.generate_item_from_entry(item_template.entry)
                     if item:
-                        # TODO Not handling references to other templates at this moment (mincountOrRef < 0), ignore.
-                        if loot_item.mincountOrRef < 0:
-                            continue
                         self.current_loot.append(LootHolder(item, randint(loot_item.mincountOrRef, loot_item.maxcount)))
 
     # override

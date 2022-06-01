@@ -208,6 +208,58 @@ class WorldDatabaseManager(object):
                 best_matching_item = item
         return best_matching_item
 
+    # Reference loot.
+
+    @staticmethod
+    def reference_loot_template_get_all() -> list[ReferenceLootTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(ReferenceLootTemplate).all()
+        world_db_session.close()
+        return res
+
+    class ReferenceLootTemplateHolder:
+        REFERENCE_LOOT_TEMPLATES: [int, list[ReferenceLootTemplate]] = {}
+
+        @staticmethod
+        def load_reference_loot_template(reference_loot_template):
+            if reference_loot_template.entry not in \
+                    WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES:
+                WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES[reference_loot_template.entry] = []
+
+            WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES[reference_loot_template.entry] \
+                .append(reference_loot_template)
+
+        @staticmethod
+        def reference_loot_template_get_by_entry(entry) -> list[ReferenceLootTemplate]:
+            return WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES[entry] \
+                if entry in WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES else []
+
+    # Pick Pocketing loot.
+    @staticmethod
+    def pickpocketing_loot_template_get_all() -> list[PickpocketingLootTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PickpocketingLootTemplate).all()
+        world_db_session.close()
+        return res
+
+    class PickPocketingLootTemplateHolder:
+        PICKPOCKETING_LOOT_TEMPLATES: [int, list[PickpocketingLootTemplate]] = {}
+
+        @staticmethod
+        def load_pickpocketing_loot_template(pickpocketing_loot_template):
+            if pickpocketing_loot_template.entry not in \
+                    WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES:
+                WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES[
+                    pickpocketing_loot_template.entry] = []
+
+            WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES[pickpocketing_loot_template.entry] \
+                .append(pickpocketing_loot_template)
+
+        @staticmethod
+        def pickpocketing_loot_template_get_by_entry(entry) -> list[PickpocketingLootTemplate]:
+            return WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES[entry] \
+                if entry in WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES else []
+
     # Page text stuff.
 
     @staticmethod
