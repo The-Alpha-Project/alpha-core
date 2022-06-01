@@ -12,7 +12,7 @@ class OpenLockResult:
     result: SpellCheckCastResult = SpellCheckCastResult.SPELL_NO_ERROR
     skill_type: SkillTypes = SkillTypes.NONE
     required_skill_value: int = 0
-    raw_skill_value: int = 0
+    skill_value: int = 0
     bonus_skill_value: int = 0
 
 
@@ -24,10 +24,10 @@ class LockManager:
         if not lock_id:
             return OpenLockResult(SpellCheckCastResult.SPELL_NO_ERROR)
 
-        required_skill_value = 0
-        raw_skill_value = 0
-        bonus_skill_value = 0
-        lock_info = DbcDatabaseManager.LocksHolder.get_lock_by_id(lock_id)
+        required_skill_value = 0  # Required by the lock entry.
+        skill_value = 0  # Player skill value, considering normal bonuses.
+        bonus_skill_value = 0  # Spell provided bonus (Spell effect points)
+        lock_info = DbcDatabaseManager.LocksHolder.get_lock_by_id(lock_id)  # Lock entry.
         if not lock_info:
             return OpenLockResult(SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
 
@@ -45,14 +45,14 @@ class LockManager:
                 skill_type = LockManager.get_skill_by_lock_type(LockType(lock_info.indexes[index]))
                 if skill_type != SkillTypes.NONE:
                     required_skill_value = lock_info.skills[index]
-                    raw_skill_value = 0 if cast_item or caster.get_type_id() != ObjectTypeIds.ID_PLAYER else \
+                    skill_value = 0 if cast_item or caster.get_type_id() != ObjectTypeIds.ID_PLAYER else \
                         caster.skill_manager.get_total_skill_value(skill_type)
-                    bonus_skill_value = raw_skill_value + bonus_points
+                    bonus_skill_value = skill_value + bonus_points
                     if bonus_skill_value < required_skill_value:
                         return OpenLockResult(SpellCheckCastResult.SPELL_FAILED_LOW_CASTLEVEL)
 
                 return OpenLockResult(SpellCheckCastResult.SPELL_NO_ERROR, skill_type,
-                                      required_skill_value, raw_skill_value, bonus_skill_value)
+                                      required_skill_value, skill_value, bonus_skill_value)
 
         # No requirement met, locked.
         return OpenLockResult(SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)

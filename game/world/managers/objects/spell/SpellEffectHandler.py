@@ -162,13 +162,13 @@ class SpellEffectHandler:
             return
 
         lock_type = effect.misc_value
-        bonus_points = effect.get_effect_points(casting_spell.caster_effective_level)
+        bonus_points = effect.get_effect_simple_points()
         lock_result = LockManager.can_open_lock(caster, lock_type, lock_id, bonus_points=bonus_points)
         if lock_result.result != SpellCheckCastResult.SPELL_NO_ERROR:
             caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, lock_result.result)
             return
 
-        raw_skill_value = lock_result.raw_skill_value
+        skill_value = lock_result.skill_value
         bonus_skill_value = lock_result.bonus_skill_value
         required_skill_value = lock_result.required_skill_value
         skill_type = lock_result.skill_type
@@ -181,7 +181,7 @@ class SpellEffectHandler:
                 return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
 
         if caster and target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
-            caster.skill_manager.handle_gather_skill_gain(skill_type, raw_skill_value, required_skill_value)
+            caster.skill_manager.handle_gather_skill_gain(skill_type, skill_value, required_skill_value)
             target.use(caster, target)
         elif target:
             Logger.debug(f'Unimplemented open lock spell effect for type {ObjectTypeIds(target.get_type_id()).name}.')

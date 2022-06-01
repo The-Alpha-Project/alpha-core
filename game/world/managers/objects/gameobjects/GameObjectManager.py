@@ -226,12 +226,13 @@ class GameObjectManager(ObjectManager):
         player.spell_manager.remove_cast_by_id(self.spell_id)
 
     def _handle_use_chest(self, player):
-        player.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
-        player.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player.unit_flags)
-
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.state == GameObjectStates.GO_STATE_READY:
             self.set_state(GameObjectStates.GO_STATE_ACTIVE)
+
+        # Player kneel loot.
+        player.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
+        player.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player.unit_flags)
 
         # Generate loot if it's empty.
         if not self.loot_manager.has_loot():
@@ -469,7 +470,7 @@ class GameObjectManager(ObjectManager):
     # override
     def respawn(self):
         # Set properties before making it visible.
-        self.state = GameObjectStates.GO_STATE_READY
+        self.set_state(GameObjectStates.GO_STATE_READY)
         self.respawn_timer = 0
         self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
                                     self.gobject_instance.spawn_spawntimemin)

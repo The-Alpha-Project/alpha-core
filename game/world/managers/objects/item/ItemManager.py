@@ -190,7 +190,7 @@ class ItemManager(ObjectManager):
                 slot=slot,
                 enchantments=ItemManager._get_enchantments_db_initialization(perm_enchant),
                 bag=bag,
-                item_flags=item_template.flags
+                item_flags=0  # Instance flags, we do not persist static flags.
             )
 
             RealmDatabaseManager.character_inventory_add_item(item)
