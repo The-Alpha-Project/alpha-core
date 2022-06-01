@@ -1,3 +1,4 @@
+from game.world.managers.objects.loot.LootMapper import LootMapper
 from utils.constants.MiscCodes import LootTypes
 
 
@@ -12,6 +13,24 @@ class LootManager(object):
     # Needs overriding
     def generate_loot(self, requester):
         pass
+
+    def generate_loot_items_collection(self, loot_template):
+        loot_items = []
+        for loot_item in loot_template:
+            # Handle referenced loot template.
+            if loot_item.mincountOrRef < 0:
+                loot_items += self._fill_referenced_loot(-loot_item.mincountOrRef)
+            # Handle normal loot items.
+            else:
+                loot_items.append(loot_item)
+        return loot_items
+
+    def _fill_referenced_loot(self, loot_id):
+        loot_template = LootMapper.find_loot_by_loot_id(loot_id)
+        if loot_template:
+            # Recurse, there might be more nested referenced loot templates.
+            return self.generate_loot_items_collection(loot_template)
+        return []
 
     # Needs overriding
     def populate_loot_template(self):

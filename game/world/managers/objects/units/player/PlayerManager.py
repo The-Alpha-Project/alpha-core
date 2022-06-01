@@ -734,7 +734,7 @@ class PlayerManager(UnitManager):
             item_mgr = self.inventory.get_item_by_guid(self.current_loot_selection)
             if item_mgr and not item_mgr.loot_manager.has_loot():
                 item_mgr.loot_manager.clear()
-                self.inventory.remove_items(item_mgr.item_template.entry, 1)
+                self.inventory.remove_item(item_mgr.item_instance.bag, item_mgr.current_slot)
         else:
             Logger.warning(f'Unhandled loot release for type {HighGuid(high_guid).name}')
 

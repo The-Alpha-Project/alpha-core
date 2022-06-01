@@ -1,8 +1,8 @@
-from random import randint, uniform, choices
+from random import randint, uniform, sample
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.units.LootHolder import LootHolder
-from game.world.managers.objects.units.LootManager import LootManager
+from game.world.managers.objects.loot.LootHolder import LootHolder
+from game.world.managers.objects.loot.LootManager import LootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from utils.constants.ItemCodes import ItemClasses
 from utils.constants.MiscCodes import LootTypes
@@ -19,11 +19,13 @@ class CreatureLootManager(LootManager):
         money = randint(self.world_object.creature_template.gold_min, self.world_object.creature_template.gold_max)
         self.current_money = money
 
-        # TODO, handle referenced loot. (negative mincountOrRef)
-        #  This points to any other loot table.
-        loot_items = [loot_item for loot_item in self.loot_template if loot_item.mincountOrRef > 0]
+        loot_collection = self.generate_loot_items_collection(self.loot_template)
+        loot_items = sample(loot_collection, len(loot_collection))
+        max_loot = randint(2, 4)
         # For now, randomly pick 2..4 items.
-        for loot_item in choices(loot_items, k=randint(min(2, len(loot_items)), min(4, len(loot_items)))):
+        for loot_item in loot_items:
+            if len(self.current_loot) >= max_loot:
+                break
             chance = float(round(uniform(0.0, 1.0), 2) * 100)
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(loot_item.item)
             if item_template:
