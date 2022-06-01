@@ -17,11 +17,10 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags
-from utils.constants.MiscCodes import ObjectTypeFlags, GameObjectTypes, HighGuid, ObjectTypeIds, LockType
+from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
-from utils.constants.UpdateFields import UnitFields
 
 
 class SpellEffectHandler:
@@ -119,13 +118,12 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_open_lock(casting_spell, effect, caster, target):
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not caster or caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
                                                   SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return
 
-        lock_id = 0
-        if casting_spell.initial_target_is_object():
+        if isinstance(target, GameObjectManager):
             lock_id = target.lock
             # Already open (0).
             if not lock_id:
@@ -139,7 +137,7 @@ class SpellEffectHandler:
                 caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
                                                      SpellCheckCastResult.SPELL_FAILED_CHEST_IN_USE)
                 return
-        elif casting_spell.initial_target_is_item():
+        elif isinstance(target, ItemManager):
             # Grab Item owner guid.
             owner_guid = target.get_owner_guid()
             if not owner_guid:
@@ -178,13 +176,15 @@ class SpellEffectHandler:
                 or lock_result.skill_type == SkillTypes.LOCKPICKING):
             can_fail_at_max_skill = skill_type != SkillTypes.HERBALISM and skill_type != SkillTypes.MINING
             if can_fail_at_max_skill and required_skill_value > randint(bonus_skill_value - 25, bonus_skill_value + 37):
-                return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
+                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN)
+                return
 
-        if caster and target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        if target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             caster.skill_manager.handle_gather_skill_gain(skill_type, skill_value, required_skill_value)
             target.use(caster, target)
-        elif target:
-            Logger.debug(f'Unimplemented open lock spell effect for type {ObjectTypeIds(target.get_type_id()).name}.')
+        elif target.get_type_id() == ObjectTypeIds.ID_ITEM:
+            caster.skill_manager.handle_gather_skill_gain(skill_type, skill_value, required_skill_value)
+            target.set_unlocked()
         else:
             Logger.debug(f'Unimplemented open lock spell effect.')
 

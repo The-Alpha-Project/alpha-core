@@ -218,7 +218,7 @@ class ItemManager(ObjectManager):
     def query_details_data(self):
         data = ItemManager.generate_query_details_data(
             self.item_template,
-            self.item_instance.item_flags if self.item_instance else self.item_template.flags,
+            self._get_item_flags() if self.item_instance else self.item_template.flags,
             self.stats,
             self.damage_stats,
             self.spell_stats,
@@ -370,7 +370,7 @@ class ItemManager(ObjectManager):
         self.save()
 
     def has_flag(self, flag: ItemDynFlags):
-        return self.item_instance.flags & flag
+        return self.item_instance.item_flags & flag
 
     def set_binding(self, bind=True):
         if bind:

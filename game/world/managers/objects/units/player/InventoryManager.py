@@ -854,7 +854,7 @@ class InventoryManager(object):
                     requester.known_items[item.guid] = item
                     item_query_details_data += item.query_details_data()
                     item_query_count += 1
-                # Requester knows this item, send a partial update.
+                # Requester knows this item but has pending changes, send a partial update.
                 elif item.has_pending_updates():
                     update_packets.append(self._get_single_item_partial_update_packet(item, requester))
 
