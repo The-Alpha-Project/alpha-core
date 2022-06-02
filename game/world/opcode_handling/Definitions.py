@@ -1,3 +1,4 @@
+from game.world.opcode_handling.handlers.inventory.ItemQueryMultipleHandler import ItemQueryMultipleHandler
 from game.world.opcode_handling.handlers.player.BootMeHandler import BootMeHandler
 from game.world.opcode_handling.handlers.pet.PetActionHandler import PetActionHandler
 from game.world.opcode_handling.handlers.player.cheats.RechargeHandler import RechargeHandler
@@ -185,6 +186,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_SET_LOOKING_FOR_GROUP: LookingForGroupHandler.handle_set,
     OpCode.CMSG_WHO: WhoHandler.handle,
     OpCode.CMSG_ITEM_QUERY_SINGLE: ItemQuerySingleHandler.handle,
+    OpCode.CMSG_ITEM_QUERY_MULTIPLE: ItemQueryMultipleHandler.handle,
     OpCode.CMSG_PLAYER_MACRO: PlayerMacroHandler.handle,
     OpCode.CMSG_STANDSTATECHANGE: StandStateChangeHandler.handle,
     OpCode.CMSG_MOUNTSPECIAL_ANIM: MountSpecialAnimHandler.handle,
