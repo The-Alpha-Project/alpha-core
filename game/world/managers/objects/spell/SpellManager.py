@@ -38,6 +38,10 @@ class SpellManager:
         for spell in RealmDatabaseManager.character_get_spells(self.caster.guid):
             self.spells[spell.spell] = spell
 
+    # TODO, when the player knows the new spell with a lower rank, old spell must be removed entirely from server side,
+    #  and server must send SMSG_SUPERCEDED_SPELL (old spell, new spell).
+    #  Also, it might be possible that we can use this to remove an existent spell from the client, by superseding a
+    #  given spell with 0.
     def learn_spell(self, spell_id, cast_on_learn=False) -> bool:
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return False
