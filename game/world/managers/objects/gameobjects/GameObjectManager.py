@@ -220,7 +220,7 @@ class GameObjectManager(ObjectManager):
             self.loot_manager.generate_loot(player)
 
         if self.fishing_node_manager.try_hook_attempt(player):
-            player.send_loot(self)
+            player.send_loot(self.loot_manager)
 
         # Remove cast.
         player.spell_manager.remove_cast_by_id(self.spell_id)
@@ -238,7 +238,7 @@ class GameObjectManager(ObjectManager):
         if not self.loot_manager.has_loot():
             self.loot_manager.generate_loot(player)
 
-        player.send_loot(self)
+        player.send_loot(self.loot_manager)
 
     def _handle_use_ritual(self, player):
         # Caster is no longer in a group.

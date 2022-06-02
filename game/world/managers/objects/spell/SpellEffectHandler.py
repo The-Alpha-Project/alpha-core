@@ -471,6 +471,38 @@ class SpellEffectHandler:
 
         caster.pet_manager.summon_pet(effect.misc_value)
 
+    # TODO: Currently, you can endlessly pickpocket the same unit.
+    @staticmethod
+    def handle_pick_pocket(casting_spell, effect, caster, target):
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        if not target or not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT or not caster.can_attack_target(target):
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return
+
+        if not target.is_alive:
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
+            return
+
+        if not target.pickpocket_loot_manager:
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
+            return
+
+        if not target.pickpocket_loot_manager.has_loot():
+            target.pickpocket_loot_manager.generate_loot(caster)
+
+        # If still has no loot.
+        if not target.pickpocket_loot_manager:
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
+            return
+
+        caster.send_loot(target.pickpocket_loot_manager)
+
     @staticmethod
     def handle_temporary_enchant(casting_spell, effect, caster, target):
         SpellEffectHandler.handle_permanent_enchant(casting_spell, effect, caster, target, True)
@@ -614,6 +646,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SUMMON_PET: SpellEffectHandler.handle_summon_pet,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT: SpellEffectHandler.handle_permanent_enchant,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
+    SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

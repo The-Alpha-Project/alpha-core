@@ -33,6 +33,9 @@ class MovementHandler(object):
                 jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
 
                 if flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK) or jumped:
+                    # Cancel looting if moved.
+                    if world_session.player_mgr.loot_selection:
+                        world_session.player_mgr.send_loot_release(world_session.player_mgr.loot_selection)
                     world_session.player_mgr.spell_manager.check_spell_interrupts(moved=True)
                     world_session.player_mgr.aura_manager.check_aura_interrupts(moved=True)
 

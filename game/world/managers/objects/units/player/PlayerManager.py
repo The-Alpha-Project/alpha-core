@@ -7,6 +7,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.loot.LootSelection import LootSelection
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
@@ -79,7 +80,7 @@ class PlayerManager(UnitManager):
         self.combo_target = combo_target
 
         self.current_selection = current_selection
-        self.current_loot_selection = current_selection
+        self.loot_selection: Optional[LootSelection] = None
 
         self.chat_flags = chat_flags
         self.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
@@ -660,58 +661,62 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
 
     def loot_money(self):
-        if self.current_selection > 0:
-            enemy = MapManager.get_surrounding_unit_by_guid(self, self.current_selection)
-            if enemy and enemy.loot_manager.has_money():
+        if self.loot_selection:
+            enemy = MapManager.get_surrounding_unit_by_guid(self, self.loot_selection.object_guid)
+            loot_manager = self.loot_selection.get_loot_manager(enemy)
+            if enemy and loot_manager.has_money():
                 # If party is formed, try to split money.
                 if self.group_manager and self.group_manager.is_party_formed():
                     # Try to split money and finish on success.
                     if self.group_manager.reward_group_money(self, enemy):
                         return
                     else:  # Not able to split, notify the whole amount to the sole player.
-                        data = pack('<I', enemy.loot_manager.current_money)
+                        data = pack('<I', loot_manager.current_money)
                         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
 
                 # Not able to split money or no group, loot money to self only.
-                self.mod_money(enemy.loot_manager.current_money)
-                enemy.loot_manager.clear_money()
+                self.mod_money(loot_manager.current_money)
+                loot_manager.clear_money()
                 packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY)
-                for looter in enemy.loot_manager.get_active_looters():
+                for looter in loot_manager.get_active_looters():
                     looter.enqueue_packet(packet)
 
     def loot_item(self, slot):
-        if self.current_loot_selection > 0:
-            high_guid: HighGuid = self.extract_high_guid(self.current_loot_selection)
+        if self.loot_selection:
+            high_guid: HighGuid = self.extract_high_guid(self.loot_selection.object_guid)
             world_obj_target = None
             if high_guid == HighGuid.HIGHGUID_UNIT:
-                world_obj_target = MapManager.get_surrounding_unit_by_guid(self, self.current_loot_selection, include_players=False)
+                world_obj_target = MapManager.get_surrounding_unit_by_guid(
+                    self, self.loot_selection.object_guid, include_players=False)
             elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                world_obj_target = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
+                world_obj_target = MapManager.get_surrounding_gameobject_by_guid(
+                    self, self.loot_selection.object_guid)
             elif high_guid == HighGuid.HIGHGUID_ITEM:
-                world_obj_target = self.inventory.get_item_by_guid(self.current_loot_selection)
+                world_obj_target = self.inventory.get_item_by_guid(self.loot_selection.object_guid)
 
-            if world_obj_target and world_obj_target.loot_manager.has_loot():
-                loot = world_obj_target.loot_manager.get_loot_in_slot(slot)
+            loot_manager = self.loot_selection.get_loot_manager(world_obj_target)
+            if world_obj_target and loot_manager and loot_manager.has_loot():
+                loot = loot_manager.get_loot_in_slot(slot)
                 if loot and loot.item:
                     if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
-                        world_obj_target.loot_manager.do_loot(slot)
+                        loot_manager.do_loot(slot)
                         data = pack('<B', slot)
                         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
-                        for looter in world_obj_target.loot_manager.get_active_looters():
+                        for looter in loot_manager.get_active_looters():
                             looter.enqueue_packet(packet)
 
-    def send_loot_release(self, guid):
+    def send_loot_release(self, loot_selection):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
-        high_guid: HighGuid = self.extract_high_guid(self.current_loot_selection)
-        data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
+        high_guid: HighGuid = self.extract_high_guid(self.loot_selection.object_guid)
+        data = pack('<QB', loot_selection.object_guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
         if high_guid == HighGuid.HIGHGUID_UNIT:
             # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
-            enemy = MapManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
-            if enemy:
+            enemy = MapManager.get_surrounding_unit_by_guid(self, loot_selection.object_guid, include_players=False)
+            if enemy and loot_selection.loot_type != LootTypes.LOOT_TYPE_PICKLOCK:
                 if enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
                     enemy.killed_by = None
                 # If in party, check if this player has rights to release the loot for FFA.
@@ -727,22 +732,22 @@ class PlayerManager(UnitManager):
 
                 enemy.loot_manager.remove_active_looter(self)
         elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-            game_object = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
+            game_object = MapManager.get_surrounding_gameobject_by_guid(self, self.loot_selection.object_guid)
             if game_object:
                 game_object.handle_looted(self)
         elif high_guid == HighGuid.HIGHGUID_ITEM:
-            item_mgr = self.inventory.get_item_by_guid(self.current_loot_selection)
+            item_mgr = self.inventory.get_item_by_guid(self.loot_selection.object_guid)
             if item_mgr and not item_mgr.loot_manager.has_loot():
                 item_mgr.loot_manager.clear()
                 self.inventory.remove_item(item_mgr.item_instance.bag, item_mgr.current_slot)
         else:
             Logger.warning(f'Unhandled loot release for type {HighGuid(high_guid).name}')
 
-        self.current_loot_selection = 0
+        self.loot_selection = None
 
-    def send_loot(self, world_object):
-        self.current_loot_selection = world_object.guid
-        loot_type = world_object.loot_manager.get_loot_type(self, world_object)
+    def send_loot(self, loot_manager):
+        loot_type = loot_manager.get_loot_type(self, loot_manager.world_object)
+        self.loot_selection = LootSelection(loot_manager.world_object, loot_type)
 
         # Loot item data.
         item_data = b''
@@ -754,7 +759,7 @@ class PlayerManager(UnitManager):
         if loot_type != LootTypes.LOOT_TYPE_NOTALLOWED:
             slot = 0
             # Slot should match real current_loot indexes.
-            for loot in world_object.loot_manager.current_loot:
+            for loot in loot_manager.current_loot:
                 if loot:
                     # If this is a quest item and player does not need it, don't show it to this player.
                     if loot.is_quest_item() and not self.player_or_group_require_quest_item(
@@ -776,14 +781,14 @@ class PlayerManager(UnitManager):
                 slot += 1
 
             # At this point, this player has access to the loot window, add him to the active looters.
-            world_object.loot_manager.add_active_looter(self)
+            loot_manager.add_active_looter(self)
 
         # Set the header, know that we know how many actual items were sent.
         data = pack(
             '<QBIB',
-            world_object.guid,
+            loot_manager.world_object.guid,
             loot_type,
-            world_object.loot_manager.current_money,
+            loot_manager.current_money,
             item_count
         )
 
@@ -994,8 +999,7 @@ class PlayerManager(UnitManager):
     # override
     def is_on_water(self):
         self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
-        map_z = MapManager.calculate_z_for_object(self)[0]
-        return self.liquid_information and map_z < self.liquid_information.height
+        return self.liquid_information and self.location.z < self.liquid_information.height
 
     # override
     def is_under_water(self):

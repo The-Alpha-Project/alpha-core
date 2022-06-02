@@ -22,7 +22,6 @@ class OpenItemHandler(object):
             elif item.loot_manager:
                 if not item.loot_manager.has_loot():
                     item.loot_manager.generate_loot(world_session.player_mgr)
-                world_session.player_mgr.current_loot_selection = item.guid
-                world_session.player_mgr.send_loot(item)
+                world_session.player_mgr.send_loot(item.loot_manager)
 
         return 0

@@ -17,7 +17,7 @@ class LootRequestHandler(object):
 
             if player and enemy:
                 # Only set flag if player was able to loot, else the player would be kneeling forever.
-                if player.send_loot(enemy):
+                if player.send_loot(enemy.loot_manager):
                     player.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
                     player.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player.unit_flags)
 

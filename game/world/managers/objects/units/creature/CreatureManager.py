@@ -13,6 +13,7 @@ from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.units.creature.CreaturePickPocketLootManager import CreaturePickPocketLootManager
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
@@ -118,6 +119,7 @@ class CreatureManager(UnitManager):
 
         # Managers, will be load upon lazy loading trigger.
         self.loot_manager = None
+        self.pickpocket_loot_manager = None
         self.threat_manager = None
 
     @dataclass
@@ -272,7 +274,11 @@ class CreatureManager(UnitManager):
 
     def finish_loading(self):
         if self.creature_instance and not self.fully_loaded:
+            # Load loot manager.
             self.loot_manager = CreatureLootManager(self)
+            # Load pickpocket loot manager if required.
+            if self.creature_template.pickpocket_loot_id:
+                self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
             self.threat_manager = ThreatManager(self)
 
             creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)

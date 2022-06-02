@@ -152,8 +152,8 @@ class AuraEffectHandler:
             if effect_target.pending_taxi_destination:
                 return
             # Release loot if any.
-            if effect_target.current_loot_selection != 0:
-                effect_target.send_loot_release(effect_target.current_loot_selection)
+            if effect_target.loot_selection:
+                effect_target.send_loot_release(effect_target.loot_selection)
 
         # Root (or unroot) unit.
         effect_target.set_root(not remove)

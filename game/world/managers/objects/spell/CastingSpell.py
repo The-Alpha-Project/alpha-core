@@ -84,7 +84,6 @@ class CastingSpell:
             self.initial_target = MapManager.find_liquid_location_in_range(self.spell_caster,
                                                                            self.range_entry.RangeMin,
                                                                            self.range_entry.RangeMax)
-
         self.load_effects()
 
         self.cast_flags = SpellCastFlags.CAST_FLAG_NONE
@@ -207,8 +206,13 @@ class CastingSpell:
     def has_spell_visual_pre_cast_kit(self):
         return self.spell_visual_entry and self.spell_visual_entry.PrecastKit > 0
 
+    # TODO, for some reason, pickpocketing is detected as fishing too?
     def is_fishing_spell(self):
-        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IS_FISHING
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IS_FISHING and \
+               not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH
+
+    def is_pick_pocket_spell(self):
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH
 
     def is_area_of_effect_spell(self):
         for effect in self.get_effects():

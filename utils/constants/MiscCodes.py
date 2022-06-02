@@ -282,7 +282,7 @@ class DismountResults(IntEnum):
 class LootTypes(IntEnum):
     LOOT_TYPE_NOTALLOWED = 0
     LOOT_TYPE_CORPSE = 1
-    LOOT_TYPE_SKINNING = 2
+    LOOT_TYPE_PICKLOCK = 2
     LOOT_TYPE_FISHING = 3
 
 

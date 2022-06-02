@@ -113,8 +113,11 @@ class AuraManager:
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE: moved,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST: cast_spell,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL: negative_aura_applied,
-            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_ABOVEWATER: self.unit_mgr.is_on_water(),
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_UNDERWATER: not self.unit_mgr.is_on_water(),
         }
+
         for aura in list(self.active_auras.values()):
             # Food buffs are not labeled and an interrupt for sitting does not exist.
             # Food/drink spells do claim that the player must remain seated.
@@ -124,9 +127,11 @@ class AuraManager:
                 self.remove_aura(aura)
                 continue
 
-
             for flag, condition in flag_cases.items():
                 if aura.interrupt_flags & flag and condition:
+                    # Handle pickpocket case not to interrupt stealth.
+                    if aura.source_spell.is_pick_pocket_spell():
+                        continue
                     self.remove_aura(aura)
                     continue
 
