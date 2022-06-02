@@ -206,7 +206,7 @@ class MapManager(object):
                 return None
 
             liquids = MAPS[map_id].tiles[map_tile_x][map_tile_y].liquid_information[tile_local_x][tile_local_y]
-            return liquids if liquids and liquids.height >= z else liquids if ignore_z else None
+            return liquids if liquids and liquids.height > z else liquids if liquids and ignore_z else None
         except:
             Logger.error(traceback.format_exc())
             return None
@@ -214,6 +214,7 @@ class MapManager(object):
     @staticmethod
     def find_liquid_location_in_range(world_object, min_range, max_range):
         if not MapManager._validate_liquid_tile(world_object.map_, world_object.location.x, world_object.location.y):
+            print('Not valid')
             return None
 
         # Circular ref.

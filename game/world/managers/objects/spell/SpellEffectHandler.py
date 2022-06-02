@@ -318,7 +318,9 @@ class SpellEffectHandler:
             return
 
         target = None
-        if isinstance(effect.targets.resolved_targets_a[0], ObjectManager):
+        if casting_spell.initial_target_is_terrain() and casting_spell.is_fishing_spell():
+            target = casting_spell.initial_target
+        elif isinstance(effect.targets.resolved_targets_a[0], ObjectManager):
             target = effect.targets.resolved_targets_a[0].location
         elif isinstance(effect.targets.resolved_targets_a[0], Vector):
             target = effect.targets.resolved_targets_a[0]

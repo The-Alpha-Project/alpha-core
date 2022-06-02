@@ -79,13 +79,14 @@ class CastingSpell:
             self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(
                 self.spell_caster, selection_guid, include_players=True)
 
+        # Need effects first, to validate fishing spell.
+        self.load_effects()
+
         if self.is_fishing_spell():
             # Locate liquid vector in front of the caster.
             self.initial_target = MapManager.find_liquid_location_in_range(self.spell_caster,
                                                                            self.range_entry.RangeMin,
                                                                            self.range_entry.RangeMax)
-        self.load_effects()
-
         self.cast_flags = SpellCastFlags.CAST_FLAG_NONE
 
         # Ammo needs to be resolved on initialization since it's needed for validation and spell cast packets.
@@ -206,10 +207,11 @@ class CastingSpell:
     def has_spell_visual_pre_cast_kit(self):
         return self.spell_visual_entry and self.spell_visual_entry.PrecastKit > 0
 
-    # TODO, for some reason, pickpocketing is detected as fishing too?
+    # Need to check both, flag and effect target, else some other spells like pick pocket resolves to fishing.
     def is_fishing_spell(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IS_FISHING and \
-               not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH
+            any(effect.implicit_target_a == SpellImplicitTargets.TARGET_SELF_FISHING or
+                effect.implicit_target_b == SpellImplicitTargets.TARGET_SELF_FISHING for effect in self.get_effects())
 
     def is_pick_pocket_spell(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH
