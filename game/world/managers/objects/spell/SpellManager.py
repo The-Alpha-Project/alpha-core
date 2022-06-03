@@ -38,10 +38,6 @@ class SpellManager:
         for spell in RealmDatabaseManager.character_get_spells(self.caster.guid):
             self.spells[spell.spell] = spell
 
-    # TODO, when the player knows the new spell with a lower rank, old spell must be removed entirely from server side,
-    #  and server must send SMSG_SUPERCEDED_SPELL (old spell, new spell).
-    #  Also, it might be possible that we can use this to remove an existent spell from the client, by superseding a
-    #  given spell with 0.
     def learn_spell(self, spell_id, cast_on_learn=False) -> bool:
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return False
@@ -77,12 +73,15 @@ class SpellManager:
                 RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
             self.remove_cast_by_id(spell_id)
             del self.spells[spell_id]
-            data = pack('<Ii', spell_id, -1)
-            packet = PacketWriter.get_packet(OpCode.SMSG_SUPERCEDED_SPELL, data)
-            self.caster.enqueue_packet(packet)
+            self.supersede_spell(spell_id, 0)
             return True
-
         return False
+
+    # Replaces a given spell with another (Updates action bars and SpellBook), deletes if new spell is 0.
+    def supersede_spell(self, old_spell_id, new_spell_id):
+        data = pack('<2I', old_spell_id, new_spell_id)
+        packet = PacketWriter.get_packet(OpCode.SMSG_SUPERCEDED_SPELL, data)
+        self.caster.enqueue_packet(packet)
 
     def cast_passive_spells(self):
         # Self-cast all passive spells. This will apply learned skills, proficiencies, talents etc.
