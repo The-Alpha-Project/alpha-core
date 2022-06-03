@@ -14,7 +14,7 @@ class ItemQueryMultipleHandler(object):
                 found_items = 0
                 item_query_data = b''
                 for requested_item in range(requested_item_count):
-                    entry = unpack('<I', reader.data[4 + (requested_item * 4):4])[0]
+                    entry = unpack('<I', reader.data[4 + (requested_item_count * 4):4])[0]
                     item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
                     if item_template:
                         found_items += 1
