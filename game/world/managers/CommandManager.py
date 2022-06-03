@@ -284,7 +284,7 @@ class CommandManager(object):
             spell_id = res
             code, res = CommandManager._unlearn_spell(world_session, spell_id)
             if code == 0:
-                return 0, f'{res} Relogin for spellbook update.'
+                return 0, f'{res} Spell unlearned.'
         return code, res
 
     @staticmethod

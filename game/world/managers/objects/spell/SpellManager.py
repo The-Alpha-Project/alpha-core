@@ -73,10 +73,13 @@ class SpellManager:
         return True
 
     def unlearn_spell(self, spell_id) -> bool:
-        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
+        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and spell_id in self.spells and \
                 RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
             self.remove_cast_by_id(spell_id)
             del self.spells[spell_id]
+            data = pack('<Ii', spell_id, -1)
+            packet = PacketWriter.get_packet(OpCode.SMSG_SUPERCEDED_SPELL, data)
+            self.caster.enqueue_packet(packet)
             return True
 
         return False
