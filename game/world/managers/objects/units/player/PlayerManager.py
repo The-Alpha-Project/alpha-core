@@ -361,8 +361,8 @@ class PlayerManager(UnitManager):
                     # We don't know this player, notify self with its update packet.
                     self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
                     # Retrieve their inventory updates.
-                    for update_packet in player.inventory.get_inventory_update_packets(self):
-                        self.enqueue_packet(update_packet)
+                    self.enqueue_packets(player.inventory.get_inventory_update_packets(self))
+                    # Create packet.
                     self.enqueue_packet(player.generate_create_packet(requester=self))
                     # Get partial movement packet if any.
                     if player.movement_manager.unit_is_moving():
