@@ -752,7 +752,6 @@ class PlayerManager(UnitManager):
         # Loot item data.
         item_data = b''
         # Initialize item detail queries data.
-        item_query = b''
         item_count = 0
 
         # Do not send loot if player has no permission.
@@ -767,8 +766,6 @@ class PlayerManager(UnitManager):
                         slot += 1
                         continue
 
-                    # Add this item to item_query data.
-                    item_query += ItemManager.generate_query_details_data(loot.item.item_template)
                     item_count += 1
 
                     item_data += pack(
@@ -795,9 +792,6 @@ class PlayerManager(UnitManager):
         # Append item data and send all the packed item detail queries for current loot, if any.
         if item_count:
             data += item_data
-            # Item queries.
-            item_query_data = pack(f'<I{len(item_query)}s', item_count, item_query)
-            self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query_data))
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
         self.enqueue_packet(packet)
@@ -1445,7 +1439,7 @@ class PlayerManager(UnitManager):
 
     # override
     def attack_update(self, elapsed):
-        # If we have a combat target, no attackers and target is no longer alive or is evasing, leave combat.
+        # If we have a combat target, no attackers and target is no longer alive or is evading, leave combat.
         if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_evading):
             if len(self.attackers) == 0:
                 self.leave_combat()

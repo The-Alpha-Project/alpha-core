@@ -185,7 +185,6 @@ class CreatureManager(UnitManager):
         if item_count == 0:
             data += pack('<B', 0)
         else:
-            item_query = pack('<I', len(vendor_data))
             for count, vendor_data_entry in enumerate(vendor_data):
                 data += pack(
                     '<7I',
@@ -197,10 +196,6 @@ class CreatureManager(UnitManager):
                     vendor_data_entry.item_template.max_durability,  # Max durability (not implemented in 0.5.3).
                     vendor_data_entry.item_template.buy_count  # Stack count.
                 )
-                item_query += ItemManager.generate_query_details_data(vendor_data_entry.item_template)
-
-            # Send all vendor item query details.
-            world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query))
 
         session.close()
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
