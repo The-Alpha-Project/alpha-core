@@ -83,9 +83,7 @@ class LootManager(object):
         else:
             chance = uniform(0.10, 0.15)
 
-        if roll <= chance:
-            return True
-        return False
+        return roll <= chance
 
     def add_loot(self, loot_item):
         from game.world.managers.objects.loot.LootHolder import LootHolder

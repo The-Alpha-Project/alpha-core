@@ -75,7 +75,7 @@ class ItemManager(ObjectManager):
             self.enchantments = [EnchantmentHolder() for _ in range(MAX_ENCHANTMENTS)]
             self.stats = Stat.generate_stat_list(self.item_template)
             self.damage_stats = DamageStat.generate_damage_stat_list(self.item_template)
-            self.spell_stats = SpellStat.generate_spell_stat_list(self.item_template, self.item_instance)
+            self.spell_stats = SpellStat.generate_spell_stat_list(self.item_template)
             self.lock = item_template.lock_id
 
             # Load loot_manager if needed.
@@ -99,13 +99,6 @@ class ItemManager(ObjectManager):
             return True
 
         return self.item_instance.item_flags & ItemDynFlags.ITEM_DYNFLAG_BOUND == ItemDynFlags.ITEM_DYNFLAG_BOUND
-
-    def has_charges(self):
-        charges = [self.item_template.spellcharges_1, self.item_template.spellcharges_2,
-                   self.item_template.spellcharges_3, self.item_template.spellcharges_4,
-                   self.item_template.spellcharges_5]
-
-        return any(charge != 0 for charge in charges)
 
     def get_contained(self):
         if not self.item_instance:
@@ -189,6 +182,11 @@ class ItemManager(ObjectManager):
                 stackcount=count,
                 slot=slot,
                 enchantments=ItemManager._get_enchantments_db_initialization(perm_enchant),
+                SpellCharges1=item_template.spellcharges_1,
+                SpellCharges2=item_template.spellcharges_2,
+                SpellCharges3=item_template.spellcharges_3,
+                SpellCharges4=item_template.spellcharges_4,
+                SpellCharges5=item_template.spellcharges_5,
                 bag=bag,
                 item_flags=0  # Dynamic flags start at 0. Static flags are filled at runtime from item template.
             )
@@ -218,23 +216,15 @@ class ItemManager(ObjectManager):
     def query_details_data(self):
         data = ItemManager.generate_query_details_data(
             self.item_template,
-            self._get_item_flags() if self.item_instance else self.item_template.flags,
-            self.stats,
-            self.damage_stats,
-            self.spell_stats,
-            self.item_instance
         )
         return data
 
     @staticmethod
-    def generate_query_details_data(item_template, item_flags=-1, stats=None, damage_stats=None, spell_stats=None, item_instance=None):
+    def generate_query_details_data(item_template):
         # Initialize stat values if none are supplied.
-        if not stats:
-            stats = Stat.generate_stat_list(item_template)
-        if not damage_stats:
-            damage_stats = DamageStat.generate_damage_stat_list(item_template)
-        if not spell_stats:
-            spell_stats = SpellStat.generate_spell_stat_list(item_template, item_instance)
+        stats = Stat.generate_stat_list(item_template)
+        damage_stats = DamageStat.generate_damage_stat_list(item_template)
+        spell_stats = SpellStat.generate_spell_stat_list(item_template)
 
         item_name_bytes = PacketWriter.string_to_bytes(item_template.name)
         data = pack(
@@ -245,7 +235,7 @@ class ItemManager(ObjectManager):
             item_name_bytes, b'\x00', b'\x00', b'\x00',
             item_template.display_id,
             item_template.quality,
-            item_flags if item_flags > -1 else item_template.flags,
+            item_template.flags,
             item_template.buy_price,
             item_template.sell_price,
             item_template.inventory_type,
@@ -325,9 +315,10 @@ class ItemManager(ObjectManager):
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
             self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
             
-            # Spell stats.
-            for slot, spell_stat in enumerate(self.spell_stats):
-                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + slot, self.spell_stats[slot].charges)
+            # Spell charges.
+            for slot in range(5):
+                charges = eval(f'self.item_instance.SpellCharges{slot + 1}')
+                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + slot, charges)
             
             # Enchantments.
             for slot in range(MAX_ENCHANTMENTS):
@@ -353,16 +344,30 @@ class ItemManager(ObjectManager):
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
             self.save()
 
+    # noinspection PyMethodMayBeStatic
+    def has_charges(self):
+        for index in range(5):
+            charges = eval(f'self.item_instance.SpellCharges{index + 1}')
+            if charges:
+                return True
+        return False
+
     def set_charges(self, spell_id, charges):
         for index, spell_stats in enumerate(self.spell_stats):
             if spell_stats.spell_id == spell_id:
-                spell_stats.charges = charges
+                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)
                 # Update our item_instance, else charges wont serialize properly.
                 if self.item_instance:
-                    eval(f'self.item_instance.SpellCharges{index + 1} = {charges}')
+                    exec(f'self.item_instance.SpellCharges{index + 1} = {charges}')
                     self.save()
-                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)
                 break
+
+    def get_charges(self, spell_id):
+        if self.item_instance:
+            for index, spell_stats in enumerate(self.spell_stats):
+                if spell_stats.spell_id == spell_id:
+                    return eval(f'self.item_instance.SpellCharges{index + 1}')
+        return 0
 
     def set_unlocked(self):
         self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNLOCKED

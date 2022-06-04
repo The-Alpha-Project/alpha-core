@@ -46,28 +46,21 @@ class SpellStat(object):
         self.category_cooldown = category_cooldown
 
     @staticmethod
-    def generate_spell_stat_list(item_template, item_instance=None):
-        # Spell charges will use item template if there is no item instance available. This should allow for
-        # serialization to work for charges as well.
+    def generate_spell_stat_list(item_template):
         return [
-            SpellStat(item_template.spellid_1, item_template.spelltrigger_1,
-                      item_template.spellcharges_1 if not item_instance else item_instance.SpellCharges1,
+            SpellStat(item_template.spellid_1, item_template.spelltrigger_1, item_template.spellcharges_1,
                       item_template.spellcooldown_1, item_template.spellcategory_1,
                       item_template.spellcategorycooldown_1),
-            SpellStat(item_template.spellid_2, item_template.spelltrigger_2,
-                      item_template.spellcharges_2 if not item_instance else item_instance.SpellCharges2,
+            SpellStat(item_template.spellid_2, item_template.spelltrigger_2, item_template.spellcharges_2,
                       item_template.spellcooldown_2, item_template.spellcategory_2,
                       item_template.spellcategorycooldown_2),
-            SpellStat(item_template.spellid_3, item_template.spelltrigger_3,
-                      item_template.spellcharges_3 if not item_instance else item_instance.SpellCharges3,
+            SpellStat(item_template.spellid_3, item_template.spelltrigger_3, item_template.spellcharges_3,
                       item_template.spellcooldown_3, item_template.spellcategory_3,
                       item_template.spellcategorycooldown_3),
-            SpellStat(item_template.spellid_4, item_template.spelltrigger_4,
-                      item_template.spellcharges_4 if not item_instance else item_instance.SpellCharges4,
+            SpellStat(item_template.spellid_4, item_template.spelltrigger_4, item_template.spellcharges_4,
                       item_template.spellcooldown_4, item_template.spellcategory_4,
                       item_template.spellcategorycooldown_4),
-            SpellStat(item_template.spellid_5, item_template.spelltrigger_5,
-                      item_template.spellcharges_5 if not item_instance else item_instance.SpellCharges5,
+            SpellStat(item_template.spellid_5, item_template.spelltrigger_5, item_template.spellcharges_5,
                       item_template.spellcooldown_5, item_template.spellcategory_5,
                       item_template.spellcategorycooldown_5)
         ]

@@ -121,7 +121,7 @@ class ActiveQuest:
 
         # Make sure we clamp between 0 and required.
         new_count = max(0, min(value, required_count))
-        exec(f'self.db_state.itemcount{index + 1} = new_count')
+        exec(f'self.db_state.itemcount{index + 1} = {new_count}')
         self.save(is_new=False)
 
     # noinspection PyMethodMayBeStatic

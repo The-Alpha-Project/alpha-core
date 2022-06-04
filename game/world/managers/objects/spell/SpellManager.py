@@ -1053,8 +1053,7 @@ class SpellManager:
 
             # Spells cast with consumables.
             if casting_spell.source_item and casting_spell.source_item.has_charges():
-                spell_stats = casting_spell.get_item_spell_stats()
-                charges = spell_stats.charges
+                charges = casting_spell.source_item.get_charges(casting_spell.spell_entry.ID)
                 if charges == 0:  # no charges left.
                     self.send_cast_result(casting_spell.spell_entry.ID,
                                           SpellCheckCastResult.SPELL_FAILED_NO_CHARGES_REMAIN)
@@ -1139,8 +1138,7 @@ class SpellManager:
 
         # Spells cast with consumables.
         if casting_spell.source_item and casting_spell.source_item.has_charges():
-            spell_stats = casting_spell.get_item_spell_stats()
-            charges = spell_stats.charges
+            charges = casting_spell.source_item.get_charges(casting_spell.spell_entry.ID)
             if charges < 0:  # Negative charges remove items.
                 self.caster.inventory.remove_items(casting_spell.source_item.item_template.entry, 1)
 
