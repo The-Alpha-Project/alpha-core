@@ -30,12 +30,19 @@ class LootManager(object):
                 loot_items.append(loot_item)
 
         for loot_item in loot_items:
-            group_id = loot_item.groupid if not loot_item.ChanceOrQuestChance < 0 else 10
-            if group_id not in loot_groups:
-                loot_groups[group_id] = []
-            loot_groups[group_id].append(loot_item)
+            if loot_item.groupid not in loot_groups:
+                loot_groups[loot_item.groupid] = []
+            loot_groups[loot_item.groupid].append(loot_item)
 
         return loot_groups
+
+    def _fill_referenced_loot(self, loot_id):
+        from game.world.managers.objects.loot.LootMapper import LootMapper
+        loot_template = LootMapper.find_loot_by_loot_id(loot_id)
+        if loot_template:
+            # Recurse, there might be more nested referenced loot templates.
+            return self.generate_loot_groups(loot_template)
+        return []
 
     # Returns the final list of items available for looting.
     def process_loot_groups(self, loot_groups, requester) -> list:
@@ -86,14 +93,6 @@ class LootManager(object):
         item = ItemManager.generate_item_from_entry(loot_item.item)
         if item:
             self.current_loot.append(LootHolder(item, randint(loot_item.mincountOrRef, loot_item.maxcount)))
-
-    def _fill_referenced_loot(self, loot_id):
-        from game.world.managers.objects.loot.LootMapper import LootMapper
-        loot_template = LootMapper.find_loot_by_loot_id(loot_id)
-        if loot_template:
-            # Recurse, there might be more nested referenced loot templates.
-            return self.generate_loot_groups(loot_template)
-        return []
 
     # Needs overriding
     def populate_loot_template(self):
