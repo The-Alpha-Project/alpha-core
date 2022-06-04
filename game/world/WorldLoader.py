@@ -9,7 +9,6 @@ from game.world.managers.objects.units.creature.CreatureManager import CreatureM
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import GameObjectTypes
 from utils.Logger import Logger
 
 

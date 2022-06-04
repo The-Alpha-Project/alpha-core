@@ -8,10 +8,10 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager, SpawnsGame
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.FishingNodeManager import FishingNodeManager
+from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from game.world.managers.objects.gameobjects.MiningNodeManager import MiningNodeManager
 from game.world.managers.objects.gameobjects.TrapManager import TrapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \

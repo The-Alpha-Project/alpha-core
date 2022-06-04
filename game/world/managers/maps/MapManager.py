@@ -214,7 +214,6 @@ class MapManager(object):
     @staticmethod
     def find_liquid_location_in_range(world_object, min_range, max_range):
         if not MapManager._validate_liquid_tile(world_object.map_, world_object.location.x, world_object.location.y):
-            print('Not valid')
             return None
 
         # Circular ref.
