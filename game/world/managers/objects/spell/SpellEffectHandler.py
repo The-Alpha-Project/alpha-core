@@ -104,7 +104,7 @@ class SpellEffectHandler:
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
         arbiter = GameObjectManager.spawn(effect.misc_value, effect.targets.resolved_targets_b[0], caster.map_,
-                                          spawned_by=caster, despawn_time=3600, spell_id=casting_spell.spell_entry.ID,
+                                          summoner=caster, despawn_time=3600, spell_id=casting_spell.spell_entry.ID,
                                           override_faction=caster.faction)
 
         duel_result = DuelManager.request_duel(caster, target, arbiter)
@@ -289,7 +289,7 @@ class SpellEffectHandler:
         totem_entry = effect.misc_value
         # TODO Refactor to avoid circular import?
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_, spawned_by=caster,
+        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_, summoner=caster,
                                                  override_faction=caster.faction)
 
         if not creature_manager:
@@ -329,7 +329,7 @@ class SpellEffectHandler:
             Logger.error(f'Unable to resolve target, go entry {object_entry}, spell {casting_spell.spell_entry.ID}.')
             return
 
-        GameObjectManager.spawn(object_entry, target, caster.map_, spawned_by=caster,
+        GameObjectManager.spawn(object_entry, target, caster.map_, summoner=caster,
                                 spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction)
 
     @staticmethod

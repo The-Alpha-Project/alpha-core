@@ -231,8 +231,6 @@ class PlayerManager(UnitManager):
             # Set player flags.
             self.set_taxi_flying_state(True, taxi_resume_info.mount_display_id)
 
-        # Notify player with create related packets:
-        self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
         # Initial inventory create packets.
         self.enqueue_packets(self.inventory.get_inventory_update_packets(self))
         # Player create packet.
@@ -345,7 +343,7 @@ class PlayerManager(UnitManager):
 
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
-    def update_known_world_objects(self, force_update=False):
+    def update_known_world_objects(self):
         players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypeIds.ID_PLAYER,
                                                                                      ObjectTypeIds.ID_UNIT,
                                                                                      ObjectTypeIds.ID_GAMEOBJECT])
@@ -358,9 +356,7 @@ class PlayerManager(UnitManager):
             if self.guid != guid:
                 active_objects[guid] = player
                 if guid not in self.known_objects or not self.known_objects[guid]:
-                    # We don't know this player, notify self with its update packet.
-                    self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
-                    # Retrieve their inventory updates.
+                    # We don't know this player, notify self with its update packets.
                     self.enqueue_packets(player.inventory.get_inventory_update_packets(self))
                     # Create packet.
                     self.enqueue_packet(player.generate_create_packet(requester=self))
@@ -369,8 +365,6 @@ class PlayerManager(UnitManager):
                         packet = player.movement_manager.try_build_movement_packet(is_initial=False)
                         if packet:
                             self.enqueue_packet(packet)
-                elif force_update and guid in active_objects:
-                    self.update_world_object_on_me(player)
                 self.known_objects[guid] = player
 
         # Surrounding creatures.
@@ -391,8 +385,6 @@ class PlayerManager(UnitManager):
             # Player knows the creature but is not spawned anymore, destroy it for self.
             elif guid in self.known_objects and not creature.is_spawned:
                 active_objects.pop(guid)
-            elif force_update and guid in active_objects:
-                self.update_world_object_on_me(creature)
 
         # Surrounding game objects.
         for guid, gobject in game_objects.items():
@@ -407,8 +399,6 @@ class PlayerManager(UnitManager):
             # Player knows the game object but is not spawned anymore, destroy it for self.
             elif guid in self.known_objects and not gobject.is_spawned:
                 active_objects.pop(guid)
-            elif force_update and guid in active_objects:
-                self.update_world_object_on_me(gobject)
 
         # World objects which are known but no longer active to self should be destroyed.
         for guid, known_object in list(self.known_objects.items()):

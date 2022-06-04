@@ -703,7 +703,6 @@ class QuestManager(object):
             self.complete_quest(active_quest, update_surrounding=False)
 
         self.update_surrounding_quest_status()
-        self.player_mgr.update_known_world_objects(force_update=True)
 
     def share_quest_event(self, active_quest):
         title_bytes = PacketWriter.string_to_bytes(active_quest.quest.Title)
@@ -733,7 +732,6 @@ class QuestManager(object):
             self.remove_from_quest_log(quest_entry)
             RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_entry)
             self.update_surrounding_quest_status()
-            self.player_mgr.update_known_world_objects(force_update=True)
 
     def handle_complete_quest(self, quest_id, quest_giver_guid):
         quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
@@ -825,7 +823,6 @@ class QuestManager(object):
 
         # Update surrounding, NextQuestInChain was not working properly.
         self.update_surrounding_quest_status()
-        self.player_mgr.update_known_world_objects(force_update=True)
 
     def cast_reward_spell(self, quest_giver_guid, active_quest):
         quest_giver_unit = MapManager.get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
@@ -850,7 +847,6 @@ class QuestManager(object):
 
         if should_update:
             self.update_surrounding_quest_status()
-            self.player_mgr.update_known_world_objects(force_update=True)
 
     def reward_item(self, item_entry, item_count):
         for quest_id, active_quest in self.active_quests.items():
@@ -890,7 +886,6 @@ class QuestManager(object):
 
         if update_surrounding:
             self.update_surrounding_quest_status()
-            self.player_mgr.update_known_world_objects(force_update=True)
 
     def creature_go_is_required_by_quest(self, creature_entry):
         for active_quest in list(self.active_quests.values()):

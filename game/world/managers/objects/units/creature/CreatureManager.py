@@ -38,7 +38,7 @@ class CreatureManager(UnitManager):
     def __init__(self,
                  creature_template,
                  creature_instance=None,
-                 spawned_by=None,
+                 summoner=None,
                  **kwargs):
         super().__init__(**kwargs)
 
@@ -46,7 +46,7 @@ class CreatureManager(UnitManager):
         self.creature_instance = creature_instance
         self.fully_loaded = False
         self.killed_by = None
-        self.spawned_by = spawned_by
+        self.summoner = summoner
 
         self.entry = self.creature_template.entry
         self.class_ = self.creature_template.unit_class
@@ -102,8 +102,8 @@ class CreatureManager(UnitManager):
             self.guid = self.generate_object_guid(creature_instance.spawn_id)
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
             # If spawned by another unit, use that unit map and zone.
-            self.map_ = self.creature_instance.map if not self.spawned_by else self.spawned_by.map_
-            self.zone = self.spawned_by.zone if self.spawned_by else 0
+            self.map_ = self.creature_instance.map if not self.summoner else self.summoner.map_
+            self.zone = self.summoner.zone if self.summoner else 0
             self.spawn_position = Vector(self.creature_instance.position_x,
                                          self.creature_instance.position_y,
                                          self.creature_instance.position_z,
@@ -132,7 +132,7 @@ class CreatureManager(UnitManager):
         MapManager.update_object(self)
 
     @staticmethod
-    def spawn(entry, location, map_id, spawned_by=None, override_faction=0, despawn_time=1):
+    def spawn(entry, location, map_id, summoner=None, override_faction=0, despawn_time=1):
         creature_template = WorldDatabaseManager.creature_get_by_entry(entry)
 
         if not creature_template:
@@ -156,7 +156,7 @@ class CreatureManager(UnitManager):
         creature = CreatureManager(
             creature_template=creature_template,
             creature_instance=instance,
-            spawned_by=spawned_by
+            summoner=summoner
         )
 
         if override_faction > 0:
@@ -679,7 +679,7 @@ class CreatureManager(UnitManager):
                     self.respawn()
                 # Destroy body when creature is about to respawn.
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
-                    if self.spawned_by:
+                    if self.summoner:
                         self.despawn(destroy=True)
                     else:
                         self.despawn()

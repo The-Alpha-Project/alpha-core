@@ -18,7 +18,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, 
     GameObjectStates
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
-from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import StandState, UnitFlags
 from utils.constants.UpdateFields import ObjectFields, GameObjectFields, UnitFields
 
@@ -29,13 +29,13 @@ class GameObjectManager(ObjectManager):
     def __init__(self,
                  gobject_template,
                  gobject_instance=None,
-                 spawned_by=None,
+                 summoner=None,
                  **kwargs):
         super().__init__(**kwargs)
 
         self.gobject_template = gobject_template
         self.gobject_instance = gobject_instance
-        self.spawned_by = spawned_by
+        self.summoner = summoner
         self.spell_id = 0  # TODO, can't use DYNAMICOBJECT_SPELLID because it overlaps GameObjectFields?
 
         self.entry = self.gobject_template.entry
@@ -46,6 +46,9 @@ class GameObjectManager(ObjectManager):
         self.faction = self.gobject_template.faction
         self.lock = 0  # Unlocked.
         self.flags = self.gobject_template.flags
+
+        if self.summoner:
+            self.flags |= GameObjectFlags.TRIGGERED
 
         if gobject_instance:
             if GameObjectManager.CURRENT_HIGHEST_GUID < gobject_instance.spawn_id:
@@ -58,8 +61,8 @@ class GameObjectManager(ObjectManager):
             self.location.z = self.gobject_instance.spawn_positionZ
             self.location.o = self.gobject_instance.spawn_orientation
             # If spawned by another unit, use that unit map and zone.
-            self.map_ = self.gobject_instance.spawn_map if not self.spawned_by else self.spawned_by.map_
-            self.zone = self.spawned_by.zone if self.spawned_by else 0
+            self.map_ = self.gobject_instance.spawn_map if not self.summoner else self.summoner.map_
+            self.zone = self.summoner.zone if self.summoner else 0
             self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
                                         self.gobject_instance.spawn_spawntimemax)
 
@@ -90,8 +93,12 @@ class GameObjectManager(ObjectManager):
 
         # Ritual initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
-            self.ritual_caster = None if not spawned_by else spawned_by
             self.ritual_participants = []
+
+        # Set channeled object for fishing nodes or rituals.
+        if summoner and summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL or self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+                summoner.set_channel_object(self.guid)
 
         # Trap collision initializations.
         self.lock = self.gobject_template.data0
@@ -109,12 +116,11 @@ class GameObjectManager(ObjectManager):
                 self.gobject_template.type == GameObjectTypes.TYPE_CAMERA:
             self.lock = gobject_template.data0
 
-
     def load(self):
         MapManager.update_object(self)
 
     @staticmethod
-    def spawn(entry, location, map_id, spawned_by=None, spell_id=0, override_faction=0, despawn_time=1):
+    def spawn(entry, location, map_id, summoner=None, spell_id=0, override_faction=0, despawn_time=1):
         go_template = WorldDatabaseManager.gameobject_template_get_by_entry(entry)
 
         if not go_template:
@@ -141,7 +147,7 @@ class GameObjectManager(ObjectManager):
         gameobject = GameObjectManager(
             gobject_template=go_template,
             gobject_instance=instance,
-            spawned_by=spawned_by
+            summoner=summoner
         )
 
         if spell_id:
@@ -150,11 +156,6 @@ class GameObjectManager(ObjectManager):
         if override_faction:
             gameobject.faction = override_faction
             gameobject.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, override_faction)
-
-        # Set channeled object for fishing nodes.
-        if spawned_by and spawned_by.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            if go_template.type == GameObjectTypes.TYPE_RITUAL or go_template.type == GameObjectTypes.TYPE_FISHINGNODE:
-                spawned_by.set_channel_object(gameobject.guid)
 
         gameobject.load()
         return gameobject
@@ -167,7 +168,7 @@ class GameObjectManager(ObjectManager):
                 if self.loot_manager.has_loot():
                     self.set_ready()
                 else: # Despawn or destroy.
-                    self.despawn(True if self.spawned_by else False)
+                    self.despawn(True if self.summoner else False)
             # Mining node.
             else:
                 self.mining_node_manager.handle_looted(player)
@@ -241,15 +242,13 @@ class GameObjectManager(ObjectManager):
         player.send_loot(self.loot_manager)
 
     def _handle_use_ritual(self, player):
-        # Caster is no longer in a group.
-        if not self.ritual_caster.group_manager:
-            return
-        # Participant group limitations.
-        if not self.ritual_caster.group_manager.is_party_member(player.guid):
+        # Group check.
+        if not self.summoner.group_manager or not self.summoner.group_manager.is_party_member(player.guid):
+            player.spell_manager.send_cast_result(self.spell_id, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
             return
 
         ritual_channel_spell_id = self.gobject_template.data2
-        if player is self.ritual_caster or player in self.ritual_participants:
+        if player is self.summoner or player in self.ritual_participants:
             return  # No action needed for this player.
 
         # Make the player channel for summoning.
@@ -269,13 +268,13 @@ class GameObjectManager(ObjectManager):
 
             # Cast the finishing spell.
             spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
-            spell_cast = self.ritual_caster.spell_manager.try_initialize_spell(spell_entry, self.ritual_caster,
+            spell_cast = self.summoner.spell_manager.try_initialize_spell(spell_entry, self.summoner,
                                                                                SpellTargetMask.SELF,
                                                                                triggered=True, validate=False)
             if spell_cast:
-                self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast)
+                self.summoner.spell_manager.start_spell_cast(initialized_spell=spell_cast)
             else:
-                self.ritual_caster.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
+                self.summoner.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
@@ -504,7 +503,7 @@ class GameObjectManager(ObjectManager):
             else:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
-                    if self.spawned_by:
+                    if self.summoner:
                         self.despawn(destroy=True)
                     else:
                         self.respawn()

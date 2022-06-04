@@ -929,7 +929,7 @@ class SpellManager:
 
         channel_object = MapManager.get_surrounding_gameobject_by_guid(self.caster,
                                                                        self.caster.channel_object)
-        if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL or channel_object.ritual_caster is not self.caster:
+        if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL or channel_object.summoner is not self.caster:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
             return False
 
@@ -955,7 +955,7 @@ class SpellManager:
             return
 
         # If the ritual caster interrupts channeling, interrupt others and remove the portal.
-        if channel_object.ritual_caster is self.caster:
+        if channel_object.summoner is self.caster:
             MapManager.remove_object(channel_object)
 
             ritual_channel_spell_id = channel_object.gobject_template.data2
@@ -969,7 +969,7 @@ class SpellManager:
             required_participants = channel_object.gobject_template.data0
             if len(channel_object.ritual_participants) < required_participants - 1:  # -1 to include ritual caster.
                 ritual_summon_spell_id = channel_object.gobject_template.data1
-                channel_object.ritual_caster.spell_manager.remove_cast_by_id(ritual_summon_spell_id)
+                channel_object.summoner.spell_manager.remove_cast_by_id(ritual_summon_spell_id)
 
     def meets_casting_requisites(self, casting_spell) -> bool:
         # This method should only check resource costs (ie. power/combo/items).

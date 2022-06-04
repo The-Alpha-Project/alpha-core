@@ -112,7 +112,7 @@ class PetManager:
 
         spawn_position = self.owner.location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
                                                                            PetAI.PET_FOLLOW_ANGLE)
-        creature = CreatureManager.spawn(creature_id, spawn_position, self.owner.map_, spawned_by=self.owner,
+        creature = CreatureManager.spawn(creature_id, spawn_position, self.owner.map_, summoner=self.owner,
                                          override_faction=self.owner.faction)
 
         self.add_pet_from_world(creature)
