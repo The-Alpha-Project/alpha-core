@@ -18,6 +18,9 @@ MAX_3368_ITEM_DISPLAY_ID = 11802
 class InventoryManager(object):
     def __init__(self, owner):
         self.owner = owner
+        #  Avoid player thread from updating inventory if there are ongoing changes triggered from another thread.
+        #  e.g. Any opcode handler that touches inventory outside tick rate.
+        self.update_locked = False
         self.containers = {
             InventorySlots.SLOT_INBACKPACK: ContainerManager(is_backpack=True, owner=self.owner.guid),
             InventorySlots.SLOT_BAG1: None,
@@ -99,6 +102,7 @@ class InventoryManager(object):
                     self.send_equip_error(error)
                 return False
 
+            self.update_locked = True
             # Add to any existing stacks
             for slot, container in self.containers.items():
                 if not container or not container.can_contain_item(item_template):
@@ -146,6 +150,7 @@ class InventoryManager(object):
         if target_bag_slot == InventorySlots.SLOT_INBACKPACK:
             self.build_update()
 
+        self.update_locked = False
         return items_added
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
@@ -175,6 +180,7 @@ class InventoryManager(object):
         if not is_valid_target_slot:
             return False
 
+        self.update_locked = True
         if dest_slot == 0xFF:  # Dragging an item to bag bar. Acts like adding item but with container priority
             dest_slot = dest_container.next_available_slot()
             remaining = count
@@ -223,6 +229,7 @@ class InventoryManager(object):
         if dest_container.is_backpack:
             self.build_update()
 
+        self.update_locked = False
         return True
 
     def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):

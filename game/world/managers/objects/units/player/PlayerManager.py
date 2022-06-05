@@ -1418,7 +1418,8 @@ class PlayerManager(UnitManager):
                     return
 
             has_changes = self.has_pending_updates()
-            has_inventory_changes = self.inventory.has_pending_updates()
+            # Avoid inventory/item update if there is an ongoing inventory operation.
+            has_inventory_changes = not self.inventory.update_locked and self.inventory.has_pending_updates()
             # Check if player has pending fields or inventory updates.
             if self.online and has_changes or has_inventory_changes:
                 MapManager.update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
