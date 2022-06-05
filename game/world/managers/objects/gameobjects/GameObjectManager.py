@@ -36,7 +36,7 @@ class GameObjectManager(ObjectManager):
         self.gobject_template = gobject_template
         self.gobject_instance = gobject_instance
         self.summoner = summoner
-        self.spell_id = 0  # TODO, can't use DYNAMICOBJECT_SPELLID because it overlaps GameObjectFields?
+        self.spell_id = 0  # Spell that summoned this object.
 
         self.entry = self.gobject_template.entry
         self.native_display_id = self.gobject_template.display_id

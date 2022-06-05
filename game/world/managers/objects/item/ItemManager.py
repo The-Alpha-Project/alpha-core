@@ -92,7 +92,7 @@ class ItemManager(ObjectManager):
             if self.item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
                 self.loot_manager = ItemLootManager(self)
 
-            # Reload fields if this iteam was already initialized.
+            # Reload fields if this item was already initialized.
             if self.initialized:
                 self.initialized = False
                 self.initialize_field_values()
