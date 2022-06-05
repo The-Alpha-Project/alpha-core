@@ -77,5 +77,19 @@ begin not atomic
         ADD COLUMN `enchantments` MEDIUMTEXT NOT NULL DEFAULT "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" AFTER `duration`;
 		insert into applied_updates values ('180520221');
     end if;
+
+    -- 04/04/2022 1
+    if (select count(*) from applied_updates where id='040620221') = 0 then
+        DROP TABLE IF EXISTS `character_gifts`;
+        CREATE TABLE `character_gifts` (
+        `guid` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `creator` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Who wrapped the gift. Shoud not cascade delete',
+        `item_guid` int(11) unsigned NOT NULL DEFAULT 0,
+        `entry` int(11) unsigned NOT NULL DEFAULT 0,
+        `flags` int(11) unsigned NOT NULL DEFAULT 0,
+        PRIMARY KEY (`guid`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        insert into applied_updates values ('040620221');
+    end if;
 end $
 delimiter ;

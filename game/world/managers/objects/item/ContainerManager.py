@@ -77,7 +77,7 @@ class ContainerManager(ItemManager):
             else:
                 item_creator = 0 if not created_by else created_by.guid
                 item_mgr = ItemManager.generate_item(item, self.owner, self.current_slot, slot,
-                                                     count=count, perm_enchant=perm_enchant, creator=item_creator)
+                                                     stack_count=count, perm_enchant=perm_enchant, creator=item_creator)
 
             if item_mgr:
                 item_mgr.current_slot = slot

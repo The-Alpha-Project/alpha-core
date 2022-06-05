@@ -93,7 +93,7 @@ class FriendsManager(object):
         for entry in friends_list:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(entry.friend)
             if player_mgr and player_mgr.online:
-
+                self.owner.enqueue_packet(NameQueryHandler.get_query_details(player_mgr.player))
                 data += pack(
                     '<QB3I',
                     player_mgr.guid,

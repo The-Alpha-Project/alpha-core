@@ -119,6 +119,16 @@ class CharacterInventory(Base):
     character = relationship('Character')
 
 
+class CharacterGifts(Base):
+    __tablename__ = 'character_gifts'
+
+    guid = Column(INTEGER(11), primary_key=True, autoincrement=True)
+    creator = Column(INTEGER(11), nullable=False, server_default=text("0"), comment='Who wrapped the gift. Shoud not cascade delete')
+    item_guid = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    entry = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    flags = Column(INTEGER(11), nullable=False, server_default=text("0"))
+
+
 class CharacterSkill(Base):
     __tablename__ = 'character_skills'
 

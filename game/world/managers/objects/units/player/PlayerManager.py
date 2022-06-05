@@ -231,6 +231,8 @@ class PlayerManager(UnitManager):
             # Set player flags.
             self.set_taxi_flying_state(True, taxi_resume_info.mount_display_id)
 
+        # Notify player with create related packets:
+        self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
         # Initial inventory create packets.
         self.enqueue_packets(self.inventory.get_inventory_update_packets(self))
         # Player create packet.
@@ -356,7 +358,9 @@ class PlayerManager(UnitManager):
             if self.guid != guid:
                 active_objects[guid] = player
                 if guid not in self.known_objects or not self.known_objects[guid]:
-                    # We don't know this player, notify self with its update packets.
+                    # We don't know this player, notify self with its update packet.
+                    self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
+                    # Retrieve their inventory updates.
                     self.enqueue_packets(player.inventory.get_inventory_update_packets(self))
                     # Create packet.
                     self.enqueue_packet(player.generate_create_packet(requester=self))
@@ -742,6 +746,7 @@ class PlayerManager(UnitManager):
         # Loot item data.
         item_data = b''
         # Initialize item detail queries data.
+        item_query = b''
         item_count = 0
 
         # Do not send loot if player has no permission.
@@ -756,6 +761,8 @@ class PlayerManager(UnitManager):
                         slot += 1
                         continue
 
+                    # Add this item to item_query data.
+                    item_query += ItemManager.generate_query_details_data(loot.item.item_template)
                     item_count += 1
 
                     item_data += pack(
@@ -782,6 +789,9 @@ class PlayerManager(UnitManager):
         # Append item data and send all the packed item detail queries for current loot, if any.
         if item_count:
             data += item_data
+            # Item queries.
+            item_query_data = pack(f'<I{len(item_query)}s', item_count, item_query)
+            self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query_data))
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
         self.enqueue_packet(packet)

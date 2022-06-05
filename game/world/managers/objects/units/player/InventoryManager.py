@@ -106,6 +106,7 @@ class InventoryManager(object):
                 amount_left = container.add_item_to_existing_stacks(item_template, amount_left)
                 if amount_left <= 0:
                     target_bag_slot = slot
+                    container.build_container_update_packet()
                     break
 
             if amount_left > 0:
@@ -138,7 +139,6 @@ class InventoryManager(object):
             if show_item_get:
                 self.send_item_receive_message(self.owner.guid, item_template.entry,
                                                target_bag_slot, looted, send_message)
-
             # Update quest item count, if needed.
             self.owner.quest_manager.reward_item(item_template.entry, item_count=count)
 
@@ -377,6 +377,24 @@ class InventoryManager(object):
                 break
 
         return count  # Return the amount of items not removed
+
+    def remove_from_container_by_slots(self, container_slot, item_slot, item_count):
+        if item_count == 0:
+            return 0
+
+        target_container = self.get_container(container_slot)
+        if not target_container:
+            return item_count
+
+        item = target_container.get_item(item_slot)
+        if item:
+            new_stack_count = item.item_instance.stackcount - item_count
+            item.set_stack_count(new_stack_count)
+            if item.item_instance.stackcount == 0:
+                self.remove_item(container_slot, item_slot, True)
+            item_count = new_stack_count
+
+        return item_count  # Return the amount of items not removed
 
     def remove_from_container(self, item_entry, item_count, container_slot):
         if item_count == 0:
@@ -821,6 +839,8 @@ class InventoryManager(object):
         return any(self.owner.update_packet_factory.update_mask.is_set(slot) for slot in slots)
 
     def get_inventory_update_packets(self, requester):
+        item_query_details_data = b''
+        item_query_count = 0
         update_packets = []
         for container_slot, container in list(self.containers.items()):
             if not container:
@@ -835,6 +855,8 @@ class InventoryManager(object):
                 if container.guid not in requester.known_items:
                     update_packets.append(self._get_single_item_full_update_packet(container, requester))
                     requester.known_items[container.guid] = container
+                    item_query_details_data += container.query_details_data()
+                    item_query_count += 1
                 # Requester knows this container, send a partial update.
                 elif container.has_container_updates():
                     update_packets.append(self._get_single_item_partial_update_packet(container, requester))
@@ -848,6 +870,8 @@ class InventoryManager(object):
                 if item.guid not in requester.known_items:
                     update_packets.append(self._get_single_item_full_update_packet(item, requester))
                     requester.known_items[item.guid] = item
+                    item_query_details_data += item.query_details_data()
+                    item_query_count += 1
                 # Requester knows this item but has pending changes, send a partial update.
                 elif item.has_pending_updates():
                     update_packets.append(self._get_single_item_partial_update_packet(item, requester))
@@ -855,6 +879,12 @@ class InventoryManager(object):
             # Exit loop if this a request from another player.
             if container.is_backpack and requester != self.owner:
                 break
+
+        # Build a single multiple item query detail packet if item queries are available.
+        # Insert it at position 0 so it's the first packet clients will receive before full item update packets.
+        if item_query_count:
+            item_query = pack(f'<I{len(item_query_details_data)}s', item_query_count, item_query_details_data)
+            update_packets.insert(0, PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query))
 
         return update_packets
 

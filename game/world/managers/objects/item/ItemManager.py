@@ -1,7 +1,7 @@
 from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from database.realm.RealmModels import CharacterInventory
+from database.realm.RealmModels import CharacterInventory, CharacterGifts
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
@@ -11,8 +11,7 @@ from game.world.managers.objects.units.player.EnchantmentManager import MAX_ENCH
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.item.ItemLootManager import ItemLootManager
 from utils.ByteUtils import ByteUtils
-from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags, \
-    EnchantmentSlots, ItemEnchantmentType
+from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.UpdateFields import ObjectFields, ItemFields
 
@@ -67,23 +66,36 @@ class ItemManager(ObjectManager):
         self.damage_stats = []
         self.spell_stats = []
         self.lock = 0  # Unlocked (0)
+        self.display_id = 0
+        self.loot_manager = None  # Optional
+        self.equip_slot = 0
 
-        if item_template:
-            self.display_id = item_template.display_id
+        if self.item_template:
+            self.load_item_template(self.item_template)
+
+        self.object_type_mask |= ObjectTypeFlags.TYPE_ITEM
+        self.update_packet_factory.init_values(ItemFields.ITEM_END)
+
+    def load_item_template(self, item_template):
+        self.item_template = item_template
+        if self.item_template:
+            self.entry = self.item_template.entry
+            self.display_id = self.item_template.display_id
             self.equip_slot = self.get_inv_slot_by_type(self.item_template.inventory_type)
-
             self.enchantments = [EnchantmentHolder() for _ in range(MAX_ENCHANTMENTS)]
             self.stats = Stat.generate_stat_list(self.item_template)
             self.damage_stats = DamageStat.generate_damage_stat_list(self.item_template)
             self.spell_stats = SpellStat.generate_spell_stat_list(self.item_template)
-            self.lock = item_template.lock_id
+            self.lock = self.item_template.lock_id
 
             # Load loot_manager if needed.
-            if item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
+            if self.item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
                 self.loot_manager = ItemLootManager(self)
 
-        self.object_type_mask |= ObjectTypeFlags.TYPE_ITEM
-        self.update_packet_factory.init_values(ItemFields.ITEM_END)
+            # Reload fields if this iteam was already initialized.
+            if self.initialized:
+                self.initialized = False
+                self.initialize_field_values()
 
     def is_container(self):
         if self.item_template:
@@ -91,7 +103,8 @@ class ItemManager(ObjectManager):
         return False
 
     def is_equipped(self):
-        return self.current_slot < InventorySlots.SLOT_BAG1
+        return self.current_slot < InventorySlots.SLOT_BAG1 and \
+            self.item_instance.bag == InventorySlots.SLOT_INBACKPACK.value
 
     def is_soulbound(self):
         # I don't think quest items were soulbound in 0.5.3, so not checking
@@ -169,17 +182,17 @@ class ItemManager(ObjectManager):
                 # Rest of items start with 1 instance
                 else:
                     count = 1
-            return ItemManager.generate_item(item_template, owner, bag, slot, count=count)
+            return ItemManager.generate_item(item_template, owner, bag, slot, stack_count=count)
         return None
 
     @staticmethod
-    def generate_item(item_template, owner, bag, slot, perm_enchant=0, creator=0, count=1):
+    def generate_item(item_template, owner, bag, slot, perm_enchant=0, creator=0, stack_count=1):
         if item_template and item_template.entry > 0:
             item = CharacterInventory(
                 owner=owner,
                 creator=creator,
                 item_template=item_template.entry,
-                stackcount=count,
+                stackcount=stack_count,
                 slot=slot,
                 enchantments=ItemManager._get_enchantments_db_initialization(perm_enchant),
                 SpellCharges1=item_template.spellcharges_1,
@@ -376,6 +389,42 @@ class ItemManager(ObjectManager):
 
     def has_flag(self, flag: ItemDynFlags):
         return self.item_instance.item_flags & flag
+
+    # Transform an item into the wrapped item using the same item instance.
+    def set_wrapped(self, player_mgr):
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(5043)  # TODO, fixed red gift.
+        if item_template:
+            character_gift = CharacterGifts()
+            character_gift.creator = self.get_creator_guid()  # Creator of the original item.
+            character_gift.item_guid = self.guid & ~HighGuid.HIGHGUID_ITEM
+            character_gift.entry = self.entry
+            character_gift.flags = self.item_instance.item_flags
+            RealmDatabaseManager.character_add_gift(character_gift)
+
+            # Swap this item instance values to our wrapped item values.
+            self.item_instance.item_template = item_template.entry
+            self.item_instance.creator = player_mgr.guid  # Creator of the wrapped gift.
+            self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_WRAPPED
+
+            # Reload this item with its new template and instance values.
+            self.load_item_template(item_template)
+            self.save()
+            return True
+        return False
+
+    # Transform a wrapped item into the actual item using the same item instance.
+    def unwrap(self, character_gift):
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(character_gift.entry)
+        if item_template:
+            # Swap this item instance values to our wrapped item values.
+            self.item_instance.item_template = item_template.entry
+            self.item_instance.creator = character_gift.creator
+            self.item_instance.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_WRAPPED
+            # Reload this item with its new template and instance values.
+            self.load_item_template(item_template)
+            self.save()
+            return True
+        return False
 
     def set_binding(self, bind=True):
         if bind:

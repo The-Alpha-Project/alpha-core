@@ -129,6 +129,28 @@ class RealmDatabaseManager(object):
         return item
 
     @staticmethod
+    def character_add_gift(gift: CharacterGifts):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(gift)
+        realm_db_session.flush()
+        realm_db_session.refresh(gift)
+        realm_db_session.close()
+
+    @staticmethod
+    def character_get_gift(item_guid):
+        realm_db_session = SessionHolder()
+        character_gift = realm_db_session.query(CharacterGifts).filter_by(item_guid=item_guid & ~HighGuid.HIGHGUID_ITEM).first()
+        realm_db_session.close()
+        return character_gift
+
+    @staticmethod
+    def character_gift_delete(gift: CharacterGifts):
+        realm_db_session = SessionHolder()
+        realm_db_session.delete(gift)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
     def character_delete(guid):
         realm_db_session = SessionHolder()
         char_to_delete = RealmDatabaseManager.character_get_by_guid(guid)

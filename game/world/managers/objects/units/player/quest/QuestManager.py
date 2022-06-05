@@ -397,6 +397,8 @@ class QuestManager(object):
         display_id = 0
         if item_template:
             display_id = item_template.display_id
+            query_data = ItemManager.generate_query_details_data(item_template)
+            self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, query_data))
 
         item_data = pack(
             '<3I',

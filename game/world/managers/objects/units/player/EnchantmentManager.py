@@ -51,7 +51,7 @@ class EnchantmentManager(object):
             self.send_enchantments_durations(slot)
 
         if EnchantmentManager.has_enchantments_effect_by_type(item, ItemEnchantmentType.BUFF_EQUIPPED):
-            if item.current_slot < InventorySlots.SLOT_TABARD:
+            if item.is_equipped():
                 self._handle_aura_proc(item)
             else:
                 self._handle_aura_removal(item)
