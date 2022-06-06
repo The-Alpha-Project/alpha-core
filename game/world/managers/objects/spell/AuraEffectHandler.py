@@ -6,7 +6,7 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
 from utils.constants.UnitCodes import UnitFlags, UnitStates
-from utils.constants.UpdateFields import UnitFields
+from utils.constants.UpdateFields import UnitFields, PlayerFields
 
 
 class AuraEffectHandler:
@@ -126,6 +126,19 @@ class AuraEffectHandler:
         effect_target.spell_manager.start_spell_cast(initialized_spell=spell)
 
     @staticmethod
+    def handle_track_resources(aura, effect_target, remove):
+        if effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        flag = effect_target.get_uint32(PlayerFields.PLAYER_TRACK_RESOURCES)
+        if not remove:
+            flag |= (1 << (aura.spell_effect.misc_value - 1))
+            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, flag)
+        else:
+            flag &= ~(1 << (aura.spell_effect.misc_value - 1))
+            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, flag)
+
+    @staticmethod
     def handle_proc_trigger_damage(aura, effect_target, remove):
         if remove:
             return
@@ -143,9 +156,6 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_stun(aura, effect_target, remove):
-        # TODO Finish implementing stun effect:
-        #    - Interrupt spell casting.
-
         # Player specific.
         if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Don't stun if player is flying.
@@ -159,6 +169,7 @@ class AuraEffectHandler:
         effect_target.set_root(not remove)
 
         if not remove:
+            effect_target.spell_manager.remove_all_casts()
             effect_target.set_current_target(0)
             effect_target.unit_state |= UnitStates.STUNNED
             effect_target.unit_flags |= UnitFlags.UNIT_FLAG_DISABLE_ROTATE
@@ -244,6 +255,7 @@ class AuraEffectHandler:
         else:
             new_value = base_stat + amount
 
+        # TODO? Missing apply or send update to player?
         effect_target.stat_manager.base_stats[stat_type] = new_value
 
     @staticmethod
@@ -453,6 +465,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_PERIODIC_LEECH: AuraEffectHandler.handle_periodic_leech,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL: AuraEffectHandler.handle_proc_trigger_spell,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE: AuraEffectHandler.handle_proc_trigger_damage,
+    AuraTypes.SPELL_AURA_TRACK_RESOURCES: AuraEffectHandler.handle_track_resources,
     AuraTypes.SPELL_AURA_FEIGN_DEATH: AuraEffectHandler.handle_feign_death,
     AuraTypes.SPELL_AURA_MOD_STUN: AuraEffectHandler.handle_mod_stun,
     AuraTypes.SPELL_AURA_TRANSFORM: AuraEffectHandler.handle_transform,
