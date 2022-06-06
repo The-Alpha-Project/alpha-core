@@ -3,7 +3,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
 from utils.constants.UnitCodes import UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields, PlayerFields
@@ -133,10 +133,10 @@ class AuraEffectHandler:
         flag = effect_target.get_uint32(PlayerFields.PLAYER_TRACK_CREATURES)
         if not remove:
             flag |= (1 << (aura.spell_effect.misc_value - 1))
-            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_CREATURES, flag)
         else:
             flag &= ~(1 << (aura.spell_effect.misc_value - 1))
-            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_CREATURES, flag)
+
+        effect_target.set_uint32(PlayerFields.PLAYER_TRACK_CREATURES, flag)
 
     @staticmethod
     def handle_track_resources(aura, effect_target, remove):
@@ -146,10 +146,10 @@ class AuraEffectHandler:
         flag = effect_target.get_uint32(PlayerFields.PLAYER_TRACK_RESOURCES)
         if not remove:
             flag |= (1 << (aura.spell_effect.misc_value - 1))
-            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, flag)
         else:
             flag &= ~(1 << (aura.spell_effect.misc_value - 1))
-            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, flag)
+
+        effect_target.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, flag)
 
     @staticmethod
     def handle_proc_trigger_damage(aura, effect_target, remove):
@@ -166,6 +166,16 @@ class AuraEffectHandler:
     @staticmethod
     def handle_feign_death(aura, effect_target, remove):
         effect_target.mirror_timers_manager.feign_death = not remove
+
+    @staticmethod
+    def handle_mod_stalked(aura, effect_target, remove):
+        dyn_flags = effect_target.get_uint32(UnitFields.UNIT_DYNAMIC_FLAGS)
+        if not remove:
+            dyn_flags |= UnitDynamicTypes.UNIT_DYNAMIC_TRACK_UNIT
+        else:
+            dyn_flags &= ~ UnitDynamicTypes.UNIT_DYNAMIC_TRACK_UNIT
+
+        effect_target.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, dyn_flags)
 
     @staticmethod
     def handle_mod_stun(aura, effect_target, remove):
@@ -486,6 +496,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_ROOT: AuraEffectHandler.handle_mod_root,
     AuraTypes.SPELL_AURA_MOD_STEALTH: AuraEffectHandler.handle_mod_stealth,
     AuraTypes.SPELL_AURA_MOD_CHARM: AuraEffectHandler.handle_mod_charm,
+    AuraTypes.SPELL_AURA_MOD_STALKED: AuraEffectHandler.handle_mod_stalked,
 
     # Stat modifiers.
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
