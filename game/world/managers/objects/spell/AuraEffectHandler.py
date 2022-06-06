@@ -133,10 +133,10 @@ class AuraEffectHandler:
         flag = effect_target.get_uint32(PlayerFields.PLAYER_TRACK_CREATURES)
         if not remove:
             flag |= (1 << (aura.spell_effect.misc_value - 1))
-            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, flag)
+            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_CREATURES, flag)
         else:
             flag &= ~(1 << (aura.spell_effect.misc_value - 1))
-            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, flag)
+            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_CREATURES, flag)
 
     @staticmethod
     def handle_track_resources(aura, effect_target, remove):
