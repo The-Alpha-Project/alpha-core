@@ -17,6 +17,7 @@ class MirrorTimer(object):
         self.remaining = self.duration  # In seconds, sent in milliseconds.
         self.chunk_elapsed = 0  # Seconds, compared versus interval.
         self.stop_on_next_tick = False
+        self.has_water_breathing = False
 
     def start(self, elapsed, spell_id=0):
         if not self.active and self.owner.is_alive:
@@ -71,6 +72,10 @@ class MirrorTimer(object):
             self.send_full_update()  # Scale changed, notify the client.
 
     def set_remaining(self, elapsed):
+        if self.has_water_breathing:
+            self.remaining = self.duration
+            return
+
         if self.scale < 0:
             if self.remaining - elapsed <= 0:
                 self.remaining = 0

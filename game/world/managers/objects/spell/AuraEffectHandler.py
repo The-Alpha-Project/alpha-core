@@ -168,6 +168,13 @@ class AuraEffectHandler:
         effect_target.mirror_timers_manager.feign_death = not remove
 
     @staticmethod
+    def handle_water_breathing(aura, effect_target, remove):
+        if not remove:
+            effect_target.mirror_timers_manager.set_water_breathing(True)
+        else:
+            effect_target.mirror_timers_manager.set_water_breathing(False)
+
+    @staticmethod
     def handle_mod_stalked(aura, effect_target, remove):
         dyn_flags = effect_target.get_uint32(UnitFields.UNIT_DYNAMIC_FLAGS)
         if not remove:
@@ -497,6 +504,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_STEALTH: AuraEffectHandler.handle_mod_stealth,
     AuraTypes.SPELL_AURA_MOD_CHARM: AuraEffectHandler.handle_mod_charm,
     AuraTypes.SPELL_AURA_MOD_STALKED: AuraEffectHandler.handle_mod_stalked,
+    AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
 
     # Stat modifiers.
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
