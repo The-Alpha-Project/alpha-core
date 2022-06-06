@@ -60,9 +60,14 @@ class MirrorTimer(object):
             return MirrorTimerTypes.FATIGUE.value
         return self.type.value
 
+    def set_water_breathing(self, state):
+        self.has_water_breathing = state
+        self.send_full_update()
+
     def send_full_update(self):
         if self.active:
-            data = pack('<3IiBI', self._get_type(), self.remaining * 1000, self.duration * 1000, self.scale, not self.active, self.spell_id)
+            scale = self.scale if not self.has_water_breathing else 0
+            data = pack('<3IiBI', self._get_type(), self.remaining * 1000, self.duration * 1000, scale, not self.active, self.spell_id)
             packet = PacketWriter.get_packet(OpCode.SMSG_START_MIRROR_TIMER, data)
             self.owner.enqueue_packet(packet)
 
@@ -72,12 +77,12 @@ class MirrorTimer(object):
             self.send_full_update()  # Scale changed, notify the client.
 
     def set_remaining(self, elapsed):
-        if self.has_water_breathing:
-            self.remaining = self.duration
-            return
-
         if self.scale < 0:
-            if self.remaining - elapsed <= 0:
+            if self.has_water_breathing:
+                # Freeze the remaining time.
+                if self.remaining == self.duration:
+                    self.remaining = int(self.duration - 1)
+            elif self.remaining - elapsed <= 0:
                 self.remaining = 0
             else:
                 self.remaining -= int(elapsed)
