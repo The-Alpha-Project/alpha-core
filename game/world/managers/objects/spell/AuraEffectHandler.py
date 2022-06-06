@@ -126,6 +126,19 @@ class AuraEffectHandler:
         effect_target.spell_manager.start_spell_cast(initialized_spell=spell)
 
     @staticmethod
+    def handle_track_creatures(aura, effect_target, remove):
+        if effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        flag = effect_target.get_uint32(PlayerFields.PLAYER_TRACK_CREATURES)
+        if not remove:
+            flag |= (1 << (aura.spell_effect.misc_value - 1))
+            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, flag)
+        else:
+            flag &= ~(1 << (aura.spell_effect.misc_value - 1))
+            effect_target.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, flag)
+
+    @staticmethod
     def handle_track_resources(aura, effect_target, remove):
         if effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
@@ -466,6 +479,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL: AuraEffectHandler.handle_proc_trigger_spell,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE: AuraEffectHandler.handle_proc_trigger_damage,
     AuraTypes.SPELL_AURA_TRACK_RESOURCES: AuraEffectHandler.handle_track_resources,
+    AuraTypes.SPELL_AURA_TRACK_CREATURES: AuraEffectHandler.handle_track_creatures,
     AuraTypes.SPELL_AURA_FEIGN_DEATH: AuraEffectHandler.handle_feign_death,
     AuraTypes.SPELL_AURA_MOD_STUN: AuraEffectHandler.handle_mod_stun,
     AuraTypes.SPELL_AURA_TRANSFORM: AuraEffectHandler.handle_transform,
