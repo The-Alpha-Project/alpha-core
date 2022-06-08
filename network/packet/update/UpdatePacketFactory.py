@@ -24,15 +24,15 @@ class UpdatePacketFactory(object):
     def init_values(self, owner_guid, fields_type):
         self.owner_guid = owner_guid
         self.fields_type = fields_type
-        self.fields_size = list(fields_type.__members__.values())[-1].value
+        self.fields_size = fields_type.END.value
         self.update_timestamps = [0] * self.fields_size
         self.update_values_bytes = [b'\x00\x00\x00\x00'] * self.fields_size
         self.update_values = [0] * self.fields_size
         self.update_mask.set_count(self.fields_size)
-        self._load_encapsulation(fields_type, self.fields_size)
+        self._load_encapsulation(fields_type)
 
     @staticmethod
-    def _load_encapsulation(fields_type, fields_size):
+    def _load_encapsulation(fields_type):
         # We just build encapsulation once per update field type, then share the same list reference for all
         # other update fields of the same kind.
         if fields_type in FIELDS_ENCAPSULATION:
