@@ -33,7 +33,7 @@ class UpdatePacketFactory(object):
 
     @staticmethod
     def _load_encapsulation(fields_type):
-        # We just build encapsulation once per update field type, then share the same list reference for all
+        # We just build encapsulation once per update field type, then share the same dictionary reference for all
         # other update fields of the same kind.
         if fields_type in FIELDS_ENCAPSULATION:
             return FIELDS_ENCAPSULATION[fields_type]
