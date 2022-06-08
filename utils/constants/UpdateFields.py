@@ -33,7 +33,7 @@ class ObjectFields(int, Enum):
     OBJECT_FIELD_ENTRY = (0x3, EncapsulationType.PUBLIC, 1)    # 0x003 - Type: INT
     OBJECT_FIELD_SCALE_X = (0x4, EncapsulationType.PUBLIC, 1)  # 0x004 - Type: FLOAT
     OBJECT_FIELD_PADDING = (0x5, EncapsulationType.PUBLIC, 1)  # 0x005 - Type: INT
-    END = (0x6, EncapsulationType.IGNORE, 1)            # 0x006 - Internal.
+    END = (0x6, EncapsulationType.IGNORE, 1)                   # 0x006 - Internal, needs size 1.
 
 
 class ItemFields(int, Enum):
@@ -65,7 +65,7 @@ class ItemFields(int, Enum):
     ITEM_FIELD_FLAGS = (ObjectFields.END + 0xD, EncapsulationType.PUBLIC, 1)           # 0x013 - Type: TWO_SHORT
     ITEM_FIELD_ENCHANTMENT = (ObjectFields.END + 0xE, EncapsulationType.PUBLIC, 15)    # 0x014 - Type: INT
     ITEM_FIELD_PAD = (ObjectFields.END + 0x1D, EncapsulationType.PUBLIC, 1)            # 0x023 - Type: INT
-    END = (ObjectFields.END + 0x1E, EncapsulationType.IGNORE, 1)                       # 0x024
+    END = (ObjectFields.END + 0x1E, EncapsulationType.IGNORE, 1)                       # 0x024 - Internal, needs size 1.
 
 
 class ContainerFields(int, Enum):
@@ -91,7 +91,7 @@ class ContainerFields(int, Enum):
     CONTAINER_FIELD_NUM_SLOTS = (ItemFields.END + 0x0, EncapsulationType.PUBLIC, 1)  # 0x01E - Type: INT
     CONTAINER_ALIGN_PAD = (ItemFields.END + 0x1, EncapsulationType.PUBLIC, 1)        # 0x01F - Type: BYTES
     CONTAINER_FIELD_SLOT_1 = (ItemFields.END + 0x2, EncapsulationType.PUBLIC, 40)    # 0x020 - Type: GUID
-    END = (ItemFields.END + 0x2A, EncapsulationType.IGNORE, 1)                       # 0x048
+    END = (ItemFields.END + 0x2A, EncapsulationType.IGNORE, 1)                       # 0x048 - Internal, needs size 1.
 
 
 class UnitFields(int, Enum):
@@ -178,7 +178,7 @@ class UnitFields(int, Enum):
     UNIT_CREATED_BY_SPELL = (ObjectFields.END + 0xAF, EncapsulationType.PUBLIC, 1)           # 181 - INT
     UNIT_FIELD_BYTES_2 = (ObjectFields.END + 0xB0, EncapsulationType.PRIVATE, 1)             # 182 - BYTES
     UNIT_FIELD_PADDING = (ObjectFields.END + 0xB1, EncapsulationType.PUBLIC, 1)              # 183 - INT
-    END = (ObjectFields.END + 0xB2, EncapsulationType.IGNORE, 1)                        # 184 - Internal.
+    END = (ObjectFields.END + 0xB2, EncapsulationType.IGNORE, 1)                        # 184 - Internal, needs size 1.
 
 
 class PlayerFields(int, Enum):
@@ -228,7 +228,7 @@ class PlayerFields(int, Enum):
     PLAYER_PARRY_PERCENTAGE = (UnitFields.END + 0x1BF, EncapsulationType.PRIVATE, 1)      # 0x271 - Type: FLOAT
     PLAYER_BASE_MANA = (UnitFields.END + 0x1C0, EncapsulationType.PRIVATE, 1)             # 0x272 - Type: INT
     PLAYER_GUILD_TIMESTAMP = (UnitFields.END + 0x1C1, EncapsulationType.PUBLIC, 1)        # 0x273 - Type: INT
-    END = (UnitFields.END + 0x1C2, EncapsulationType.IGNORE, 1)                    # 0x274 - Internal.
+    END = (UnitFields.END + 0x1C2, EncapsulationType.IGNORE, 1)                       # 0x274 - Internal, needs size 1.
 
 
 class GameObjectFields(int, Enum):
@@ -262,7 +262,7 @@ class GameObjectFields(int, Enum):
     GAMEOBJECT_FACING = (ObjectFields.END + 0xB, EncapsulationType.PUBLIC, 1)      # 0x011 - Type: FLOAT
     GAMEOBJECT_DYN_FLAGS = (ObjectFields.END + 0xC, EncapsulationType.DYNAMIC, 1)  # 0x012 - Type: INT
     GAMEOBJECT_FACTION = (ObjectFields.END + 0xD, EncapsulationType.PUBLIC, 1)     # 0x013 - Type: INT
-    END = (ObjectFields.END + 0xE, EncapsulationType.IGNORE, 1)         # 0x014 - Internal.
+    END = (ObjectFields.END + 0xE, EncapsulationType.IGNORE, 1)                    # 0x014 - Internal, needs size 1.
 
 
 class DynamicObjectFields(int, Enum):
@@ -294,7 +294,7 @@ class DynamicObjectFields(int, Enum):
     DYNAMICOBJECT_POS_Z = (ObjectFields.END + 0x7, EncapsulationType.PUBLIC, 1)    # 0x00D - Type: FLOAT
     DYNAMICOBJECT_FACING = (ObjectFields.END + 0x8, EncapsulationType.PUBLIC, 1)   # 0x00E - Type: FLOAT
     DYNAMICOBJECT_PAD = (ObjectFields.END + 0x9, EncapsulationType.PUBLIC, 1)      # 0x00F - Type: BYTES
-    END = (ObjectFields.END + 0xA, EncapsulationType.IGNORE, 1)      # 0x010 - Internal.
+    END = (ObjectFields.END + 0xA, EncapsulationType.IGNORE, 1)                    # 0x010 - Internal, needs size 1.
 
 
 class CorpseFields(int, Enum):
@@ -328,4 +328,4 @@ class CorpseFields(int, Enum):
     CORPSE_FIELD_BYTES_2 = (ObjectFields.END + 0x1B, EncapsulationType.PUBLIC, 1)    # 0x021 - Type: BYTES
     CORPSE_FIELD_GUILD = (ObjectFields.END + 0x1C, EncapsulationType.PUBLIC, 1)      # 0x022 - Type: INT
     CORPSE_FIELD_LEVEL = (ObjectFields.END + 0x1D, EncapsulationType.PUBLIC, 1)      # 0x023 - Type: INT
-    END = (ObjectFields.END + 0x1E, EncapsulationType.IGNORE, 1)              # 0x024 - Internal.
+    END = (ObjectFields.END + 0x1E, EncapsulationType.IGNORE, 1)                     # 0x024 - Internal, needs size 1.
