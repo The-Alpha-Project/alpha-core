@@ -707,36 +707,53 @@ class PlayerManager(UnitManager):
         data = pack('<QB', loot_selection.object_guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
+        # Resolve loot target first.
+        target_world_object = None
         if high_guid == HighGuid.HIGHGUID_UNIT:
-            # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
-            enemy = MapManager.get_surrounding_unit_by_guid(self, loot_selection.object_guid, include_players=False)
-            if enemy and loot_selection.loot_type != LootTypes.LOOT_TYPE_PICKLOCK:
-                if enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
-                    enemy.killed_by = None
-                # If in party, check if this player has rights to release the loot for FFA.
-                elif enemy.killed_by and enemy.killed_by.group_manager:
-                    if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
-                        if not enemy.loot_manager.has_loot():  # Flush looters for this enemy.
-                            enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
-                        enemy.killed_by = None
-
-                if not enemy.loot_manager.has_loot():
-                    enemy.set_lootable(False)
-                    enemy.loot_manager.clear()
-
-                enemy.loot_manager.remove_active_looter(self)
+            target_world_object = MapManager.get_surrounding_unit_by_guid(self, loot_selection.object_guid, include_players=False)
         elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-            game_object = MapManager.get_surrounding_gameobject_by_guid(self, self.loot_selection.object_guid)
-            if game_object:
-                game_object.handle_looted(self)
+            target_world_object = MapManager.get_surrounding_gameobject_by_guid(self, self.loot_selection.object_guid)
         elif high_guid == HighGuid.HIGHGUID_ITEM:
-            item_mgr = self.inventory.get_item_by_guid(self.loot_selection.object_guid)
-            if item_mgr and not item_mgr.loot_manager.has_loot():
-                item_mgr.loot_manager.clear()
-                self.inventory.remove_item(item_mgr.item_instance.bag, item_mgr.current_slot)
+            target_world_object = self.inventory.get_item_by_guid(self.loot_selection.object_guid)
         else:
             Logger.warning(f'Unhandled loot release for type {HighGuid(high_guid).name}')
 
+        if target_world_object:
+            # Retrieve the loot manager for the corresponding world object.
+            loot_manager = self.loot_selection.get_loot_manager(target_world_object)
+            # Remove self from active looters.
+            loot_manager.remove_active_looter(self)
+            object_type = target_world_object.get_type_id()
+            # UNITS.
+            if object_type == ObjectTypeIds.ID_UNIT:
+                enemy = target_world_object
+                if loot_selection.loot_type != LootTypes.LOOT_TYPE_PICKLOCK:
+                    # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA.
+                    if enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
+                        enemy.killed_by = None
+                    # If in party, check if this player has rights to release the loot for FFA.
+                    elif enemy.killed_by and enemy.killed_by.group_manager:
+                        if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
+                            if not loot_manager.has_loot():  # Flush looters for this enemy.
+                                enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
+                            enemy.killed_by = None
+                    # Empty loot, remove looting flags.
+                    if not loot_manager.has_loot():
+                        enemy.set_lootable(False)
+            # GAMEOBJECTS.
+            elif object_type == ObjectTypeIds.ID_GAMEOBJECT:
+                game_object = target_world_object
+                game_object.handle_looted(self)
+            # ITEMS.
+            elif object_type == ObjectTypeIds.ID_ITEM:
+                item_mgr = target_world_object
+                # Empty loot, remove item from player inventory bag.
+                if not loot_manager.has_loot():
+                    self.inventory.remove_item(item_mgr.item_instance.bag, item_mgr.current_slot)
+
+            # Finally, clear the loot manager if it has no loot remaining.
+            if not loot_manager.has_loot():
+                loot_manager.clear()
         self.loot_selection = None
 
     def send_loot(self, loot_manager):
