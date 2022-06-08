@@ -227,10 +227,7 @@ class MapManager(object):
             fz = start_location.z
             liquid_info = MapManager.get_liquid_information(world_object.map_, fx, fy, fz, ignore_z=True)
             if liquid_info:
-                z = MapManager.calculate_z(world_object.map_, fx, fy, liquid_info.height)[0]
-                # Avoid scenarios where there is liquid information on terrain edges.
-                if liquid_info.height > z:
-                    liquids_vectors.append(Vector(fx, fy, liquid_info.height))
+                liquids_vectors.append(Vector(fx, fy, liquid_info.height))
             start_range += 1
 
         if not any(liquids_vectors):

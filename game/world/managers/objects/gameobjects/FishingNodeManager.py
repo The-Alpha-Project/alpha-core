@@ -24,7 +24,7 @@ class FishingNodeManager(object):
             self.hook_result = False
         else:
             diff = time.time() - self.became_active_time
-            self.hook_result = diff < 1.3  # Reaction time, find proper value.
+            self.hook_result = diff < 1.7  # Reaction time, find proper value.
 
         # Notify error to player.
         if not self.hook_result:

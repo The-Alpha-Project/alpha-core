@@ -81,10 +81,10 @@ class UpdatePacketFactory(object):
             return False
 
         if FIELDS_ENCAPSULATION[self.fields_type][index] == EncapsulationType.PRIVATE and requester.guid != self.owner_guid:
-            # self._debug_field_acquisition(index, was_protected=True)
+            # self._debug_field_acquisition(requester, index, was_protected=True)
             return False
 
-        # self._debug_field_acquisition(index, was_protected=False)
+        # self._debug_field_acquisition(requester, index, was_protected=False)
         return True
 
     def _validate_field_existence(self, index):
@@ -97,14 +97,10 @@ class UpdatePacketFactory(object):
         return True
 
     # Debug what UpdateFields players sees from self, other player, units, items, gameobjects, etc.
-    def _debug_field_acquisition(self, index, was_protected):
-        if index not in ENCAPSULATION_INFORMATION[self.fields_type]:
-            return
+    def _debug_field_acquisition(self, requester, index, was_protected):
         update_field_info = ENCAPSULATION_INFORMATION[self.fields_type][index]
-        if was_protected:
-            Logger.debug(f'{update_field_info} for requester was protected, Field Value [{self.update_values[index]}]')
-        else:
-            Logger.debug(f'{update_field_info} for requester was accessed, Field Value [{self.update_values[index]}]')
+        result = {'[PROTECTED]' if was_protected else '[ACCESSED]'}
+        Logger.debug(f"{requester.player.name} - [{update_field_info}] - {result}, Value [{self.update_values[index]}]")
 
     def reset(self):
         self.update_mask.clear()
