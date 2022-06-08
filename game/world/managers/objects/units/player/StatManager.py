@@ -5,6 +5,7 @@ from struct import pack, unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes, SkillManager
+from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses, \
     ItemEnchantmentType
@@ -333,7 +334,6 @@ class StatManager(object):
 
         self.item_stats = {UnitStats.MAIN_HAND_DELAY: config.Unit.Defaults.base_attack_time,
                            UnitStats.OFF_HAND_DELAY: config.Unit.Defaults.offhand_attack_time}  # Clear item stats
-        self.weapon_reach = 0
 
         if self.unit_mgr.is_in_feral_form():
             # Druids in feral form don't use their weapon to attack.
@@ -346,6 +346,9 @@ class StatManager(object):
             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = self.unit_mgr.level * 0.85 * (attack_delay / 1000)
             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = self.unit_mgr.level * 1.25 * (attack_delay / 1000)
             self.item_stats[UnitStats.MAIN_HAND_DELAY] = attack_delay
+
+        # Reset weapon reach.
+        self.weapon_reach = 0
 
         # Regenerate item stats.
         for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
@@ -391,22 +394,9 @@ class StatManager(object):
                     self.item_stats[UnitStats.RANGED_DELAY] = weapon_delay
 
                 current_reach = self.weapon_reach
-                weapon_reach = StatManager.get_reach_for_weapon(item.item_template)
-                if current_reach == -1 or current_reach > weapon_reach:
+                weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
+                if weapon_reach > current_reach:
                     self.weapon_reach = weapon_reach
-
-    # TODO move to formulas?
-    @staticmethod
-    def get_reach_for_weapon(item_template):
-        # This is a TOTAL guess, I have no idea about real weapon reach values.
-        # The weapon reach unit field was removed in patch 0.10.
-        if item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
-            return 1.5
-        elif item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_DAGGER:
-            return 0.5
-        elif item_template.subclass != ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON:
-            return 1.0
-        return 0
 
     def update_max_health(self):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)

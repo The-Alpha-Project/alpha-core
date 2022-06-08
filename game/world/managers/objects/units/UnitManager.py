@@ -164,7 +164,7 @@ class UnitManager(ObjectManager):
         self.summoner = summoner
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_UNIT
-        self.update_packet_factory.init_values(UnitFields.UNIT_END)
+        self.update_packet_factory.init_values(self.guid, UnitFields)
 
         self.is_alive = True
         self.in_combat = False

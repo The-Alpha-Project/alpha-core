@@ -67,7 +67,7 @@ class GameObjectManager(ObjectManager):
                                         self.gobject_instance.spawn_spawntimemax)
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_GAMEOBJECT
-        self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
+        self.update_packet_factory.init_values(self.guid, GameObjectFields)
 
         self.respawn_timer = 0
         self.loot_manager = None  # Optional.
@@ -373,7 +373,9 @@ class GameObjectManager(ObjectManager):
         mask_copy = self.update_packet_factory.update_mask.copy()
         fields_data = b''
         for i in range(self.update_packet_factory.update_mask.field_count):
-            if self.is_dynamic_field(i):
+            if not self.update_packet_factory.has_read_rights_for_field(i, requester):
+                continue
+            if self.update_packet_factory.is_dynamic_field(i):
                 fields_data += pack('<I', self.generate_dynamic_field_value(requester))
                 mask_copy[i] = 1  # Turn on this extra bit.
             elif self.update_packet_factory.update_mask.is_set(i):
@@ -384,10 +386,7 @@ class GameObjectManager(ObjectManager):
                 fields_data += self.update_packet_factory.update_values_bytes[i]
                 mask_copy[i] = 1  # Turn on this extra bit.
 
-        data += mask_copy.tobytes()
-        data += fields_data
-
-        return data
+        return data + mask_copy.tobytes() + fields_data
 
     # There are only 3 possible animations that can be used here.
     # Effect might depend on the gameobject type, apparently. e.g. Fishing bobber do its animation by sending 0.
@@ -396,10 +395,6 @@ class GameObjectManager(ObjectManager):
         data = pack('<QI', self.guid, animation)
         packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_CUSTOM_ANIM, data)
         MapManager.send_surrounding(packet, self, include_self=False)
-
-    def is_dynamic_field(self, index):
-        # TODO: Check more fields?
-        return index == GameObjectFields.GAMEOBJECT_DYN_FLAGS
 
     def generate_dynamic_field_value(self, requester):
         # TODO: Handle more dynamic cases.

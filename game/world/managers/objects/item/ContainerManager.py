@@ -31,7 +31,7 @@ class ContainerManager(ItemManager):
             self.is_contained = self.owner
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_CONTAINER
-        self.update_packet_factory.init_values(ContainerFields.CONTAINER_END)
+        self.update_packet_factory.init_values(self.get_owner_guid(), ContainerFields)
 
     @classmethod
     def from_item(cls, item_manager):

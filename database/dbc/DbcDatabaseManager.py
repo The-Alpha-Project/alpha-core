@@ -271,6 +271,15 @@ class DbcDatabaseManager:
         dbc_db_session.close()
         return res
 
+    # ItemSubClass
+
+    @staticmethod
+    def item_get_swing_size_by_class_and_subclass(class_, subclass):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(ItemSubClas).filter_by(ClassID=class_, SubClassID=subclass).first()
+        dbc_db_session.close()
+        return res
+
     # CharStartOutfit
 
     @staticmethod

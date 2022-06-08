@@ -143,7 +143,7 @@ class PlayerManager(UnitManager):
             self.is_alive = self.health > 0
 
             self.object_type_mask |= ObjectTypeFlags.TYPE_PLAYER
-            self.update_packet_factory.init_values(PlayerFields.PLAYER_END)
+            self.update_packet_factory.init_values(self.guid, PlayerFields)
 
             self.enchantment_manager = EnchantmentManager(self)
             self.talent_manager = TalentManager(self)

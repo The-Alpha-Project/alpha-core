@@ -1,6 +1,6 @@
 import math
-
-from utils.constants.MiscCodes import AttackTypes
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 
 
 # Extracted from the 0.5.3 client as is.
@@ -44,6 +44,15 @@ class CreatureFormulas(object):
 
 
 class UnitFormulas(object):
+
+    @staticmethod
+    def get_reach_for_weapon(item_template):
+        # The weapon reach unit field was removed in patch 0.10.
+        # We use swing reach for now.
+        item_info = DbcDatabaseManager.item_get_swing_size_by_class_and_subclass(item_template.class_, item_template.subclass)
+        if item_info:
+            return item_info.WeaponSwingSize
+        return 0
 
     # Taken from the 0.5.3 client
     @staticmethod

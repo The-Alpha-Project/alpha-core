@@ -74,7 +74,7 @@ class ItemManager(ObjectManager):
             self.load_item_template(self.item_template)
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_ITEM
-        self.update_packet_factory.init_values(ItemFields.ITEM_END)
+        self.update_packet_factory.init_values(self.get_owner_guid(), ItemFields)
 
     def load_item_template(self, item_template):
         self.item_template = item_template

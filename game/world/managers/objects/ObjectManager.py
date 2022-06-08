@@ -220,42 +220,27 @@ class ObjectManager:
 
         return data
 
+    # TODO: Optimizations. Instead of iterating each UpdateField, have UpdatePacketFactory return a set of accesible
+    #  UpdateFields indexes for the requester, this set can be cached for each type of fields available.
     def _get_fields_update(self, is_create, requester):
         data = pack('<B', self.update_packet_factory.update_mask.block_count)
 
-        # Create packets are always timestamp based, since fields might not be dirty but already touched.
-        # Because of the way we handle items/containers updates atm, those will land here as well, always.
-        if is_create:
-            data += self._get_fields_timestamp_based()
-        # Partial updates will follow normal field value acquisition based on bit mask.
-        else:
-            data += self._get_fields_bit_mask_based()
-
-        return data
-
-    # Generate an update packet based on which fields are currently touched.
-    # Usually used by any partial update requested by a player who already knows this world object.
-    def _get_fields_bit_mask_based(self):
-        data = self.update_packet_factory.update_mask.to_bytes()
-        for i in range(self.update_packet_factory.update_mask.field_count):
-            if self.update_packet_factory.update_mask.is_set(i):
-                data += self.update_packet_factory.update_values_bytes[i]
-        return data
-
-    # Generate an update packet based on fields that has been previously touched.
-    # This is used mostly for create packets requested by players that just met a new world object.
-    def _get_fields_timestamp_based(self):
         mask_copy = self.update_packet_factory.update_mask.copy()
         fields_data = b''
         for i in range(self.update_packet_factory.update_mask.field_count):
-            # Value is not 0 and bit mask is on or has a timestamp.
-            if self.update_packet_factory.update_values[i] != 0 and \
-                    self.update_packet_factory.update_mask.is_set(i) or \
-                    self.update_packet_factory.update_timestamps[i]:
+            # Partial packets only care for touched fields.
+            # Create packets will go on and retrieve data by encapsulation flag.
+            if not is_create and not self.update_packet_factory.update_mask.is_set(i):
+                continue
+            # Does the requester has read access to this field?
+            if self.update_packet_factory.has_read_rights_for_field(i, requester):
                 fields_data += self.update_packet_factory.update_values_bytes[i]
                 mask_copy[i] = 1
-        data = mask_copy.tobytes() + fields_data
-        return data
+            # Has no access, turn bit off.
+            else:
+                mask_copy[i] = 0
+
+        return data + mask_copy.tobytes() + fields_data
 
     # noinspection PyMethodMayBeStatic
     def is_aura_field(self, index):
