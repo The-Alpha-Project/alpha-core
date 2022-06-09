@@ -1088,7 +1088,7 @@ class SpellVisual(Base):
     WeaponTrailDuration = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
 
     precast_kit = relationship('SpellVisualKit', foreign_keys='SpellVisualKit.ID',
-                               primaryjoin="SpellVisual.ID == SpellVisualKit.ID", uselist=False, lazy='joined')
+                               primaryjoin="SpellVisual.PrecastKit == SpellVisualKit.ID", uselist=False, lazy='joined')
 
 
 class SpellVisualAnimName(Base):
