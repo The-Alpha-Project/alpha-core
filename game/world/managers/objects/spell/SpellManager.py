@@ -594,8 +594,8 @@ class SpellManager:
             pre_cast_kit_id = casting_spell.spell_visual_entry.PrecastKit
             data = pack('<QI', self.caster.guid, pre_cast_kit_id)
             packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
-            MapManager.send_surrounding(packet, self.caster,
-                                        include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
+            is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+            MapManager.send_surrounding(packet, self.caster, include_self=is_player)
 
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():
