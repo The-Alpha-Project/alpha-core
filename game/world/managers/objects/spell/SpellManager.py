@@ -585,6 +585,12 @@ class SpellManager:
     # Sends spell visual pre cast kit animation, if available.
     def handle_visual_pre_cast_animation_kit(self, casting_spell):
         if casting_spell.has_spell_visual_pre_cast_kit():
+            visual_kit = casting_spell.spell_visual_entry.precast_kit
+            visual_anim_name = visual_kit.visual_anim_name
+            # Do not send loop animations, we can't stop them once sent to the client.
+            # e.g. KneelLoop.
+            if 'Loop' in visual_anim_name.Name:
+                return
             pre_cast_kit_id = casting_spell.spell_visual_entry.PrecastKit
             data = pack('<QI', self.caster.guid, pre_cast_kit_id)
             packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)

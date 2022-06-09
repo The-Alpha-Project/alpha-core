@@ -1087,6 +1087,9 @@ class SpellVisual(Base):
     WeaponTrailFadeoutRate = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     WeaponTrailDuration = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
 
+    precast_kit = relationship('SpellVisualKit', foreign_keys='SpellVisualKit.ID',
+                               primaryjoin="SpellVisual.ID == SpellVisualKit.ID", uselist=False, lazy='joined')
+
 
 class SpellVisualAnimName(Base):
     __tablename__ = 'SpellVisualAnimName'
@@ -1094,6 +1097,17 @@ class SpellVisualAnimName(Base):
     ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
     AnimID = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     Name = Column(Text)
+
+
+class SpellVisualKit(Base):
+    __tablename__ = 'SpellVisualKit'
+
+    ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
+    KitType = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    Anim = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+
+    visual_anim_name = relationship('SpellVisualAnimName', foreign_keys='SpellVisualAnimName.AnimID',
+                               primaryjoin="SpellVisualKit.Anim == SpellVisualAnimName.AnimID", uselist=False, lazy='joined')
 
 
 class SpellVisualEffectName(Base):

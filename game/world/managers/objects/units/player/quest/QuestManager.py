@@ -67,6 +67,7 @@ class QuestManager(object):
                 for active_quest in list(self.active_quests.values()):
                     if active_quest.need_item_from_go(game_object.guid, loot_template):
                         return True
+
         elif game_object.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             # Grab starters/finishers.
             relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(game_object.gobject_template.entry)
@@ -384,12 +385,20 @@ class QuestManager(object):
 
     # Quest status only works for units, sending a gameobject guid crashes the client.
     def update_surrounding_quest_status(self):
-        units = MapManager.get_surrounding_objects(self.player_mgr, [ObjectTypeIds.ID_UNIT])[0]
+        units, gameobjects = MapManager.get_surrounding_objects(self.player_mgr, [ObjectTypeIds.ID_UNIT,
+                                                                                  ObjectTypeIds.ID_GAMEOBJECT])
         for guid, unit in units.items():
             if WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
                     unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry):
                 quest_status = self.get_dialog_status(unit)
                 self.send_quest_giver_status(guid, quest_status)
+
+        # Make the owner refresh gameobject dynamic flags if needed.
+        # We can't detect dynamic flag changes, since it is unique for each observer.
+        for guid, gameobject in gameobjects.items():
+            if gameobject.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
+                    gameobject.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
+                self.player_mgr.update_world_object_on_me(gameobject, has_changes=True)
 
     # Send item query details and return item struct byte segments.
     def _gen_item_struct(self, item_entry, count):
