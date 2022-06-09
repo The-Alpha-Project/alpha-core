@@ -220,27 +220,21 @@ class ObjectManager:
 
         return data
 
-    # TODO: Optimizations. Instead of iterating each UpdateField, have UpdatePacketFactory return a set of accesible
-    #  UpdateFields indexes for the requester, this set can be cached for each type of fields available.
     def _get_fields_update(self, is_create, requester):
-        data = pack('<B', self.update_packet_factory.update_mask.block_count)
-
-        mask_copy = self.update_packet_factory.update_mask.copy()
-        fields_data = b''
-        for i in range(self.update_packet_factory.update_mask.field_count):
-            # Partial packets only care for touched fields.
-            # Create packets will go on and retrieve data by encapsulation flag.
-            if not is_create and not self.update_packet_factory.update_mask.is_set(i):
+        data = b''
+        mask = self.update_packet_factory.update_mask.copy()
+        for field_index in range(self.update_packet_factory.update_mask.field_count):
+            # Partial packets only care for fields that had changes.
+            if not is_create and mask[field_index] == 0:
                 continue
-            # Does the requester has read access to this field?
-            if self.update_packet_factory.has_read_rights_for_field(i, requester):
-                fields_data += self.update_packet_factory.update_values_bytes[i]
-                mask_copy[i] = 1
-            # Has no access, turn bit off.
-            else:
-                mask_copy[i] = 0
-
-        return data + mask_copy.tobytes() + fields_data
+            # Check for encapsulation, turn off the bit if requester has no read access.
+            if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
+                mask[field_index] = 0
+                continue
+            # Append field value and turn on bit on mask.
+            data += self.update_packet_factory.update_values_bytes[field_index]
+            mask[field_index] = 1
+        return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
     # noinspection PyMethodMayBeStatic
     def is_aura_field(self, index):

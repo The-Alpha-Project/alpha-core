@@ -367,26 +367,25 @@ class GameObjectManager(ObjectManager):
 
     # override
     def _get_fields_update(self, is_create, requester):
-        data = pack('<B', self.update_packet_factory.update_mask.block_count)
-
-        # Use a temporary bit mask in case we need to set more bits.
-        mask_copy = self.update_packet_factory.update_mask.copy()
-        fields_data = b''
-        for i in range(self.update_packet_factory.update_mask.field_count):
-            if not self.update_packet_factory.has_read_rights_for_field(i, requester):
+        data = b''
+        mask = self.update_packet_factory.update_mask.copy()
+        for field_index in range(self.update_packet_factory.update_mask.field_count):
+            # Partial packets only care for fields that had changes.
+            if not is_create and mask[field_index] == 0 and not self.update_packet_factory.is_dynamic_field(field_index):
                 continue
-            if self.update_packet_factory.is_dynamic_field(i):
-                fields_data += pack('<I', self.generate_dynamic_field_value(requester))
-                mask_copy[i] = 1  # Turn on this extra bit.
-            elif self.update_packet_factory.update_mask.is_set(i):
-                fields_data += self.update_packet_factory.update_values_bytes[i]
-            # If bit is not set but this is a create request, check if it's a touched value and greater than 0.
-            elif is_create and self.update_packet_factory.update_timestamps[i] and \
-                    self.update_packet_factory.update_values[i] != 0:
-                fields_data += self.update_packet_factory.update_values_bytes[i]
-                mask_copy[i] = 1  # Turn on this extra bit.
-
-        return data + mask_copy.tobytes() + fields_data
+            # Check for encapsulation, turn off the bit if requester has no read access.
+            if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
+                mask[field_index] = 0
+                continue
+            # Handle dynamic field, turn on this extra bit.
+            if self.update_packet_factory.is_dynamic_field(field_index):
+                data += pack('<I', self.generate_dynamic_field_value(requester))
+                mask[field_index] = 1
+            else:
+                # Append field value and turn on bit on mask.
+                data += self.update_packet_factory.update_values_bytes[field_index]
+                mask[field_index] = 1
+        return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
     # There are only 3 possible animations that can be used here.
     # Effect might depend on the gameobject type, apparently. e.g. Fishing bobber do its animation by sending 0.
