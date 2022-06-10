@@ -240,10 +240,8 @@ class QuestManager(object):
             else:
                 self.send_quest_giver_quest_details(quest_menu_item.quest, quest_giver_guid, True)
         # We have 1 or more items and a custom greeting, send the greeting and quest menu item/s.
-        else:
+        elif len(quest_menu.items) > 0 or has_greeting:
             self.send_quest_giver_quest_list(greeting_text, emote, quest_giver_guid, quest_menu.items)
-
-        self.update_surrounding_quest_status()
 
     def get_quest_state(self, quest_entry):
         if quest_entry in self.active_quests:
@@ -367,6 +365,10 @@ class QuestManager(object):
         if quest_giver_gossip_entry:
             text_entry = quest_giver_gossip_entry.textid
         quest_giver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(text_entry)
+
+        # Gameobjects quest starters don't have this.
+        if not quest_giver_text_entry:
+            return False, '', 0
 
         quest_giver_greeting = ''
         
