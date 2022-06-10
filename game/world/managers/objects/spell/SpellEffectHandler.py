@@ -473,6 +473,45 @@ class SpellEffectHandler:
 
         caster.pet_manager.summon_pet(effect.misc_value)
 
+    @staticmethod
+    def handle_summon_wild(casting_spell, effect, caster, target):
+        creature_entry = effect.misc_value
+        if not creature_entry:
+            return
+
+        radius = effect.get_radius()
+        duration = effect.get_duration()
+        amount = effect.get_effect_simple_points()
+
+        for count in range(amount):
+            if casting_spell.spell_target_mask & SpellTargetMask.DEST_LOCATION:
+                if count == 0:
+                    px = target.location.x
+                    py = target.location.y
+                    pz = target.location.z
+                else:
+                    location = caster.location.get_random_point_in_radius(radius, caster.map_)
+                    px = location.x
+                    py = location.Y
+                    pz = location.z
+            else:
+                if radius > 0.0:
+                    location = caster.location.get_random_point_in_radius(radius, caster.map_)
+                    px = location.x
+                    py = location.Y
+                    pz = location.z
+                else:
+                    px = target.location.x
+                    py = target.location.y
+                    pz = target.location.z
+
+            # Spawn the summoned unit.
+            from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+            unit = CreatureManager.spawn(creature_entry, Vector(px, py, pz), caster.map_, summoner=caster,
+                                         spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction,
+                                         ttl=duration)
+            unit.respawn()
+
     # TODO: Currently, you can endlessly pickpocket the same unit.
     @staticmethod
     def handle_pick_pocket(casting_spell, effect, caster, target):
@@ -649,6 +688,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT: SpellEffectHandler.handle_permanent_enchant,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
     SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
+    SpellEffects.SPELL_EFFECT_SUMMON_WILD: SpellEffectHandler.handle_summon_wild,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

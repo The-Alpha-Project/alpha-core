@@ -104,6 +104,11 @@ class SpellEffect:
             return 0
         return min(self.radius_entry.RadiusMax, self.radius_entry.Radius + self.radius_entry.RadiusPerLevel * self.caster_effective_level)
 
+    def get_duration(self):
+        if not self.duration_entry:
+            return 0
+        return self.duration_entry.Duration
+
     def load_first(self, spell):
         self.effect_type = spell.Effect_1
         self.die_sides = spell.EffectDieSides_1

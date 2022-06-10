@@ -249,6 +249,11 @@ class EffectTargets:
             units = EffectTargets.resolve_all_around_caster(casting_spell, target_effect)
             return EffectTargets.get_enemies_from_unit_list(units, casting_spell.spell_caster)
 
+        if target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_WILD or \
+                target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON or \
+                target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_OBJECT_WILD:
+            return [casting_spell.spell_caster]
+
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     @staticmethod

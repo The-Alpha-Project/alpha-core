@@ -91,6 +91,7 @@ class CreatureManager(UnitManager):
 
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
+        self.time_to_live_timer = -1
         self.respawn_timer = 0
         self.last_random_movement = 0
         self.random_movement_wait_time = randint(1, 12)
@@ -132,7 +133,7 @@ class CreatureManager(UnitManager):
         MapManager.update_object(self)
 
     @staticmethod
-    def spawn(entry, location, map_id, summoner=None, override_faction=0, despawn_time=1):
+    def spawn(entry, location, map_id, summoner=None, override_faction=0, despawn_time=1, spell_id=0, ttl=-1):
         creature_template = WorldDatabaseManager.creature_get_by_entry(entry)
 
         if not creature_template:
@@ -150,6 +151,7 @@ class CreatureManager(UnitManager):
         instance.mana_percent = 100
         if despawn_time < 1:
             despawn_time = 1
+
         instance.spawntimesecsmin = despawn_time
         instance.spawntimesecsmax = despawn_time
 
@@ -158,6 +160,12 @@ class CreatureManager(UnitManager):
             creature_instance=instance,
             summoner=summoner
         )
+
+        if ttl > 0:
+            creature.time_to_live_timer = ttl
+
+        if spell_id:
+            creature.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, spell_id)
 
         if override_faction > 0:
             creature.faction = override_faction
@@ -660,6 +668,9 @@ class CreatureManager(UnitManager):
             elapsed = now - self.last_tick
 
             if self.is_alive and self.is_spawned:
+                # Time to live.
+                if self.time_to_live_timer > 0:
+                    self.time_to_live_timer -= elapsed
                 # Regeneration.
                 self.regenerate(elapsed)
                 # Spell/Aura Update.
@@ -689,8 +700,11 @@ class CreatureManager(UnitManager):
                     else:
                         self.despawn()
 
+            # Time to live expired, destroy.
+            if self.time_to_live_timer < -1:
+                self.despawn(destroy=True)
             # Check if this creature object should be updated yet or not.
-            if self.has_pending_updates():
+            elif self.has_pending_updates():
                 MapManager.update_object(self, has_changes=True)
                 self.reset_fields_older_than(now)
 
