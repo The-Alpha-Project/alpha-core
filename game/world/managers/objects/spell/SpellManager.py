@@ -844,6 +844,8 @@ class SpellManager:
                 return False
 
             # Validate target item class and subclass, if needed.
+            # TODO: We don't have EquippedItemInventoryTypeMask, so we have no way to validate inventory slots.
+            #  e.g. Enchant bracers would still work on legs, chest, etc. So maybe they had some filtering by name?
             if casting_spell.spell_entry.EquippedItemClass != -1:
                 required_item_class = casting_spell.spell_entry.EquippedItemClass
                 required_item_sub_class = casting_spell.spell_entry.EquippedItemSubclass
