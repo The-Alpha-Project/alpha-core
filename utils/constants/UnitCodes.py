@@ -37,6 +37,12 @@ class CreatureTypes(IntEnum):
     NOT_SPECIFIED = 10
 
 
+class CreatureReactStates(IntEnum):
+    REACT_PASSIVE = 0
+    REACT_DEFENSIVE = 1
+    REACT_AGGRESSIVE = 2
+
+
 class CreatureTypeFlags(IntEnum):
     # Tameable by any hunter.
     CREATURE_TYPEFLAGS_TAMEABLE = 0x00000001

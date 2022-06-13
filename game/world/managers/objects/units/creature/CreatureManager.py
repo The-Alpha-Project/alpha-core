@@ -3,14 +3,15 @@ from dataclasses import dataclass
 from random import randint, choice
 from struct import pack
 
-from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatures
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatures
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.ai.AIFactory import AIFactory
+from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
-from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.creature.CreaturePickPocketLootManager import CreaturePickPocketLootManager
@@ -18,16 +19,17 @@ from game.world.managers.objects.units.creature.ThreatManager import ThreatManag
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
-from utils.Logger import Logger
 from utils.Formulas import UnitFormulas
+from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, \
     TrainerTypes
 from utils.constants.OpCodes import OpCode
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra
+    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -88,6 +90,10 @@ class CreatureManager(UnitManager):
 
         if 0 < self.creature_template.rank < 4:
             self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
+
+        self.react_state = CreatureReactStates.REACT_DEFENSIVE \
+            if self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO \
+            else CreatureReactStates.REACT_AGGRESSIVE
 
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
@@ -230,7 +236,7 @@ class CreatureManager(UnitManager):
 
         for trainer_spell in trainer_ability_list:  # trainer_spell: The spell the trainer uses to teach the player.
             player_spell_id = trainer_spell.playerspell
-            
+
             ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(player_spell_id)
 
             spell_level: int = trainer_spell.reqlevel  # Use this and not spell data, as there are differences between data source (2003 Game Guide) and what is in spell table.
@@ -273,7 +279,7 @@ class CreatureManager(UnitManager):
         greeting_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(world_session.player_mgr,
                                                                                placeholder_greeting))
         greeting_bytes = pack(
-                    f'<{len(greeting_bytes)}s', 
+                    f'<{len(greeting_bytes)}s',
                     greeting_bytes
         )
 
@@ -434,7 +440,7 @@ class CreatureManager(UnitManager):
     def trainer_has_spell(self, spell_id: int) -> bool:
         if not self.is_trainer():
             return False
-        
+
         trainer_spells: list[TrainerTemplate] = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(self.entry)
 
         for trainer_spell in trainer_spells:
@@ -671,6 +677,9 @@ class CreatureManager(UnitManager):
                 self.aura_manager.update(now)
                 # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
+                if self.has_moved:
+                    self._on_relocation()
+                    self.set_has_moved(False)
                 # Random Movement.
                 self._perform_random_movement(now)
                 # Combat Movement.
@@ -845,6 +854,13 @@ class CreatureManager(UnitManager):
             int(self.creature_template.dmg_max),
             int(self.creature_template.dmg_min)
         )
+
+    def _on_relocation(self):
+        self.object_ai.movement_inform()
+
+    # override
+    def notify_moved_in_line_of_sight(self, target):
+        self.object_ai.move_in_line_of_sight(target)
 
     # override
     def has_offhand_weapon(self):

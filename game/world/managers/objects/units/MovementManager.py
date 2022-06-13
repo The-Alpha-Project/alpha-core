@@ -11,13 +11,13 @@ from utils.constants.MiscCodes import MoveFlags, ObjectTypeIds
 from utils.constants.UnitCodes import SplineFlags, SplineType
 
 
-class MovementManager(object):
+class MovementManager:
     def __init__(self, unit):
         self.unit = unit
         self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
         self.should_update_waypoints = False
         self.last_position = None
-        self.pending_waypoints = []
+        self.pending_waypoints: list[PendingWaypoint] = []
         self.total_waypoint_time = 0
         self.total_waypoint_timer = 0
         self.waypoint_timer = 0
@@ -61,6 +61,7 @@ class MovementManager(object):
                 self.unit.location.x = new_position.x
                 self.unit.location.y = new_position.y
                 self.unit.location.z = new_position.z
+                self.unit.set_has_moved(True)
                 MapManager.update_object(self.unit)
 
                 # TODO: Logic below should be removed once we have some kind of navmesh.

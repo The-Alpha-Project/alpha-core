@@ -4,6 +4,8 @@ from typing import Optional
 
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
+from utils.Logger import Logger
+from utils.constants.MiscCodes import HighGuid
 from utils.constants.ScriptCodes import AttackingTarget
 
 
@@ -28,6 +30,8 @@ class ThreatManager:
                 source_holder.total_threat = max(new_threat, 0.0)
             elif threat > 0.0:
                 self.holders[source.guid] = ThreatHolder(source, threat)
+            else:
+                Logger.warning(f'Passed non positive threat {threat} from {source.guid & ~HighGuid.HIGHGUID_UNIT}')
 
     def get_hostile_target(self) -> Optional[UnitManager]:
         max_threat_holder = self._get_max_threat_holder()

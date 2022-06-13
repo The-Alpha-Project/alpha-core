@@ -1404,6 +1404,9 @@ class PlayerManager(UnitManager):
             self.attack_update(elapsed)
             # Waypoints (mostly flying paths) update.
             self.movement_manager.update_pending_waypoints(elapsed)
+            if self.has_moved:
+                self._on_relocation()
+                self.set_has_moved(False)
             # Check swimming state.
             self.check_swimming_state(elapsed)
 
@@ -1570,6 +1573,11 @@ class PlayerManager(UnitManager):
     # override
     def get_damages(self):
         return self.damage
+
+    def _on_relocation(self):
+        units = MapManager.get_surrounding_units(self)
+        for guid, unit in units.items():
+            unit.notify_moved_in_line_of_sight(self)
 
     # override
     def on_cell_change(self):

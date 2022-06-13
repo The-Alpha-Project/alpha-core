@@ -190,6 +190,8 @@ class UnitManager(ObjectManager):
         self.has_parry_passive = False
         self.has_dodge_passive = False
 
+        self.has_moved = False
+
         self.stat_manager = StatManager(self)
         self.spell_manager = SpellManager(self)
         self.aura_manager = AuraManager(self)
@@ -222,7 +224,7 @@ class UnitManager(ObjectManager):
                     return True
                 return False
 
-            self.attack_stop(target_switch=True)
+            self.attack_stop()
 
         self.set_current_target(victim.guid)
         self.combat_target = victim
@@ -236,7 +238,7 @@ class UnitManager(ObjectManager):
 
         return True
 
-    def attack_stop(self, target_switch=False):
+    def attack_stop(self):
         # Clear target
         self.set_current_target(0)
         victim = self.combat_target
@@ -1150,6 +1152,13 @@ class UnitManager(ObjectManager):
     # override
     def on_cell_change(self):
         pass
+
+    # override
+    def notify_moved_in_line_of_sight(self, target):
+        pass
+
+    def set_has_moved(self, has_moved):
+        self.has_moved = has_moved
 
     # override
     def get_type_id(self):

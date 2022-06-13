@@ -62,7 +62,7 @@ class PetAI(CreatureAI):
 
     # Receives notification when pet reaches stay or follow owner.
     # override
-    def movement_inform(self, move_type, data):
+    def movement_inform(self, move_type=None, data=None):
         pass
 
     # Called when owner takes damage. This function helps keep pets from running off simply due to owner gaining aggro.

@@ -10,7 +10,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import StandState
 
 
-class MovementHandler(object):
+class MovementHandler:
 
     @staticmethod
     def handle_movement_status(world_session, socket, reader: PacketReader) -> int:
@@ -22,9 +22,10 @@ class MovementHandler(object):
 
                 # Hacky way to prevent random teleports when colliding with elevators
                 # Also acts as a rudimentary teleport cheat detection
-                if not world_session.player_mgr.pending_taxi_destination and world_session.player_mgr.location.distance(
-                        x=x, y=y, z=z) > 64:
-                    Logger.anticheat(f'Preventing coordinate desync from player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}).')
+                if not world_session.player_mgr.pending_taxi_destination and \
+                        world_session.player_mgr.location.distance(x=x, y=y, z=z) > 64:
+                    Logger.anticheat(f'Preventing coordinate desync from player {world_session.player_mgr.player.name} '
+                                     f'({world_session.player_mgr.guid}).')
                     world_session.player_mgr.teleport(world_session.player_mgr.map_,
                                                       world_session.player_mgr.location, is_instant=True)
 
@@ -53,6 +54,9 @@ class MovementHandler(object):
                 world_session.player_mgr.location.y = y
                 world_session.player_mgr.location.z = z
                 world_session.player_mgr.location.o = o
+
+                if flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK):
+                    world_session.player_mgr.set_has_moved(True)
 
                 world_session.player_mgr.pitch = pitch
                 world_session.player_mgr.movement_flags = flags
