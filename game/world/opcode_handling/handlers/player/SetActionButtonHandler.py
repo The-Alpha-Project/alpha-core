@@ -17,7 +17,7 @@ class SetActionButtonHandler(object):
                 else:  # Update
                     button.action = action
                     RealmDatabaseManager.character_update_button(button)
-            else:
+            elif index or action:
                 button = CharacterButton()
                 button.owner = world_session.player_mgr.player.guid
                 button.index = index

@@ -77,7 +77,7 @@ class SpellEffect:
         tick_count = int(duration / self.aura_period)
 
         ticks = []
-        for i in range(0, tick_count):
+        for i in range(tick_count):
             ticks.append(period * i)
         return ticks
 
@@ -96,10 +96,18 @@ class SpellEffect:
         rolled_points = random.randint(1, self.die_sides + self.dice_per_level) if self.die_sides != 0 else 0
         return self.base_points + int(self.real_points_per_level * effective_level) + rolled_points
 
+    def get_effect_simple_points(self) -> int:
+        return self.base_points + self.base_dice
+
     def get_radius(self) -> float:
         if not self.radius_entry:
             return 0
         return min(self.radius_entry.RadiusMax, self.radius_entry.Radius + self.radius_entry.RadiusPerLevel * self.caster_effective_level)
+
+    def get_duration(self):
+        if not self.duration_entry:
+            return 0
+        return self.duration_entry.Duration
 
     def load_first(self, spell):
         self.effect_type = spell.Effect_1

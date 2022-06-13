@@ -1,172 +1,331 @@
-from enum import IntEnum
+from enum import IntEnum, Enum
 
 
-class ObjectFields(IntEnum):
-    OBJECT_FIELD_GUID = 0x0                                                     # 0x000 - Size: 2 - Type: GUID - Flags: PUBLIC
-    OBJECT_FIELD_TYPE = 0x2                                                     # 0x002 - Size: 1 - Type: INT - Flags: PUBLIC
-    OBJECT_FIELD_ENTRY = 0x3                                                    # 0x003 - Size: 1 - Type: INT - Flags: PUBLIC
-    OBJECT_FIELD_SCALE_X = 0x4                                                  # 0x004 - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    OBJECT_FIELD_PADDING = 0x5                                                  # 0x005 - Size: 1 - Type: INT - Flags: PUBLIC
-    OBJECT_END = 0x6
+class EncapsulationType(IntEnum):
+    PRIVATE = 0
+    PUBLIC = 1
+    DYNAMIC = 3
+    IGNORE = 4
 
 
-class ItemFields(IntEnum):
-    ITEM_FIELD_OWNER = ObjectFields.OBJECT_END + 0x0                            # 0x006 - Size: 2 - Type: GUID - Flags: PUBLIC
-    ITEM_FIELD_CONTAINED = ObjectFields.OBJECT_END + 0x2                        # 0x008 - Size: 2 - Type: GUID - Flags: PUBLIC
-    ITEM_FIELD_CREATOR = ObjectFields.OBJECT_END + 0x4                          # 0x00A - Size: 2 - Type: GUID - Flags: PUBLIC
-    ITEM_FIELD_STACK_COUNT = ObjectFields.OBJECT_END + 0x6                      # 0x00C - Size: 1 - Type: INT - Flags: OWNER_ONLY + UNK2
-    ITEM_FIELD_DURATION = ObjectFields.OBJECT_END + 0x7                         # 0x00D - Size: 1 - Type: INT - Flags: OWNER_ONLY + UNK2
-    ITEM_FIELD_SPELL_CHARGES = ObjectFields.OBJECT_END + 0x8                    # 0x00E - Size: 5 - Type: INT - Flags: OWNER_ONLY + UNK2
-    ITEM_FIELD_FLAGS = ObjectFields.OBJECT_END + 0xD                            # 0x013 - Size: 1 - Type: TWO_SHORT - Flags: PUBLIC
-    ITEM_FIELD_ENCHANTMENT = ObjectFields.OBJECT_END + 0xE                      # 0x014 - Size: 15 - Type: INT - Flags: PUBLIC
-    ITEM_FIELD_PAD = ObjectFields.OBJECT_END + 0x1D                             # 0x023 - Size: 1 - Type: INT - Flags: NONE
-    ITEM_END = ObjectFields.OBJECT_END + 0x1E                                   # 0x024
+class ObjectFields(int, Enum):
+    def __new__(cls, value, flags, size):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj._flags_ = flags
+        obj._size_ = size
+        return obj
+
+    @property
+    def flags(self):
+        return self._flags_
+
+    @property
+    def size(self):
+        return self._size_
+
+    @staticmethod
+    def parent_fields():
+        return None
+
+    OBJECT_FIELD_GUID = (0x0, EncapsulationType.PUBLIC, 2)     # 0x000 - Type: GUID
+    OBJECT_FIELD_TYPE = (0x2, EncapsulationType.PUBLIC, 1)     # 0x002 - Type: INT
+    OBJECT_FIELD_ENTRY = (0x3, EncapsulationType.PUBLIC, 1)    # 0x003 - Type: INT
+    OBJECT_FIELD_SCALE_X = (0x4, EncapsulationType.PUBLIC, 1)  # 0x004 - Type: FLOAT
+    OBJECT_FIELD_PADDING = (0x5, EncapsulationType.PUBLIC, 1)  # 0x005 - Type: INT
+    END = (0x6, EncapsulationType.IGNORE, 1)                   # 0x006 - Internal, needs size 1.
 
 
-class ContainerFields(IntEnum):
-    CONTAINER_FIELD_NUM_SLOTS = ItemFields.ITEM_END + 0x0                       # 0x01E - Size: 1 - Type: INT - Flags: PUBLIC
-    CONTAINER_ALIGN_PAD = ItemFields.ITEM_END + 0x1                             # 0x01F - Size: 1 - Type: BYTES - Flags: NONE
-    CONTAINER_FIELD_SLOT_1 = ItemFields.ITEM_END + 0x2                          # 0x020 - Size: 40 - Type: GUID - Flags: PUBLIC
-    CONTAINER_END = ItemFields.ITEM_END + 0x2A                                  # 0x048
+class ItemFields(int, Enum):
+    def __new__(cls, value, flags, size):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj._flags_ = flags
+        obj._size_ = size
+        return obj
+
+    @property
+    def flags(self):
+        return self._flags_
+
+    @property
+    def size(self):
+        return self._size_
+
+    @staticmethod
+    def parent_fields():
+        return ObjectFields
+
+    ITEM_FIELD_OWNER = (ObjectFields.END + 0x0, EncapsulationType.PUBLIC, 2)           # 0x006 - Type: GUID
+    ITEM_FIELD_CONTAINED = (ObjectFields.END + 0x2, EncapsulationType.PUBLIC, 2)       # 0x008 - Type: GUID
+    ITEM_FIELD_CREATOR = (ObjectFields.END + 0x4, EncapsulationType.PUBLIC, 2)         # 0x00A - Type: GUID
+    ITEM_FIELD_STACK_COUNT = (ObjectFields.END + 0x6, EncapsulationType.PRIVATE, 1)    # 0x00C - Type: INT
+    ITEM_FIELD_DURATION = (ObjectFields.END + 0x7, EncapsulationType.PRIVATE, 1)       # 0x00D - Type: INT
+    ITEM_FIELD_SPELL_CHARGES = (ObjectFields.END + 0x8, EncapsulationType.PRIVATE, 5)  # 0x00E - Type: INT
+    ITEM_FIELD_FLAGS = (ObjectFields.END + 0xD, EncapsulationType.PUBLIC, 1)           # 0x013 - Type: TWO_SHORT
+    ITEM_FIELD_ENCHANTMENT = (ObjectFields.END + 0xE, EncapsulationType.PUBLIC, 15)    # 0x014 - Type: INT
+    ITEM_FIELD_PAD = (ObjectFields.END + 0x1D, EncapsulationType.PUBLIC, 1)            # 0x023 - Type: INT
+    END = (ObjectFields.END + 0x1E, EncapsulationType.IGNORE, 1)                       # 0x024 - Internal, needs size 1.
 
 
-class UnitFields(IntEnum):
-    UNIT_FIELD_CHARM = ObjectFields.OBJECT_END + 0x0                            # 0x006 - Size: 2 - Type: GUID - Flags: PUBLIC
-    UNIT_FIELD_SUMMON = ObjectFields.OBJECT_END + 0x2                           # 0x008 - Size: 2 - Type: GUID - Flags: PUBLIC
-    UNIT_FIELD_CHARMEDBY = ObjectFields.OBJECT_END + 0x4                        # 0x00A - Size: 2 - Type: GUID - Flags: PUBLIC
-    UNIT_FIELD_SUMMONEDBY = ObjectFields.OBJECT_END + 0x6                       # 0x00C - Size: 2 - Type: GUID - Flags: PUBLIC
-    UNIT_FIELD_CREATEDBY = ObjectFields.OBJECT_END + 0x8                        # 0x00E - Size: 2 - Type: GUID - Flags: PUBLIC
-    UNIT_FIELD_TARGET = ObjectFields.OBJECT_END + 0xA                           # 0x010 - Size: 2 - Type: GUID - Flags: PUBLIC
-    UNIT_FIELD_COMBO_TARGET = ObjectFields.OBJECT_END + 0xC                     # 0x012 - Size: 2 - Type: GUID - Flags: PUBLIC
-    UNIT_FIELD_CHANNEL_OBJECT = ObjectFields.OBJECT_END + 0xE                   # 0x014 - Size: 2 - Type: GUID - Flags: PUBLIC
-    UNIT_FIELD_HEALTH = ObjectFields.OBJECT_END + 0x10                          # 0x016 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_POWER1 = ObjectFields.OBJECT_END + 0x11                          # 0x017 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_POWER2 = ObjectFields.OBJECT_END + 0x12                          # 0x018 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_POWER3 = ObjectFields.OBJECT_END + 0x13                          # 0x019 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_POWER4 = ObjectFields.OBJECT_END + 0x14                          # 0x01A - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_MAXHEALTH = ObjectFields.OBJECT_END + 0x15                       # 0x01B - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_MAXPOWER1 = ObjectFields.OBJECT_END + 0x16                       # 0x01C - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_MAXPOWER2 = ObjectFields.OBJECT_END + 0x17                       # 0x01D - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_MAXPOWER3 = ObjectFields.OBJECT_END + 0x18                       # 0x01E - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_MAXPOWER4 = ObjectFields.OBJECT_END + 0x19                       # 0x01F - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_LEVEL = ObjectFields.OBJECT_END + 0x1A                           # 0x020 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_FACTIONTEMPLATE = ObjectFields.OBJECT_END + 0x1B                 # 0x021 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_BYTES_0 = ObjectFields.OBJECT_END + 0x1C                         # 0x022 - Size: 1 - Type: BYTES - Flags: PUBLIC
-    UNIT_FIELD_STAT0 = ObjectFields.OBJECT_END + 0x1D                           # 0x023 - Size: 1 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_STAT1 = ObjectFields.OBJECT_END + 0x1E                           # 0x024 - Size: 1 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_STAT2 = ObjectFields.OBJECT_END + 0x1F                           # 0x025 - Size: 1 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_STAT3 = ObjectFields.OBJECT_END + 0x20                           # 0x026 - Size: 1 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_STAT4 = ObjectFields.OBJECT_END + 0x21                           # 0x027 - Size: 1 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_BASESTAT0 = ObjectFields.OBJECT_END + 0x22                       # 0x028 - Size: 1 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_BASESTAT1 = ObjectFields.OBJECT_END + 0x23                       # 0x029 - Size: 1 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_BASESTAT2 = ObjectFields.OBJECT_END + 0x24                       # 0x02A - Size: 1 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_BASESTAT3 = ObjectFields.OBJECT_END + 0x25                       # 0x02B - Size: 1 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_BASESTAT4 = ObjectFields.OBJECT_END + 0x26                       # 0x02C - Size: 1 - Type: INT - Flags: PRIVATE
-    UNIT_VIRTUAL_ITEM_SLOT_DISPLAY = ObjectFields.OBJECT_END + 0x27             # 0x02D - Size: 3 - Type: INT - Flags: PUBLIC
-    UNIT_VIRTUAL_ITEM_INFO = ObjectFields.OBJECT_END + 0x2A                     # 0x030 - Size: 6 - Type: BYTES - Flags: PUBLIC
-    UNIT_FIELD_FLAGS = ObjectFields.OBJECT_END + 0x30                           # 0x036 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_COINAGE = ObjectFields.OBJECT_END + 0x31                         # 0x037 - Size: 1 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_AURA = ObjectFields.OBJECT_END + 0x32                            # 0x038 - Size: 56 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_AURAFLAGS = ObjectFields.OBJECT_END + 0x6A                       # 0x070 - Size: 7 - Type: BYTES - Flags: PUBLIC
-    UNIT_FIELD_AURASTATE = ObjectFields.OBJECT_END + 0x71                       # 0x077 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_MOD_DAMAGE_DONE = ObjectFields.OBJECT_END + 0x72                 # 0x078 - Size: 6 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_MOD_DAMAGE_TAKEN = ObjectFields.OBJECT_END + 0x78                # 0x07E - Size: 6 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_MOD_CREATURE_DAMAGE_DONE = ObjectFields.OBJECT_END + 0x7E        # 0x084 - Size: 8 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_BASEATTACKTIME = ObjectFields.OBJECT_END + 0x86                  # 0x08C - Size: 2 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_RESISTANCES = ObjectFields.OBJECT_END + 0x88                     # 0x08E - Size: 6 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_BOUNDINGRADIUS = ObjectFields.OBJECT_END + 0x8E                  # 0x094 - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    UNIT_FIELD_COMBATREACH = ObjectFields.OBJECT_END + 0x8F                     # 0x095 - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    UNIT_FIELD_WEAPONREACH = ObjectFields.OBJECT_END + 0x90                     # 0x096 - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    UNIT_FIELD_DISPLAYID = ObjectFields.OBJECT_END + 0x91                       # 0x097 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_MOUNTDISPLAYID = ObjectFields.OBJECT_END + 0x92                  # 0x098 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_DAMAGE = ObjectFields.OBJECT_END + 0x93                          # 0x099 - Size: 1 - Type: TWO_SHORT - Flags: PUBLIC
-    UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE = ObjectFields.OBJECT_END + 0x94      # 0x09A - Size: 6 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE = ObjectFields.OBJECT_END + 0x9A      # 0x0A0 - Size: 6 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_RESISTANCEITEMMODS = ObjectFields.OBJECT_END + 0xA0              # 0x0A6 - Size: 6 - Type: INT - Flags: PRIVATE
-    UNIT_FIELD_BYTES_1 = ObjectFields.OBJECT_END + 0xA6                         # 0x0AC - Size: 1 - Type: BYTES - Flags: PUBLIC
-    UNIT_FIELD_PETNUMBER = ObjectFields.OBJECT_END + 0xA7                       # 0x0AD - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_PET_NAME_TIMESTAMP = ObjectFields.OBJECT_END + 0xA8              # 0x0AE - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_PETEXPERIENCE = ObjectFields.OBJECT_END + 0xA9                   # 0x0AF - Size: 1 - Type: INT - Flags: OWNER_ONLY
-    UNIT_FIELD_PETNEXTLEVELEXP = ObjectFields.OBJECT_END + 0xAA                 # 0x0B0 - Size: 1 - Type: INT - Flags: OWNER_ONLY
-    UNIT_DYNAMIC_FLAGS = ObjectFields.OBJECT_END + 0xAB                         # 0x0B1 - Size: 1 - Type: INT - Flags: DYNAMIC
-    UNIT_EMOTE_STATE = ObjectFields.OBJECT_END + 0xAC                           # 0x0B2 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_CHANNEL_SPELL = ObjectFields.OBJECT_END + 0xAD                         # 0x0B3 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_MOD_CAST_SPEED = ObjectFields.OBJECT_END + 0xAE                        # 0x0B4 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_CREATED_BY_SPELL = ObjectFields.OBJECT_END + 0xAF                      # 0x0B5 - Size: 1 - Type: INT - Flags: PUBLIC
-    UNIT_FIELD_BYTES_2 = ObjectFields.OBJECT_END + 0xB0                         # 0x0B6 - Size: 1 - Type: BYTES - Flags: PRIVATE
-    UNIT_FIELD_PADDING = ObjectFields.OBJECT_END + 0xB1                         # 0x0B7 - Size: 1 - Type: INT - Flags: NONE
-    UNIT_END = ObjectFields.OBJECT_END + 0xB2                                   # 0x0B8
+class ContainerFields(int, Enum):
+    def __new__(cls, value, flags, size):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj._flags_ = flags
+        obj._size_ = size
+        return obj
+
+    @property
+    def flags(self):
+        return self._flags_
+
+    @property
+    def size(self):
+        return self._size_
+
+    @staticmethod
+    def parent_fields():
+        return ItemFields
+
+    CONTAINER_FIELD_NUM_SLOTS = (ItemFields.END + 0x0, EncapsulationType.PUBLIC, 1)  # 0x01E - Type: INT
+    CONTAINER_ALIGN_PAD = (ItemFields.END + 0x1, EncapsulationType.PUBLIC, 1)        # 0x01F - Type: BYTES
+    CONTAINER_FIELD_SLOT_1 = (ItemFields.END + 0x2, EncapsulationType.PUBLIC, 40)    # 0x020 - Type: GUID
+    END = (ItemFields.END + 0x2A, EncapsulationType.IGNORE, 1)                       # 0x048 - Internal, needs size 1.
 
 
-class PlayerFields(IntEnum):
-    PLAYER_FIELD_INV_SLOT_1 = UnitFields.UNIT_END + 0x0                         # 0x0B2 - Size: 46 - Type: GUID - Flags: PUBLIC
-    PLAYER_FIELD_PACK_SLOT_1 = UnitFields.UNIT_END + 0x2E                       # 0x0E0 - Size: 32 - Type: GUID - Flags: PRIVATE + UNK2
-    PLAYER_FIELD_BANK_SLOT_1 = UnitFields.UNIT_END + 0x4E                       # 0x100 - Size: 48 - Type: GUID - Flags: PRIVATE
-    PLAYER_FIELD_BANKBAG_SLOT_1 = UnitFields.UNIT_END + 0x7E                    # 0x130 - Size: 12 - Type: GUID - Flags: PRIVATE
-    PLAYER_SELECTION = UnitFields.UNIT_END + 0x8A                               # 0x13C - Size: 2 - Type: GUID - Flags: PUBLIC
-    PLAYER_FARSIGHT = UnitFields.UNIT_END + 0x8C                                # 0x13E - Size: 2 - Type: GUID - Flags: PRIVATE
-    PLAYER_DUEL_ARBITER = UnitFields.UNIT_END + 0x8E                            # 0x140 - Size: 2 - Type: GUID - Flags: PUBLIC
-    PLAYER_FIELD_NUM_INV_SLOTS = UnitFields.UNIT_END + 0x90                     # 0x142 - Size: 1 - Type: INT - Flags: PUBLIC
-    PLAYER_GUILDID = UnitFields.UNIT_END + 0x91                                 # 0x143 - Size: 1 - Type: INT - Flags: PUBLIC
-    PLAYER_GUILDRANK = UnitFields.UNIT_END + 0x92                               # 0x144 - Size: 1 - Type: INT - Flags: PUBLIC
-    PLAYER_BYTES = UnitFields.UNIT_END + 0x93                                   # 0x145 - Size: 1 - Type: BYTES - Flags: PUBLIC
-    PLAYER_XP = UnitFields.UNIT_END + 0x94                                      # 0x146 - Size: 1 - Type: INT - Flags: PRIVATE
-    PLAYER_NEXT_LEVEL_XP = UnitFields.UNIT_END + 0x95                           # 0x147 - Size: 1 - Type: INT - Flags: PRIVATE
-    PLAYER_SKILL_INFO_1_1 = UnitFields.UNIT_END + 0x96                          # 0x148 - Size: 192 - Type: TWO_SHORT - Flags: PRIVATE
-    PLAYER_BYTES_2 = UnitFields.UNIT_END + 0x156                                # 0x208 - Size: 1 - Type: BYTES - Flags: PUBLIC
-    PLAYER_QUEST_LOG_1_1 = UnitFields.UNIT_END + 0x157                          # 0x209 - Size: 96 - Type: INT - Flags: PRIVATE
-    PLAYER_CHARACTER_POINTS1 = UnitFields.UNIT_END + 0x1B7                      # 0x269 - Size: 1 - Type: INT - Flags: PRIVATE
-    PLAYER_CHARACTER_POINTS2 = UnitFields.UNIT_END + 0x1B8                      # 0x26A - Size: 1 - Type: INT - Flags: PRIVATE
-    PLAYER_TRACK_CREATURES = UnitFields.UNIT_END + 0x1B9                        # 0x26B - Size: 1 - Type: INT - Flags: PRIVATE
-    PLAYER_TRACK_RESOURCES = UnitFields.UNIT_END + 0x1BA                        # 0x26C - Size: 1 - Type: INT - Flags: PRIVATE
-    PLAYER_CHAT_FILTERS = UnitFields.UNIT_END + 0x1BB                           # 0x26D - Size: 1 - Type: INT - Flags: PRIVATE
-    PLAYER_DUEL_TEAM = UnitFields.UNIT_END + 0x1BC                              # 0x26E - Size: 1 - Type: INT - Flags: PUBLIC
-    PLAYER_BLOCK_PERCENTAGE = UnitFields.UNIT_END + 0x1BD                       # 0x26F - Size: 1 - Type: FLOAT - Flags: PRIVATE
-    PLAYER_DODGE_PERCENTAGE = UnitFields.UNIT_END + 0x1BE                       # 0x270 - Size: 1 - Type: FLOAT - Flags: PRIVATE
-    PLAYER_PARRY_PERCENTAGE = UnitFields.UNIT_END + 0x1BF                       # 0x271 - Size: 1 - Type: FLOAT - Flags: PRIVATE
-    PLAYER_BASE_MANA = UnitFields.UNIT_END + 0x1C0                              # 0x272 - Size: 1 - Type: INT - Flags: PRIVATE
-    PLAYER_GUILD_TIMESTAMP = UnitFields.UNIT_END + 0x1C1                        # 0x273 - Size: 1 - Type: INT - Flags: PUBLIC
-    PLAYER_END = UnitFields.UNIT_END + 0x1C2                                    # 0x274
+class UnitFields(int, Enum):
+    def __new__(cls, value, flags, size):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj._flags_ = flags
+        obj._size_ = size
+        return obj
+
+    @property
+    def flags(self):
+        return self._flags_
+
+    @property
+    def size(self):
+        return self._size_
+
+    @staticmethod
+    def parent_fields():
+        return ObjectFields
+
+    UNIT_FIELD_CHARM = (ObjectFields.END + 0x0, EncapsulationType.PUBLIC, 2)                  # 0x006 - GUID
+    UNIT_FIELD_SUMMON = (ObjectFields.END + 0x2, EncapsulationType.PUBLIC, 2)                 # 0x008 - GUID
+    UNIT_FIELD_CHARMEDBY = (ObjectFields.END + 0x4, EncapsulationType.PUBLIC, 2)              # 0x00A - GUID
+    UNIT_FIELD_SUMMONEDBY = (ObjectFields.END + 0x6, EncapsulationType.PUBLIC, 2)             # 0x00C - GUID
+    UNIT_FIELD_CREATEDBY = (ObjectFields.END + 0x8, EncapsulationType.PUBLIC, 2)              # 0x00E - GUID
+    UNIT_FIELD_TARGET = (ObjectFields.END + 0xA, EncapsulationType.PUBLIC, 2)                 # 0x010 - GUID
+    UNIT_FIELD_COMBO_TARGET = (ObjectFields.END + 0xC, EncapsulationType.PUBLIC, 2)           # 0x012 - GUID
+    UNIT_FIELD_CHANNEL_OBJECT = (ObjectFields.END + 0xE, EncapsulationType.PUBLIC, 2)         # 0x014 - GUID
+    UNIT_FIELD_HEALTH = (ObjectFields.END + 0x10, EncapsulationType.PUBLIC, 1)                # 0x016 - INT
+    UNIT_FIELD_POWER1 = (ObjectFields.END + 0x11, EncapsulationType.PUBLIC, 1)                # 0x017 - INT
+    UNIT_FIELD_POWER2 = (ObjectFields.END + 0x12, EncapsulationType.PUBLIC, 1)                # 0x018 - INT
+    UNIT_FIELD_POWER3 = (ObjectFields.END + 0x13, EncapsulationType.PUBLIC, 1)                # 0x019 - INT
+    UNIT_FIELD_POWER4 = (ObjectFields.END + 0x14, EncapsulationType.PUBLIC, 1)                # 0x01A - INT
+    UNIT_FIELD_MAXHEALTH = (ObjectFields.END + 0x15, EncapsulationType.PUBLIC, 1)             # 0x01B - INT
+    UNIT_FIELD_MAXPOWER1 = (ObjectFields.END + 0x16, EncapsulationType.PUBLIC, 1)             # 0x01C - INT
+    UNIT_FIELD_MAXPOWER2 = (ObjectFields.END + 0x17, EncapsulationType.PUBLIC, 1)             # 0x01D - INT
+    UNIT_FIELD_MAXPOWER3 = (ObjectFields.END + 0x18, EncapsulationType.PUBLIC, 1)             # 0x01E - INT
+    UNIT_FIELD_MAXPOWER4 = (ObjectFields.END + 0x19, EncapsulationType.PUBLIC, 1)             # 0x01F - INT
+    UNIT_FIELD_LEVEL = (ObjectFields.END + 0x1A, EncapsulationType.PUBLIC, 1)                 # 0x020 - INT
+    UNIT_FIELD_FACTIONTEMPLATE = (ObjectFields.END + 0x1B, EncapsulationType.PUBLIC, 1)       # 0x021 - INT
+    UNIT_FIELD_BYTES_0 = (ObjectFields.END + 0x1C, EncapsulationType.PUBLIC, 1)               # 0x022 - BYTES
+    UNIT_FIELD_STAT0 = (ObjectFields.END + 0x1D, EncapsulationType.PRIVATE, 1)                # 0x023 - INT
+    UNIT_FIELD_STAT1 = (ObjectFields.END + 0x1E, EncapsulationType.PRIVATE, 1)                # 0x024 - INT
+    UNIT_FIELD_STAT2 = (ObjectFields.END + 0x1F, EncapsulationType.PRIVATE, 1)                # 0x025 - INT
+    UNIT_FIELD_STAT3 = (ObjectFields.END + 0x20, EncapsulationType.PRIVATE, 1)                # 0x026 - INT
+    UNIT_FIELD_STAT4 = (ObjectFields.END + 0x21, EncapsulationType.PRIVATE, 1)                # 0x027 - INT
+    UNIT_FIELD_BASESTAT0 = (ObjectFields.END + 0x22, EncapsulationType.PRIVATE, 1)            # 0x028 - INT
+    UNIT_FIELD_BASESTAT1 = (ObjectFields.END + 0x23, EncapsulationType.PRIVATE, 1)            # 0x029 - INT
+    UNIT_FIELD_BASESTAT2 = (ObjectFields.END + 0x24, EncapsulationType.PRIVATE, 1)            # 0x02A - INT
+    UNIT_FIELD_BASESTAT3 = (ObjectFields.END + 0x25, EncapsulationType.PRIVATE, 1)            # 0x02B - INT
+    UNIT_FIELD_BASESTAT4 = (ObjectFields.END + 0x26, EncapsulationType.PRIVATE, 1)            # 0x02C - INT
+    UNIT_VIRTUAL_ITEM_SLOT_DISPLAY = (ObjectFields.END + 0x27, EncapsulationType.PUBLIC, 3)   # 0x02D - INT
+    UNIT_VIRTUAL_ITEM_INFO = (ObjectFields.END + 0x2A, EncapsulationType.PUBLIC, 6)           # 0x030 - BYTES
+    UNIT_FIELD_FLAGS = (ObjectFields.END + 0x30, EncapsulationType.PUBLIC, 1)                 # 0x036 - INT
+    UNIT_FIELD_COINAGE = (ObjectFields.END + 0x31, EncapsulationType.PRIVATE, 1)              # 0x037 - INT
+    UNIT_FIELD_AURA = (ObjectFields.END + 0x32, EncapsulationType.PUBLIC, 56)                 # 0x038 - INT
+    UNIT_FIELD_AURAFLAGS = (ObjectFields.END + 0x6A, EncapsulationType.PUBLIC, 7)             # 0x070 - BYTES
+    UNIT_FIELD_AURASTATE = (ObjectFields.END + 0x71, EncapsulationType.PUBLIC, 1)             # 0x077 - INT
+    UNIT_FIELD_MOD_DAMAGE_DONE = (ObjectFields.END + 0x72, EncapsulationType.PRIVATE, 6)      # 0x078 - INT
+    UNIT_FIELD_MOD_DAMAGE_TAKEN = (ObjectFields.END + 0x78, EncapsulationType.PRIVATE, 6)     # 0x07E - INT
+    UNIT_FIELD_MOD_CREATURE_DAMAGE_DONE = (ObjectFields.END + 0x7E, EncapsulationType.PRIVATE, 8)  # 0x084 - INT
+    UNIT_FIELD_BASEATTACKTIME = (ObjectFields.END + 0x86, EncapsulationType.PUBLIC, 2)        # 0x08C - INT
+    UNIT_FIELD_RESISTANCES = (ObjectFields.END + 0x88, EncapsulationType.PRIVATE, 6)          # 0x08E - INT
+    UNIT_FIELD_BOUNDINGRADIUS = (ObjectFields.END + 0x8E, EncapsulationType.PUBLIC, 1)        # 0x094 - FLOAT
+    UNIT_FIELD_COMBATREACH = (ObjectFields.END + 0x8F, EncapsulationType.PUBLIC, 1)           # 0x095 - FLOAT
+    UNIT_FIELD_WEAPONREACH = (ObjectFields.END + 0x90, EncapsulationType.PUBLIC, 1)           # 0x096 - FLOAT
+    UNIT_FIELD_DISPLAYID = (ObjectFields.END + 0x91, EncapsulationType.PUBLIC, 1)             # 0x097 - INT
+    UNIT_FIELD_MOUNTDISPLAYID = (ObjectFields.END + 0x92, EncapsulationType.PUBLIC, 1)        # 0x098 - INT
+    UNIT_FIELD_DAMAGE = (ObjectFields.END + 0x93, EncapsulationType.PUBLIC, 1)                # 0x099 - TWO_SHORT
+    UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE = (ObjectFields.END + 0x94, EncapsulationType.PRIVATE, 6)  # 0x09A - INT
+    UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE = (ObjectFields.END + 0x9A, EncapsulationType.PRIVATE, 6)  # 0x0A0 - INT
+    UNIT_FIELD_RESISTANCEITEMMODS = (ObjectFields.END + 0xA0, EncapsulationType.PRIVATE, 6)   # 0x0A6 - INT
+    UNIT_FIELD_BYTES_1 = (ObjectFields.END + 0xA6, EncapsulationType.PUBLIC, 1)               # 0x0AC - BYTES
+    UNIT_FIELD_PETNUMBER = (ObjectFields.END + 0xA7, EncapsulationType.PUBLIC, 1)             # 0x0AD - INT
+    UNIT_FIELD_PET_NAME_TIMESTAMP = (ObjectFields.END + 0xA8, EncapsulationType.PUBLIC, 1)    # 0x0AE - INT
+    UNIT_FIELD_PETEXPERIENCE = (ObjectFields.END + 0xA9, EncapsulationType.PRIVATE, 1)        # 0x0AF - INT
+    UNIT_FIELD_PETNEXTLEVELEXP = (ObjectFields.END + 0xAA, EncapsulationType.PRIVATE, 1)      # 0x0B0 - INT
+    UNIT_DYNAMIC_FLAGS = (ObjectFields.END + 0xAB, EncapsulationType.DYNAMIC, 1)              # 0x0B1 - INT
+    UNIT_EMOTE_STATE = (ObjectFields.END + 0xAC, EncapsulationType.PUBLIC, 1)                 # 0x0B2 - INT
+    UNIT_CHANNEL_SPELL = (ObjectFields.END + 0xAD, EncapsulationType.PUBLIC, 1)               # 0x0B3 - INT
+    UNIT_MOD_CAST_SPEED = (ObjectFields.END + 0xAE, EncapsulationType.PUBLIC, 1)              # 0x0B4 - INT
+    UNIT_CREATED_BY_SPELL = (ObjectFields.END + 0xAF, EncapsulationType.PUBLIC, 1)            # 0x0B5 - INT
+    UNIT_FIELD_BYTES_2 = (ObjectFields.END + 0xB0, EncapsulationType.PRIVATE, 1)              # 0x0B6 - BYTES
+    UNIT_FIELD_PADDING = (ObjectFields.END + 0xB1, EncapsulationType.PUBLIC, 1)               # 0x0B7 - INT
+    END = (ObjectFields.END + 0xB2, EncapsulationType.IGNORE, 1)                      # 0x0B8 - Internal, needs size 1.
 
 
-class GameObjectFields(IntEnum):
-    GAMEOBJECT_DISPLAYID = ObjectFields.OBJECT_END + 0x0                        # 0x006 - Size: 1 - Type: INT - Flags: PUBLIC
-    GAMEOBJECT_FLAGS = ObjectFields.OBJECT_END + 0x1                            # 0x007 - Size: 1 - Type: INT - Flags: PUBLIC
-    GAMEOBJECT_ROTATION = ObjectFields.OBJECT_END + 0x2                         # 0x008 - Size: 4 - Type: FLOAT - Flags: PUBLIC
-    GAMEOBJECT_STATE = ObjectFields.OBJECT_END + 0x6                            # 0x00C - Size: 1 - Type: INT - Flags: PUBLIC
-    GAMEOBJECT_TIMESTAMP = ObjectFields.OBJECT_END + 0x7                        # 0x00D - Size: 1 - Type: INT - Flags: PUBLIC
-    GAMEOBJECT_POS_X = ObjectFields.OBJECT_END + 0x8                            # 0x00E - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    GAMEOBJECT_POS_Y = ObjectFields.OBJECT_END + 0x9                            # 0x00F - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    GAMEOBJECT_POS_Z = ObjectFields.OBJECT_END + 0xA                            # 0x010 - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    GAMEOBJECT_FACING = ObjectFields.OBJECT_END + 0xB                           # 0x011 - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    GAMEOBJECT_DYN_FLAGS = ObjectFields.OBJECT_END + 0xC                        # 0x012 - Size: 1 - Type: INT - Flags: DYNAMIC
-    GAMEOBJECT_FACTION = ObjectFields.OBJECT_END + 0xD                          # 0x013 - Size: 1 - Type: INT - Flags: PUBLIC
-    GAMEOBJECT_END = ObjectFields.OBJECT_END + 0xE                              # 0x014
+class PlayerFields(int, Enum):
+    def __new__(cls, value, flags, size):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj._flags_ = flags
+        obj._size_ = size
+        return obj
+
+    @property
+    def flags(self):
+        return self._flags_
+
+    @property
+    def size(self):
+        return self._size_
+
+    @staticmethod
+    def parent_fields():
+        return UnitFields
+
+    PLAYER_FIELD_INV_SLOT_1 = (UnitFields.END + 0x0, EncapsulationType.PUBLIC, 46)        # 0x0B2 - Type: GUID
+    PLAYER_FIELD_PACK_SLOT_1 = (UnitFields.END + 0x2E, EncapsulationType.PRIVATE, 32)     # 0x0E0 - Type: GUID
+    PLAYER_FIELD_BANK_SLOT_1 = (UnitFields.END + 0x4E, EncapsulationType.PRIVATE, 48)     # 0x100 - Type: GUID
+    PLAYER_FIELD_BANKBAG_SLOT_1 = (UnitFields.END + 0x7E, EncapsulationType.PRIVATE, 12)  # 0x130 - Type: GUID
+    PLAYER_SELECTION = (UnitFields.END + 0x8A, EncapsulationType.PUBLIC, 2)               # 0x13C - Type: GUID
+    PLAYER_FARSIGHT = (UnitFields.END + 0x8C, EncapsulationType.PRIVATE, 2)               # 0x13E - Type: GUID
+    PLAYER_DUEL_ARBITER = (UnitFields.END + 0x8E, EncapsulationType.PUBLIC, 2)            # 0x140 - Type: GUID
+    PLAYER_FIELD_NUM_INV_SLOTS = (UnitFields.END + 0x90, EncapsulationType.PUBLIC, 1)     # 0x142 - Type: INT
+    PLAYER_GUILDID = (UnitFields.END + 0x91, EncapsulationType.PUBLIC, 1)                 # 0x143 - Type: INT
+    PLAYER_GUILDRANK = (UnitFields.END + 0x92, EncapsulationType.PUBLIC, 1)               # 0x144 - Type: INT
+    PLAYER_BYTES = (UnitFields.END + 0x93, EncapsulationType.PUBLIC, 1)                   # 0x145 - Type: BYTES
+    PLAYER_XP = (UnitFields.END + 0x94, EncapsulationType.PRIVATE, 1)                     # 0x146 - Type: INT
+    PLAYER_NEXT_LEVEL_XP = (UnitFields.END + 0x95, EncapsulationType.PRIVATE, 1)          # 0x147 - Type: INT
+    PLAYER_SKILL_INFO_1_1 = (UnitFields.END + 0x96, EncapsulationType.PRIVATE, 192)       # 0x148 - Type: TWO_SHORT
+    PLAYER_BYTES_2 = (UnitFields.END + 0x156, EncapsulationType.PUBLIC, 1)                # 0x208 - Type: BYTES
+    PLAYER_QUEST_LOG_1_1 = (UnitFields.END + 0x157, EncapsulationType.PRIVATE, 96)        # 0x209 - Type: INT
+    PLAYER_CHARACTER_POINTS1 = (UnitFields.END + 0x1B7, EncapsulationType.PRIVATE, 1)     # 0x269 - Type: INT
+    PLAYER_CHARACTER_POINTS2 = (UnitFields.END + 0x1B8, EncapsulationType.PRIVATE, 1)     # 0x26A - Type: INT
+    PLAYER_TRACK_CREATURES = (UnitFields.END + 0x1B9, EncapsulationType.PRIVATE, 1)       # 0x26B - Type: INT
+    PLAYER_TRACK_RESOURCES = (UnitFields.END + 0x1BA, EncapsulationType.PRIVATE, 1)       # 0x26C - Type: INT
+    PLAYER_CHAT_FILTERS = (UnitFields.END + 0x1BB, EncapsulationType.PRIVATE, 1)          # 0x26D - Type: INT
+    PLAYER_DUEL_TEAM = (UnitFields.END + 0x1BC, EncapsulationType.PUBLIC, 1)              # 0x26E - Type: INT
+    PLAYER_BLOCK_PERCENTAGE = (UnitFields.END + 0x1BD, EncapsulationType.PRIVATE, 1)      # 0x26F - Type: FLOAT
+    PLAYER_DODGE_PERCENTAGE = (UnitFields.END + 0x1BE, EncapsulationType.PRIVATE, 1)      # 0x270 - Type: FLOAT
+    PLAYER_PARRY_PERCENTAGE = (UnitFields.END + 0x1BF, EncapsulationType.PRIVATE, 1)      # 0x271 - Type: FLOAT
+    PLAYER_BASE_MANA = (UnitFields.END + 0x1C0, EncapsulationType.PRIVATE, 1)             # 0x272 - Type: INT
+    PLAYER_GUILD_TIMESTAMP = (UnitFields.END + 0x1C1, EncapsulationType.PUBLIC, 1)        # 0x273 - Type: INT
+    END = (UnitFields.END + 0x1C2, EncapsulationType.IGNORE, 1)                       # 0x274 - Internal, needs size 1.
 
 
-class DynamicObjectFields(IntEnum):
-    DYNAMICOBJECT_CASTER = ObjectFields.OBJECT_END + 0x0                        # 0x006 - Size: 2 - Type: GUID - Flags: PUBLIC
-    DYNAMICOBJECT_BYTES = ObjectFields.OBJECT_END + 0x2                         # 0x008 - Size: 1 - Type: BYTES - Flags: PUBLIC
-    DYNAMICOBJECT_SPELLID = ObjectFields.OBJECT_END + 0x3                       # 0x009 - Size: 1 - Type: INT - Flags: PUBLIC
-    DYNAMICOBJECT_RADIUS = ObjectFields.OBJECT_END + 0x4                        # 0x00A - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    DYNAMICOBJECT_POS_X = ObjectFields.OBJECT_END + 0x5                         # 0x00B - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    DYNAMICOBJECT_POS_Y = ObjectFields.OBJECT_END + 0x6                         # 0x00C - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    DYNAMICOBJECT_POS_Z = ObjectFields.OBJECT_END + 0x7                         # 0x00D - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    DYNAMICOBJECT_FACING = ObjectFields.OBJECT_END + 0x8                        # 0x00E - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    DYNAMICOBJECT_PAD = ObjectFields.OBJECT_END + 0x9                           # 0x00F - Size: 1 - Type: BYTES - Flags: PUBLIC
-    DYNAMICOBJECT_END = ObjectFields.OBJECT_END + 0xA                           # 0x010
+class GameObjectFields(int, Enum):
+    def __new__(cls, value, flags, size):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj._flags_ = flags
+        obj._size_ = size
+        return obj
+
+    @property
+    def flags(self):
+        return self._flags_
+
+    @property
+    def size(self):
+        return self._size_
+
+    @staticmethod
+    def parent_fields():
+        return ObjectFields
+
+    GAMEOBJECT_DISPLAYID = (ObjectFields.END + 0x0, EncapsulationType.PUBLIC, 1)   # 0x006 - Type: INT
+    GAMEOBJECT_FLAGS = (ObjectFields.END + 0x1, EncapsulationType.PUBLIC, 1)       # 0x007 - Type: INT
+    GAMEOBJECT_ROTATION = (ObjectFields.END + 0x2, EncapsulationType.PUBLIC, 4)    # 0x008 - Type: FLOAT
+    GAMEOBJECT_STATE = (ObjectFields.END + 0x6, EncapsulationType.PUBLIC, 1)       # 0x00C - Type: INT
+    GAMEOBJECT_TIMESTAMP = (ObjectFields.END + 0x7, EncapsulationType.PUBLIC, 1)   # 0x00D - Type: INT
+    GAMEOBJECT_POS_X = (ObjectFields.END + 0x8, EncapsulationType.PUBLIC, 1)       # 0x00E - Type: FLOAT
+    GAMEOBJECT_POS_Y = (ObjectFields.END + 0x9, EncapsulationType.PUBLIC, 1)       # 0x00F - Type: FLOAT
+    GAMEOBJECT_POS_Z = (ObjectFields.END + 0xA, EncapsulationType.PUBLIC, 1)       # 0x010 - Type: FLOAT
+    GAMEOBJECT_FACING = (ObjectFields.END + 0xB, EncapsulationType.PUBLIC, 1)      # 0x011 - Type: FLOAT
+    GAMEOBJECT_DYN_FLAGS = (ObjectFields.END + 0xC, EncapsulationType.DYNAMIC, 1)  # 0x012 - Type: INT
+    GAMEOBJECT_FACTION = (ObjectFields.END + 0xD, EncapsulationType.PUBLIC, 1)     # 0x013 - Type: INT
+    END = (ObjectFields.END + 0xE, EncapsulationType.IGNORE, 1)                    # 0x014 - Internal, needs size 1.
 
 
-class CorpseFields(IntEnum):
-    CORPSE_FIELD_OWNER = ObjectFields.OBJECT_END + 0x0                          # 0x006 - Size: 2 - Type: GUID - Flags: PUBLIC
-    CORPSE_FIELD_FACING = ObjectFields.OBJECT_END + 0x2                         # 0x008 - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    CORPSE_FIELD_POS_X = ObjectFields.OBJECT_END + 0x3                          # 0x009 - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    CORPSE_FIELD_POS_Y = ObjectFields.OBJECT_END + 0x4                          # 0x00A - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    CORPSE_FIELD_POS_Z = ObjectFields.OBJECT_END + 0x5                          # 0x00B - Size: 1 - Type: FLOAT - Flags: PUBLIC
-    CORPSE_FIELD_DISPLAY_ID = ObjectFields.OBJECT_END + 0x6                     # 0x00C - Size: 1 - Type: INT - Flags: PUBLIC
-    CORPSE_FIELD_ITEM = ObjectFields.OBJECT_END + 0x7                           # 0x00D - Size: 19 - Type: INT - Flags: PUBLIC
-    CORPSE_FIELD_BYTES_1 = ObjectFields.OBJECT_END + 0x1A                       # 0x020 - Size: 1 - Type: BYTES - Flags: PUBLIC
-    CORPSE_FIELD_BYTES_2 = ObjectFields.OBJECT_END + 0x1B                       # 0x021 - Size: 1 - Type: BYTES - Flags: PUBLIC
-    CORPSE_FIELD_GUILD = ObjectFields.OBJECT_END + 0x1C                         # 0x022 - Size: 1 - Type: INT - Flags: PUBLIC
-    CORPSE_FIELD_LEVEL = ObjectFields.OBJECT_END + 0x1D                         # 0x023 - Size: 1 - Type: INT - Flags: PUBLIC
-    CORPSE_END = ObjectFields.OBJECT_END + 0x1E                                 # 0x024
+class DynamicObjectFields(int, Enum):
+    def __new__(cls, value, flags, size):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj._flags_ = flags
+        obj._size_ = size
+        return obj
+
+    @property
+    def flags(self):
+        return self._flags_
+
+    @property
+    def size(self):
+        return self._size_
+
+    @staticmethod
+    def parent_fields():
+        return ObjectFields
+
+    DYNAMICOBJECT_CASTER = (ObjectFields.END + 0x0, EncapsulationType.PUBLIC, 2)   # 0x006 - Type: GUID
+    DYNAMICOBJECT_BYTES = (ObjectFields.END + 0x2, EncapsulationType.PUBLIC, 1)    # 0x008 - Type: BYTES
+    DYNAMICOBJECT_SPELLID = (ObjectFields.END + 0x3, EncapsulationType.PUBLIC, 1)  # 0x009 - Type: INT
+    DYNAMICOBJECT_RADIUS = (ObjectFields.END + 0x4, EncapsulationType.PUBLIC, 1)   # 0x00A - Type: FLOAT
+    DYNAMICOBJECT_POS_X = (ObjectFields.END + 0x5, EncapsulationType.PUBLIC, 1)    # 0x00B - Type: FLOAT
+    DYNAMICOBJECT_POS_Y = (ObjectFields.END + 0x6, EncapsulationType.PUBLIC, 1)    # 0x00C - Type: FLOAT
+    DYNAMICOBJECT_POS_Z = (ObjectFields.END + 0x7, EncapsulationType.PUBLIC, 1)    # 0x00D - Type: FLOAT
+    DYNAMICOBJECT_FACING = (ObjectFields.END + 0x8, EncapsulationType.PUBLIC, 1)   # 0x00E - Type: FLOAT
+    DYNAMICOBJECT_PAD = (ObjectFields.END + 0x9, EncapsulationType.PUBLIC, 1)      # 0x00F - Type: BYTES
+    END = (ObjectFields.END + 0xA, EncapsulationType.IGNORE, 1)                    # 0x010 - Internal, needs size 1.
+
+
+class CorpseFields(int, Enum):
+    def __new__(cls, value, flags, size):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj._flags_ = flags
+        obj._size_ = size
+        return obj
+
+    @property
+    def flags(self):
+        return self._flags_
+
+    @property
+    def size(self):
+        return self._size_
+
+    @staticmethod
+    def parent_fields():
+        return ObjectFields
+
+    CORPSE_FIELD_OWNER = (ObjectFields.END + 0x0, EncapsulationType.PUBLIC, 2)       # 0x006 - Type: GUID
+    CORPSE_FIELD_FACING = (ObjectFields.END + 0x2, EncapsulationType.PUBLIC, 1)      # 0x008 - Type: FLOAT
+    CORPSE_FIELD_POS_X = (ObjectFields.END + 0x3, EncapsulationType.PUBLIC, 1)       # 0x009 - Type: FLOAT
+    CORPSE_FIELD_POS_Y = (ObjectFields.END + 0x4, EncapsulationType.PUBLIC, 1)       # 0x00A - Type: FLOAT
+    CORPSE_FIELD_POS_Z = (ObjectFields.END + 0x5, EncapsulationType.PUBLIC, 1)       # 0x00B - Type: FLOAT
+    CORPSE_FIELD_DISPLAY_ID = (ObjectFields.END + 0x6, EncapsulationType.PUBLIC, 1)  # 0x00C - Type: INT
+    CORPSE_FIELD_ITEM = (ObjectFields.END + 0x7, EncapsulationType.PUBLIC, 19)       # 0x00D - Type: INT
+    CORPSE_FIELD_BYTES_1 = (ObjectFields.END + 0x1A, EncapsulationType.PUBLIC, 1)    # 0x020 - Type: BYTES
+    CORPSE_FIELD_BYTES_2 = (ObjectFields.END + 0x1B, EncapsulationType.PUBLIC, 1)    # 0x021 - Type: BYTES
+    CORPSE_FIELD_GUILD = (ObjectFields.END + 0x1C, EncapsulationType.PUBLIC, 1)      # 0x022 - Type: INT
+    CORPSE_FIELD_LEVEL = (ObjectFields.END + 0x1D, EncapsulationType.PUBLIC, 1)      # 0x023 - Type: INT
+    END = (ObjectFields.END + 0x1E, EncapsulationType.IGNORE, 1)                     # 0x024 - Internal, needs size 1.

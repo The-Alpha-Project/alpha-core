@@ -67,6 +67,7 @@ class QuestManager(object):
                 for active_quest in list(self.active_quests.values()):
                     if active_quest.need_item_from_go(game_object.guid, loot_template):
                         return True
+
         elif game_object.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             # Grab starters/finishers.
             relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(game_object.gobject_template.entry)
@@ -220,11 +221,13 @@ class QuestManager(object):
             elif quest_entry in quest_giver_finish_quests and quest_state == QuestState.QUEST_ACCEPTED:
                 quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_QUEST, QuestState.QUEST_ACCEPTED)
 
-        # No quest menu items, do not display anything.
-        if len(quest_menu.items) == 0:
+        has_greeting, greeting_text, emote = QuestManager.get_quest_giver_gossip_string(quest_giver)
+
+        # No quest menu items but has greeting, display that.
+        if len(quest_menu.items) == 0 and has_greeting:
+            self.send_quest_giver_quest_list(greeting_text, emote, quest_giver_guid, quest_menu.items)
             return
 
-        has_greeting, greeting_text, emote = QuestManager.get_quest_giver_gossip_string(quest_giver)
         # If we only have 1 quest menu item, and it has no custom greeting, send the appropriate packet directly.
         if len(quest_menu.items) == 1 and not has_greeting:
             quest_menu_item = list(quest_menu.items.values())[0]
@@ -237,10 +240,8 @@ class QuestManager(object):
             else:
                 self.send_quest_giver_quest_details(quest_menu_item.quest, quest_giver_guid, True)
         # We have 1 or more items and a custom greeting, send the greeting and quest menu item/s.
-        else:
+        elif len(quest_menu.items) > 0 or has_greeting:
             self.send_quest_giver_quest_list(greeting_text, emote, quest_giver_guid, quest_menu.items)
-
-        self.update_surrounding_quest_status()
 
     def get_quest_state(self, quest_entry):
         if quest_entry in self.active_quests:
@@ -365,6 +366,10 @@ class QuestManager(object):
             text_entry = quest_giver_gossip_entry.textid
         quest_giver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(text_entry)
 
+        # Gameobjects quest starters don't have this.
+        if not quest_giver_text_entry:
+            return False, '', 0
+
         quest_giver_greeting = ''
         
         # Text based on gender.
@@ -382,12 +387,20 @@ class QuestManager(object):
 
     # Quest status only works for units, sending a gameobject guid crashes the client.
     def update_surrounding_quest_status(self):
-        units = MapManager.get_surrounding_objects(self.player_mgr, [ObjectTypeIds.ID_UNIT])[0]
+        units, gameobjects = MapManager.get_surrounding_objects(self.player_mgr, [ObjectTypeIds.ID_UNIT,
+                                                                                  ObjectTypeIds.ID_GAMEOBJECT])
         for guid, unit in units.items():
             if WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
                     unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry):
                 quest_status = self.get_dialog_status(unit)
                 self.send_quest_giver_status(guid, quest_status)
+
+        # Make the owner refresh gameobject dynamic flags if needed.
+        # We can't detect dynamic flag changes, since it is unique for each observer.
+        for guid, gameobject in gameobjects.items():
+            if gameobject.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
+                    gameobject.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
+                self.player_mgr.update_world_object_on_me(gameobject, has_changes=True)
 
     # Send item query details and return item struct byte segments.
     def _gen_item_struct(self, item_entry, count):
@@ -583,7 +596,7 @@ class QuestManager(object):
         req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(quest)))
         req_items_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(quest)))
         data += pack('<I', len(req_items))
-        for index in range(0, len(req_items)):
+        for index in range(len(req_items)):
             data += self._gen_item_struct(req_items[index], req_items_count_list[index])
 
         data += pack(
@@ -683,7 +696,7 @@ class QuestManager(object):
         req_src_item = quest.SrcItemId
         req_src_item_count = quest.SrcItemCount
         if req_src_item != 0:
-            if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count, update_inventory=True):
+            if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count):
                 return
 
         active_quest = self._create_db_quest_status(quest)
@@ -703,7 +716,6 @@ class QuestManager(object):
             self.complete_quest(active_quest, update_surrounding=False)
 
         self.update_surrounding_quest_status()
-        self.player_mgr.update_known_world_objects(force_update=True)
 
     def share_quest_event(self, active_quest):
         title_bytes = PacketWriter.string_to_bytes(active_quest.quest.Title)
@@ -733,7 +745,6 @@ class QuestManager(object):
             self.remove_from_quest_log(quest_entry)
             RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_entry)
             self.update_surrounding_quest_status()
-            self.player_mgr.update_known_world_objects(force_update=True)
 
     def handle_complete_quest(self, quest_id, quest_giver_guid):
         quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
@@ -783,7 +794,7 @@ class QuestManager(object):
         # Add the chosen item, if any.
         rew_item_choice_list = QuestHelpers.generate_rew_choice_item_list(quest)
         if item_choice < len(rew_item_choice_list) and rew_item_choice_list[item_choice] > 0:
-            self.player_mgr.inventory.add_item(entry=rew_item_choice_list[item_choice], show_item_get=False, update_inventory=True)
+            self.player_mgr.inventory.add_item(entry=rew_item_choice_list[item_choice], show_item_get=False)
 
         given_xp = active_quest.reward_xp()
         given_gold = active_quest.reward_gold()
@@ -815,7 +826,7 @@ class QuestManager(object):
         data += pack('<I', len(rew_item_list))
         for index, rew_item in enumerate(rew_item_list):
             data += pack('<2I', rew_item_list[index], rew_item_count_list[index])
-            self.player_mgr.inventory.add_item(entry=rew_item_list[index], show_item_get=False, update_inventory=True)
+            self.player_mgr.inventory.add_item(entry=rew_item_list[index], show_item_get=False)
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_COMPLETE, data))
 
@@ -825,7 +836,6 @@ class QuestManager(object):
 
         # Update surrounding, NextQuestInChain was not working properly.
         self.update_surrounding_quest_status()
-        self.player_mgr.update_known_world_objects(force_update=True)
 
     def cast_reward_spell(self, quest_giver_guid, active_quest):
         quest_giver_unit = MapManager.get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
@@ -850,7 +860,6 @@ class QuestManager(object):
 
         if should_update:
             self.update_surrounding_quest_status()
-            self.player_mgr.update_known_world_objects(force_update=True)
 
     def reward_item(self, item_entry, item_count):
         for quest_id, active_quest in self.active_quests.items():
@@ -890,7 +899,6 @@ class QuestManager(object):
 
         if update_surrounding:
             self.update_surrounding_quest_status()
-            self.player_mgr.update_known_world_objects(force_update=True)
 
     def creature_go_is_required_by_quest(self, creature_entry):
         for active_quest in list(self.active_quests.values()):
@@ -921,7 +929,7 @@ class QuestManager(object):
 
     def build_update(self):
         active_quest_list = list(self.active_quests.keys())
-        for slot in range(0, MAX_QUEST_LOG):
+        for slot in range(MAX_QUEST_LOG):
             self.update_single_quest(active_quest_list[slot] if slot < len(active_quest_list) else 0, slot)
 
     def _create_db_quest_status(self, quest):

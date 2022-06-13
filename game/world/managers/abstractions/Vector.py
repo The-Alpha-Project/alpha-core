@@ -9,7 +9,7 @@ from utils.ConfigManager import config
 class Vector(object):
     """Class to represent points in a 3D space and utilities to work with them within the game."""
 
-    def __init__(self, x=0, y=0, z=0, o=0, z_locked = False):
+    def __init__(self, x=0, y=0, z=0, o=0, z_locked=False):
         self.x = x
         self.y = y
         self.z = z
@@ -107,6 +107,21 @@ class Vector(object):
 
         return Vector(x3, y3, z3, z_locked=z_locked)
 
+    def get_point_in_between_movement(self, waypoint, guessed_distance):
+        x = waypoint.location.x - self.x
+        x_bar = math.fabs(x)
+        y = waypoint.location.y - self.y
+        y_bar = math.fabs(y)
+        z = waypoint.location.z - self.z
+        z_bar = math.fabs(z)
+
+        sum_xyz_fab = x_bar + y_bar + z_bar
+        new_x = self.x + x / sum_xyz_fab * guessed_distance
+        new_y = self.y + y / sum_xyz_fab * guessed_distance
+        new_z = self.z + z / sum_xyz_fab * guessed_distance
+
+        return Vector(new_x, new_y, new_z)
+
     def get_point_in_middle(self, vector, map_id=-1):
         x = (self.x + vector.x) / 2
         y = (self.y + vector.y) / 2
@@ -124,3 +139,11 @@ class Vector(object):
         z, z_locked = Vector.calculate_z(x, y, map_id, self.z)
 
         return Vector(x, y, z, z_locked=z_locked)
+
+    def get_point_in_radius_and_angle(self, radius, angle, final_orientation=-1, map_id=-1):
+        x = self.x + (radius * math.cos(self.o + angle))
+        y = self.y + (radius * math.sin(self.o + angle))
+        z, z_locked = Vector.calculate_z(x, y, map_id, self.z)
+        o = self.o if final_orientation == -1 else final_orientation
+
+        return Vector(x, y, z, o, z_locked=z_locked)

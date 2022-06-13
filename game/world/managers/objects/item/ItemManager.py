@@ -1,10 +1,13 @@
-from struct import pack, unpack
+from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from database.realm.RealmModels import CharacterInventory
+from database.realm.RealmModels import CharacterInventory, CharacterGifts
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.item.EnchantmentHolder import EnchantmentHolder
+from game.world.managers.objects.item.Stats import DamageStat, Stat, SpellStat
+from game.world.managers.objects.units.player.EnchantmentManager import MAX_ENCHANTMENTS
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.item.ItemLootManager import ItemLootManager
 from utils.ByteUtils import ByteUtils
@@ -53,94 +56,46 @@ class ItemManager(ObjectManager):
 
         self.item_template = item_template
         self.item_instance = item_instance
+
         self.guid = self.generate_object_guid(item_instance.guid if item_instance else 0)
         self.current_slot = item_instance.slot if item_instance else 0
         self.is_backpack = False
-        self.enchantments = {}
 
+        self.enchantments = []  # Handled by EnchantmentManager.
         self.stats = []
         self.damage_stats = []
         self.spell_stats = []
+        self.lock = 0  # Unlocked (0)
+        self.display_id = 0
+        self.loot_manager = None  # Optional
+        self.equip_slot = 0
 
-        if item_template:
-            self.display_id = item_template.display_id
-            self.equip_slot = self.get_inv_slot_by_type(self.item_template.inventory_type)
-
-            self.stats = ItemManager.Stat.generate_stat_list(self.item_template)
-            self.damage_stats = ItemManager.DamageStat.generate_damage_stat_list(self.item_template)
-            self.spell_stats = ItemManager.SpellStat.generate_spell_stat_list(self.item_template)
-
-            # Load loot_manager if needed.
-            if item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
-                self.loot_manager = ItemLootManager(self)
+        if self.item_template:
+            self.load_item_template(self.item_template)
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_ITEM
-        self.update_packet_factory.init_values(ItemFields.ITEM_END)
+        self.update_packet_factory.init_values(self.get_owner_guid(), ItemFields)
 
-    class Stat(object):
-        def __init__(self, stat_type, value):
-            self.stat_type = stat_type
-            self.value = value
+    def load_item_template(self, item_template):
+        self.item_template = item_template
+        if self.item_template:
+            self.entry = self.item_template.entry
+            self.display_id = self.item_template.display_id
+            self.equip_slot = self.get_inv_slot_by_type(self.item_template.inventory_type)
+            self.enchantments = [EnchantmentHolder() for _ in range(MAX_ENCHANTMENTS)]
+            self.stats = Stat.generate_stat_list(self.item_template)
+            self.damage_stats = DamageStat.generate_damage_stat_list(self.item_template)
+            self.spell_stats = SpellStat.generate_spell_stat_list(self.item_template)
+            self.lock = self.item_template.lock_id
 
-        @staticmethod
-        def generate_stat_list(item_template):
-            return [
-                ItemManager.Stat(item_template.stat_type1, item_template.stat_value1),
-                ItemManager.Stat(item_template.stat_type2, item_template.stat_value2),
-                ItemManager.Stat(item_template.stat_type3, item_template.stat_value3),
-                ItemManager.Stat(item_template.stat_type4, item_template.stat_value4),
-                ItemManager.Stat(item_template.stat_type5, item_template.stat_value5),
-                ItemManager.Stat(item_template.stat_type6, item_template.stat_value6),
-                ItemManager.Stat(item_template.stat_type7, item_template.stat_value7),
-                ItemManager.Stat(item_template.stat_type8, item_template.stat_value8),
-                ItemManager.Stat(item_template.stat_type9, item_template.stat_value9),
-                ItemManager.Stat(item_template.stat_type10, item_template.stat_value10)
-            ]
+            # Load loot_manager if needed.
+            if self.item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
+                self.loot_manager = ItemLootManager(self)
 
-    class DamageStat(object):
-        def __init__(self, minimum, maximum, stat_type):
-            self.minimum = minimum
-            self.maximum = maximum
-            self.stat_type = stat_type
-
-        @staticmethod
-        def generate_damage_stat_list(item_template):
-            return [
-                ItemManager.DamageStat(item_template.dmg_min1, item_template.dmg_max1, item_template.dmg_type1),
-                ItemManager.DamageStat(item_template.dmg_min2, item_template.dmg_max2, item_template.dmg_type2),
-                ItemManager.DamageStat(item_template.dmg_min3, item_template.dmg_max3, item_template.dmg_type3),
-                ItemManager.DamageStat(item_template.dmg_min4, item_template.dmg_max4, item_template.dmg_type4),
-                ItemManager.DamageStat(item_template.dmg_min5, item_template.dmg_max5, item_template.dmg_type5)
-            ]
-
-    class SpellStat(object):
-        def __init__(self, spell_id, trigger, charges, cooldown, category, category_cooldown):
-            self.spell_id = spell_id
-            self.trigger = trigger
-            self.charges = charges
-            self.cooldown = cooldown
-            self.category = category
-            self.category_cooldown = category_cooldown
-
-        @staticmethod
-        def generate_spell_stat_list(item_template):
-            return [
-                ItemManager.SpellStat(item_template.spellid_1, item_template.spelltrigger_1,
-                                      item_template.spellcharges_1, item_template.spellcooldown_1,
-                                      item_template.spellcategory_1, item_template.spellcategorycooldown_1),
-                ItemManager.SpellStat(item_template.spellid_2, item_template.spelltrigger_2,
-                                      item_template.spellcharges_2, item_template.spellcooldown_2,
-                                      item_template.spellcategory_2, item_template.spellcategorycooldown_2),
-                ItemManager.SpellStat(item_template.spellid_3, item_template.spelltrigger_3,
-                                      item_template.spellcharges_3, item_template.spellcooldown_3,
-                                      item_template.spellcategory_3, item_template.spellcategorycooldown_3),
-                ItemManager.SpellStat(item_template.spellid_4, item_template.spelltrigger_4,
-                                      item_template.spellcharges_4, item_template.spellcooldown_4,
-                                      item_template.spellcategory_4, item_template.spellcategorycooldown_4),
-                ItemManager.SpellStat(item_template.spellid_5, item_template.spelltrigger_5,
-                                      item_template.spellcharges_5, item_template.spellcooldown_5,
-                                      item_template.spellcategory_5, item_template.spellcategorycooldown_5)
-            ]
+            # Reload fields if this item was already initialized.
+            if self.initialized:
+                self.initialized = False
+                self.initialize_field_values()
 
     def is_container(self):
         if self.item_template:
@@ -148,7 +103,8 @@ class ItemManager(ObjectManager):
         return False
 
     def is_equipped(self):
-        return self.current_slot < InventorySlots.SLOT_BAG1
+        return self.current_slot < InventorySlots.SLOT_BAG1 and \
+            self.item_instance.bag == InventorySlots.SLOT_INBACKPACK.value
 
     def is_soulbound(self):
         # I don't think quest items were soulbound in 0.5.3, so not checking
@@ -156,13 +112,6 @@ class ItemManager(ObjectManager):
             return True
 
         return self.item_instance.item_flags & ItemDynFlags.ITEM_DYNFLAG_BOUND == ItemDynFlags.ITEM_DYNFLAG_BOUND
-
-    def has_charges(self):
-        charges = [self.item_template.spellcharges_1, self.item_template.spellcharges_2,
-                   self.item_template.spellcharges_3, self.item_template.spellcharges_4,
-                   self.item_template.spellcharges_5]
-
-        return any(charge != 0 for charge in charges)
 
     def get_contained(self):
         if not self.item_instance:
@@ -175,6 +124,11 @@ class ItemManager(ObjectManager):
             if player_mgr:
                 return player_mgr.inventory.get_container(self.item_instance.bag).guid
         return 0
+
+    def set_bag(self, bag):
+        if self.item_instance:
+            self.item_instance.bag = bag
+            self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
 
     @staticmethod
     def get_inv_slot_by_type(inventory_type):
@@ -228,21 +182,28 @@ class ItemManager(ObjectManager):
                 # Rest of items start with 1 instance
                 else:
                     count = 1
-            return ItemManager.generate_item(item_template, owner, bag, slot, count=count)
+            return ItemManager.generate_item(item_template, owner, bag, slot, stack_count=count)
         return None
 
     @staticmethod
-    def generate_item(item_template, owner, bag, slot, creator=0, count=1):
+    def generate_item(item_template, owner, bag, slot, perm_enchant=0, creator=0, stack_count=1):
         if item_template and item_template.entry > 0:
             item = CharacterInventory(
                 owner=owner,
                 creator=creator,
                 item_template=item_template.entry,
-                stackcount=count,
+                stackcount=stack_count,
                 slot=slot,
+                enchantments=ItemManager._get_enchantments_db_initialization(perm_enchant),
+                SpellCharges1=item_template.spellcharges_1,
+                SpellCharges2=item_template.spellcharges_2,
+                SpellCharges3=item_template.spellcharges_3,
+                SpellCharges4=item_template.spellcharges_4,
+                SpellCharges5=item_template.spellcharges_5,
                 bag=bag,
-                item_flags=item_template.flags
+                item_flags=0  # Dynamic flags start at 0. Static flags are filled at runtime from item template.
             )
+
             RealmDatabaseManager.character_inventory_add_item(item)
 
             if item_template.inventory_type == InventoryTypes.BAG:
@@ -268,22 +229,15 @@ class ItemManager(ObjectManager):
     def query_details_data(self):
         data = ItemManager.generate_query_details_data(
             self.item_template,
-            self.item_instance.item_flags if self.item_instance else self.item_template.flags,
-            self.stats,
-            self.damage_stats,
-            self.spell_stats
         )
         return data
 
     @staticmethod
-    def generate_query_details_data(item_template, item_flags=-1, stats=None, damage_stats=None, spell_stats=None):
+    def generate_query_details_data(item_template):
         # Initialize stat values if none are supplied.
-        if not stats:
-            stats = ItemManager.Stat.generate_stat_list(item_template)
-        if not damage_stats:
-            damage_stats = ItemManager.DamageStat.generate_damage_stat_list(item_template)
-        if not spell_stats:
-            spell_stats = ItemManager.SpellStat.generate_spell_stat_list(item_template)
+        stats = Stat.generate_stat_list(item_template)
+        damage_stats = DamageStat.generate_damage_stat_list(item_template)
+        spell_stats = SpellStat.generate_spell_stat_list(item_template)
 
         item_name_bytes = PacketWriter.string_to_bytes(item_template.name)
         data = pack(
@@ -294,7 +248,7 @@ class ItemManager(ObjectManager):
             item_name_bytes, b'\x00', b'\x00', b'\x00',
             item_template.display_id,
             item_template.quality,
-            item_flags if item_flags > -1 else item_template.flags,
+            item_template.flags,
             item_template.buy_price,
             item_template.sell_price,
             item_template.inventory_type,
@@ -355,8 +309,9 @@ class ItemManager(ObjectManager):
         return data
 
     # override
-    def get_full_update_packet(self, requester):
-        if self.item_template and self.item_instance:
+    def initialize_field_values(self):
+        # Initial field values, after this, fields must be modified by setters or directly writing values to them.
+        if not self.initialized and self.item_template and self.item_instance:
             from game.world.managers.objects.item.ContainerManager import ContainerManager
 
             # Object fields.
@@ -368,33 +323,108 @@ class ItemManager(ObjectManager):
 
             # Item fields.
             self.set_uint64(ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner)
-            self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)
+            self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)  # Wrapped/Crafted Items.
             self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
             self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
-
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES, self.item_instance.SpellCharges1)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 1, self.item_instance.SpellCharges2)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 2, self.item_instance.SpellCharges3)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 3, self.item_instance.SpellCharges4)
-            self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + 4, self.item_instance.SpellCharges5)
-
-            for slot, enchantment in self.enchantments.items():
-                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, enchantment[0])  # Value/Id
-                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, enchantment[1])  # Duration
-                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, enchantment[2])  # Charges
+            
+            # Spell charges.
+            for slot in range(5):
+                charges = eval(f'self.item_instance.SpellCharges{slot + 1}')
+                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + slot, charges)
+            
+            # Enchantments.
+            for slot in range(MAX_ENCHANTMENTS):
+                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, self.enchantments[slot].entry)
+                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, self.enchantments[slot].duration)
+                self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, self.enchantments[slot].charges)
 
             # Container fields.
             if self.is_container() and isinstance(self, ContainerManager):
                 self.build_container_update_packet()
 
-            return self.get_object_create_packet(requester)
+            self.initialized = True
 
-    def set_enchantment(self, slot, value, duration, charges):
-        self.enchantments[slot] = (value, duration, charges)
-        self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, value)
-        self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)
-        self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, charges)
+    def get_owner_guid(self):
+        return self.item_instance.owner if self.item_instance else 0
+
+    def get_creator_guid(self):
+        return self.item_instance.creator if self.item_instance else 0
+
+    def set_stack_count(self, count):
+        if self.item_instance:
+            self.item_instance.stackcount = count
+            self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
+            self.save()
+
+    # noinspection PyMethodMayBeStatic
+    def has_charges(self):
+        for index in range(5):
+            charges = eval(f'self.item_instance.SpellCharges{index + 1}')
+            if charges:
+                return True
+        return False
+
+    def set_charges(self, spell_id, charges):
+        for index, spell_stats in enumerate(self.spell_stats):
+            if spell_stats.spell_id == spell_id:
+                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)
+                # Update our item_instance, else charges wont serialize properly.
+                if self.item_instance:
+                    exec(f'self.item_instance.SpellCharges{index + 1} = {charges}')
+                    self.save()
+                break
+
+    def get_charges(self, spell_id):
+        if self.item_instance:
+            for index, spell_stats in enumerate(self.spell_stats):
+                if spell_stats.spell_id == spell_id:
+                    return eval(f'self.item_instance.SpellCharges{index + 1}')
+        return 0
+
+    def set_unlocked(self):
+        self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNLOCKED
+        self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
+        self.save()
+
+    def has_flag(self, flag: ItemDynFlags):
+        return self.item_instance.item_flags & flag
+
+    # Transform an item into the wrapped item using the same item instance.
+    def set_wrapped(self, player_mgr):
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(5043)  # TODO, fixed red gift.
+        if item_template:
+            character_gift = CharacterGifts()
+            character_gift.creator = self.get_creator_guid()  # Creator of the original item.
+            character_gift.item_guid = self.guid & ~HighGuid.HIGHGUID_ITEM
+            character_gift.entry = self.entry
+            character_gift.flags = self.item_instance.item_flags
+            RealmDatabaseManager.character_add_gift(character_gift)
+
+            # Swap this item instance values to our wrapped item values.
+            self.item_instance.item_template = item_template.entry
+            self.item_instance.creator = player_mgr.guid  # Creator of the wrapped gift.
+            self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_WRAPPED
+
+            # Reload this item with its new template and instance values.
+            self.load_item_template(item_template)
+            self.save()
+            return True
+        return False
+
+    # Transform a wrapped item into the actual item using the same item instance.
+    def unwrap(self, character_gift):
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(character_gift.entry)
+        if item_template:
+            # Swap this item instance values to our wrapped item values.
+            self.item_instance.item_template = item_template.entry
+            self.item_instance.creator = character_gift.creator
+            self.item_instance.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_WRAPPED
+            # Reload this item with its new template and instance values.
+            self.load_item_template(item_template)
+            self.save()
+            return True
+        return False
 
     def set_binding(self, bind=True):
         if bind:
@@ -402,12 +432,43 @@ class ItemManager(ObjectManager):
         else:
             self.item_instance.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_BOUND
         self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
+        self.save()
 
     def _get_item_flags(self):
         # Prior to Patch 1.7 ITEM_FIELD_FLAGS 32 bit value was built using 2 16 bit integers, dynamic item flags and
         # static item flags. For example an item with ITEM_FIELD_FLAGS = 0x00010000 would mean that it has dynamic
         # flags = 0x0001 (ITEM_DYNFLAG_BOUND) and static flags = 0x0000.
         return ByteUtils.shorts_to_int(self.item_instance.item_flags, self.item_template.flags)
+
+    # Enchantments.
+
+    def has_enchantments(self):
+        return any(enchantment.entry > 0 for enchantment in self.enchantments)
+
+    # Initial enchantment db state, empty or initialized with given permanent enchant. (Used for trade)
+    @staticmethod
+    def _get_enchantments_db_initialization(permanent_enchant=0):
+        db_enchantments = ''
+        for index in range(MAX_ENCHANTMENTS):
+            db_enchantments += str(permanent_enchant if index == 0 else 0) + ','
+            db_enchantments += str(0) + ','
+            db_enchantments += str(0) + (',' if index != MAX_ENCHANTMENTS - 1 else '')
+        return db_enchantments
+
+    # Enchantments persistence.
+    def _get_enchantments_db_string(self):
+        db_enchantments = ''
+        for index in range(MAX_ENCHANTMENTS):
+            db_enchantments += str(self.enchantments[index].entry) + ','
+            db_enchantments += str(self.enchantments[index].duration) + ','
+            db_enchantments += str(self.enchantments[index].charges) + (',' if index != MAX_ENCHANTMENTS - 1 else '')
+        return db_enchantments
+
+    # Persist item in database.
+    def save(self):
+        if self.item_instance:
+            self.item_instance.enchantments = self._get_enchantments_db_string()
+            RealmDatabaseManager.character_inventory_update_item(self.item_instance)
 
     # override
     def get_type_id(self):

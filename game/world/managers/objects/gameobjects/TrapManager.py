@@ -1,6 +1,5 @@
 from game.world.managers.maps.MapManager import MapManager
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.UnitCodes import SplineFlags
 
 
 class TrapManager(object):

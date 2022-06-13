@@ -27,6 +27,5 @@ class GuildSaveEmblemHandler(object):
                 world_session.player_mgr.guild_manager.modify_emblem(world_session.player_mgr, style, color,
                                                                      border_style, border_color, background_color)
                 world_session.player_mgr.mod_money(-EMBLEM_COST)
-                world_session.player_mgr.set_dirty_inventory()
 
         return 0

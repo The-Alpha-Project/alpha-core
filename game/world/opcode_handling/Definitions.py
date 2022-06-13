@@ -1,3 +1,5 @@
+from game.world.opcode_handling.handlers.inventory.ItemQueryMultipleHandler import ItemQueryMultipleHandler
+from game.world.opcode_handling.handlers.inventory.WrapItemHandler import WrapItemHandler
 from game.world.opcode_handling.handlers.player.BootMeHandler import BootMeHandler
 from game.world.opcode_handling.handlers.pet.PetActionHandler import PetActionHandler
 from game.world.opcode_handling.handlers.player.cheats.RechargeHandler import RechargeHandler
@@ -185,6 +187,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_SET_LOOKING_FOR_GROUP: LookingForGroupHandler.handle_set,
     OpCode.CMSG_WHO: WhoHandler.handle,
     OpCode.CMSG_ITEM_QUERY_SINGLE: ItemQuerySingleHandler.handle,
+    OpCode.CMSG_ITEM_QUERY_MULTIPLE: ItemQueryMultipleHandler.handle,
     OpCode.CMSG_PLAYER_MACRO: PlayerMacroHandler.handle,
     OpCode.CMSG_STANDSTATECHANGE: StandStateChangeHandler.handle,
     OpCode.CMSG_MOUNTSPECIAL_ANIM: MountSpecialAnimHandler.handle,
@@ -195,6 +198,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_SWAP_INV_ITEM: SwapInvItemHandler.handle,
     OpCode.CMSG_SWAP_ITEM: SwapItemHandler.handle,
     OpCode.CMSG_DESTROYITEM: DestroyItemHandler.handle,
+    OpCode.CMSG_WRAP_ITEM: WrapItemHandler.handle,
     OpCode.CMSG_GAMEOBJECT_QUERY: GameObjectQueryHandler.handle,
     OpCode.CMSG_GAMEOBJ_USE: GameobjUseHandler.handle,
     OpCode.CMSG_CREATURE_QUERY: CreatureQueryHandler.handle,

@@ -3,10 +3,12 @@ from enum import auto, IntFlag
 from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
+from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes, SkillManager
+from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import AttackTypes, ObjectTypeFlags, HitInfo, ObjectTypeIds
+from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
+from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds
 from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms
 from utils.constants.UnitCodes import PowerTypes, Classes, Races
 
@@ -331,7 +333,6 @@ class StatManager(object):
 
         self.item_stats = {UnitStats.MAIN_HAND_DELAY: config.Unit.Defaults.base_attack_time,
                            UnitStats.OFF_HAND_DELAY: config.Unit.Defaults.offhand_attack_time}  # Clear item stats
-        self.weapon_reach = 0
 
         if self.unit_mgr.is_in_feral_form():
             # Druids in feral form don't use their weapon to attack.
@@ -345,17 +346,21 @@ class StatManager(object):
             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = self.unit_mgr.level * 1.25 * (attack_delay / 1000)
             self.item_stats[UnitStats.MAIN_HAND_DELAY] = attack_delay
 
-        for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
-            # Check only equipped items
-            if item.current_slot <= InventorySlots.SLOT_TABARD:
-                for stat in item.stats:
-                    if stat.value == 0:
-                        continue
-                    stat_type = INVENTORY_STAT_TO_UNIT_STAT[stat.stat_type]
-                    current = self.item_stats.get(stat_type, 0)
-                    self.item_stats[stat_type] = current + stat.value
+        # Reset weapon reach.
+        self.weapon_reach = 0
 
-                # Add resistances/block
+        # Regenerate item stats.
+        for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
+            # Check equipped items.
+            if item.current_slot <= InventorySlots.SLOT_TABARD:
+                # Handle normal item stats.
+                for stat in item.stats:
+                    stat_type = INVENTORY_STAT_TO_UNIT_STAT[stat.stat_type]
+                    if stat.value != 0:
+                        current = self.item_stats.get(stat_type, 0)
+                        self.item_stats[stat_type] = current + stat.value
+
+                # Add resistances/block.
                 separate_stats = {UnitStats.RESISTANCE_PHYSICAL: item.item_template.armor,
                                   UnitStats.RESISTANCE_HOLY: item.item_template.holy_res,
                                   UnitStats.RESISTANCE_FIRE: item.item_template.fire_res,
@@ -365,9 +370,16 @@ class StatManager(object):
                 for stat, value in separate_stats.items():
                     self.item_stats[stat] = self.item_stats.get(stat, 0) + value
 
+                # Ignore weapon damage stats for feral druids.
                 if InventorySlots.SLOT_MAINHAND <= item.current_slot <= InventorySlots.SLOT_RANGED and \
                         self.unit_mgr.is_in_feral_form():
-                    continue  # Ignore weapon damage stats for feral druids.
+                    continue
+
+                # Code below this check is weapon related, stop handling this item if it's not a weapon.
+                if item.current_slot != InventorySlots.SLOT_MAINHAND and \
+                    item.current_slot != InventorySlots.SLOT_OFFHAND and \
+                        item.current_slot != InventorySlots.SLOT_RANGED:
+                    continue
 
                 weapon_min_damage = int(item.item_template.dmg_min1)
                 weapon_max_damage = int(item.item_template.dmg_max1)
@@ -377,6 +389,8 @@ class StatManager(object):
                     self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
                     self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage
                     self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
+                    # Assuming only main hand affects weapon reach.
+                    self.weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
                 elif item.current_slot == InventorySlots.SLOT_OFFHAND:
                     dual_wield_penalty = 0.5
                     self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = int(weapon_min_damage * dual_wield_penalty)
@@ -386,24 +400,6 @@ class StatManager(object):
                     self.item_stats[UnitStats.RANGED_DAMAGE_MIN] = weapon_min_damage
                     self.item_stats[UnitStats.RANGED_DAMAGE_MAX] = weapon_max_damage
                     self.item_stats[UnitStats.RANGED_DELAY] = weapon_delay
-
-                current_reach = self.weapon_reach
-                weapon_reach = StatManager.get_reach_for_weapon(item.item_template)
-                if current_reach == -1 or current_reach > weapon_reach:
-                    self.weapon_reach = weapon_reach
-
-    # TODO move to formulas?
-    @staticmethod
-    def get_reach_for_weapon(item_template):
-        # This is a TOTAL guess, I have no idea about real weapon reach values.
-        # The weapon reach unit field was removed in patch 0.10.
-        if item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
-            return 1.5
-        elif item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_DAGGER:
-            return 0.5
-        elif item_template.subclass != ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON:
-            return 1.0
-        return 0
 
     def update_max_health(self):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)
@@ -761,6 +757,15 @@ class StatManager(object):
         for school in SpellSchools:
             flat_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school) + \
                 self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, misc_value=subclass_mask, misc_value_is_mask=True)
+
+            # Check weapons enchantments.
+            if school == SpellSchools.SPELL_SCHOOL_NORMAL:
+                off_hand = self.unit_mgr.inventory.get_offhand()
+                main_hand_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(main_hand,
+                                                                                           ItemEnchantmentType.DAMAGE)
+                off_hand_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(off_hand,
+                                                                                          ItemEnchantmentType.DAMAGE)
+                flat_bonuses += main_hand_bonus + off_hand_bonus
 
             percentual_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school, percentual=True) * \
                 self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, misc_value=subclass_mask, percentual=True, misc_value_is_mask=True)

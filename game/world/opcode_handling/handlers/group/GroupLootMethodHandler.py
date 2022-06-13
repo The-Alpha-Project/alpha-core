@@ -11,7 +11,7 @@ class GroupLootMethodHandler(object):
     def handle(world_session, socket, reader):
         if len(reader.data) >= 12:  # Avoid handling empty group loot method packet.
             loot_method, loot_master = unpack('<IQ', reader.data[:12])
-            target_player_mgr=None
+            target_player_mgr = None
 
             if not world_session.player_mgr.group_manager:
                 GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_LEAVE, '',

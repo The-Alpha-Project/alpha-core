@@ -3,11 +3,12 @@ from struct import pack
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import Spell, SpellRange, SpellDuration, SpellCastTimes
+from database.dbc.DbcModels import Spell, SpellRange, SpellDuration, SpellCastTimes, SpellVisual
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.item.Stats import SpellStat
 from game.world.managers.objects.spell.EffectTargets import TargetMissInfo, EffectTargets
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.StatManager import UnitStats
@@ -34,6 +35,7 @@ class CastingSpell:
     range_entry: SpellRange
     duration_entry: SpellDuration
     cast_time_entry: SpellCastTimes
+    spell_visual_entry: SpellVisual
     _effects: list[Optional[SpellEffect]]
 
     cast_start_timestamp: float
@@ -56,6 +58,7 @@ class CastingSpell:
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
+        self.spell_visual_entry = DbcDatabaseManager.spell_visual_get_by_id(spell.SpellVisualID)
 
         if self.spell_caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
@@ -72,11 +75,18 @@ class CastingSpell:
         self.spell_impact_timestamps = {}
 
         if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            selection_guid = self.spell_caster.current_selection if self.spell_caster.current_selection else caster.guid
             self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(
-                self.spell_caster, self.spell_caster.current_selection, include_players=True)
+                self.spell_caster, selection_guid, include_players=True)
 
+        # Need effects first, to validate fishing spell.
         self.load_effects()
 
+        if self.is_fishing_spell():
+            # Locate liquid vector in front of the caster.
+            self.initial_target = MapManager.find_liquid_location_in_range(self.spell_caster,
+                                                                           self.range_entry.RangeMin,
+                                                                           self.range_entry.RangeMax)
         self.cast_flags = SpellCastFlags.CAST_FLAG_NONE
 
         # Ammo needs to be resolved on initialization since it's needed for validation and spell cast packets.
@@ -179,7 +189,7 @@ class CastingSpell:
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNELED
 
     def generates_threat(self):
-        return not (self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT)
+        return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
 
     def requires_implicit_initial_unit_target(self):
         # Some spells are self casts, but require an implicit unit target when casted.
@@ -193,6 +203,18 @@ class CastingSpell:
 
         # Return true if the effect has an implicit unit selection target.
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
+
+    def has_spell_visual_pre_cast_kit(self):
+        return self.spell_visual_entry and self.spell_visual_entry.PrecastKit > 0
+
+    # Need to check both, flag and effect target, else some other spells like pick pocket resolves to fishing.
+    def is_fishing_spell(self):
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IS_FISHING and \
+            any(effect.implicit_target_a == SpellImplicitTargets.TARGET_SELF_FISHING or
+                effect.implicit_target_b == SpellImplicitTargets.TARGET_SELF_FISHING for effect in self.get_effects())
+
+    def is_pick_pocket_spell(self):
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH
 
     def is_area_of_effect_spell(self):
         for effect in self.get_effects():
@@ -217,11 +239,11 @@ class CastingSpell:
         return False
 
     # TODO, need more checks.
-    #  Refer to 'IsPositiveEffect' in SpellEntry.cpp - vMaNGOS
+    #  Refer to 'IsPositiveEffect' in SpellEntry.cpp - VMaNGOS
     def is_positive_spell(self):
         return not self.spell_caster.can_attack_target(self.initial_target)
 
-    # TODO, Check 'IsImmuneToDamage' - vMaNGOS
+    # TODO, Check 'IsImmuneToDamage' - VMaNGOS
     def is_target_immune_to_damage(self):
         return False
 
@@ -232,6 +254,22 @@ class CastingSpell:
             if spell_effect.effect_type == SpellEffects.SPELL_EFFECT_TAME_CREATURE:
                 return True
         return False
+
+    def is_enchantment_spell(self):
+        enchantment_effects = [SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT,
+                               SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY]
+        return any(effect.effect_type in enchantment_effects for effect in self.get_effects())
+
+    def is_temporary_enchant_spell(self):
+        return any(effect.effect_type == SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY
+                   for effect in self.get_effects())
+
+    def get_enchantment_id(self):
+        enchantment_effects = [SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT,
+                               SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY]
+        for effect in self.get_effects():
+            if effect.effect_type in enchantment_effects:
+                return effect.misc_value
 
     def is_refreshment_spell(self):
         spell_effect = self._effects[0]  # Food/drink effect should be first.
@@ -283,10 +321,16 @@ class CastingSpell:
 
         return self.spell_entry.EquippedItemSubclass & ranged_mask != 0
 
+    def requires_fishing_pole(self):
+        if self.spell_entry.EquippedItemClass != ItemClasses.ITEM_CLASS_WEAPON:
+            return False
+
+        return self.spell_entry.EquippedItemSubclass & (1 << ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE) != 0
+
     def requires_combo_points(self):
         cp_att = SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS
         return self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
-               self.spell_entry.AttributesEx & cp_att != 0
+            self.spell_entry.AttributesEx & cp_att != 0
 
     def calculate_effective_level(self, level):
         if level > self.spell_entry.MaxLevel > 0:
@@ -352,7 +396,7 @@ class CastingSpell:
         # Use a fixed-length list to avoid indexing issues caused by invalid effects.
         self._effects = [None, None, None]
         effect_ids = [self.spell_entry.Effect_1, self.spell_entry.Effect_2, self.spell_entry.Effect_3]
-        for i in range(0, 3):
+        for i in range(3):
             if not effect_ids[i]:
                 continue
             self._effects[i] = SpellEffect(self, i)
@@ -367,7 +411,7 @@ class CastingSpell:
                (self.spell_entry.Reagent_5, self.spell_entry.ReagentCount_5), (self.spell_entry.Reagent_6, self.spell_entry.ReagentCount_6), \
                (self.spell_entry.Reagent_7, self.spell_entry.ReagentCount_7), (self.spell_entry.Reagent_8, self.spell_entry.ReagentCount_8)
 
-    def get_item_spell_stats(self) -> Optional[ItemManager.SpellStat]:
+    def get_item_spell_stats(self) -> Optional[SpellStat]:
         if not self.source_item:
             return None
         for spell_info in self.source_item.spell_stats:

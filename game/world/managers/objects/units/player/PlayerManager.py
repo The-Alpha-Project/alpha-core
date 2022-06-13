@@ -7,11 +7,13 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.loot.LootSelection import LootSelection
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
+from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
 from game.world.managers.objects.units.player.TalentManager import TalentManager
-from game.world.managers.objects.units.player.TradeManager import TradeManager
+from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
 from game.world.managers.objects.units.player.quest.QuestManager import QuestManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.player.FriendsManager import FriendsManager
@@ -26,7 +28,7 @@ from utils.ByteUtils import ByteUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
-from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes
+from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import SpellSchools, SpellTargetMask
@@ -64,6 +66,7 @@ class PlayerManager(UnitManager):
         self.pending_teleport_destination_map = -1
         self.update_lock = False
         self.known_objects = dict()
+        self.known_items = dict()
 
         self.player = player
         self.online = online
@@ -77,7 +80,7 @@ class PlayerManager(UnitManager):
         self.combo_target = combo_target
 
         self.current_selection = current_selection
-        self.current_loot_selection = current_selection
+        self.loot_selection: Optional[LootSelection] = None
 
         self.chat_flags = chat_flags
         self.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
@@ -89,7 +92,6 @@ class PlayerManager(UnitManager):
         self.last_swimming_check = 0
         self.spirit_release_timer = 0
         self.logout_timer = -1
-        self.dirty_inventory = False
         self.pending_taxi_destination = None
         self.explored_areas = bitarray(MAX_EXPLORED_AREAS, 'little')
         self.explored_areas.setall(0)
@@ -141,8 +143,9 @@ class PlayerManager(UnitManager):
             self.is_alive = self.health > 0
 
             self.object_type_mask |= ObjectTypeFlags.TYPE_PLAYER
-            self.update_packet_factory.init_values(PlayerFields.PLAYER_END)
+            self.update_packet_factory.init_values(self.guid, PlayerFields)
 
+            self.enchantment_manager = EnchantmentManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.quest_manager = QuestManager(self)
@@ -215,9 +218,6 @@ class PlayerManager(UnitManager):
     def complete_login(self, first_login=False):
         self.online = True
 
-        # Calculate stat bonuses at this point.
-        self.stat_manager.apply_bonuses(replenish=first_login)
-
         # Join default channels.
         ChannelManager.join_default_channels(self)
 
@@ -231,9 +231,18 @@ class PlayerManager(UnitManager):
             # Set player flags.
             self.set_taxi_flying_state(True, taxi_resume_info.mount_display_id)
 
-        # Notify player with create packet.
+        # Notify player with create related packets:
         self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
+        # Initial inventory create packets.
+        self.enqueue_packets(self.inventory.get_inventory_update_packets(self))
+        # Player create packet.
         self.enqueue_packet(self.generate_create_packet(requester=self))
+
+        # Load & Apply enchantments.
+        self.enchantment_manager.apply_enchantments(load=True)
+
+        # Apply stat bonuses.
+        self.stat_manager.apply_bonuses(replenish=first_login)
 
         # Place player in a world cell.
         MapManager.update_object(self)
@@ -280,6 +289,10 @@ class PlayerManager(UnitManager):
         self.friends_manager.send_offline_notification()
         self.session.save_character()
 
+        # Flush known items/objects cache.
+        self.known_items.clear()
+        self.known_objects.clear()
+
         WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
         self.session = None
@@ -291,7 +304,7 @@ class PlayerManager(UnitManager):
     def get_action_buttons(self):
         data = b''
         player_buttons = RealmDatabaseManager.character_get_buttons(self.player.guid)
-        for x in range(0, MAX_ACTION_BUTTONS):
+        for x in range(MAX_ACTION_BUTTONS):
             if player_buttons and x in player_buttons:
                 data += pack('<i', player_buttons[x])
             else:
@@ -310,33 +323,29 @@ class PlayerManager(UnitManager):
             )
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
-    def set_dirty_inventory(self):
-        self.inventory.build_update()
-        self.dirty_inventory = True
-
     # Retrieve update packets from world objects, this is called only if object has pending changes.
     # (update_mask bits set).
-    def update_world_object_on_me(self, world_object):
+    def update_world_object_on_me(self, world_object, has_changes=False, has_inventory_changes=False):
         if world_object.guid in self.known_objects:
-            if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and world_object.dirty_inventory:
+            is_player = world_object.get_type_id() == ObjectTypeIds.ID_PLAYER
+            # Check for inventory updates.
+            if is_player and has_inventory_changes:
                 # This is a known player and has inventory changes.
-                for update_packet in world_object.inventory.get_inventory_update_packets(self):
-                    self.enqueue_packet(update_packet)
-            # Update self with known world object update packet.
-            if world_object.has_pending_updates():
+                self.enqueue_packets(world_object.inventory.get_inventory_update_packets(self))
+            # Update self with known world object partial update packet.
+            if has_changes:
                 self.enqueue_packet(world_object.generate_partial_packet(requester=self))
-        # Self (Player), send proper update packets to self.
-        elif world_object.guid == self.guid:
-            if self.has_pending_updates():
+        elif world_object.guid == self.guid:  # Self (Player)
+            # Update self inventory if needed.
+            if has_inventory_changes:
+                self.enqueue_packets(self.inventory.get_inventory_update_packets(self))
+            # Send self a partial update if needed.
+            if has_changes:
                 self.enqueue_packet(self.generate_partial_packet(requester=self))
-            if self.dirty_inventory:
-                for update_packet in self.inventory.get_inventory_update_packets(self):
-                    self.enqueue_packet(update_packet)
-                self.inventory.build_update()
 
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
-    def update_known_world_objects(self, force_update=False):
+    def update_known_world_objects(self):
         players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypeIds.ID_PLAYER,
                                                                                      ObjectTypeIds.ID_UNIT,
                                                                                      ObjectTypeIds.ID_GAMEOBJECT])
@@ -352,16 +361,14 @@ class PlayerManager(UnitManager):
                     # We don't know this player, notify self with its update packet.
                     self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
                     # Retrieve their inventory updates.
-                    for update_packet in player.inventory.get_inventory_update_packets(self):
-                        self.enqueue_packet(update_packet)
+                    self.enqueue_packets(player.inventory.get_inventory_update_packets(self))
+                    # Create packet.
                     self.enqueue_packet(player.generate_create_packet(requester=self))
                     # Get partial movement packet if any.
                     if player.movement_manager.unit_is_moving():
                         packet = player.movement_manager.try_build_movement_packet(is_initial=False)
                         if packet:
                             self.enqueue_packet(packet)
-                elif force_update and guid in active_objects:
-                    self.update_world_object_on_me(player)
                 self.known_objects[guid] = player
 
         # Surrounding creatures.
@@ -382,8 +389,6 @@ class PlayerManager(UnitManager):
             # Player knows the creature but is not spawned anymore, destroy it for self.
             elif guid in self.known_objects and not creature.is_spawned:
                 active_objects.pop(guid)
-            elif force_update and guid in active_objects:
-                self.update_world_object_on_me(creature)
 
         # Surrounding game objects.
         for guid, gobject in game_objects.items():
@@ -398,8 +403,6 @@ class PlayerManager(UnitManager):
             # Player knows the game object but is not spawned anymore, destroy it for self.
             elif guid in self.known_objects and not gobject.is_spawned:
                 active_objects.pop(guid)
-            elif force_update and guid in active_objects:
-                self.update_world_object_on_me(gobject)
 
         # World objects which are known but no longer active to self should be destroyed.
         for guid, known_object in list(self.known_objects.items()):
@@ -440,7 +443,6 @@ class PlayerManager(UnitManager):
             self.player.money = self.coinage
             self.player.online = self.online
 
-    # TODO: teleport system needs a complete rework
     def teleport(self, map_, location, is_instant=False):
         if not DbcDatabaseManager.map_get_by_id(map_):
             return False
@@ -456,7 +458,11 @@ class PlayerManager(UnitManager):
         if self.movement_manager.unit_is_moving():
             self.movement_manager.reset()
 
-        # TODO: Stop any movement, cancel spell cast, etc.
+        # Remove any ongoing cast.
+        if self.spell_manager.is_casting():
+            self.spell_manager.remove_all_casts()
+
+        # TODO: Stop any movement, rotation?
         # New destination we will use when we receive an acknowledge message from client.
         self.pending_teleport_destination_map = map_
         self.pending_teleport_destination = Vector(location.x, location.y, location.z, location.o)
@@ -520,17 +526,34 @@ class PlayerManager(UnitManager):
 
         # Player changed map. Send initial spells, action buttons and create packet.
         if changed_map:
+            # Flush known items/objects cache.
+            self.known_items.clear()
+            self.known_objects.clear()
+            # Send initial packets for spells, action buttons and player creation.
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
+            # Inventory updates before spawning.
+            self.enqueue_packets(self.inventory.get_inventory_update_packets(requester=self))
+            # Create packet.
             self.enqueue_packet(self.generate_create_packet(requester=self))
+            # Apply enchantments again.
+            self.enchantment_manager.apply_enchantments()
+            # Apply stat bonuses again.
             self.stat_manager.apply_bonuses()
 
         # Remove the player's active pet.
         self.pet_manager.detach_active_pet()
 
-        self.unmount()
+        # Remove taxi flying state, if any.
+        if self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+            self.set_taxi_flying_state(False)
+            self.pending_taxi_destination = None
 
-        # Get us in a new cell and check for pending changes.
+        # Unmount if needed.
+        if self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+            self.unmount()
+
+        # Get us in a new cell.
         MapManager.update_object(self)
 
         self.pending_teleport_destination_map = -1
@@ -543,14 +566,32 @@ class PlayerManager(UnitManager):
             self.group_manager.send_update()
 
     def set_root(self, active):
-        if not self.session:
-            return
         super().set_root(active)
         if active:
             opcode = OpCode.SMSG_FORCE_MOVE_ROOT
         else:
             opcode = OpCode.SMSG_FORCE_MOVE_UNROOT
         self.enqueue_packet(PacketWriter.get_packet(opcode))
+
+    # override
+    def mount(self, mount_display_id):
+        if super().mount(mount_display_id):
+            # TODO, validate mount.
+            data = pack('<QI', self.guid, MountResults.MOUNTRESULT_OK)
+            packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
+            self.enqueue_packet(packet)
+        else:
+            data = pack('<QI', self.guid, MountResults.MOUNTRESULT_INVALID_MOUNTEE)
+            packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
+            self.enqueue_packet(packet)
+
+    # override
+    def unmount(self):
+        super().unmount()
+        # TODO, validate dismount.
+        data = pack('<QI', self.guid, DismountResults.DISMOUNT_RESULT_OK)
+        packet = PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, data)
+        self.enqueue_packet(packet)
 
     # TODO Maybe merge all speed changes in one method
     # override
@@ -614,100 +655,113 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
 
     def loot_money(self):
-        if self.current_selection > 0:
-            enemy = MapManager.get_surrounding_unit_by_guid(self, self.current_selection)
-            if enemy and enemy.loot_manager.has_money():
+        if self.loot_selection:
+            enemy = MapManager.get_surrounding_unit_by_guid(self, self.loot_selection.object_guid)
+            loot_manager = self.loot_selection.get_loot_manager(enemy)
+            if enemy and loot_manager.has_money():
                 # If party is formed, try to split money.
                 if self.group_manager and self.group_manager.is_party_formed():
                     # Try to split money and finish on success.
                     if self.group_manager.reward_group_money(self, enemy):
                         return
                     else:  # Not able to split, notify the whole amount to the sole player.
-                        data = pack('<I', enemy.loot_manager.current_money)
+                        data = pack('<I', loot_manager.current_money)
                         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
 
                 # Not able to split money or no group, loot money to self only.
-                self.mod_money(enemy.loot_manager.current_money)
-                enemy.loot_manager.clear_money()
+                self.mod_money(loot_manager.current_money)
+                loot_manager.clear_money()
                 packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY)
-                for looter in enemy.loot_manager.get_active_looters():
+                for looter in loot_manager.get_active_looters():
                     looter.enqueue_packet(packet)
 
     def loot_item(self, slot):
-        if self.current_loot_selection > 0:
-            high_guid: HighGuid = self.extract_high_guid(self.current_loot_selection)
+        if self.loot_selection:
+            high_guid: HighGuid = self.extract_high_guid(self.loot_selection.object_guid)
             world_obj_target = None
             if high_guid == HighGuid.HIGHGUID_UNIT:
-                world_obj_target = MapManager.get_surrounding_unit_by_guid(self, self.current_loot_selection, include_players=False)
+                world_obj_target = MapManager.get_surrounding_unit_by_guid(
+                    self, self.loot_selection.object_guid, include_players=False)
             elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                world_obj_target = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
+                world_obj_target = MapManager.get_surrounding_gameobject_by_guid(
+                    self, self.loot_selection.object_guid)
             elif high_guid == HighGuid.HIGHGUID_ITEM:
-                world_obj_target = self.inventory.get_item_by_guid(self.current_loot_selection)
+                world_obj_target = self.inventory.get_item_by_guid(self.loot_selection.object_guid)
 
-            if world_obj_target and world_obj_target.loot_manager.has_loot():
-                loot = world_obj_target.loot_manager.get_loot_in_slot(slot)
+            loot_manager = self.loot_selection.get_loot_manager(world_obj_target)
+            if world_obj_target and loot_manager and loot_manager.has_loot():
+                loot = loot_manager.get_loot_in_slot(slot)
                 if loot and loot.item:
-                    if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True, update_inventory=True):
-                        world_obj_target.loot_manager.do_loot(slot)
+                    if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
+                        loot_manager.do_loot(slot)
                         data = pack('<B', slot)
                         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
-                        for looter in world_obj_target.loot_manager.get_active_looters():
+                        for looter in loot_manager.get_active_looters():
                             looter.enqueue_packet(packet)
 
-    def send_loot_release(self, guid):
+    def send_loot_release(self, loot_selection):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
-        high_guid: HighGuid = self.extract_high_guid(self.current_loot_selection)
-        data = pack('<QB', guid, 1)  # Must be 1 otherwise client keeps the loot window open
+        high_guid: HighGuid = self.extract_high_guid(self.loot_selection.object_guid)
+        data = pack('<QB', loot_selection.object_guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
+        # Resolve loot target first.
+        target_world_object = None
         if high_guid == HighGuid.HIGHGUID_UNIT:
-            # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA loot.
-            enemy = MapManager.get_surrounding_unit_by_guid(self, guid, include_players=False)
-            if enemy:
-                if enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
-                    enemy.killed_by = None
-                # If in party, check if this player has rights to release the loot for FFA.
-                elif enemy.killed_by and enemy.killed_by.group_manager:
-                    if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
-                        if not enemy.loot_manager.has_loot():  # Flush looters for this enemy.
-                            enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
-                        enemy.killed_by = None
-
-                if not enemy.loot_manager.has_loot():
-                    enemy.set_lootable(False)
-                    enemy.loot_manager.clear()
-
-                enemy.loot_manager.remove_active_looter(self)
+            target_world_object = MapManager.get_surrounding_unit_by_guid(self, loot_selection.object_guid, include_players=False)
         elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-            game_object = MapManager.get_surrounding_gameobject_by_guid(self, self.current_loot_selection)
-            if game_object:
-                if game_object.loot_manager.has_loot():
-                    game_object.set_ready()
-                else:
-                    game_object.despawn()
+            target_world_object = MapManager.get_surrounding_gameobject_by_guid(self, self.loot_selection.object_guid)
         elif high_guid == HighGuid.HIGHGUID_ITEM:
-            item_mgr = self.inventory.get_item_by_guid(self.current_loot_selection)
-            if item_mgr and not item_mgr.loot_manager.has_loot():
-                item_mgr.loot_manager.clear()
-                self.inventory.remove_items(item_mgr.item_template.entry, 1)
+            target_world_object = self.inventory.get_item_by_guid(self.loot_selection.object_guid)
         else:
             Logger.warning(f'Unhandled loot release for type {HighGuid(high_guid).name}')
 
-        self.current_loot_selection = 0
+        if target_world_object:
+            # Retrieve the loot manager for the corresponding world object.
+            loot_manager = self.loot_selection.get_loot_manager(target_world_object)
+            # Remove self from active looters.
+            loot_manager.remove_active_looter(self)
+            object_type = target_world_object.get_type_id()
+            # UNITS.
+            if object_type == ObjectTypeIds.ID_UNIT:
+                enemy = target_world_object
+                if loot_selection.loot_type != LootTypes.LOOT_TYPE_PICKLOCK:
+                    # If this release comes from the loot owner and has no party, set killed_by to None to allow FFA.
+                    if enemy.killed_by and enemy.killed_by == self and not enemy.killed_by.group_manager:
+                        enemy.killed_by = None
+                    # If in party, check if this player has rights to release the loot for FFA.
+                    elif enemy.killed_by and enemy.killed_by.group_manager:
+                        if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
+                            if not loot_manager.has_loot():  # Flush looters for this enemy.
+                                enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
+                            enemy.killed_by = None
+                    # Empty loot, remove looting flags.
+                    if not loot_manager.has_loot():
+                        enemy.set_lootable(False)
+            # GAMEOBJECTS.
+            elif object_type == ObjectTypeIds.ID_GAMEOBJECT:
+                game_object = target_world_object
+                game_object.handle_looted(self)
+            # ITEMS.
+            elif object_type == ObjectTypeIds.ID_ITEM:
+                item_mgr = target_world_object
+                # Empty loot, remove item from player inventory bag.
+                if not loot_manager.has_loot():
+                    self.inventory.remove_item(item_mgr.item_instance.bag, item_mgr.current_slot)
 
-    def send_loot(self, world_object):
-        self.current_loot_selection = world_object.guid
-        loot_type = world_object.loot_manager.get_loot_type(self, world_object)
-        data = pack(
-            '<QBIB',
-            world_object.guid,
-            loot_type,
-            world_object.loot_manager.current_money,
-            len(world_object.loot_manager.current_loot)
-         )
+            # Finally, clear the loot manager if it has no loot remaining.
+            if not loot_manager.has_loot():
+                loot_manager.clear()
+        self.loot_selection = None
 
+    def send_loot(self, loot_manager):
+        loot_type = loot_manager.get_loot_type(self, loot_manager.world_object)
+        self.loot_selection = LootSelection(loot_manager.world_object, loot_type)
+
+        # Loot item data.
+        item_data = b''
         # Initialize item detail queries data.
         item_query = b''
         item_count = 0
@@ -716,7 +770,7 @@ class PlayerManager(UnitManager):
         if loot_type != LootTypes.LOOT_TYPE_NOTALLOWED:
             slot = 0
             # Slot should match real current_loot indexes.
-            for loot in world_object.loot_manager.current_loot:
+            for loot in loot_manager.current_loot:
                 if loot:
                     # If this is a quest item and player does not need it, don't show it to this player.
                     if loot.is_quest_item() and not self.player_or_group_require_quest_item(
@@ -728,20 +782,31 @@ class PlayerManager(UnitManager):
                     item_query += ItemManager.generate_query_details_data(loot.item.item_template)
                     item_count += 1
 
-                    data += pack(
+                    item_data += pack(
                         '<B3I',
                         slot,
                         loot.item.item_template.entry,
                         loot.quantity,
-                        loot.item.item_template.display_id
+                        loot.item.item_template.display_id,
                     )
                 slot += 1
 
-            # At this point, this player have access to the loot window, add him to the active looters.
-            world_object.loot_manager.add_active_looter(self)
+            # At this point, this player has access to the loot window, add him to the active looters.
+            loot_manager.add_active_looter(self)
 
-        # Send all the packed item detail queries for current loot, if any.
+        # Set the header, now that we know how many actual items were sent.
+        data = pack(
+            '<QBIB',
+            loot_manager.world_object.guid,
+            loot_type,
+            loot_manager.current_money,
+            item_count
+        )
+
+        # Append item data and send all the packed item detail queries for current loot, if any.
         if item_count:
+            data += item_data
+            # Item queries.
             item_query_data = pack(f'<I{len(item_query)}s', item_count, item_query)
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query_data))
 
@@ -866,9 +931,9 @@ class PlayerManager(UnitManager):
         self.player.bankslots += 1
         self.player_bytes_2 = self.get_player_bytes_2()
         self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.player_bytes_2)
-        self.mod_money(-slot_cost, update_inventory=True)
+        self.mod_money(-slot_cost)
 
-    def mod_money(self, amount, update_inventory=False):
+    def mod_money(self, amount):
         if self.coinage + amount < 0:
             amount = -self.coinage
 
@@ -879,10 +944,6 @@ class PlayerManager(UnitManager):
             self.coinage += amount
 
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
-
-        # Only override to True.
-        if update_inventory and not self.dirty_inventory:
-            self.dirty_inventory = True
 
     def on_zone_change(self, new_zone):
         # Update player zone.
@@ -949,8 +1010,7 @@ class PlayerManager(UnitManager):
     # override
     def is_on_water(self):
         self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
-        map_z = MapManager.calculate_z_for_object(self)[0]
-        return self.liquid_information and map_z < self.liquid_information.height
+        return self.liquid_information and self.liquid_information.height > self.location.z
 
     # override
     def is_under_water(self):
@@ -970,11 +1030,9 @@ class PlayerManager(UnitManager):
             self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
 
     # override
-    def get_full_update_packet(self, requester):
-        # Only self will trigger writes on fields values. This packet is only requested by a player upon login or when
-        # changing maps, other requesters that meet this player for the first time will grab the plain create packet
-        # plus touched fields values.
-        if requester == self:
+    def initialize_field_values(self):
+        # Initial field values, after this, fields must be modified by setters or directly writing values to them.
+        if not self.initialized:
             self.bytes_0 = self.get_bytes_0()
             self.bytes_1 = self.get_bytes_1()
             self.bytes_2 = self.get_bytes_2()
@@ -1064,16 +1122,12 @@ class PlayerManager(UnitManager):
             # Guild.
             if self.guild_manager:
                 self.guild_manager.build_update(self)
-            else:
-                self.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
 
             # Duel.
             if self.duel_manager:
                 self.duel_manager.build_update(self)
 
             # Inventory.
-            for update_packet in self.inventory.get_inventory_update_packets(self):
-                self.enqueue_packet(update_packet)
             self.inventory.build_update()
 
             # Auras.
@@ -1082,7 +1136,7 @@ class PlayerManager(UnitManager):
             # Quests.
             self.quest_manager.build_update()
 
-        return self.get_object_create_packet(requester)
+            self.initialized = True
 
     def set_current_selection(self, guid):
         self.current_selection = guid
@@ -1311,6 +1365,12 @@ class PlayerManager(UnitManager):
         data = pack('<IQ', amount, source.guid)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
 
+    def enqueue_packets(self, packets):
+        if self.session:
+            self.session.enqueue_packets(packets)
+        else:
+            Logger.warning('Tried to send packet to null session.')
+
     def enqueue_packet(self, data):
         if self.session:
             self.session.enqueue_packet(data)
@@ -1328,10 +1388,6 @@ class PlayerManager(UnitManager):
                 self.update_swimming_state(True)
             elif not self.is_swimming() and self.liquid_information:
                 self.update_swimming_state(False)
-
-    # override
-    def has_pending_updates(self):
-        return self.update_packet_factory.has_pending_updates() or self.dirty_inventory
 
     # override
     def update(self, now):
@@ -1381,15 +1437,21 @@ class PlayerManager(UnitManager):
                     self.logout()
                     return
 
-            # Check if player has pending updates.
-            if self.has_pending_updates() and self.online:
-                MapManager.update_object(self, check_pending_changes=True)
-                self.reset_fields_older_than(now)
-                if self.dirty_inventory:
-                    self.dirty_inventory = False
+            has_changes = self.has_pending_updates()
+            # Avoid inventory/item update if there is an ongoing inventory operation.
+            has_inventory_changes = not self.inventory.update_locked and self.inventory.has_pending_updates()
+            # Check if player has pending fields or inventory updates.
+            if self.online and has_changes or has_inventory_changes:
+                MapManager.update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
+                if has_changes:
+                    self.reset_fields_older_than(now)
+                if has_inventory_changes:
+                    self.inventory.reset_fields_older_than(now)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
-            elif not self.has_pending_updates() and self.pending_teleport_destination and not self.update_lock:
+            elif not has_changes and not has_inventory_changes and self.pending_teleport_destination \
+                    and not self.update_lock:
                 self.trigger_teleport()
+            # Do normal update.
             else:
                 MapManager.update_object(self)
                 self.synchronize_db_player()
@@ -1398,7 +1460,7 @@ class PlayerManager(UnitManager):
 
     # override
     def attack_update(self, elapsed):
-        # If we have a combat target, no attackers and target is no longer alive or is evasing, leave combat.
+        # If we have a combat target, no attackers and target is no longer alive or is evading, leave combat.
         if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_evading):
             if len(self.attackers) == 0:
                 self.leave_combat()
@@ -1417,12 +1479,12 @@ class PlayerManager(UnitManager):
 
     # override
     def die(self, killer=None):
+        if not self.is_alive:
+            return False
+
         if killer and self.duel_manager and self.duel_manager.is_player_involved(killer):
             self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
             self.set_health(1)
-            return False
-
-        if not super().die(killer):
             return False
 
         if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
@@ -1436,7 +1498,7 @@ class PlayerManager(UnitManager):
         self.mirror_timers_manager.stop_all()
         self.update_swimming_state(False)
 
-        return True
+        return super().die(killer)
 
     # override
     def respawn(self):

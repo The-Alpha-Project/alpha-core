@@ -37,7 +37,7 @@ class BuyItemHandler(object):
                         return 0
 
                     if world_session.player_mgr.inventory.add_item(item_template=item_template, count=real_count):
-                        world_session.player_mgr.mod_money(total_cost * -1, update_inventory=True)
+                        world_session.player_mgr.mod_money(total_cost * -1)
                         # vendor_npc.send_inventory_list(world_session)
                 else:
                     world_session.player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_CANT_FIND_ITEM, item,

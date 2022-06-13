@@ -1,7 +1,6 @@
 from struct import pack
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.DuelCodes import *
 from utils.constants.MiscCodes import ObjectTypeIds
@@ -18,7 +17,6 @@ class PlayerDuelInformation(object):
         self.is_target = is_target  # Player which accepted the duel.
 
 
-# TODO: Need to figure a way to make both players hostile to each other while duel is ongoing.
 # TODO: Missing checks before requesting a duel, is the map allow duel, etc.
 class DuelManager(object):
     BOUNDARY_RADIUS = 50
@@ -34,7 +32,7 @@ class DuelManager(object):
         self.map = player1.map_
 
     @staticmethod
-    def request_duel(requester, target, arbiter_entry):
+    def request_duel(requester, target, arbiter):
         # If target is already dueling, fail Duel spell cast.
         if target.duel_manager:
             return 0
@@ -43,7 +41,6 @@ class DuelManager(object):
         if requester.duel_manager:
             requester.duel_manager.force_duel_end(requester, retreat=False)
 
-        arbiter = DuelManager.create_arbiter(requester, target, arbiter_entry=arbiter_entry)
         if arbiter:
             duel_manager = DuelManager(requester, target, arbiter)
             duel_manager.duel_state = DuelState.DUEL_STATE_REQUESTED
@@ -193,9 +190,3 @@ class DuelManager(object):
         else:
             player_mgr.unit_flags &= ~UnitFlags.UNIT_FLAG_DUELING
         player_mgr.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player_mgr.unit_flags)
-
-    @staticmethod
-    def create_arbiter(requester, target, arbiter_entry):
-        in_between_pos = requester.location.get_point_in_middle(target.location)
-        return GameObjectManager.spawn(arbiter_entry, in_between_pos, requester.map_,
-                                       override_faction=requester.faction, despawn_time=3600)

@@ -1,4 +1,4 @@
-from struct import pack, unpack
+from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import Group, GroupMember

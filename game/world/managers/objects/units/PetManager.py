@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
+from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
@@ -109,7 +110,10 @@ class PetManager:
                 return
             creature_id = self.pets[0].creature_template.entry
 
-        creature = CreatureManager.spawn(creature_id, self.owner.location, self.owner.map_, override_faction=self.owner.faction)
+        spawn_position = self.owner.location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
+                                                                           PetAI.PET_FOLLOW_ANGLE)
+        creature = CreatureManager.spawn(creature_id, spawn_position, self.owner.map_, summoner=self.owner,
+                                         override_faction=self.owner.faction)
 
         self.add_pet_from_world(creature)
         creature.respawn()
@@ -204,7 +208,6 @@ class PetManager:
     def _tame_creature(self, creature: CreatureManager):
         creature.set_summoned_by(self.owner)
         creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.owner.guid)
-
         creature.faction = self.owner.faction
         creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
 

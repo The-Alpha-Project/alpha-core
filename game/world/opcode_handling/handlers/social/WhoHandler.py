@@ -23,7 +23,7 @@ class WhoHandler(object):
 
             current_size += 12
             zones = []
-            for x in range(0, zone_count):
+            for x in range(zone_count):
                 zone = unpack('<I', reader.data[current_size:current_size + 4])[0]
                 # Cases like z-'Stormwind City' wont work because the client sends zone_id 0.
                 # In this cases, we use the current player zone_id and return players in that area or parent area.
@@ -39,7 +39,7 @@ class WhoHandler(object):
 
             current_size += 4
             user_strings = []
-            for x in range(0, user_strings_count):
+            for x in range(user_strings_count):
                 user_string = PacketReader.read_string(reader.data, current_size)
                 user_strings.append(user_string)
                 current_size += len(user_string)

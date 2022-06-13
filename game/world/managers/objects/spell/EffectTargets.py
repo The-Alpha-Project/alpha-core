@@ -1,5 +1,6 @@
-from dataclasses import dataclass
 import math
+
+from dataclasses import dataclass
 from typing import Union, Optional
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -52,10 +53,11 @@ class EffectTargets:
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
         target_is_item = self.casting_spell.initial_target_is_item()
 
-        target_is_friendly = not caster_is_gameobject and self.casting_spell.initial_target_is_unit_or_player() and not \
+        target_is_friendly = not self.casting_spell.is_fishing_spell() and not caster_is_gameobject \
+            and self.casting_spell.initial_target_is_unit_or_player() and not \
             caster.can_attack_target(self.casting_spell.initial_target)
 
-        targeted_unit_is_hostile = not caster_is_gameobject and \
+        targeted_unit_is_hostile = not self.casting_spell.is_fishing_spell() and not caster_is_gameobject and \
             self.casting_spell.requires_implicit_initial_unit_target() and \
             caster.can_attack_target(self.casting_spell.targeted_unit_on_cast_start)
 
@@ -70,7 +72,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
             SpellImplicitTargets.TARGET_MASTER: caster.summoner if caster.summoner else [],
             SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start if targeted_unit_is_hostile else [],
-            SpellImplicitTargets.TARGET_SELF_FISHING: caster
+            SpellImplicitTargets.TARGET_SELF_FISHING: self.initial_target
         }
 
     def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
@@ -144,7 +146,8 @@ class EffectTargets:
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not caster.group_manager:
             return []
 
-        friendly_units = EffectTargets.get_friends_from_unit_list(units, caster)  # Party members can be hostile while dueling
+        # Party members can be hostile while dueling
+        friendly_units = EffectTargets.get_friends_from_unit_list(units, caster)
         return [unit for unit in friendly_units if caster.group_manager.is_party_member(unit.guid)]
 
     @staticmethod
@@ -245,6 +248,11 @@ class EffectTargets:
         if target_effect.effect_type == SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE:  # Hellfire, aura of rot
             units = EffectTargets.resolve_all_around_caster(casting_spell, target_effect)
             return EffectTargets.get_enemies_from_unit_list(units, casting_spell.spell_caster)
+
+        if target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_WILD or \
+                target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON or \
+                target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_OBJECT_WILD:
+            return [casting_spell.spell_caster]
 
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
@@ -361,7 +369,6 @@ class EffectTargets:
         caster_location = casting_spell.spell_caster.location
         if target_effect.effect_type == SpellEffects.SPELL_EFFECT_DUEL:
             target_location = target_effect.targets.resolved_targets_a[0].location
-            # TODO flag is spawned by DuelManager for now
             return [SummonedObjectPositions.get_position_for_duel_flag(caster_location, target_location)]
 
         elif target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_TOTEM:

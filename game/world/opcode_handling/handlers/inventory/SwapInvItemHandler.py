@@ -11,5 +11,4 @@ class SwapInvItemHandler(object):
             source_slot, dest_slot = unpack('<2B', reader.data[:2])
             bag = InventorySlots.SLOT_INBACKPACK.value
             world_session.player_mgr.inventory.swap_item(bag, source_slot, bag, dest_slot)
-            world_session.player_mgr.set_dirty_inventory()
         return 0

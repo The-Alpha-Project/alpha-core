@@ -1,6 +1,5 @@
-from struct import unpack, pack
+from struct import unpack
 
-from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas

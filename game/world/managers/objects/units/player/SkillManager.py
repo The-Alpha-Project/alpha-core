@@ -1,11 +1,13 @@
 import random
 from enum import IntEnum
-from struct import pack, unpack
-from typing import NamedTuple
+from struct import pack
+from typing import NamedTuple, Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
+from database.world.WorldDatabaseManager import WorldDatabaseManager, ItemTemplate
+from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
@@ -375,7 +377,7 @@ class SkillManager(object):
         return True
 
     def handle_defense_skill_gain_chance(self, damage_info):
-        # Vanilla formulae
+        # Vanilla formula.
         target_skill_type = SkillTypes.BLOCK if damage_info.hit_info == HitInfo.BLOCK else SkillTypes.DEFENSE
         skill = self.skills.get(target_skill_type, None)
         if not skill:
@@ -409,6 +411,94 @@ class SkillManager(object):
 
         return True
 
+    def handle_craft_skill_gain(self, skill_type):
+        skill = self.skills.get(skill_type, None)
+        if not skill:
+            return False
+
+        self.set_skill(skill_type, skill.value + 1)
+        self.build_update()
+        return True
+
+    def handle_gather_skill_gain(self, skill_type, raw_skill_value, required_skill_value):
+        gather_skill_gain_factor = 1  # TODO, configurable.
+        if skill_type == SkillTypes.HERBALISM or skill_type == SkillTypes.LOCKPICKING:
+            self.update_skill_profession(
+                skill_type,
+                self.skill_gain_chance(raw_skill_value,
+                                       required_skill_value + 100,
+                                       required_skill_value + 50,
+                                       required_skill_value + 25),
+                gather_skill_gain_factor)
+        elif skill_type == SkillTypes.MINING:
+            mining_skill_chance_steps = 75  # TODO, configurable.
+            self.update_skill_profession(
+                skill_type,
+                self.skill_gain_chance(raw_skill_value,
+                                       required_skill_value + 100,
+                                       required_skill_value + 50,
+                                       required_skill_value + 25) >> int(raw_skill_value / mining_skill_chance_steps),
+                gather_skill_gain_factor)
+
+    # noinspection PyMethodMayBeStatic
+    def skill_gain_chance(self, skill_value, gray_level, green_level, yellow_level):
+        if skill_value >= gray_level:
+            return 0 * 10
+        elif skill_value >= green_level:
+            return 25 * 10
+        elif skill_value >= yellow_level:
+            return 75 * 10
+        return 100 * 10
+
+    def update_skill_profession(self, skill_type, chance, step):
+        if not skill_type:
+            return False
+
+        if chance <= 0:
+            return False
+
+        skill = self.skills.get(skill_type, None)
+        if not skill:
+            return False
+
+        roll = random.randint(1, 1000)
+        if roll < chance:
+            self.set_skill(skill_type, skill.value + step)
+            self.build_update()
+
+    def handle_fishing_attempt_chance(self):
+        skill = self.skills.get(SkillTypes.FISHING, None)
+        if not skill:
+            return False
+
+        # Search the skill zone by parent zone id.
+        zone_skill = WorldDatabaseManager.fishing_skill_get_by_entry(
+            MapManager.get_parent_zone_id(self.player_mgr.zone, self.player_mgr.map_))
+        if not zone_skill:
+            return False
+
+        # Get zone skill value.
+        zone_skill_value = zone_skill.skill
+
+        # Consider bonus for roll.
+        skill_total = self.get_total_skill_value(SkillTypes.FISHING)
+        chance = skill_total - zone_skill_value + 5
+        roll = random.randint(1, 100)
+
+        # Hook chance.
+        success = skill_total >= zone_skill_value and chance >= roll
+        if not success:
+            return False
+
+        # Skill gain chance.
+        gain_chance = 100 if skill.value < 75 else 2500 / (skill.value - 50)
+        if gain_chance <= 0:
+            return False
+
+        self.set_skill(SkillTypes.FISHING, skill.value + 1)
+        self.build_update()
+        return True
+
     def can_use_equipment(self, item_class, item_subclass):
         if item_class not in self.proficiencies:
             return False
@@ -423,11 +513,11 @@ class SkillManager(object):
 
         return self.full_proficiency_masks.get(item_class, 0) & item_subclass_mask
 
-    def get_total_skill_value(self, skill_id):
+    def get_total_skill_value(self, skill_id, no_bonus=False):
         if skill_id not in self.skills:
             return -1
         skill = self.skills[skill_id]
-        bonus_skill = self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
+        bonus_skill = 0 if no_bonus else self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
         return skill.value + bonus_skill
 
     def get_skill_value_for_spell_id(self, spell_id):
@@ -437,7 +527,7 @@ class SkillManager(object):
 
         return self.get_total_skill_value(skill.ID)
 
-    def get_skill_id_for_weapon(self, item_template):
+    def get_skill_id_for_weapon(self, item_template: Optional[ItemTemplate]):
         if not item_template:
             # Street fighting replaces unarmed for rogues - prioritize if the player knows it.
             return SkillTypes.STREETFIGHTING if self.skills.get(SkillTypes.STREETFIGHTING, None) else SkillTypes.UNARMED

@@ -1,20 +1,26 @@
+from random import randint
 from struct import pack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, GameObjectTypes, HighGuid, ObjectTypeIds
+from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds
+from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
-from utils.constants.UpdateFields import UnitFields
 
 
 class SpellEffectHandler:
@@ -97,7 +103,11 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
-        duel_result = DuelManager.request_duel(caster, target, effect.misc_value)
+        arbiter = GameObjectManager.spawn(effect.misc_value, effect.targets.resolved_targets_b[0], caster.map_,
+                                          summoner=caster, despawn_time=3600, spell_id=casting_spell.spell_entry.ID,
+                                          override_faction=caster.faction)
+
+        duel_result = DuelManager.request_duel(caster, target, arbiter)
         if duel_result == 1:
             result = SpellCheckCastResult.SPELL_NO_ERROR
         elif duel_result == 0:
@@ -108,11 +118,75 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_open_lock(casting_spell, effect, caster, target):
-        # TODO Skill checks etc.
-        if caster and target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:  # TODO other object types, ie. lockboxes
+        if not caster or caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return
+
+        if isinstance(target, GameObjectManager):
+            lock_id = target.lock
+            # Already open (0).
+            if not lock_id:
+                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                      SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
+                return
+
+            # TODO, 'gameobject_requirement' table.
+            # Already being used.
+            if target.is_active() or target.has_flag(GameObjectFlags.IN_USE):
+                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                      SpellCheckCastResult.SPELL_FAILED_CHEST_IN_USE)
+                return
+        elif isinstance(target, ItemManager):
+            # Grab Item owner guid.
+            owner_guid = target.get_owner_guid()
+            if not owner_guid:
+                return
+
+            # Validate player is online.
+            owner_player = WorldSessionStateHandler.find_player_by_guid(owner_guid)
+            if not owner_player:
+                return
+
+            lock_id = target.lock
+            # Already unlocked.
+            if not lock_id or target.has_flag(ItemDynFlags.ITEM_DYNFLAG_UNLOCKED):
+                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                      SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
+                return
+        else:  # Bad target.
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return
+
+        lock_type = effect.misc_value
+        bonus_points = effect.get_effect_simple_points()
+        lock_result = LockManager.can_open_lock(caster, lock_type, lock_id, bonus_points=bonus_points)
+        if lock_result.result != SpellCheckCastResult.SPELL_NO_ERROR:
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, lock_result.result)
+            return
+
+        skill_value = lock_result.skill_value
+        bonus_skill_value = lock_result.bonus_skill_value
+        required_skill_value = lock_result.required_skill_value
+        skill_type = lock_result.skill_type
+
+        # Chance for fail at orange mining, herbs or lock picking.
+        if (skill_type == SkillTypes.HERBALISM or skill_type == SkillTypes.MINING
+                or lock_result.skill_type == SkillTypes.LOCKPICKING):
+            can_fail_at_max_skill = skill_type != SkillTypes.HERBALISM and skill_type != SkillTypes.MINING
+            if can_fail_at_max_skill and required_skill_value > randint(bonus_skill_value - 25, bonus_skill_value + 37):
+                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN)
+                return
+
+        if target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            caster.skill_manager.handle_gather_skill_gain(skill_type, skill_value, required_skill_value)
             target.use(caster, target)
-            caster.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
-            caster.set_uint32(UnitFields.UNIT_FIELD_FLAGS, caster.unit_flags)
+        elif target.get_type_id() == ObjectTypeIds.ID_ITEM:
+            caster.skill_manager.handle_gather_skill_gain(skill_type, skill_value, required_skill_value)
+            target.set_unlocked()
+        else:
+            Logger.debug(f'Unimplemented open lock spell effect.')
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
@@ -160,7 +234,7 @@ class SpellEffectHandler:
 
         target.inventory.add_item(effect.item_type,
                                   count=effect.get_effect_points(casting_spell.caster_effective_level),
-                                  update_inventory=True)
+                                  created_by=caster)
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
@@ -215,7 +289,7 @@ class SpellEffectHandler:
         totem_entry = effect.misc_value
         # TODO Refactor to avoid circular import?
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_,
+        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_, summoner=caster,
                                                  override_faction=caster.faction)
 
         if not creature_manager:
@@ -236,13 +310,27 @@ class SpellEffectHandler:
     @staticmethod
     def handle_summon_object(casting_spell, effect, caster, target):
         object_entry = effect.misc_value
-        go_manager = GameObjectManager.spawn(object_entry, target, caster.map_, override_faction=caster.faction)
-        if not go_manager:
+
+        # Validate go template existence.
+        go_template = WorldDatabaseManager.gameobject_template_get_by_entry(object_entry)
+        if not go_template:
             Logger.error(f'Gameobject with entry {object_entry} not found for spell {casting_spell.spell_entry.ID}.')
             return
 
-        if go_manager.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
-            go_manager.ritual_caster = caster
+        target = None
+        if casting_spell.initial_target_is_terrain() and casting_spell.is_fishing_spell():
+            target = casting_spell.initial_target
+        elif isinstance(effect.targets.resolved_targets_a[0], ObjectManager):
+            target = effect.targets.resolved_targets_a[0].location
+        elif isinstance(effect.targets.resolved_targets_a[0], Vector):
+            target = effect.targets.resolved_targets_a[0]
+
+        if not target:
+            Logger.error(f'Unable to resolve target, go entry {object_entry}, spell {casting_spell.spell_entry.ID}.')
+            return
+
+        GameObjectManager.spawn(object_entry, target, caster.map_, summoner=caster,
+                                spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction)
 
     @staticmethod
     def handle_summon_player(casting_spell, effect, caster, target):
@@ -385,6 +473,148 @@ class SpellEffectHandler:
 
         caster.pet_manager.summon_pet(effect.misc_value)
 
+    @staticmethod
+    def handle_summon_wild(casting_spell, effect, caster, target):
+        creature_entry = effect.misc_value
+        if not creature_entry:
+            return
+
+        radius = effect.get_radius()
+        duration = effect.get_duration()
+        amount = effect.get_effect_simple_points()
+
+        for count in range(amount):
+            if casting_spell.spell_target_mask & SpellTargetMask.DEST_LOCATION:
+                if count == 0:
+                    px = target.location.x
+                    py = target.location.y
+                    pz = target.location.z
+                else:
+                    location = caster.location.get_random_point_in_radius(radius, caster.map_)
+                    px = location.x
+                    py = location.Y
+                    pz = location.z
+            else:
+                if radius > 0.0:
+                    location = caster.location.get_random_point_in_radius(radius, caster.map_)
+                    px = location.x
+                    py = location.Y
+                    pz = location.z
+                else:
+                    px = target.location.x
+                    py = target.location.y
+                    pz = target.location.z
+
+            # Spawn the summoned unit.
+            from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+            unit = CreatureManager.spawn(creature_entry, Vector(px, py, pz), caster.map_, summoner=caster,
+                                         spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction,
+                                         ttl=duration)
+            unit.respawn()
+
+    # TODO: Currently, you can endlessly pickpocket the same unit.
+    @staticmethod
+    def handle_pick_pocket(casting_spell, effect, caster, target):
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        if not target or not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT or not caster.can_attack_target(target):
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return
+
+        if not target.is_alive:
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
+            return
+
+        if not target.pickpocket_loot_manager:
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
+            return
+
+        if not target.pickpocket_loot_manager.has_loot():
+            target.pickpocket_loot_manager.generate_loot(caster)
+
+        # If still has no loot.
+        if not target.pickpocket_loot_manager:
+            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
+                                                  SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
+            return
+
+        caster.send_loot(target.pickpocket_loot_manager)
+
+    @staticmethod
+    def handle_temporary_enchant(casting_spell, effect, caster, target):
+        SpellEffectHandler.handle_permanent_enchant(casting_spell, effect, caster, target, True)
+
+    # TODO: Handle ITEM_ENCHANTMENT_TYPE, e.g. Damage, Stats modifiers, etc
+    @staticmethod
+    def handle_permanent_enchant(casting_spell, effect, caster, target, is_temporary=False):
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        # Target should resolve to ItemManager.
+        if not isinstance(target, ItemManager):
+            return
+
+        # Enchantment ID.
+        if not effect.misc_value:
+            return
+
+        # Grab Item owner guid.
+        owner_guid = target.get_owner_guid()
+        if not owner_guid:
+            return
+
+        # Validate player is online.
+        owner_player = WorldSessionStateHandler.find_player_by_guid(owner_guid)
+        if not owner_player:
+            return
+
+        # Validate if the item enchantment exist.
+        enchantment = DbcDatabaseManager.spell_get_item_enchantment(effect.misc_value)
+        if not enchantment:
+            return
+
+        # Calculate slot, duration and charges.
+        enchantment_slot = EnchantmentSlots.PermanentSlot if not is_temporary else EnchantmentSlots.TemporarySlot
+        effect_index = effect.get_effect_points(casting_spell.caster_effective_level)
+        duration = 0 if not is_temporary else int(eval(f'enchantment.EffectPointsMin_{effect_index}')) * 1000
+        charges = 0 if not is_temporary else \
+            int(WorldDatabaseManager.spell_enchant_charges_get_by_spell(casting_spell.spell_entry.ID))
+
+        # If this enchantment is being applied on a trade, update trade status with proposed enchant.
+        # Enchant will be applied after trade is accepted.
+        if owner_player != caster:
+            if caster.trade_data and caster.trade_data.other_player and caster.trade_data.other_player.trade_data:
+                # Get the trade slot for the item being enchanted.
+                trade_slot = caster.trade_data.other_player.trade_data.get_slot_by_item(target)
+
+                # Update proposed enchantment on caster.
+                caster.trade_data.set_proposed_enchant(trade_slot,
+                                                       casting_spell.spell_entry.ID,
+                                                       enchantment_slot,
+                                                       effect.misc_value,
+                                                       duration, charges)
+
+                # Update proposed enchantment on receiver.
+                caster.trade_data.other_player.trade_data.set_proposed_enchant(trade_slot,
+                                                                               casting_spell.spell_entry.ID,
+                                                                               enchantment_slot,
+                                                                               effect.misc_value,
+                                                                               duration, charges)
+
+                # Update trade status, this will propagate to both players.
+                caster.trade_data.update_trade_status()
+                return
+
+        # Apply permanent enchantment.
+        owner_player.enchantment_manager.set_item_enchantment(target, enchantment_slot, effect.misc_value,
+                                                              duration, charges)
+        # Save item.
+        target.save()
+
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
@@ -455,6 +685,10 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_LEAP: SpellEffectHandler.handle_leap,
     SpellEffects.SPELL_EFFECT_TAME_CREATURE: SpellEffectHandler.handle_tame_creature,
     SpellEffects.SPELL_EFFECT_SUMMON_PET: SpellEffectHandler.handle_summon_pet,
+    SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT: SpellEffectHandler.handle_permanent_enchant,
+    SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
+    SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
+    SpellEffects.SPELL_EFFECT_SUMMON_WILD: SpellEffectHandler.handle_summon_wild,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

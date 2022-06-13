@@ -13,6 +13,8 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
+from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.units.creature.CreaturePickPocketLootManager import CreaturePickPocketLootManager
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
@@ -37,14 +39,15 @@ class CreatureManager(UnitManager):
     def __init__(self,
                  creature_template,
                  creature_instance=None,
-                 is_summon=False,
+                 summoner=None,
                  **kwargs):
         super().__init__(**kwargs)
 
         self.creature_template = creature_template
         self.creature_instance = creature_instance
+        self.fully_loaded = False
         self.killed_by = None
-        self.is_summon = is_summon
+        self.summoner = summoner
 
         self.entry = self.creature_template.entry
         self.class_ = self.creature_template.unit_class
@@ -91,14 +94,12 @@ class CreatureManager(UnitManager):
             if self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO \
             else CreatureReactStates.REACT_AGGRESSIVE
 
-        self.fully_loaded = False
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
+        self.time_to_live_timer = -1
         self.respawn_timer = 0
         self.last_random_movement = 0
         self.random_movement_wait_time = randint(1, 12)
-
-        self.loot_manager = CreatureLootManager(self)
 
         if self.creature_instance:
             if CreatureManager.CURRENT_HIGHEST_GUID < creature_instance.spawn_id:
@@ -106,7 +107,9 @@ class CreatureManager(UnitManager):
 
             self.guid = self.generate_object_guid(creature_instance.spawn_id)
             self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
-            self.map_ = self.creature_instance.map
+            # If spawned by another unit, use that unit map and zone.
+            self.map_ = self.creature_instance.map if not self.summoner else self.summoner.map_
+            self.zone = self.summoner.zone if self.summoner else 0
             self.spawn_position = Vector(self.creature_instance.position_x,
                                          self.creature_instance.position_y,
                                          self.creature_instance.position_z,
@@ -115,24 +118,27 @@ class CreatureManager(UnitManager):
             self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
         # All creatures can block, parry and dodge by default.
-        # TODO CANT_BLOCK creature extra flag
+        # TODO, Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
         self.has_block_passive = True
         self.has_dodge_passive = True
         self.has_parry_passive = True
 
-        self.threat_manager = ThreatManager(self)
+        # Managers, will be load upon lazy loading trigger.
+        self.loot_manager = None
+        self.pickpocket_loot_manager = None
+        self.threat_manager = None
 
     @dataclass
     class VirtualItemInfoHolder:
         display_id: int = 0
-        info_packed: int = 0
-        sheath: int = 0
+        info_packed: int = 0  # ClassID, SubClassID, Material, InventoryType.
+        info_packed_2: int = 0  # Sheath, Padding, Padding, Padding.
 
     def load(self):
         MapManager.update_object(self)
 
     @staticmethod
-    def spawn(entry, location, map_id, override_faction=0, despawn_time=1):
+    def spawn(entry, location, map_id, summoner=None, override_faction=0, despawn_time=1, spell_id=0, ttl=-1):
         creature_template = WorldDatabaseManager.creature_get_by_entry(entry)
 
         if not creature_template:
@@ -150,14 +156,22 @@ class CreatureManager(UnitManager):
         instance.mana_percent = 100
         if despawn_time < 1:
             despawn_time = 1
+
         instance.spawntimesecsmin = despawn_time
         instance.spawntimesecsmax = despawn_time
 
         creature = CreatureManager(
             creature_template=creature_template,
             creature_instance=instance,
-            is_summon=True
+            summoner=summoner
         )
+
+        if ttl > 0:
+            creature.time_to_live_timer = ttl
+
+        if spell_id:
+            creature.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, spell_id)
+
         if override_faction > 0:
             creature.faction = override_faction
 
@@ -271,66 +285,72 @@ class CreatureManager(UnitManager):
         data = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, train_spell_count) + train_spell_bytes + greeting_bytes
         world_session.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
 
-    def finish_loading(self, reload=False):
-        if self.creature_instance:
-            if not self.fully_loaded or reload:
-                creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)
-                if creature_model_info:
-                    self.bounding_radius = creature_model_info.bounding_radius
-                    self.combat_reach = creature_model_info.combat_reach
-                    self.gender = creature_model_info.gender
+    def finish_loading(self):
+        if self.creature_instance and not self.fully_loaded:
+            # Load loot manager.
+            self.loot_manager = CreatureLootManager(self)
+            # Load pickpocket loot manager if required.
+            if self.creature_template.pickpocket_loot_id:
+                self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
+            self.threat_manager = ThreatManager(self)
 
-                if self.creature_template.scale == 0:
-                    display_scale = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(self.current_display_id)
-                    if display_scale and display_scale.CreatureModelScale > 0:
-                        self.native_scale = display_scale.CreatureModelScale
-                    else:
-                        self.native_scale = 1
+            creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)
+            if creature_model_info:
+                self.bounding_radius = creature_model_info.bounding_radius
+                self.combat_reach = creature_model_info.combat_reach
+                self.gender = creature_model_info.gender
+
+            if self.creature_template.scale == 0:
+                display_scale = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(self.current_display_id)
+                if display_scale and display_scale.CreatureModelScale > 0:
+                    self.native_scale = display_scale.CreatureModelScale
                 else:
-                    self.native_scale = self.creature_template.scale
-                self.current_scale = self.native_scale
+                    self.native_scale = 1
+            else:
+                self.native_scale = self.creature_template.scale
+            self.current_scale = self.native_scale
 
-                if self.creature_template.equipment_id > 0:
-                    creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
-                        self.creature_template.equipment_id
-                    )
-                    if creature_equip_template:
-                        self.set_virtual_item(0, creature_equip_template.equipentry1)
-                        self.set_virtual_item(1, creature_equip_template.equipentry2)
-                        self.set_virtual_item(2, creature_equip_template.equipentry3)
+            if self.creature_template.equipment_id > 0:
+                creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
+                    self.creature_template.equipment_id
+                )
+                if creature_equip_template:
+                    self.set_virtual_item(0, creature_equip_template.equipentry1)
+                    self.set_virtual_item(1, creature_equip_template.equipentry2)
+                    self.set_virtual_item(2, creature_equip_template.equipentry3)
 
-                addon_template = self.creature_instance.addon_template
-                if addon_template:
-                    self.set_stand_state(addon_template.stand_state)
-                    self.set_weapon_mode(addon_template.sheath_state)
+            addon_template = self.creature_instance.addon_template
+            if addon_template:
+                self.set_stand_state(addon_template.stand_state)
+                self.set_weapon_mode(addon_template.sheath_state)
 
-                    # Set emote state if available.
-                    if addon_template.emote_state:
-                        self.set_emote_state(addon_template.emote_state)
+                # Set emote state if available.
+                if addon_template.emote_state:
+                    self.set_emote_state(addon_template.emote_state)
 
-                    # Check auras; 'auras' points to an entry id on Spell dbc.
-                    if addon_template.auras:
-                        spells = str(addon_template.auras).rsplit(' ')
-                        for spell in spells:
-                            self.spell_manager.handle_cast_attempt(int(spell), self, SpellTargetMask.SELF,
-                                                                   validate=False)
+                # Check auras; 'auras' points to an entry id on Spell dbc.
+                if addon_template.auras:
+                    spells = str(addon_template.auras).rsplit(' ')
+                    for spell in spells:
+                        self.spell_manager.handle_cast_attempt(int(spell), self, SpellTargetMask.SELF,
+                                                               validate=False)
 
-                    # Update display id if available.
-                    if addon_template.display_id:
-                        self.set_display_id(addon_template.display_id)
+                # Update display id if available.
+                if addon_template.display_id:
+                    self.set_display_id(addon_template.display_id)
 
-                    # Mount this creature if defined.
-                    if addon_template.mount_display_id > 0:
-                        self.mount(addon_template.mount_display_id)
+                # Mount this creature if defined.
+                if addon_template.mount_display_id > 0:
+                    self.mount(addon_template.mount_display_id)
 
-                # Creature AI.
-                self.object_ai = AIFactory.build_ai(self)
+            # Creature AI.
+            self.object_ai = AIFactory.build_ai(self)
 
-                # Stats.
-                self.stat_manager.init_stats()
-                self.stat_manager.apply_bonuses(replenish=True)
+            # Stats.
+            self.stat_manager.init_stats()
+            self.stat_manager.apply_bonuses(replenish=True)
 
-                self.fully_loaded = True
+            self.fully_loaded = True
 
     def is_guard(self):
         return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_GUARD
@@ -359,26 +379,21 @@ class CreatureManager(UnitManager):
                 item_template.inventory_type,
                 item_template.material,
                 item_template.subclass,
-                item_template.class_
+                item_template.class_,
             )
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, item_template.display_id)
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item_info)
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, item_template.sheath)
+
+            virtual_item_info_2 = ByteUtils.bytes_to_int(
+                0, 0, 0,  # Padding.
+                item_template.sheath
+            )
 
             self.virtual_item_info[slot] = CreatureManager.VirtualItemInfoHolder(
-                item_template.display_id, virtual_item_info, item_template.sheath
+                item_template.display_id, virtual_item_info, virtual_item_info_2
             )
 
             # Main hand.
             if slot == 0:
-                # This is a TOTAL guess, I have no idea about real weapon reach values.
-                # The weapon reach unit field was removed in patch 0.10.
-                if item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON:
-                    self.weapon_reach = 1.5
-                elif item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_DAGGER:
-                    self.weapon_reach = 0.5
-                elif item_template.subclass != ItemSubClasses.ITEM_SUBCLASS_FIST_WEAPON:
-                    self.weapon_reach = 1.0
+                self.weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
 
             # Offhand.
             if slot == 1:
@@ -389,15 +404,10 @@ class CreatureManager(UnitManager):
                 self.wearing_ranged_weapon = (item_template.inventory_type == InventoryTypes.RANGED or
                                               item_template.inventory_type == InventoryTypes.RANGEDRIGHT)
         else:
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, 0)
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, 0)
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, 0)
-
             self.virtual_item_info[slot] = CreatureManager.VirtualItemInfoHolder()
 
             if slot == 0:
                 self.weapon_reach = 0.0
-                self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
 
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
 
@@ -439,13 +449,14 @@ class CreatureManager(UnitManager):
         return False
 
     # override
-    def get_full_update_packet(self, requester):
-        # Finish loading and initialize values just once, future changes to fields should be properly set
-        # through methods. We do return the creation packet at the end, always.
-        if self.creature_instance and not self.fully_loaded:
+    def initialize_field_values(self):
+        # Lazy loading first.
+        if not self.fully_loaded:
             self.finish_loading()
 
-            self.bytes_0 = self.get_bytes_0()
+        # Initialize values.
+        # After this, fields must be modified by setters or directly writing values to them.
+        if not self.initialized and self.creature_instance:
             self.bytes_1 = self.get_bytes_1()
             self.bytes_2 = self.get_bytes_2()
             self.damage = self.get_damages()
@@ -491,9 +502,9 @@ class CreatureManager(UnitManager):
             for slot, virtual_item in self.virtual_item_info.items():
                 self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, virtual_item.display_id)
                 self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item.info_packed)
-                self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, virtual_item.sheath)
+                self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, virtual_item.info_packed_2)
 
-        return self.get_object_create_packet(requester)
+            self.initialized = True
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.creature_template.name)
@@ -655,6 +666,9 @@ class CreatureManager(UnitManager):
             elapsed = now - self.last_tick
 
             if self.is_alive and self.is_spawned:
+                # Time to live.
+                if self.time_to_live_timer > 0:
+                    self.time_to_live_timer -= elapsed
                 # Regeneration.
                 self.regenerate(elapsed)
                 # Spell/Aura Update.
@@ -682,11 +696,17 @@ class CreatureManager(UnitManager):
                     self.respawn()
                 # Destroy body when creature is about to respawn.
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
-                    self.despawn(destroy=self.is_summon)
+                    if self.summoner:
+                        self.despawn(destroy=True)
+                    else:
+                        self.despawn()
 
+            # Time to live expired, destroy.
+            if self.time_to_live_timer < -1:
+                self.despawn(destroy=True)
             # Check if this creature object should be updated yet or not.
-            if self.has_pending_updates():
-                MapManager.update_object(self, check_pending_changes=True)
+            elif self.has_pending_updates():
+                MapManager.update_object(self, has_changes=True)
                 self.reset_fields_older_than(now)
 
         self.last_tick = now
@@ -743,10 +763,10 @@ class CreatureManager(UnitManager):
 
     # override
     def die(self, killer=None):
-        if not super().die(killer):
+        if not self.is_alive:
             return False
 
-        if killer.get_type_id != ObjectTypeIds.ID_PLAYER:
+        if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
             # Attribute non-player kills to the creature's summoner.
             # TODO Does this also apply for player mind control?
             killer = killer.summoner if killer.summoner else killer
@@ -770,7 +790,7 @@ class CreatureManager(UnitManager):
         if self.loot_manager.has_loot():
             self.set_lootable(True)
 
-        return True
+        return super().die(killer)
 
     def reward_kill_xp(self, player):
         if self.static_flags & CreatureStaticFlags.NO_XP:

@@ -11,7 +11,7 @@ class ChannelInviteHandler(object):
         channel = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel) + 1
         has_player = len(reader.data) == offset + 1
-        player_name = '' if has_player else PacketReader.read_string(reader.data,offset, 0).strip()[:-1]
+        player_name = '' if has_player else PacketReader.read_string(reader.data, offset, 0).strip()[:-1]
 
         target_player_mgr = WorldSessionStateHandler.find_player_by_name(player_name)
         if target_player_mgr:

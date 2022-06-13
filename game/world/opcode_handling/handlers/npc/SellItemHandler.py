@@ -1,6 +1,5 @@
 from struct import unpack
 
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from utils.constants.MiscCodes import SellResults
 
 
@@ -48,10 +47,10 @@ class SellItemHandler(object):
                     return 0
 
                 if sell_amount < stack_count:
-                    item.item_instance.stackcount -= sell_amount
-                    RealmDatabaseManager.character_inventory_update_item(item.item_instance)
+                    new_stack_count = item.item_instance.stackcount - sell_amount
+                    item.set_stack_count(new_stack_count)
                 else:
                     world_session.player_mgr.inventory.remove_item(container_slot, slot)
 
-                world_session.player_mgr.mod_money(price * sell_amount, update_inventory=True)
+                world_session.player_mgr.mod_money(price * sell_amount)
         return 0
