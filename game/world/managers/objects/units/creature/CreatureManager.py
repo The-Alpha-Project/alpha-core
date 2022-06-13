@@ -9,6 +9,7 @@ from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatu
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
+from game.world.managers.objects.ai.NullCreatureAI import NullCreatureAI
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
@@ -115,6 +116,11 @@ class CreatureManager(UnitManager):
                                          self.creature_instance.orientation)
             self.location = self.spawn_position.copy()
             self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
+
+        # TODO: Prevent object_ai from being None before the actual AI is assigned in `finish_loading`. Reorganize the
+        #  logic so we don't need to initialize the AI two times. (First as null and then the actual one, even if it's
+        #  null too).
+        self.object_ai = NullCreatureAI(self)
 
         # All creatures can block, parry and dodge by default.
         # TODO, Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
