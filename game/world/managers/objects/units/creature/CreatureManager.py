@@ -22,7 +22,8 @@ from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
-from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
+from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, \
     TrainerTypes
 from utils.constants.OpCodes import OpCode
