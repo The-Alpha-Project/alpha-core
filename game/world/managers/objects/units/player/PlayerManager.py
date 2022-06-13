@@ -289,6 +289,14 @@ class PlayerManager(UnitManager):
         self.friends_manager.send_offline_notification()
         self.session.save_character()
 
+        # Destroy all known objects to self.
+        for guid, known_object in list(self.known_objects.items()):
+            # Remove self from creature known players if needed.
+            if known_object.get_type_id() == ObjectTypeIds.ID_UNIT:
+                if self.guid in known_object.known_players:
+                    del known_object.known_players[self.guid]
+            self.destroy_near_object(guid, skip_check=True)
+
         # Flush known items/objects cache.
         self.known_items.clear()
         self.known_objects.clear()
@@ -386,6 +394,8 @@ class PlayerManager(UnitManager):
                             self.enqueue_packet(packet)
                     # We only consider 'known' if its spawned, the details query is still sent.
                     self.known_objects[guid] = creature
+                    # Add ourselves to creature known players.
+                    creature.known_players[self.guid] = self
             # Player knows the creature but is not spawned anymore, destroy it for self.
             elif guid in self.known_objects and not creature.is_spawned:
                 active_objects.pop(guid)
@@ -407,6 +417,10 @@ class PlayerManager(UnitManager):
         # World objects which are known but no longer active to self should be destroyed.
         for guid, known_object in list(self.known_objects.items()):
             if guid not in active_objects:
+                # Remove self from creature known players if needed.
+                if known_object.get_type_id() == ObjectTypeIds.ID_UNIT:
+                    if self.guid in known_object.known_players:
+                        del known_object.known_players[self.guid]
                 self.destroy_near_object(guid, skip_check=True)
 
         # Cleanup.
@@ -1575,9 +1589,9 @@ class PlayerManager(UnitManager):
         return self.damage
 
     def _on_relocation(self):
-        units = MapManager.get_surrounding_units(self)
-        for guid, unit in units.items():
-            unit.notify_moved_in_line_of_sight(self)
+        for guid, unit in MapManager.get_surrounding_units(self).items():
+            if unit.get_type_id() == ObjectTypeIds.ID_UNIT:
+                unit.notify_moved_in_line_of_sight(self)
 
     # override
     def on_cell_change(self):

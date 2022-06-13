@@ -48,6 +48,7 @@ class CreatureManager(UnitManager):
         self.fully_loaded = False
         self.killed_by = None
         self.summoner = summoner
+        self.known_players = {}
 
         self.entry = self.creature_template.entry
         self.class_ = self.creature_template.unit_class
@@ -90,9 +91,13 @@ class CreatureManager(UnitManager):
         if 0 < self.creature_template.rank < 4:
             self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
 
-        self.react_state = CreatureReactStates.REACT_DEFENSIVE \
-            if self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO \
-            else CreatureReactStates.REACT_AGGRESSIVE
+        # TODO, creatures are still resolving to aggressive.
+        if self.is_totem() or self.is_critter() or not self.can_have_target():
+            self.react_state = CreatureReactStates.REACT_PASSIVE
+        elif self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO:
+            self.react_state = CreatureReactStates.REACT_DEFENSIVE
+        else:
+            self.react_state = CreatureReactStates.REACT_AGGRESSIVE
 
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
@@ -373,6 +378,9 @@ class CreatureManager(UnitManager):
     # TODO, should be able to check 'ownership' or set a custom flag upon creature creation.
     def is_totem(self):
         return False
+
+    def can_have_target(self):
+        return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_TARGET
 
     def set_virtual_item(self, slot, item_entry):
         item_template = None

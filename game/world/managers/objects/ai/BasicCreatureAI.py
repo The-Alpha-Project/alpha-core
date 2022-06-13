@@ -35,10 +35,10 @@ class BasicCreatureAI(CreatureAI):
     def movement_inform(self, move_type=None, data=None):
         if self._is_ready_for_new_attack():
             max_distance = self.creature.creature_template.detection_range
-            aggro_players = MapManager.get_surrounding_players_by_location(self.creature.location, self.creature.map_,
-                                                                           max_distance)
+            aggro_players = self.creature.known_players
             for guid, victim in aggro_players.items():
-                if self.creature.can_attack_target(victim):
+                distance = victim.location.distance(self.creature.location)
+                if self.creature.can_attack_target(victim) and distance <= max_distance:
                     self._start_proximity_aggro_attack(victim)
                     break
 
@@ -62,6 +62,8 @@ class BasicCreatureAI(CreatureAI):
         self.can_summon_guards = self.creature.can_summon_guards() if self.creature else False
 
     def _is_ready_for_new_attack(self):
+        if len(self.creature.known_players) == 0:
+            return False
         return self._is_aggressive() and not self.creature.combat_target and not self.creature.is_evading
 
     def _is_aggressive(self):
