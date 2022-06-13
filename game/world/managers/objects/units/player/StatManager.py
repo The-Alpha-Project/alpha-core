@@ -376,8 +376,8 @@ class StatManager(object):
                     continue
 
                 # Code below this check is weapon related, stop handling this item if it's not a weapon.
-                if item.current_slot != InventorySlots.SLOT_MAINHAND or \
-                    item.current_slot != InventorySlots.SLOT_OFFHAND or \
+                if item.current_slot != InventorySlots.SLOT_MAINHAND and \
+                    item.current_slot != InventorySlots.SLOT_OFFHAND and \
                         item.current_slot != InventorySlots.SLOT_RANGED:
                     continue
 
