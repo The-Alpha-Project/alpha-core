@@ -165,7 +165,7 @@ class GameObjectManager(ObjectManager):
         if self.loot_manager:
             # Normal chest.
             if not self.mining_node_manager:
-                # Chest still have loot.
+                # Chest still has loot.
                 if self.loot_manager.has_loot():
                     self.set_ready()
                 else:  # Despawn or destroy.
