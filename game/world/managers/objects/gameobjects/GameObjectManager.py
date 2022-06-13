@@ -396,7 +396,7 @@ class GameObjectManager(ObjectManager):
         return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
     # There are only 3 possible animations that can be used here.
-    # Effect might depend on the gameobject type, apparently. e.g. Fishing bobber do its animation by sending 0.
+    # Effect might depend on the gameobject type, apparently. e.g. Fishing bobber does its animation by sending 0.
     # TODO: See if we can retrieve the animation names.
     def send_custom_animation(self, animation):
         data = pack('<QI', self.guid, animation)
