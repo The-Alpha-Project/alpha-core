@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
@@ -13,8 +13,7 @@ if TYPE_CHECKING:
 
 
 class BasicCreatureAI(CreatureAI):
-    def __init__(self,
-                 creature: CreatureManager):
+    def __init__(self, creature: Optional[CreatureManager]):
         super().__init__(creature)
         self.can_summon_guards = creature.can_summon_guards() if creature else False
 

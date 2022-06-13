@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 import time
-from typing import Optional
 
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypeIds
