@@ -9,7 +9,6 @@ from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatu
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
-from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
@@ -22,7 +21,6 @@ from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
-from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, \
     TrainerTypes
