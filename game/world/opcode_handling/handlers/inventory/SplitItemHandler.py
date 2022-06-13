@@ -1,6 +1,5 @@
 from struct import unpack
 
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from utils.constants.ItemCodes import InventoryError, InventorySlots
 
 

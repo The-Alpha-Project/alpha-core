@@ -40,7 +40,7 @@ class LootManager(object):
         from game.world.managers.objects.loot.LootMapper import LootMapper
         loot_template = LootMapper.find_loot_by_loot_id(loot_id)
         if loot_template:
-            # Recurse, there might be more nested referenced loot templates.
+            # Loop through, there might be more nested referenced loot templates.
             return self.generate_loot_groups(loot_template)
         return []
 

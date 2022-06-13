@@ -2,8 +2,6 @@ from game.world.managers.objects.units.creature.CreatureManager import CreatureM
 from struct import unpack
 
 from game.world.managers.maps.MapManager import MapManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager
-from database.world.WorldModels import CreatureTemplate
 from utils import Formulas
 
 

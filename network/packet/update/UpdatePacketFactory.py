@@ -49,10 +49,10 @@ class UpdatePacketFactory(object):
         # What other UpdateFields are involved, e.g. PlayerFields [ObjectFields -> UnitFields -> PlayerFields]
         update_field_types = []
 
-        # The UpdateField we stand on before recurse.
+        # The UpdateField we stand on before looping through.
         field_type = fields_type
 
-        # Recurse until we visit each parent and find root. (ObjectFields)
+        # Loop through until we visit each parent and find root. (ObjectFields)
         while True:
             update_field_types.insert(0, field_type)
             if field_type == ObjectFields:

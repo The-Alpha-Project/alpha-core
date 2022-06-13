@@ -1,7 +1,6 @@
 from struct import unpack
 
 from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpellHandler
-from utils.constants.ItemCodes import InventorySlots
 
 
 class UseItemHandler(object):

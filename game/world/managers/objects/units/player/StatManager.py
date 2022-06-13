@@ -7,10 +7,9 @@ from game.world.managers.objects.units.player.EnchantmentManager import Enchantm
 from game.world.managers.objects.units.player.SkillManager import SkillTypes, SkillManager
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventorySlots, InventoryStats, InventoryTypes, ItemSubClasses, \
-    ItemEnchantmentType
-from utils.constants.MiscCodes import AttackTypes, ObjectTypeFlags, HitInfo, ObjectTypeIds
-from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms, SpellTargetMask
+from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
+from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds
+from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms
 from utils.constants.UnitCodes import PowerTypes, Classes, Races
 
 

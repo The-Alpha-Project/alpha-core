@@ -1,7 +1,6 @@
 from struct import pack
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.DuelCodes import *
 from utils.constants.MiscCodes import ObjectTypeIds

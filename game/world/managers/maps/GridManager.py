@@ -1,7 +1,8 @@
-import math, time
+import math
+import time
 
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds
 
 TOLERANCE = 0.00001
 CELL_SIZE = config.Server.Settings.cell_size

@@ -451,7 +451,7 @@ class SpellManager:
             # Interrupt handling
             if not casting_spell.initial_target_is_unit_or_player() or \
                     (casting_spell.spell_target_mask == SpellTargetMask.SELF and not
-                    casting_spell.requires_implicit_initial_unit_target()) or \
+                     casting_spell.requires_implicit_initial_unit_target()) or \
                     (casting_spell.is_instant_cast() and not casting_spell.is_channeled()):
                 # Ignore spells that are non-unit targeted, self-cast or instant.
                 continue
@@ -1137,9 +1137,9 @@ class SpellManager:
             ammo_subclass = used_ammo_or_weapon.item_template.subclass
 
             # Projectiles and thrown weapons are consumed on use.
-            is_consumable = ammo_class == ItemClasses.ITEM_CLASS_PROJECTILE or \
-                            (ammo_class == ItemClasses.ITEM_CLASS_WEAPON and
-                             ammo_subclass == ItemSubClasses.ITEM_SUBCLASS_THROWN)
+            is_consumable = ammo_class == ItemClasses.ITEM_CLASS_PROJECTILE or (
+                    ammo_class == ItemClasses.ITEM_CLASS_WEAPON and ammo_subclass == ItemSubClasses.ITEM_SUBCLASS_THROWN
+            )
             if is_consumable:
                 self.caster.inventory.remove_from_container(used_ammo_or_weapon.item_template.entry, 1,
                                                             used_ammo_or_weapon.item_instance.bag)

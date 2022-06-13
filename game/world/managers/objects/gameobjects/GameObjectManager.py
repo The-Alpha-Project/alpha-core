@@ -97,7 +97,8 @@ class GameObjectManager(ObjectManager):
 
         # Set channeled object for fishing nodes or rituals.
         if summoner and summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL or self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+            if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL or \
+                    self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
                 summoner.set_channel_object(self.guid)
 
         # Trap collision initializations.
@@ -167,7 +168,7 @@ class GameObjectManager(ObjectManager):
                 # Chest still have loot.
                 if self.loot_manager.has_loot():
                     self.set_ready()
-                else: # Despawn or destroy.
+                else:  # Despawn or destroy.
                     self.despawn(True if self.summoner else False)
             # Mining node.
             else:
@@ -253,7 +254,8 @@ class GameObjectManager(ObjectManager):
 
         # Make the player channel for summoning.
         channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
-        spell = player.spell_manager.try_initialize_spell(channel_spell_entry, self, SpellTargetMask.GAMEOBJECT, validate=False)
+        spell = player.spell_manager.try_initialize_spell(channel_spell_entry, self, SpellTargetMask.GAMEOBJECT,
+                                                          validate=False)
 
         # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
         player.spell_manager.remove_colliding_casts(spell)
@@ -269,12 +271,13 @@ class GameObjectManager(ObjectManager):
             # Cast the finishing spell.
             spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
             spell_cast = self.summoner.spell_manager.try_initialize_spell(spell_entry, self.summoner,
-                                                                               SpellTargetMask.SELF,
-                                                                               triggered=True, validate=False)
+                                                                          SpellTargetMask.SELF,
+                                                                          triggered=True, validate=False)
             if spell_cast:
                 self.summoner.spell_manager.start_spell_cast(initialized_spell=spell_cast)
             else:
-                self.summoner.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
+                # Interrupt ritual channel if the summon fails.
+                self.summoner.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)

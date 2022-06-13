@@ -135,7 +135,7 @@ class SpellEffectHandler:
             # Already being used.
             if target.is_active() or target.has_flag(GameObjectFlags.IN_USE):
                 caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
-                                                     SpellCheckCastResult.SPELL_FAILED_CHEST_IN_USE)
+                                                      SpellCheckCastResult.SPELL_FAILED_CHEST_IN_USE)
                 return
         elif isinstance(target, ItemManager):
             # Grab Item owner guid.

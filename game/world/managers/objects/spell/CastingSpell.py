@@ -325,12 +325,12 @@ class CastingSpell:
         if self.spell_entry.EquippedItemClass != ItemClasses.ITEM_CLASS_WEAPON:
             return False
 
-        return self.spell_entry.EquippedItemSubclass & (1 << ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE)  != 0
+        return self.spell_entry.EquippedItemSubclass & (1 << ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE) != 0
 
     def requires_combo_points(self):
         cp_att = SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS
         return self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
-               self.spell_entry.AttributesEx & cp_att != 0
+            self.spell_entry.AttributesEx & cp_att != 0
 
     def calculate_effective_level(self, level):
         if level > self.spell_entry.MaxLevel > 0:

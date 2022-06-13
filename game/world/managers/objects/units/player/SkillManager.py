@@ -1,12 +1,12 @@
 import random
 from enum import IntEnum
-from struct import pack, unpack
-from typing import NamedTuple
+from struct import pack
+from typing import NamedTuple, Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
-from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager, ItemTemplate
 from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
@@ -527,7 +527,7 @@ class SkillManager(object):
 
         return self.get_total_skill_value(skill.ID)
 
-    def get_skill_id_for_weapon(self, item_template):
+    def get_skill_id_for_weapon(self, item_template: Optional[ItemTemplate]):
         if not item_template:
             # Street fighting replaces unarmed for rogues - prioritize if the player knows it.
             return SkillTypes.STREETFIGHTING if self.skills.get(SkillTypes.STREETFIGHTING, None) else SkillTypes.UNARMED

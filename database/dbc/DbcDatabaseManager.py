@@ -274,9 +274,9 @@ class DbcDatabaseManager:
     # ItemSubClass
 
     @staticmethod
-    def item_get_swing_size_by_class_and_subclass(class_, subclass):
+    def item_get_subclass_info_by_class_and_subclass(class_, subclass):
         dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(ItemSubClas).filter_by(ClassID=class_, SubClassID=subclass).first()
+        res = dbc_db_session.query(ItemSubClass).filter_by(ClassID=class_, SubClassID=subclass).first()
         dbc_db_session.close()
         return res
 

@@ -4,7 +4,6 @@ from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import Emotes, ObjectTypeIds
-from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.UnitCodes import StandState
 
 

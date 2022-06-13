@@ -1,5 +1,4 @@
 from utils.constants.SpellCodes import SpellTargetMask
-from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketReader import PacketReader
 from database.world.WorldModels import CreatureTemplate
 from database.world.WorldDatabaseManager import WorldDatabaseManager

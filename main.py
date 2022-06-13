@@ -63,6 +63,7 @@ if __name__ == '__main__':
     world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start)
     world_process.start()
 
+    # noinspection PyBroadException
     try:
         if os.getenv('CONSOLE_MODE', config.Server.Settings.console_mode) in [True, 'True', 'true']:
             while input() != 'exit':

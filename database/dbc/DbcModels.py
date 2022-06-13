@@ -509,7 +509,7 @@ class ItemDisplayInfo(Base):
     ItemVisual = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
 
 
-class ItemSubClas(Base):
+class ItemSubClass(Base):
     __tablename__ = 'ItemSubClass'
 
     ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
@@ -1107,7 +1107,8 @@ class SpellVisualKit(Base):
     Anim = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
 
     visual_anim_name = relationship('SpellVisualAnimName', foreign_keys='SpellVisualAnimName.AnimID',
-                               primaryjoin="SpellVisualKit.Anim == SpellVisualAnimName.AnimID", uselist=False, lazy='joined')
+                                    primaryjoin="SpellVisualKit.Anim == SpellVisualAnimName.AnimID", uselist=False,
+                                    lazy='joined')
 
 
 class SpellVisualEffectName(Base):

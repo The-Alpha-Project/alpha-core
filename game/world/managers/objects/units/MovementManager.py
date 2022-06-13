@@ -3,7 +3,6 @@ from struct import pack
 from game.world import WorldManager
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.units.MovementSpline import MovementSpline
 from game.world.managers.objects.units.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter, OpCode

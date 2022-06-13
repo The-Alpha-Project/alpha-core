@@ -1,6 +1,5 @@
 import math
 
-from game.world.managers.abstractions.Vector import Vector
 from utils.constants.SpellCodes import ShapeshiftForms, TotemSlots
 from utils.constants.UnitCodes import Teams, PowerTypes
 

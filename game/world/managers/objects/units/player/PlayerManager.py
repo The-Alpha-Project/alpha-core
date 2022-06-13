@@ -794,7 +794,7 @@ class PlayerManager(UnitManager):
             # At this point, this player has access to the loot window, add him to the active looters.
             loot_manager.add_active_looter(self)
 
-        # Set the header, know that we know how many actual items were sent.
+        # Set the header, now that we know how many actual items were sent.
         data = pack(
             '<QBIB',
             loot_manager.world_object.guid,

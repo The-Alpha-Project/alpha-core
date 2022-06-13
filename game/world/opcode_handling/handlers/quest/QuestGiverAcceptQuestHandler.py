@@ -11,7 +11,7 @@ class QuestGiverAcceptQuestHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         if len(reader.data) >= 12:  # Avoid handling empty quest giver accept quest packet.
-            guid, quest_id = unpack ('<QI', reader.data[:12])
+            guid, quest_id = unpack('<QI', reader.data[:12])
             high_guid = ObjectManager.extract_high_guid(guid)
 
             quest_giver = None

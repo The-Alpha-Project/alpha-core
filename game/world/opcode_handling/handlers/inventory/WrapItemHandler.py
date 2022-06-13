@@ -1,9 +1,6 @@
 from struct import unpack
 
-from game.world.managers.objects.locks.LockManager import LockManager
 from utils.constants.ItemCodes import InventoryError, InventorySlots, ItemDynFlags
-from utils.constants.MiscCodes import LockType
-from utils.constants.SpellCodes import SpellCheckCastResult
 
 
 class WrapItemHandler(object):

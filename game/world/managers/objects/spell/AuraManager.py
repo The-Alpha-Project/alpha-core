@@ -1,5 +1,4 @@
 from struct import pack
-from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.spell import ExtendedSpellData

@@ -445,8 +445,8 @@ class ItemManager(ObjectManager):
     def has_enchantments(self):
         return any(enchantment.entry > 0 for enchantment in self.enchantments)
 
-    @staticmethod
     # Initial enchantment db state, empty or initialized with given permanent enchant. (Used for trade)
+    @staticmethod
     def _get_enchantments_db_initialization(permanent_enchant=0):
         db_enchantments = ''
         for index in range(MAX_ENCHANTMENTS):
