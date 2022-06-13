@@ -360,7 +360,7 @@ class StatManager(object):
                         current = self.item_stats.get(stat_type, 0)
                         self.item_stats[stat_type] = current + stat.value
 
-                # Add resistances/block
+                # Add resistances/block.
                 separate_stats = {UnitStats.RESISTANCE_PHYSICAL: item.item_template.armor,
                                   UnitStats.RESISTANCE_HOLY: item.item_template.holy_res,
                                   UnitStats.RESISTANCE_FIRE: item.item_template.fire_res,
@@ -370,9 +370,16 @@ class StatManager(object):
                 for stat, value in separate_stats.items():
                     self.item_stats[stat] = self.item_stats.get(stat, 0) + value
 
+                # Ignore weapon damage stats for feral druids.
                 if InventorySlots.SLOT_MAINHAND <= item.current_slot <= InventorySlots.SLOT_RANGED and \
                         self.unit_mgr.is_in_feral_form():
-                    continue  # Ignore weapon damage stats for feral druids.
+                    continue
+
+                # Code below this check is weapon related, stop handling this item if it's not a weapon.
+                if item.current_slot != InventorySlots.SLOT_MAINHAND or \
+                    item.current_slot != InventorySlots.SLOT_OFFHAND or \
+                        item.current_slot != InventorySlots.SLOT_RANGED:
+                    continue
 
                 weapon_min_damage = int(item.item_template.dmg_min1)
                 weapon_max_damage = int(item.item_template.dmg_max1)
@@ -382,6 +389,8 @@ class StatManager(object):
                     self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
                     self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage
                     self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
+                    # Assuming only main hand affects weapon reach.
+                    self.weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
                 elif item.current_slot == InventorySlots.SLOT_OFFHAND:
                     dual_wield_penalty = 0.5
                     self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = int(weapon_min_damage * dual_wield_penalty)
@@ -391,11 +400,6 @@ class StatManager(object):
                     self.item_stats[UnitStats.RANGED_DAMAGE_MIN] = weapon_min_damage
                     self.item_stats[UnitStats.RANGED_DAMAGE_MAX] = weapon_max_damage
                     self.item_stats[UnitStats.RANGED_DELAY] = weapon_delay
-
-                current_reach = self.weapon_reach
-                weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
-                if weapon_reach > current_reach:
-                    self.weapon_reach = weapon_reach
 
     def update_max_health(self):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)
