@@ -33,13 +33,19 @@ class MovementHandler:
 
                 jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
 
+                # Movement and jump actions.
                 if flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK) or jumped:
+                    # Don't mark player as moved if only jumping.
+                    if not jumped:
+                        world_session.player_mgr.set_has_moved(True)
+
                     # Cancel looting if moved.
                     if world_session.player_mgr.loot_selection:
                         world_session.player_mgr.send_loot_release(world_session.player_mgr.loot_selection)
                     world_session.player_mgr.spell_manager.check_spell_interrupts(moved=True)
                     world_session.player_mgr.aura_manager.check_aura_interrupts(moved=True)
 
+                # Turn actions.
                 if flags & MoveFlags.MOVEFLAG_TURN_MASK:
                     world_session.player_mgr.spell_manager.check_spell_interrupts(turned=True)
 
@@ -54,9 +60,6 @@ class MovementHandler:
                 world_session.player_mgr.location.y = y
                 world_session.player_mgr.location.z = z
                 world_session.player_mgr.location.o = o
-
-                if flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK):
-                    world_session.player_mgr.set_has_moved(True)
 
                 world_session.player_mgr.pitch = pitch
                 world_session.player_mgr.movement_flags = flags
