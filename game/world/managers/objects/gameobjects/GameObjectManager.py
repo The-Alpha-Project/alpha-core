@@ -161,7 +161,12 @@ class GameObjectManager(ObjectManager):
         gameobject.load()
         return gameobject
 
-    def handle_looted(self, player):
+    def handle_loot_release(self, player):
+        # On loot release, always despawn the fishing bobber regardless of it still having loot or not.
+        if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+            self.despawn(True)
+            return
+
         if self.loot_manager:
             # Normal chest.
             if not self.mining_node_manager:

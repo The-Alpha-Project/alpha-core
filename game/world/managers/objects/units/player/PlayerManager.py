@@ -743,7 +743,7 @@ class PlayerManager(UnitManager):
             # GAMEOBJECTS.
             elif object_type == ObjectTypeIds.ID_GAMEOBJECT:
                 game_object = target_world_object
-                game_object.handle_looted(self)
+                game_object.handle_loot_release(self)
             # ITEMS.
             elif object_type == ObjectTypeIds.ID_ITEM:
                 item_mgr = target_world_object
