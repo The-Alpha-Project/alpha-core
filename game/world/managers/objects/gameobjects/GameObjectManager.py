@@ -304,7 +304,7 @@ class GameObjectManager(ObjectManager):
         target.receive_healing(healing, self)
 
     def _handle_use_goober(self, player):
-        Logger.debug(f'Unimplemented gameobject use for type Gobber')
+        Logger.debug(f'Unimplemented gameobject use for type Goober')
         pass
 
     def use(self, player, target=None):
