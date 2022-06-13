@@ -342,7 +342,7 @@ class WorldDatabaseManager(object):
                 .append(fishing_template)
 
         @staticmethod
-        def flishing_loot_template_get_by_entry(entry) -> list[FishingLootTemplate]:
+        def fishing_loot_template_get_by_entry(entry) -> list[FishingLootTemplate]:
             return WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[entry] \
                 if entry in WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES else []
 

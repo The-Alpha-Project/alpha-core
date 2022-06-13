@@ -16,7 +16,7 @@ class LootMapper:
         loot = WorldDatabaseManager.ReferenceLootTemplateHolder.reference_loot_template_get_by_entry(loot_id)
         if loot:
             return loot
-        loot = WorldDatabaseManager.FishingLootTemplateHolder.flishing_loot_template_get_by_entry(loot_id)
+        loot = WorldDatabaseManager.FishingLootTemplateHolder.fishing_loot_template_get_by_entry(loot_id)
         if loot:
             return loot
         loot = WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_entry(loot_id)
