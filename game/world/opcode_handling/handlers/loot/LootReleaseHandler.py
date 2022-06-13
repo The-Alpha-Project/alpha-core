@@ -7,6 +7,8 @@ class LootReleaseHandler(object):
     def handle(world_session, socket, reader):
         if len(reader.data) >= 8:  # Avoid handling empty loot release packet.
             guid = unpack('<Q', reader.data[:8])[0]
-            world_session.player_mgr.send_loot_release(guid)
+            if world_session.player_mgr.loot_selection and \
+                    world_session.player_mgr.loot_selection.object_guid == guid:
+                world_session.player_mgr.send_loot_release(world_session.player_mgr.loot_selection)
 
         return 0

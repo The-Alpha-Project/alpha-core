@@ -29,7 +29,7 @@ class SplitItemHandler(object):
             if not inventory.add_item_to_slot(dest_bag_slot, dest_slot, item=source_item,
                                               item_template=source_item.item_template, count=count):
                 return 0
-            source_item.item_instance.stackcount -= count
-            RealmDatabaseManager.character_inventory_update_item(source_item.item_instance)
-            world_session.player_mgr.set_dirty_inventory()
+            new_stack_count = source_item.item_instance.stackcount - count
+            source_item.set_stack_count(new_stack_count)
+
         return 0

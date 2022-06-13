@@ -61,8 +61,9 @@ class ObjectManager:
         self.object_type_mask = ObjectTypeFlags.TYPE_OBJECT
         self.update_packet_factory = UpdatePacketFactory()
 
+        self.initialized = False
         self.is_spawned = True
-        self.is_summon = False
+        self.summoner = None
         self.current_cell = ''
         self.last_tick = 0
         self.movement_spline = None
@@ -82,9 +83,12 @@ class ObjectManager:
     def generate_create_packet(self, requester):
         return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
-            self.get_full_update_packet(requester)))
+            self.get_object_create_packet(requester)))
 
     def generate_partial_packet(self, requester):
+        if not self.initialized:
+            self.initialize_field_values()
+
         return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
             self.get_partial_update_packet(requester)))
@@ -93,6 +97,9 @@ class ObjectManager:
         from game.world.managers.objects.units import UnitManager
 
         is_self = requester.guid == self.guid
+
+        if not self.initialized:
+            self.initialize_field_values()
 
         # Base structure.
         data = self._get_base_structure(UpdateTypes.CREATE_OBJECT)
@@ -214,41 +221,20 @@ class ObjectManager:
         return data
 
     def _get_fields_update(self, is_create, requester):
-        data = pack('<B', self.update_packet_factory.update_mask.block_count)
-
-        # Create packets are always timestamp based, since fields might not be dirty but already touched.
-        # Because of the way we handle items/containers updates atm, those will land here as well, always.
-        if is_create:
-            data += self._get_fields_timestamp_based()
-        # Partial updates will follow normal field value acquisition based on bit mask.
-        else:
-            data += self._get_fields_bit_mask_based()
-
-        return data
-
-    # Generate an update packet based on which fields are currently touched.
-    # Usually used by any partial update requested by a player who already knows this world object.
-    def _get_fields_bit_mask_based(self):
-        data = self.update_packet_factory.update_mask.to_bytes()
-        for i in range(0, self.update_packet_factory.update_mask.field_count):
-            if self.update_packet_factory.update_mask.is_set(i):
-                data += self.update_packet_factory.update_values_bytes[i]
-        return data
-
-    # Generate an update packet based on fields that has been previously touched.
-    # This is used mostly for create packets requested by players that just met a new world object.
-    def _get_fields_timestamp_based(self):
-        mask_copy = self.update_packet_factory.update_mask.copy()
-        fields_data = b''
-        for i in range(0, self.update_packet_factory.update_mask.field_count):
-            # Value is not 0 and bit mask is on or has a timestamp.
-            if self.update_packet_factory.update_values[i] != 0 and \
-                    self.update_packet_factory.update_mask.is_set(i) or \
-                    self.update_packet_factory.update_timestamps[i]:
-                fields_data += self.update_packet_factory.update_values_bytes[i]
-                mask_copy[i] = 1
-        data = mask_copy.tobytes() + fields_data
-        return data
+        data = b''
+        mask = self.update_packet_factory.update_mask.copy()
+        for field_index in range(self.update_packet_factory.update_mask.field_count):
+            # Partial packets only care for fields that had changes.
+            if not is_create and mask[field_index] == 0:
+                continue
+            # Check for encapsulation, turn off the bit if requester has no read access.
+            if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
+                mask[field_index] = 0
+                continue
+            # Append field value and turn on bit on mask.
+            data += self.update_packet_factory.update_values_bytes[field_index]
+            mask[field_index] = 1
+        return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
     # noinspection PyMethodMayBeStatic
     def is_aura_field(self, index):
@@ -292,9 +278,15 @@ class ObjectManager:
     def _get_value_by_type_at(self, value_type, index):
         if not self.update_packet_factory.update_values[index]:
             return 0
-        value = self.update_packet_factory.update_values[index]
+
+        # Return the raw value directly if not 64 bits.
+        if value_type.lower() != 'q':
+            return self.update_packet_factory.update_values[index]
+
+        # Unpack from two field bytes.
+        value = self.update_packet_factory.update_values_bytes[index]
         if value_type.lower() == 'q':
-            value += self.update_packet_factory.update_values[index + 1]
+            value += self.update_packet_factory.update_values_bytes[index + 1]
 
         return unpack(f'<{value_type}', value)[0]
 
@@ -303,7 +295,7 @@ class ObjectManager:
         pass
 
     # override
-    def get_full_update_packet(self, requester):
+    def initialize_field_values(self):
         pass
 
     # override

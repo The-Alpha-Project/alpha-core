@@ -131,6 +131,10 @@ class CastPositionRestrictions:
             return facing_target
         return True
 
+    @staticmethod
+    def is_from_behind(spell_id: int):
+        return spell_id in CastPositionRestrictions.CASTABLE_FROM_BEHIND
+
 
 class SummonedObjectPositions:
     # Vanilla has separate spell effects for different totem positions.

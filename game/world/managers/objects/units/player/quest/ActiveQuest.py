@@ -121,7 +121,7 @@ class ActiveQuest:
 
         # Make sure we clamp between 0 and required.
         new_count = max(0, min(value, required_count))
-        exec(f'self.db_state.itemcount{index + 1} = new_count')
+        exec(f'self.db_state.itemcount{index + 1} = {new_count}')
         self.save(is_new=False)
 
     # noinspection PyMethodMayBeStatic
@@ -159,14 +159,14 @@ class ActiveQuest:
 
         # Check for required kills / gameobjects.
         required_creature_go = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
-        for i in range(0, 4):
+        for i in range(4):
             current_value = eval(f'self.db_state.mobcount{i + 1}')
             if current_value < required_creature_go[i]:
                 return False
 
         # Check for required items.
         required_items = QuestHelpers.generate_req_item_count_list(self.quest)
-        for i in range(0, 4):
+        for i in range(4):
             current_value = eval(f'self.db_state.itemcount{i + 1}')
             if current_value < required_items[i]:
                 return False
@@ -229,7 +229,7 @@ class ActiveQuest:
                 # Consider how many bits the previous creature required.
                 offset = index * req_creature_or_go_count[index - 1] if index > 0 else 0
 
-                for i in range(0, required):
+                for i in range(required):
                     if i < current_count:  # Turn on actual kills
                         total_count += (1 & 1) << (1 * i) + offset
                     else:  # Fill remaining 0s (Missing kills)

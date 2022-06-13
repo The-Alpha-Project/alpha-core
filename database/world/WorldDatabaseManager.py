@@ -21,7 +21,7 @@ SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autocommit=Tru
 
 
 class WorldDatabaseManager(object):
-    # Player stuff
+    # Player stuff.
 
     @staticmethod
     def player_create_info_get(race, class_) -> Optional[Playercreateinfo]:
@@ -65,7 +65,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Area stuff
+    # Area stuff.
 
     @staticmethod
     def area_trigger_teleport_get_by_id(trigger_id) -> Optional[AreatriggerTeleport]:
@@ -95,7 +95,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Exploration stuff
+    # Exploration stuff.
 
     @staticmethod
     def exploration_base_xp_get_by_level(level) -> Optional[ExplorationBaseXP]:
@@ -104,7 +104,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res.base_xp
 
-    # Worldport stuff
+    # Worldport stuff.
 
     @staticmethod
     def worldport_get_by_name(name, return_all=False) -> [list, Optional[Worldports]]:
@@ -124,7 +124,30 @@ class WorldDatabaseManager(object):
                 best_matching_location = location
         return best_matching_location
 
-    # Item stuff
+    # Item stuff.
+
+    @staticmethod
+    def get_item_applied_update(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(AppliedItemUpdates).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def create_item_applied_update(entry, version):
+        world_db_session = SessionHolder()
+        applied_item_update = AppliedItemUpdates(entry=entry, version=version)
+        world_db_session.add(applied_item_update)
+        world_db_session.flush()
+        world_db_session.refresh(applied_item_update)
+        world_db_session.close()
+
+    @staticmethod
+    def update_item_applied_update(item_applied_update):
+        world_db_session = SessionHolder()
+        world_db_session.merge(item_applied_update)
+        world_db_session.flush()
+        world_db_session.close()
 
     @staticmethod
     def item_get_loot_template() -> list[ItemLootTemplate]:
@@ -185,7 +208,59 @@ class WorldDatabaseManager(object):
                 best_matching_item = item
         return best_matching_item
 
-    # Page text stuff
+    # Reference loot.
+
+    @staticmethod
+    def reference_loot_template_get_all() -> list[ReferenceLootTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(ReferenceLootTemplate).all()
+        world_db_session.close()
+        return res
+
+    class ReferenceLootTemplateHolder:
+        REFERENCE_LOOT_TEMPLATES: [int, list[ReferenceLootTemplate]] = {}
+
+        @staticmethod
+        def load_reference_loot_template(reference_loot_template):
+            if reference_loot_template.entry not in \
+                    WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES:
+                WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES[reference_loot_template.entry] = []
+
+            WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES[reference_loot_template.entry] \
+                .append(reference_loot_template)
+
+        @staticmethod
+        def reference_loot_template_get_by_entry(entry) -> list[ReferenceLootTemplate]:
+            return WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES[entry] \
+                if entry in WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES else []
+
+    # Pick Pocketing loot.
+    @staticmethod
+    def pickpocketing_loot_template_get_all() -> list[PickpocketingLootTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PickpocketingLootTemplate).all()
+        world_db_session.close()
+        return res
+
+    class PickPocketingLootTemplateHolder:
+        PICKPOCKETING_LOOT_TEMPLATES: [int, list[PickpocketingLootTemplate]] = {}
+
+        @staticmethod
+        def load_pickpocketing_loot_template(pickpocketing_loot_template):
+            if pickpocketing_loot_template.entry not in \
+                    WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES:
+                WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES[
+                    pickpocketing_loot_template.entry] = []
+
+            WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES[pickpocketing_loot_template.entry] \
+                .append(pickpocketing_loot_template)
+
+        @staticmethod
+        def pickpocketing_loot_template_get_by_entry(entry) -> list[PickpocketingLootTemplate]:
+            return WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES[entry] \
+                if entry in WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES else []
+
+    # Page text stuff.
 
     @staticmethod
     def page_text_get_by_id(page_id) -> Optional[PageText]:
@@ -194,7 +269,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Gameobject stuff
+    # Gameobject stuff.
 
     @staticmethod
     def gameobject_get_all_spawns() -> [list[SpawnsGameobjects], scoped_session]:
@@ -238,7 +313,48 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[entry]\
                 if entry in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES else []
 
-    # Creature stuff
+    # Fishing.
+
+    @staticmethod
+    def fishing_template_get_by_entry(entry) -> Optional[FishingLootTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(FishingLootTemplate).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def fishing_get_loot_template() -> list[FishingLootTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(FishingLootTemplate).all()
+        world_db_session.close()
+        return res
+
+    class FishingLootTemplateHolder:
+        FISHING_LOOT_TEMPLATES: [int, list[FishingLootTemplate]] = {}
+
+        @staticmethod
+        def load_fishing_loot_template(fishing_template):
+            if fishing_template.entry not in WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES:
+                WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[
+                    fishing_template.entry] = []
+
+            WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[fishing_template.entry] \
+                .append(fishing_template)
+
+        @staticmethod
+        def flishing_loot_template_get_by_entry(entry) -> list[FishingLootTemplate]:
+            return WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[entry] \
+                if entry in WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES else []
+
+    # Fishing skill by zone.
+    @staticmethod
+    def fishing_skill_get_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(SkillFishingBaseLevel).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
+    # Creature stuff.
 
     @staticmethod
     def creature_get_by_entry(entry) -> Optional[CreatureTemplate]:
@@ -341,7 +457,7 @@ class WorldDatabaseManager(object):
             if creature_spell.entry not in WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE:
                 WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry] = []
 
-            for index in range(0, WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELLS_MAX_SPELLS):
+            for index in range(WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELLS_MAX_SPELLS):
                 spell_template = CreatureSpellsEntry(creature_spell, index + 1)
                 WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry].append(spell_template)
 
@@ -356,7 +472,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Quest stuff
+    # Quest stuff.
 
     class QuestRelationHolder:
         QUEST_CREATURE_STARTERS: [int, list[t_creature_quest_starter]] = {}
@@ -462,7 +578,7 @@ class WorldDatabaseManager(object):
         def quest_get_by_entry(entry) -> Optional[QuestTemplate]:
             return WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES.get(entry)
 
-    # Trainer stuff
+    # Trainer stuff.
 
     class TrainerSpellHolder:
         TRAINER_SPELLS: dict[tuple[int, int], TrainerTemplate] = {}
@@ -542,7 +658,14 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Gossip
+    @staticmethod
+    def spell_enchant_charges_get_by_spell(spell_id) -> Optional[SpellEnchantCharges]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(SpellEnchantCharges).filter_by(entry=spell_id).first()
+        world_db_session.close()
+        return res.charges if res else 0
+
+    # Gossip.
 
     class QuestGossipHolder:
         NPC_GOSSIPS: dict[int, NpcGossip] = {}

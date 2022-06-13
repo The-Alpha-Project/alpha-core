@@ -1,6 +1,6 @@
 from struct import unpack
 
-from game.world.managers.objects.units.player.TradeManager import TradeManager
+from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
 from utils.constants.ItemCodes import InventorySlots
 from utils.constants.MiscCodes import TradeStatus
 
@@ -22,7 +22,7 @@ class SetTradeItemHandler(object):
             if not item:
                 return 0
 
-            if trade_slot > TradeManager.TradeData.TRADE_SLOT_COUNT:
+            if trade_slot > TradeManager.TRADE_SLOT_COUNT:
                 TradeManager.send_trade_status(world_session.player_mgr, TradeStatus.TRADE_STATUS_CANCELLED)
                 return 0
 

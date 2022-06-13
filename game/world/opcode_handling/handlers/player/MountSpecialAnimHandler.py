@@ -8,9 +8,9 @@ class MountSpecialAnimHandler(object):
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
         # TODO Not working, wrong packet data, or animation not implemented client side?
-        player_guid = pack('<Q', world_session.player_mgr.guid)
-        mount_anim_packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTSPECIAL_ANIM, player_guid)
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_TEXT_EMOTE, mount_anim_packet),
-                                    world_session.player_mgr, include_self=True)
+        player_guid = unpack('<Q', reader.data[:8])[0]
+        data = pack('<Q', player_guid)
+        mount_anim_packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTSPECIAL_ANIM, data)
+        MapManager.send_surrounding(mount_anim_packet, world_session.player_mgr)
 
         return 0

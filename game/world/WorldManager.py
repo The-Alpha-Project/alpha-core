@@ -67,6 +67,9 @@ class WorldServerSessionHandler:
     def save_character(self):
         WorldSessionStateHandler.save_character(self.player_mgr)
 
+    def enqueue_packets(self, packets):
+        [self.outgoing_pending.put_nowait(packet) for packet in packets if self.keep_alive]
+
     def enqueue_packet(self, data):
         if self.keep_alive:
             self.outgoing_pending.put_nowait(data)

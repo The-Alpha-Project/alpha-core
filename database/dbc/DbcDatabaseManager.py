@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.dbc.DbcModels import *
+from game.world.managers.objects.locks.LockHolder import LockHolder
 from utils.ConfigManager import *
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
@@ -162,6 +163,13 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    def spell_visual_get_by_id(spell_visual_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellVisual).filter_by(ID=spell_visual_id).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
     def spell_range_get_by_id(range_index):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellRange).filter_by(ID=range_index).first()
@@ -179,6 +187,13 @@ class DbcDatabaseManager:
     def spell_radius_get_by_id(radius_index):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellRadius).filter_by(ID=radius_index).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def spell_get_item_enchantment(enchantment_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellItemEnchantment).filter_by(ID=enchantment_id).first()
         dbc_db_session.close()
         return res
 
@@ -253,6 +268,15 @@ class DbcDatabaseManager:
     def skill_line_ability_get_all():
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SkillLineAbility).all()
+        dbc_db_session.close()
+        return res
+
+    # ItemSubClass
+
+    @staticmethod
+    def item_get_swing_size_by_class_and_subclass(class_, subclass):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(ItemSubClas).filter_by(ClassID=class_, SubClassID=subclass).first()
         dbc_db_session.close()
         return res
 
@@ -411,6 +435,27 @@ class DbcDatabaseManager:
     def taxi_path_nodes_get_all():
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(TaxiPathNode).order_by(TaxiPathNode.NodeIndex.asc()).all()
+        dbc_db_session.close()
+        return res
+
+    # Locks
+    class LocksHolder:
+        LOCKS = {}
+
+        @staticmethod
+        def load_lock(lock: Lock):
+            DbcDatabaseManager.LocksHolder.LOCKS[lock.ID] = LockHolder(lock)
+
+        @staticmethod
+        def get_lock_by_id(lock_id):
+            if lock_id in DbcDatabaseManager.LocksHolder.LOCKS:
+                return DbcDatabaseManager.LocksHolder.LOCKS[lock_id]
+            return 0
+
+    @staticmethod
+    def locks_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(Lock).all()
         dbc_db_session.close()
         return res
 

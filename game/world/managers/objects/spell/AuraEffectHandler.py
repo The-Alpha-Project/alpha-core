@@ -3,10 +3,10 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
 from utils.constants.UnitCodes import UnitFlags, UnitStates
-from utils.constants.UpdateFields import UnitFields
+from utils.constants.UpdateFields import UnitFields, PlayerFields
 
 
 class AuraEffectHandler:
@@ -126,6 +126,32 @@ class AuraEffectHandler:
         effect_target.spell_manager.start_spell_cast(initialized_spell=spell)
 
     @staticmethod
+    def handle_track_creatures(aura, effect_target, remove):
+        if effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        flag = effect_target.get_uint32(PlayerFields.PLAYER_TRACK_CREATURES)
+        if not remove:
+            flag |= (1 << (aura.spell_effect.misc_value - 1))
+        else:
+            flag &= ~(1 << (aura.spell_effect.misc_value - 1))
+
+        effect_target.set_uint32(PlayerFields.PLAYER_TRACK_CREATURES, flag)
+
+    @staticmethod
+    def handle_track_resources(aura, effect_target, remove):
+        if effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        flag = effect_target.get_uint32(PlayerFields.PLAYER_TRACK_RESOURCES)
+        if not remove:
+            flag |= (1 << (aura.spell_effect.misc_value - 1))
+        else:
+            flag &= ~(1 << (aura.spell_effect.misc_value - 1))
+
+        effect_target.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, flag)
+
+    @staticmethod
     def handle_proc_trigger_damage(aura, effect_target, remove):
         if remove:
             return
@@ -142,23 +168,38 @@ class AuraEffectHandler:
         effect_target.mirror_timers_manager.feign_death = not remove
 
     @staticmethod
-    def handle_mod_stun(aura, effect_target, remove):
-        # TODO Finish implementing stun effect:
-        #    - Interrupt spell casting.
+    def handle_water_breathing(aura, effect_target, remove):
+        if not remove:
+            effect_target.mirror_timers_manager.set_water_breathing(True)
+        else:
+            effect_target.mirror_timers_manager.set_water_breathing(False)
 
+    @staticmethod
+    def handle_mod_stalked(aura, effect_target, remove):
+        dyn_flags = effect_target.get_uint32(UnitFields.UNIT_DYNAMIC_FLAGS)
+        if not remove:
+            dyn_flags |= UnitDynamicTypes.UNIT_DYNAMIC_TRACK_UNIT
+        else:
+            dyn_flags &= ~ UnitDynamicTypes.UNIT_DYNAMIC_TRACK_UNIT
+
+        effect_target.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, dyn_flags)
+
+    @staticmethod
+    def handle_mod_stun(aura, effect_target, remove):
         # Player specific.
         if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Don't stun if player is flying.
             if effect_target.pending_taxi_destination:
                 return
             # Release loot if any.
-            if effect_target.current_loot_selection != 0:
-                effect_target.send_loot_release()
+            if effect_target.loot_selection:
+                effect_target.send_loot_release(effect_target.loot_selection)
 
         # Root (or unroot) unit.
         effect_target.set_root(not remove)
 
         if not remove:
+            effect_target.spell_manager.remove_all_casts()
             effect_target.set_current_target(0)
             effect_target.unit_state |= UnitStates.STUNNED
             effect_target.unit_flags |= UnitFlags.UNIT_FLAG_DISABLE_ROTATE
@@ -244,6 +285,7 @@ class AuraEffectHandler:
         else:
             new_value = base_stat + amount
 
+        # TODO? Missing apply or send update to player?
         effect_target.stat_manager.base_stats[stat_type] = new_value
 
     @staticmethod
@@ -453,12 +495,16 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_PERIODIC_LEECH: AuraEffectHandler.handle_periodic_leech,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL: AuraEffectHandler.handle_proc_trigger_spell,
     AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE: AuraEffectHandler.handle_proc_trigger_damage,
+    AuraTypes.SPELL_AURA_TRACK_RESOURCES: AuraEffectHandler.handle_track_resources,
+    AuraTypes.SPELL_AURA_TRACK_CREATURES: AuraEffectHandler.handle_track_creatures,
     AuraTypes.SPELL_AURA_FEIGN_DEATH: AuraEffectHandler.handle_feign_death,
     AuraTypes.SPELL_AURA_MOD_STUN: AuraEffectHandler.handle_mod_stun,
     AuraTypes.SPELL_AURA_TRANSFORM: AuraEffectHandler.handle_transform,
     AuraTypes.SPELL_AURA_MOD_ROOT: AuraEffectHandler.handle_mod_root,
     AuraTypes.SPELL_AURA_MOD_STEALTH: AuraEffectHandler.handle_mod_stealth,
     AuraTypes.SPELL_AURA_MOD_CHARM: AuraEffectHandler.handle_mod_charm,
+    AuraTypes.SPELL_AURA_MOD_STALKED: AuraEffectHandler.handle_mod_stalked,
+    AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
 
     # Stat modifiers.
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,

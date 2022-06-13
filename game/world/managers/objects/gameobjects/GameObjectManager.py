@@ -7,16 +7,20 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager, SpawnsGameobjects
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.gameobjects.FishingNodeManager import FishingNodeManager
+from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
+from game.world.managers.objects.gameobjects.MiningNodeManager import MiningNodeManager
 from game.world.managers.objects.gameobjects.TrapManager import TrapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from network.packet.PacketWriter import PacketWriter
+from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates
+from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
-from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.UnitCodes import StandState, SplineFlags
-from utils.constants.UpdateFields import ObjectFields, GameObjectFields
+from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
+from utils.constants.UnitCodes import StandState, UnitFlags
+from utils.constants.UpdateFields import ObjectFields, GameObjectFields, UnitFields
 
 
 class GameObjectManager(ObjectManager):
@@ -25,13 +29,14 @@ class GameObjectManager(ObjectManager):
     def __init__(self,
                  gobject_template,
                  gobject_instance=None,
-                 is_summon=False,
+                 summoner=None,
                  **kwargs):
         super().__init__(**kwargs)
 
         self.gobject_template = gobject_template
         self.gobject_instance = gobject_instance
-        self.is_summon = is_summon
+        self.summoner = summoner
+        self.spell_id = 0  # Spell that summoned this object.
 
         self.entry = self.gobject_template.entry
         self.native_display_id = self.gobject_template.display_id
@@ -39,6 +44,11 @@ class GameObjectManager(ObjectManager):
         self.native_scale = self.gobject_template.scale
         self.current_scale = self.native_scale
         self.faction = self.gobject_template.faction
+        self.lock = 0  # Unlocked.
+        self.flags = self.gobject_template.flags
+
+        if self.summoner:
+            self.flags |= GameObjectFlags.TRIGGERED
 
         if gobject_instance:
             if GameObjectManager.CURRENT_HIGHEST_GUID < gobject_instance.spawn_id:
@@ -50,38 +60,67 @@ class GameObjectManager(ObjectManager):
             self.location.y = self.gobject_instance.spawn_positionY
             self.location.z = self.gobject_instance.spawn_positionZ
             self.location.o = self.gobject_instance.spawn_orientation
-            self.map_ = self.gobject_instance.spawn_map
+            # If spawned by another unit, use that unit map and zone.
+            self.map_ = self.gobject_instance.spawn_map if not self.summoner else self.summoner.map_
+            self.zone = self.summoner.zone if self.summoner else 0
             self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
                                         self.gobject_instance.spawn_spawntimemax)
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_GAMEOBJECT
-        self.update_packet_factory.init_values(GameObjectFields.GAMEOBJECT_END)
+        self.update_packet_factory.init_values(self.guid, GameObjectFields)
 
-        self.initialized = False
         self.respawn_timer = 0
-        self.loot_manager = None
+        self.loot_manager = None  # Optional.
+        self.trap_manager = None  # Optional.
+        self.fishing_node_manager = None  # Optional.
+        self.mining_node_manager = None  # Optional.
 
         from game.world.managers.objects.spell.SpellManager import SpellManager  # Local due to circular imports.
         self.spell_manager = SpellManager(self)
 
-        # Chest only initializations.
+        # Chest initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            self.lock = self.gobject_template.data0
             self.loot_manager = GameObjectLootManager(self)
+            # Mining node.
+            if self.gobject_template.data4 != 0 and self.gobject_template.data5 > self.gobject_template.data4:
+                self.mining_node_manager = MiningNodeManager(self)
+
+        # Fishing node initialization.
+        if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+            self.loot_manager = GameObjectLootManager(self)
+            self.fishing_node_manager = FishingNodeManager(self)
 
         # Ritual initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
-            self.ritual_caster = None
             self.ritual_participants = []
 
+        # Set channeled object for fishing nodes or rituals.
+        if summoner and summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL or self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+                summoner.set_channel_object(self.guid)
+
         # Trap collision initializations.
+        self.lock = self.gobject_template.data0
         if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
             self.trap_manager = TrapManager.generate(self)
+
+        # Lock initialization for button and door.
+        if self.gobject_template.type == GameObjectTypes.TYPE_BUTTON or \
+                self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
+            self.lock = self.gobject_template.data1
+
+        # Lock initialization for quest giver, goober and camera.
+        if self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER or \
+                self.gobject_template.type == GameObjectTypes.TYPE_GOOBER or \
+                self.gobject_template.type == GameObjectTypes.TYPE_CAMERA:
+            self.lock = gobject_template.data0
 
     def load(self):
         MapManager.update_object(self)
 
     @staticmethod
-    def spawn(entry, location, map_id, override_faction=0, despawn_time=1):
+    def spawn(entry, location, map_id, summoner=None, spell_id=0, override_faction=0, despawn_time=1):
         go_template = WorldDatabaseManager.gameobject_template_get_by_entry(entry)
 
         if not go_template:
@@ -108,13 +147,31 @@ class GameObjectManager(ObjectManager):
         gameobject = GameObjectManager(
             gobject_template=go_template,
             gobject_instance=instance,
-            is_summon=True
+            summoner=summoner
         )
-        if override_faction > 0:
+
+        if spell_id:
+            gameobject.spell_id = spell_id
+
+        if override_faction:
             gameobject.faction = override_faction
+            gameobject.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, override_faction)
 
         gameobject.load()
         return gameobject
+
+    def handle_looted(self, player):
+        if self.loot_manager:
+            # Normal chest.
+            if not self.mining_node_manager:
+                # Chest still have loot.
+                if self.loot_manager.has_loot():
+                    self.set_ready()
+                else: # Despawn or destroy.
+                    self.despawn(True if self.summoner else False)
+            # Mining node.
+            else:
+                self.mining_node_manager.handle_looted(player)
 
     def _handle_use_door(self, player):
         # TODO: Check locks etc.
@@ -140,7 +197,7 @@ class GameObjectManager(ObjectManager):
 
         if slots > 0:
             orthogonal_orientation = self.location.o + pi * 0.5
-            for x in range(0, slots):
+            for x in range(slots):
                 relative_distance = (self.current_scale * x) - (self.current_scale * (slots - 1) / 2.0)
                 x_i = self.location.x + relative_distance * cos(orthogonal_orientation)
                 y_i = self.location.y + relative_distance * sin(orthogonal_orientation)
@@ -158,24 +215,40 @@ class GameObjectManager(ObjectManager):
         if target:
             player.quest_manager.handle_quest_giver_hello(target, target.guid)
 
+    def _handle_fishing_node(self, player):
+        # Generate loot if it's empty.
+        if not self.loot_manager.has_loot():
+            self.loot_manager.generate_loot(player)
+
+        if self.fishing_node_manager.try_hook_attempt(player):
+            player.send_loot(self.loot_manager)
+
+        # Remove cast.
+        player.spell_manager.remove_cast_by_id(self.spell_id)
+
     def _handle_use_chest(self, player):
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.state == GameObjectStates.GO_STATE_READY:
             self.set_state(GameObjectStates.GO_STATE_ACTIVE)
 
+        # Player kneel loot.
+        player.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
+        player.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player.unit_flags)
+
         # Generate loot if it's empty.
         if not self.loot_manager.has_loot():
             self.loot_manager.generate_loot(player)
 
-        player.send_loot(self)
+        player.send_loot(self.loot_manager)
 
     def _handle_use_ritual(self, player):
-        # Participant group limitations.
-        if not self.ritual_caster.group_manager or not self.ritual_caster.group_manager.is_party_member(player.guid):
+        # Group check.
+        if not self.summoner.group_manager or not self.summoner.group_manager.is_party_member(player.guid):
+            player.spell_manager.send_cast_result(self.spell_id, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
             return
 
         ritual_channel_spell_id = self.gobject_template.data2
-        if player is self.ritual_caster or player in self.ritual_participants:
+        if player is self.summoner or player in self.ritual_participants:
             return  # No action needed for this player.
 
         # Make the player channel for summoning.
@@ -195,13 +268,13 @@ class GameObjectManager(ObjectManager):
 
             # Cast the finishing spell.
             spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
-            spell_cast = self.ritual_caster.spell_manager.try_initialize_spell(spell_entry, self.ritual_caster,
+            spell_cast = self.summoner.spell_manager.try_initialize_spell(spell_entry, self.summoner,
                                                                                SpellTargetMask.SELF,
                                                                                triggered=True, validate=False)
             if spell_cast:
-                self.ritual_caster.spell_manager.start_spell_cast(initialized_spell=spell_cast)
+                self.summoner.spell_manager.start_spell_cast(initialized_spell=spell_cast)
             else:
-                self.ritual_caster.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
+                self.summoner.spell_manager.remove_cast_by_id(ritual_channel_spell_id)  # Interrupt ritual channel if the summon fails.
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
@@ -228,6 +301,7 @@ class GameObjectManager(ObjectManager):
         target.receive_healing(healing, self)
 
     def _handle_use_goober(self, player):
+        Logger.debug(f'Unimplemented gameobject use for type Gobber')
         pass
 
     def use(self, player, target=None):
@@ -247,16 +321,33 @@ class GameObjectManager(ObjectManager):
             self._handle_use_goober(player)
         elif self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             self._handle_use_quest_giver(player, target)
+        elif self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+            self._handle_fishing_node(player)
 
     def set_state(self, state):
         self.state = state
         self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
+
+        # If not a fishing node, set this go in_use flag.
+        if not self.fishing_node_manager:
+            if state == GameObjectStates.GO_STATE_ACTIVE:
+                self.flags |= GameObjectFlags.IN_USE
+                self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
+            else:
+                self.flags &= ~GameObjectFlags.IN_USE
+                self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
+
+    def has_flag(self, flag: GameObjectFlags):
+        return self.flags & flag
 
     def set_active(self):
         if self.state == GameObjectStates.GO_STATE_READY:
             self.set_state(GameObjectStates.GO_STATE_ACTIVE)
             return True
         return False
+
+    def is_active(self):
+        return self.state == GameObjectStates.GO_STATE_ACTIVE
 
     def set_ready(self):
         if self.state != GameObjectStates.GO_STATE_READY:
@@ -276,31 +367,33 @@ class GameObjectManager(ObjectManager):
 
     # override
     def _get_fields_update(self, is_create, requester):
-        data = pack('<B', self.update_packet_factory.update_mask.block_count)
+        data = b''
+        mask = self.update_packet_factory.update_mask.copy()
+        for field_index in range(self.update_packet_factory.update_mask.field_count):
+            # Partial packets only care for fields that had changes.
+            if not is_create and mask[field_index] == 0 and not self.update_packet_factory.is_dynamic_field(field_index):
+                continue
+            # Check for encapsulation, turn off the bit if requester has no read access.
+            if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
+                mask[field_index] = 0
+                continue
+            # Handle dynamic field, turn on this extra bit.
+            if self.update_packet_factory.is_dynamic_field(field_index):
+                data += pack('<I', self.generate_dynamic_field_value(requester))
+                mask[field_index] = 1
+            else:
+                # Append field value and turn on bit on mask.
+                data += self.update_packet_factory.update_values_bytes[field_index]
+                mask[field_index] = 1
+        return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
-        # Use a temporary bit mask in case we need to set more bits.
-        mask_copy = self.update_packet_factory.update_mask.copy()
-        fields_data = b''
-        for i in range(0, self.update_packet_factory.update_mask.field_count):
-            if self.is_dynamic_field(i):
-                fields_data += pack('<I', self.generate_dynamic_field_value(requester))
-                mask_copy[i] = 1  # Turn on this extra bit.
-            elif self.update_packet_factory.update_mask.is_set(i):
-                fields_data += self.update_packet_factory.update_values_bytes[i]
-            # If bit is not set but this is a create request, check if it's a touched value and greater than 0.
-            elif is_create and self.update_packet_factory.update_timestamps[i] and \
-                    self.update_packet_factory.update_values[i] != 0:
-                fields_data += self.update_packet_factory.update_values_bytes[i]
-                mask_copy[i] = 1  # Turn on this extra bit.
-
-        data += mask_copy.tobytes()
-        data += fields_data
-
-        return data
-
-    def is_dynamic_field(self, index):
-        # TODO: Check more fields?
-        return index == GameObjectFields.GAMEOBJECT_DYN_FLAGS
+    # There are only 3 possible animations that can be used here.
+    # Effect might depend on the gameobject type, apparently. e.g. Fishing bobber do its animation by sending 0.
+    # TODO: See if we can retrieve the animation names.
+    def send_custom_animation(self, animation):
+        data = pack('<QI', self.guid, animation)
+        packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_CUSTOM_ANIM, data)
+        MapManager.send_surrounding(packet, self, include_self=False)
 
     def generate_dynamic_field_value(self, requester):
         # TODO: Handle more dynamic cases.
@@ -312,9 +405,8 @@ class GameObjectManager(ObjectManager):
         return 0
 
     # override
-    def get_full_update_packet(self, requester):
-        # Initialize values just once, future changes to fields should be properly set
-        # through methods. We do return the creation packet at the end, always.
+    def initialize_field_values(self):
+        # Initial field values, after this, fields must be modified by setters or directly writing values to them.
         if not self.initialized and self.gobject_template and self.gobject_instance:
             # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
@@ -325,7 +417,7 @@ class GameObjectManager(ObjectManager):
 
             # Gameobject fields.
             self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
-            self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.gobject_template.flags)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
             self.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.faction)
             self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
             self.set_float(GameObjectFields.GAMEOBJECT_ROTATION, self.gobject_instance.spawn_rotation0)
@@ -346,8 +438,6 @@ class GameObjectManager(ObjectManager):
             self.set_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
 
             self.initialized = True
-
-        return self.get_object_create_packet(requester)
 
     def query_details(self):
         name_bytes = PacketWriter.string_to_bytes(self.gobject_template.name)
@@ -373,7 +463,7 @@ class GameObjectManager(ObjectManager):
     # override
     def respawn(self):
         # Set properties before making it visible.
-        self.state = GameObjectStates.GO_STATE_READY
+        self.set_state(GameObjectStates.GO_STATE_READY)
         self.respawn_timer = 0
         self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
                                     self.gobject_instance.spawn_spawntimemin)
@@ -392,19 +482,22 @@ class GameObjectManager(ObjectManager):
                 # Logic for Trap GameObjects (type 6).
                 if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
                     self.trap_manager.update(elapsed)
+                # Logic for Fishing node.
+                if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+                    self.fishing_node_manager.update(elapsed)
 
                 # SpellManager update.
                 self.spell_manager.update(now)
 
                 # Check if this game object should be updated yet or not.
                 if self.has_pending_updates():
-                    MapManager.update_object(self, check_pending_changes=True)
+                    MapManager.update_object(self, has_changes=True)
                     self.reset_fields_older_than(now)
             # Not spawned.
             else:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
-                    if self.is_summon:
+                    if self.summoner:
                         self.despawn(destroy=True)
                     else:
                         self.respawn()

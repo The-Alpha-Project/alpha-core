@@ -182,7 +182,6 @@ class CommandManager(object):
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             item_mgr = player_mgr.inventory.add_item(entry=entry, count=count)
             if item_mgr:
-                player_mgr.set_dirty_inventory()
                 return 0, ''
             else:
                 return -1, f'unable to find and / or add item id {entry}.'
@@ -285,7 +284,7 @@ class CommandManager(object):
             spell_id = res
             code, res = CommandManager._unlearn_spell(world_session, spell_id)
             if code == 0:
-                return 0, f'{res} Relogin for spellbook update.'
+                return 0, f'{res} Spell unlearned.'
         return code, res
 
     @staticmethod
@@ -489,7 +488,8 @@ class CommandManager(object):
         try:
             mount_display_id = int(args)
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-            player_mgr.mount(mount_display_id)
+            if not player_mgr.mount(mount_display_id):
+                return -1, 'please specify a valid mount display id.'
             return 0, ''
         except ValueError:
             return -1, 'please specify a valid mount display id.'

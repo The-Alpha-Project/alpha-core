@@ -1,6 +1,8 @@
 import traceback
 import math
 import _queue
+from random import choice
+
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
 from game.world.managers.maps.Map import Map
@@ -196,7 +198,7 @@ class MapManager(object):
             return None
 
     @staticmethod
-    def get_liquid_information(map_id, x, y, z):
+    def get_liquid_information(map_id, x, y, z, ignore_z=False):
         try:
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
 
@@ -204,10 +206,42 @@ class MapManager(object):
                 return None
 
             liquids = MAPS[map_id].tiles[map_tile_x][map_tile_y].liquid_information[tile_local_x][tile_local_y]
-            return liquids if liquids and liquids.height >= z else None
+            return liquids if liquids and liquids.height > z else liquids if liquids and ignore_z else None
         except:
             Logger.error(traceback.format_exc())
             return None
+
+    @staticmethod
+    def find_liquid_location_in_range(world_object, min_range, max_range):
+        if not MapManager._validate_liquid_tile(world_object.map_, world_object.location.x, world_object.location.y):
+            return None
+
+        # Circular ref.
+        from game.world.managers.abstractions.Vector import Vector
+        start_range = min_range
+        start_location = world_object.location
+        liquids_vectors = []
+        while start_range <= max_range:
+            fx = start_location.x + start_range * math.cos(start_location.o)
+            fy = start_location.y + start_range * math.sin(start_location.o)
+            fz = start_location.z
+            liquid_info = MapManager.get_liquid_information(world_object.map_, fx, fy, fz, ignore_z=True)
+            if liquid_info:
+                liquids_vectors.append(Vector(fx, fy, liquid_info.height))
+            start_range += 1
+
+        if not any(liquids_vectors):
+            return None
+
+        # Should contain at least 1 element by now.
+        return choice(liquids_vectors)
+
+    @staticmethod
+    def _validate_liquid_tile(map_id, x, y):
+        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
+        if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
+            return False
+        return True
 
     @staticmethod
     def _check_tile_load(map_id, location_x, location_y, map_tile_x, map_tile_y):
@@ -296,7 +330,7 @@ class MapManager(object):
         return current_cell in destination_cells
 
     @staticmethod
-    def update_object(world_object, check_pending_changes=False):
+    def update_object(world_object, has_changes=False, has_inventory_changes=False):
         if world_object.current_cell:
             old_map = int(world_object.current_cell.split(':')[-1])
             old_grid_manager = MapManager.get_grid_manager_by_map_id(old_map)
@@ -305,7 +339,8 @@ class MapManager(object):
 
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
         if grid_manager:
-            grid_manager.update_object(world_object, old_grid_manager, check_pending_changes=check_pending_changes)
+            grid_manager.update_object(world_object, old_grid_manager, has_changes=has_changes,
+                                       has_inventory_changes=has_inventory_changes)
         else:
             Logger.warning(f'Warning, did not find grid_manager for map: {world_object.map_}')
 

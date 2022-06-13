@@ -15,6 +15,8 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
+from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
+from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses
@@ -23,7 +25,6 @@ from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode
-from utils.constants.UpdateFields import UnitFields
 
 
 class SpellManager:
@@ -68,13 +69,19 @@ class SpellManager:
         return True
 
     def unlearn_spell(self, spell_id) -> bool:
-        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
+        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and spell_id in self.spells and \
                 RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
             self.remove_cast_by_id(spell_id)
             del self.spells[spell_id]
+            self.supersede_spell(spell_id, 0)
             return True
-
         return False
+
+    # Replaces a given spell with another (Updates action bars and SpellBook), deletes if new spell is 0.
+    def supersede_spell(self, old_spell_id, new_spell_id):
+        data = pack('<2I', old_spell_id, new_spell_id)
+        packet = PacketWriter.get_packet(OpCode.SMSG_SUPERCEDED_SPELL, data)
+        self.caster.enqueue_packet(packet)
 
     def cast_passive_spells(self):
         # Self-cast all passive spells. This will apply learned skills, proficiencies, talents etc.
@@ -124,10 +131,12 @@ class SpellManager:
             casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, item)
             if not casting_spell:
                 continue
+
             if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here
                 self.caster.set_stand_state(StandState.UNIT_SITTING)
 
             self.start_spell_cast(initialized_spell=casting_spell)
+            self.handle_visual_pre_cast_animation_kit(casting_spell)
 
     def handle_cast_attempt(self, spell_id, spell_target, target_mask, triggered=False, validate=True):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
@@ -172,9 +181,13 @@ class SpellManager:
         self.casting_spells.append(casting_spell)
         casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
 
-        # If the spell uses a ranged weapon, draw it.
-        if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT and casting_spell.is_ranged_weapon_attack():
-            self.caster.set_weapon_mode(WeaponMode.RANGEDMODE)
+        if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+            # If the spell uses a ranged weapon, draw it if needed.
+            if casting_spell.is_ranged_weapon_attack():
+                self.caster.set_weapon_mode(WeaponMode.RANGEDMODE)
+            # If the spell uses a fishing pole, draw it if needed.
+            if casting_spell.requires_fishing_pole():
+                self.caster.set_weapon_mode(WeaponMode.NORMALMODE)
 
         if not casting_spell.is_instant_cast():
             if not casting_spell.triggered:
@@ -216,12 +229,16 @@ class SpellManager:
 
         casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
         if casting_spell.is_channeled():
-            self.handle_channel_start(casting_spell)  # Channeled spells require more setup before effect application
+            self.handle_channel_start(casting_spell)  # Channeled spells require more setup before effect application.
         else:
             self.apply_spell_effects(casting_spell)  # Apply effects
             # Some spell effect handlers will set the spell state to active as the handler needs to be called on updates
             if casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
                 self.remove_cast(casting_spell)
+
+        # Handle enchanting skill gain here for now.
+        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and casting_spell.is_enchantment_spell():
+            self.caster.skill_manager.handle_craft_skill_gain(SkillTypes.ENCHANTING)
 
         self.set_on_cooldown(casting_spell)
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
@@ -392,7 +409,7 @@ class SpellManager:
 
         # Cancel auras applied by an active spell if the spell was interrupted.
         # If the cast finished normally, auras should wear off because of duration.
-        # Since spell update happens before aura update, last ticks will be skipped if auras are cancelled on cast finish.
+        # Spell update happens before aura update, last ticks will be skipped if auras are cancelled on cast finish.
         if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE and interrupted:
             for miss_info in casting_spell.object_target_results.values():  # Get the last effect application results.
                 if not miss_info.target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
@@ -500,7 +517,8 @@ class SpellManager:
         if not self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return  # Non-unit casters should not broadcast their casts.
 
-        data = [self.caster.guid, self.caster.guid,
+        source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
+        data = [source_guid, self.caster.guid,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags, casting_spell.get_base_cast_time(),
                 casting_spell.spell_target_mask]
 
@@ -516,9 +534,14 @@ class SpellManager:
             data.append(casting_spell.used_ranged_attack_item.item_template.display_id)
             data.append(casting_spell.used_ranged_attack_item.item_template.inventory_type)
 
+        # Spell start.
         data = pack(signature, *data)
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data), self.caster,
+        packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data)
+        MapManager.send_surrounding(packet, self.caster,
                                     include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
+
+        # Send visual animation pre cast kit if available.
+        self.handle_visual_pre_cast_animation_kit(casting_spell)
 
     def handle_channel_start(self, casting_spell):
         if not casting_spell.is_channeled() or casting_spell.duration_entry.Duration == -1:
@@ -540,7 +563,6 @@ class SpellManager:
         data = pack('<2I', casting_spell.spell_entry.ID,
                     casting_spell.duration_entry.Duration)  # No channeled spells with duration per level.
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
-        # TODO Channeling animations do not play
 
     def handle_spell_effect_update(self, casting_spell, timestamp):
         for effect in casting_spell.get_effects():
@@ -560,6 +582,21 @@ class SpellManager:
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 self.apply_spell_effects(casting_spell, update=True)
 
+    # Sends spell visual pre cast kit animation, if available.
+    def handle_visual_pre_cast_animation_kit(self, casting_spell):
+        if casting_spell.has_spell_visual_pre_cast_kit():
+            visual_kit = casting_spell.spell_visual_entry.precast_kit
+            visual_anim_name = visual_kit.visual_anim_name
+            # Do not send loop animations, we can't stop them once sent to the client.
+            # e.g. KneelLoop.
+            if 'Loop' in visual_anim_name.Name:
+                return
+            pre_cast_kit_id = casting_spell.spell_visual_entry.PrecastKit
+            data = pack('<QI', self.caster.guid, pre_cast_kit_id)
+            packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
+            is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+            MapManager.send_surrounding(packet, self.caster, include_self=is_player)
+
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():
             return
@@ -567,8 +604,12 @@ class SpellManager:
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        if self.caster.channel_object:  # Interrupting Ritual of Summoning required special handling.
-            self._handle_summoning_channel_end()
+        if self.caster.channel_object:
+            if casting_spell.is_fishing_spell():
+                self._handle_fishing_node_end()
+            else:
+                # Interrupting Ritual of Summoning required special handling.
+                self._handle_summoning_channel_end()
 
         self.caster.set_channel_object(0)
         self.caster.set_channel_spell(0)
@@ -726,14 +767,12 @@ class SpellManager:
                 return True
 
         # Target validation.
-
         validation_target = casting_spell.initial_target
-        # In the case of the spell requiring an unit target but being cast on self,
+        # In the case of the spell requiring a unit target but being cast on self,
         # validate the spell against the caster's current unit selection instead.
-        if casting_spell.spell_target_mask == SpellTargetMask.SELF and \
+        if casting_spell.spell_target_mask == SpellTargetMask.SELF and not casting_spell.is_fishing_spell() and \
                 casting_spell.requires_implicit_initial_unit_target():
             validation_target = casting_spell.targeted_unit_on_cast_start
-
             if validation_target and not self.caster.can_attack_target(validation_target):
                 # All secondary initial unit targets are hostile. Unlike (nearly?) all other spells,
                 # the target for arcane missiles is not validated by the client (script effect). Catch that case here.
@@ -741,7 +780,9 @@ class SpellManager:
                 return False
 
         if not validation_target:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
+            result = SpellCheckCastResult.SPELL_FAILED_NOT_FISHABLE if casting_spell.is_fishing_spell() \
+                else SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS
+            self.send_cast_result(casting_spell.spell_entry.ID, result)
             return False
 
         if casting_spell.initial_target_is_unit_or_player() and not validation_target.is_alive:  # TODO dead targets (resurrect)
@@ -752,24 +793,67 @@ class SpellManager:
             target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location, math.pi)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
                                                                                   target_is_facing_caster):
-                self.send_cast_result(casting_spell.spell_entry.ID,
-                                      SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)  # No code for target must be facing caster?
+                if ExtendedSpellData.CastPositionRestrictions.is_from_behind(casting_spell.spell_entry.ID):
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)
+                else:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT)
+
                 return False
 
-        # Check if the caster is within range of the (world) target to cast the spell.
-        if not casting_spell.initial_target_is_item() and \
-                casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
-            if casting_spell.initial_target_is_terrain():
-                distance = validation_target.distance(self.caster.location)
-            else:
-                distance = validation_target.location.distance(self.caster.location)
+        # Range validations, if needed.
+        if not casting_spell.is_fishing_spell() and not casting_spell.initial_target_is_item():
+            # Check if the caster is within range of the (world) target to cast the spell.
+            if casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
+                if casting_spell.initial_target_is_terrain():
+                    distance = validation_target.distance(self.caster.location)
+                else:
+                    distance = validation_target.location.distance(self.caster.location)
 
-            if distance > casting_spell.range_entry.RangeMax:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
+                if distance > casting_spell.range_entry.RangeMax:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
+                    return False
+                if distance < casting_spell.range_entry.RangeMin:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
+                    return False
+
+        # Validate enchantments.
+        if casting_spell.is_enchantment_spell():
+            # Invalid target.
+            if not casting_spell.initial_target_is_item():
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)
                 return False
-            if distance < casting_spell.range_entry.RangeMin:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
+
+            # Do not allow temporary enchantments in trade slot.
+            if casting_spell.is_temporary_enchant_spell():
+                # TODO: Further research needed, we have neither SPELL_FAILED_NOT_TRADEABLE or 'Slot' in
+                #   SpellItemEnchantment. Refer to VMaNGOS Spell.cpp 7822.
+                if casting_spell.initial_target.get_owner_guid() != casting_spell.spell_caster.guid:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
+                    return False
+
+            # Do not allow to enchant if it has an existent permanent enchantment.
+            if EnchantmentManager.get_permanent_enchant_value(casting_spell.initial_target) != 0:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
                 return False
+
+            # Validate enchantment exist.
+            enchantment_id = casting_spell.get_enchantment_id()
+            enchantment = DbcDatabaseManager.spell_get_item_enchantment(enchantment_id)
+            if not enchantment:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
+                return False
+
+            # Validate target item class and subclass, if needed.
+            # TODO: We don't have EquippedItemInventoryTypeMask, so we have no way to validate inventory slots.
+            #  e.g. Enchant bracers would still work on legs, chest, etc. So maybe they had some filtering by name?
+            if casting_spell.spell_entry.EquippedItemClass != -1:
+                required_item_class = casting_spell.spell_entry.EquippedItemClass
+                required_item_sub_class = casting_spell.spell_entry.EquippedItemSubclass
+                item_class = casting_spell.initial_target.item_template.class_
+                item_subclass_mask = 1 << casting_spell.initial_target.item_template.subclass
+                if required_item_class != item_class or required_item_sub_class & item_subclass_mask == 0:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                    return False
 
         # Aura bounce check.
         if casting_spell.initial_target_is_unit_or_player():
@@ -853,11 +937,22 @@ class SpellManager:
 
         channel_object = MapManager.get_surrounding_gameobject_by_guid(self.caster,
                                                                        self.caster.channel_object)
-        if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL or channel_object.ritual_caster is not self.caster:
+        if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL or channel_object.summoner is not self.caster:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
             return False
 
         return True
+
+    def _handle_fishing_node_end(self):
+        if not self.caster.channel_object:
+            return
+        fishing_node_object = MapManager.get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
+        if not fishing_node_object or fishing_node_object.gobject_template.type != GameObjectTypes.TYPE_FISHINGNODE:
+            return
+        # If this was an interrupt or miss hook, remove the bobber.
+        # Else, it will be removed upon CMSG_LOOT_RELEASE.
+        if not fishing_node_object.fishing_node_manager.hook_result:
+            MapManager.remove_object(fishing_node_object)
 
     def _handle_summoning_channel_end(self):
         # Specific handling of ritual of summoning interrupting.
@@ -868,7 +963,7 @@ class SpellManager:
             return
 
         # If the ritual caster interrupts channeling, interrupt others and remove the portal.
-        if channel_object.ritual_caster is self.caster:
+        if channel_object.summoner is self.caster:
             MapManager.remove_object(channel_object)
 
             ritual_channel_spell_id = channel_object.gobject_template.data2
@@ -882,7 +977,7 @@ class SpellManager:
             required_participants = channel_object.gobject_template.data0
             if len(channel_object.ritual_participants) < required_participants - 1:  # -1 to include ritual caster.
                 ritual_summon_spell_id = channel_object.gobject_template.data1
-                channel_object.ritual_caster.spell_manager.remove_cast_by_id(ritual_summon_spell_id)
+                channel_object.summoner.spell_manager.remove_cast_by_id(ritual_summon_spell_id)
 
     def meets_casting_requisites(self, casting_spell) -> bool:
         # This method should only check resource costs (ie. power/combo/items).
@@ -966,8 +1061,7 @@ class SpellManager:
 
             # Spells cast with consumables.
             if casting_spell.source_item and casting_spell.source_item.has_charges():
-                spell_stats = casting_spell.get_item_spell_stats()
-                charges = spell_stats.charges
+                charges = casting_spell.source_item.get_charges(casting_spell.spell_entry.ID)
                 if charges == 0:  # no charges left.
                     self.send_cast_result(casting_spell.spell_entry.ID,
                                           SpellCheckCastResult.SPELL_FAILED_NO_CHARGES_REMAIN)
@@ -1052,17 +1146,13 @@ class SpellManager:
 
         # Spells cast with consumables.
         if casting_spell.source_item and casting_spell.source_item.has_charges():
-            spell_stats = casting_spell.get_item_spell_stats()
-            charges = spell_stats.charges
+            charges = casting_spell.source_item.get_charges(casting_spell.spell_entry.ID)
             if charges < 0:  # Negative charges remove items.
                 self.caster.inventory.remove_items(casting_spell.source_item.item_template.entry, 1)
 
             if charges != 0 and charges != -1:  # don't modify if no charges remain or this item is a consumable.
                 new_charges = charges-1 if charges > 0 else charges+1
-                spell_stats.charges = new_charges
-
-        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            self.caster.set_dirty_inventory()
+                casting_spell.source_item.set_charges(casting_spell.spell_entry.ID, new_charges)
 
     def send_cast_result(self, spell_id, error):
         # TODO CAST_SUCCESS_KEEP_TRACKING

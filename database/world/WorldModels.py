@@ -424,6 +424,13 @@ class ItemTemplate(Base):
     extra_flags = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
 
+class AppliedItemUpdates(Base):
+    __tablename__ = 'applied_item_updates'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))
+    version = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+
 class NpcText(Base):
     __tablename__ = 'npc_text'
 
@@ -802,6 +809,13 @@ class FishingLootTemplate(Base):
     item_template = relationship('ItemTemplate')
 
 
+class SkillFishingBaseLevel(Base):
+    __tablename__ = 'skill_fishing_base_level'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    skill = Column(SMALLINT(6), nullable=False, server_default=text("'0'"))
+
+
 class ItemLootTemplate(Base):
     __tablename__ = 'item_loot_template'
 
@@ -850,6 +864,13 @@ class SpellTargetPosition(Base):
     target_position_y = Column(Float, nullable=False, server_default=text("0"))
     target_position_z = Column(Float, nullable=False, server_default=text("0"))
     target_orientation = Column(Float, nullable=False, server_default=text("0"))
+
+
+class SpellEnchantCharges(Base):
+    __tablename__ = 'spell_enchant_charges'
+
+    entry = Column(INTEGER(10), primary_key=True, nullable=False, server_default=text("0"))
+    charges = Column(INTEGER(10), primary_key=True, nullable=False, server_default=text("0"))
 
 
 class NpcVendor(Base):

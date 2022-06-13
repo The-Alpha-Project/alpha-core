@@ -112,7 +112,7 @@ class PetManager:
 
         spawn_position = self.owner.location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
                                                                            PetAI.PET_FOLLOW_ANGLE)
-        creature = CreatureManager.spawn(creature_id, spawn_position, self.owner.map_,
+        creature = CreatureManager.spawn(creature_id, spawn_position, self.owner.map_, summoner=self.owner,
                                          override_faction=self.owner.faction)
 
         self.add_pet_from_world(creature)
@@ -208,7 +208,6 @@ class PetManager:
     def _tame_creature(self, creature: CreatureManager):
         creature.set_summoned_by(self.owner)
         creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.owner.guid)
-
         creature.faction = self.owner.faction
         creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
 

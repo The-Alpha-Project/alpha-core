@@ -13,7 +13,7 @@ class GuildQueryHandler(object):
 
             for guild_manager in GuildManager.GUILDS.values():
                 if guild_manager.guild.guild_id == guild_id:
-                    if player and player.session:
+                    if player:
                         player.enqueue_packet(guild_manager.build_guild_query())
                     else:  # This opcode is requested by char enum if there is no guild cache on client.
                         world_session.enqueue_packet(guild_manager.build_guild_query())

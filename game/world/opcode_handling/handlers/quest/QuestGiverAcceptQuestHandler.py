@@ -26,7 +26,7 @@ class QuestGiverAcceptQuestHandler(object):
             elif world_session.player_mgr.is_enemy_to(quest_giver):
                 return 0
             elif world_session.player_mgr.quest_manager.is_quest_log_full():
-                world_session.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTLOG_FULL))
+                world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTLOG_FULL))
             else:
                 world_session.player_mgr.quest_manager.handle_accept_quest(quest_id, guid, shared=False)
         return 0

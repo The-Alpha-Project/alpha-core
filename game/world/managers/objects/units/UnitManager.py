@@ -164,7 +164,7 @@ class UnitManager(ObjectManager):
         self.summoner = summoner
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_UNIT
-        self.update_packet_factory.init_values(UnitFields.UNIT_END)
+        self.update_packet_factory.init_values(self.guid, UnitFields)
 
         self.is_alive = True
         self.in_combat = False
@@ -534,12 +534,17 @@ class UnitManager(ObjectManager):
                         rage_decay_value = 10 if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) else 20
                         self.set_rage(self.power_2 - rage_decay_value)
 
+    # Warrior Stances and Bear Form.
+    # Defensive Stance (71): "A defensive stance that reduces rage decay when out of combat.
+    # Generate rage when you are hit."
+    # Battle Stance (2457): "A balanced combat stance. Generate rage when hit and when you strike an opponent."
+    # Berserker Stance (2458): "An aggressive stance. Generate rage when you strike an opponent."
     def generate_rage(self, damage_info, is_attacking=True):
-        # Warrior Stances and Bear Form.
-        # Defensive Stance (71): "A defensive stance that reduces rage decay when out of combat.
-        # Generate rage when you are hit."
-        # Battle Stance (2457): "A balanced combat stance. Generate rage when hit and when you strike an opponent."
-        # Berserker Stance (2458): "An aggressive stance. Generate rage when you strike an opponent."
+        # Avoid regen if unit has no rage power type.
+        if self.get_type_id() == ObjectTypeIds.ID_UNIT:
+            if self.power_type != PowerTypes.TYPE_RAGE:
+                return
+
         if not is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) \
                 or is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE) \
                 or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE) \
@@ -839,6 +844,7 @@ class UnitManager(ObjectManager):
         self.mount(creature_template.display_id1)
         return True
 
+    # TODO, this should be moved to specific creature and player implementations.
     def mount(self, mount_display_id):
         if mount_display_id > 0 and \
                 DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):
@@ -846,6 +852,8 @@ class UnitManager(ObjectManager):
             self.unit_flags |= UnitFlags.UNIT_MASK_MOUNTED
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
             self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+            return True
+        return False
 
     def unmount(self):
         self.mount_display_id = 0
@@ -859,7 +867,7 @@ class UnitManager(ObjectManager):
 
     def set_summoned_by(self, summoner: Optional[UnitManager]):
         self.summoner = summoner
-        self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, summoner.guid if summoner else 0)
+        self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.summoner.guid if self.summoner else 0)
 
     def get_power_type_value(self, power_type=-1):
         if power_type == -1:
@@ -1039,7 +1047,8 @@ class UnitManager(ObjectManager):
             self.mount(mount_display_id)
             self.unit_flags |= (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
         else:
-            self.unmount()
+            if self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+                self.unmount()
             self.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
 
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
