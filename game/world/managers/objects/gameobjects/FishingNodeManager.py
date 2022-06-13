@@ -6,10 +6,15 @@ from utils.constants.MiscCodes import GameObjectStates
 from utils.constants.OpCodes import OpCode
 
 
+FISHING_CHANNEL_TIME = 30  # Extracted from SpellDuration.dbc (with ID 9).
+FISHING_REACTION_TIME = 2.0  # TODO: Reaction time, guessed value.
+
+
 class FishingNodeManager(object):
     def __init__(self, fishing_node):
         self.fishing_node = fishing_node
-        self.fishing_timer = randint(1, 21)
+        # TODO: Is this the correct approach for splash generation?
+        self.fishing_timer = randint(1, FISHING_CHANNEL_TIME - FISHING_REACTION_TIME)
         self.became_active_time = 0
         self.hook_result = False
         self.got_away = False
@@ -24,7 +29,7 @@ class FishingNodeManager(object):
             self.hook_result = False
         else:
             diff = time.time() - self.became_active_time
-            self.hook_result = diff < 1.7  # Reaction time, find proper value.
+            self.hook_result = diff < FISHING_REACTION_TIME
 
         # Notify error to player.
         if not self.hook_result:
