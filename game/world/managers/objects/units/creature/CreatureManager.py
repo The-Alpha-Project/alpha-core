@@ -618,7 +618,8 @@ class CreatureManager(UnitManager):
     #  switch to another target from the Threat list or evade, or some other action.
     def _perform_combat_movement(self):
         if self.combat_target and not self.is_casting() and not self.is_evading:
-            if not self.combat_target.is_alive and len(self.attackers) == 0 or not self.combat_target.online:
+            if not self.combat_target.is_alive and len(self.attackers) == 0 or \
+                    (self.combat_target.get_type_id() == ObjectTypeIds.ID_PLAYER and not self.combat_target.online):
                 self.evade()
                 return
 
