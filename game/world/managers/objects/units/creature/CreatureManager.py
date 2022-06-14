@@ -117,10 +117,8 @@ class CreatureManager(UnitManager):
             self.location = self.spawn_position.copy()
             self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
-        # TODO: Prevent object_ai from being None before the actual AI is assigned in `finish_loading`. Reorganize the
-        #  logic so we don't need to initialize the AI two times. (First as null and then the actual one, even if it's
-        #  null too).
-        self.object_ai = NullCreatureAI(self)
+        # Creature AI.
+        self.object_ai = AIFactory.build_ai(self)
 
         # All creatures can block, parry and dodge by default.
         # TODO, Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
@@ -347,9 +345,6 @@ class CreatureManager(UnitManager):
                 # Mount this creature if defined.
                 if addon_template.mount_display_id > 0:
                     self.mount(addon_template.mount_display_id)
-
-            # Creature AI.
-            self.object_ai = AIFactory.build_ai(self)
 
             # Stats.
             self.stat_manager.init_stats()
