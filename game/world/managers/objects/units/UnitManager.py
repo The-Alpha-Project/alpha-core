@@ -753,9 +753,13 @@ class UnitManager(ObjectManager):
             return
 
         # Remove self from attacker list of attackers
-        for victim in list(self.attackers.values()):
+        for guid, victim in self.attackers.items():
             if self.guid in victim.attackers:
                 victim.attackers.pop(self.guid)
+                # If this was a forced call, and attacker is attacking this unit, make attackers leave combat as well.
+                if victim.combat_target == self.guid and force:
+                    victim.leave_combat(force=force)
+
         self.attackers.clear()
 
         self.send_attack_stop(self.combat_target.guid if self.combat_target else self.guid)

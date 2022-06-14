@@ -289,6 +289,14 @@ class PlayerManager(UnitManager):
         self.friends_manager.send_offline_notification()
         self.session.save_character()
 
+        # Destroy all known objects to self.
+        for guid, known_object in list(self.known_objects.items()):
+            # Remove self from creature/go known players if needed.
+            if known_object.get_type_id() != ObjectTypeIds.ID_PLAYER:
+                if self.guid in known_object.known_players:
+                    del known_object.known_players[self.guid]
+            self.destroy_near_object(guid, skip_check=True)
+
         # Flush known items/objects cache.
         self.known_items.clear()
         self.known_objects.clear()
@@ -386,6 +394,8 @@ class PlayerManager(UnitManager):
                             self.enqueue_packet(packet)
                     # We only consider 'known' if its spawned, the details query is still sent.
                     self.known_objects[guid] = creature
+                    # Add ourselves to creature known players.
+                    creature.known_players[self.guid] = self
             # Player knows the creature but is not spawned anymore, destroy it for self.
             elif guid in self.known_objects and not creature.is_spawned:
                 active_objects.pop(guid)
@@ -400,6 +410,8 @@ class PlayerManager(UnitManager):
                     self.enqueue_packet(gobject.generate_create_packet(requester=self))
                     # We only consider 'known' if its spawned, the details query is still sent.
                     self.known_objects[guid] = gobject
+                    # Add ourselves to gameobject known players.
+                    gobject.known_players[self.guid] = self
             # Player knows the game object but is not spawned anymore, destroy it for self.
             elif guid in self.known_objects and not gobject.is_spawned:
                 active_objects.pop(guid)
@@ -415,6 +427,12 @@ class PlayerManager(UnitManager):
     def destroy_near_object(self, guid, skip_check=False):
         if skip_check or guid in self.known_objects:
             if self.known_objects[guid] is not None:
+                known_object = self.known_objects[guid]
+                # Remove self from creature/go known players if needed.
+                if known_object.get_type_id() != ObjectTypeIds.ID_PLAYER:
+                    if self.guid in known_object.known_players:
+                        del known_object.known_players[self.guid]
+                # Destroy world object from self.
                 self.enqueue_packet(self.known_objects[guid].get_destroy_packet())
                 del self.known_objects[guid]
                 return True
@@ -1575,9 +1593,10 @@ class PlayerManager(UnitManager):
         return self.damage
 
     def _on_relocation(self):
-        units = MapManager.get_surrounding_units(self)
-        for guid, unit in units.items():
-            unit.notify_moved_in_line_of_sight(self)
+        for guid, unit in MapManager.get_surrounding_units(self).items():
+            # Skip notify if the unit is already in combat with self.
+            if self.guid not in unit.attackers:
+                unit.notify_moved_in_line_of_sight(self)
 
     # override
     def on_cell_change(self):

@@ -48,6 +48,7 @@ class CreatureManager(UnitManager):
         self.fully_loaded = False
         self.killed_by = None
         self.summoner = summoner
+        self.known_players = {}
 
         self.entry = self.creature_template.entry
         self.class_ = self.creature_template.unit_class
@@ -90,9 +91,13 @@ class CreatureManager(UnitManager):
         if 0 < self.creature_template.rank < 4:
             self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
 
-        self.react_state = CreatureReactStates.REACT_DEFENSIVE \
-            if self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO \
-            else CreatureReactStates.REACT_AGGRESSIVE
+        # TODO, creatures are still resolving to aggressive.
+        if self.is_totem() or self.is_critter() or not self.can_have_target():
+            self.react_state = CreatureReactStates.REACT_PASSIVE
+        elif self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO:
+            self.react_state = CreatureReactStates.REACT_DEFENSIVE
+        else:
+            self.react_state = CreatureReactStates.REACT_AGGRESSIVE
 
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
@@ -369,6 +374,9 @@ class CreatureManager(UnitManager):
     def is_totem(self):
         return False
 
+    def can_have_target(self):
+        return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_TARGET
+
     def set_virtual_item(self, slot, item_entry):
         item_template = None
         if item_entry > 0:
@@ -590,9 +598,15 @@ class CreatureManager(UnitManager):
     def is_casting(self):
         return self.spell_manager.is_casting()
 
+    def has_observers(self):
+        return any(self.known_players)
+
+    def has_wander_type(self):
+        return self.creature_instance.movement_type == MovementTypes.WANDER
+
     def _perform_random_movement(self, now):
-        # Do not wander in combat, while evading or without wander flag.
-        if not self.in_combat and not self.is_evading and self.creature_instance.movement_type == MovementTypes.WANDER:
+        # Do not wander in combat, while evading, without wander flag or if unit has no observers.
+        if self.in_combat and not self.is_evading and self.has_wander_type():
             if len(self.movement_manager.pending_waypoints) == 0:
                 if now > self.last_random_movement + self.random_movement_wait_time:
                     self.movement_manager.move_random(self.spawn_position,
@@ -600,9 +614,11 @@ class CreatureManager(UnitManager):
                     self.random_movement_wait_time = randint(1, 12)
                     self.last_random_movement = now
 
+    # TODO: All the evade calls should be probably handled by aggro manager, it should be able to decide if unit can
+    #  switch toanother target from the Threat list or evade, or some other action.
     def _perform_combat_movement(self):
         if self.combat_target and not self.is_casting() and not self.is_evading:
-            if not self.combat_target.is_alive and len(self.attackers) == 0:
+            if not self.combat_target.is_alive and len(self.attackers) == 0 or not self.combat_target.online:
                 self.evade()
                 return
 
@@ -632,7 +648,12 @@ class CreatureManager(UnitManager):
             current_distance = self.location.distance(self.combat_target.location)
             combat_position_distance = UnitFormulas.combat_distance(self, self.combat_target)
 
-            # If target is within combat distance, don't move but do check creature orientation.
+            # Current distance to player is above 50.
+            if current_distance > 50:
+                self.evade()
+                return
+
+             # If target is within combat distance, don't move but do check creature orientation.
             if current_distance <= combat_position_distance:
                 # If this creature is not facing the attacker, update its orientation (server-side).
                 if not self.location.has_in_arc(self.combat_target.location, math.pi):
@@ -679,8 +700,9 @@ class CreatureManager(UnitManager):
                 if self.has_moved:
                     self._on_relocation()
                     self.set_has_moved(False)
-                # Random Movement.
-                self._perform_random_movement(now)
+                # Random Movement, if visible to players.
+                if self.has_observers():
+                    self._perform_random_movement(now)
                 # Combat Movement.
                 self._perform_combat_movement()
                 # AI.
