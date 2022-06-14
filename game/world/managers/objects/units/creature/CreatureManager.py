@@ -615,7 +615,7 @@ class CreatureManager(UnitManager):
                     self.last_random_movement = now
 
     # TODO: All the evade calls should be probably handled by aggro manager, it should be able to decide if unit can
-    #  switch toanother target from the Threat list or evade, or some other action.
+    #  switch to another target from the Threat list or evade, or some other action.
     def _perform_combat_movement(self):
         if self.combat_target and not self.is_casting() and not self.is_evading:
             if not self.combat_target.is_alive and len(self.attackers) == 0 or not self.combat_target.online:
