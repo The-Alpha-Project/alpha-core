@@ -37,6 +37,7 @@ class GameObjectManager(ObjectManager):
         self.gobject_instance = gobject_instance
         self.summoner = summoner
         self.spell_id = 0  # Spell that summoned this object.
+        self.known_players = {}
 
         self.entry = self.gobject_template.entry
         self.native_display_id = self.gobject_template.display_id
@@ -284,6 +285,9 @@ class GameObjectManager(ObjectManager):
                 # Interrupt ritual channel if the summon fails.
                 self.summoner.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
 
+    def has_observers(self):
+        return any(self.known_players)
+
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
         miss_info = casting_spell.object_target_results[target.guid].result
@@ -488,10 +492,10 @@ class GameObjectManager(ObjectManager):
 
             if self.is_spawned:
                 # Logic for Trap GameObjects (type 6).
-                if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
+                if self.has_observers() and self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
                     self.trap_manager.update(elapsed)
                 # Logic for Fishing node.
-                if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+                if self.has_observers() and self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
                     self.fishing_node_manager.update(elapsed)
 
                 # SpellManager update.

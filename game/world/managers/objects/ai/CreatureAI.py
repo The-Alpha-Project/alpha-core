@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import math
 from random import randint
+from struct import pack
 from typing import TYPE_CHECKING, Optional
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureAISpellsEntry
+from network.packet.PacketWriter import PacketWriter
+from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, UnitStates
@@ -62,8 +65,15 @@ class CreatureAI:
         pass
 
     # Distract creature, if player gets too close while stealth/prowling.
+    # AIReactionStates.AI_REACT_ALERT
     def trigger_alert(self, unit):
         pass
+
+    # The client modifies unit facing, depending on the reaction.
+    def send_ai_reaction(self, victim, ai_reaction):
+        data = pack('<QI', self.creature.guid, ai_reaction)
+        packet = PacketWriter.get_packet(OpCode.SMSG_AI_REACTION, data)
+        victim.enqueue_packet(packet)
 
     # Called when the creature is killed.
     def just_died(self, unit):

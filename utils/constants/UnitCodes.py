@@ -43,6 +43,13 @@ class CreatureReactStates(IntEnum):
     REACT_AGGRESSIVE = 2
 
 
+class AIReactionStates(IntEnum):
+    AI_REACT_ALERT = 0
+    AI_REACT_FRIENDLY = 1
+    AI_REACT_HOSTILE = 2
+    AI_REACT_AFRAID = 3
+
+
 class CreatureTypeFlags(IntEnum):
     # Tameable by any hunter.
     CREATURE_TYPEFLAGS_TAMEABLE = 0x00000001

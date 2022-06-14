@@ -384,15 +384,13 @@ class ObjectManager:
             Logger.error(f'Invalid faction template: {target.faction}.')
             return not check_friendly
 
-        own_enemies = [own_faction.Enemies_1, own_faction.Enemies_2, own_faction.Enemies_3, own_faction.Enemies_4]
-        own_friends = [own_faction.Friend_1, own_faction.Friend_2, own_faction.Friend_3, own_faction.Friend_4]
+        own_enemies = {own_faction.Enemies_1, own_faction.Enemies_2, own_faction.Enemies_3, own_faction.Enemies_4}
+        own_friends = {own_faction.Friend_1, own_faction.Friend_2, own_faction.Friend_3, own_faction.Friend_4}
         if target_faction.Faction > 0:
-            for enemy in own_enemies:
-                if enemy == target_faction.Faction:
-                    return not check_friendly
-            for friend in own_friends:
-                if friend == target_faction.Faction:
-                    return check_friendly
+            if target_faction.Faction in own_enemies:
+                return not check_friendly
+            if target_faction.Faction in own_friends:
+                return check_friendly
 
         if check_friendly:
             return ((own_faction.FriendGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.FriendGroup)) != 0
