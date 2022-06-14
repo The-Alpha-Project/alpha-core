@@ -2,8 +2,8 @@ import math
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 
 
-# Extracted from the 0.5.3 client as is.
-class Distances(object):
+class Distances:
+    # Extracted from the 0.5.3 client as is.
     MAX_DUEL_DISTANCE = 10.0
     MAX_TRADE_DISTANCE = 11.111111
     MAX_SHOP_DISTANCE = 5.5555553
@@ -16,9 +16,13 @@ class Distances(object):
     MAX_SHARE_DISTANCE = 100.0
     SPELL_FOCUS_DISTANCE = 50.0
     MAX_OBJ_INTEREST_RADIUS = 100.0
+    # End of distances extracted from the client.
+
+    # Other distances (not extracted from the client).
+    CREATURE_EVADE_DISTANCE = 50.0  # Guessed.
 
 
-class CreatureFormulas(object):
+class CreatureFormulas:
 
     @staticmethod
     def xp_reward(creature_level, player_level, is_elite=False):
@@ -88,7 +92,7 @@ class UnitFormulas(object):
         return int(regen * 10)
 
 
-class PlayerFormulas(object):
+class PlayerFormulas:
 
     @staticmethod
     def get_gray_level(player_level):

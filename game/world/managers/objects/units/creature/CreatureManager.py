@@ -19,7 +19,7 @@ from game.world.managers.objects.units.creature.ThreatManager import ThreatManag
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
-from utils.Formulas import UnitFormulas
+from utils.Formulas import UnitFormulas, Distances
 from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
 from utils.constants.ItemCodes import InventoryTypes
@@ -622,11 +622,14 @@ class CreatureManager(UnitManager):
                 self.evade()
                 return
 
-            # In 0.5.3, evade mechanic was only based on distance, the correct instance remains unknown. Assuming
-            # 50 yd for now.
+            target_distance = self.location.distance(self.combat_target.location)
+            combat_position_distance = UnitFormulas.combat_distance(self, self.combat_target)
+
+            # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
             # From 0.5.4 patch notes:
             #     "Creature pursuit is now timer based rather than distance based."
-            if self.location.distance(self.spawn_position) > 50:
+            if self.location.distance(self.spawn_position) > Distances.CREATURE_EVADE_DISTANCE \
+                    or target_distance > Distances.CREATURE_EVADE_DISTANCE:
                 self.evade()
                 return
 
@@ -645,28 +648,22 @@ class CreatureManager(UnitManager):
                     self.evade()
                     return
 
-            current_distance = self.location.distance(self.combat_target.location)
-            combat_position_distance = UnitFormulas.combat_distance(self, self.combat_target)
-
-            # Current distance to player is above 50.
-            if current_distance > 50:
-                self.evade()
-                return
-
-             # If target is within combat distance, don't move but do check creature orientation.
-            if current_distance <= combat_position_distance:
+            # If target is within combat distance, don't move but do check creature orientation.
+            if target_distance <= combat_position_distance:
                 # If this creature is not facing the attacker, update its orientation (server-side).
                 if not self.location.has_in_arc(self.combat_target.location, math.pi):
                     self.location.face_point(self.combat_target.location)
                 return
 
-            combat_location = self.combat_target.location.get_point_in_between(combat_position_distance, vector=self.location)
+            combat_location = self.combat_target.location.get_point_in_between(combat_position_distance,
+                                                                               vector=self.location)
 
             if not combat_location:
                 return
 
             # If already going to the correct spot, don't do anything.
-            if len(self.movement_manager.pending_waypoints) > 0 and self.movement_manager.pending_waypoints[0].location == combat_location:
+            if len(self.movement_manager.pending_waypoints) > 0 \
+                    and self.movement_manager.pending_waypoints[0].location == combat_location:
                 return
 
             # Make sure the server knows where the creature is facing.
@@ -677,9 +674,11 @@ class CreatureManager(UnitManager):
                 combat_location.z = self.combat_target.location.z
                 # TODO: Find how to actually trigger swim animation and which spline flag to use.
                 #  VMaNGOS uses UNIT_FLAG_USE_SWIM_ANIMATION, we don't have that.
-                self.movement_manager.send_move_normal([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
+                self.movement_manager.send_move_normal([combat_location],
+                                                       self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
             else:
-                self.movement_manager.send_move_normal([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+                self.movement_manager.send_move_normal([combat_location],
+                                                       self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # override
     def update(self, now):
