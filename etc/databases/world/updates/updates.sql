@@ -5050,10 +5050,10 @@ begin not atomic
     -- 13/06/2022 1
     if (select count(*) from applied_updates where id='131620221') = 0 then
         -- Invalid Faction 1094 -> 32 (Beast)
-        UPDATE `alpha_world`.`creature_template` SET `faction` = '32' WHERE (`entry` = '330');
-        UPDATE `alpha_world`.`creature_template` SET `faction` = '32' WHERE (`entry` = '390');
-        UPDATE `alpha_world`.`creature_template` SET `faction` = '32' WHERE (`entry` = '708');
-        UPDATE `alpha_world`.`creature_template` SET `faction` = '32' WHERE (`entry` = '1190');
+        UPDATE `creature_template` SET `faction` = '32' WHERE (`entry` = '330');
+        UPDATE `creature_template` SET `faction` = '32' WHERE (`entry` = '390');
+        UPDATE `creature_template` SET `faction` = '32' WHERE (`entry` = '708');
+        UPDATE `creature_template` SET `faction` = '32' WHERE (`entry` = '1190');
         insert into applied_updates values ('131620221');
     end if;
 end $
