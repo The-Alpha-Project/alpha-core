@@ -748,7 +748,7 @@ class CreatureManager(UnitManager):
     # override
     def attack_update(self, elapsed):
         target = self.threat_manager.get_hostile_target()
-        # Have a target, check if we need to attack or switch target.
+        # Has a target, check if we need to attack or switch target.
         if target and self.combat_target != target:
             self.attack(target)
         # No target at all, leave combat, reset aggro.
