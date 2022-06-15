@@ -466,7 +466,8 @@ class UnitManager(ObjectManager):
         if not self.is_alive or self.health == 0:
             return
 
-        # The check to set Focus to 0 on movement needs to be outside of the 2 seconds timer.
+        # The check to set Focus to 0 on movement needs to be outside of the 2 seconds timer to avoid being able to move
+        # without losing Focus on that 2 seconds window.
         if self.power_type == PowerTypes.TYPE_FOCUS:
             # https://web.archive.org/web/20040420191923/http://www.worldofwar.net/articles/gencon2003_2.php
             # While a Hunter is standing still, Focus gradually increases. The moment a Hunter moves,

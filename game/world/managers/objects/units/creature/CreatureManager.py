@@ -610,7 +610,6 @@ class CreatureManager(UnitManager):
         return self.creature_instance.movement_type == MovementTypes.WANDER
 
     def _perform_random_movement(self, now):
-        return
         # Do not wander in combat, while evading, without wander flag or if unit has no observers.
         if not self.in_combat and not self.is_evading and self.has_wander_type():
             if len(self.movement_manager.pending_waypoints) == 0:
