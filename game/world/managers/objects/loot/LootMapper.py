@@ -28,6 +28,6 @@ class LootMapper:
             return loot
 
         if not loot:
-            Logger.warning(f'Unable to locate referenced loot for id {loot_id}')
+            Logger.warning(f'Unable to locate referenced loot for id {loot_id}.')
 
         return None
