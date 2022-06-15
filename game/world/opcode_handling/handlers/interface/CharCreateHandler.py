@@ -69,7 +69,7 @@ class CharCreateHandler(object):
                                   health=base_stats.basehp,
                                   power1=base_stats.basemana,
                                   power2=0,
-                                  power3=100 if class_ == Classes.CLASS_HUNTER else 0,
+                                  power3=0,
                                   power4=100 if class_ == Classes.CLASS_ROGUE else 0,
                                   level=config.Unit.Player.Defaults.starting_level)
             RealmDatabaseManager.character_create(character)

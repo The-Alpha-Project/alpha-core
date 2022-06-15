@@ -33,7 +33,7 @@ class UnitManager(ObjectManager):
                  power_type=0,
                  power_1=0,  # mana
                  power_2=0,  # rage
-                 power_3=100,  # focus
+                 power_3=0,  # focus
                  power_4=100,  # energy
                  max_health=0,
                  max_power_1=0,

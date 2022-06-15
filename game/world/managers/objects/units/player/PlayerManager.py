@@ -1533,7 +1533,7 @@ class PlayerManager(UnitManager):
         if self.power_type == PowerTypes.TYPE_RAGE:
             self.set_rage(0)
         if self.power_type == PowerTypes.TYPE_FOCUS:
-            self.set_focus(self.max_power_3)
+            self.set_focus(0)
         if self.power_type == PowerTypes.TYPE_ENERGY:
             self.set_energy(self.max_power_4)
 
