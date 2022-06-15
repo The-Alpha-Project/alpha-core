@@ -17,7 +17,6 @@ class GameObjectLootManager(LootManager):
     # override
     def populate_loot_template(self):
         # Handle Chest
-        # TODO: Investigate db fields 'data'[0/3/N] and 'groupid' so we can filter the loot table properly.
         if self.world_object.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             loot_template_id = self.world_object.gobject_template.data1
             return WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_entry(loot_template_id)

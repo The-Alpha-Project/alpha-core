@@ -62,7 +62,7 @@ class BasicCreatureAI(CreatureAI):
         self.can_summon_guards = self.creature.can_summon_guards() if self.creature else False
 
     def _is_ready_for_new_attack(self):
-        if len(self.creature.known_players) == 0:
+        if not self.creature.is_alive or not self.creature.is_spawned or len(self.creature.known_players) == 0:
             return False
         return self._is_aggressive() and not self.creature.combat_target and not self.creature.is_evading
 
@@ -70,7 +70,6 @@ class BasicCreatureAI(CreatureAI):
         return self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE
 
     def _start_proximity_aggro_attack(self, victim):
-        self.creature.attack(victim)
         self.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
         threat_not_to_leave_combat = 1E-4
         self.creature.threat_manager.add_threat(victim, threat_not_to_leave_combat)

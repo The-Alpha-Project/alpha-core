@@ -757,7 +757,7 @@ class UnitManager(ObjectManager):
             if self.guid in victim.attackers:
                 victim.attackers.pop(self.guid)
                 # If this was a forced call, and attacker is attacking this unit, make attackers leave combat as well.
-                if victim.combat_target == self.guid and force:
+                if victim.combat_target == self and force:
                     victim.leave_combat(force=force)
 
         self.attackers.clear()

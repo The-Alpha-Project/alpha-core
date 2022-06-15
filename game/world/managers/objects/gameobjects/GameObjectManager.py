@@ -490,7 +490,7 @@ class GameObjectManager(ObjectManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            if self.is_spawned:
+            if self.is_spawned and self.initialized:
                 # Logic for Trap GameObjects (type 6).
                 if self.has_observers() and self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
                     self.trap_manager.update(elapsed)
@@ -505,8 +505,8 @@ class GameObjectManager(ObjectManager):
                 if self.has_pending_updates():
                     MapManager.update_object(self, has_changes=True)
                     self.reset_fields_older_than(now)
-            # Not spawned.
-            else:
+            # Not spawned but initialized.
+            elif self.initialized:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
                     if self.summoner:

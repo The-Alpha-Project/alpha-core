@@ -14,7 +14,7 @@ class FishingNodeManager(object):
     def __init__(self, fishing_node):
         self.fishing_node = fishing_node
         # TODO: Is this the correct approach for splash generation?
-        self.fishing_timer = randint(1, FISHING_CHANNEL_TIME - FISHING_REACTION_TIME)
+        self.fishing_timer = randint(1, int(FISHING_CHANNEL_TIME - FISHING_REACTION_TIME))
         self.became_active_time = 0
         self.hook_result = False
         self.got_away = False
