@@ -1422,11 +1422,6 @@ class PlayerManager(UnitManager):
             self.regenerate(elapsed)
             # Attack update.
             self.attack_update(elapsed)
-            # Waypoints (mostly flying paths) update.
-            self.movement_manager.update_pending_waypoints(elapsed)
-            if self.has_moved:
-                self._on_relocation()
-                self.set_has_moved(False)
             # Check swimming state.
             self.check_swimming_state(elapsed)
 
@@ -1434,6 +1429,13 @@ class PlayerManager(UnitManager):
             self.spell_manager.update(now)
             # AuraManager tick.
             self.aura_manager.update(now)
+
+            # Waypoints (mostly flying paths) update.
+            self.movement_manager.update_pending_waypoints(elapsed)
+            # Movement checks.
+            if self.has_moved:
+                self._on_relocation()
+                self.set_has_moved(False)
 
             # Duel tick.
             if self.duel_manager:

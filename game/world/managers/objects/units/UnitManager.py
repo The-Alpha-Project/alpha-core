@@ -466,6 +466,16 @@ class UnitManager(ObjectManager):
         if not self.is_alive or self.health == 0:
             return
 
+        # The check to set Focus to 0 on movement needs to be outside of the 2 seconds timer.
+        if self.power_type == PowerTypes.TYPE_FOCUS:
+            # https://web.archive.org/web/20040420191923/http://www.worldofwar.net/articles/gencon2003_2.php
+            # While a Hunter is standing still, Focus gradually increases. The moment a Hunter moves,
+            # Focus drops to zero to prevent kiting. (Blizzard seems to be very anti-kiting;
+            # several other features to minimize kiting are in place as well.)
+            if self.has_moved:
+                if self.power_3 > 0:
+                    self.set_focus(0)
+
         self.last_regen += elapsed
         # Every 2 seconds
         if self.last_regen >= 2:
@@ -510,20 +520,25 @@ class UnitManager(ObjectManager):
                             self.set_mana(self.power_1 + int(mana_regen))
                 # Focus
                 elif self.power_type == PowerTypes.TYPE_FOCUS:
-                    # Apparently focus didn't regenerate while moving.
-                    # Note: Needs source, not 100% confirmed.
-                    if self.power_3 < self.max_power_3 or not (self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK):
-                        if self.power_3 + 5 >= self.max_power_3:
+                    # Don't do anything if the unit is moving.
+                    if self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK:
+                        return
+
+                    if self.power_3 < self.max_power_3:
+                        # 1 Focus per second (2 every 2 seconds) is a guessed value based on the cost of spells.
+                        if self.power_3 + 2 >= self.max_power_3:
                             self.set_focus(self.max_power_3)
                         elif self.power_3 < self.max_power_3:
-                            self.set_focus(self.power_3 + 5)
+                            self.set_focus(self.power_3 + 2)
                 # Energy
                 elif self.power_type == PowerTypes.TYPE_ENERGY:
                     if self.power_4 < self.max_power_4:
-                        if self.power_4 + 20 >= self.max_power_4:
+                        # Regenerating 5 Energy every 2 seconds instead of 20. This is a guess based on the cost of
+                        # Sinister Strike in both 1.12 (45 Energy) and 0.5.3 (10 Energy). ((10 * 20) / 45 = 4.44)
+                        if self.power_4 + 5 >= self.max_power_4:
                             self.set_energy(self.max_power_4)
                         elif self.power_4 < self.max_power_4:
-                            self.set_energy(self.power_4 + 20)
+                            self.set_energy(self.power_4 + 5)
 
             # Rage decay
             if self.power_type == PowerTypes.TYPE_RAGE:
