@@ -28,7 +28,7 @@ class DebugAIStateHandler(object):
             if not world_object:
                 return 0
 
-            messages: list[str] = world_object.get_debug_messages()
+            messages: list[str] = world_object.get_debug_messages(world_session.player_mgr)
             data = pack(
                 '<QI',
                 guid,
