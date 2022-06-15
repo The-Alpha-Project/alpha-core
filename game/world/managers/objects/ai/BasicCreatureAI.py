@@ -62,9 +62,8 @@ class BasicCreatureAI(CreatureAI):
         self.can_summon_guards = self.creature.can_summon_guards() if self.creature else False
 
     def _is_ready_for_new_attack(self):
-        if not self.creature.is_alive or not self.creature.is_spawned or len(self.creature.known_players) == 0:
-            return False
-        return self._is_aggressive() and not self.creature.combat_target and not self.creature.is_evading
+        return self.creature.is_alive and self.creature.is_spawned and len(self.creature.known_players) > 0 \
+               and self._is_aggressive() and not self.creature.combat_target and not self.creature.is_evading
 
     def _is_aggressive(self):
         return self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE
