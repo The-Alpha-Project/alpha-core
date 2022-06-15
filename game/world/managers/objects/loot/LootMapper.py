@@ -1,4 +1,5 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from utils.Logger import Logger
 
 
 class LootMapper:
@@ -25,4 +26,8 @@ class LootMapper:
         loot = WorldDatabaseManager.ItemLootTemplateHolder.item_loot_template_get_by_entry(loot_id)
         if loot:
             return loot
+
+        if not loot:
+            Logger.warning(f'Unable to locate referenced loot for id {loot_id}')
+
         return None

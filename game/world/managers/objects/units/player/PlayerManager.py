@@ -1372,7 +1372,7 @@ class PlayerManager(UnitManager):
         self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
 
     # override
-    def receive_damage(self, amount, source=None, is_periodic=False):
+    def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
         if self.is_god:
             return
 

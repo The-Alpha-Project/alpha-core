@@ -759,7 +759,7 @@ class CreatureManager(UnitManager):
         super().attack_update(elapsed)
 
     # override
-    def receive_damage(self, amount, source=None, is_periodic=False):
+    def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
         super().receive_damage(amount, source, is_periodic)
 
         if self.is_alive:
@@ -769,8 +769,17 @@ class CreatureManager(UnitManager):
                 # Make sure to first stop any movement right away.
                 if len(self.movement_manager.pending_waypoints) > 0:
                     self.movement_manager.send_move_stop()
+
+            threat = amount
             # TODO: Threat calculation.
-            self.threat_manager.add_threat(source, amount if amount > 0 else 10)
+            # No threat but source spell generates threat on miss.
+            if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():
+                threat = 10
+            # Physical miss, block, etc.
+            elif not casting_spell and threat == 0:
+                threat = 10
+
+            self.threat_manager.add_threat(source, threat)
 
     # override
     def respawn(self):
