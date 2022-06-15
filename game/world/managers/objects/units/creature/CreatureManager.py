@@ -753,7 +753,6 @@ class CreatureManager(UnitManager):
             self.attack(target)
         # No target at all, leave combat, reset aggro.
         elif not target:
-            self.threat_manager.reset()
             self.leave_combat()
             return
 
