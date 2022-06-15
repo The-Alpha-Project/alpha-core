@@ -33,6 +33,12 @@ class ThreatManager:
             else:
                 Logger.warning(f'Passed non positive threat {threat} from {source.guid & ~HighGuid.HIGHGUID_UNIT}')
 
+    def resolve_target(self):
+        if len(self.holders) == 0:
+            return None
+        else:
+            return self.get_hostile_target()
+
     def get_hostile_target(self) -> Optional[UnitManager]:
         max_threat_holder = self._get_max_threat_holder()
 

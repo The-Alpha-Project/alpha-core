@@ -565,7 +565,7 @@ class UnitManager(ObjectManager):
                                spell_attack_type: AttackTypes = -1):
         return base_damage
 
-    def deal_damage(self, target, damage, is_periodic=False):
+    def deal_damage(self, target, damage, is_periodic=False, casting_spell=None):
         if not target or not target.is_alive:
             return
 
@@ -582,9 +582,9 @@ class UnitManager(ObjectManager):
             if not target.in_combat:
                 target.enter_combat()
 
-        target.receive_damage(damage, source=self, is_periodic=is_periodic)
+        target.receive_damage(damage, source=self, is_periodic=is_periodic, casting_spell=casting_spell)
 
-    def receive_damage(self, amount, source=None, is_periodic=False):
+    def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
         if source is not self and not is_periodic and amount > 0:
             self.aura_manager.check_aura_interrupts(received_damage=True)
             self.spell_manager.check_spell_interrupts(received_damage=True)
@@ -649,7 +649,7 @@ class UnitManager(ObjectManager):
         self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID, is_periodic=is_periodic,
                                         is_cast_on_swing=is_cast_on_swing)
 
-        self.deal_damage(target, damage, is_periodic)
+        self.deal_damage(target, damage, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
         miss_info = casting_spell.object_target_results[target.guid].result
@@ -757,7 +757,7 @@ class UnitManager(ObjectManager):
             if self.guid in victim.attackers:
                 victim.attackers.pop(self.guid)
                 # If this was a forced call, and attacker is attacking this unit, make attackers leave combat as well.
-                if victim.combat_target == self.guid and force:
+                if victim.combat_target == self and force:
                     victim.leave_combat(force=force)
 
         self.attackers.clear()

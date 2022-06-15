@@ -29,10 +29,10 @@ class AuraManager:
 
         # Application threat and negative aura application interrupts.
         if aura.harmful:
-            if aura.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT and \
-                    aura.source_spell.generates_threat():
-                # TODO Replace once threat is handled properly.
-                self.unit_mgr.attack(aura.caster)
+            # Check if we need to add threat on units only.
+            if aura.caster.get_type_id() == ObjectTypeIds.ID_UNIT and aura.source_spell.generates_threat():
+                # TODO: Threat calculation.
+                self.unit_mgr.threat_manager.add_threat(aura.caster, 10)
 
             self.check_aura_interrupts(negative_aura_applied=True)
 

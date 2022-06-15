@@ -396,6 +396,8 @@ class PlayerManager(UnitManager):
                     self.known_objects[guid] = creature
                     # Add ourselves to creature known players.
                     creature.known_players[self.guid] = self
+                    # Notify this creature of our presence, e.g. player just logged in or a creature spawns near.
+                    creature.notify_moved_in_line_of_sight(self)
             # Player knows the creature but is not spawned anymore, destroy it for self.
             elif guid in self.known_objects and not creature.is_spawned:
                 active_objects.pop(guid)
@@ -1370,7 +1372,7 @@ class PlayerManager(UnitManager):
         self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
 
     # override
-    def receive_damage(self, amount, source=None, is_periodic=False):
+    def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
         if self.is_god:
             return
 
@@ -1594,8 +1596,8 @@ class PlayerManager(UnitManager):
 
     def _on_relocation(self):
         for guid, unit in MapManager.get_surrounding_units(self).items():
-            # Skip notify if the unit is already in combat with self.
-            if self.guid not in unit.attackers:
+            # Skip notify if the unit is already in combat with self, not alive or not spawned.
+            if self.guid not in unit.attackers and unit.is_alive and unit.is_spawned:
                 unit.notify_moved_in_line_of_sight(self)
 
     # override

@@ -534,6 +534,11 @@ class CreatureManager(UnitManager):
     def can_exit_water(self):
         return self.static_flags & CreatureStaticFlags.AQUATIC == 0
 
+    # override
+    def leave_combat(self, force=False):
+        super().leave_combat(force=force)
+        self.threat_manager.reset()
+
     # TODO: Finish implementing evade mechanic.
     def evade(self):
         # Already evading.
@@ -686,7 +691,7 @@ class CreatureManager(UnitManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            if self.is_alive and self.is_spawned:
+            if self.is_alive and self.is_spawned and self.initialized:
                 # Time to live.
                 if self.time_to_live_timer > 0:
                     self.time_to_live_timer -= elapsed
@@ -711,8 +716,15 @@ class CreatureManager(UnitManager):
                 # Attack Update.
                 if self.combat_target and self.is_within_interactable_distance(self.combat_target):
                     self.attack_update(elapsed)
+                # Not in combat, check if threat manager can resolve a target.
+                elif self.threat_manager:
+                    target = self.threat_manager.resolve_target()
+                    if target:
+                        is_melee = self.is_within_interactable_distance(target)
+                        self.attack(target, is_melee=is_melee)
+
             # Dead
-            elif not self.is_alive:
+            elif not self.is_alive and self.initialized:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
                     self.respawn()
@@ -736,17 +748,18 @@ class CreatureManager(UnitManager):
     # override
     def attack_update(self, elapsed):
         target = self.threat_manager.get_hostile_target()
-        if target:
+        # Has a target, check if we need to attack or switch target.
+        if target and self.combat_target != target:
             self.attack(target)
-        else:
-            # If we did not find a target, leave combat.
-            self.threat_manager.reset()
+        # No target at all, leave combat, reset aggro.
+        elif not target:
             self.leave_combat()
+            return
 
         super().attack_update(elapsed)
 
     # override
-    def receive_damage(self, amount, source=None, is_periodic=False):
+    def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
         super().receive_damage(amount, source, is_periodic)
 
         if self.is_alive:
@@ -756,9 +769,17 @@ class CreatureManager(UnitManager):
                 # Make sure to first stop any movement right away.
                 if len(self.movement_manager.pending_waypoints) > 0:
                     self.movement_manager.send_move_stop()
-                # Attack.
-                self.attack(source)
-            self.threat_manager.add_threat(source, amount)
+
+            threat = amount
+            # TODO: Threat calculation.
+            # No threat but source spell generates threat on miss.
+            if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():
+                threat = 10
+            # Physical miss, block, etc.
+            elif not casting_spell and threat == 0:
+                threat = 10
+
+            self.threat_manager.add_threat(source, threat)
 
     # override
     def respawn(self):
@@ -787,6 +808,8 @@ class CreatureManager(UnitManager):
     def die(self, killer=None):
         if not self.is_alive:
             return False
+
+        self.threat_manager.reset()
 
         if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
             # Attribute non-player kills to the creature's summoner.
