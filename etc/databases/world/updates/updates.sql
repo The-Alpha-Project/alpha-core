@@ -108,7 +108,7 @@ begin not atomic
     if (select count(*) from applied_updates where id='260520221') = 0 then
         
         -- Create a new table, so we keep track of which item entries have been modified, from what wdb version.
-        CREATE TABLE `alpha_world`.`applied_item_updates` (
+        CREATE TABLE `applied_item_updates` (
         `entry` INT NOT NULL,
         `version` INT NOT NULL DEFAULT 0,
         PRIMARY KEY (`entry`)
