@@ -5339,6 +5339,208 @@ begin not atomic
         -- Invalid Faction 554 -> 60 (Monster)
         UPDATE `creature_template` SET `faction` = '60' WHERE (`faction` = '554');
         
+
+        -- 1.2 display ids not touching updates from WDB files.
+
+        -- Brawler Gloves
+        -- DisplayID from 3143 to 2368
+        UPDATE `item_template` SET `display_id` = 2368 WHERE (`entry` = 720);
+        -- Vendetta
+        -- DisplayID from 6476 to 6452
+        UPDATE `item_template` SET `display_id` = 6452 WHERE (`entry` = 776);
+        -- Spiked Star
+        -- DisplayID from 5199 to 4351
+        UPDATE `item_template` SET `display_id` = 4351 WHERE (`entry` = 925);
+        -- Scroll of Stamina
+        -- DisplayID from 6270 to 1093
+        UPDATE `item_template` SET `display_id` = 1093 WHERE (`entry` = 1180);
+        -- Butcher's Cleaver
+        -- DisplayID from 10808 to 8466
+        UPDATE `item_template` SET `display_id` = 8466 WHERE (`entry` = 1292);
+        -- Gloomshroud Armor
+        -- DisplayID from 9123 to 8676
+        UPDATE `item_template` SET `display_id` = 8676 WHERE (`entry` = 1489);
+        -- Rawhide Gloves
+        -- DisplayID from 3848 to 972
+        UPDATE `item_template` SET `display_id` = 972 WHERE (`entry` = 1791);
+        -- Stonemason Trousers
+        -- DisplayID from 6780 to 6774
+        UPDATE `item_template` SET `display_id` = 6774 WHERE (`entry` = 1934);
+        -- Petrified Shinbone
+        -- DisplayID from 2836 to 1515
+        UPDATE `item_template` SET `display_id` = 1515 WHERE (`entry` = 1958);
+        -- Anvilmar Hand Axe
+        -- DisplayID from 8475 to 8473
+        UPDATE `item_template` SET `display_id` = 8473 WHERE (`entry` = 2047);
+        -- Russet Boots
+        -- DisplayID from 3750 to 1861
+        UPDATE `item_template` SET `display_id` = 1861 WHERE (`entry` = 2432);
+        -- Minor Rejuvenation Potion
+        -- DisplayID from 2350 to 2345
+        UPDATE `item_template` SET `display_id` = 2345 WHERE (`entry` = 2456);
+        -- Ravager's Skull
+        -- DisplayID from 23527 to 1504
+        UPDATE `item_template` SET `display_id` = 1504 WHERE (`entry` = 2477);
+        -- Recipe: Elixir of Minor Agility
+        -- DisplayID from 6270 to 1301
+        UPDATE `item_template` SET `display_id` = 1301 WHERE (`entry` = 2553);
+        -- Rough Bronze Leggings
+        -- DisplayID from 9391 to 4333
+        UPDATE `item_template` SET `display_id` = 4333 WHERE (`entry` = 2865);
+        -- Inscribed Leather Pants
+        -- DisplayID from 11584 to 11369
+        UPDATE `item_template` SET `display_id` = 11369 WHERE (`entry` = 2986);
+        -- Scroll of Agility
+        -- DisplayID from 6409 to 3331
+        UPDATE `item_template` SET `display_id` = 3331 WHERE (`entry` = 3012);
+        -- Shadowgem Shard
+        -- DisplayID from 6689 to 3307
+        UPDATE `item_template` SET `display_id` = 3307 WHERE (`entry` = 3176);
+        -- Tiny Fang
+        -- DisplayID from 6688 to 6651
+        UPDATE `item_template` SET `display_id` = 6651 WHERE (`entry` = 3177);
+        -- Dense Triangle Mace
+        -- DisplayID from 5528 to 5228
+        UPDATE `item_template` SET `display_id` = 5228 WHERE (`entry` = 3203);
+        -- Khadgar's Whisker
+        -- DisplayID from 7378 to 6661
+        UPDATE `item_template` SET `display_id` = 6661 WHERE (`entry` = 3358);
+        -- Daryl's Shortsword
+        -- DisplayID from 8277 to 5151
+        UPDATE `item_template` SET `display_id` = 5151 WHERE (`entry` = 3572);
+        -- Padded Cloth Bracers
+        -- DisplayID from 3895 to 3645
+        UPDATE `item_template` SET `display_id` = 3645 WHERE (`entry` = 3592);
+        -- Russet Bracers
+        -- DisplayID from 3896 to 3740
+        UPDATE `item_template` SET `display_id` = 3740 WHERE (`entry` = 3594);
+        -- Blackforge Leggings
+        -- DisplayID from 11631 to 3409
+        UPDATE `item_template` SET `display_id` = 3409 WHERE (`entry` = 4084);
+        -- Cured Light Hide
+        -- DisplayID from 6655 to 5086
+        UPDATE `item_template` SET `display_id` = 5086 WHERE (`entry` = 4231);
+        -- Cured Medium Hide
+        -- DisplayID from 7348 to 7112
+        UPDATE `item_template` SET `display_id` = 7112 WHERE (`entry` = 4233);
+        -- Cured Heavy Hide
+        -- DisplayID from 7347 to 3164
+        UPDATE `item_template` SET `display_id` = 3164 WHERE (`entry` = 4236);
+        -- Pattern: Rich Purple Silk Shirt
+        -- DisplayID from 6270 to 1102
+        UPDATE `item_template` SET `display_id` = 1102 WHERE (`entry` = 4354);
+        -- Heavy Blasting Powder
+        -- DisplayID from 7372 to 1297
+        UPDATE `item_template` SET `display_id` = 1297 WHERE (`entry` = 4377);
+        -- Big Iron Bomb
+        -- DisplayID from 7627 to 7624
+        UPDATE `item_template` SET `display_id` = 7624 WHERE (`entry` = 4394);
+        -- Brittle Dragon Bone
+        -- DisplayID from 18072 to 6663
+        UPDATE `item_template` SET `display_id` = 6663 WHERE (`entry` = 4459);
+        -- Corroded Black Box
+        -- DisplayID from 20913 to 7074
+        UPDATE `item_template` SET `display_id` = 7074 WHERE (`entry` = 4613);
+        -- Throwing Tomahawk
+        -- DisplayID from 16760 to 5416
+        UPDATE `item_template` SET `display_id` = 5416 WHERE (`entry` = 4959);
+        -- Compact Fighting Knife
+        -- DisplayID from 6432 to 3006
+        UPDATE `item_template` SET `display_id` = 3006 WHERE (`entry` = 4974);
+        -- Scarlet Kris
+        -- DisplayID from 6249 to 3363
+        UPDATE `item_template` SET `display_id` = 3363 WHERE (`entry` = 5267);
+        -- Sillithid Ichor
+        -- DisplayID from 3325 to 2885
+        UPDATE `item_template` SET `display_id` = 2885 WHERE (`entry` = 5269);
+        -- Elven Cup Relic
+        -- DisplayID from 18061 to 13989
+        UPDATE `item_template` SET `display_id` = 13989 WHERE (`entry` = 5330);
+        -- Small Barnacled Clam
+        -- DisplayID from 8047 to 7177
+        UPDATE `item_template` SET `display_id` = 7177 WHERE (`entry` = 5523);
+        -- Goblin Deviled Clams
+        -- DisplayID from 8050 to 7177
+        UPDATE `item_template` SET `display_id` = 7177 WHERE (`entry` = 5527);
+        -- Steadfast Cinch
+        -- DisplayID from 8419 to 6755
+        UPDATE `item_template` SET `display_id` = 6755 WHERE (`entry` = 5609);
+        -- Primitive Walking Stick
+        -- DisplayID from 8904 to 5404
+        UPDATE `item_template` SET `display_id` = 5404 WHERE (`entry` = 5778);
+        -- Dwarven Kite Shield
+        -- DisplayID from 10366 to 3725
+        UPDATE `item_template` SET `display_id` = 3725 WHERE (`entry` = 6176);
+        -- Loch Croc Hide Vest
+        -- DisplayID from 10528 to 2644
+        UPDATE `item_template` SET `display_id` = 2644 WHERE (`entry` = 6197);
+        -- Arclight Spanner
+        -- DisplayID from 10657 to 7494
+        UPDATE `item_template` SET `display_id` = 7494 WHERE (`entry` = 6219);
+        -- Sickly Looking Fish
+        -- DisplayID from 24696 to 11210
+        UPDATE `item_template` SET `display_id` = 11210 WHERE (`entry` = 6299);
+        -- Rough Bronze Boots
+        -- DisplayID from 7003 to 6885
+        UPDATE `item_template` SET `display_id` = 6885 WHERE (`entry` = 6350);
+        -- Oily Blackmouth
+        -- DisplayID from 11450 to 9150
+        UPDATE `item_template` SET `display_id` = 9150 WHERE (`entry` = 6358);
+        -- Bloated Mud Snapper
+        -- DisplayID from 24694 to 4809
+        UPDATE `item_template` SET `display_id` = 4809 WHERE (`entry` = 6645);
+        -- Broken Wine Bottle
+        -- DisplayID from 18652 to 12710
+        UPDATE `item_template` SET `display_id` = 12710 WHERE (`entry` = 6651);
+        -- Crimson Silk Shoulders
+        -- DisplayID from 13673 to 13672
+        UPDATE `item_template` SET `display_id` = 13672 WHERE (`entry` = 7059);
+        -- Infiltrator Shoulders
+        -- DisplayID from 11578 to 11270
+        UPDATE `item_template` SET `display_id` = 11270 WHERE (`entry` = 7408);
+        -- Sentinel Shoulders
+        -- DisplayID from 15002 to 5414
+        UPDATE `item_template` SET `display_id` = 5414 WHERE (`entry` = 7445);
+        -- Regal Star
+        -- DisplayID from 15425 to 6098
+        UPDATE `item_template` SET `display_id` = 6098 WHERE (`entry` = 7555);
+        -- Light Plate Boots
+        -- DisplayID from 28404 to 6947
+        UPDATE `item_template` SET `display_id` = 6947 WHERE (`entry` = 8082);
+        -- Light Plate Bracers
+        -- DisplayID from 9388 to 6948
+        UPDATE `item_template` SET `display_id` = 6948 WHERE (`entry` = 8083);
+        -- Mercurial Breastplate
+        -- DisplayID from 26123 to 11624
+        UPDATE `item_template` SET `display_id` = 11624 WHERE (`entry` = 10157);
+        -- Solid Blasting Powder
+        -- DisplayID from 31324 to 6412
+        UPDATE `item_template` SET `display_id` = 6412 WHERE (`entry` = 10505);
+        -- Cragwood Maul
+        -- DisplayID from 28629 to 4791
+        UPDATE `item_template` SET `display_id` = 4791 WHERE (`entry` = 11265);
+        -- Lar'korwi's Head
+        -- DisplayID from 30111 to 9150
+        UPDATE `item_template` SET `display_id` = 9150 WHERE (`entry` = 11510);
+        -- Boulderskin Breastplate
+        -- DisplayID from 28089 to 8638
+        UPDATE `item_template` SET `display_id` = 8638 WHERE (`entry` = 12106);
+        -- Tender Wolf Meat
+        -- DisplayID from 6680 to 2599
+        UPDATE `item_template` SET `display_id` = 2599 WHERE (`entry` = 12208);
+        -- Horizon Choker
+        -- DisplayID from 9858 to 9657
+        UPDATE `item_template` SET `display_id` = 9657 WHERE (`entry` = 13085);
+        -- Diablo Stone
+        -- DisplayID from 34364 to 6689
+        UPDATE `item_template` SET `display_id` = 6689 WHERE (`entry` = 13584);
+        -- Pattern: Living Leggings
+        -- DisplayID from 6270 to 1102
+        UPDATE `item_template` SET `display_id` = 1102 WHERE (`entry` = 15752);
+        -- Pattern: Devilsaur Leggings
+        -- DisplayID from 6270 to 1102
+        UPDATE `item_template` SET `display_id` = 1102 WHERE (`entry` = 15772);
+
         insert into applied_updates values ('190620221');
     end if;
 end $
