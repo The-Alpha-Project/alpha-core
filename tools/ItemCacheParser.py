@@ -17,6 +17,7 @@ class ItemCacheParser:
 
             sql_field_comment = []
             sql_field_updates = []
+
             for x in range(record_count):
                 sql_field_comment.clear()
                 sql_field_updates.clear()
@@ -172,10 +173,14 @@ class ItemCacheParser:
                         sql_field_comment.append(f"-- dmg_type{y + 1}, from {current_dmg_type} to {dmg_type}")
                         sql_field_updates.append(f"`dmg_type{y + 1}` = {dmg_type}")
 
-                if version == 3925:
-                    index += 4  # Extra resistance? Should we consider this armor?
+                if version >= 3810:
+                    index, physical_armor = ItemCacheParser._read_int(data, index)
+                    current_armor = eval(f' item_template.armor')
+                    if ItemCacheParser._should_update(physical_armor, current_armor):
+                        sql_field_comment.append(f"-- armor, from {current_armor} to {physical_armor}")
+                        sql_field_updates.append(f"`armor` = {physical_armor}")
 
-                resistances = ['fire_res', 'holy_res', 'arcane_res', 'frost_res', 'nature_res', 'shadow_res']
+                resistances = ['holy_res', 'fire_res', 'nature_res', 'frost_res', 'shadow_res', 'arcane_res']
                 for y in range(6):
                     index, resistance = ItemCacheParser._read_int(data, index)
                     current = eval(f' item_template.{resistances[y]}')
@@ -282,6 +287,10 @@ class ItemCacheParser:
                 if ItemCacheParser._should_update(sheath, item_template.sheath):
                     sql_field_comment.append(f"-- sheath, from {item_template.sheath} to {sheath}")
                     sql_field_updates.append(f"`sheath` = {sheath}")
+
+                if version == 3810:
+                    index += 4  # Random property.
+                    index += 4  # Set_Id
 
                 if version == 3925:
                     index += 4  # Durability.

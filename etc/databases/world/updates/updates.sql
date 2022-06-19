@@ -5056,5 +5056,509 @@ begin not atomic
         UPDATE `creature_template` SET `faction` = '32' WHERE (`entry` = '1190');
         insert into applied_updates values ('131620221');
     end if;
+
+    -- 19/06/2022 1 - 3810 ItemUpdates
+    if (select count(*) from applied_updates where id='190620221') = 0 then
+        --- Clasped Belt
+        -- armor, from 3 to 19
+        UPDATE `item_template` SET `armor` = 19 WHERE (`entry` = 3437);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3437, 3810);
+        -- Brass Scale Pants
+        -- armor, from 7 to 58
+        UPDATE `item_template` SET `armor` = 58 WHERE (`entry` = 5941);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5941, 3810);
+        -- Cold Steel Gauntlets
+        -- buy_price, from 113 to 117
+        -- sell_price, from 22 to 23
+        -- armor, from 4 to 24
+        UPDATE `item_template` SET `buy_price` = 117, `sell_price` = 23, `armor` = 24 WHERE (`entry` = 6063);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6063, 3810);
+        -- Jackseed Belt
+        -- stat_value1, from 0 to 10
+        -- armor, from 16 to 14
+        UPDATE `item_template` SET `stat_value1` = 10, `armor` = 14 WHERE (`entry` = 10820);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (10820, 3810);
+        -- Heavy Weave Pants
+        -- armor, from 4 to 31
+        UPDATE `item_template` SET `armor` = 31 WHERE (`entry` = 838);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (838, 3810);
+        -- Heavy Weave Gloves
+        -- armor, from 3 to 20
+        UPDATE `item_template` SET `armor` = 20 WHERE (`entry` = 839);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (839, 3810);
+        -- Veteran Gloves
+        -- quality, from 2 to 1
+        -- buy_price, from 1385 to 627
+        -- sell_price, from 277 to 125
+        -- item_level, from 17 to 15
+        -- armor, from 26 to 54
+        UPDATE `item_template` SET `quality` = 1, `buy_price` = 627, `sell_price` = 125, `item_level` = 15, `armor` = 54 WHERE (`entry` = 2980);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2980, 3810);
+        -- Woven Pants
+        -- armor, from 3 to 17
+        UPDATE `item_template` SET `armor` = 17 WHERE (`entry` = 2366);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2366, 3810);
+        -- Light Chain Boots
+        -- armor, from 5 to 40
+        UPDATE `item_template` SET `armor` = 40 WHERE (`entry` = 2401);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2401, 3810);
+        -- Raw Brilliant Smallfish
+        -- buy_price, from 25 to 20
+        UPDATE `item_template` SET `buy_price` = 20 WHERE (`entry` = 6291);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6291, 3810);
+        -- Cadet Cloak
+        -- subclass, from 1 to 3
+        -- display_id, from 25960 to 15041
+        -- buy_price, from 294 to 444
+        -- sell_price, from 58 to 88
+        -- armor, from 10 to 49
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `subclass` = 3, `display_id` = 15041, `buy_price` = 444, `sell_price` = 88, `armor` = 49, `material` = 5 WHERE (`entry` = 9761);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (9761, 3810);
+        -- Tribal Warrior's Shield
+        -- armor, from 54 to 131
+        UPDATE `item_template` SET `armor` = 131 WHERE (`entry` = 4967);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4967, 3810);
+        -- Scout's Cloak
+        -- buy_price, from 672 to 430
+        -- sell_price, from 134 to 86
+        -- item_level, from 13 to 11
+        -- armor, from 27 to 49
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `buy_price` = 430, `sell_price` = 86, `item_level` = 11, `armor` = 49, `material` = 5 WHERE (`entry` = 5618);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5618, 3810);
+        -- Frayed Robe
+        -- armor, from 1 to 6
+        UPDATE `item_template` SET `armor` = 6 WHERE (`entry` = 1380);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1380, 3810);
+        -- Frayed Pants
+        -- armor, from 1 to 3
+        UPDATE `item_template` SET `armor` = 3 WHERE (`entry` = 1378);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1378, 3810);
+        -- Soft Wool Boots
+        -- buy_price, from 15 to 35
+        -- sell_price, from 3 to 7
+        -- item_level, from 3 to 5
+        -- armor, from 2 to 6
+        UPDATE `item_template` SET `buy_price` = 35, `sell_price` = 7, `item_level` = 5, `armor` = 6 WHERE (`entry` = 4915);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4915, 3810);
+        -- Heavy Cord Bracers
+        -- armor, from 6 to 9
+        UPDATE `item_template` SET `armor` = 9 WHERE (`entry` = 6062);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6062, 3810);
+        -- Frayed Gloves
+        -- armor, from 1 to 3
+        UPDATE `item_template` SET `armor` = 3 WHERE (`entry` = 1377);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1377, 3810);
+        -- Handstitched Leather Vest
+        -- armor, from 11 to 15
+        UPDATE `item_template` SET `armor` = 15 WHERE (`entry` = 5957);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5957, 3810);
+        -- Hearthstone
+        -- class, from 14 to 15
+        UPDATE `item_template` SET `class` = 15 WHERE (`entry` = 6948);
+        UPDATE `applied_item_updates` SET `entry` = 6948, `version` = 3810 WHERE (`entry` = 6948);
+        -- Linen Belt
+        -- buy_price, from 105 to 111
+        -- sell_price, from 21 to 22
+        -- armor, from 4 to 7
+        UPDATE `item_template` SET `buy_price` = 111, `sell_price` = 22, `armor` = 7 WHERE (`entry` = 7026);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (7026, 3810);
+        -- Jester's Shoes
+        -- display_id, from 27532 to 16563
+        -- armor, from 15 to 16
+        UPDATE `item_template` SET `display_id` = 16563, `armor` = 16 WHERE (`entry` = 9743);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (9743, 3810);
+        -- Handsewn Cloak
+        -- armor, from 10 to 18
+        UPDATE `item_template` SET `armor` = 18 WHERE (`entry` = 4944);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4944, 3810);
+        -- Stinging Mace
+        -- display_id, from 5410 to 5009
+        -- dmg_max1, from 16.0 to 15
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `display_id` = 5009, `dmg_max1` = 15, `material` = 1 WHERE (`entry` = 4948);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4948, 3810);
+        -- Nomadic Belt
+        -- buy_price, from 13 to 30
+        -- sell_price, from 2 to 6
+        -- item_level, from 3 to 5
+        -- armor, from 3 to 6
+        UPDATE `item_template` SET `buy_price` = 30, `sell_price` = 6, `item_level` = 5, `armor` = 6 WHERE (`entry` = 4954);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4954, 3810);
+        -- Ragged Leather Gloves
+        -- armor, from 1 to 6
+        UPDATE `item_template` SET `armor` = 6 WHERE (`entry` = 1368);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1368, 3810);
+        -- Demon Scarred Cloak
+        -- item_level, from 12 to 11
+        -- armor, from 10 to 16
+        UPDATE `item_template` SET `item_level` = 11, `armor` = 16 WHERE (`entry` = 4854);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4854, 3810);
+        -- Flimsy Chain Vest
+        -- armor, from 3 to 23
+        UPDATE `item_template` SET `armor` = 23 WHERE (`entry` = 2656);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2656, 3810);
+        -- Painted Chain Belt
+        -- buy_price, from 23 to 35
+        -- sell_price, from 4 to 7
+        -- item_level, from 4 to 5
+        -- armor, from 6 to 10
+        UPDATE `item_template` SET `buy_price` = 35, `sell_price` = 7, `item_level` = 5, `armor` = 10 WHERE (`entry` = 4913);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4913, 3810);
+        -- Cliff Runner Boots
+        -- armor, from 23 to 40
+        UPDATE `item_template` SET `armor` = 40 WHERE (`entry` = 4972);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4972, 3810);
+        -- Painted Chain Gloves
+        -- buy_price, from 16 to 38
+        -- sell_price, from 3 to 7
+        -- item_level, from 3 to 5
+        -- armor, from 5 to 13
+        UPDATE `item_template` SET `buy_price` = 38, `sell_price` = 7, `item_level` = 5, `armor` = 13 WHERE (`entry` = 4910);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4910, 3810);
+        -- Bound Harness
+        -- armor, from 22 to 40
+        UPDATE `item_template` SET `armor` = 40 WHERE (`entry` = 4968);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4968, 3810);
+        -- Kodo Hunter's Leggings
+        -- stat_type1, from 0 to 3
+        -- stat_value1, from 0 to 4
+        -- armor, from 27 to 54
+        UPDATE `item_template` SET `stat_type1` = 3, `stat_value1` = 4, `armor` = 54 WHERE (`entry` = 4909);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4909, 3810);
+        -- Cadet Gauntlets
+        -- display_id, from 22686 to 12299
+        -- armor, from 77 to 45
+        UPDATE `item_template` SET `display_id` = 12299, `armor` = 45 WHERE (`entry` = 9762);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (9762, 3810);
+        -- Wall Shield
+        -- armor, from 9 to 228
+        UPDATE `item_template` SET `armor` = 228 WHERE (`entry` = 1202);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1202, 3810);
+        -- Animal Skin Belt
+        -- armor, from 8 to 12
+        UPDATE `item_template` SET `armor` = 12 WHERE (`entry` = 5936);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5936, 3810);
+        -- Rough-hewn Kodo Leggings
+        -- armor, from 17 to 28
+        UPDATE `item_template` SET `armor` = 28 WHERE (`entry` = 4970);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4970, 3810);
+        -- Battered Leather Boots
+        -- armor, from 15 to 25
+        UPDATE `item_template` SET `armor` = 25 WHERE (`entry` = 2373);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2373, 3810);
+        -- Plains Hunter Wristguards
+        -- armor, from 11 to 18
+        UPDATE `item_template` SET `armor` = 18 WHERE (`entry` = 4973);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4973, 3810);
+        -- Nomadic Gloves
+        -- display_id, from 12415 to 7823
+        -- buy_price, from 30 to 29
+        -- sell_price, from 6 to 5
+        -- armor, from 21 to 8
+        UPDATE `item_template` SET `display_id` = 7823, `buy_price` = 29, `sell_price` = 5, `armor` = 8 WHERE (`entry` = 10636);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (10636, 3810);
+        -- Small Tomahawk
+        -- dmg_min1, from 9.0 to 3
+        -- dmg_max1, from 14.0 to 7
+        UPDATE `item_template` SET `dmg_min1` = 3, `dmg_max1` = 7 WHERE (`entry` = 2498);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2498, 3810);
+        -- Ornate Blunderbuss
+        -- dmg_min1, from 7.0 to 4
+        -- dmg_max1, from 11.0 to 9
+        UPDATE `item_template` SET `dmg_min1` = 4, `dmg_max1` = 9 WHERE (`entry` = 2509);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2509, 3810);
+        -- Battered Leather Bracers
+        -- armor, from 11 to 18
+        UPDATE `item_template` SET `armor` = 18 WHERE (`entry` = 2374);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2374, 3810);
+        -- Bent Large Shield
+        -- armor, from 6 to 30
+        UPDATE `item_template` SET `armor` = 30 WHERE (`entry` = 2211);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2211, 3810);
+        -- Brawler's Pants
+        -- armor, from 1 to 2
+        UPDATE `item_template` SET `armor` = 2 WHERE (`entry` = 139);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (139, 3810);
+        -- Flimsy Chain Bracers
+        -- armor, from 2 to 9
+        UPDATE `item_template` SET `armor` = 9 WHERE (`entry` = 2651);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2651, 3810);
+        -- Battered Leather Gloves
+        -- armor, from 12 to 20
+        UPDATE `item_template` SET `armor` = 20 WHERE (`entry` = 2375);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2375, 3810);
+        -- Large Wooden Shield
+        -- armor, from 4 to 44
+        UPDATE `item_template` SET `armor` = 44 WHERE (`entry` = 1200);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1200, 3810);
+        -- Ceremonial Tomahawk
+        -- dmg_min1, from 5.0 to 4
+        -- dmg_max1, from 10.0 to 9
+        UPDATE `item_template` SET `dmg_min1` = 4, `dmg_max1` = 9 WHERE (`entry` = 3443);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3443, 3810);
+        -- Rainwalker Boots
+        -- armor, from 11 to 16
+        UPDATE `item_template` SET `armor` = 16 WHERE (`entry` = 4906);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4906, 3810);
+        -- Dreamwatcher Staff
+        -- dmg_min1, from 15.0 to 12
+        -- dmg_max1, from 23.0 to 18
+        UPDATE `item_template` SET `dmg_min1` = 12, `dmg_max1` = 18 WHERE (`entry` = 4961);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4961, 3810);
+        -- Nomadic Vest
+        -- buy_price, from 43 to 65
+        -- sell_price, from 8 to 13
+        -- item_level, from 4 to 5
+        -- armor, from 9 to 15
+        UPDATE `item_template` SET `buy_price` = 65, `sell_price` = 13, `item_level` = 5, `armor` = 15 WHERE (`entry` = 6059);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6059, 3810);
+        -- Nomadic Bracers
+        -- buy_price, from 21 to 32
+        -- sell_price, from 4 to 6
+        -- item_level, from 4 to 5
+        -- armor, from 5 to 7
+        UPDATE `item_template` SET `buy_price` = 32, `sell_price` = 6, `item_level` = 5, `armor` = 7 WHERE (`entry` = 4908);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4908, 3810);
+        -- Cane of Elders
+        -- dmg_min1, from 8.0 to 5
+        -- dmg_max1, from 13.0 to 8
+        UPDATE `item_template` SET `dmg_min1` = 5, `dmg_max1` = 8 WHERE (`entry` = 5776);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5776, 3810);
+        -- Dirty Leather Boots
+        -- armor, from 8 to 10
+        UPDATE `item_template` SET `armor` = 10 WHERE (`entry` = 210);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (210, 3810);
+        -- Ragged Leather Belt
+        -- armor, from 1 to 6
+        UPDATE `item_template` SET `armor` = 6 WHERE (`entry` = 1369);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1369, 3810);
+        -- Frayed Cloak
+        -- armor, from 1 to 6
+        UPDATE `item_template` SET `armor` = 6 WHERE (`entry` = 1376);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1376, 3810);
+        -- Dirty Leather Pants
+        -- armor, from 10 to 13
+        UPDATE `item_template` SET `armor` = 13 WHERE (`entry` = 209);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (209, 3810);
+        -- Painted Chain Leggings
+        -- display_id, from 28230 to 5337
+        -- buy_price, from 73 to 71
+        -- armor, from 58 to 21
+        UPDATE `item_template` SET `display_id` = 5337, `buy_price` = 71, `armor` = 21 WHERE (`entry` = 10635);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (10635, 3810);
+        -- Flimsy Chain Boots
+        -- armor, from 2 to 10
+        UPDATE `item_template` SET `armor` = 10 WHERE (`entry` = 2650);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2650, 3810);
+        -- Sun-beaten Cloak
+        -- armor, from 20 to 33
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `armor` = 33, `material` = 5 WHERE (`entry` = 4958);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4958, 3810);
+        -- Ragged Leather Bracers
+        -- armor, from 1 to 6
+        UPDATE `item_template` SET `armor` = 6 WHERE (`entry` = 1370);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1370, 3810);
+        -- Stone Tomahawk
+        -- dmg_min1, from 3.0 to 2
+        -- dmg_max1, from 6.0 to 5
+        UPDATE `item_template` SET `dmg_min1` = 2, `dmg_max1` = 5 WHERE (`entry` = 1383);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1383, 3810);
+        -- Buckled Harness
+        -- armor, from 30 to 67
+        UPDATE `item_template` SET `armor` = 67 WHERE (`entry` = 6523);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6523, 3810);
+        -- Sleek Feathered Tunic
+        -- quality, from 1 to 2
+        -- buy_price, from 275 to 596
+        -- sell_price, from 55 to 119
+        -- item_level, from 9 to 10
+        -- armor, from 20 to 38
+        UPDATE `item_template` SET `quality` = 2, `buy_price` = 596, `sell_price` = 119, `item_level` = 10, `armor` = 38 WHERE (`entry` = 4861);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4861, 3810);
+        -- Battered Leather Belt
+        -- armor, from 10 to 16
+        UPDATE `item_template` SET `armor` = 16 WHERE (`entry` = 2371);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2371, 3810);
+        -- Rambling Boots
+        -- display_id, from 28241 to 21849
+        -- stat_type1, from 0 to 3
+        -- stat_value1, from 0 to 3
+        -- stat_type2, from 0 to 1
+        -- stat_value2, from 0 to 10
+        -- armor, from 51 to 52
+        UPDATE `item_template` SET `display_id` = 21849, `stat_type1` = 3, `stat_value1` = 3, `stat_type2` = 1, `stat_value2` = 10, `armor` = 52 WHERE (`entry` = 11853);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (11853, 3810);
+        -- Bounty Hunter's Ring
+        -- stat_value1, from 0 to 4
+        UPDATE `item_template` SET `stat_value1` = 4 WHERE (`entry` = 5351);
+        UPDATE `applied_item_updates` SET `entry` = 5351, `version` = 3810 WHERE (`entry` = 5351);
+        -- Barkeeper's Cloak
+        -- stat_type1, from 0 to 1
+        -- stat_value1, from 0 to 15
+        -- armor, from 35 to 93
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `stat_type1` = 1, `stat_value1` = 15, `armor` = 93, `material` = 5 WHERE (`entry` = 5343);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5343, 3810);
+        -- Short Bastard Sword
+        -- buy_price, from 3168 to 5247
+        -- sell_price, from 633 to 1049
+        -- item_level, from 13 to 16
+        -- dmg_min1, from 17.0 to 20
+        -- dmg_max1, from 27.0 to 31
+        UPDATE `item_template` SET `buy_price` = 5247, `sell_price` = 1049, `item_level` = 16, `dmg_min1` = 20, `dmg_max1` = 31 WHERE (`entry` = 4567);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4567, 3810);
+        -- Warped Leather Bracers
+        -- armor, from 8 to 19
+        UPDATE `item_template` SET `armor` = 19 WHERE (`entry` = 1504);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1504, 3810);
+        -- Warped Leather Gloves
+        -- armor, from 9 to 26
+        UPDATE `item_template` SET `armor` = 26 WHERE (`entry` = 1506);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1506, 3810);
+        -- Dwarven Mild
+        -- display_id, from 6372 to 6352
+        UPDATE `item_template` SET `display_id` = 6352 WHERE (`entry` = 422);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (422, 3810);
+        -- Stormwind Brie
+        -- buy_price, from 1250 to 1000
+        UPDATE `item_template` SET `buy_price` = 1000 WHERE (`entry` = 1707);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1707, 3810);
+        -- Rugged Mail Vest
+        -- buy_price, from 51 to 77
+        -- sell_price, from 10 to 15
+        -- item_level, from 4 to 5
+        -- armor, from 5 to 24
+        UPDATE `item_template` SET `buy_price` = 77, `sell_price` = 15, `item_level` = 5, `armor` = 24 WHERE (`entry` = 3273);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3273, 3810);
+        -- Roamer's Leggings
+        -- armor, from 58 to 21
+        UPDATE `item_template` SET `armor` = 21 WHERE (`entry` = 11852);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (11852, 3810);
+        -- Rustmetal Bracers
+        -- buy_price, from 38 to 35
+        -- armor, from 29 to 12
+        -- material, from 5 to 7
+        UPDATE `item_template` SET `buy_price` = 35, `armor` = 12, `material` = 7 WHERE (`entry` = 11849);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (11849, 3810);
+        -- Bandit Shoulders
+        -- buy_price, from 2045 to 2019
+        -- sell_price, from 409 to 403
+        -- armor, from 58 to 73
+        UPDATE `item_template` SET `buy_price` = 2019, `sell_price` = 403, `armor` = 73 WHERE (`entry` = 10405);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (10405, 3810);
+        -- Stretched Leather Trousers
+        -- stat_type1, from 0 to 3
+        -- stat_value1, from 0 to 3
+        -- armor, from 27 to 54
+        UPDATE `item_template` SET `stat_type1` = 3, `stat_value1` = 3, `armor` = 54 WHERE (`entry` = 2818);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2818, 3810);
+        -- Talonstrike
+        -- dmg_max1, from 22.0 to 21
+        UPDATE `item_template` SET `dmg_max1` = 21 WHERE (`entry` = 3462);
+        UPDATE `applied_item_updates` SET `entry` = 3462, `version` = 3810 WHERE (`entry` = 3462);
+        -- Cryptwalker Boots
+        -- armor, from 4 to 30
+        UPDATE `item_template` SET `armor` = 30 WHERE (`entry` = 3447);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3447, 3810);
+        -- Cadet Bracers
+        -- display_id, from 22685 to 6894
+        -- buy_price, from 367 to 336
+        -- sell_price, from 73 to 67
+        -- armor, from 51 to 37
+        UPDATE `item_template` SET `display_id` = 6894, `buy_price` = 336, `sell_price` = 67, `armor` = 37 WHERE (`entry` = 9760);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (9760, 3810);
+        -- Whispering Vest
+        -- stat_value1, from 0 to 9
+        -- armor, from 6 to 46
+        UPDATE `item_template` SET `stat_value1` = 9, `armor` = 46 WHERE (`entry` = 4781);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4781, 3810);
+        -- Buckled Boots
+        -- armor, from 26 to 62
+        UPDATE `item_template` SET `armor` = 62 WHERE (`entry` = 5311);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5311, 3810);
+        -- Apothecary Gloves
+        -- stat_value1, from 0 to 4
+        -- armor, from 20 to 23
+        UPDATE `item_template` SET `stat_value1` = 4, `armor` = 23 WHERE (`entry` = 10919);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (10919, 3810);
+        -- Guardian Buckler
+        -- buy_price, from 6760 to 8320
+        -- sell_price, from 1352 to 1664
+        -- stat_type1, from 0 to 6
+        -- stat_value1, from 0 to 5
+        -- armor, from 45 to 365
+        UPDATE `item_template` SET `subclass` = 6, `buy_price` = 8320, `sell_price` = 1664, `stat_type1` = 6, `stat_value1` = 5, `armor` = 365 WHERE (`entry` = 4820);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4820, 3810);
+        -- Seer's Robe
+        -- buy_price, from 4213 to 3242
+        -- sell_price, from 842 to 648
+        -- item_level, from 23 to 21
+        -- stat_type1, from 0 to 6
+        -- stat_value1, from 0 to 9
+        -- armor, from 18 to 48
+        UPDATE `item_template` SET `buy_price` = 3242, `sell_price` = 648, `item_level` = 21, `stat_type1` = 6, `stat_value1` = 9, `armor` = 48 WHERE (`entry` = 2981);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2981, 3810);
+        -- Canvas Pants
+        -- armor, from 9 to 36
+        UPDATE `item_template` SET `armor` = 36 WHERE (`entry` = 1768);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1768, 3810);
+        -- Plain Robe
+        -- armor, from 3 to 14
+        UPDATE `item_template` SET `armor` = 14 WHERE (`entry` = 2612);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2612, 3810);
+        -- Flax Vest
+        -- buy_price, from 33 to 51
+        -- sell_price, from 6 to 10
+        -- item_level, from 4 to 5
+        -- armor, from 2 to 8
+        UPDATE `item_template` SET `buy_price` = 51, `sell_price` = 10, `item_level` = 5, `armor` = 8 WHERE (`entry` = 3270);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3270, 3810);
+        -- Flax Bracers
+        -- buy_price, from 15 to 24
+        -- sell_price, from 3 to 4
+        -- item_level, from 4 to 5
+        -- armor, from 1 to 4
+        UPDATE `item_template` SET `buy_price` = 24, `sell_price` = 4, `item_level` = 5, `armor` = 4 WHERE (`entry` = 6060);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6060, 3810);
+        -- Acolyte's Pants
+        -- armor, from 1 to 2
+        UPDATE `item_template` SET `armor` = 2 WHERE (`entry` = 1396);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1396, 3810);
+        -- Scavenger Tunic
+        -- display_id, from 28249 to 8701
+        -- armor, from 33 to 15
+        UPDATE `item_template` SET `display_id` = 8701, `armor` = 15 WHERE (`entry` = 11851);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (11851, 3810);
+        -- Wispy Cloak
+        -- armor, from 2 to 7
+        UPDATE `item_template` SET `armor` = 7 WHERE (`entry` = 3322);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3322, 3810);
+        -- Flax Belt
+        -- display_id, from 28170 to 16799
+        -- buy_price, from 26 to 23
+        -- sell_price, from 5 to 4
+        -- armor, from 6 to 4
+        UPDATE `item_template` SET `display_id` = 16799, `buy_price` = 23, `sell_price` = 4, `armor` = 4 WHERE (`entry` = 11848);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (11848, 3810);
+        -- Blue Linen Robe
+        -- stat_type1, from 0 to 6
+        -- armor, from 4 to 30
+        UPDATE `item_template` SET `stat_type1` = 6, `armor` = 30 WHERE (`entry` = 6242);
+        UPDATE `applied_item_updates` SET `entry` = 6242, `version` = 3810 WHERE (`entry` = 6242);
+        -- Scarlet Initiate Robes
+        -- armor, from 8 to 7
+        UPDATE `item_template` SET `armor` = 7 WHERE (`entry` = 3260);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3260, 3810);
+        -- Webbed Pants
+        -- armor, from 2 to 4
+        UPDATE `item_template` SET `armor` = 4 WHERE (`entry` = 3263);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3263, 3810);
+
+
+        insert into applied_updates values ('190620221');
+    end if;
 end $
 delimiter ;
