@@ -5556,7 +5556,23 @@ begin not atomic
         -- armor, from 2 to 4
         UPDATE `item_template` SET `armor` = 4 WHERE (`entry` = 3263);
         INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3263, 3810);
+        
+        -- Creatures display ids from 3810 sniffs which are lower than current display ids.
+        UPDATE `creature_template` SET `display_id1` = '969' WHERE (`entry` = '3116');
+        UPDATE `creature_template` SET `display_id1` = '970' WHERE (`entry` = '3118');
+        UPDATE `creature_template` SET `display_id1` = '1027' WHERE (`entry` = '3150');
+        UPDATE `creature_template` SET `display_id1` = '1057' WHERE (`entry` = '3243');
+        UPDATE `creature_template` SET `display_id1` = '3805' WHERE (`entry` = '3079');
+        UPDATE `creature_template` SET `display_id1` = '1904' WHERE (`entry` = '3224');
+        UPDATE `creature_template` SET `display_id1` = '2572' WHERE (`entry` = '4200');
+        UPDATE `creature_template` SET `display_id1` = '3029' WHERE (`entry` = '2033');
+        UPDATE `creature_template` SET `display_id1` = '6805' WHERE (`entry` = '2043');
+        UPDATE `creature_template` SET `display_id1` = '7630' WHERE (`entry` = '8398');
 
+        -- Invalid Faction 514 -> 60 (Monster)
+        UPDATE `creature_template` SET `faction` = '60' WHERE (`faction` = '514');
+        -- Invalid Faction 413 -> 60 (Monster)
+        UPDATE `creature_template` SET `faction` = '60' WHERE (`faction` = '413');
 
         insert into applied_updates values ('190620221');
     end if;
