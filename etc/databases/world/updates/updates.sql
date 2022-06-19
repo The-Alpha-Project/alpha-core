@@ -5573,7 +5573,9 @@ begin not atomic
         UPDATE `creature_template` SET `faction` = '60' WHERE (`faction` = '514');
         -- Invalid Faction 413 -> 60 (Monster)
         UPDATE `creature_template` SET `faction` = '60' WHERE (`faction` = '413');
-
+        -- Invalid Faction 554 -> 60 (Monster)
+        UPDATE `creature_template` SET `faction` = '60' WHERE (`faction` = '554');
+        
         insert into applied_updates values ('190620221');
     end if;
 end $
