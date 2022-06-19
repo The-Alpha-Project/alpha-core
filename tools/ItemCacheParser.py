@@ -173,12 +173,8 @@ class ItemCacheParser:
                         sql_field_comment.append(f"-- dmg_type{y + 1}, from {current_dmg_type} to {dmg_type}")
                         sql_field_updates.append(f"`dmg_type{y + 1}` = {dmg_type}")
 
-                if version >= 3810:
+                if version >= 3807:
                     index, physical_armor = ItemCacheParser._read_int(data, index)
-                    current_armor = eval(f' item_template.armor')
-                    if ItemCacheParser._should_update(physical_armor, current_armor):
-                        sql_field_comment.append(f"-- armor, from {current_armor} to {physical_armor}")
-                        sql_field_updates.append(f"`armor` = {physical_armor}")
 
                 resistances = ['holy_res', 'fire_res', 'nature_res', 'frost_res', 'shadow_res', 'arcane_res']
                 for y in range(6):
