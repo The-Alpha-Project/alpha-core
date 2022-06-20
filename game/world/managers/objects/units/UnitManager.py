@@ -228,7 +228,12 @@ class UnitManager(ObjectManager):
 
         self.set_current_target(victim.guid)
         self.combat_target = victim
+
         victim.attackers[self.guid] = self
+        self.attackers[victim.guid] = victim
+
+        self.enter_combat()
+        victim.enter_combat()
 
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
@@ -588,16 +593,6 @@ class UnitManager(ObjectManager):
         if target.is_evading:
             return
 
-        if target is not self:
-            if self.guid not in target.attackers:
-                target.attackers[self.guid] = self
-
-            if not self.in_combat:
-                self.enter_combat()
-
-            if not target.in_combat:
-                target.enter_combat()
-
         target.receive_damage(damage, source=self, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
@@ -771,9 +766,10 @@ class UnitManager(ObjectManager):
         # Remove self from attacker list of attackers
         for guid, victim in self.attackers.items():
             if self.guid in victim.attackers:
+                # Always pop self from victim attackers.
                 victim.attackers.pop(self.guid)
-                # If this was a forced call, and attacker is attacking this unit, make attackers leave combat as well.
-                if victim.combat_target == self and force:
+                # If this was a forced call, and we were the only attacker of victim, force attacker to leave combat.
+                if len(victim.attackers) == 0 and force:
                     victim.leave_combat(force=force)
 
         self.attackers.clear()
@@ -1110,6 +1106,7 @@ class UnitManager(ObjectManager):
         if self.summoner:
             self.summoner.pet_manager.detach_active_pet()
 
+        self.leave_combat(force=True)
         self.set_health(0)
         self.set_stand_state(StandState.UNIT_DEAD)
 
@@ -1134,7 +1131,6 @@ class UnitManager(ObjectManager):
         self.spell_manager.remove_all_casts()
         self.aura_manager.handle_death()
 
-        self.leave_combat()
         return True
 
     def respawn(self):
