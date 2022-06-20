@@ -5542,6 +5542,7 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = 1102 WHERE (`entry` = 15772);
 
         -- 1.2 Creatures display ids, these fix many cubes.
+        -- Condition to update (new model do not exist on displayid1,2,3,4 and is lower than current)
 
         -- Mine Spider
         -- DisplayID from 711 to 368
