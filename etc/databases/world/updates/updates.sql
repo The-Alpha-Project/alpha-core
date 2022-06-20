@@ -5765,7 +5765,9 @@ begin not atomic
         -- Willow
         -- DisplayID from 13909 to 2874
         UPDATE `creature_template` SET `display_id1` = 2874 WHERE (`entry` = 13656);
-
+        -- Wolf Master Nandos
+        -- DisplayID from 11179 to 522
+        UPDATE `creature_template` SET `display_id1` = 522 WHERE (`entry` = 3927);
 
         insert into applied_updates values ('190620221');
     end if;
