@@ -5690,9 +5690,6 @@ begin not atomic
         -- Geomancer Flintdagger
         -- DisplayID from 10911 to 511
         UPDATE `creature_template` SET `display_id1` = 511 WHERE (`entry` = 2609);
-        -- Fozruk
-        -- DisplayID from 3166 to 1918
-        UPDATE `creature_template` SET `display_id1` = 1918 WHERE (`entry` = 2611);
         -- Buzzard
         -- DisplayID from 1105 to 388
         UPDATE `creature_template` SET `display_id1` = 388 WHERE (`entry` = 2830);
@@ -5708,27 +5705,15 @@ begin not atomic
         -- Shadowfang Ragetooth
         -- DisplayID from 736 to 412
         UPDATE `creature_template` SET `display_id1` = 412 WHERE (`entry` = 3859);
-        -- Wolf Master Nandos
-        -- DisplayID from 11179 to 522
-        UPDATE `creature_template` SET `display_id1` = 522 WHERE (`entry` = 3927);
         -- Deepmoss Venomspitter
         -- DisplayID from 760 to 759
         UPDATE `creature_template` SET `display_id1` = 759 WHERE (`entry` = 4007);
         -- Galak Pack Runner
         -- DisplayID from 9413 to 2292
         UPDATE `creature_template` SET `display_id1` = 2292 WHERE (`entry` = 4098);
-        -- Riding Wolf (Gray)
-        -- DisplayID from 2320 to 801
-        UPDATE `creature_template` SET `display_id1` = 801 WHERE (`entry` = 4268);
         -- Chestnut Mare
         -- DisplayID from 2405 to 215
         UPDATE `creature_template` SET `display_id1` = 215 WHERE (`entry` = 4269);
-        -- Dire Wolf
-        -- DisplayID from 2327 to 217
-        UPDATE `creature_template` SET `display_id1` = 217 WHERE (`entry` = 4271);
-        -- Brown Wolf
-        -- DisplayID from 2328 to 207
-        UPDATE `creature_template` SET `display_id1` = 207 WHERE (`entry` = 4272);
         -- Odo the Blindwatcher
         -- DisplayID from 522 to 412
         UPDATE `creature_template` SET `display_id1` = 412 WHERE (`entry` = 4279);
@@ -5741,117 +5726,18 @@ begin not atomic
         -- Mazzer Stripscrew
         -- DisplayID from 10982 to 2581
         UPDATE `creature_template` SET `display_id1` = 2581 WHERE (`entry` = 4446);
-        -- Frostmaw
-        -- DisplayID from 10579 to 6767
-        UPDATE `creature_template` SET `display_id1` = 6767 WHERE (`entry` = 4504);
-        -- Fobeed
-        -- DisplayID from 11573 to 10716
-        UPDATE `creature_template` SET `display_id1` = 10716 WHERE (`entry` = 4620);
-        -- Dread Ripper
-        -- DisplayID from 14319 to 10826
-        UPDATE `creature_template` SET `display_id1` = 10826 WHERE (`entry` = 4694);
-        -- Gray Ram
-        -- DisplayID from 2736 to 1371
-        UPDATE `creature_template` SET `display_id1` = 1371 WHERE (`entry` = 4710);
         -- Sandstrider
         -- DisplayID from 6076 to 2741
         UPDATE `creature_template` SET `display_id1` = 2741 WHERE (`entry` = 4724);
-        -- White Ram
-        -- DisplayID from 2786 to 1371
-        UPDATE `creature_template` SET `display_id1` = 1371 WHERE (`entry` = 4777);
-        -- Frost Ram
-        -- DisplayID from 2784 to 1371
-        UPDATE `creature_template` SET `display_id1` = 1371 WHERE (`entry` = 4778);
-        -- Brown Ram
-        -- DisplayID from 2785 to 1371
-        UPDATE `creature_template` SET `display_id1` = 1371 WHERE (`entry` = 4779);
-        -- Black Ram
-        -- DisplayID from 2787 to 1371
-        UPDATE `creature_template` SET `display_id1` = 1371 WHERE (`entry` = 4780);
-        -- Dreadmaul Ogre
-        -- DisplayID from 14402 to 11541
-        UPDATE `creature_template` SET `display_id1` = 11541 WHERE (`entry` = 5974);
-        -- Dreadmaul Brute
-        -- DisplayID from 11584 to 11535
-        UPDATE `creature_template` SET `display_id1` = 11535 WHERE (`entry` = 5976);
-        -- Dreadmaul Mauler
-        -- DisplayID from 14401 to 11540
-        UPDATE `creature_template` SET `display_id1` = 11540 WHERE (`entry` = 5977);
-        -- Striped Frostsaber
-        -- DisplayID from 6080 to 457
-        UPDATE `creature_template` SET `display_id1` = 457 WHERE (`entry` = 6074);
-        -- Emerald Raptor
-        -- DisplayID from 4806 to 458
-        UPDATE `creature_template` SET `display_id1` = 458 WHERE (`entry` = 6075);
-        -- Riding Tallstrider (Ivory)
-        -- DisplayID from 4807 to 459
-        UPDATE `creature_template` SET `display_id1` = 459 WHERE (`entry` = 6076);
-        -- Cliff Breaker
-        -- DisplayID from 3166 to 1918
-        UPDATE `creature_template` SET `display_id1` = 1918 WHERE (`entry` = 6146);
         -- Stockade Archer
         -- DisplayID from 2992 to 2989
         UPDATE `creature_template` SET `display_id1` = 2989 WHERE (`entry` = 6237);
         -- Crawler
         -- DisplayID from 1249 to 641
         UPDATE `creature_template` SET `display_id1` = 641 WHERE (`entry` = 6250);
-        -- Riding Skeletal Horse (Black)
-        -- DisplayID from 1951 to 491
-        UPDATE `creature_template` SET `display_id1` = 491 WHERE (`entry` = 6486);
-        -- Rift Spawn
-        -- DisplayID from 14273 to 5246
-        UPDATE `creature_template` SET `display_id1` = 5246 WHERE (`entry` = 6492);
         -- Black Nightsaber
         -- DisplayID from 9991 to 613
         UPDATE `creature_template` SET `display_id1` = 613 WHERE (`entry` = 7322);
-        -- Bombay Cat
-        -- DisplayID from 5586 to 5556
-        UPDATE `creature_template` SET `display_id1` = 5556 WHERE (`entry` = 7385);
-        -- Riding Tiger (Yellow)
-        -- DisplayID from 6447 to 954
-        UPDATE `creature_template` SET `display_id1` = 954 WHERE (`entry` = 7684);
-        -- Riding Tiger (Red)
-        -- DisplayID from 9714 to 320
-        UPDATE `creature_template` SET `display_id1` = 320 WHERE (`entry` = 7686);
-        -- Spotted Frostsaber
-        -- DisplayID from 6444 to 457
-        UPDATE `creature_template` SET `display_id1` = 457 WHERE (`entry` = 7687);
-        -- Riding Tiger (BlackSpotted)
-        -- DisplayID from 11448 to 684
-        UPDATE `creature_template` SET `display_id1` = 684 WHERE (`entry` = 7689);
-        -- Riding Raptor (Obsidian)
-        -- DisplayID from 6468 to 458
-        UPDATE `creature_template` SET `display_id1` = 458 WHERE (`entry` = 7703);
-        -- Mottled Red Raptor
-        -- DisplayID from 6469 to 458
-        UPDATE `creature_template` SET `display_id1` = 458 WHERE (`entry` = 7704);
-        -- Ivory Raptor
-        -- DisplayID from 6471 to 458
-        UPDATE `creature_template` SET `display_id1` = 458 WHERE (`entry` = 7706);
-        -- Turquoise Raptor
-        -- DisplayID from 6472 to 458
-        UPDATE `creature_template` SET `display_id1` = 458 WHERE (`entry` = 7707);
-        -- Violet Raptor
-        -- DisplayID from 6473 to 458
-        UPDATE `creature_template` SET `display_id1` = 458 WHERE (`entry` = 7708);
-        -- Riding Tallstrider (Brown)
-        -- DisplayID from 6474 to 459
-        UPDATE `creature_template` SET `display_id1` = 459 WHERE (`entry` = 7709);
-        -- Riding Tallstrider (Gray)
-        -- DisplayID from 6475 to 459
-        UPDATE `creature_template` SET `display_id1` = 459 WHERE (`entry` = 7710);
-        -- Riding Tallstrider (Pink)
-        -- DisplayID from 6476 to 459
-        UPDATE `creature_template` SET `display_id1` = 459 WHERE (`entry` = 7711);
-        -- Riding Tallstrider (Purple)
-        -- DisplayID from 6477 to 459
-        UPDATE `creature_template` SET `display_id1` = 459 WHERE (`entry` = 7712);
-        -- Riding Tallstrider (Turquoise)
-        -- DisplayID from 6478 to 459
-        UPDATE `creature_template` SET `display_id1` = 459 WHERE (`entry` = 7713);
-        -- Rockbiter
-        -- DisplayID from 3166 to 1918
-        UPDATE `creature_template` SET `display_id1` = 1918 WHERE (`entry` = 7765);
         -- Soaring Razorbeak
         -- DisplayID from 1279 to 1149
         UPDATE `creature_template` SET `display_id1` = 1149 WHERE (`entry` = 8276);
@@ -5864,51 +5750,6 @@ begin not atomic
         -- Scarshield Worg
         -- DisplayID from 11420 to 741
         UPDATE `creature_template` SET `display_id1` = 741 WHERE (`entry` = 9416);
-        -- Brackenwall Enforcer
-        -- DisplayID from 10704 to 8432
-        UPDATE `creature_template` SET `display_id1` = 8432 WHERE (`entry` = 10036);
-        -- Ancient Frostsaber
-        -- DisplayID from 6080 to 457
-        UPDATE `creature_template` SET `display_id1` = 457 WHERE (`entry` = 10322);
-        -- Riding Tiger (Leopard)
-        -- DisplayID from 4805 to 748
-        UPDATE `creature_template` SET `display_id1` = 748 WHERE (`entry` = 10336);
-        -- Riding Tiger (Orange)
-        -- DisplayID from 6079 to 3030
-        UPDATE `creature_template` SET `display_id1` = 3030 WHERE (`entry` = 10337);
-        -- Riding Tiger (Gold)
-        -- DisplayID from 9714 to 3030
-        UPDATE `creature_template` SET `display_id1` = 3030 WHERE (`entry` = 10338);
-        -- Winterspring Frostsaber
-        -- DisplayID from 10426 to 457
-        UPDATE `creature_template` SET `display_id1` = 457 WHERE (`entry` = 11021);
-        -- Riding MechaStrider (Purple)
-        -- DisplayID from 10662 to 9473
-        UPDATE `creature_template` SET `display_id1` = 9473 WHERE (`entry` = 11148);
-        -- Riding MechaStrider (Red/Blue)
-        -- DisplayID from 10664 to 9473
-        UPDATE `creature_template` SET `display_id1` = 9473 WHERE (`entry` = 11149);
-        -- Red Skeletal Horse
-        -- DisplayID from 10670 to 491
-        UPDATE `creature_template` SET `display_id1` = 491 WHERE (`entry` = 11153);
-        -- Blue Skeletal Horse
-        -- DisplayID from 10671 to 491
-        UPDATE `creature_template` SET `display_id1` = 491 WHERE (`entry` = 11154);
-        -- Brown Skeletal Horse
-        -- DisplayID from 10672 to 491
-        UPDATE `creature_template` SET `display_id1` = 491 WHERE (`entry` = 11155);
-        -- Green Skeletal Warhorse
-        -- DisplayID from 10720 to 1511
-        UPDATE `creature_template` SET `display_id1` = 1511 WHERE (`entry` = 11156);
-        -- Nathaniel Dumah
-        -- DisplayID from 14953 to 4931
-        UPDATE `creature_template` SET `display_id1` = 4931 WHERE (`entry` = 11616);
-        -- Stonelash Scorpid
-        -- DisplayID from 15383 to 10988
-        UPDATE `creature_template` SET `display_id1` = 10988 WHERE (`entry` = 11735);
-        -- Dredge Striker
-        -- DisplayID from 15386 to 9031
-        UPDATE `creature_template` SET `display_id1` = 9031 WHERE (`entry` = 11740);
         -- Demon Portal Guardian
         -- DisplayID from 9017 to 1912
         UPDATE `creature_template` SET `display_id1` = 1912 WHERE (`entry` = 11937);
@@ -5921,15 +5762,10 @@ begin not atomic
         -- Hraug
         -- DisplayID from 14371 to 3755
         UPDATE `creature_template` SET `display_id1` = 3755 WHERE (`entry` = 12776);
-        -- Lokhtos Darkbargainer
-        -- DisplayID from 14666 to 9969
-        UPDATE `creature_template` SET `display_id1` = 9969 WHERE (`entry` = 12944);
         -- Willow
         -- DisplayID from 13909 to 2874
         UPDATE `creature_template` SET `display_id1` = 2874 WHERE (`entry` = 13656);
-        -- Cavindra
-        -- DisplayID from 14425 to 7850
-        UPDATE `creature_template` SET `display_id1` = 7850 WHERE (`entry` = 13697);
+
 
         insert into applied_updates values ('190620221');
     end if;
