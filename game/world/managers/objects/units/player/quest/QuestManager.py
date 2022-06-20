@@ -679,6 +679,7 @@ class QuestManager(object):
             self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ONLY_ONE_TIMED)
             return
 
+        quest_item_starter = None
         if quest_giver_guid:
             quest_giver = None
             high_guid = ObjectManager.extract_high_guid(quest_giver_guid)
@@ -687,6 +688,9 @@ class QuestManager(object):
                 quest_giver = MapManager.get_surrounding_gameobject_by_guid(self.player_mgr, quest_giver_guid)
             elif high_guid == HighGuid.HIGHGUID_UNIT:
                 quest_giver = MapManager.get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
+            elif high_guid == HighGuid.HIGHGUID_ITEM:
+                quest_giver = self.player_mgr.inventory.get_item_by_guid(quest_giver_guid)
+                quest_item_starter = quest_giver
 
             if not quest_giver:
                 return
@@ -698,8 +702,10 @@ class QuestManager(object):
         req_src_item = quest.SrcItemId
         req_src_item_count = quest.SrcItemCount
         if req_src_item != 0:
-            if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count):
-                return
+            # Check if the required source item is the item quest starter, else check if we can add it to the inventory.
+            if not quest_item_starter or quest_item_starter.entry != req_src_item:
+                if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count):
+                    return
 
         active_quest = self._create_db_quest_status(quest)
         active_quest.save(is_new=True)

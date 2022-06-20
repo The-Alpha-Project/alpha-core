@@ -12,17 +12,21 @@ class QuestGiverHelloHandler(object):
         if len(reader.data) >= 8:  # Avoid handling empty quest giver hello packet.
             guid = unpack('<Q', reader.data[:8])[0]
             high_guid = ObjectManager.extract_high_guid(guid)
+            is_item = False
 
             quest_giver = None
             if high_guid == HighGuid.HIGHGUID_UNIT:
                 quest_giver = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
             elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
                 quest_giver = MapManager.get_surrounding_gameobject_by_guid(world_session.player_mgr, guid)
+            elif high_guid == HighGuid.HIGHGUID_ITEM:
+                is_item = True
+                quest_giver = world_session.player_mgr.inventory.get_item_by_guid(guid)
 
             if not quest_giver:
                 Logger.error(f'Error in CMSG_QUESTGIVER_HELLO, could not find quest giver with guid of: {guid}')
                 return 0
-            if world_session.player_mgr.is_enemy_to(quest_giver):
+            if not is_item and world_session.player_mgr.is_enemy_to(quest_giver):
                 return 0
 
             # TODO: Stop the npc if it's moving
