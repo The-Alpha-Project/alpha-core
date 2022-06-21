@@ -318,6 +318,7 @@ class GameObjectManager(ObjectManager):
             # TODO, scripting, instancing, etc.
             iron_clad_doors = [go for go in MapManager.get_surrounding_gameobjects(self).values() if go.entry == 16397]
             if len(iron_clad_doors) > 0:
+                self.send_custom_animation(0)
                 iron_clad_doors[0].set_active()
         else:
             Logger.warning(f'Unimplemented gameobject use for type Goober entry {self.entry} name {self.gobject_template.name}')
