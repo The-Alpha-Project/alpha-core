@@ -768,8 +768,8 @@ class UnitManager(ObjectManager):
             if self.guid in victim.attackers:
                 # Always pop self from victim attackers.
                 victim.attackers.pop(self.guid)
-                # If this was a forced call, and we were the only attacker of victim, force attacker to leave combat.
-                if len(victim.attackers) == 0 and force:
+                # If by now the attacker has no more attackers, leave combat as well.
+                if len(victim.attackers) == 0:
                     victim.leave_combat(force=force)
 
         self.attackers.clear()
