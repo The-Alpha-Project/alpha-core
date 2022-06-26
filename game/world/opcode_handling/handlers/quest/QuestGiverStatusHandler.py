@@ -18,6 +18,8 @@ class QuestGiverStatusHandler(object):
                 quest_giver = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
             elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
                 quest_giver = MapManager.get_surrounding_gameobject_by_guid(world_session.player_mgr, guid)
+            elif high_guid == HighGuid.HIGHGUID_ITEM:
+                quest_giver = world_session.player_mgr.inventory.get_item_by_guid(guid)
 
             if not quest_giver:
                 Logger.error(f'Error in CMSG_QUESTGIVER_STATUS_QUERY, could not find quest giver with guid of: {guid}')

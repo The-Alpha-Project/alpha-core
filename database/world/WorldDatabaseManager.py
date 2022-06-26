@@ -479,6 +479,14 @@ class WorldDatabaseManager(object):
         QUEST_CREATURE_FINISHERS = {}
         QUEST_GAMEOBJECT_STARTERS: [int, list[t_gameobject_quest_starter]] = {}
         QUEST_GAMEOBJECT_FINISHERS = {}
+        AREA_TRIGGER_RELATION = {}
+
+        @staticmethod
+        def load_area_trigger_quest_relation(area_trigger_relation):
+            if area_trigger_relation.quest not in WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION:
+                WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[area_trigger_relation.quest] = []
+
+            WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[area_trigger_relation.quest].append(area_trigger_relation.id)
 
         @staticmethod
         def load_creature_starter_quest(creature_quest_starter):
@@ -557,6 +565,13 @@ class WorldDatabaseManager(object):
     def gameobject_quest_finisher_get_all() -> list[t_gameobject_quest_finisher]:
         world_db_session = SessionHolder()
         res = world_db_session.query(t_gameobject_quest_finisher).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def area_trigger_quest_relations_get_all() -> list[AreatriggerInvolvedrelation]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(AreatriggerInvolvedrelation).all()
         world_db_session.close()
         return res
 

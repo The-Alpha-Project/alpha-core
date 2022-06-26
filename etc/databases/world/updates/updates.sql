@@ -5056,5 +5056,742 @@ begin not atomic
         UPDATE `creature_template` SET `faction` = '32' WHERE (`entry` = '1190');
         insert into applied_updates values ('131620221');
     end if;
+
+    -- 19/06/2022 1 - 3810 ItemUpdates
+    if (select count(*) from applied_updates where id='190620221') = 0 then
+        -- Cold Steel Gauntlets
+        -- buy_price, from 113 to 117
+        -- sell_price, from 22 to 23
+        UPDATE `item_template` SET `buy_price` = 117, `sell_price` = 23 WHERE (`entry` = 6063);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6063, 3810);
+        -- Jackseed Belt
+        -- stat_value1, from 0 to 10
+        UPDATE `item_template` SET `stat_value1` = 10 WHERE (`entry` = 10820);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (10820, 3810);
+        -- Veteran Gloves
+        -- quality, from 2 to 1
+        -- buy_price, from 1385 to 627
+        -- sell_price, from 277 to 125
+        -- item_level, from 17 to 15
+        UPDATE `item_template` SET `quality` = 1, `buy_price` = 627, `sell_price` = 125, `item_level` = 15 WHERE (`entry` = 2980);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2980, 3810);
+        -- Raw Brilliant Smallfish
+        -- buy_price, from 25 to 20
+        UPDATE `item_template` SET `buy_price` = 20 WHERE (`entry` = 6291);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6291, 3810);
+        -- Cadet Cloak
+        -- subclass, from 1 to 3
+        -- display_id, from 25960 to 15041
+        -- buy_price, from 294 to 444
+        -- sell_price, from 58 to 88
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `subclass` = 3, `display_id` = 15041, `buy_price` = 444, `sell_price` = 88, `material` = 5 WHERE (`entry` = 9761);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (9761, 3810);
+        -- Scout's Cloak
+        -- buy_price, from 672 to 430
+        -- sell_price, from 134 to 86
+        -- item_level, from 13 to 11
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `buy_price` = 430, `sell_price` = 86, `item_level` = 11, `material` = 5 WHERE (`entry` = 5618);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5618, 3810);
+        -- Soft Wool Boots
+        -- buy_price, from 15 to 35
+        -- sell_price, from 3 to 7
+        UPDATE `item_template` SET `buy_price` = 35, `sell_price` = 7 WHERE (`entry` = 4915);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4915, 3810);
+        -- Linen Belt
+        -- buy_price, from 105 to 111
+        -- sell_price, from 21 to 22
+        UPDATE `item_template` SET `buy_price` = 111, `sell_price` = 22 WHERE (`entry` = 7026);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (7026, 3810);
+        -- Jester's Shoes
+        -- display_id, from 27532 to 16563
+        UPDATE `item_template` SET `display_id` = 16563 WHERE (`entry` = 9743);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (9743, 3810);
+        -- Stinging Mace
+        -- display_id, from 5410 to 5009
+        -- dmg_max1, from 16.0 to 15
+        -- material, from 2 to 1
+        UPDATE `item_template` SET `display_id` = 5009, `dmg_max1` = 15, `material` = 1 WHERE (`entry` = 4948);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4948, 3810);
+        -- Nomadic Belt
+        -- buy_price, from 13 to 30
+        -- sell_price, from 2 to 6
+        UPDATE `item_template` SET `buy_price` = 30, `sell_price` = 6 WHERE (`entry` = 4954);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4954, 3810);
+        -- Demon Scarred Cloak
+        -- item_level, from 12 to 11
+        UPDATE `item_template` SET `item_level` = 11 WHERE (`entry` = 4854);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4854, 3810);
+        -- Painted Chain Belt
+        -- buy_price, from 23 to 35
+        -- sell_price, from 4 to 7
+        UPDATE `item_template` SET `buy_price` = 35, `sell_price` = 7 WHERE (`entry` = 4913);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4913, 3810);
+        -- Painted Chain Gloves
+        -- buy_price, from 16 to 38
+        -- sell_price, from 3 to 7
+        UPDATE `item_template` SET `buy_price` = 38, `sell_price` = 7 WHERE (`entry` = 4910);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4910, 3810);
+        -- Kodo Hunter's Leggings
+        -- stat_type1, from 0 to 3
+        -- stat_value1, from 0 to 4
+        UPDATE `item_template` SET `stat_type1` = 3, `stat_value1` = 4 WHERE (`entry` = 4909);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4909, 3810);
+        -- Cadet Gauntlets
+        -- display_id, from 22686 to 12299
+        UPDATE `item_template` SET `display_id` = 12299 WHERE (`entry` = 9762);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (9762, 3810);
+        -- Nomadic Gloves
+        -- display_id, from 12415 to 7823
+        -- buy_price, from 30 to 29
+        -- sell_price, from 6 to 5
+        UPDATE `item_template` SET `display_id` = 7823, `buy_price` = 29, `sell_price` = 5 WHERE (`entry` = 10636);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (10636, 3810);
+        -- Small Tomahawk
+        -- dmg_min1, from 9.0 to 3
+        -- dmg_max1, from 14.0 to 7
+        UPDATE `item_template` SET `dmg_min1` = 3, `dmg_max1` = 7 WHERE (`entry` = 2498);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2498, 3810);
+        -- Ornate Blunderbuss
+        -- dmg_min1, from 7.0 to 4
+        -- dmg_max1, from 11.0 to 9
+        UPDATE `item_template` SET `dmg_min1` = 4, `dmg_max1` = 9 WHERE (`entry` = 2509);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2509, 3810);
+        -- Ceremonial Tomahawk
+        -- dmg_min1, from 5.0 to 4
+        -- dmg_max1, from 10.0 to 9
+        UPDATE `item_template` SET `dmg_min1` = 4, `dmg_max1` = 9 WHERE (`entry` = 3443);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3443, 3810);
+        -- Dreamwatcher Staff
+        -- dmg_min1, from 15.0 to 12
+        -- dmg_max1, from 23.0 to 18
+        UPDATE `item_template` SET `dmg_min1` = 12, `dmg_max1` = 18 WHERE (`entry` = 4961);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4961, 3810);
+        -- Nomadic Vest
+        -- buy_price, from 43 to 65
+        -- sell_price, from 8 to 13
+        UPDATE `item_template` SET `buy_price` = 65, `sell_price` = 13 WHERE (`entry` = 6059);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6059, 3810);
+        -- Nomadic Bracers
+        -- buy_price, from 21 to 32
+        -- sell_price, from 4 to 6
+        UPDATE `item_template` SET `buy_price` = 32, `sell_price` = 6 WHERE (`entry` = 4908);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4908, 3810);
+        -- Cane of Elders
+        -- dmg_min1, from 8.0 to 5
+        -- dmg_max1, from 13.0 to 8
+        UPDATE `item_template` SET `dmg_min1` = 5, `dmg_max1` = 8 WHERE (`entry` = 5776);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5776, 3810);
+        -- Painted Chain Leggings
+        -- display_id, from 28230 to 5337
+        -- buy_price, from 73 to 71
+        UPDATE `item_template` SET `display_id` = 5337, `buy_price` = 71 WHERE (`entry` = 10635);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (10635, 3810);
+        -- Sun-beaten Cloak
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `material` = 5 WHERE (`entry` = 4958);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4958, 3810);
+        -- Stone Tomahawk
+        -- dmg_min1, from 3.0 to 2
+        -- dmg_max1, from 6.0 to 5
+        UPDATE `item_template` SET `dmg_min1` = 2, `dmg_max1` = 5 WHERE (`entry` = 1383);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1383, 3810);
+        -- Sleek Feathered Tunic
+        -- quality, from 1 to 2
+        -- buy_price, from 275 to 596
+        -- sell_price, from 55 to 119
+        UPDATE `item_template` SET `quality` = 2, `buy_price` = 596, `sell_price` = 119 WHERE (`entry` = 4861);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4861, 3810);
+        -- Rambling Boots
+        -- display_id, from 28241 to 21849
+        -- stat_type1, from 0 to 3
+        -- stat_value1, from 0 to 3
+        -- stat_type2, from 0 to 1
+        -- stat_value2, from 0 to 10
+        UPDATE `item_template` SET `display_id` = 21849, `stat_type1` = 3, `stat_value1` = 3, `stat_type2` = 1, `stat_value2` = 10 WHERE (`entry` = 11853);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (11853, 3810);
+        -- Bounty Hunter's Ring
+        -- stat_value1, from 0 to 4
+        UPDATE `item_template` SET `stat_value1` = 4 WHERE (`entry` = 5351);
+        UPDATE `applied_item_updates` SET `entry` = 5351, `version` = 3810 WHERE (`entry` = 5351);
+        -- Barkeeper's Cloak
+        -- stat_type1, from 0 to 1
+        -- stat_value1, from 0 to 15
+        -- material, from 7 to 5
+        UPDATE `item_template` SET `stat_type1` = 1, `stat_value1` = 15, `material` = 5 WHERE (`entry` = 5343);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (5343, 3810);
+        -- Short Bastard Sword
+        -- buy_price, from 3168 to 5247
+        -- sell_price, from 633 to 1049
+        -- dmg_min1, from 17.0 to 20
+        -- dmg_max1, from 27.0 to 31
+        UPDATE `item_template` SET `buy_price` = 5247, `sell_price` = 1049, `dmg_min1` = 20, `dmg_max1` = 31 WHERE (`entry` = 4567);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4567, 3810);
+        -- Dwarven Mild
+        -- display_id, from 6372 to 6352
+        UPDATE `item_template` SET `display_id` = 6352 WHERE (`entry` = 422);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (422, 3810);
+        -- Stormwind Brie
+        -- buy_price, from 1250 to 1000
+        UPDATE `item_template` SET `buy_price` = 1000 WHERE (`entry` = 1707);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1707, 3810);
+        -- Rugged Mail Vest
+        -- buy_price, from 51 to 77
+        -- sell_price, from 10 to 15
+        UPDATE `item_template` SET `buy_price` = 77, `sell_price` = 15 WHERE (`entry` = 3273);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3273, 3810);
+        -- Rustmetal Bracers
+        -- buy_price, from 38 to 35
+        -- armor, from 29 to 12
+        -- material, from 5 to 7
+        UPDATE `item_template` SET `buy_price` = 35, `armor` = 12, `material` = 7 WHERE (`entry` = 11849);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (11849, 3810);
+        -- Bandit Shoulders
+        -- buy_price, from 2045 to 2019
+        -- sell_price, from 409 to 403
+        UPDATE `item_template` SET `buy_price` = 2019, `sell_price` = 403 WHERE (`entry` = 10405);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (10405, 3810);
+        -- Stretched Leather Trousers
+        -- stat_type1, from 0 to 3
+        -- stat_value1, from 0 to 3
+        UPDATE `item_template` SET `stat_type1` = 3, `stat_value1` = 3 WHERE (`entry` = 2818);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2818, 3810);
+        -- Talonstrike
+        -- dmg_max1, from 22.0 to 21
+        UPDATE `item_template` SET `dmg_max1` = 21 WHERE (`entry` = 3462);
+        UPDATE `applied_item_updates` SET `entry` = 3462, `version` = 3810 WHERE (`entry` = 3462);
+        -- Cadet Bracers
+        -- display_id, from 22685 to 6894
+        -- buy_price, from 367 to 336
+        -- sell_price, from 73 to 67
+        UPDATE `item_template` SET `display_id` = 6894, `buy_price` = 336, `sell_price` = 67 WHERE (`entry` = 9760);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (9760, 3810);
+        -- Whispering Vest
+        -- stat_value1, from 0 to 9
+        UPDATE `item_template` SET `stat_value1` = 9 WHERE (`entry` = 4781);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4781, 3810);
+        -- Apothecary Gloves
+        -- stat_value1, from 0 to 4
+        UPDATE `item_template` SET `stat_value1` = 4 WHERE (`entry` = 10919);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (10919, 3810);
+        -- Guardian Buckler
+        -- buy_price, from 6760 to 8320
+        -- sell_price, from 1352 to 1664
+        -- stat_type1, from 0 to 6
+        -- stat_value1, from 0 to 5
+        UPDATE `item_template` SET `subclass` = 6, `buy_price` = 8320, `sell_price` = 1664, `stat_type1` = 6, `stat_value1` = 5 WHERE (`entry` = 4820);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (4820, 3810);
+        -- Seer's Robe
+        -- buy_price, from 4213 to 3242
+        -- sell_price, from 842 to 648
+        -- item_level, from 23 to 21
+        -- stat_type1, from 0 to 6
+        -- stat_value1, from 0 to 9
+        UPDATE `item_template` SET `buy_price` = 3242, `sell_price` = 648, `item_level` = 21, `stat_type1` = 6, `stat_value1` = 9 WHERE (`entry` = 2981);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (2981, 3810);
+        -- Canvas Pants
+        -- armor, from 9 to 36
+        UPDATE `item_template` SET `armor` = 36 WHERE (`entry` = 1768);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (1768, 3810);
+        -- Flax Vest
+        -- buy_price, from 33 to 51
+        -- sell_price, from 6 to 10
+        UPDATE `item_template` SET `buy_price` = 51, `sell_price` = 10 WHERE (`entry` = 3270);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (3270, 3810);
+        -- Flax Bracers
+        -- buy_price, from 15 to 24
+        -- sell_price, from 3 to 4
+        UPDATE `item_template` SET `buy_price` = 24, `sell_price` = 4 WHERE (`entry` = 6060);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (6060, 3810);
+        -- Scavenger Tunic
+        -- display_id, from 28249 to 8701
+        UPDATE `item_template` SET `display_id` = 8701 WHERE (`entry` = 11851);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (11851, 3810);
+        -- Flax Belt
+        -- display_id, from 28170 to 16799
+        -- buy_price, from 26 to 23
+        -- sell_price, from 5 to 4
+        -- armor, from 6 to 4
+        UPDATE `item_template` SET `display_id` = 16799, `buy_price` = 23, `sell_price` = 4, `armor` = 4 WHERE (`entry` = 11848);
+        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (11848, 3810);
+        -- Blue Linen Robe
+        -- stat_type1, from 0 to 6
+        UPDATE `item_template` SET `stat_type1` = 6 WHERE (`entry` = 6242);
+        UPDATE `applied_item_updates` SET `entry` = 6242, `version` = 3810 WHERE (`entry` = 6242);
+
+        -- Creatures display ids from 3810 sniffs which are lower than current display ids.
+        UPDATE `creature_template` SET `display_id1` = '969' WHERE (`entry` = '3116');
+        UPDATE `creature_template` SET `display_id1` = '970' WHERE (`entry` = '3118');
+        UPDATE `creature_template` SET `display_id1` = '1027' WHERE (`entry` = '3150');
+        UPDATE `creature_template` SET `display_id1` = '1057' WHERE (`entry` = '3243');
+        UPDATE `creature_template` SET `display_id1` = '3805' WHERE (`entry` = '3079');
+        UPDATE `creature_template` SET `display_id1` = '1904' WHERE (`entry` = '3224');
+        UPDATE `creature_template` SET `display_id1` = '2572' WHERE (`entry` = '4200');
+        UPDATE `creature_template` SET `display_id1` = '3029' WHERE (`entry` = '2033');
+        UPDATE `creature_template` SET `display_id1` = '6805' WHERE (`entry` = '2043');
+        UPDATE `creature_template` SET `display_id1` = '7630' WHERE (`entry` = '8398');
+
+        -- Invalid Faction 514 -> 60 (Monster)
+        UPDATE `creature_template` SET `faction` = '60' WHERE (`faction` = '514');
+        -- Invalid Faction 413 -> 60 (Monster)
+        UPDATE `creature_template` SET `faction` = '60' WHERE (`faction` = '413');
+        -- Invalid Faction 554 -> 60 (Monster)
+        UPDATE `creature_template` SET `faction` = '60' WHERE (`faction` = '554');
+        
+
+        -- 1.2 display ids not touching updates from WDB files.
+
+        -- Brawler Gloves
+        -- DisplayID from 3143 to 2368
+        UPDATE `item_template` SET `display_id` = 2368 WHERE (`entry` = 720);
+        -- Vendetta
+        -- DisplayID from 6476 to 6452
+        UPDATE `item_template` SET `display_id` = 6452 WHERE (`entry` = 776);
+        -- Spiked Star
+        -- DisplayID from 5199 to 4351
+        UPDATE `item_template` SET `display_id` = 4351 WHERE (`entry` = 925);
+        -- Scroll of Stamina
+        -- DisplayID from 6270 to 1093
+        UPDATE `item_template` SET `display_id` = 1093 WHERE (`entry` = 1180);
+        -- Butcher's Cleaver
+        -- DisplayID from 10808 to 8466
+        UPDATE `item_template` SET `display_id` = 8466 WHERE (`entry` = 1292);
+        -- Gloomshroud Armor
+        -- DisplayID from 9123 to 8676
+        UPDATE `item_template` SET `display_id` = 8676 WHERE (`entry` = 1489);
+        -- Rawhide Gloves
+        -- DisplayID from 3848 to 972
+        UPDATE `item_template` SET `display_id` = 972 WHERE (`entry` = 1791);
+        -- Stonemason Trousers
+        -- DisplayID from 6780 to 6774
+        UPDATE `item_template` SET `display_id` = 6774 WHERE (`entry` = 1934);
+        -- Petrified Shinbone
+        -- DisplayID from 2836 to 1515
+        UPDATE `item_template` SET `display_id` = 1515 WHERE (`entry` = 1958);
+        -- Anvilmar Hand Axe
+        -- DisplayID from 8475 to 8473
+        UPDATE `item_template` SET `display_id` = 8473 WHERE (`entry` = 2047);
+        -- Russet Boots
+        -- DisplayID from 3750 to 1861
+        UPDATE `item_template` SET `display_id` = 1861 WHERE (`entry` = 2432);
+        -- Minor Rejuvenation Potion
+        -- DisplayID from 2350 to 2345
+        UPDATE `item_template` SET `display_id` = 2345 WHERE (`entry` = 2456);
+        -- Ravager's Skull
+        -- DisplayID from 23527 to 1504
+        UPDATE `item_template` SET `display_id` = 1504 WHERE (`entry` = 2477);
+        -- Recipe: Elixir of Minor Agility
+        -- DisplayID from 6270 to 1301
+        UPDATE `item_template` SET `display_id` = 1301 WHERE (`entry` = 2553);
+        -- Rough Bronze Leggings
+        -- DisplayID from 9391 to 4333
+        UPDATE `item_template` SET `display_id` = 4333 WHERE (`entry` = 2865);
+        -- Inscribed Leather Pants
+        -- DisplayID from 11584 to 11369
+        UPDATE `item_template` SET `display_id` = 11369 WHERE (`entry` = 2986);
+        -- Scroll of Agility
+        -- DisplayID from 6409 to 3331
+        UPDATE `item_template` SET `display_id` = 3331 WHERE (`entry` = 3012);
+        -- Shadowgem Shard
+        -- DisplayID from 6689 to 3307
+        UPDATE `item_template` SET `display_id` = 3307 WHERE (`entry` = 3176);
+        -- Tiny Fang
+        -- DisplayID from 6688 to 6651
+        UPDATE `item_template` SET `display_id` = 6651 WHERE (`entry` = 3177);
+        -- Dense Triangle Mace
+        -- DisplayID from 5528 to 5228
+        UPDATE `item_template` SET `display_id` = 5228 WHERE (`entry` = 3203);
+        -- Khadgar's Whisker
+        -- DisplayID from 7378 to 6661
+        UPDATE `item_template` SET `display_id` = 6661 WHERE (`entry` = 3358);
+        -- Daryl's Shortsword
+        -- DisplayID from 8277 to 5151
+        UPDATE `item_template` SET `display_id` = 5151 WHERE (`entry` = 3572);
+        -- Padded Cloth Bracers
+        -- DisplayID from 3895 to 3645
+        UPDATE `item_template` SET `display_id` = 3645 WHERE (`entry` = 3592);
+        -- Russet Bracers
+        -- DisplayID from 3896 to 3740
+        UPDATE `item_template` SET `display_id` = 3740 WHERE (`entry` = 3594);
+        -- Blackforge Leggings
+        -- DisplayID from 11631 to 3409
+        UPDATE `item_template` SET `display_id` = 3409 WHERE (`entry` = 4084);
+        -- Cured Light Hide
+        -- DisplayID from 6655 to 5086
+        UPDATE `item_template` SET `display_id` = 5086 WHERE (`entry` = 4231);
+        -- Cured Medium Hide
+        -- DisplayID from 7348 to 7112
+        UPDATE `item_template` SET `display_id` = 7112 WHERE (`entry` = 4233);
+        -- Cured Heavy Hide
+        -- DisplayID from 7347 to 3164
+        UPDATE `item_template` SET `display_id` = 3164 WHERE (`entry` = 4236);
+        -- Pattern: Rich Purple Silk Shirt
+        -- DisplayID from 6270 to 1102
+        UPDATE `item_template` SET `display_id` = 1102 WHERE (`entry` = 4354);
+        -- Heavy Blasting Powder
+        -- DisplayID from 7372 to 1297
+        UPDATE `item_template` SET `display_id` = 1297 WHERE (`entry` = 4377);
+        -- Big Iron Bomb
+        -- DisplayID from 7627 to 7624
+        UPDATE `item_template` SET `display_id` = 7624 WHERE (`entry` = 4394);
+        -- Brittle Dragon Bone
+        -- DisplayID from 18072 to 6663
+        UPDATE `item_template` SET `display_id` = 6663 WHERE (`entry` = 4459);
+        -- Corroded Black Box
+        -- DisplayID from 20913 to 7074
+        UPDATE `item_template` SET `display_id` = 7074 WHERE (`entry` = 4613);
+        -- Throwing Tomahawk
+        -- DisplayID from 16760 to 5416
+        UPDATE `item_template` SET `display_id` = 5416 WHERE (`entry` = 4959);
+        -- Compact Fighting Knife
+        -- DisplayID from 6432 to 3006
+        UPDATE `item_template` SET `display_id` = 3006 WHERE (`entry` = 4974);
+        -- Scarlet Kris
+        -- DisplayID from 6249 to 3363
+        UPDATE `item_template` SET `display_id` = 3363 WHERE (`entry` = 5267);
+        -- Sillithid Ichor
+        -- DisplayID from 3325 to 2885
+        UPDATE `item_template` SET `display_id` = 2885 WHERE (`entry` = 5269);
+        -- Elven Cup Relic
+        -- DisplayID from 18061 to 13989
+        UPDATE `item_template` SET `display_id` = 13989 WHERE (`entry` = 5330);
+        -- Small Barnacled Clam
+        -- DisplayID from 8047 to 7177
+        UPDATE `item_template` SET `display_id` = 7177 WHERE (`entry` = 5523);
+        -- Goblin Deviled Clams
+        -- DisplayID from 8050 to 7177
+        UPDATE `item_template` SET `display_id` = 7177 WHERE (`entry` = 5527);
+        -- Steadfast Cinch
+        -- DisplayID from 8419 to 6755
+        UPDATE `item_template` SET `display_id` = 6755 WHERE (`entry` = 5609);
+        -- Primitive Walking Stick
+        -- DisplayID from 8904 to 5404
+        UPDATE `item_template` SET `display_id` = 5404 WHERE (`entry` = 5778);
+        -- Dwarven Kite Shield
+        -- DisplayID from 10366 to 3725
+        UPDATE `item_template` SET `display_id` = 3725 WHERE (`entry` = 6176);
+        -- Loch Croc Hide Vest
+        -- DisplayID from 10528 to 2644
+        UPDATE `item_template` SET `display_id` = 2644 WHERE (`entry` = 6197);
+        -- Arclight Spanner
+        -- DisplayID from 10657 to 7494
+        UPDATE `item_template` SET `display_id` = 7494 WHERE (`entry` = 6219);
+        -- Sickly Looking Fish
+        -- DisplayID from 24696 to 11210
+        UPDATE `item_template` SET `display_id` = 11210 WHERE (`entry` = 6299);
+        -- Rough Bronze Boots
+        -- DisplayID from 7003 to 6885
+        UPDATE `item_template` SET `display_id` = 6885 WHERE (`entry` = 6350);
+        -- Oily Blackmouth
+        -- DisplayID from 11450 to 9150
+        UPDATE `item_template` SET `display_id` = 9150 WHERE (`entry` = 6358);
+        -- Bloated Mud Snapper
+        -- DisplayID from 24694 to 4809
+        UPDATE `item_template` SET `display_id` = 4809 WHERE (`entry` = 6645);
+        -- Broken Wine Bottle
+        -- DisplayID from 18652 to 12710
+        UPDATE `item_template` SET `display_id` = 12710 WHERE (`entry` = 6651);
+        -- Crimson Silk Shoulders
+        -- DisplayID from 13673 to 13672
+        UPDATE `item_template` SET `display_id` = 13672 WHERE (`entry` = 7059);
+        -- Infiltrator Shoulders
+        -- DisplayID from 11578 to 11270
+        UPDATE `item_template` SET `display_id` = 11270 WHERE (`entry` = 7408);
+        -- Sentinel Shoulders
+        -- DisplayID from 15002 to 5414
+        UPDATE `item_template` SET `display_id` = 5414 WHERE (`entry` = 7445);
+        -- Regal Star
+        -- DisplayID from 15425 to 6098
+        UPDATE `item_template` SET `display_id` = 6098 WHERE (`entry` = 7555);
+        -- Light Plate Boots
+        -- DisplayID from 28404 to 6947
+        UPDATE `item_template` SET `display_id` = 6947 WHERE (`entry` = 8082);
+        -- Light Plate Bracers
+        -- DisplayID from 9388 to 6948
+        UPDATE `item_template` SET `display_id` = 6948 WHERE (`entry` = 8083);
+        -- Mercurial Breastplate
+        -- DisplayID from 26123 to 11624
+        UPDATE `item_template` SET `display_id` = 11624 WHERE (`entry` = 10157);
+        -- Solid Blasting Powder
+        -- DisplayID from 31324 to 6412
+        UPDATE `item_template` SET `display_id` = 6412 WHERE (`entry` = 10505);
+        -- Cragwood Maul
+        -- DisplayID from 28629 to 4791
+        UPDATE `item_template` SET `display_id` = 4791 WHERE (`entry` = 11265);
+        -- Lar'korwi's Head
+        -- DisplayID from 30111 to 9150
+        UPDATE `item_template` SET `display_id` = 9150 WHERE (`entry` = 11510);
+        -- Boulderskin Breastplate
+        -- DisplayID from 28089 to 8638
+        UPDATE `item_template` SET `display_id` = 8638 WHERE (`entry` = 12106);
+        -- Tender Wolf Meat
+        -- DisplayID from 6680 to 2599
+        UPDATE `item_template` SET `display_id` = 2599 WHERE (`entry` = 12208);
+        -- Horizon Choker
+        -- DisplayID from 9858 to 9657
+        UPDATE `item_template` SET `display_id` = 9657 WHERE (`entry` = 13085);
+        -- Diablo Stone
+        -- DisplayID from 34364 to 6689
+        UPDATE `item_template` SET `display_id` = 6689 WHERE (`entry` = 13584);
+        -- Pattern: Living Leggings
+        -- DisplayID from 6270 to 1102
+        UPDATE `item_template` SET `display_id` = 1102 WHERE (`entry` = 15752);
+        -- Pattern: Devilsaur Leggings
+        -- DisplayID from 6270 to 1102
+        UPDATE `item_template` SET `display_id` = 1102 WHERE (`entry` = 15772);
+
+        -- 1.2 Creatures display ids, these fix many cubes.
+        -- Condition to update (new model do not exist on displayid1,2,3,4 and is lower than current)
+
+        -- Mine Spider
+        -- DisplayID from 711 to 368
+        UPDATE `creature_template` SET `display_id1` = 368 WHERE (`entry` = 43);
+        -- Murloc Forager
+        -- DisplayID from 504 to 441
+        UPDATE `creature_template` SET `display_id1` = 441 WHERE (`entry` = 46);
+        -- Kobold Laborer
+        -- DisplayID from 373 to 365
+        UPDATE `creature_template` SET `display_id1` = 365 WHERE (`entry` = 80);
+        -- Venom Web Spider
+        -- DisplayID from 959 to 955
+        UPDATE `creature_template` SET `display_id1` = 955 WHERE (`entry` = 217);
+        -- Brown Horse
+        -- DisplayID from 2404 to 229
+        UPDATE `creature_template` SET `display_id1` = 229 WHERE (`entry` = 284);
+        -- Porcine Entourage
+        -- DisplayID from 477 to 377
+        UPDATE `creature_template` SET `display_id1` = 377 WHERE (`entry` = 390);
+        -- Black Dragon Whelp
+        -- DisplayID from 497 to 387
+        UPDATE `creature_template` SET `display_id1` = 387 WHERE (`entry` = 441);
+        -- Tarantula
+        -- DisplayID from 2542 to 366
+        UPDATE `creature_template` SET `display_id1` = 366 WHERE (`entry` = 442);
+        -- Hogger
+        -- DisplayID from 501 to 384
+        UPDATE `creature_template` SET `display_id1` = 384 WHERE (`entry` = 448);
+        -- Murloc Minor Oracle
+        -- DisplayID from 504 to 486
+        UPDATE `creature_template` SET `display_id1` = 486 WHERE (`entry` = 456);
+        -- Murloc Raider
+        -- DisplayID from 527 to 441
+        UPDATE `creature_template` SET `display_id1` = 441 WHERE (`entry` = 515);
+        -- Yowler
+        -- DisplayID from 609 to 488
+        UPDATE `creature_template` SET `display_id1` = 488 WHERE (`entry` = 518);
+        -- Undead Dynamiter
+        -- DisplayID from 4020 to 829
+        UPDATE `creature_template` SET `display_id1` = 829 WHERE (`entry` = 625);
+        -- Black Ravager
+        -- DisplayID from 780 to 741
+        UPDATE `creature_template` SET `display_id1` = 741 WHERE (`entry` = 628);
+        -- Sand Crawler
+        -- DisplayID from 641 to 342
+        UPDATE `creature_template` SET `display_id1` = 342 WHERE (`entry` = 830);
+        -- Coyote Packleader
+        -- DisplayID from 643 to 161
+        UPDATE `creature_template` SET `display_id1` = 161 WHERE (`entry` = 833);
+        -- Young Black Ravager
+        -- DisplayID from 781 to 246
+        UPDATE `creature_template` SET `display_id1` = 246 WHERE (`entry` = 923);
+        -- Black Widow Hatchling
+        -- DisplayID from 418 to 368
+        UPDATE `creature_template` SET `display_id1` = 368 WHERE (`entry` = 930);
+        -- Winter Wolf
+        -- DisplayID from 801 to 785
+        UPDATE `creature_template` SET `display_id1` = 785 WHERE (`entry` = 1131);
+        -- Wendigo
+        -- DisplayID from 1077 to 950
+        UPDATE `creature_template` SET `display_id1` = 950 WHERE (`entry` = 1135);
+        -- Stonesplinter Skullthumper
+        -- DisplayID from 764 to 160
+        UPDATE `creature_template` SET `display_id1` = 160 WHERE (`entry` = 1163);
+        -- Stonesplinter Bonesnapper
+        -- DisplayID from 764 to 722
+        UPDATE `creature_template` SET `display_id1` = 722 WHERE (`entry` = 1164);
+        -- Stonesplinter Geomancer
+        -- DisplayID from 764 to 160
+        UPDATE `creature_template` SET `display_id1` = 160 WHERE (`entry` = 1165);
+        -- Stonesplinter Digger
+        -- DisplayID from 765 to 722
+        UPDATE `creature_template` SET `display_id1` = 722 WHERE (`entry` = 1167);
+        -- Mo'grosh Ogre
+        -- DisplayID from 1122 to 740
+        UPDATE `creature_template` SET `display_id1` = 740 WHERE (`entry` = 1178);
+        -- Mo'grosh Enforcer
+        -- DisplayID from 1051 to 645
+        UPDATE `creature_template` SET `display_id1` = 645 WHERE (`entry` = 1179);
+        -- Cliff Lurker
+        -- DisplayID from 909 to 827
+        UPDATE `creature_template` SET `display_id1` = 827 WHERE (`entry` = 1184);
+        -- Wood Lurker
+        -- DisplayID from 910 to 520
+        UPDATE `creature_template` SET `display_id1` = 520 WHERE (`entry` = 1185);
+        -- Elder Black Bear
+        -- DisplayID from 762 to 707
+        UPDATE `creature_template` SET `display_id1` = 707 WHERE (`entry` = 1186);
+        -- Forest Lurker
+        -- DisplayID from 909 to 827
+        UPDATE `creature_template` SET `display_id1` = 827 WHERE (`entry` = 1195);
+        -- Stonesplinter Shaman
+        -- DisplayID from 764 to 763
+        UPDATE `creature_template` SET `display_id1` = 763 WHERE (`entry` = 1197);
+        -- Gnasher
+        -- DisplayID from 765 to 721
+        UPDATE `creature_template` SET `display_id1` = 721 WHERE (`entry` = 1206);
+        -- Brawler
+        -- DisplayID from 765 to 721
+        UPDATE `creature_template` SET `display_id1` = 721 WHERE (`entry` = 1207);
+        -- Ol' Sooty
+        -- DisplayID from 739 to 706
+        UPDATE `creature_template` SET `display_id1` = 706 WHERE (`entry` = 1225);
+        -- White Ram
+        -- DisplayID from 10003 to 2786
+        UPDATE `creature_template` SET `display_id1` = 2786 WHERE (`entry` = 1262);
+        -- Goli Krumn
+        -- DisplayID from 14092 to 2584
+        UPDATE `creature_template` SET `display_id1` = 2584 WHERE (`entry` = 1365);
+        -- Berserk Trogg
+        -- DisplayID from 765 to 721
+        UPDATE `creature_template` SET `display_id1` = 721 WHERE (`entry` = 1393);
+        -- Scarred Crag Boar
+        -- DisplayID from 744 to 193
+        UPDATE `creature_template` SET `display_id1` = 193 WHERE (`entry` = 1689);
+        -- Elder Shadowmaw Panther
+        -- DisplayID from 11452 to 613
+        UPDATE `creature_template` SET `display_id1` = 613 WHERE (`entry` = 1713);
+        -- Ferocious Grizzled Bear
+        -- DisplayID from 1006 to 902
+        UPDATE `creature_template` SET `display_id1` = 902 WHERE (`entry` = 1778);
+        -- Lake Creeper
+        -- DisplayID from 2567 to 1549
+        UPDATE `creature_template` SET `display_id1` = 1549 WHERE (`entry` = 1955);
+        -- Webwood Spider
+        -- DisplayID from 760 to 709
+        UPDATE `creature_template` SET `display_id1` = 709 WHERE (`entry` = 1986);
+        -- Githyiss the Vile
+        -- DisplayID from 760 to 759
+        UPDATE `creature_template` SET `display_id1` = 759 WHERE (`entry` = 1994);
+        -- Webwood Venomfang
+        -- DisplayID from 760 to 759
+        UPDATE `creature_template` SET `display_id1` = 759 WHERE (`entry` = 1999);
+        -- Feral Nightsaber
+        -- DisplayID from 3030 to 3029
+        UPDATE `creature_template` SET `display_id1` = 3029 WHERE (`entry` = 2034);
+        -- Nightsaber Stalker
+        -- DisplayID from 6805 to 3030
+        UPDATE `creature_template` SET `display_id1` = 3030 WHERE (`entry` = 2043);
+        -- Grizzled Thistle Bear
+        -- DisplayID from 14316 to 982
+        UPDATE `creature_template` SET `display_id1` = 982 WHERE (`entry` = 2165);
+        -- Crushridge Plunderer
+        -- DisplayID from 415 to 154
+        UPDATE `creature_template` SET `display_id1` = 154 WHERE (`entry` = 2416);
+        -- Geomancer Flintdagger
+        -- DisplayID from 10911 to 511
+        UPDATE `creature_template` SET `display_id1` = 511 WHERE (`entry` = 2609);
+        -- Buzzard
+        -- DisplayID from 1105 to 388
+        UPDATE `creature_template` SET `display_id1` = 388 WHERE (`entry` = 2830);
+        -- Palemane Skinner
+        -- DisplayID from 1887 to 1216
+        UPDATE `creature_template` SET `display_id1` = 1216 WHERE (`entry` = 2950);
+        -- Dark Strand Enforcer
+        -- DisplayID from 4225 to 1643
+        UPDATE `creature_template` SET `display_id1` = 1643 WHERE (`entry` = 3727);
+        -- Giant Ashenvale Bear
+        -- DisplayID from 14315 to 1990
+        UPDATE `creature_template` SET `display_id1` = 1990 WHERE (`entry` = 3811);
+        -- Shadowfang Ragetooth
+        -- DisplayID from 736 to 412
+        UPDATE `creature_template` SET `display_id1` = 412 WHERE (`entry` = 3859);
+        -- Deepmoss Venomspitter
+        -- DisplayID from 760 to 759
+        UPDATE `creature_template` SET `display_id1` = 759 WHERE (`entry` = 4007);
+        -- Galak Pack Runner
+        -- DisplayID from 9413 to 2292
+        UPDATE `creature_template` SET `display_id1` = 2292 WHERE (`entry` = 4098);
+        -- Chestnut Mare
+        -- DisplayID from 2405 to 215
+        UPDATE `creature_template` SET `display_id1` = 215 WHERE (`entry` = 4269);
+        -- Odo the Blindwatcher
+        -- DisplayID from 522 to 412
+        UPDATE `creature_template` SET `display_id1` = 412 WHERE (`entry` = 4279);
+        -- Drywallow Snapper
+        -- DisplayID from 814 to 807
+        UPDATE `creature_template` SET `display_id1` = 807 WHERE (`entry` = 4343);
+        -- Bloodfen Lashtail
+        -- DisplayID from 2574 to 2573
+        UPDATE `creature_template` SET `display_id1` = 2573 WHERE (`entry` = 4357);
+        -- Mazzer Stripscrew
+        -- DisplayID from 10982 to 2581
+        UPDATE `creature_template` SET `display_id1` = 2581 WHERE (`entry` = 4446);
+        -- Sandstrider
+        -- DisplayID from 6076 to 2741
+        UPDATE `creature_template` SET `display_id1` = 2741 WHERE (`entry` = 4724);
+        -- Stockade Archer
+        -- DisplayID from 2992 to 2989
+        UPDATE `creature_template` SET `display_id1` = 2989 WHERE (`entry` = 6237);
+        -- Crawler
+        -- DisplayID from 1249 to 641
+        UPDATE `creature_template` SET `display_id1` = 641 WHERE (`entry` = 6250);
+        -- Black Nightsaber
+        -- DisplayID from 9991 to 613
+        UPDATE `creature_template` SET `display_id1` = 613 WHERE (`entry` = 7322);
+        -- Soaring Razorbeak
+        -- DisplayID from 1279 to 1149
+        UPDATE `creature_template` SET `display_id1` = 1149 WHERE (`entry` = 8276);
+        -- Scald
+        -- DisplayID from 1551 to 1204
+        UPDATE `creature_template` SET `display_id1` = 1204 WHERE (`entry` = 8281);
+        -- Nightmare Whelp
+        -- DisplayID from 3440 to 621
+        UPDATE `creature_template` SET `display_id1` = 621 WHERE (`entry` = 8319);
+        -- Scarshield Worg
+        -- DisplayID from 11420 to 741
+        UPDATE `creature_template` SET `display_id1` = 741 WHERE (`entry` = 9416);
+        -- Demon Portal Guardian
+        -- DisplayID from 9017 to 1912
+        UPDATE `creature_template` SET `display_id1` = 1912 WHERE (`entry` = 11937);
+        -- Sickly Gazelle
+        -- DisplayID from 14951 to 1547
+        UPDATE `creature_template` SET `display_id1` = 1547 WHERE (`entry` = 12296);
+        -- Thamarian
+        -- DisplayID from 14954 to 1701
+        UPDATE `creature_template` SET `display_id1` = 1701 WHERE (`entry` = 12656);
+        -- Hraug
+        -- DisplayID from 14371 to 3755
+        UPDATE `creature_template` SET `display_id1` = 3755 WHERE (`entry` = 12776);
+        -- Willow
+        -- DisplayID from 13909 to 2874
+        UPDATE `creature_template` SET `display_id1` = 2874 WHERE (`entry` = 13656);
+        -- Wolf Master Nandos
+        -- DisplayID from 11179 to 522
+        UPDATE `creature_template` SET `display_id1` = 522 WHERE (`entry` = 3927);
+
+        insert into applied_updates values ('190620221');
+    end if;
+    
+    -- 25/06/2022 1
+    if (select count(*) from applied_updates where id='250620221') = 0 then
+        DROP TABLE IF EXISTS `areatrigger_involvedrelation`;
+        /*!40101 SET @saved_cs_client     = @@character_set_client */;
+        /*!40101 SET character_set_client = utf8 */;
+        CREATE TABLE `areatrigger_involvedrelation` (
+          `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
+          `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
+          PRIMARY KEY (`id`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
+        /*!40101 SET character_set_client = @saved_cs_client */;
+
+        LOCK TABLES `areatrigger_involvedrelation` WRITE;
+        /*!40000 ALTER TABLE `areatrigger_involvedrelation` DISABLE KEYS */;
+        INSERT INTO `areatrigger_involvedrelation` VALUES (362,1448),(231,984),(230,954),(223,944),(216,870),(196,578),(97,287),(98,201),(78,155),(178,503),(87,76),(88,62),(175,455),(246,1149),(232,984),(235,984),(197,62),(342,76),(173,437),(224,944),(225,944);
+        /*!40000 ALTER TABLE `areatrigger_involvedrelation` ENABLE KEYS */;
+        UNLOCK TABLES;
+
+        insert into applied_updates values ('250620221');
+    end if;
 end $
 delimiter ;

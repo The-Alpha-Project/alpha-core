@@ -313,7 +313,15 @@ class GameObjectManager(ObjectManager):
         target.receive_healing(healing, self)
 
     def _handle_use_goober(self, player):
-        Logger.debug(f'Unimplemented gameobject use for type Goober')
+        # Deadmines IronClad door (After triggering cannon)
+        if self.entry == 16398:  # Cannon.
+            # TODO, scripting, instancing, etc.
+            iron_clad_doors = [go for go in MapManager.get_surrounding_gameobjects(self).values() if go.entry == 16397]
+            if len(iron_clad_doors) > 0:
+                self.send_custom_animation(0)
+                iron_clad_doors[0].set_active()
+        else:
+            Logger.warning(f'Unimplemented gameobject use for type Goober entry {self.entry} name {self.gobject_template.name}')
         pass
 
     def use(self, player, target=None):
