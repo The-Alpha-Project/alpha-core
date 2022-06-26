@@ -22,5 +22,8 @@ class AreaTriggerHandler(object):
                     # SMSG_AREA_TRIGGER_MESSAGE in 1.x, but this OpCode seems to be missing in 0.5.3
                     ChatManager.send_system_message(world_session,
                                                     f'You must be at least level {location.required_level} to enter.')
+                return 0
+
+            world_session.player_mgr.quest_manager.reward_exploration_completion(trigger_id)
 
         return 0

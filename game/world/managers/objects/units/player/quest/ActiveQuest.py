@@ -1,7 +1,8 @@
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.Logger import Logger
+from utils.constants.MiscCodes import ObjectTypeIds, QuestFlags
 from utils.constants.MiscCodes import HighGuid
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.maps.MapManager import MapManager
@@ -16,7 +17,19 @@ class ActiveQuest:
         self.owner = player_mgr
         self.db_state = quest_db_state
         self.quest = quest
+        self.area_triggers = None
         self.failed = False
+        if self.is_exploration_quest():
+            self.load_area_triggers()
+
+    def load_area_triggers(self):
+        if self.quest.entry in WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION:
+            self.area_triggers = WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[self.quest.entry]
+        else:
+            Logger.warning(f'Unable to locate area trigger/s for quest {self.quest.entry}')
+
+    def is_exploration_quest(self):
+        return self.quest.QuestFlags & QuestFlags.QUEST_FLAGS_EXPLORATION
 
     def is_quest_complete(self, quest_giver_guid):
         quest_giver = None
@@ -45,6 +58,13 @@ class ActiveQuest:
 
         # Return if this quest is finished by this quest giver.
         return self.quest.entry in {quest_entry[1] for quest_entry in involved_relations_list}
+
+    def apply_exploration_completion(self, area_trigger_id):
+        if self.area_triggers and area_trigger_id in self.area_triggers and \
+                self.get_quest_state() != QuestState.QUEST_REWARD:
+            self.update_quest_state(QuestState.QUEST_REWARD)
+            return True
+        return False
 
     def need_item_from_go(self, quest_giver, go_loot_template):
         # Quest is complete.
@@ -171,6 +191,11 @@ class ActiveQuest:
             if current_value < required_items[i]:
                 return False
 
+        # Handle exploration.
+        if self.quest.QuestFlags & QuestFlags.QUEST_FLAGS_EXPLORATION:
+            if self.get_quest_state() != QuestState.QUEST_REWARD:
+                return False
+
         # TODO: Check ReqMoney
         return True
 
@@ -209,7 +234,7 @@ class ActiveQuest:
         req_src_item = QuestHelpers.generate_req_source_list(self.quest)
         return item_entry in req_item or item_entry in req_src_item
 
-    # Whats happening inside get_progress():
+    # What's happening inside get_progress():
     # Required MobKills1 = 5
     # Required MobKills2 = 12
     # No Kills:					             Mob2                 Mob1
@@ -220,6 +245,12 @@ class ActiveQuest:
     # 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 [0 0 0 0 0 0 0 0 0 1 1 1] [0 0 1 1 1]
     def get_progress(self):
         total_count = 0
+
+        # Handle exploration, all bits set if completed.
+        if self.is_exploration_quest() and self.get_quest_state() == QuestState.QUEST_REWARD:
+            return total_count ^ 0xFFFFFFFF
+
+        # Creature or gameobject.
         req_creature_or_go = QuestHelpers.generate_req_creature_or_go_list(self.quest)
         req_creature_or_go_count = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
         for index, creature_or_go in enumerate(req_creature_or_go):
