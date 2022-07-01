@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from enum import Enum
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -18,7 +19,6 @@ from utils.constants.UpdateFields import PlayerFields
 
 import platform
 
-
 # noinspection SpellCheckingInspection,PyUnusedLocal
 class CommandManager(object):
 
@@ -30,9 +30,9 @@ class CommandManager(object):
         args = command_msg[terminator_index:].strip()
 
         if command in PLAYER_COMMAND_DEFINITIONS:
-            command_func = PLAYER_COMMAND_DEFINITIONS.get(command)
+            command_func = PLAYER_COMMAND_DEFINITIONS[command][0]
         elif command in GM_COMMAND_DEFINITIONS and world_session.player_mgr.is_gm:
-            command_func = GM_COMMAND_DEFINITIONS.get(command)
+            command_func = GM_COMMAND_DEFINITIONS[command][0]
         else:
             ChatManager.send_system_message(world_session, 'Command not found, type .help for help.')
             return
@@ -60,30 +60,21 @@ class CommandManager(object):
 
         return world_session.player_mgr
 
+    # Display each commands with a message regarding account status (player or gm)
     @staticmethod
     def help(world_session, args):
         total_number = 0
 
-        def _split_command_text(commands, n=8):
-            command_list = list(commands)
-            for i in range(0, len(command_list), n):
-                yield command_list[i:i + n]
-
         # If player is GM, send GM commands first.
         if world_session.player_mgr.is_gm:
             ChatManager.send_system_message(world_session, '[GM Commands]')
-            for commands_chunk in _split_command_text(GM_COMMAND_DEFINITIONS.keys()):
-                total_number += len(commands_chunk)
-                gm_commands = ' | '.join([k for k in commands_chunk])
-                ChatManager.send_system_message(world_session, gm_commands)
+            for command in GM_COMMAND_DEFINITIONS:
+                ChatManager.send_system_message(world_session, command +  " - " + GM_COMMAND_DEFINITIONS[command][1])
             ChatManager.send_system_message(world_session, '\n')
 
-        # Send Player commands.
-        ChatManager.send_system_message(world_session, '[Player Commands]')
-        for commands_chunk in _split_command_text(PLAYER_COMMAND_DEFINITIONS.keys()):
-            total_number += len(commands_chunk)
-            player_commands = ' | '.join([k for k in commands_chunk])
-            ChatManager.send_system_message(world_session, player_commands)
+        ChatManager.send_system_message(world_session, '[Player Commands]\n')
+        for command in PLAYER_COMMAND_DEFINITIONS:
+            ChatManager.send_system_message(world_session, command +  " - " + PLAYER_COMMAND_DEFINITIONS[command][1])
 
         return 0, f'{total_number} commands found.'
 
@@ -660,51 +651,50 @@ class CommandManager(object):
 
         return 0, message
 
-
 PLAYER_COMMAND_DEFINITIONS = {
-    'help': CommandManager.help,
-    'suicide': CommandManager.suicide,
-    'serverinfo': CommandManager.serverinfo
+    "help": [CommandManager.help, "print this message"],
+    "suicide": [CommandManager.suicide, "kill yourself and respwan at your hearthstone location"],
+    "serverinfo": [CommandManager.serverinfo, "print server information"]
 }
 
 # noinspection SpellCheckingInspection
 GM_COMMAND_DEFINITIONS = {
-    'speed': CommandManager.speed,
-    'swimspeed': CommandManager.swim_speed,
-    'gps': CommandManager.gps,
-    'tel': CommandManager.tel,
-    'stel': CommandManager.stel,
-    'sitem': CommandManager.sitem,
-    'additem': CommandManager.additem,
-    'additems': CommandManager.additems,
-    'sspell': CommandManager.sspell,
-    'lspell': CommandManager.lspell,
-    'unlspell': CommandManager.unlspell,
-    'unltalent': CommandManager.unltalent,
-    'lspells': CommandManager.lspells,
-    'cast': CommandManager.cast,
-    'sskill': CommandManager.sskill,
-    'lskill': CommandManager.lskill,
-    'lskills': CommandManager.lskills,
-    'port': CommandManager.port,
-    'tickets': CommandManager.tickets,
-    'rticket': CommandManager.rticket,
-    'dticket': CommandManager.dticket,
-    'goplayer': CommandManager.goplayer,
-    'summon': CommandManager.summon,
-    'ann': CommandManager.ann,
-    'mount': CommandManager.mount,
-    'unmount': CommandManager.unmount,
-    'morph': CommandManager.morph,
-    'demorph': CommandManager.demorph,
-    'cinfo': CommandManager.creature_info,
-    'pinfo': CommandManager.player_info,
-    'goinfo': CommandManager.gobject_info,
-    'level': CommandManager.level,
-    'money': CommandManager.money,
-    'die': CommandManager.die,
-    'kick': CommandManager.kick,
-    'worldoff': CommandManager.worldoff,
-    'guildcreate': CommandManager.guildcreate,
-    'alltaxis': CommandManager.alltaxis
+    'speed': [CommandManager.speed, "change your walk speed"],
+    'swimspeed': [CommandManager.swim_speed, "change your swim speed"],
+    'gps': [CommandManager.gps, "display information on your location"],
+    'tel': [CommandManager.tel, "teleport you to a location"],
+    'stel': [CommandManager.stel, "search for a location where you can teleport"],
+    'sitem': [CommandManager.sitem, "search an item"],
+    'additem': [CommandManager.additem, "add an item to your bag"],
+    'additems': [CommandManager.additems, "add items to your bag"],
+    'sspell': [CommandManager.sspell, "search a spell"],
+    'lspell': [CommandManager.lspell, "learn a spell"],
+    'lspells': [CommandManager.lspells, "unlearn a spell"],
+    'unlspell': [CommandManager.unlspell, "unlearn spells"],
+    'unltalent': [CommandManager.unltalent, "unlearn a talent"],
+    'cast': [CommandManager.cast, "cast a spell"],
+    'sskill': [CommandManager.sskill, "search skills"],
+    'lskill': [CommandManager.lskill, "learn a skill"],
+    'lskills': [CommandManager.lskills, "learn skills"],
+    'port': [CommandManager.port, "teleport using coordinates"],
+    'tickets': [CommandManager.tickets, "?"],
+    'rticket': [CommandManager.rticket, "?"],
+    'dticket': [CommandManager.dticket, "?"],
+    'goplayer': [CommandManager.goplayer, "go to a player position"],
+    'summon': [CommandManager.summon, "summon a player to your position"],
+    'ann': [CommandManager.ann, "?"],
+    'mount': [CommandManager.mount, "mount"],
+    'unmount': [CommandManager.unmount, "dismount"],
+    'morph': [CommandManager.morph, "transform the targeted player"],
+    'demorph': [CommandManager.demorph, "untransform the targeted player"],
+    'cinfo': [CommandManager.creature_info, "get targeted creature info"],
+    'pinfo': [CommandManager.player_info, "get targeted player info"],
+    'goinfo': [CommandManager.gobject_info, "get information near you"],
+    'level': [CommandManager.level, "set your level"],
+    'money': [CommandManager.money, "give you money"],
+    'die': [CommandManager.die, "kill yourself"],
+    'kick': [CommandManager.kick, "disconnect from the server"],
+    'worldoff': [CommandManager.worldoff, "stop the server"],
+    'guildcreate': [CommandManager.guildcreate, "create and join a guild"],
+    'alltaxis': [CommandManager.alltaxis, "discover all flights"]
 }
