@@ -34,7 +34,7 @@ class CommandManager(object):
         elif command in GM_COMMAND_DEFINITIONS and world_session.player_mgr.is_gm:
             command_func = GM_COMMAND_DEFINITIONS[command][0]
         else:
-            ChatManager.send_system_message(world_session, 'Command not found, type .help for full help.')
+            ChatManager.send_system_message(world_session, 'Command not found, type .help for help.')
             return
 
         if command_func:
