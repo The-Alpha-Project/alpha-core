@@ -67,12 +67,14 @@ class CommandManager(object):
 
         # If player is GM, send GM commands first.
         if world_session.player_mgr.is_gm:
+            total_number += len(GM_COMMAND_DEFINITIONS)
             ChatManager.send_system_message(world_session, '[GM Commands]')
             for command in GM_COMMAND_DEFINITIONS:
                 ChatManager.send_system_message(world_session, command +  " - " + GM_COMMAND_DEFINITIONS[command][1])
             ChatManager.send_system_message(world_session, '\n')
 
         ChatManager.send_system_message(world_session, '[Player Commands]\n')
+        total_number += len(PLAYER_COMMAND_DEFINITIONS)
         for command in PLAYER_COMMAND_DEFINITIONS:
             ChatManager.send_system_message(world_session, command +  " - " + PLAYER_COMMAND_DEFINITIONS[command][1])
 
