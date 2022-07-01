@@ -34,7 +34,7 @@ class CommandManager(object):
         elif command in GM_COMMAND_DEFINITIONS and world_session.player_mgr.is_gm:
             command_func = GM_COMMAND_DEFINITIONS[command][0]
         else:
-            ChatManager.send_system_message(world_session, 'Command not found, type .help for help.')
+            ChatManager.send_system_message(world_session, 'Command not found, type .help for full help.')
             return
 
         if command_func:
@@ -677,9 +677,9 @@ GM_COMMAND_DEFINITIONS = {
     'lskill': [CommandManager.lskill, "learn a skill"],
     'lskills': [CommandManager.lskills, "learn skills"],
     'port': [CommandManager.port, "teleport using coordinates"],
-    'tickets': [CommandManager.tickets, "?"],
-    'rticket': [CommandManager.rticket, "?"],
-    'dticket': [CommandManager.dticket, "?"],
+    'tickets': [CommandManager.tickets, "list all tickets (bug reports)"],
+    'rticket': [CommandManager.rticket, "search a ticket"],
+    'dticket': [CommandManager.dticket, "delete a ticket"],
     'goplayer': [CommandManager.goplayer, "go to a player position"],
     'summon': [CommandManager.summon, "summon a player to your position"],
     'ann': [CommandManager.ann, "?"],
