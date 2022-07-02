@@ -34,9 +34,9 @@ class LockManager:
         for index, _lock_type in enumerate(lock_info.types):
             # Check key item.
             if _lock_type == LockKeyTypes.LOCK_KEY_ITEM:
-                if lock_info.indexes[index] and cast_item and \
-                        ObjectManager.extract_high_guid(cast_item.guid) == lock_info.indexes[index]:
+                if lock_info.indexes[index] and cast_item and cast_item.entry == lock_info.indexes[index]:
                     return OpenLockResult(SpellCheckCastResult.SPELL_NO_ERROR)
+                break
             elif _lock_type == LockKeyTypes.LOCK_KEY_SKILL:
                 # Wrong lock type, skip.
                 if lock_type != lock_info.indexes[index]:

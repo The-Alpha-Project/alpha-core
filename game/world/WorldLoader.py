@@ -52,6 +52,7 @@ class WorldLoader:
         else:
             Logger.info('Skipped creature loading.')
 
+        WorldLoader.load_area_trigger_quest_relations()
         WorldLoader.load_quests()
         WorldLoader.load_spells()
         WorldLoader.load_spell_chains()
@@ -421,6 +422,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading taxi path nodes...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_area_trigger_quest_relations():
+        area_trigger_quest_relations = WorldDatabaseManager.area_trigger_quest_relations_get_all()
+        length = len(area_trigger_quest_relations)
+        count = 0
+
+        for area_trigger_relation in area_trigger_quest_relations:
+            WorldDatabaseManager.QuestRelationHolder.load_area_trigger_quest_relation(area_trigger_relation)
+
+            count += 1
+            Logger.progress('Loading area trigger quest relations...', count, length)
 
         return length
 

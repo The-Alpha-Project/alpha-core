@@ -431,6 +431,14 @@ class AppliedItemUpdates(Base):
     version = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
 
+class AreatriggerInvolvedrelation(Base):
+    __tablename__ = 'areatrigger_involvedrelation'
+    __table_args__ = {'comment': 'Trigger System'}
+
+    id = Column(MEDIUMINT(8), primary_key=True, server_default=text("0"), comment='Identifier')
+    quest = Column(MEDIUMINT(8), nullable=False, server_default=text("0"), comment='Quest Identifier')
+
+
 class NpcText(Base):
     __tablename__ = 'npc_text'
 

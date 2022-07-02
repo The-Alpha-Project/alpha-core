@@ -161,7 +161,9 @@ class SpellEffectHandler:
 
         lock_type = effect.misc_value
         bonus_points = effect.get_effect_simple_points()
-        lock_result = LockManager.can_open_lock(caster, lock_type, lock_id, bonus_points=bonus_points)
+        lock_result = LockManager.can_open_lock(caster, lock_type, lock_id,
+                                                cast_item=casting_spell.source_item,
+                                                bonus_points=bonus_points)
         if lock_result.result != SpellCheckCastResult.SPELL_NO_ERROR:
             caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, lock_result.result)
             return
@@ -170,7 +172,6 @@ class SpellEffectHandler:
         bonus_skill_value = lock_result.bonus_skill_value
         required_skill_value = lock_result.required_skill_value
         skill_type = lock_result.skill_type
-
         # Chance for fail at orange mining, herbs or lock picking.
         if (skill_type == SkillTypes.HERBALISM or skill_type == SkillTypes.MINING
                 or lock_result.skill_type == SkillTypes.LOCKPICKING):
@@ -180,10 +181,12 @@ class SpellEffectHandler:
                 return
 
         if target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
-            caster.skill_manager.handle_gather_skill_gain(skill_type, skill_value, required_skill_value)
+            if skill_type != SkillTypes.NONE:
+                caster.skill_manager.handle_gather_skill_gain(skill_type, skill_value, required_skill_value)
             target.use(caster, target)
         elif target.get_type_id() == ObjectTypeIds.ID_ITEM:
-            caster.skill_manager.handle_gather_skill_gain(skill_type, skill_value, required_skill_value)
+            if skill_type != SkillTypes.NONE:
+                caster.skill_manager.handle_gather_skill_gain(skill_type, skill_value, required_skill_value)
             target.set_unlocked()
         else:
             Logger.debug(f'Unimplemented open lock spell effect.')
@@ -674,6 +677,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_TELEPORT_UNITS: SpellEffectHandler.handle_teleport_units,
     SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA: SpellEffectHandler.handle_persistent_area_aura,
     SpellEffects.SPELL_EFFECT_OPEN_LOCK: SpellEffectHandler.handle_open_lock,
+    SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM: SpellEffectHandler.handle_open_lock,
     SpellEffects.SPELL_EFFECT_LEARN_SPELL: SpellEffectHandler.handle_learn_spell,
     SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA: SpellEffectHandler.handle_apply_area_aura,
     SpellEffects.SPELL_EFFECT_SUMMON_TOTEM: SpellEffectHandler.handle_summon_totem,
