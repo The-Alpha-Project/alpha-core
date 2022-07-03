@@ -656,9 +656,9 @@ class CommandManager(object):
 
 
 PLAYER_COMMAND_DEFINITIONS = {
-    "help": [CommandManager.help, 'print this message'],
-    "suicide": [CommandManager.suicide, 'kill yourself and respawn at your binding location'],
-    "serverinfo": [CommandManager.serverinfo, 'print server information']
+    'help': [CommandManager.help, 'print this message'],
+    'suicide': [CommandManager.suicide, 'kill yourself and respawn at your binding location'],
+    'serverinfo': [CommandManager.serverinfo, 'print server information']
 }
 
 # noinspection SpellCheckingInspection
