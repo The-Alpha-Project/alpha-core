@@ -10,6 +10,10 @@ class AcceptTradeHandler(object):
     def handle(world_session, socket, reader):
         player = world_session.player_mgr
         player_trade = player.trade_data
+        if not player_trade:
+            TradeManager.cancel_trade(player)
+            return 0
+
         other_player = player_trade.other_player
         other_player_trade = other_player.trade_data
         item_to_receive_enchant = None
@@ -26,7 +30,7 @@ class AcceptTradeHandler(object):
         # Cancel if any item is soulbound.
         for slot in range(TradeManager.TRADE_SLOT_COUNT):
             if player_trade.items[slot] and player_trade.items[slot].is_soulbound():
-                TradeManager.cancel_trade(player_trade)
+                TradeManager.cancel_trade(player)
                 return 0
 
             if other_player_trade.items[slot] and other_player_trade.items[slot].is_soulbound():
