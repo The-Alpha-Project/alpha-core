@@ -5785,11 +5785,9 @@ begin not atomic
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
         /*!40101 SET character_set_client = @saved_cs_client */;
 
-        LOCK TABLES `areatrigger_involvedrelation` WRITE;
         /*!40000 ALTER TABLE `areatrigger_involvedrelation` DISABLE KEYS */;
         INSERT INTO `areatrigger_involvedrelation` VALUES (362,1448),(231,984),(230,954),(223,944),(216,870),(196,578),(97,287),(98,201),(78,155),(178,503),(87,76),(88,62),(175,455),(246,1149),(232,984),(235,984),(197,62),(342,76),(173,437),(224,944),(225,944);
         /*!40000 ALTER TABLE `areatrigger_involvedrelation` ENABLE KEYS */;
-        UNLOCK TABLES;
 
         insert into applied_updates values ('250620221');
     end if;
