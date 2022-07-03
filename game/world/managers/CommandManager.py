@@ -673,7 +673,7 @@ GM_COMMAND_DEFINITIONS = {
     'additems': [CommandManager.additems, 'add items to your bag'],
     'sspell': [CommandManager.sspell, 'search spells'],
     'lspell': [CommandManager.lspell, 'learn a spell'],
-    'lspells': [CommandManager.lspells, 'unlearn a spell'],
+    'lspells': [CommandManager.lspells, 'learn multiple spells'],
     'unlspell': [CommandManager.unlspell, 'unlearn a spell'],
     'unltalent': [CommandManager.unltalent, 'unlearn a talent'],
     'cast': [CommandManager.cast, 'cast a spell'],
