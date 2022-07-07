@@ -11,7 +11,7 @@ class AcceptTradeHandler(object):
         player = world_session.player_mgr
         player_trade = player.trade_data
         if not player_trade:
-            TradeManager.cancel_trade(player)
+            TradeManager.send_trade_status(player, TradeStatus.TRADE_STATUS_CANCELLED)
             return 0
 
         other_player = player_trade.other_player
