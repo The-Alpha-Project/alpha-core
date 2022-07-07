@@ -204,6 +204,15 @@ class UnitManager(ObjectManager):
         current_distance = self.location.distance(victim.location)
         return current_distance <= UnitFormulas.interactable_distance(self, victim)
 
+    # override
+    def can_attack_target(self, target):
+        is_enemy = super().can_attack_target(target)
+        if is_enemy:
+            return True
+
+        # Might be neutral, but was attacked by target.
+        return target.guid in self.attackers
+
     def attack(self, victim: UnitManager, is_melee=True):
         if not victim or victim == self:
             return False
