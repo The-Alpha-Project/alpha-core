@@ -6033,8 +6033,9 @@ begin not atomic
         -- Entry: 3571
         -- Name: Teldrassil Sentinel
         -- Min Level, from 55 to 20.
+        -- Max Level, from 55 to 20.
         -- Scale, from 0.0 to 1.0.
-        UPDATE `creature_template` SET `min_level` = 20, `scale` = 1.0 WHERE (`entry` = 3571);
+        UPDATE `creature_template` SET `levevl_min` = 20, `level_max` = 20, `scale` = 1.0 WHERE (`entry` = 3571);
         -- Entry: 3838
         -- Name: Vesprystus
         -- Faction, from 79 to 80.
@@ -6143,10 +6144,11 @@ begin not atomic
         -- Entry: 3338
         -- Name: Sergra Darkthorn
         -- Min Level, from 60 to 34.
+        -- Max Level, from 60 to 34.
         -- Faction, from 85 to 83.
         -- Scale, from 0.0 to 1.0.
         -- BaseAttackTime, from 1391 to 2000.
-        UPDATE `creature_template` SET `min_level` = 34, `faction` = 83, `scale` = 1.0, `base_attack_time` = 2000 WHERE (`entry` = 3338);
+        UPDATE `creature_template` SET `level_min` = 34, `level_max` = 34, `faction` = 83, `scale` = 1.0, `base_attack_time` = 2000 WHERE (`entry` = 3338);
         -- Entry: 3501
         -- Name: Horde Guard
         -- Scale, from 0.0 to 1.0.
@@ -6154,9 +6156,10 @@ begin not atomic
         -- Entry: 3484
         -- Name: Kil'hala
         -- Min Level, from 25 to 15.
+        -- Max Level, from 25 to 15.
         -- Faction, from 125 to 29.
         -- Scale, from 0.0 to 1.0.
-        UPDATE `creature_template` SET `min_level` = 15, `faction` = 29, `scale` = 1.0 WHERE (`entry` = 3484);
+        UPDATE `creature_template` SET `level_min` = 15, `level_max` = 15, `faction` = 29, `scale` = 1.0 WHERE (`entry` = 3484);
         -- Entry: 3485
         -- Name: Wrahk
         -- Scale, from 0.0 to 1.0.
@@ -6168,8 +6171,9 @@ begin not atomic
         -- Entry: 1860
         -- Name: Voidwalker
         -- Min Level, from 17 to 12.
+        -- Max Level, from 17 to 12.
         -- Scale, from 0.0 to 0.8.
-        UPDATE `creature_template` SET `min_level` = 12, `scale` = 0.8 WHERE (`entry` = 1860);
+        UPDATE `creature_template` SET `level_min` = 12, `level_max` = 12, `scale` = 0.8 WHERE (`entry` = 1860);
         -- Entry: 3035
         -- Name: Flatland Cougar
         -- Scale, from 0.0 to 1.1.
@@ -6350,7 +6354,7 @@ begin not atomic
         -- Name: Menethil Sentry
         -- Min Level, from 41 to 38.
         -- Scale, from 0.0 to 1.0.
-        UPDATE `creature_template` SET `min_level` = 38, `scale` = 1.0 WHERE (`entry` = 1434);
+        UPDATE `creature_template` SET `level_min` = 38, `scale` = 1.0 WHERE (`entry` = 1434);
         -- Entry: 1483
         -- Name: Murphy West
         -- Scale, from 0.0 to 1.0.
@@ -6418,9 +6422,10 @@ begin not atomic
         -- Entry: 5186
         -- Name: Basking Shark
         -- Min Level, from 41 to 38.
+        -- Max Level, from 41 to 38.
         -- Scale, from 0.0 to 1.0.
         -- BaseAttackTime, from 1333 to 2000.
-        UPDATE `creature_template` SET `min_level` = 38, `scale` = 1.0, `base_attack_time` = 2000 WHERE (`entry` = 5186);
+        UPDATE `creature_template` SET `level_min` = 38, `level_max` = 38, `scale` = 1.0, `base_attack_time` = 2000 WHERE (`entry` = 5186);
         -- Entry: 3681
         -- Name: Wisp
         -- Faction, from 79 to 84.
@@ -6457,21 +6462,24 @@ begin not atomic
         -- Entry: 4208
         -- Name: Lairn
         -- Min Level, from 45 to 35.
+        -- Max Level, from 45 to 35.
         -- Faction, from 79 to 80.
         -- Scale, from 0.0 to 1.0.
-        UPDATE `creature_template` SET `min_level` = 35, `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4208);
+        UPDATE `creature_template` SET `level_min` = 35, `level_max` = 35, `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4208);
         -- Entry: 4155
         -- Name: Idriana
         -- Min Level, from 45 to 35.
+        -- Max Level, from 45 to 35.
         -- Faction, from 79 to 80.
         -- Scale, from 0.0 to 1.0.
-        UPDATE `creature_template` SET `min_level` = 35, `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4155);
+        UPDATE `creature_template` SET `level_min` = 35, `level_max` = 35, `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4155);
         -- Entry: 4209
         -- Name: Garryeth
         -- Min Level, from 45 to 35.
+        -- Max Level, from 45 to 35.
         -- Faction, from 79 to 80.
         -- Scale, from 0.0 to 1.0.
-        UPDATE `creature_template` SET `min_level` = 35, `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4209);
+        UPDATE `creature_template` SET `level_min` = 35, `level_max` = 35, `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4209);
         -- Entry: 3116
         -- Name: Dustwind Pillager
         -- Scale, from 0.0 to 1.0.
