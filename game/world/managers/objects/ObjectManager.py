@@ -9,7 +9,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import SplineFlags
+from utils.constants.UnitCodes import SplineFlags, UnitReaction
 from utils.constants.UpdateFields \
     import ObjectFields, UnitFields
 
@@ -349,7 +349,6 @@ class ObjectManager:
                                                                self.location.z)
         return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
 
-    # override
     def can_attack_target(self, target):
         if target is self:
             return False
@@ -373,36 +372,48 @@ class ObjectManager:
 
         return self.is_enemy_to(target)
 
-    def _allegiance_status_checker(self, target, check_friendly=True):
+    def _allegiance_status_checker(self, target) -> UnitReaction:
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)
         target_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(target.faction)
 
         if not own_faction:
             Logger.error(f'Invalid faction template: {self.faction}.')
-            return not check_friendly
+            return UnitReaction.UNIT_REACTION_NEUTRAL
 
         if not target_faction:
             Logger.error(f'Invalid faction template: {target.faction}.')
-            return not check_friendly
+            return UnitReaction.UNIT_REACTION_NEUTRAL
+
+        # TODO: Reputation standing checks first.
+
+        if target_faction.FactionGroup & own_faction.EnemyGroup != 0:
+            return UnitReaction.UNIT_REACTION_HOSTILE
 
         own_enemies = {own_faction.Enemies_1, own_faction.Enemies_2, own_faction.Enemies_3, own_faction.Enemies_4}
-        own_friends = {own_faction.Friend_1, own_faction.Friend_2, own_faction.Friend_3, own_faction.Friend_4}
-        if target_faction.Faction > 0:
-            if target_faction.Faction in own_enemies:
-                return not check_friendly
-            if target_faction.Faction in own_friends:
-                return check_friendly
+        if target_faction.Faction > 0 and target_faction.Faction in own_enemies:
+            return UnitReaction.UNIT_REACTION_HOSTILE
 
-        if check_friendly:
-            return ((own_faction.FriendGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.FriendGroup)) != 0
-        else:
-            return ((own_faction.EnemyGroup & target_faction.FactionGroup) or (own_faction.FactionGroup & target_faction.EnemyGroup)) != 0
+        if target_faction.FactionGroup & own_faction.FriendGroup != 0:
+            return UnitReaction.UNIT_REACTION_FRIENDLY
+
+        own_friends = {own_faction.Friend_1, own_faction.Friend_2, own_faction.Friend_3, own_faction.Friend_4}
+        if target_faction.Faction > 0 and target_faction.Faction in own_friends:
+            return UnitReaction.UNIT_REACTION_FRIENDLY
+
+        if target_faction.FriendGroup & own_faction.FactionGroup != 0:
+            return UnitReaction.UNIT_REACTION_FRIENDLY
+
+        other_friends = {target_faction.Friend_1, target_faction.Friend_2, target_faction.Friend_3, target_faction.Friend_4}
+        if own_faction.Faction > 0 and own_faction.Faction in other_friends:
+            return UnitReaction.UNIT_REACTION_FRIENDLY
+
+        return UnitReaction.UNIT_REACTION_NEUTRAL
 
     def is_friendly_to(self, target):
-        return self._allegiance_status_checker(target, True)
+        return self._allegiance_status_checker(target) >= UnitReaction.UNIT_REACTION_NEUTRAL
 
     def is_enemy_to(self, target):
-        return self._allegiance_status_checker(target, False)
+        return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_NEUTRAL
 
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)

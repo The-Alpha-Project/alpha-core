@@ -33,8 +33,9 @@ class TradeManager(object):
             TradeManager.send_trade_status(player.trade_data.other_player, TradeStatus.TRADE_STATUS_CANCELLED)
             player.trade_data.other_player.trade_data = None
 
-        TradeManager.send_trade_status(player, TradeStatus.TRADE_STATUS_CANCELLED)
-        player.trade_data = None
+        if player.trade_data:
+            TradeManager.send_trade_status(player, TradeStatus.TRADE_STATUS_CANCELLED)
+            player.trade_data = None
 
     @staticmethod
     def send_update_trade(player, trade_data, is_target):

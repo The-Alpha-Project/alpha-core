@@ -20,6 +20,8 @@ class WorldLoader:
         MapManager.initialize_maps()
         MapManager.initialize_area_tables()
 
+        # Below order matters.
+
         # Loot related, even if not loading creatures or gameobjects, loot might be referenced.
         WorldLoader.load_gameobject_loot_templates()
         WorldLoader.load_fishing_loot_templates()
@@ -29,17 +31,21 @@ class WorldLoader:
         WorldLoader.load_pickpocketing_loot_templates()
         WorldLoader.load_item_loot_templates()
 
+        # Spells.
+        WorldLoader.load_spells()
+        WorldLoader.load_creature_spells()
+
         # Gameobject spawns
         if config.Server.Settings.load_gameobjects:
             WorldLoader.load_gameobject_quest_starters()
             WorldLoader.load_gameobject_quest_finishers()
-            WorldLoader.load_gameobjects()  # Order matters.
+            WorldLoader.load_gameobjects()
         else:
             Logger.info('Skipped game object loading.')
 
         # Creature spawns
         if config.Server.Settings.load_creatures:
-            WorldLoader.load_creature_spells()
+
             WorldLoader.load_creature_equip_templates()
             WorldLoader.load_creatures()
             WorldLoader.load_creature_quest_starters()
@@ -54,7 +60,6 @@ class WorldLoader:
 
         WorldLoader.load_area_trigger_quest_relations()
         WorldLoader.load_quests()
-        WorldLoader.load_spells()
         WorldLoader.load_spell_chains()
         WorldLoader.load_trainer_spells()
         WorldLoader.load_skills()

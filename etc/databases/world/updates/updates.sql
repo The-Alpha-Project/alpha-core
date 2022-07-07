@@ -5791,5 +5791,870 @@ begin not atomic
 
         insert into applied_updates values ('250620221');
     end if;
+
+    -- 06/07/2022 1
+    if (select count(*) from applied_updates where id='060720221') = 0 then
+
+        -- Creatures Faction, Scale, MinLevel, BaseAttackTime and RangedAttackTime.
+        -- 3810 Sniffs.
+        
+        -- Entry: 416
+        -- Name: Imp
+        -- Scale, from 1 to 0.5
+        UPDATE `creature_template` SET `scale` = '0.5' WHERE (`entry` = '516');
+        -- Entry: 1571
+        -- Name: Shellei Brondir
+        -- Faction, from 11 to 12.       
+        UPDATE `creature_template` SET `faction` = '12' WHERE (`entry` = '1571');
+        -- Entry: 3178
+        -- Name: Stuart Fleming
+        -- Faction, from 11 to 12.    
+        UPDATE `creature_template` SET `faction` = '12' WHERE (`entry` = '3178');
+        -- Entry: 3179
+        -- Name: Harold Riggs
+        -- Faction, from 11 to 12.    
+        UPDATE `creature_template` SET `faction` = '12' WHERE (`entry` = '3179');
+        -- Entry: 1481
+        -- Name: Bart Tidewater
+        -- Faction, from 11 to 12.    
+        UPDATE `creature_template` SET `faction` = '12' WHERE (`entry` = '1481');
+        -- Entry: 1242
+        -- Name: Karl Boran
+        -- Faction, from 11 to 12.    
+        UPDATE `creature_template` SET `faction` = '12' WHERE (`entry` = '1242');
+        -- Entry: 1451
+        -- Name: Camerick Jongleur
+        -- Faction, from 11 to 12.    
+        UPDATE `creature_template` SET `faction` = '12' WHERE (`entry` = '1451');
+        -- Entry: 2094
+        -- Name: James Halloran
+        -- Faction, from 11 to 12.    
+        UPDATE `creature_template` SET `faction` = '12' WHERE (`entry` = '2094');
+        -- Entry: 1453
+        -- Name: Dewin Shimmerdawn
+        -- Faction, from 57 to 55.    
+        UPDATE `creature_template` SET `faction` = '55' WHERE (`entry` = '1453');
+        -- Entry: 3098
+        -- Name: Mottled Boar
+        -- Scale, from 0.0 to 0.6.
+        -- RangedAttackTime, from 2200 to 2000.
+        UPDATE `creature_template` SET `scale` = 0.6, `ranged_attack_time` = 2000 WHERE (`entry` = 3098);
+        -- Entry: 5952
+        -- Name: Den Grunt
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 1562 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 5952);
+        -- Entry: 3144
+        -- Name: Eitrigg
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 1991 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 3144);
+        -- Entry: 3143
+        -- Name: Gornek
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2156 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 3143);
+        -- Entry: 3145
+        -- Name: Zureetha Fargaze
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2079 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 3145);
+        -- Entry: 5887
+        -- Name: Canaga Earthcaller
+        -- Faction, from 125 to 29.
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2123 to 2000.
+        UPDATE `creature_template` SET `faction` = 29, `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 5887);
+        -- Entry: 5765
+        -- Name: Ruzan
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2101 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 5765);
+        -- Entry: 9796
+        -- Name: Galgar
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2123 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 9796);
+        -- Entry: 3158
+        -- Name: Duokna
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2101 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 3158);
+        -- Entry: 3153
+        -- Name: Frang
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2090 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 3153);
+        -- Entry: 3154
+        -- Name: Jen'shan
+        -- Faction, from 125 to 29.
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2123 to 2000.
+        UPDATE `creature_template` SET `faction` = 29, `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 3154);
+        -- Entry: 3707
+        -- Name: Ken'jai
+        -- Faction, from 125 to 29.
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2101 to 2000.
+        UPDATE `creature_template` SET `faction` = 29, `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 3707);
+        -- Entry: 3157
+        -- Name: Shikrik
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2101 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 3157);
+        -- Entry: 5884
+        -- Name: Mai'ah
+        -- Faction, from 125 to 29.
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2101 to 2000.
+        UPDATE `creature_template` SET `faction` = 29, `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 5884);
+        -- Entry: 3882
+        -- Name: Zlagk
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2112 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 3882);
+        -- Entry: 2185
+        -- Name: Darkshore Thresher
+        -- Scale, from 0.0 to 1.05.
+        UPDATE `creature_template` SET `scale` = 1.05 WHERE (`entry` = 2185);
+        -- Entry: 6145
+        -- Name: School of Fish
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 6145);
+        -- Entry: 2231
+        -- Name: Pygmy Tide Crawler
+        -- Scale, from 0.0 to 0.75.
+        UPDATE `creature_template` SET `scale` = 0.75 WHERE (`entry` = 2231);
+        -- Entry: 6887
+        -- Name: [PH] Haleh
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 6887);
+        -- Entry: 4190
+        -- Name: Kyndri
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4190);
+        -- Entry: 4192
+        -- Name: Taldan
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4192);
+        -- Entry: 6737
+        -- Name: Innkeeper Shaussiy
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 6737);
+        -- Entry: 3841
+        -- Name: Caylais Moonfeather
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        -- BaseAttackTime, from 1216 to 2000.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0, `base_attack_time` = 2000 WHERE (`entry` = 3841);
+        -- Entry: 4200
+        -- Name: Laird
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4200);
+        -- Entry: 6086
+        -- Name: Auberdine Sentinel
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 6086);
+        -- Entry: 2163
+        -- Name: Thistle Bear
+        -- Scale, from 0.0 to 0.75.
+        UPDATE `creature_template` SET `scale` = 0.75 WHERE (`entry` = 2163);
+        -- Entry: 10085
+        -- Name: Jaelysia
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 10085);
+        -- Entry: 4191
+        -- Name: Allyndia
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4191);
+        -- Entry: 2033
+        -- Name: Elder Nightsaber
+        -- Scale, from 1.33 to 1.2.
+        -- RangedAttackTime, from 2000 to 1400.
+        UPDATE `creature_template` SET `scale` = 1.2, `ranged_attack_time` = 1400 WHERE (`entry` = 2033);
+        -- Entry: 2043
+        -- Name: Nightsaber Stalker
+        -- Scale, from 0.0 to 0.9.
+        -- RangedAttackTime, from 2000 to 1400.
+        UPDATE `creature_template` SET `scale` = 0.9, `ranged_attack_time` = 1400 WHERE (`entry` = 2043);
+        -- Entry: 2913
+        -- Name: Archaeologist Hollee
+        -- Faction, from 57 to 55.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 55, `scale` = 1.0 WHERE (`entry` = 2913);
+        -- Entry: 4187
+        -- Name: Harlon Thornguard
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4187);
+        -- Entry: 2070
+        -- Name: Moonstalker Runt
+        -- Scale, from 0.0 to 0.65.
+        -- RangedAttackTime, from 2000 to 1300.
+        UPDATE `creature_template` SET `scale` = 0.65, `ranged_attack_time` = 1300 WHERE (`entry` = 2070);
+        -- Entry: 3895
+        -- Name: Captain Eo
+        -- Faction, from 12 to 80.
+        -- BaseAttackTime, from 0 to 2000.
+        -- RangedAttackTime, from 0 to 2000.
+        UPDATE `creature_template` SET `faction` = 80, `base_attack_time` = 2000, `ranged_attack_time` = 2000 WHERE (`entry` = 3895);
+        -- Entry: 3583
+        -- Name: Barithras Moonshade
+        -- Faction, from 79 to 84.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 84, `scale` = 1.0 WHERE (`entry` = 3583);
+        -- Entry: 3644
+        -- Name: Cerellean Whiteclaw
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 3644);
+        -- Entry: 3649
+        -- Name: Thundris Windweaver
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 3649);
+        -- Entry: 4186
+        -- Name: Mavralyn
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4186);
+        -- Entry: 2234
+        -- Name: Young Reef Crawler
+        -- Scale, from 0.0 to 0.75.
+        -- DisplayID, from 999 to 997.
+        UPDATE `creature_template` SET `scale` = 0.75, `display_id1` = 997 WHERE (`entry` = 2234);
+        -- Entry: 3571
+        -- Name: Teldrassil Sentinel
+        -- Min Level, from 55 to 20.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `min_level` = 20, `scale` = 1.0 WHERE (`entry` = 3571);
+        -- Entry: 3838
+        -- Name: Vesprystus
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        -- BaseAttackTime, from 1216 to 2000.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0, `base_attack_time` = 2000 WHERE (`entry` = 3838);
+        -- Entry: 2948
+        -- Name: Mull Thunderhorn
+        -- Faction, from 105 to 83.
+        UPDATE `creature_template` SET `faction` = 83 WHERE (`entry` = 2948);
+        -- Entry: 3064
+        -- Name: Gennia Runetotem
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3064);
+        -- Entry: 3066
+        -- Name: Narm Skychaser
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3066);
+        -- Entry: 3054
+        -- Name: Zarlman Two-Moons
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3054);
+        -- Entry: 2983
+        -- Name: The Plains Vision
+        -- Scale, from 0.0 to 0.8.
+        UPDATE `creature_template` SET `scale` = 0.8 WHERE (`entry` = 2983);
+        -- Entry: 2993
+        -- Name: Baine Bloodhoof
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 2993);
+        -- Entry: 3052
+        -- Name: Skorn Whitecloud
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3052);
+        -- Entry: 10050
+        -- Name: Seikwa
+        -- Faction, from 85 to 29.
+        UPDATE `creature_template` SET `faction` = 29 WHERE (`entry` = 10050);
+        -- Entry: 3055
+        -- Name: Maur Raincaller
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3055);
+        -- Entry: 2620
+        -- Name: Prairie Dog
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 2620);
+        -- Entry: 3063
+        -- Name: Krang Stonehoof
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3063);
+        -- Entry: 2985
+        -- Name: Ruul Eagletalon
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 2985);
+        -- Entry: 6776
+        -- Name: Magrin Rivermane
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 6776);
+        -- Entry: 3079
+        -- Name: Varg Windwhisper
+        -- Faction, from 105 to 104.
+        -- Scale, from 1.35 to 1.25.
+        UPDATE `creature_template` SET `faction` = 104, `scale` = 1.25 WHERE (`entry` = 3079);
+        -- Entry: 5939
+        -- Name: Vira Younghoof
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 5939);
+        -- Entry: 3077
+        -- Name: Mahnott Roughwound
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3077);
+        -- Entry: 3080
+        -- Name: Harant Ironbrace
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3080);
+        -- Entry: 3884
+        -- Name: Jhawna Oatwind
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3884);
+        -- Entry: 3065
+        -- Name: Yaw Sharpmane
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3065);
+        -- Entry: 5940
+        -- Name: Harn Longcast
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 5940);
+        -- Entry: 3448
+        -- Name: Tonga Runetotem
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3448);
+        -- Entry: 3487
+        -- Name: Kalyimah Stormcloud
+        -- Faction, from 125 to 29.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 29, `scale` = 1.0 WHERE (`entry` = 3487);
+        -- Entry: 3123
+        -- Name: Bloodtalon Scythemaw
+        -- Faction, from 48 to 14.
+        -- Scale, from 0.0 to 0.65.
+        UPDATE `creature_template` SET `faction` = 14, `scale` = 0.65 WHERE (`entry` = 3123);
+        -- Entry: 4166
+        -- Name: Gazelle
+        -- Scale, from 0.0 to 0.9.
+        UPDATE `creature_template` SET `scale` = 0.9 WHERE (`entry` = 4166);
+        -- Entry: 3338
+        -- Name: Sergra Darkthorn
+        -- Min Level, from 60 to 34.
+        -- Faction, from 85 to 83.
+        -- Scale, from 0.0 to 1.0.
+        -- BaseAttackTime, from 1391 to 2000.
+        UPDATE `creature_template` SET `min_level` = 34, `faction` = 83, `scale` = 1.0, `base_attack_time` = 2000 WHERE (`entry` = 3338);
+        -- Entry: 3501
+        -- Name: Horde Guard
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 3501);
+        -- Entry: 3484
+        -- Name: Kil'hala
+        -- Min Level, from 25 to 15.
+        -- Faction, from 125 to 29.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `min_level` = 15, `faction` = 29, `scale` = 1.0 WHERE (`entry` = 3484);
+        -- Entry: 3485
+        -- Name: Wrahk
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 3485);
+        -- Entry: 3244
+        -- Name: Greater Plainstrider
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 3244);
+        -- Entry: 1860
+        -- Name: Voidwalker
+        -- Min Level, from 17 to 12.
+        -- Scale, from 0.0 to 0.8.
+        UPDATE `creature_template` SET `min_level` = 12, `scale` = 0.8 WHERE (`entry` = 1860);
+        -- Entry: 3035
+        -- Name: Flatland Cougar
+        -- Scale, from 0.0 to 1.1.
+        UPDATE `creature_template` SET `scale` = 1.1 WHERE (`entry` = 3035);
+        -- Entry: 3433
+        -- Name: Tatternack Steelforge
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 3433);
+        -- Entry: 3243
+        -- Name: Savannah Highmane
+        -- Scale, from 0.0 to 1.1.
+        -- RangedAttackTime, from 2000 to 1500.
+        UPDATE `creature_template` SET `scale` = 1.1, `ranged_attack_time` = 1500 WHERE (`entry` = 3243);
+        -- Entry: 1934
+        -- Name: Tirisfal Farmer
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2000 to 3200.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 3200 WHERE (`entry` = 1934);
+        -- Entry: 1547
+        -- Name: Decrepit Darkhound
+        -- Scale, from 0.0 to 0.75.
+        UPDATE `creature_template` SET `scale` = 0.75 WHERE (`entry` = 1547);
+        -- Entry: 1553
+        -- Name: Greater Duskbat
+        -- Scale, from 0.42 to 0.55.
+        UPDATE `creature_template` SET `scale` = 0.55 WHERE (`entry` = 1553);
+        -- Entry: 1935
+        -- Name: Tirisfal Farmhand
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2000 to 3200.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 3200 WHERE (`entry` = 1935);
+        -- Entry: 620
+        -- Name: Chicken
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 620);
+        -- Entry: 1535
+        -- Name: Scarlet Warrior
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 1535);
+        -- Entry: 1548
+        -- Name: Cursed Darkhound
+        -- Scale, from 0.0 to 0.9.
+        UPDATE `creature_template` SET `scale` = 0.9 WHERE (`entry` = 1548);
+        -- Entry: 1742
+        -- Name: Deathguard Bartholomew
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 1742);
+        -- Entry: 1496
+        -- Name: Deathguard Dillinger
+        -- Faction, from 71 to 68.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0 WHERE (`entry` = 1496);
+        -- Entry: 4075
+        -- Name: Rat
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 4075);
+        -- Entry: 2314
+        -- Name: Sahvan Bloodshadow
+        -- Faction, from 71 to 68.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0 WHERE (`entry` = 2314);
+        -- Entry: 8398
+        -- Name: Ohanko
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 8398);
+        -- Entry: 3021
+        -- Name: Kard Ragetotem
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3021);
+        -- Entry: 3023
+        -- Name: Sura Wildmane
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3023);
+        -- Entry: 3020
+        -- Name: Etu Ragetotem
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3020);
+        -- Entry: 5189
+        -- Name: Thrumn
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 5189);
+        -- Entry: 2996
+        -- Name: Torn
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 2996);
+        -- Entry: 3003
+        -- Name: Fyr Mistrunner
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 3003);
+        -- Entry: 8356
+        -- Name: Chesmu
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 8356);
+        -- Entry: 8364
+        -- Name: Pakwa
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 8364);
+        -- Entry: 8360
+        -- Name: Elki
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 8360);
+        -- Entry: 8363
+        -- Name: Shadi Mistrunner
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 8363);
+        -- Entry: 3084
+        -- Name: Bluffwatcher
+        -- BaseAttackTime, from 1600 to 2000.
+        UPDATE `creature_template` SET `base_attack_time` = 2000 WHERE (`entry` = 3084);
+        -- Entry: 8359
+        -- Name: Ahanu
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 8359);
+        -- Entry: 8358
+        -- Name: Hewa
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 8358);
+        -- Entry: 8362
+        -- Name: Kuruk
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 8362);
+        -- Entry: 2999
+        -- Name: Taur Stonehoof
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 2999);
+        -- Entry: 8357
+        -- Name: Atepa
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 8357);
+        -- Entry: 2997
+        -- Name: Jyn Stonehoof
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 2997);
+        -- Entry: 10054
+        -- Name: Bulrug
+        -- Scale, from 1.48 to 1.49.
+        UPDATE `creature_template` SET `scale` = 1.49 WHERE (`entry` = 10054);
+        -- Entry: 5054
+        -- Name: Krumn
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 5054);
+        -- Entry: 2998
+        -- Name: Karn Stonehoof
+        -- Faction, from 105 to 104.
+        UPDATE `creature_template` SET `faction` = 104 WHERE (`entry` = 2998);
+        -- Entry: 4455
+        -- Name: Red Jack Flint
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 4455);
+        -- Entry: 1571
+        -- Name: Shellei Brondir
+        -- Scale, from 0.0 to 1.0.
+        -- BaseAttackTime, from 1216 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `base_attack_time` = 2000 WHERE (`entry` = 1571);
+        -- Entry: 3178
+        -- Name: Stuart Fleming
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2000 to 1500.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 1500 WHERE (`entry` = 3178);
+        -- Entry: 2099
+        -- Name: Maiden's Virtue Crewman
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 2099);
+        -- Entry: 3179
+        -- Name: Harold Riggs
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2000 to 1500.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 1500 WHERE (`entry` = 3179);
+        -- Entry: 1481
+        -- Name: Bart Tidewater
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 1481);
+        -- Entry: 1242
+        -- Name: Karl Boran
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 1242);
+        -- Entry: 1434
+        -- Name: Menethil Sentry
+        -- Min Level, from 41 to 38.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `min_level` = 38, `scale` = 1.0 WHERE (`entry` = 1434);
+        -- Entry: 1483
+        -- Name: Murphy West
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 1483);
+        -- Entry: 1451
+        -- Name: Camerick Jongleur
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2000 to 1500.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 1500 WHERE (`entry` = 1451);
+        -- Entry: 2094
+        -- Name: James Halloran
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2000 to 1500.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 1500 WHERE (`entry` = 2094);
+        -- Entry: 1420
+        -- Name: Toad
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 1420);
+        -- Entry: 1453
+        -- Name: Dewin Shimmerdawn
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2000 to 1500.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 1500 WHERE (`entry` = 1453);
+        -- Entry: 1454
+        -- Name: Jennabink Powerseam
+        -- Faction, from 64 to 12.
+        -- RangedAttackTime, from 2000 to 1500.
+        UPDATE `creature_template` SET `faction` = 12, `ranged_attack_time` = 1500 WHERE (`entry` = 1454);
+        -- Entry: 2104
+        -- Name: Captain Stoutfist
+        -- Faction, from 57 to 55.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 55, `scale` = 1.0 WHERE (`entry` = 2104);
+        -- Entry: 1463
+        -- Name: Falkan Armonis
+        -- Faction, from 11 to 12.
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2000 to 1500.
+        UPDATE `creature_template` SET `faction` = 12, `scale` = 1.0, `ranged_attack_time` = 1500 WHERE (`entry` = 1463);
+        -- Entry: 1458
+        -- Name: Telurinon Moonshadow
+        -- Faction, from 57 to 55.
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2000 to 1500.
+        UPDATE `creature_template` SET `faction` = 55, `scale` = 1.0, `ranged_attack_time` = 1500 WHERE (`entry` = 1458);
+        -- Entry: 1482
+        -- Name: Andrea Halloran
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 1482);
+        -- Entry: 2052
+        -- Name: Nag
+        -- Faction, from 0 to 35.
+        -- BaseAttackTime, from 0 to 2000.
+        -- RangedAttackTime, from 0 to 2000.
+        UPDATE `creature_template` SET `faction` = 35, `base_attack_time` = 2000, `ranged_attack_time` = 2000 WHERE (`entry` = 2052);
+        -- Entry: 1437
+        -- Name: Thomas Booker
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 1437);
+        -- Entry: 1445
+        -- Name: Jesse Halloran
+        -- Faction, from 11 to 12.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 12, `scale` = 1.0 WHERE (`entry` = 1445);
+        -- Entry: 5186
+        -- Name: Basking Shark
+        -- Min Level, from 41 to 38.
+        -- Scale, from 0.0 to 1.0.
+        -- BaseAttackTime, from 1333 to 2000.
+        UPDATE `creature_template` SET `min_level` = 38, `scale` = 1.0, `base_attack_time` = 2000 WHERE (`entry` = 5186);
+        -- Entry: 3681
+        -- Name: Wisp
+        -- Faction, from 79 to 84.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 84, `scale` = 1.0 WHERE (`entry` = 3681);
+        -- Entry: 1412
+        -- Name: Squirrel
+        -- Scale, from 0.0 to 1.3.
+        UPDATE `creature_template` SET `scale` = 1.3 WHERE (`entry` = 1412);
+        -- Entry: 7316
+        -- Name: Sister Aquinne
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 7316);
+        -- Entry: 4262
+        -- Name: Darnassus Sentinel
+        -- Scale, from 0.0 to 1.0.
+        -- BaseAttackTime, from 1600 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `base_attack_time` = 2000 WHERE (`entry` = 4262);
+        -- Entry: 883
+        -- Name: Deer
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 883);
+        -- Entry: 7916
+        -- Name: Erelas Ambersky
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 7916);
+        -- Entry: 7907
+        -- Name: Daryn Lightwind
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 80, `scale` = 1.0 WHERE (`entry` = 7907);
+        -- Entry: 4208
+        -- Name: Lairn
+        -- Min Level, from 45 to 35.
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `min_level` = 35, `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4208);
+        -- Entry: 4155
+        -- Name: Idriana
+        -- Min Level, from 45 to 35.
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `min_level` = 35, `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4155);
+        -- Entry: 4209
+        -- Name: Garryeth
+        -- Min Level, from 45 to 35.
+        -- Faction, from 79 to 80.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `min_level` = 35, `faction` = 80, `scale` = 1.0 WHERE (`entry` = 4209);
+        -- Entry: 3116
+        -- Name: Dustwind Pillager
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 3116);
+        -- Entry: 3126
+        -- Name: Armored Scorpid
+        -- Faction, from 60 to 16.
+        -- Scale, from 0.0 to 0.9.
+        UPDATE `creature_template` SET `faction` = 16, `scale` = 0.9 WHERE (`entry` = 3126);
+        -- Entry: 3118
+        -- Name: Dustwind Storm Witch
+         -- Scale, from 0.0 to 1.1.
+        -- RangedAttackTime, from 2046 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.1, `ranged_attack_time` = 2000 WHERE (`entry` = 3118);
+        -- Entry: 3122
+        -- Name: Bloodtalon Taillasher
+        -- Faction, from 48 to 14.
+        -- Scale, from 0.0 to 0.55.
+        UPDATE `creature_template` SET `faction` = 14, `scale` = 0.55 WHERE (`entry` = 3122);
+        -- Entry: 3127
+        -- Name: Venomtail Scorpid
+        -- Faction, from 60 to 16.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 16, `scale` = 1.0 WHERE (`entry` = 3127);
+        -- Entry: 3100
+        -- Name: Elder Mottled Boar
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 3100);
+        -- Entry: 3099
+        -- Name: Dire Mottled Boar
+        -- Scale, from 0.0 to 0.75.
+        -- RangedAttackTime, from 2101 to 2000.
+        UPDATE `creature_template` SET `scale` = 0.75, `ranged_attack_time` = 2000 WHERE (`entry` = 3099);
+        -- Entry: 3226
+        -- Name: Corrupted Scorpid
+        -- Faction, from 60 to 14.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 14, `scale` = 1.0 WHERE (`entry` = 3226);
+        -- Entry: 3300
+        -- Name: Adder
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 3300);
+        -- Entry: 9564
+        -- Name: Frezza
+        -- Faction, from 29 to 69.
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 1716 to 1000.
+        UPDATE `creature_template` SET `faction` = 69, `scale` = 1.0, `ranged_attack_time` = 1000 WHERE (`entry` = 9564);
+        -- Entry: 5953
+        -- Name: Razor Hill Grunt
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 1782 to 2000.
+        UPDATE `creature_template` SET `scale` = 1.0, `ranged_attack_time` = 2000 WHERE (`entry` = 5953);
+        -- Entry: 5951
+        -- Name: Hare
+        -- Scale, from 0.0 to 0.75.
+        UPDATE `creature_template` SET `scale` = 0.75 WHERE (`entry` = 5951);
+        -- Entry: 3110
+        -- Name: Dreadmaw Crocolisk
+        -- Scale, from 0.0 to 0.5.
+        UPDATE `creature_template` SET `scale` = 0.5 WHERE (`entry` = 3110);
+        -- Entry: 2959
+        -- Name: Prairie Stalker
+        -- Scale, from 0.0 to 0.9.
+        -- RangedAttackTime, from 2000 to 1500.
+        UPDATE `creature_template` SET `scale` = 0.9, `ranged_attack_time` = 1500 WHERE (`entry` = 2959);
+        -- Entry: 1554
+        -- Name: Vampiric Duskbat
+        -- Scale, from 0.44 to 0.57.
+        UPDATE `creature_template` SET `scale` = 0.57 WHERE (`entry` = 1554);
+        -- Entry: 3150
+        -- Name: Hin Denburg
+        -- Faction, from 29 to 68.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0 WHERE (`entry` = 3150);
+        -- Entry: 9566
+        -- Name: Zapetta
+        -- Faction, from 29 to 69.
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2000 to 1000.
+        UPDATE `creature_template` SET `faction` = 69, `scale` = 1.0, `ranged_attack_time` = 1000 WHERE (`entry` = 9566);
+        -- Entry: 721
+        -- Name: Rabbit
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 721);
+        -- Entry: 5724
+        -- Name: Ageron Kargal
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 5724);
+        -- Entry: 1521
+        -- Name: Gretchen Dedmar
+        -- Faction, from 71 to 68.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0 WHERE (`entry` = 1521);
+        -- Entry: 1560
+        -- Name: Yvette Farthing
+        -- Faction, from 71 to 68.
+        -- Scale, from 0.0 to 1.0.
+        -- RangedAttackTime, from 2000 to 1500.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0, `ranged_attack_time` = 1500 WHERE (`entry` = 1560);
+        -- Entry: 2131
+        -- Name: Austil de Mon
+        -- Faction, from 71 to 68.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0 WHERE (`entry` = 2131);
+        -- Entry: 2127
+        -- Name: Rupert Boch
+        -- Faction, from 71 to 68.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0 WHERE (`entry` = 2127);
+        -- Entry: 5759
+        -- Name: Nurse Neela
+        -- Faction, from 71 to 68.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0 WHERE (`entry` = 5759);
+        -- Entry: 5750
+        -- Name: Gina Lang
+        -- Faction, from 71 to 68.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0 WHERE (`entry` = 5750);
+        -- Entry: 2128
+        -- Name: Cain Firesong
+        -- Faction, from 71 to 68.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0 WHERE (`entry` = 2128);
+        -- Entry: 1744
+        -- Name: Deathguard Mort
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `scale` = 1.0 WHERE (`entry` = 1744);
+        -- Entry: 3547
+        -- Name: Hamlin Atkins
+        -- Faction, from 71 to 68.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0 WHERE (`entry` = 3547);
+        -- Entry: 2134
+        -- Name: Mrs. Winters
+        -- Faction, from 71 to 68.
+        -- Scale, from 0.0 to 1.0.
+        UPDATE `creature_template` SET `faction` = 68, `scale` = 1.0 WHERE (`entry` = 2134);
+
+        
+        -- Reversed Creature Item display Id's from UNIT_VIRTUAL_ITEM_SLOT_DISPLAY field.
+
+
+        -- Item Entry: 1907
+        -- Name: Monster - Staff, Basic
+        -- DisplayID, from 10654 to 1599
+        UPDATE `item_template` SET `display_id` = 1599 WHERE (`entry` = 1907);
+        -- Item Entry: 12297
+        -- Name: Monster - Sword, Horde Jagged Brown
+        -- DisplayID, from 22366 to 7483
+        UPDATE `item_template` SET `display_id` = 7483 WHERE (`entry` = 12297);
+        -- Item Entry: 12285
+        -- Name: Monster - Axe, 2H Rev. Bearded Single Bladed - Red
+        -- DisplayID, from 18607 to 5128
+        UPDATE `item_template` SET `display_id` = 5128 WHERE (`entry` = 12285);
+        -- Item Entry: 12889
+        -- Name: Monster - Sword2H, Horde Curved Black
+        -- DisplayID, from 23379 to 7490
+        UPDATE `item_template` SET `display_id` = 7490 WHERE (`entry` = 12889);
+        -- Item Entry: 10878
+        -- Name: Monster - Sword, Horde Jagged Green
+        -- DisplayID, from 20036 to 5176
+        UPDATE `item_template` SET `display_id` = 5176 WHERE (`entry` = 10878);
+        -- Item Entry: 9659
+        -- Name: Monster - Mace, Tauren Spiked
+        -- DisplayID, from 18583 to 7477
+        UPDATE `item_template` SET `display_id` = 7477 WHERE (`entry` = 9659);
+        -- Item Entry: 12754
+        -- Name: Monster - Axe, 2H War Green - Mulgore Protector
+        -- DisplayID, from 23198 to 3797
+        UPDATE `item_template` SET `display_id` = 3797 WHERE (`entry` = 12754);
+        -- Item Entry: 11343
+        -- Name: Monster - Staff, Jeweled Red Staff
+        -- DisplayID, from 21251 to 1599
+        UPDATE `item_template` SET `display_id` = 1599 WHERE (`entry` = 11343);
+        -- Item Entry: 5277
+        -- Name: Monster - Staff, Metal /w Spike Crystal
+        -- DisplayID, from 5542 to 1599
+        UPDATE `item_template` SET `display_id` = 1599 WHERE (`entry` = 5277);
+
+        insert into applied_updates values ('060720221');
+    end if;
+
 end $
 delimiter ;
