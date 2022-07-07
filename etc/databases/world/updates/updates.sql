@@ -6035,7 +6035,7 @@ begin not atomic
         -- Min Level, from 55 to 20.
         -- Max Level, from 55 to 20.
         -- Scale, from 0.0 to 1.0.
-        UPDATE `creature_template` SET `levevl_min` = 20, `level_max` = 20, `scale` = 1.0 WHERE (`entry` = 3571);
+        UPDATE `creature_template` SET `level_min` = 20, `level_max` = 20, `scale` = 1.0 WHERE (`entry` = 3571);
         -- Entry: 3838
         -- Name: Vesprystus
         -- Faction, from 79 to 80.
