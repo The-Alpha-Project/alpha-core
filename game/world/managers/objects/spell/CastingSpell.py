@@ -79,9 +79,6 @@ class CastingSpell:
             self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(
                 self.spell_caster, selection_guid, include_players=True)
 
-        # Need effects first, to validate fishing spell.
-        self.load_effects()
-
         if self.is_fishing_spell():
             # Locate liquid vector in front of the caster.
             self.initial_target = MapManager.find_liquid_location_in_range(self.spell_caster,
@@ -93,6 +90,8 @@ class CastingSpell:
         self.used_ranged_attack_item = self.get_ammo_for_cast()
         if self.used_ranged_attack_item:
             self.cast_flags |= SpellCastFlags.CAST_FLAG_HAS_AMMO
+
+        self.load_effects()
 
     def initial_target_is_object(self):
         return isinstance(self.initial_target, ObjectManager)
@@ -196,12 +195,12 @@ class CastingSpell:
 
     def requires_implicit_initial_unit_target(self):
         # Some spells are self casts, but require an implicit unit target when casted.
-
         if self.spell_target_mask != SpellTargetMask.SELF:
             return False
 
-        if self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNEL_TRACK_TARGET:
-            # Only arcane missiles, but this attribute implies a required unit target.
+        # Self casts that require an unit target for other effects (arcane missiles).
+        if self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF and \
+                self.spell_entry.ImplicitTargetA_2 == 6:
             return True
 
         # Return true if the effect has an implicit unit selection target.
@@ -210,11 +209,8 @@ class CastingSpell:
     def has_spell_visual_pre_cast_kit(self):
         return self.spell_visual_entry and self.spell_visual_entry.PrecastKit > 0
 
-    # Need to check both, flag and effect target, else some other spells like pick pocket resolves to fishing.
     def is_fishing_spell(self):
-        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IS_FISHING and \
-            any(effect.implicit_target_a == SpellImplicitTargets.TARGET_SELF_FISHING or
-                effect.implicit_target_b == SpellImplicitTargets.TARGET_SELF_FISHING for effect in self.get_effects())
+        return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF_FISHING
 
     def is_pick_pocket_spell(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH

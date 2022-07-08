@@ -53,11 +53,11 @@ class EffectTargets:
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
         target_is_item = self.casting_spell.initial_target_is_item()
 
-        target_is_friendly = not self.casting_spell.is_fishing_spell() and not caster_is_gameobject \
+        target_is_friendly = not caster_is_gameobject \
             and self.casting_spell.initial_target_is_unit_or_player() and not \
             caster.can_attack_target(self.casting_spell.initial_target)
 
-        targeted_unit_is_hostile = not self.casting_spell.is_fishing_spell() and not caster_is_gameobject and \
+        targeted_unit_is_hostile = not caster_is_gameobject and \
             self.casting_spell.requires_implicit_initial_unit_target() and \
             caster.can_attack_target(self.casting_spell.targeted_unit_on_cast_start)
 
