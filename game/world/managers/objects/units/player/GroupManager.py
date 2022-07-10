@@ -277,6 +277,11 @@ class GroupManager(object):
     def get_surrounding_members(self, player):
         return [m for m in MapManager.get_surrounding_players(player).values() if m.guid in self.members]
 
+    def reward_group_reputation(self, player, creature):
+        surrounding_members = self.get_surrounding_members(player)
+        for member in surrounding_members:
+            member.reward_reputation_on_kill(creature)
+
     def reward_group_money(self, looter, creature):
         surrounding_members = self.get_surrounding_members(looter)
         if int(creature.loot_manager.current_money / len(surrounding_members)) < 1:

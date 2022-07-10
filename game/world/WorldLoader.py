@@ -45,7 +45,6 @@ class WorldLoader:
 
         # Creature spawns
         if config.Server.Settings.load_creatures:
-
             WorldLoader.load_creature_equip_templates()
             WorldLoader.load_creatures()
             WorldLoader.load_creature_quest_starters()

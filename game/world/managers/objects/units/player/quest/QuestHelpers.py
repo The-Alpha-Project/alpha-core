@@ -83,3 +83,13 @@ class QuestHelpers:
     @staticmethod
     def generate_objective_text_list(quest_template):
         return [quest_template.ObjectiveText1, quest_template.ObjectiveText2, quest_template.ObjectiveText3, quest_template.ObjectiveText4]
+
+    @staticmethod
+    def generate_rew_faction_reputation_list(quest_template):
+        return [quest_template.RewRepFaction1, quest_template.RewRepFaction2, quest_template.RewRepFaction3,
+                quest_template.RewRepFaction4, quest_template.RewRepFaction5]
+
+    @staticmethod
+    def generate_rew_faction_reputation_gain_list(quest_template):
+        return [quest_template.RewRepValue1, quest_template.RewRepValue2, quest_template.RewRepValue3,
+                quest_template.RewRepValue4, quest_template.RewRepValue5]
