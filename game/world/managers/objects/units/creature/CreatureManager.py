@@ -28,7 +28,7 @@ from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes,
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates
+    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, Teams
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -821,11 +821,13 @@ class CreatureManager(UnitManager):
 
             self.reward_kill_xp(killer)
             self.killed_by = killer
-            # If the player/group requires the kill, reward it to them.
+            # Handle required creature or go for quests and reputation.
             if self.killed_by.group_manager:
+                self.killed_by.group_manager.reward_group_reputation(self.killed_by, self)
                 self.killed_by.group_manager.reward_group_creature_or_go(self.killed_by, self)
             else:
-                # Reward quest creature to player with killing blow.
+                # Reward required creature or go and reputation to the player with the killing blow.
+                self.killed_by.reward_reputation_on_kill(self)
                 self.killed_by.quest_manager.reward_creature_or_go(self)
 
             # If the player is in a group, set the group as allowed looters if needed.

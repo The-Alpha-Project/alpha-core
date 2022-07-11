@@ -806,6 +806,7 @@ class QuestManager(object):
 
         given_xp = active_quest.reward_xp()
         given_gold = active_quest.reward_gold()
+        active_quest.reward_reputation()
 
         # Update db quest status to rewarded.
         active_quest.update_quest_status(rewarded=True)

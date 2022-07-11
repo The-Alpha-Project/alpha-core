@@ -988,8 +988,8 @@ class SpellManager:
         power_cost = casting_spell.get_resource_cost()
         has_correct_power = self.caster.power_type == casting_spell.spell_entry.PowerType or has_health_cost
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
-        # Non players are able to cast spells even if they lack the required power.
-        ignore_wrong_power = not is_player
+        # Items like scrolls or Non players are able to cast spells even if they lack the required power.
+        ignore_wrong_power = not is_player or casting_spell.source_item
 
         if not has_health_cost and power_cost and not has_correct_power and not ignore_wrong_power:
             # Doesn't have the correct power type.

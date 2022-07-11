@@ -1,5 +1,6 @@
 import math
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from utils.constants.MiscCodes import ReputationSourceGain
 
 
 class Distances:
@@ -93,6 +94,45 @@ class UnitFormulas(object):
 
 
 class PlayerFormulas:
+
+    @staticmethod
+    def calculate_reputation_gain(player, reputation_source, reputation_qty, creature_or_quest_level):
+        percent = 100.0
+        config_rate_reputation_gain = 1.0  # TODO, configurable.
+        diff_level = 0
+
+        if reputation_source == ReputationSourceGain.REPUTATION_SOURCE_KILL:
+            rate = 1.0  # TODO, configurable.
+        elif reputation_source == ReputationSourceGain.REPUTATION_SOURCE_QUEST:
+            rate = 1.0  # TODO, configurable.
+            if player.level >= creature_or_quest_level + 5:
+                diff_level = player.level - creature_or_quest_level - 5
+            else:
+                diff_level = 0
+        else:
+            rate = 1.0
+
+        if diff_level == 0:
+            diff_level_rate = 1.0
+        elif diff_level == 1:
+            diff_level_rate = 0.8
+        elif diff_level == 2:
+            diff_level_rate = 0.6
+        elif diff_level == 3:
+            diff_level_rate = 0.4
+        else:
+            diff_level_rate = 0.2
+
+        if reputation_source == ReputationSourceGain.REPUTATION_SOURCE_QUEST:
+            percent += diff_level_rate
+
+        if rate != 1.0 and creature_or_quest_level <= PlayerFormulas.get_gray_level(player.level):
+            percent *= rate
+
+        if percent <= 0:
+            return 0
+
+        return int(round(config_rate_reputation_gain * reputation_qty * percent / 100.0))
 
     @staticmethod
     def get_gray_level(player_level):

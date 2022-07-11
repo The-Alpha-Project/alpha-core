@@ -472,6 +472,13 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    @staticmethod
+    def creature_get_reputation_on_kill_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureOnkillReputation).filter_by(creature_id=entry).first()
+        world_db_session.close()
+        return res
+
     # Quest stuff.
 
     class QuestRelationHolder:

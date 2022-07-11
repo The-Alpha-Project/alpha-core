@@ -1,4 +1,4 @@
-from random import uniform, randint
+from random import uniform, randint, shuffle
 
 
 class LootManager(object):
@@ -20,15 +20,7 @@ class LootManager(object):
     # Generates a complete dictionary { group_id : items }, includes referenced loot items.
     def generate_loot_groups(self, loot_template):
         loot_groups = {}
-        loot_items = []
-        for loot_item in loot_template:
-            # Handle referenced loot template.
-            if loot_item.mincountOrRef < 0:
-                loot_items += self._fill_referenced_loot(-loot_item.mincountOrRef)
-            # Handle normal loot items.
-            else:
-                loot_items.append(loot_item)
-
+        loot_items = self._fill_loot_items(loot_template)
         for loot_item in loot_items:
             if loot_item.groupid not in loot_groups:
                 loot_groups[loot_item.groupid] = []
@@ -36,28 +28,40 @@ class LootManager(object):
 
         return loot_groups
 
-    def _fill_referenced_loot(self, loot_id):
+    def _fill_loot_items(self, loot_template) -> list:
         from game.world.managers.objects.loot.LootMapper import LootMapper
-        loot_template = LootMapper.find_loot_by_loot_id(loot_id)
-        if loot_template:
-            # Loop through, there might be more nested referenced loot templates.
-            return self.generate_loot_groups(loot_template)
-        return []
+        loot_items = []
+        for loot_item in loot_template:
+            # Handle referenced loot template.
+            if loot_item.mincountOrRef < 0:
+                ref_loot_template = LootMapper.find_loot_by_loot_id(-loot_item.mincountOrRef)
+                if ref_loot_template:
+                    loot_items += self._fill_loot_items(ref_loot_template)
+            # Handle normal loot items.
+            else:
+                loot_items.append(loot_item)
+        return loot_items
 
     # Returns the final list of items available for looting.
     def process_loot_groups(self, loot_groups, requester) -> list:
         loot_item_result = []
         for group, loot_group_items in loot_groups.items():
             loot_item_result += self.process_loot_group(loot_group_items, requester)
+
         return loot_item_result
 
     def process_loot_group(self, group_loot_items: list, requester):
         loot_item_result = []
+        shuffle(group_loot_items)
+
         for loot_item in group_loot_items:
             if self.skip_quest_item(loot_item, requester):
                 continue
+
             if self.roll_item(loot_item):
-                loot_item_result.append(loot_item)
+                if len(loot_item_result) == 0 or loot_item.ChanceOrQuestChance < 0:
+                    loot_item_result.append(loot_item)
+
         return loot_item_result
 
     # noinspection PyMethodMayBeStatic
