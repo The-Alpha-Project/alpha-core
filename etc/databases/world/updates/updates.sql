@@ -7264,6 +7264,7 @@ begin not atomic
         (2606,471,0,7,0,25,0,0,0,1);
 
         insert into applied_updates values ('090720221');
+    end if;
 
     -- 09/06/2022 1
     if (select count(*) from applied_updates where id='090620221') = 0 then
@@ -7283,6 +7284,5 @@ begin not atomic
 
         insert into applied_updates values ('090620221');
     end if;
-
 end $
 delimiter ;
