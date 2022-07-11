@@ -6664,5 +6664,21 @@ begin not atomic
         insert into applied_updates values ('060720221');
     end if;
 
+    -- 09/06/2022
+
+    -- William pestle
+    -- --------------
+    -- update display_id
+    UPDATE `creature_template` SET `display_id1` = '1689' WHERE (`entry` = '253');
+
+    -- Innkeeper Farley
+    -- ----------------
+    -- add broom
+    INSERT INTO `creature_equip_template` (`entry`, `equipentry1`) VALUES ('295', '3362');
+    UPDATE `creature_template` SET `equipment_id` = '295' WHERE (entry = '295');
+
+    -- update position
+    UPDATE `spawns_creatures` SET `position_x` = '-9459.490', `position_y` = '27.452', `position_z` = '56.339', `orientation` = '3.081' WHERE (`spawn_id` = '80346');
+
 end $
 delimiter ;
