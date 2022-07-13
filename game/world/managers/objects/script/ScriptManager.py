@@ -20,16 +20,16 @@ class ScriptManager:
                     return caster.combat_target
         elif target_type == ScriptTarget.TARGET_T_HOSTILE_SECOND_AGGRO:
             if ScriptManager._validate_is_unit(caster):
-                return caster.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_TOPAGGRO)
+                return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_TOPAGGRO)
         elif target_type == ScriptTarget.TARGET_T_HOSTILE_LAST_AGGRO:
             if ScriptManager._validate_is_unit(caster):
-                return caster.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO)
+                return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO)
         elif target_type == ScriptTarget.TARGET_T_HOSTILE_RANDOM:
             if ScriptManager._validate_is_unit(caster):
-                return caster.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_RANDOM)
+                return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_RANDOM)
         elif target_type == ScriptTarget.TARGET_T_HOSTILE_RANDOM_NOT_TOP:
             if ScriptManager._validate_is_unit(caster):
-                return caster.ThreatManager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP)
+                return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP)
         elif target_type == ScriptTarget.TARGET_T_OWNER_OR_SELF:
             # TODO
             #  return source.get_charmer_or_self()
