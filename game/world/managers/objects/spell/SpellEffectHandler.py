@@ -613,6 +613,9 @@ class SpellEffectHandler:
         # Apply permanent enchantment.
         owner_player.enchantment_manager.set_item_enchantment(target, enchantment_slot, effect.misc_value,
                                                               duration, charges)
+
+        caster.skill_manager.handle_profession_skill_gain_chance(casting_spell.spell_entry.ID)
+
         # Save item.
         target.save()
 

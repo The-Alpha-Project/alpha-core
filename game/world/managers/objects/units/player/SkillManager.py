@@ -411,12 +411,19 @@ class SkillManager(object):
 
         return True
 
-    def handle_craft_skill_gain(self, skill_type):
-        skill = self.skills.get(skill_type, None)
-        if not skill:
+    def handle_profession_skill_gain_chance(self, spell_id):
+        skill_template = self.get_skill_for_spell_id(spell_id)
+        if not skill_template:
             return False
 
-        self.set_skill(skill_type, skill.value + 1)
+        if skill_template.ID not in self.skills:
+            return False
+
+        skill = self.skills[skill_template.ID]
+
+        # TODO Roll profession skill gain chance - currently skill is always gained.
+
+        self.set_skill(skill_template.ID, skill.value + 1)
         self.build_update()
         return True
 

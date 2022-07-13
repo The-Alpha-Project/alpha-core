@@ -236,10 +236,6 @@ class SpellManager:
             if casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
                 self.remove_cast(casting_spell)
 
-        # Handle enchanting skill gain here for now.
-        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and casting_spell.is_enchantment_spell():
-            self.caster.skill_manager.handle_craft_skill_gain(SkillTypes.ENCHANTING)
-
         self.set_on_cooldown(casting_spell)
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 

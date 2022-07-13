@@ -39,6 +39,22 @@ class TradeData(object):
         # Update the proposed enchant.
         self.proposed_enchantment.set_enchantment(trade_slot, spell_id, enchantment_slot, entry, duration, charges)
 
+    def apply_proposed_enchant(self):
+        if not self.proposed_enchantment.is_valid():
+            return
+
+        item = self.other_player.trade_data.get_item_by_slot(self.proposed_enchantment.trade_slot)
+        if not item:
+            return
+
+        self.player.enchantment_manager.set_item_enchantment(item,
+                                                             self.proposed_enchantment.enchantment_slot,
+                                                             self.proposed_enchantment.enchantment_entry,
+                                                             self.proposed_enchantment.duration,
+                                                             self.proposed_enchantment.charges)
+
+        self.player.skill_manager.handle_profession_skill_gain_chance(self.proposed_enchantment.spell_id)
+
     def set_item(self, slot, item):
         if self.items[slot] and self.items[slot] == item:
             return
