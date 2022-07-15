@@ -7285,8 +7285,8 @@ begin not atomic
         insert into applied_updates values ('090620221');
     end if;
 
-    -- 14/07/2022 1
-    if (select count(*) from applied_updates where id='140720221') = 0 then
+    -- 15/07/2022 1
+    if (select count(*) from applied_updates where id='150720221') = 0 then
         -- Zardeth of the Black Claw
         -- -------------------------
         -- add dagger
@@ -7294,19 +7294,15 @@ begin not atomic
 
         -- Goldshire Inn
         -- ------------
-        -- add wooden chair
-        INSERT INTO `gameobject_template` (`type`, `displayId`, `name`, `size`, `data0`, `data1`) VALUE ('7', '39', "wooden chair", '1', '1', '1');
-
-        SET @wooden_chair_140720221 := LAST_INSERT_ID();
-
-        INSERT INTO `spawns_gameobjects` (`spawn_entry`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`) VALUE (@wooden_chair_140720221, '-9461.616', '27.120', '56.339', '3.542', '900', '900', '100', '1');
+        -- update wooden chair
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-9461.616', `spawn_positionY` = '27.120', `spawn_positionZ` = '56.339' , `spawn_orientation` = '3.542', `ignored` = '0', `spawn_rotation2` = '0', `spawn_rotation3` = '0' WHERE (`spawn_id` = '26800');
 
         -- Innkeeper Farley
         -- ----------------
         -- update position
         UPDATE `spawns_creatures` SET `position_x` = '-9459.692', `position_y` = '28.115', `position_z` = '56.339', `orientation` = '2.975' WHERE (`spawn_id` = '80346');
 
-        insert into applied_updates values ('140720221');
+        insert into applied_updates values ('150720221');
     end if;
 end $
 delimiter ;
