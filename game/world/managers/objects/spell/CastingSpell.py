@@ -198,7 +198,7 @@ class CastingSpell:
         if self.spell_target_mask != SpellTargetMask.SELF:
             return False
 
-        # Self casts that require an unit target for other effects (arcane missiles).
+        # Self casts that require a unit target for other effects (arcane missiles).
         if self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF and \
                 self.spell_entry.ImplicitTargetA_2 == SpellImplicitTargets.TARGET_ENEMY_UNIT:
             return True
