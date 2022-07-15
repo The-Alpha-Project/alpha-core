@@ -223,7 +223,7 @@ class SpellAttributesEx(IntEnum):
     SPELL_ATTR_EX_THREAT_ON_MISS = 0x00200000  # 21
     SPELL_ATTR_EX_REQ_COMBO_POINTS = 0x00400000  # 22 Use combo points (in 4.x not required combo point target selected)
     SPELL_ATTR_EX_IGNORE_OWNER_DEATH = 0x00800000  # 23
-    SPELL_ATTR_EX_IS_FISHING = 0x01000000  # 24 Req fishing pole
+    SPELL_ATTR_EX_IS_FISHING = 0x01000000  # 24 Req fishing pole  TODO Also Pick Pocket - rename.
     SPELL_ATTR_EX_AURA_STAYS_AFTER_COMBAT = 0x02000000  # 25
     SPELL_ATTR_EX_REQUIRE_ALL_TARGETS = 0x04000000  # 26
     SPELL_ATTR_EX_REFUND_POWER = 0x08000000  # 27

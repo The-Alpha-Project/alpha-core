@@ -321,9 +321,7 @@ class SpellEffectHandler:
             return
 
         target = None
-        if casting_spell.initial_target_is_terrain() and casting_spell.is_fishing_spell():
-            target = casting_spell.initial_target
-        elif isinstance(effect.targets.resolved_targets_a[0], ObjectManager):
+        if isinstance(effect.targets.resolved_targets_a[0], ObjectManager):
             target = effect.targets.resolved_targets_a[0].location
         elif isinstance(effect.targets.resolved_targets_a[0], Vector):
             target = effect.targets.resolved_targets_a[0]
@@ -615,6 +613,9 @@ class SpellEffectHandler:
         # Apply permanent enchantment.
         owner_player.enchantment_manager.set_item_enchantment(target, enchantment_slot, effect.misc_value,
                                                               duration, charges)
+
+        caster.skill_manager.handle_profession_skill_gain_chance(casting_spell.spell_entry.ID)
+
         # Save item.
         target.save()
 

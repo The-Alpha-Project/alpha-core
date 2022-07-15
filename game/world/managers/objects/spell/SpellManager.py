@@ -236,10 +236,6 @@ class SpellManager:
             if casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
                 self.remove_cast(casting_spell)
 
-        # Handle enchanting skill gain here for now.
-        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and casting_spell.is_enchantment_spell():
-            self.caster.skill_manager.handle_craft_skill_gain(SkillTypes.ENCHANTING)
-
         self.set_on_cooldown(casting_spell)
         self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
 
@@ -770,7 +766,7 @@ class SpellManager:
         validation_target = casting_spell.initial_target
         # In the case of the spell requiring a unit target but being cast on self,
         # validate the spell against the caster's current unit selection instead.
-        if casting_spell.spell_target_mask == SpellTargetMask.SELF and not casting_spell.is_fishing_spell() and \
+        if casting_spell.spell_target_mask == SpellTargetMask.SELF and \
                 casting_spell.requires_implicit_initial_unit_target():
             validation_target = casting_spell.targeted_unit_on_cast_start
             if validation_target and not self.caster.can_attack_target(validation_target):
@@ -800,7 +796,7 @@ class SpellManager:
 
                 return False
 
-        # Range validations, if needed.
+        # Range validations. Skip for fishing as generated targets will always be valid.
         if not casting_spell.is_fishing_spell() and not casting_spell.initial_target_is_item():
             # Check if the caster is within range of the (world) target to cast the spell.
             if casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
