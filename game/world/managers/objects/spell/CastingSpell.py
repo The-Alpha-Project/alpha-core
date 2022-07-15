@@ -200,7 +200,7 @@ class CastingSpell:
 
         # Self casts that require an unit target for other effects (arcane missiles).
         if self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF and \
-                self.spell_entry.ImplicitTargetA_2 == 6:
+                self.spell_entry.ImplicitTargetA_2 == SpellImplicitTargets.TARGET_ENEMY_UNIT:
             return True
 
         # Return true if the effect has an implicit unit selection target.
