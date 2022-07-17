@@ -733,6 +733,24 @@ class QuestTemplate(Base):
     ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
 
+class QuestGreeting(Base):
+    __tablename__ = 'quest_greeting'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("0"))
+    type = Column(TINYINT(3), primary_key=True, nullable=False, server_default=text("0"))
+    content_default = Column(Text, nullable=False)
+    content_loc1 = Column(Text)
+    content_loc2 = Column(Text)
+    content_loc3 = Column(Text)
+    content_loc4 = Column(Text)
+    content_loc5 = Column(Text)
+    content_loc6 = Column(Text)
+    content_loc7 = Column(Text)
+    content_loc8 = Column(Text)
+    emote_id = Column(SMALLINT(5), nullable=False, server_default=text("0"))
+    emote_delay = Column(INTEGER(10), nullable=False, server_default=text("0"))
+
+
 class Worldports(Base):
     __tablename__ = 'worldports'
 

@@ -1,4 +1,4 @@
-from database.world.WorldModels import NpcGossip, NpcText
+from database.world.WorldModels import NpcGossip, NpcText, QuestGreeting
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -187,7 +187,7 @@ class QuestManager(object):
             if quest_entry not in self.active_quests:
                 continue
             # Check quest requirements including quest level.
-            if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
+            if not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
             quest_state = self.active_quests[quest_entry].get_quest_state()
             # Quest has not been rewarded and it should.
@@ -210,7 +210,7 @@ class QuestManager(object):
             if quest_entry in self.completed_quests and not QuestHelpers.is_quest_repeatable(quest):
                 continue
             # Check quest requirements including quest level.
-            if not quest or not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
+            if not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
             quest_state = self.get_quest_state(quest_entry)
             if QuestHelpers.is_instant_complete_quest(quest) and quest_entry not in self.active_quests:
@@ -223,10 +223,18 @@ class QuestManager(object):
 
         has_greeting, greeting_text, emote = QuestManager.get_quest_giver_gossip_string(quest_giver)
 
-        # No quest menu items but has greeting, display that.
+        # No quest menu items but has gossip greeting, display that.
         if len(quest_menu.items) == 0 and has_greeting:
             self.send_quest_giver_quest_list(greeting_text, emote, quest_giver_guid, quest_menu.items)
             return
+
+        # Check for quest greeting if multiple quests.
+        if not has_greeting and len(quest_menu.items) > 1:
+            has_quest_greeting, q_greeting_text, q_emote = QuestManager.get_quest_giver_quest_greeting(quest_giver)
+            if has_quest_greeting:
+                has_greeting = True
+                greeting_text = q_greeting_text
+                emote = q_emote
 
         # If we only have 1 quest menu item, and it has no custom greeting, send the appropriate packet directly.
         if len(quest_menu.items) == 1 and not has_greeting:
@@ -357,6 +365,15 @@ class QuestManager(object):
             if relation.entry == quest_giver_entry and relation.quest == quest_entry:
                 is_related = True
         return is_related
+
+    @staticmethod
+    def get_quest_giver_quest_greeting(quest_giver) -> tuple:
+        quest_greeting_entry: QuestGreeting = WorldDatabaseManager.quest_get_greeting_for_entry(quest_giver.entry)
+
+        if quest_greeting_entry:
+            return True, quest_greeting_entry.content_default, quest_greeting_entry.emote_id
+
+        return False, '', 0
 
     @staticmethod
     def get_quest_giver_gossip_string(quest_giver) -> tuple:  # has_custom_greeting, greeting str, emote
@@ -771,6 +788,18 @@ class QuestManager(object):
             if not active_quest.is_quest_complete(quest_giver_guid):
                 self.send_quest_giver_request_items(quest, quest_giver_guid, close_on_cancel=False)
                 return
+
+        if quest_id in self.active_quests and self.active_quests[quest_id].requires_items():
+            self.send_quest_giver_request_items(quest, quest_giver_guid, close_on_cancel=False)
+        else:
+            self.send_quest_giver_offer_reward(quest, quest_giver_guid, True)
+
+    def handle_request_reward(self, quest_giver_guid, quest_id):
+        quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
+
+        # Validate if quest exist.
+        if not quest:
+            return
 
         self.send_quest_giver_offer_reward(quest, quest_giver_guid, True)
 

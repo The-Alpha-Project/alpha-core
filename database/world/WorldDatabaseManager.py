@@ -481,6 +481,13 @@ class WorldDatabaseManager(object):
 
     # Quest stuff.
 
+    @staticmethod
+    def quest_get_greeting_for_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(QuestGreeting).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
     class QuestRelationHolder:
         QUEST_CREATURE_STARTERS: [int, list[t_creature_quest_starter]] = {}
         QUEST_CREATURE_FINISHERS = {}
