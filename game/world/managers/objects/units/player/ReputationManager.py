@@ -80,10 +80,10 @@ class ReputationManager(object):
         faction = self.reputations[faction_template.ReputationIndex]
         new_standing = self.reputations[faction.index].standing + amount
 
-        # Prevent spillage client crash.
+        # Prevent overflow client crash.
         if new_standing > MAX_REPUTATION:
             new_standing = MAX_REPUTATION
-        elif new_standing < -MIN_REPUTATION:
+        elif new_standing < MIN_REPUTATION:
             new_standing = MIN_REPUTATION
 
         # Notify only if there was an actual change.
