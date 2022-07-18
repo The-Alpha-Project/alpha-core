@@ -250,6 +250,11 @@ class QuestManager(object):
         # We have 1 or more items and a custom greeting, send the greeting and quest menu item/s.
         elif len(quest_menu.items) > 0 or has_greeting:
             self.send_quest_giver_quest_list(greeting_text, emote, quest_giver_guid, quest_menu.items)
+        # Landed here because player is talking to a trainer, which can't train the player and does not have any quest.
+        # Display the default greeting, since gossip system was not a thing in 0.5.3.
+        elif quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.is_trainer():
+            text = QuestManager.get_default_greeting_text(quest_giver)
+            self.send_quest_giver_quest_list(text, 0, quest_giver_guid, quest_menu.items)
 
     def get_quest_state(self, quest_entry):
         if quest_entry in self.active_quests:
@@ -376,6 +381,14 @@ class QuestManager(object):
         return False, '', 0
 
     @staticmethod
+    def get_default_greeting_text(quest_giver):
+        text_entry_id: int = WorldDatabaseManager.QuestGossipHolder.DEFAULT_GREETING_TEXT_ID
+        text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(text_entry_id)
+        if not text_entry:
+            return ''
+        return QuestManager._gossip_text_choose_by_gender(quest_giver, text_entry)
+
+    @staticmethod
     def get_quest_giver_gossip_string(quest_giver) -> tuple:  # has_custom_greeting, greeting str, emote
         quest_giver_gossip_entry: NpcGossip = WorldDatabaseManager.QuestGossipHolder.npc_gossip_get_by_guid(quest_giver.guid)
         text_entry: int = WorldDatabaseManager.QuestGossipHolder.DEFAULT_GREETING_TEXT_ID  # 68 textid = "Greetings $N".
@@ -387,20 +400,22 @@ class QuestManager(object):
         if not quest_giver_text_entry:
             return False, '', 0
 
-        quest_giver_greeting = ''
-        
-        # Text based on gender.
-        male_greeting = quest_giver_text_entry.text0_0
-        female_greeting = quest_giver_text_entry.text0_1
+        quest_giver_greeting = QuestManager._gossip_text_choose_by_gender(quest_giver, quest_giver_text_entry)
 
+        return True if quest_giver_gossip_entry else False, quest_giver_greeting, quest_giver_text_entry.em0_0
+
+    @staticmethod
+    def _gossip_text_choose_by_gender(quest_giver, text: NpcText):
+        # Text based on gender.
+        male_greeting = text.text0_0
+        female_greeting = text.text0_1
         if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
             # If male or agnostic to gender.
             if quest_giver.gender == UnitCodes.Genders.GENDER_MALE or not female_greeting:
-                quest_giver_greeting: str = male_greeting
+                return male_greeting
             else:
-                quest_giver_greeting: str = female_greeting
-
-        return True if quest_giver_gossip_entry else False, quest_giver_greeting, quest_giver_text_entry.em0_0
+                return female_greeting
+        return male_greeting
 
     # Quest status only works for units, sending a gameobject guid crashes the client.
     def update_surrounding_quest_status(self):
