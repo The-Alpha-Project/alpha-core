@@ -7314,7 +7314,7 @@ begin not atomic
     if (select count(*) from applied_updates where id='190720221') = 0 then
         ALTER TABLE `creature_onkill_reputation` DROP COLUMN `IsTeamAward1`;
         ALTER TABLE `creature_onkill_reputation` DROP COLUMN `IsTeamAward2`;
-        DELETE FROM `creature_onkill_reputation` WHERE `rewonkillrepfaction1` > 209 and `rewonkillrepfaction2` > 209 or `rewonkillrepfaction2` = 0;
+        DELETE FROM `creature_onkill_reputation` WHERE `rewonkillrepfaction1` > 209 and (`rewonkillrepfaction2` > 209 or `rewonkillrepfaction2` = 0);
         UPDATE `creature_onkill_reputation` SET `rewonkillrepfaction2` = 0, maxstanding2 = 0, rewonkillrepvalue2 = 0 WHERE `rewonkillrepfaction2` > 209;
 
         insert into applied_updates values ('190720221');

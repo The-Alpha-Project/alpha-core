@@ -45,7 +45,8 @@ class ReputationManager(object):
         self.player_mgr.enqueue_packet(packet)
 
     def reward_reputation_on_kill(self, creature, rate=1.0):
-        reputation_on_kill_entry = WorldDatabaseManager.creature_get_reputation_on_kill_by_entry(creature.entry)
+        reputation_on_kill_entry = WorldDatabaseManager.CreatureOnKillReputationHolder.\
+            creature_on_kill_reputation_get_by_entry(creature.entry)
         if not reputation_on_kill_entry:
             return
 

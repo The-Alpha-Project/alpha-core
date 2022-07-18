@@ -836,7 +836,8 @@ class PlayerManager(UnitManager):
         return loot_type != LootTypes.LOOT_TYPE_NOTALLOWED
 
     def reward_reputation_on_kill(self, creature, rate=1.0):
-        reputation_on_kill_entry = WorldDatabaseManager.creature_get_reputation_on_kill_by_entry(creature.entry)
+        reputation_on_kill_entry = WorldDatabaseManager.CreatureOnKillReputationHolder.\
+            creature_on_kill_reputation_get_by_entry(creature.entry)
         if not reputation_on_kill_entry:
             return
         self.reputation_manager.reward_reputation_on_kill(creature, rate)
