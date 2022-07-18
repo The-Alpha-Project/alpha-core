@@ -789,7 +789,7 @@ class QuestManager(object):
     def handle_complete_quest(self, quest_id, quest_giver_guid):
         quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
 
-        # Validate if quest exist.
+        # Validate if quest exists.
         if not quest:
             return
 
@@ -812,7 +812,7 @@ class QuestManager(object):
     def handle_request_reward(self, quest_giver_guid, quest_id):
         quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
 
-        # Validate if quest exist.
+        # Validate if quest exists.
         if not quest:
             return
 
