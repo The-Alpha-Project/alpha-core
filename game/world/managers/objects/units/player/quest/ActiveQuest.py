@@ -208,28 +208,28 @@ class ActiveQuest:
         return True
 
     def requires_creature_or_go(self, creature_entry):
-        req_creature_or_go = QuestHelpers.generate_req_creature_or_go_list(self.quest)
-        required = creature_entry in req_creature_or_go
+        req_creatures_or_gos = QuestHelpers.generate_req_creature_or_go_list(self.quest)
+        required = creature_entry in req_creatures_or_gos
         if required:
-            index = req_creature_or_go.index(creature_entry)
+            index = req_creatures_or_gos.index(creature_entry)
             required_kills = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[index]
             current_kills = eval(f'self.db_state.mobcount{index + 1}')
             return current_kills < required_kills
         return False
 
     def still_needs_item(self, item_entry):
-        req_item = QuestHelpers.generate_req_item_list(self.quest)
-        required = item_entry in req_item
+        req_items = QuestHelpers.generate_req_item_list(self.quest)
+        required = item_entry in req_items
         if required:
-            index = req_item.index(item_entry)
+            index = req_items.index(item_entry)
             required_items = QuestHelpers.generate_req_item_count_list(self.quest)[index]
             current_items = self._get_db_item_count(index)
             return current_items < required_items
 
     def update_required_items_from_inventory(self):
-        req_item = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
+        req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
         req_count = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(self.quest)))
-        for index, item in enumerate(req_item):
+        for index, item in enumerate(req_items):
             current_count = self.owner.inventory.get_item_count(item)
             self._update_db_item_count(index, current_count, req_count[index], override=True)
         if self.can_complete_quest():
@@ -237,10 +237,14 @@ class ActiveQuest:
         else:
             self.update_quest_state(QuestState.QUEST_ACCEPTED)
 
+    def requires_items(self):
+        req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
+        return any(req_items)
+
     def requires_item(self, item_entry):
-        req_item = QuestHelpers.generate_req_item_list(self.quest)
-        req_src_item = QuestHelpers.generate_req_source_list(self.quest)
-        return item_entry in req_item or item_entry in req_src_item
+        req_items = QuestHelpers.generate_req_item_list(self.quest)
+        req_src_items = QuestHelpers.generate_req_source_list(self.quest)
+        return item_entry in req_items or item_entry in req_src_items
 
     # What's happening inside get_progress():
     # Required MobKills1 = 5
