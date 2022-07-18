@@ -771,10 +771,8 @@ class CreatureOnkillReputation(Base):
     RewOnKillRepFaction1 = Column(SMALLINT(6), nullable=False, server_default=text("0"))
     RewOnKillRepFaction2 = Column(SMALLINT(6), nullable=False, server_default=text("0"))
     MaxStanding1 = Column(TINYINT(4), nullable=False, server_default=text("0"))
-    IsTeamAward1 = Column(TINYINT(4), nullable=False, server_default=text("0"))
     RewOnKillRepValue1 = Column(MEDIUMINT(9), nullable=False, server_default=text("0"))
     MaxStanding2 = Column(TINYINT(4), nullable=False, server_default=text("0"))
-    IsTeamAward2 = Column(TINYINT(4), nullable=False, server_default=text("0"))
     RewOnKillRepValue2 = Column(MEDIUMINT(9), nullable=False, server_default=text("0"))
     TeamDependent = Column(TINYINT(3), nullable=False, server_default=text("0"))
 
