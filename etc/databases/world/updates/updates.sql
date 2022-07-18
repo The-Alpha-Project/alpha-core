@@ -7285,7 +7285,7 @@ begin not atomic
         insert into applied_updates values ('090620221');
     end if;
  
-	-- 09/06/2022 1
+    -- 17/07/2022 1
     if (select count(*) from applied_updates where id='170720221') = 0 then
         DROP TABLE IF EXISTS `quest_greeting`;
         CREATE TABLE `quest_greeting` (
