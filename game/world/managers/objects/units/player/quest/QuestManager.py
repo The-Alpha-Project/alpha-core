@@ -801,6 +801,10 @@ class QuestManager(object):
         if not quest:
             return
 
+        if quest_id in self.active_quests:
+            if not self.active_quests[quest_id].can_complete_quest():
+                return
+
         self.send_quest_giver_offer_reward(quest, quest_giver_guid, True)
 
     def handle_choose_reward(self, quest_giver_guid, quest_id, item_choice):
