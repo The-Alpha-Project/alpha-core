@@ -52,7 +52,7 @@ class ReputationManager(object):
 
         # In the creature_onkill_reputation table there are values for both Alliance and Horde. Values for Alliance
         # are represented with the number 1 and Horde values with 2 (table columns end with that number). If the
-        # TeamDependant field is set to 0, characters from both factions will gain the values specified for Alliance (1)
+        # TeamDependent field is set to 0, characters from both factions will gain the values specified for Alliance (1)
         # and Horde (2).
         for team_index in [1, 2]:
             mod_reputation, faction = self._get_reputation_modifier(reputation_on_kill_entry, team_index, creature, rate)
@@ -63,11 +63,11 @@ class ReputationManager(object):
         # See the reward_reputation_on_kill method for an explanation of the following logic.
         teams = [Teams.TEAM_ALLIANCE, Teams.TEAM_HORDE]
         reward_on_kill_reputation_faction = eval(f'reputation_on_kill_entry.RewOnKillRepFaction{team_index}')
-        team_dependant = reputation_on_kill_entry.TeamDependent
+        team_dependent = reputation_on_kill_entry.TeamDependent
         reputation_source = ReputationSourceGain.REPUTATION_SOURCE_KILL
         reputation_mod = 0
         reputation_faction = 0
-        if reward_on_kill_reputation_faction and (not team_dependant or self.player_mgr.team == teams[team_index - 1]):
+        if reward_on_kill_reputation_faction and (not team_dependent or self.player_mgr.team == teams[team_index - 1]):
             reputation_qty = eval(f'reputation_on_kill_entry.RewOnKillRepValue{team_index}')
             reputation_faction = eval(f'reputation_on_kill_entry.RewOnKillRepFaction{team_index}')
             reputation_mod = int(PlayerFormulas.calculate_reputation_gain(self.player_mgr, reputation_source,
