@@ -1274,6 +1274,11 @@ class PlayerManager(UnitManager):
         else:
             self.skill_manager.handle_defense_skill_gain_chance(damage_info)
 
+    # override
+    def handle_melee_attack_procs(self, damage_info):
+        super().handle_melee_attack_procs(damage_info)
+        self.enchantment_manager.handle_melee_attack_procs(damage_info)
+
     def _send_attack_swing_error(self, victim, opcode):
         data = pack('<2Q', self.guid, victim.guid if victim else 0)
         self.enqueue_packet(PacketWriter.get_packet(opcode, data))
