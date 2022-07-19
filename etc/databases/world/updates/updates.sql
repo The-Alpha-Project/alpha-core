@@ -7290,7 +7290,7 @@ begin not atomic
         -- Zardeth of the Black Claw
         -- -------------------------
         -- add dagger
-        UPDATE `creature_equip_template` SET `equipentry1` = '13822' WHERE (entry = '1435');
+        UPDATE `creature_equip_template` SET `equipentry1` = '2235' WHERE (entry = '1435');
 
         -- Goldshire Inn
         -- ------------
