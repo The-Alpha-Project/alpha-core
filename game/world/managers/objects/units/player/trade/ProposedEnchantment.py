@@ -25,3 +25,6 @@ class ProposedEnchantment:
         self.enchantment_entry = 0  # ItemEnchantment id.
         self.duration = 0
         self.charges = 0
+
+    def is_valid(self):
+        return self.trade_slot != -1

@@ -47,6 +47,7 @@ class WorldLoader:
         if config.Server.Settings.load_creatures:
             WorldLoader.load_creature_equip_templates()
             WorldLoader.load_creatures()
+            WorldLoader.load_creature_on_kill_reputation()
             WorldLoader.load_creature_quest_starters()
             WorldLoader.load_creature_quest_finishers()
             WorldLoader.load_creature_display_info()
@@ -155,6 +156,21 @@ class WorldLoader:
 
         session.close()
         return length
+
+    @staticmethod
+    def load_creature_on_kill_reputation():
+        creature_on_kill_reputations = WorldDatabaseManager.creature_on_kill_reputation_get_all()
+        length = len(creature_on_kill_reputations)
+        count = 0
+
+        for creature_on_kill_reputation in creature_on_kill_reputations:
+            WorldDatabaseManager.CreatureOnKillReputationHolder.load_creature_on_kill_reputation(
+                creature_on_kill_reputation)
+            count += 1
+            Logger.progress('Loading creature on kill reputations...', count, length)
+
+        return length
+
 
     @staticmethod
     def load_creature_spells():

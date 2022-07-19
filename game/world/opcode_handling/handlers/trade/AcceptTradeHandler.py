@@ -94,13 +94,8 @@ class AcceptTradeHandler(object):
                         player.inventory.remove_item(player_item.item_instance.bag,
                                                      player_item.current_slot, True)
 
-            # Apply enchantment to item.
-            if item_to_receive_enchant:
-                enchantment_slot = player_trade.proposed_enchantment.enchantment_slot
-                entry = player_trade.proposed_enchantment.enchantment_entry
-                duration = player_trade.proposed_enchantment.duration
-                charges = player_trade.proposed_enchantment.charges
-                item_to_receive_enchant.set_enchantment(enchantment_slot, entry, duration, charges)
+            # Apply enchantment to item (if any).
+            player_trade.apply_proposed_enchant()
 
             player.mod_money(other_player_trade.money)
             player.mod_money(-player_trade.money)

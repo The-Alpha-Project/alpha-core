@@ -472,14 +472,33 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    class CreatureOnKillReputationHolder:
+        CREATURE_ON_KILL_REPUTATION: [int, CreatureOnkillReputation] = {}
+
+        @staticmethod
+        def load_creature_on_kill_reputation(creature_on_kill_reputation):
+            WorldDatabaseManager.CreatureOnKillReputationHolder.CREATURE_ON_KILL_REPUTATION[
+                creature_on_kill_reputation.creature_id] = creature_on_kill_reputation
+
+        @staticmethod
+        def creature_on_kill_reputation_get_by_entry(entry):
+            return WorldDatabaseManager.CreatureOnKillReputationHolder.CREATURE_ON_KILL_REPUTATION.get(entry)
+
     @staticmethod
-    def creature_get_reputation_on_kill_by_entry(entry):
+    def creature_on_kill_reputation_get_all() -> Optional[list[CreatureOnkillReputation]]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureOnkillReputation).filter_by(creature_id=entry).first()
+        res = world_db_session.query(CreatureOnkillReputation).all()
         world_db_session.close()
         return res
 
     # Quest stuff.
+
+    @staticmethod
+    def quest_get_greeting_for_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(QuestGreeting).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
 
     class QuestRelationHolder:
         QUEST_CREATURE_STARTERS: [int, list[t_creature_quest_starter]] = {}

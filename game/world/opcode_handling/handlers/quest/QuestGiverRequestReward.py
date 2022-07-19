@@ -5,13 +5,12 @@ from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
 
 
-class QuestGiverChooseRewardHandler(object):
+class QuestGiverRequestReward(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        # CGPlayer_C::GetQuestReward
-        if len(reader.data) >= 16:  # Avoid handling empty quest giver choose reward packet.
-            guid, quest_id, item_choice = unpack('<Q2I', reader.data[:16])
+        if len(reader.data) >= 12:  # Avoid handling empty quest giver request reward packet.
+            guid, quest_id = unpack('<QI', reader.data[:12])
             high_guid = ObjectManager.extract_high_guid(guid)
             is_item = False
 
@@ -25,11 +24,11 @@ class QuestGiverChooseRewardHandler(object):
                 quest_giver = world_session.player_mgr.inventory.get_item_by_guid(guid)
 
             if not quest_giver:
-                Logger.error(f'Error in CMSG_QUESTGIVER_COMPLETE_QUEST, could not find quest giver with guid of: {guid}')
+                Logger.error(f'Error in CMSG_QUESTGIVER_REQUEST_REWARD, could not find quest giver with guid: {guid}')
                 return 0
 
             if not is_item and world_session.player_mgr.is_enemy_to(quest_giver):
                 return 0
 
-            world_session.player_mgr.quest_manager.handle_choose_reward(guid, quest_id, item_choice)
+            world_session.player_mgr.quest_manager.handle_request_reward(guid, quest_id)
         return 0

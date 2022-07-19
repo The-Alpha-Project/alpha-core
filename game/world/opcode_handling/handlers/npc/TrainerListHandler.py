@@ -27,12 +27,9 @@ class TrainerListHandler(object):
 
                 # If player does not meet requirements to talk to this Trainer, just send the quest giver greeting.
                 # Ineligible quests won't show up here, so this matches the behavior of classic WoW.
-                if not trainer.can_train(player_mgr):
+                if not trainer.can_train(player_mgr) or available_quests > 0:
                     player_mgr.quest_manager.handle_quest_giver_hello(trainer, guid)
-                # Give quests priority over trainer list.
-                elif available_quests > 0:
-                    player_mgr.quest_manager.handle_quest_giver_hello(trainer, guid)
-                else:
+                elif trainer.can_train(player_mgr):
                     trainer.send_trainer_list(world_session)
 
         return 0
