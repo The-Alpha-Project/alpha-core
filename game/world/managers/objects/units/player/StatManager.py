@@ -693,9 +693,16 @@ class StatManager(object):
     def send_melee_attributes(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
+
+        # Weapon enchant bonuses are included in the weapon's damage internally,
+        # but should be displayed as a bonus.
+
+        enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(self.unit_mgr.inventory.get_main_hand(),
+                                                                                 ItemEnchantmentType.DAMAGE)
+
         # For stat sheet
-        self.unit_mgr.set_melee_damage(self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN),
-                                       self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MAX))
+        self.unit_mgr.set_melee_damage(self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN) - enchant_bonus,
+                                       self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MAX) - enchant_bonus)
 
         self.unit_mgr.set_melee_attack_time(self.get_total_stat(UnitStats.MAIN_HAND_DELAY))
         self.unit_mgr.set_offhand_attack_time(self.get_total_stat(UnitStats.OFF_HAND_DELAY))
