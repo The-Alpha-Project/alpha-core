@@ -375,15 +375,22 @@ class StatManager(object):
                         self.unit_mgr.is_in_feral_form():
                     continue
 
-                # Code below this check is weapon related, stop handling this item if it's not a weapon.
                 if item.current_slot != InventorySlots.SLOT_MAINHAND and \
                     item.current_slot != InventorySlots.SLOT_OFFHAND and \
                         item.current_slot != InventorySlots.SLOT_RANGED:
-                    continue
+                    continue  # Not a weapon.
 
+                # Handle weapon damage stats.
                 weapon_min_damage = int(item.item_template.dmg_min1)
                 weapon_max_damage = int(item.item_template.dmg_max1)
                 weapon_delay = item.item_template.delay
+
+                # Damage increase weapon enchants.
+                weapon_enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(
+                    item, ItemEnchantmentType.DAMAGE)
+
+                weapon_min_damage += weapon_enchant_bonus
+                weapon_max_damage += weapon_enchant_bonus
 
                 if item.current_slot == InventorySlots.SLOT_MAINHAND:
                     self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
@@ -760,12 +767,9 @@ class StatManager(object):
 
             # Check weapons enchantments.
             if school == SpellSchools.SPELL_SCHOOL_NORMAL:
-                off_hand = self.unit_mgr.inventory.get_offhand()
                 main_hand_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(main_hand,
                                                                                            ItemEnchantmentType.DAMAGE)
-                off_hand_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(off_hand,
-                                                                                          ItemEnchantmentType.DAMAGE)
-                flat_bonuses += main_hand_bonus + off_hand_bonus
+                flat_bonuses += main_hand_bonus
 
             percentual_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school, percentual=True) * \
                 self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, misc_value=subclass_mask, percentual=True, misc_value_is_mask=True)
