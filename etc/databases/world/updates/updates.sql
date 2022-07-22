@@ -7284,6 +7284,26 @@ begin not atomic
 
         insert into applied_updates values ('090620221');
     end if;
+
+    -- 15/07/2022 1
+    if (select count(*) from applied_updates where id='150720221') = 0 then
+        -- Zardeth of the Black Claw
+        -- -------------------------
+        -- add dagger
+        UPDATE `creature_equip_template` SET `equipentry1` = '2235' WHERE (entry = '1435');
+
+        -- Goldshire Inn
+        -- ------------
+        -- update wooden chair
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-9461.616', `spawn_positionY` = '27.120', `spawn_positionZ` = '56.339' , `spawn_orientation` = '3.542', `ignored` = '0', `spawn_rotation2` = '0', `spawn_rotation3` = '0' WHERE (`spawn_id` = '26800');
+
+        -- Innkeeper Farley
+        -- ----------------
+        -- update position
+        UPDATE `spawns_creatures` SET `position_x` = '-9459.692', `position_y` = '28.115', `position_z` = '56.339', `orientation` = '2.975' WHERE (`spawn_id` = '80346');
+
+        insert into applied_updates values ('150720221');
+    end if;
  
     -- 17/07/2022 1
     if (select count(*) from applied_updates where id='170720221') = 0 then
