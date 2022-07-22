@@ -61,7 +61,7 @@ class EnchantmentManager(object):
                 if slot > EnchantmentSlots.PermanentSlot:  # Temporary enchantments.
                     if update_slot != -1 and update_slot != slot:
                         continue
-                    duration = 0 if enchantment.duration <= 0 else int(enchantment.duration / 1000) * 60  # Minutes
+                    duration = 0 if enchantment.duration <= 0 else enchantment.duration
                     data = pack('<Q2IQ', item.guid, slot, duration, self.unit_mgr.guid)
                     self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_ENCHANT_TIME_UPDATE, data))
 

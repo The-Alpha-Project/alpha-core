@@ -581,9 +581,14 @@ class SpellEffectHandler:
         # Calculate slot, duration and charges.
         enchantment_slot = EnchantmentSlots.PermanentSlot if not is_temporary else EnchantmentSlots.TemporarySlot
         effect_index = effect.get_effect_points(casting_spell.caster_effective_level)
-        duration = 0 if not is_temporary else int(eval(f'enchantment.EffectPointsMin_{effect_index}')) * 1000
-        charges = 0 if not is_temporary else \
-            int(WorldDatabaseManager.spell_enchant_charges_get_by_spell(casting_spell.spell_entry.ID))
+
+        duration = 0
+        charges = 0
+
+        if is_temporary:
+            # Temporary enchantments from professions (enchanting) have a duration of 1h while others have 30min.
+            duration = 30 * 60 if not casting_spell.spell_entry.CastUI else 60 * 60
+            charges = int(WorldDatabaseManager.spell_enchant_charges_get_by_spell(casting_spell.spell_entry.ID))
 
         # If this enchantment is being applied on a trade, update trade status with proposed enchant.
         # Enchant will be applied after trade is accepted.
