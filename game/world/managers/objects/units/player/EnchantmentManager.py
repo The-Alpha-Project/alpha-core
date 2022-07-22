@@ -108,7 +108,7 @@ class EnchantmentManager(object):
         enchantment_type = ItemEnchantmentType.PROC_SPELL
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
             if remove:
-                self._applied_proc_enchants.pop(enchantment.entry)
+                self._applied_proc_enchants.pop(enchantment.entry, None)
                 continue
 
             effect_spell_value = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
