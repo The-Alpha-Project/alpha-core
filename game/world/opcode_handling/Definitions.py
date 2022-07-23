@@ -2,6 +2,7 @@ from game.world.opcode_handling.handlers.inventory.ItemQueryMultipleHandler impo
 from game.world.opcode_handling.handlers.inventory.WrapItemHandler import WrapItemHandler
 from game.world.opcode_handling.handlers.player.BootMeHandler import BootMeHandler
 from game.world.opcode_handling.handlers.pet.PetActionHandler import PetActionHandler
+from game.world.opcode_handling.handlers.player.cheats.BeastMasterHandler import CheatBeastMasterHandler
 from game.world.opcode_handling.handlers.player.cheats.RechargeHandler import RechargeHandler
 from game.world.opcode_handling.handlers.player.cheats.CreateItemHandler import CreateItemHandler
 from game.world.opcode_handling.handlers.channel.ChannelAnnounceHandler import ChannelAnnounceHandler
@@ -309,6 +310,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_GODMODE: GodModeHandler.handle,
     OpCode.CMSG_CHEAT_SETMONEY: CheatSetMoneyHandler.handle,
     OpCode.CMSG_LEVEL_CHEAT: LevelCheatHandler.handle,
+    OpCode.CMSG_BEASTMASTER: CheatBeastMasterHandler.handle,
     OpCode.CMSG_LEVELUP_CHEAT: LevelUpCheatHandler.handle,
     OpCode.CMSG_TAXIENABLEALLNODES: TaxiEnableAllNodesHandler.handle,
     OpCode.CMSG_TAXICLEARALLNODES: TaxiClearAllNodesHandler.handle,

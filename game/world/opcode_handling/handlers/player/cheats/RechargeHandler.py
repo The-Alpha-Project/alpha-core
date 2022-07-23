@@ -6,10 +6,14 @@ class RechargeHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
-        if not world_session.player_mgr.is_gm:
-            Logger.anticheat(f'Player {world_session.player_mgr.player.name} ({world_session.player_mgr.guid}) tried to recharge powers.')
+        player_mgr = world_session.player_mgr
+        if not player_mgr:
             return 0
 
-        world_session.player_mgr.recharge_power()
+        if not player_mgr.is_gm:
+            Logger.anticheat(f'Player {player_mgr.player.name} ({player_mgr.guid}) tried to recharge powers.')
+            return 0
+
+        player_mgr.recharge_power()
 
         return 0
