@@ -99,11 +99,10 @@ class EnchantmentManager(object):
                 continue
 
             # Check if player already has the triggered aura active.
-            if self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
-                # Learn spell if needed and cast.
-                self.unit_mgr.spell_manager.learn_spell(effect_spell_value)
-                # TODO pass triggered?
-                self.unit_mgr.spell_manager.handle_cast_attempt(effect_spell_value, self.unit_mgr, SpellTargetMask.SELF)
+            if not self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
+                self.unit_mgr.spell_manager.handle_cast_attempt(effect_spell_value,
+                                                                self.unit_mgr, SpellTargetMask.SELF,
+                                                                triggered=True)
 
         enchantment_type = ItemEnchantmentType.PROC_SPELL
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
