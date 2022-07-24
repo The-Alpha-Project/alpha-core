@@ -209,18 +209,6 @@ class CastingSpell:
     def has_spell_visual_pre_cast_kit(self):
         return self.spell_visual_entry and self.spell_visual_entry.PrecastKit > 0
 
-    def is_fishing_spell(self):
-        return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF_FISHING
-
-    def is_pick_pocket_spell(self):
-        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH
-
-    def is_area_of_effect_spell(self):
-        for effect in self.get_effects():
-            if {effect.implicit_target_a, effect.implicit_target_b}.intersection(EffectTargets.AREA_TARGETS):
-                return True
-        return False
-
     def is_target_power_type_valid(self):
         if not self.initial_target:
             return False
@@ -237,14 +225,26 @@ class CastingSpell:
             return True
         return False
 
+    # TODO, Check 'IsImmuneToDamage' - VMaNGOS
+    def is_target_immune_to_damage(self):
+        return False
+
+    def is_fishing_spell(self):
+        return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF_FISHING
+
+    def is_pick_pocket_spell(self):
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH
+
+    def is_area_of_effect_spell(self):
+        for effect in self.get_effects():
+            if {effect.implicit_target_a, effect.implicit_target_b}.intersection(EffectTargets.AREA_TARGETS):
+                return True
+        return False
+
     # TODO, need more checks.
     #  Refer to 'IsPositiveEffect' in SpellEntry.cpp - VMaNGOS
     def is_positive_spell(self):
         return not self.spell_caster.can_attack_target(self.initial_target)
-
-    # TODO, Check 'IsImmuneToDamage' - VMaNGOS
-    def is_target_immune_to_damage(self):
-        return False
 
     def is_charm_spell(self):
         for spell_effect in self.get_effects():
@@ -263,13 +263,6 @@ class CastingSpell:
         return any(effect.effect_type == SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY
                    for effect in self.get_effects())
 
-    def get_enchantment_id(self):
-        enchantment_effects = [SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT,
-                               SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY]
-        for effect in self.get_effects():
-            if effect.effect_type in enchantment_effects:
-                return effect.misc_value
-
     def is_refreshment_spell(self):
         spell_effect = self._effects[0]  # Food/drink effect should be first.
         if not spell_effect:
@@ -286,6 +279,13 @@ class CastingSpell:
             spell_effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE
 
         return has_sitting_attribute and is_regen_buff and has_refreshment_period
+
+    def get_enchantment_id(self):
+        enchantment_effects = [SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT,
+                               SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY]
+        for effect in self.get_effects():
+            if effect.effect_type in enchantment_effects:
+                return effect.misc_value
 
     def has_effect_of_type(self, effect_type: SpellEffects):
         for effect in self.get_effects():
