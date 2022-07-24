@@ -38,7 +38,7 @@ class BasicCreatureAI(CreatureAI):
             for guid, victim in aggro_players.items():
                 distance = victim.location.distance(self.creature.location)
                 if self.creature.can_attack_target(victim) and distance <= max_distance:
-                    if self._start_proximity_aggro_attack(victim, is_player=True):
+                    if self._start_proximity_aggro_attack(victim, target_is_player=True):
                         break
 
     # override
@@ -50,7 +50,7 @@ class BasicCreatureAI(CreatureAI):
             detection_range = self.creature.creature_template.detection_range
             in_detection_range = target_distance <= detection_range
             if target_is_player and on_same_map and in_detection_range:
-                self._start_proximity_aggro_attack(unit, is_player=target_is_player)
+                self._start_proximity_aggro_attack(unit, target_is_player=target_is_player)
 
     # override
     def just_respawned(self):
@@ -68,9 +68,9 @@ class BasicCreatureAI(CreatureAI):
     def _is_aggressive(self):
         return self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE
 
-    def _start_proximity_aggro_attack(self, victim, is_player=False):
-        # Avoid attacks on GM's with BeastMaster flag on.
-        if is_player and victim.beast_master:
+    def _start_proximity_aggro_attack(self, victim, target_is_player=False):
+        # Avoid attacks on characters with BeastMaster flag on.
+        if target_is_player and victim.beast_master:
             return False
 
         self.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
