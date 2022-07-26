@@ -7388,5 +7388,14 @@ begin not atomic
         
         insert into applied_updates values ('250720221');
     end if;
+
+    -- 26/07/2022 1
+    if (select count(*) from applied_updates where id='260720221') = 0 then
+        -- Add yellow flower to Torc the Orc.
+        INSERT INTO `creature_equip_template` (`entry`, `equipentry1`) VALUES ('3148', '2707');
+        UPDATE `creature_template` SET `equipment_id` = '3148' WHERE (entry = '3148');
+
+        insert into applied_updates values ('260720221');
+    end if;
 end $
 delimiter ;
