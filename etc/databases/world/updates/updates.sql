@@ -7364,7 +7364,7 @@ begin not atomic
         -- Journey to Orgrimmar (Grom'gol to Orgrimmar) - Fix text.
         UPDATE `quest_template` SET `OfferRewardText` = 'So you\'re the adventurous type, eh? I\'ll take you right over to Orgrimmar, on Durotar.$B$BHang on tight! Here we go!$B$B<<Note: Our crack team of artists, programmers and aviation engineers$Bare currently hard at work preparing the \\\"real\\\" zeppelin for your flying pleasure. In the meantime, please$Benjoy this free teleport instead. --$BThanks, --WoW Team>>' WHERE (`entry` = '799');
 
-        -- Hin Denburg (Better temp placement)
+        -- Hin Denburg
         UPDATE `spawns_creatures` SET `position_x` = '1899.657', `position_y` = '222.214', `position_z` = '55.368', `orientation` = '1.282' WHERE (`spawn_id` = '32037');
 
         -- Journey to Grom'gol (Undercity to Grom'gol)
