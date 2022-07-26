@@ -179,8 +179,12 @@ class GridManager:
         return near_cells
 
     def send_surrounding(self, packet, world_object, include_self=True, exclude=None, use_ignore=False):
-        for cell in self.get_surrounding_cells_by_object(world_object):
-            cell.send_all(packet, source=None if include_self else world_object, exclude=exclude, use_ignore=use_ignore)
+        if world_object.current_cell:
+            for cell in self.get_surrounding_cells_by_object(world_object):
+                cell.send_all(packet, source=None if include_self else world_object, exclude=exclude, use_ignore=use_ignore)
+        # This player has no current cell, send the message directly.
+        elif world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and include_self:
+            world_object.enqueue_packet(packet)
 
     def send_surrounding_in_range(self, packet, world_object, range_, include_self=True, exclude=None,
                                   use_ignore=False):
