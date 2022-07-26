@@ -69,7 +69,7 @@ class BasicCreatureAI(CreatureAI):
         return self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE
 
     def _start_proximity_aggro_attack(self, victim, target_is_player=False):
-        # Avoid attacks on characters with BeastMaster flag on.
+        # Avoid attacks on characters with Beastmaster flag on.
         if target_is_player and victim.beast_master:
             return False
 
