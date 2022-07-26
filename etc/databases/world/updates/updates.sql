@@ -7398,11 +7398,8 @@ begin not atomic
         -- Barg (General Supplies - Crossroads) https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Barrens/auctionhousebeta.jpg
         UPDATE `spawns_creatures` SET `position_x` = '-411.519', `position_y` = '-2635.225', `position_z` = '97.37', `orientation` = '4.586' WHERE (`spawn_id` = '15092');
 
-        -- Unlit Poor Torch
-        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('3481', '6183', '0', '0', '0');
-
         -- Tari'qa (Trade Supplies - Crossroads) https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Barrens/auctionhousebeta.jpg
-        UPDATE `spawns_creatures` SET `position_x` = '-405.287', `position_y` = '-2634.90', `position_z` = '97.37' WHERE (`spawn_id` = '15093');
+        UPDATE `spawns_creatures` SET `position_x` = '-405.287', `position_y` = '-2634.90', `position_z` = '97.37', `orientation` = '3.829' WHERE (`spawn_id` = '15093');
         
         insert into applied_updates values ('260720221');
     end if;
