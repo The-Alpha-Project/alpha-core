@@ -7403,5 +7403,69 @@ begin not atomic
         
         insert into applied_updates values ('260720221');
     end if;
+    
+    -- 26/07/2022 2
+    if (select count(*) from applied_updates where id='260720222') = 0 then
+    
+        -- Crossroads brazziers.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-416.900', `spawn_positionY` = '-2634.74', `spawn_positionZ` = '97.37' WHERE (`spawn_id` = '13364');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-396.841', `spawn_positionY` = '-2639.795', `spawn_positionZ` = '97.37' WHERE (`spawn_id` = '13387');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-410.054', `spawn_positionY` = '-2651.269', `spawn_positionZ` = '97.37' WHERE (`spawn_id` = '13361');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-399.898', `spawn_positionY` = '-2648.639', `spawn_positionZ` = '97.37' WHERE (`spawn_id` = '13386');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-413.885', `spawn_positionY` = '-2634.58', `spawn_positionZ` = '97.37' WHERE (`spawn_id` = '13364');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '97.37' WHERE (`spawn_id` = '13359');
+
+        -- Worldports. Mostly Z fixes.
+        UPDATE `worldports` SET `z` = '87.944' WHERE (`entry` = '1557');
+        UPDATE `worldports` SET `z` = '54.066' WHERE (`entry` = '7');
+        UPDATE `worldports` SET `z` = '3.12' WHERE (`entry` = '15');
+        UPDATE `worldports` SET `z` = '43.6006' WHERE (`entry` = '34');
+        UPDATE `worldports` SET `x` = '-338.282', `y` = '-195.726', `z` = '2.377', `o` = '3.084' WHERE (`entry` = '35');
+        UPDATE `worldports` SET `x` = '2076.995', `y` = '-4808.518', `z` = '43.392', `o` = '3.90' WHERE (`entry` = '57');
+        UPDATE `worldports` SET `z` = '109.334' WHERE (`entry` = '63');
+        UPDATE `worldports` SET `z` = '85.026' WHERE (`entry` = '67');
+        UPDATE `worldports` SET `z` = '93.256' WHERE (`entry` = '81');
+        UPDATE `worldports` SET `z` = '91.72' WHERE (`entry` = '90');
+        UPDATE `worldports` SET `x` = '-4827.84', `y` = '-1250.747', `z` = '498.276' WHERE (`entry` = '104');
+        UPDATE `worldports` SET `x` = '-7320.239', `y` = '-1078.782', `z` = '277.069' WHERE (`entry` = '106');
+        UPDATE `worldports` SET `z` = '418.997' WHERE (`entry` = '111');
+        UPDATE `worldports` SET `o` = '290.311' WHERE (`entry` = '114');
+        UPDATE `worldports` SET `z` = '12.057' WHERE (`entry` = '115');
+        UPDATE `worldports` SET `z` = '17.185' WHERE (`entry` = '116');
+        UPDATE `worldports` SET `z` = '150.65' WHERE (`entry` = '118');
+        UPDATE `worldports` SET `z` = '464.295' WHERE (`entry` = '119');
+        UPDATE `worldports` SET `z` = '149.6276' WHERE (`entry` = '121');
+        UPDATE `worldports` SET `z` = '156.686' WHERE (`entry` = '122');
+        UPDATE `worldports` SET `x` = '-7822.04', `y` = '-1135.43', `z` = '144.086' WHERE (`entry` = '123');
+        UPDATE `worldports` SET `z` = '73.224' WHERE (`entry` = '132');
+        UPDATE `worldports` SET `x` = '-7793.850', `y` = '-1162.556', `z` = '176.560' WHERE (`entry` = '133');
+        UPDATE `worldports` SET `z` = '138.95' WHERE (`entry` = '134');
+        UPDATE `worldports` SET `z` = '65.161' WHERE (`entry` = '142');
+        UPDATE `worldports` SET `x` = '-2287.804', `y` = '2494.326', `z` = '73.774' WHERE (`entry` = '154');
+        UPDATE `worldports` SET `z` = '47.716' WHERE (`entry` = '170');
+        UPDATE `worldports` SET `z` = '91.672' WHERE (`entry` = '177');
+        UPDATE `worldports` SET `y` = '-4749.331', `z` = '54.697' WHERE (`entry` = '181');
+        UPDATE `worldports` SET `x` = '-1181.252', `y` = '2867.726', `z` = '134.623' WHERE (`entry` = '190');
+        UPDATE `worldports` SET `z` = '77.894' WHERE (`entry` = '198');
+        UPDATE `worldports` SET `z` = '520.165' WHERE (`entry` = '199');
+        UPDATE `worldports` SET `z` = '46.285' WHERE (`entry` = '202');
+        UPDATE `worldports` SET `z` = '-0.199' WHERE (`entry` = '206');
+
+        -- Ignore go's.
+        -- Some doors in the ocean.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7635');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7636');
+        -- Flying chairs Aszhara
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48445');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48441');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48442');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48443');
+        -- Boat to Theramore / Boat to Auberdine floating signs.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '13771');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '13779');
+        
+        insert into applied_updates values ('260720222');
+    end if;
+
 end $
 delimiter ;
