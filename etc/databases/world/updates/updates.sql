@@ -7467,5 +7467,12 @@ begin not atomic
         insert into applied_updates values ('260720222');
     end if;
 
+    -- 28/07/2022 1
+    if (select count(*) from applied_updates where id='280720221') = 0 then
+        -- Despawn NPCs not present in 0.5.3. https://github.com/The-Alpha-Project/alpha-core/issues/313
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_entry1` > 5759;
+
+        insert into applied_updates values ('280720221');
+    end if;
 end $
 delimiter ;
