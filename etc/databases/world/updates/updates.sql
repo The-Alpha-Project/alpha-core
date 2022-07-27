@@ -7407,7 +7407,7 @@ begin not atomic
     -- 26/07/2022 2
     if (select count(*) from applied_updates where id='260720222') = 0 then
     
-        -- Crossroads brazziers.
+        -- Crossroads braziers.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-416.900', `spawn_positionY` = '-2634.74', `spawn_positionZ` = '97.37' WHERE (`spawn_id` = '13364');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-396.841', `spawn_positionY` = '-2639.795', `spawn_positionZ` = '97.37' WHERE (`spawn_id` = '13387');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-410.054', `spawn_positionY` = '-2651.269', `spawn_positionZ` = '97.37' WHERE (`spawn_id` = '13361');
@@ -7451,11 +7451,11 @@ begin not atomic
         UPDATE `worldports` SET `z` = '46.285' WHERE (`entry` = '202');
         UPDATE `worldports` SET `z` = '-0.199' WHERE (`entry` = '206');
 
-        -- Ignore go's.
+        -- Ignore gos.
         -- Some doors in the ocean.
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7635');
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7636');
-        -- Flying chairs Aszhara
+        -- Flying chairs Azshara
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48445');
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48441');
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48442');
