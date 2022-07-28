@@ -7474,5 +7474,81 @@ begin not atomic
 
         insert into applied_updates values ('280720221');
     end if;
+    
+    -- 28/07/2022 2
+    if (select count(*) from applied_updates where id='280720222') = 0 then
+        UPDATE `worldports` SET `z` = '69.701' WHERE (`entry` = '207');
+        UPDATE `worldports` SET `z` = '-38.813' WHERE (`entry` = '209');
+        UPDATE `worldports` SET `z` = '0' WHERE (`entry` = '237');
+        UPDATE `worldports` SET `z` = '111.83' WHERE (`entry` = '242');
+        UPDATE `worldports` SET `z` = '111.047' WHERE (`entry` = '245');
+        UPDATE `worldports` SET `z` = '144.136' WHERE (`entry` = '265');
+        UPDATE `worldports` SET `z` = '523.508' WHERE (`entry` = '266');
+        UPDATE `worldports` SET `z` = '387.117' WHERE (`entry` = '268');
+        UPDATE `worldports` SET `z` = '387.117' WHERE (`entry` = '269');
+        UPDATE `worldports` SET `z` = '387.117' WHERE (`entry` = '270');
+        UPDATE `worldports` SET `z` = '121.260' WHERE (`entry` = '271');
+        UPDATE `worldports` SET `z` = '97.370' WHERE (`entry` = '272');
+        UPDATE `worldports` SET `z` = '118.906' WHERE (`entry` = '296');
+        UPDATE `worldports` SET `z` = '853.825' WHERE (`entry` = '309');
+        UPDATE `worldports` SET `z` = '859.260' WHERE (`entry` = '310');
+        UPDATE `worldports` SET `z` = '1327.391' WHERE (`entry` = '316');
+        UPDATE `worldports` SET `y` = '190.767', `z` = '34.668' WHERE (`entry` = '321');
+        UPDATE `worldports` SET `x` = '-11181.018', `y` = '-1851.852', `z` = '98.672' WHERE (`entry` = '326');
+        UPDATE `worldports` SET `z` = '96.429' WHERE (`entry` = '328');
+        UPDATE `worldports` SET `z` = '28.639' WHERE (`entry` = '329');
+        UPDATE `worldports` SET `z` = '8.221' WHERE (`entry` = '333');
+        UPDATE `worldports` SET `z` = '113.920' WHERE (`entry` = '336');
+        UPDATE `worldports` SET `z` = '70.794' WHERE (`entry` = '337');
+        UPDATE `worldports` SET `z` = '66.910' WHERE (`entry` = '338');
+        UPDATE `worldports` SET `z` = '148.081' WHERE (`entry` = '342');
+        UPDATE `worldports` SET `x` = '-4591.057', `y` = '-1124.197', `z` = '383.377' WHERE (`entry` = '354');
+        UPDATE `worldports` SET `z` = '98.823' WHERE (`entry` = '364');
+        UPDATE `worldports` SET `z` = '41.145' WHERE (`entry` = '389');
+        UPDATE `worldports` SET `z` = '32.044' WHERE (`entry` = '406');
+        UPDATE `worldports` SET `z` = '31.006' WHERE (`entry` = '408');
+        UPDATE `worldports` SET `z` = '55.646' WHERE (`entry` = '411');
+        UPDATE `worldports` SET `z` = '136.463' WHERE (`entry` = '442');
+        UPDATE `worldports` SET `z` = '3.376' WHERE (`entry` = '451');
+        UPDATE `worldports` SET `x` = '-7650.926', `y` = '-1294.159', `z` = '201.667' WHERE (`entry` = '456');
+        UPDATE `worldports` SET `z` = '17.418' WHERE (`entry` = '467');
+        UPDATE `worldports` SET `z` = '53.82' WHERE (`entry` = '501');
+        UPDATE `worldports` SET `z` = '527.072' WHERE (`entry` = '519');
+        UPDATE `worldports` SET `z` = '501.663' WHERE (`entry` = '540');
+        UPDATE `worldports` SET `z` = '66.234' WHERE (`entry` = '568');
+        UPDATE `worldports` SET `z` = '91.111' WHERE (`entry` = '573');
+        UPDATE `worldports` SET `z` = '502.195' WHERE (`entry` = '585');
+        UPDATE `worldports` SET `z` = '488.906' WHERE (`entry` = '602');
+        UPDATE `worldports` SET `x` = '-4790.640', `y` = '-1013.007', `z` = '487.942' WHERE (`entry` = '606');
+        UPDATE `worldports` SET `x` = '-4815.03', `y` = '-1038.72', `z` = '482.537' WHERE (`entry` = '610');
+        UPDATE `worldports` SET `z` = '167.699' WHERE (`entry` = '621');
+        UPDATE `worldports` SET `z` = '78.698' WHERE (`entry` = '639');
+
+        -- Braziers, Barrens.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '13313');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '13326');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '13308');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '13475');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '13466');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '13471');
+        
+        -- Braziers, Feralas.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50051');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50045');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50048');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50061');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '50063');
+        
+        -- Chairs, Barrens.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '13394');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '13397');
+        
+        -- Forge, Barrens.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-2288.750', `spawn_positionY` = '-1952.756', `spawn_positionZ` = '95.93' WHERE (`spawn_id` = '13306');
+        -- Anvil, Barrens.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-2291.904', `spawn_positionY` = '-1943.914', `spawn_positionZ` = '95.472' WHERE (`spawn_id` = '13301');
+    
+        insert into applied_updates values ('280720222');
+    end if;
 end $
 delimiter ;
