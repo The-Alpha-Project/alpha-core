@@ -1,9 +1,11 @@
 from struct import pack
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
+from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import ObjectTypeFlags, ProcFlags, ObjectTypeIds
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
@@ -104,14 +106,15 @@ class AuraManager:
                 return False
         return True
 
-    def check_aura_interrupts(self, moved=False, changed_stand_state=False, negative_aura_applied=False, cast_spell=False, received_damage=False):
+    def check_aura_interrupts(self, moved=False, changed_stand_state=False, negative_aura_applied=False,
+                              received_damage=False, cast_spell: Optional[CastingSpell] = None):
         # TODO turning and water-related checks
         # Add once movement information is passed to update.
         flag_cases = {
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: self.unit_mgr.in_combat,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED: self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE: moved,
-            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST: cast_spell,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST: cast_spell is not None,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL: negative_aura_applied,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_ABOVEWATER: self.unit_mgr.is_on_water(),
@@ -127,11 +130,13 @@ class AuraManager:
                 self.remove_aura(aura)
                 continue
 
+            # Special case for stealth breaking.
+            if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and \
+                    cast_spell and not cast_spell.cast_breaks_stealth():
+                flag_cases[SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST] = None
+
             for flag, condition in flag_cases.items():
                 if aura.interrupt_flags & flag and condition:
-                    # Handle pickpocket case not to interrupt stealth.
-                    if aura.source_spell.is_pick_pocket_spell():
-                        continue
                     self.remove_aura(aura)
                     continue
 

@@ -212,7 +212,7 @@ class SpellManager:
 
         if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT and \
                 not casting_spell.triggered:  # Triggered spells (ie. channel ticks) shouldn't interrupt other casts
-            self.caster.aura_manager.check_aura_interrupts(cast_spell=True)
+            self.caster.aura_manager.check_aura_interrupts(cast_spell=casting_spell)
 
         travel_times = self.calculate_impact_delays(casting_spell)
 

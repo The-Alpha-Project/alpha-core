@@ -229,6 +229,9 @@ class CastingSpell:
     def is_target_immune_to_damage(self):
         return False
 
+    def cast_breaks_stealth(self):
+        return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NOT_BREAK_STEALTH
+
     def is_fishing_spell(self):
         return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF_FISHING
 
