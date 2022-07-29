@@ -1531,7 +1531,6 @@ class PlayerManager(UnitManager):
         self.pet_manager.detach_active_pet()
 
         TradeManager.cancel_trade(self)
-        self.attackers.clear()
         self.spirit_release_timer = 0
         self.mirror_timers_manager.stop_all()
         self.update_swimming_state(False)
