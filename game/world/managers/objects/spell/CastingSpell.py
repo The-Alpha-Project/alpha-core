@@ -266,6 +266,17 @@ class CastingSpell:
         return any(effect.effect_type == SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY
                    for effect in self.get_effects())
 
+    def is_duel_spell(self):
+        return any(effect.effect_type == SpellEffects.SPELL_EFFECT_DUEL
+                   for effect in self.get_effects())
+
+    def is_unlocking_spell(self):
+        unlock_effects = [SpellEffects.SPELL_EFFECT_OPEN_LOCK, SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM]
+        return any(effect.effect_type in unlock_effects for effect in self.get_effects())
+
+    def is_pickpocket_spell(self):
+        return any(effect.effect_type == SpellEffects.SPELL_EFFECT_PICKPOCKET for effect in self.get_effects())
+
     def is_refreshment_spell(self):
         spell_effect = self._effects[0]  # Food/drink effect should be first.
         if not spell_effect:
@@ -283,18 +294,17 @@ class CastingSpell:
 
         return has_sitting_attribute and is_regen_buff and has_refreshment_period
 
-    def get_enchantment_id(self):
-        enchantment_effects = [SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT,
-                               SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY]
-        for effect in self.get_effects():
-            if effect.effect_type in enchantment_effects:
-                return effect.misc_value
-
     def has_effect_of_type(self, effect_type: SpellEffects):
         for effect in self.get_effects():
             if effect.effect_type == effect_type:
                 return True
         return False
+
+    def get_effect_by_type(self, effect_type: SpellEffects) -> Optional[SpellEffect]:
+        for effect in self.get_effects():
+            if effect.effect_type == effect_type:
+                return effect
+        return None
 
     def trigger_cooldown_on_aura_remove(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE == SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE

@@ -1,7 +1,5 @@
-from random import randint
 from struct import pack
 
-from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
@@ -107,89 +105,33 @@ class SpellEffectHandler:
                                           summoner=caster, despawn_time=3600, spell_id=casting_spell.spell_entry.ID,
                                           override_faction=caster.faction)
 
-        duel_result = DuelManager.request_duel(caster, target, arbiter)
-        if duel_result == 1:
-            result = SpellCheckCastResult.SPELL_NO_ERROR
-        elif duel_result == 0:
-            result = SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING
-        else:
-            result = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
-        caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, result)
+        DuelManager.request_duel(caster, target, arbiter)
 
     @staticmethod
     def handle_open_lock(casting_spell, effect, caster, target):
         if not caster or caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
-                                                  SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return
-
-        if isinstance(target, GameObjectManager):
-            lock_id = target.lock
-            # Already open (0).
-            if not lock_id:
-                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
-                                                      SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
-                return
-
-            # TODO, 'gameobject_requirement' table.
-            # Already being used.
-            if target.is_active() or target.has_flag(GameObjectFlags.IN_USE):
-                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
-                                                      SpellCheckCastResult.SPELL_FAILED_CHEST_IN_USE)
-                return
-        elif isinstance(target, ItemManager):
-            # Grab Item owner guid.
-            owner_guid = target.get_owner_guid()
-            if not owner_guid:
-                return
-
-            # Validate player is online.
-            owner_player = WorldSessionStateHandler.find_player_by_guid(owner_guid)
-            if not owner_player:
-                return
-
-            lock_id = target.lock
-            # Already unlocked.
-            if not lock_id or target.has_flag(ItemDynFlags.ITEM_DYNFLAG_UNLOCKED):
-                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
-                                                      SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
-                return
-        else:  # Bad target.
-            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
-                                                  SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
-            return
-
-        lock_type = effect.misc_value
-        bonus_points = effect.get_effect_simple_points()
-        lock_result = LockManager.can_open_lock(caster, lock_type, lock_id,
-                                                cast_item=casting_spell.source_item,
-                                                bonus_points=bonus_points)
-        if lock_result.result != SpellCheckCastResult.SPELL_NO_ERROR:
-            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, lock_result.result)
-            return
-
-        skill_value = lock_result.skill_value
-        bonus_skill_value = lock_result.bonus_skill_value
-        required_skill_value = lock_result.required_skill_value
-        skill_type = lock_result.skill_type
-        # Chance for fail at orange mining, herbs or lock picking.
-        if (skill_type == SkillTypes.HERBALISM or skill_type == SkillTypes.MINING
-                or lock_result.skill_type == SkillTypes.LOCKPICKING):
-            can_fail_at_max_skill = skill_type != SkillTypes.HERBALISM and skill_type != SkillTypes.MINING
-            if can_fail_at_max_skill and required_skill_value > randint(bonus_skill_value - 25, bonus_skill_value + 37):
-                caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN)
-                return
 
         if target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
-            if skill_type != SkillTypes.NONE:
-                caster.skill_manager.handle_gather_skill_gain(skill_type, skill_value, required_skill_value)
             target.use(caster, target)
         elif target.get_type_id() == ObjectTypeIds.ID_ITEM:
-            if skill_type != SkillTypes.NONE:
-                caster.skill_manager.handle_gather_skill_gain(skill_type, skill_value, required_skill_value)
             target.set_unlocked()
         else:
             Logger.debug(f'Unimplemented open lock spell effect.')
+            return
+
+        lock_type = effect.misc_value
+        lock_id = target.lock
+        bonus_points = effect.get_effect_simple_points()
+
+        # Lock opening is already validated at this point, but use can_open_lock to fetch lock info.
+        lock_result = LockManager.can_open_lock(caster, lock_type, lock_id,
+                                                cast_item=casting_spell.source_item,
+                                                bonus_points=bonus_points)
+
+        caster.skill_manager.handle_gather_skill_gain(lock_result.skill_type,
+                                                      lock_result.skill_value,
+                                                      lock_result.required_skill_value)
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
@@ -519,29 +461,8 @@ class SpellEffectHandler:
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        if not target or not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT or not caster.can_attack_target(target):
-            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
-                                                  SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
-            return
-
-        if not target.is_alive:
-            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
-                                                  SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
-            return
-
-        if not target.pickpocket_loot_manager:
-            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
-                                                  SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
-            return
-
         if not target.pickpocket_loot_manager.has_loot():
             target.pickpocket_loot_manager.generate_loot(caster)
-
-        # If still has no loot.
-        if not target.pickpocket_loot_manager:
-            caster.spell_manager.send_cast_result(casting_spell.spell_entry.ID,
-                                                  SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
-            return
 
         caster.send_loot(target.pickpocket_loot_manager)
 
@@ -555,32 +476,8 @@ class SpellEffectHandler:
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        # Target should resolve to ItemManager.
-        if not isinstance(target, ItemManager):
-            return
-
-        # Enchantment ID.
-        if not effect.misc_value:
-            return
-
-        # Grab Item owner guid.
-        owner_guid = target.get_owner_guid()
-        if not owner_guid:
-            return
-
-        # Validate player is online.
-        owner_player = WorldSessionStateHandler.find_player_by_guid(owner_guid)
-        if not owner_player:
-            return
-
-        # Validate if the item enchantment exist.
-        enchantment = DbcDatabaseManager.spell_get_item_enchantment(effect.misc_value)
-        if not enchantment:
-            return
-
         # Calculate slot, duration and charges.
         enchantment_slot = EnchantmentSlots.PermanentSlot if not is_temporary else EnchantmentSlots.TemporarySlot
-        effect_index = effect.get_effect_points(casting_spell.caster_effective_level)
 
         duration = 0
         charges = 0
@@ -589,6 +486,10 @@ class SpellEffectHandler:
             # Temporary enchantments from professions (enchanting) have a duration of 1h while others have 30min.
             duration = 30 * 60 if not casting_spell.spell_entry.CastUI else 60 * 60
             charges = int(WorldDatabaseManager.spell_enchant_charges_get_by_spell(casting_spell.spell_entry.ID))
+
+        owner_player = WorldSessionStateHandler.find_player_by_guid(target.get_owner_guid())
+        if not owner_player:
+            return
 
         # If this enchantment is being applied on a trade, update trade status with proposed enchant.
         # Enchant will be applied after trade is accepted.
