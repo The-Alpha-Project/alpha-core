@@ -1,0 +1,77 @@
+[SUCCESS] [26/07/2022 17:53:38] Proxy server started, listening on 0.0.0.0:9090
+2477490176
+[SUCCESS] [26/07/2022 17:53:38] Login server started, listening on 0.0.0.0:9100
+1 MB used
+4 MB used
+[SUCCESS] [26/07/2022 17:53:39] Loading gameobject loot templates... 13562/13562 (100%)
+32 MB used
+[SUCCESS] [26/07/2022 17:53:39] Loading fishing loot templates... 2610/2610 (100%)
+33 MB used
+[SUCCESS] [26/07/2022 17:53:43] Loading creature loot templates... 210439/210439 (100%)
+383 MB used
+[SUCCESS] [26/07/2022 17:53:45] Loading item templates... 13120/13120 (100%)
+494 MB used
+[SUCCESS] [26/07/2022 17:53:45] Loading reference loot templates... 4006/4006 (100%)
+499 MB used
+[SUCCESS] [26/07/2022 17:53:45] Loading pickpocketing loot templates... 6842/6842 (100%)
+506 MB used
+[SUCCESS] [26/07/2022 17:53:45] Loading item loot templates... 1290/1290 (100%)
+505 MB used
+[SUCCESS] [26/07/2022 17:53:45] Loading spells... 6590/6590 (100%)
+596 MB used
+[SUCCESS] [26/07/2022 17:53:46] Loading creature spells... 1628/1628 (100%)
+655 MB used
+[SUCCESS] [26/07/2022 17:53:46] Loading gameobject quest starters... 222/222 (100%)
+655 MB used
+[SUCCESS] [26/07/2022 17:53:46] Loading gameobject quest finishers... 184/184 (100%)
+655 MB used
+[SUCCESS] [26/07/2022 17:53:50] Spawning gameobjects... 23955/23955 (100%)
+728 MB used
+[SUCCESS] [26/07/2022 17:53:50] Loading creature equipment templates... 4147/4147 (100%)
+734 MB used
+[SUCCESS] [26/07/2022 17:54:01] Spawning creatures... 49508/49508 (100%)
+1568 MB used
+[SUCCESS] [26/07/2022 17:54:01] Loading creature on kill reputations... 127/127 (100%)
+1569 MB used
+[SUCCESS] [26/07/2022 17:54:01] Loading creature quest starters... 2566/2566 (100%)
+1569 MB used
+[SUCCESS] [26/07/2022 17:54:01] Loading creature quest finishers... 2655/2655 (100%)
+1570 MB used
+[SUCCESS] [26/07/2022 17:54:01] Loading creature display info... 3620/3620 (100%)
+1575 MB used
+[SUCCESS] [26/07/2022 17:54:01] Loading creature model info... 10534/10534 (100%)
+1594 MB used
+[SUCCESS] [26/07/2022 17:54:01] Loading creature families... 19/19 (100%)
+1594 MB used
+[SUCCESS] [26/07/2022 17:54:01] Loading npc gossip... 1618/1618 (100%)
+1595 MB used
+[SUCCESS] [26/07/2022 17:54:01] Loading npc gossip texts... 4489/4489 (100%)
+1621 MB used
+[SUCCESS] [26/07/2022 17:54:01] Loading area trigger quest relations... 21/21 (100%)
+1621 MB used
+[SUCCESS] [26/07/2022 17:54:02] Loading quest templates... 2839/2839 (100%)
+1639 MB used
+[SUCCESS] [26/07/2022 17:54:02] Loading spell chains... 572/572 (100%)
+1639 MB used
+[SUCCESS] [26/07/2022 17:54:02] Loading trainer spells... 1118/1118 (100%)
+1640 MB used
+[SUCCESS] [26/07/2022 17:54:02] Loading skill... 141/141 (100%)
+1640 MB used
+[SUCCESS] [26/07/2022 17:54:02] Loading skill line abilities... 1829/1829 (100%)
+1642 MB used
+[SUCCESS] [26/07/2022 17:54:02] Loading char base infos... 40/40 (100%)
+1642 MB used
+[SUCCESS] [26/07/2022 17:54:02] Loading taxi nodes... 36/36 (100%)
+1642 MB used
+[SUCCESS] [26/07/2022 17:54:02] Loading taxi path nodes... 2274/2274 (100%)
+1645 MB used
+[SUCCESS] [26/07/2022 17:54:02] Loading factions... 100/100 (100%)
+1646 MB used
+[SUCCESS] [26/07/2022 17:54:02] Loading faction templates... 148/148 (100%)
+1646 MB used
+[SUCCESS] [26/07/2022 17:54:02] Loading locks... 94/94 (100%)
+1646 MB used
+1647 MB used
+1647 MB used
+[SUCCESS] [26/07/2022 17:54:02] World server started, listening on 0.0.0.0:8100
+[SUCCESS] [26/07/2022 17:54:18] Core gracefully shut down.

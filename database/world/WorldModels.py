@@ -974,7 +974,7 @@ class SpawnsCreatures(Base):
     __tablename__ = 'spawns_creatures'
 
     spawn_id = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
-    spawn_entry1 = Column(ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"), comment='Creature Template Id')
+    spawn_entry1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment='Creature Template Id')
     spawn_entry2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment='Creature Template Id')
     spawn_entry3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment='Creature Template Id')
     spawn_entry4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment='Creature Template Id')
@@ -998,7 +998,6 @@ class SpawnsCreatures(Base):
     addon_template = relationship('CreatureAddonTemplate', foreign_keys='CreatureAddonTemplate.guid',
                                   primaryjoin='SpawnsCreatures.spawn_id == CreatureAddonTemplate.guid',
                                   lazy='joined', uselist=False)
-    creature_template = relationship('CreatureTemplate', backref='CreatureTemplate', lazy='joined')
     npc_text = relationship('NpcText', secondary='npc_gossip')
 
 

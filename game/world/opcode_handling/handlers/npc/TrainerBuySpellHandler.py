@@ -45,7 +45,7 @@ class TrainerBuySpellHandler(object):
             # Otherwise, using a trainer NPC.
             else:
                 npc: CreatureManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, trainer_guid)
-                trainer_creature_template: CreatureTemplate = WorldDatabaseManager.creature_get_by_entry(npc.entry)
+                trainer_creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(npc.entry)
                 trainer_spell_id = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_id_get_from_player_spell_id(trainer_creature_template.trainer_id, spell_id)
                 trainer_spell = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_entry_get_by_trainer_and_spell(trainer_creature_template.trainer_id, trainer_spell_id)
                 spell_money_cost = trainer_spell.spellcost

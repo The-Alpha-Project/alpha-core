@@ -37,93 +37,53 @@ class CreatureManager(UnitManager):
     CURRENT_HIGHEST_GUID = 0
 
     def __init__(self,
-                 creature_template,
+                 creature_template=None,
                  creature_instance=None,
                  summoner=None,
                  **kwargs):
         super().__init__(**kwargs)
 
-        self.creature_template = creature_template
         self.creature_instance = creature_instance
-        self.fully_loaded = False
-        self.killed_by = None
-        self.summoner = summoner
-        self.known_players = {}
+        self.creature_template = None
 
-        self.entry = self.creature_template.entry
-        self.class_ = self.creature_template.unit_class
-        self.native_display_id = self.generate_display_id()
-        self.current_display_id = self.native_display_id
-        self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
+        if CreatureManager.CURRENT_HIGHEST_GUID < self.creature_instance.spawn_id:
+            CreatureManager.CURRENT_HIGHEST_GUID = self.creature_instance.spawn_id
 
-        # Calculate relative level in order to get health and mana values.
-        rel_level = 0 if self.creature_template.level_max == self.creature_template.level_min else \
-            ((self.level - self.creature_template.level_min) /
-             (self.creature_template.level_max - self.creature_template.level_min))
-        self.max_health = self.creature_template.health_min + int(rel_level * (self.creature_template.health_max -
-                                                                               self.creature_template.health_min))
-        self.max_power_1 = self.creature_template.mana_min + int(rel_level * (self.creature_template.mana_max -
-                                                                              self.creature_template.mana_min))
+        self.guid = self.generate_object_guid(self.creature_instance.spawn_id)
 
-        self.health = self.max_health
-        self.power_1 = self.max_power_1
-        self.resistance_0 = self.creature_template.armor
-        self.resistance_1 = self.creature_template.holy_res
-        self.resistance_2 = self.creature_template.fire_res
-        self.resistance_3 = self.creature_template.nature_res
-        self.resistance_4 = self.creature_template.frost_res
-        self.resistance_5 = self.creature_template.shadow_res
-        self.npc_flags = self.creature_template.npc_flags
-        self.static_flags = self.creature_template.static_flags
-        self.mod_cast_speed = 1.0
-        self.base_attack_time = self.creature_template.base_attack_time
-        self.unit_flags = self.creature_template.unit_flags
+        self.npc_flags = 0
+        self.static_flags = 0
         self.emote_state = 0
-        self.faction = self.creature_template.faction
-        self.creature_type = self.creature_template.type
-        self.spell_list_id = self.creature_template.spell_list_id
-        self.sheath_state = WeaponMode.NORMALMODE
-        self.regen_flags = self.creature_template.regeneration
-        self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
-
-        self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
-
-        if 0 < self.creature_template.rank < 4:
-            self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
-
-        # TODO, creatures are still resolving to aggressive.
-        if self.is_totem() or self.is_critter() or not self.can_have_target():
-            self.react_state = CreatureReactStates.REACT_PASSIVE
-        elif self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO:
-            self.react_state = CreatureReactStates.REACT_DEFENSIVE
-        else:
-            self.react_state = CreatureReactStates.REACT_AGGRESSIVE
-
+        self.spell_list_id = 0
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
         self.time_to_live_timer = -1
         self.respawn_timer = 0
         self.last_random_movement = 0
         self.random_movement_wait_time = randint(1, 12)
+        self.virtual_item_info = {}
+        self.react_state = CreatureReactStates.REACT_PASSIVE
+        self.spawn_position = None
+        self.respawn_time = 0
 
-        if self.creature_instance:
-            if CreatureManager.CURRENT_HIGHEST_GUID < creature_instance.spawn_id:
-                CreatureManager.CURRENT_HIGHEST_GUID = creature_instance.spawn_id
+        # If spawned by another unit, use that unit map and zone.
+        self.map_ = self.creature_instance.map if not self.summoner else self.summoner.map_
+        self.zone = self.summoner.zone if self.summoner else 0
+        self.spawn_position = Vector(self.creature_instance.position_x,
+                                     self.creature_instance.position_y,
+                                     self.creature_instance.position_z,
+                                     self.creature_instance.orientation)
+        self.creature_entry_list = list(filter((0).__ne__, [self.creature_instance.spawn_entry1,
+                                                            self.creature_instance.spawn_entry2,
+                                                            self.creature_instance.spawn_entry3,
+                                                            self.creature_instance.spawn_entry4]))
 
-            self.guid = self.generate_object_guid(creature_instance.spawn_id)
-            self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
-            # If spawned by another unit, use that unit map and zone.
-            self.map_ = self.creature_instance.map if not self.summoner else self.summoner.map_
-            self.zone = self.summoner.zone if self.summoner else 0
-            self.spawn_position = Vector(self.creature_instance.position_x,
-                                         self.creature_instance.position_y,
-                                         self.creature_instance.position_z,
-                                         self.creature_instance.orientation)
-            self.location = self.spawn_position.copy()
-            self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
+        self.fully_loaded = False
+        self.killed_by = None
+        self.summoner = summoner
+        self.known_players = {}
 
-        # Creature AI.
-        self.object_ai = AIFactory.build_ai(self)
+        self.initialize_creature(self.generate_creature_template())
 
         # All creatures can block, parry and dodge by default.
         # TODO, Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
@@ -142,12 +102,86 @@ class CreatureManager(UnitManager):
         info_packed: int = 0  # ClassID, SubClassID, Material, InventoryType.
         info_packed_2: int = 0  # Sheath, Padding, Padding, Padding.
 
+    def initialize_creature(self, creature_template):
+        if not creature_template:
+            return
+
+        # Only update stored creature_template and related values if it's different than the previous one.
+        if self.creature_template != creature_template:
+            self.creature_template = creature_template
+
+            self.entry = self.creature_template.entry
+            self.class_ = self.creature_template.unit_class
+            self.resistance_0 = self.creature_template.armor
+            self.resistance_1 = self.creature_template.holy_res
+            self.resistance_2 = self.creature_template.fire_res
+            self.resistance_3 = self.creature_template.nature_res
+            self.resistance_4 = self.creature_template.frost_res
+            self.resistance_5 = self.creature_template.shadow_res
+            self.npc_flags = self.creature_template.npc_flags
+            self.static_flags = self.creature_template.static_flags
+            self.regen_flags = self.creature_template.regeneration
+            self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
+            self.base_attack_time = self.creature_template.base_attack_time
+            self.unit_flags = self.creature_template.unit_flags
+            self.emote_state = 0
+            self.faction = self.creature_template.faction
+            self.creature_type = self.creature_template.type
+            self.spell_list_id = self.creature_template.spell_list_id
+            self.sheath_state = WeaponMode.NORMALMODE
+
+            if 0 < self.creature_template.rank < 4:
+                self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
+
+            # TODO, creatures are still resolving to aggressive.
+            if self.is_totem() or self.is_critter() or not self.can_have_target():
+                self.react_state = CreatureReactStates.REACT_PASSIVE
+            elif self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO:
+                self.react_state = CreatureReactStates.REACT_DEFENSIVE
+            else:
+                self.react_state = CreatureReactStates.REACT_AGGRESSIVE
+            self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
+
+            self.mod_cast_speed = 1.0
+            self.wearing_offhand_weapon = False
+            self.wearing_ranged_weapon = False
+
+            self.fully_loaded = False
+
+        self.initialized = False
+        self.killed_by = None
+        self.known_players = {}
+
+        self.native_display_id = self.generate_display_id()
+        self.current_display_id = self.native_display_id
+        self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
+
+        # Calculate relative level in order to get health and mana values.
+        rel_level = 0 if self.creature_template.level_max == self.creature_template.level_min else \
+            ((self.level - self.creature_template.level_min) /
+             (self.creature_template.level_max - self.creature_template.level_min))
+        self.max_health = self.creature_template.health_min + int(rel_level * (self.creature_template.health_max -
+                                                                               self.creature_template.health_min))
+        self.max_power_1 = self.creature_template.mana_min + int(rel_level * (self.creature_template.mana_max -
+                                                                              self.creature_template.mana_min))
+        self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
+        self.power_1 = int((self.creature_instance.mana_percent / 100) * self.max_power_1)
+
+        self.time_to_live_timer = -1
+        self.respawn_timer = 0
+        self.last_random_movement = 0
+        self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
+        self.location = self.spawn_position.copy()
+
+        # Creature AI.
+        self.object_ai = AIFactory.build_ai(self)
+
     def load(self):
         MapManager.update_object(self)
 
     @staticmethod
     def spawn(entry, location, map_id, summoner=None, override_faction=0, despawn_time=1, spell_id=0, ttl=-1):
-        creature_template = WorldDatabaseManager.creature_get_by_entry(entry)
+        creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(entry)
 
         if not creature_template:
             return None
@@ -186,12 +220,15 @@ class CreatureManager(UnitManager):
         creature.load()
         return creature
 
+    def generate_creature_template(self):
+        return WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(choice(self.creature_entry_list))
+
     def generate_display_id(self):
         display_id_list = list(filter((0).__ne__, [self.creature_template.display_id1,
                                                    self.creature_template.display_id2,
                                                    self.creature_template.display_id3,
                                                    self.creature_template.display_id4]))
-        return choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube
+        return choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube.
 
     def send_inventory_list(self, world_session):
         vendor_data, session = WorldDatabaseManager.creature_get_vendor_data(self.entry)
@@ -783,21 +820,17 @@ class CreatureManager(UnitManager):
 
     # override
     def respawn(self):
-        super().respawn()
-        # Set all property values before making this creature visible.
-        self.location = self.spawn_position.copy()
-        self.set_health(self.max_health)
-        self.set_mana(self.max_power_1)
+        # Only pick between creature templates if there's more than 1 creature entry defined.
+        self.initialize_creature(self.generate_creature_template() if len(self.creature_entry_list) > 1
+                                 else self.creature_template)
 
+        super().respawn()
         self.loot_manager.clear()
         self.set_lootable(False)
 
         if self.killed_by and self.killed_by.group_manager:
             self.killed_by.group_manager.clear_looters_for_victim(self)
         self.killed_by = None
-
-        self.respawn_timer = 0
-        self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
 
         # Update its cell position if needed (Died far away from spawn location cell)
         MapManager.update_object(self)

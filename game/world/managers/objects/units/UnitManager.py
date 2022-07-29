@@ -864,7 +864,7 @@ class UnitManager(ObjectManager):
                                                  self, config.World.Chat.ChatRange.emote_range)
 
     def summon_mount(self, creature_entry):
-        creature_template = WorldDatabaseManager.creature_get_by_entry(creature_entry)
+        creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_entry)
         if not creature_template:
             return False
 
