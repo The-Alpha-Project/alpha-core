@@ -883,7 +883,8 @@ class QuestManager(object):
         data += pack('<I', len(rew_item_list))
         for index, rew_item in enumerate(rew_item_list):
             data += pack('<2I', rew_item_list[index], rew_item_count_list[index])
-            self.player_mgr.inventory.add_item(entry=rew_item_list[index], show_item_get=False)
+            self.player_mgr.inventory.add_item(entry=rew_item_list[index], count=rew_item_count_list[index],
+                                               show_item_get=False)
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_COMPLETE, data))
 
