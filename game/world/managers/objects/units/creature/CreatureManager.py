@@ -842,6 +842,7 @@ class CreatureManager(UnitManager):
         if not self.is_alive:
             return False
 
+        self.attackers.clear()
         self.threat_manager.reset()
 
         if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
