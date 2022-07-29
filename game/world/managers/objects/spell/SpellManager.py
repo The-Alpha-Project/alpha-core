@@ -11,6 +11,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
@@ -19,11 +20,12 @@ from game.world.managers.objects.units.player.EnchantmentManager import Enchantm
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses
+from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags
 from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds
+from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
-    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode
 
 
@@ -212,7 +214,7 @@ class SpellManager:
 
         if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT and \
                 not casting_spell.triggered:  # Triggered spells (ie. channel ticks) shouldn't interrupt other casts
-            self.caster.aura_manager.check_aura_interrupts(cast_spell=True)
+            self.caster.aura_manager.check_aura_interrupts(cast_spell=casting_spell)
 
         travel_times = self.calculate_impact_delays(casting_spell)
 
@@ -738,6 +740,18 @@ class SpellManager:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
 
+        # Rough target type check for the client-provided target to avoid crashes.
+        # If the client is behaving as expected, this will always be valid.
+        if casting_spell.spell_entry.Targets == SpellTargetMask.ITEM and \
+                not casting_spell.initial_target_is_item() or \
+                (casting_spell.spell_entry.Targets == SpellTargetMask.UNIT_SELF and
+                 not casting_spell.initial_target_is_unit_or_player()) or \
+                (casting_spell.spell_entry.Targets == SpellTargetMask.DEST_LOCATION and
+                 not casting_spell.initial_target_is_terrain()):
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return False
+
+        # Unlearned spell.
         if (not casting_spell.triggered and not casting_spell.source_item) and \
                 casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING and \
                 self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
@@ -745,10 +759,10 @@ class SpellManager:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
             return False
 
-        # Caster unit-only checks.
+        # Caster unit-only state checks.
         if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            if not self.caster.is_alive and \
-                    casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD != SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD:
+            if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD and \
+                    not self.caster.is_alive:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_CASTER_DEAD)
                 return False
 
@@ -812,44 +826,25 @@ class SpellManager:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
                     return False
 
-        # Validate enchantments.
-        if casting_spell.is_enchantment_spell():
-            # Invalid target.
-            if not casting_spell.initial_target_is_item():
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)
-                return False
-
-            # Do not allow temporary enchantments in trade slot.
-            if casting_spell.is_temporary_enchant_spell():
-                # TODO: Further research needed, we have neither SPELL_FAILED_NOT_TRADEABLE or 'Slot' in
-                #   SpellItemEnchantment. Refer to VMaNGOS Spell.cpp 7822.
-                if casting_spell.initial_target.get_owner_guid() != casting_spell.spell_caster.guid:
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
-                    return False
-
-            # Do not allow to enchant if it has an existent permanent enchantment.
-            if EnchantmentManager.get_permanent_enchant_value(casting_spell.initial_target) != 0:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
-                return False
-
-            # Validate enchantment exist.
-            enchantment_id = casting_spell.get_enchantment_id()
-            enchantment = DbcDatabaseManager.spell_get_item_enchantment(enchantment_id)
-            if not enchantment:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
-                return False
-
-            # Validate target item class and subclass, if needed.
-            # TODO: We don't have EquippedItemInventoryTypeMask, so we have no way to validate inventory slots.
-            #  e.g. Enchant bracers would still work on legs, chest, etc. So maybe they had some filtering by name?
+        # Item target checks.
+        if casting_spell.initial_target_is_item():
+            # Match item class/subclass.
             if casting_spell.spell_entry.EquippedItemClass != -1:
                 required_item_class = casting_spell.spell_entry.EquippedItemClass
-                required_item_sub_class = casting_spell.spell_entry.EquippedItemSubclass
+                required_item_subclass = casting_spell.spell_entry.EquippedItemSubclass
+
                 item_class = casting_spell.initial_target.item_template.class_
                 item_subclass_mask = 1 << casting_spell.initial_target.item_template.subclass
-                if required_item_class != item_class or required_item_sub_class & item_subclass_mask == 0:
+                if required_item_class != item_class or \
+                        not required_item_subclass & item_subclass_mask:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                     return False
+
+            # Validate item owner online status.
+            item_owner = validation_target.get_owner_guid()
+            if not item_owner or not WorldSessionStateHandler.find_player_by_guid(item_owner):
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
 
         # Aura bounce check.
         if casting_spell.initial_target_is_unit_or_player():
@@ -868,6 +863,27 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, error)
                 return False
 
+        # Effect-specific validation.
+
+        # Enchanting checks.
+        if casting_spell.is_enchantment_spell():
+            # TODO: We don't have EquippedItemInventoryTypeMask, so we have no way to validate inventory slots.
+            #  e.g. Enchant bracers would still work on legs, chest, etc. So maybe they had some filtering by name?
+
+            # Do not allow temporary enchantments in trade slot.
+            if casting_spell.is_temporary_enchant_spell():
+                # TODO: Further research needed, we have neither SPELL_FAILED_NOT_TRADEABLE or 'Slot' in
+                #   SpellItemEnchantment. Refer to VMaNGOS Spell.cpp 7822.
+                if casting_spell.initial_target.get_owner_guid() != casting_spell.spell_caster.guid:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
+                    return False
+
+            # Do not allow to enchant if it has an existent permanent enchantment.
+            if EnchantmentManager.get_permanent_enchant_value(casting_spell.initial_target) != 0:
+                self.send_cast_result(casting_spell.spell_entry.ID,
+                                      SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
+                return False
+
         # Charm checks.
         if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and casting_spell.is_charm_spell():
             if not self.caster.can_attack_target(validation_target):
@@ -879,6 +895,56 @@ class SpellManager:
                 error = SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_SUMMON if active_pet.permanent \
                     else SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_CHARM
                 self.send_cast_result(casting_spell.spell_entry.ID, error)
+                return False
+
+        # Pickpocketing target validity check.
+        if casting_spell.is_pickpocket_spell() and not validation_target.pickpocket_loot_manager:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
+            return False
+
+        # Duel target check.
+        if casting_spell.is_duel_spell() and validation_target.duel_manager:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
+            return False
+
+        # Lock/chest checks.
+        if casting_spell.is_unlocking_spell():
+            # Already unlocked.
+            if not validation_target.lock:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
+                return False
+
+            # GameObject already in use. TODO, 'gameobject_requirement' table.
+            if casting_spell.initial_target_is_gameobject() and \
+                    (validation_target.is_active() or validation_target.has_flag(GameObjectFlags.IN_USE)):
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_CHEST_IN_USE)
+                return False
+
+            # Item already unlocked.
+            if casting_spell.initial_target_is_item() and \
+                    validation_target.has_flag(ItemDynFlags.ITEM_DYNFLAG_UNLOCKED):
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
+                return False
+
+            # OPEN_LOCK spells can provide bonus skill.
+            lock_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK)
+            bonus_skill = lock_effect.get_effect_simple_points()
+
+            # Skill checks and random failure chance.
+            if casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING:
+                # Skill check only on initial validation.
+                unlock_result = LockManager.can_open_lock(self.caster, lock_effect.misc_value, validation_target.lock,
+                                                          cast_item=casting_spell.source_item, bonus_points=bonus_skill)
+                unlock_result = unlock_result.result
+            else:
+                # Include failure chance on cast.
+                unlock_result = self.caster.skill_manager.get_unlocking_attempt_result(lock_effect.misc_value,
+                                                                                       validation_target.lock,
+                                                                                       used_item=casting_spell.source_item,
+                                                                                       bonus_skill=bonus_skill)
+
+            if unlock_result != SpellCheckCastResult.SPELL_NO_ERROR:
+                self.send_cast_result(casting_spell.spell_entry.ID, unlock_result)
                 return False
 
         # Special case of Ritual of Summoning.

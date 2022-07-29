@@ -1,4 +1,5 @@
 from struct import pack
+from typing import Tuple, Dict
 
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.ItemCodes import InventorySlots, ItemEnchantmentType, EnchantmentSlots
@@ -13,6 +14,7 @@ MAX_ENCHANTMENTS = 5
 class EnchantmentManager(object):
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
+        self._applied_proc_enchants: Dict[int, Tuple[int, int]] = {}  # enchantment id: (spell id, proc chance).
 
     # Load and apply enchantments from item_instance.
     def load_enchantments_for_item(self, item):
@@ -50,11 +52,7 @@ class EnchantmentManager(object):
         if slot != EnchantmentSlots.PermanentSlot:
             self.send_enchantments_durations(slot)
 
-        if EnchantmentManager.has_enchantments_effect_by_type(item, ItemEnchantmentType.BUFF_EQUIPPED):
-            if item.is_equipped():
-                self._handle_aura_proc(item)
-            else:
-                self._handle_aura_removal(item)
+        self._handle_equip_buffs(item, remove=not item.is_equipped())
 
     # Notify the client with the enchantment duration.
     def send_enchantments_durations(self, update_slot=-1):
@@ -63,21 +61,24 @@ class EnchantmentManager(object):
                 if slot > EnchantmentSlots.PermanentSlot:  # Temporary enchantments.
                     if update_slot != -1 and update_slot != slot:
                         continue
-                    duration = 0 if enchantment.duration <= 0 else int(enchantment.duration / 1000) * 60  # Minutes
+                    duration = 0 if enchantment.duration <= 0 else enchantment.duration
                     data = pack('<Q2IQ', item.guid, slot, duration, self.unit_mgr.guid)
                     self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_ENCHANT_TIME_UPDATE, data))
 
     def handle_equipment_change(self, item):
         if not item:
             return
-        # Remove auras if the item is no longer equipped.
-        if item.current_slot > InventorySlots.SLOT_TABARD:
-            if EnchantmentManager.has_enchantments_effect_by_type(item, ItemEnchantmentType.BUFF_EQUIPPED):
-                self._handle_aura_removal(item)
-        # Equipped.
-        else:
-            if EnchantmentManager.has_enchantments_effect_by_type(item, ItemEnchantmentType.BUFF_EQUIPPED):
-                self._handle_aura_proc(item)
+        was_removed = item.current_slot > InventorySlots.SLOT_TABARD
+        self._handle_equip_buffs(item, remove=was_removed)
+
+    def handle_melee_attack_procs(self, damage_info):
+        for proc_enchant in self._applied_proc_enchants.values():
+            proc_spell, proc_chance = proc_enchant
+            if not self.unit_mgr.stat_manager.roll_proc_chance(proc_chance):
+                continue
+
+            self.unit_mgr.spell_manager.handle_cast_attempt(proc_spell, damage_info.attacker,
+                                                            SpellTargetMask.UNIT, triggered=True)
 
     def _handle_aura_removal(self, item):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
@@ -86,15 +87,34 @@ class EnchantmentManager(object):
             if effect_spell_value and self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
                 self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value)
 
-    def _handle_aura_proc(self, item):
+    def _handle_equip_buffs(self, item, remove=False):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
             effect_spell_value = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
+            if not effect_spell_value:
+                continue
+
+            if remove:
+                self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value)
+                continue
+
             # Check if player already has the triggered aura active.
-            if effect_spell_value and not self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
-                # Learn spell if needed and cast.
-                self.unit_mgr.spell_manager.learn_spell(effect_spell_value)
-                self.unit_mgr.spell_manager.handle_cast_attempt(effect_spell_value, self.unit_mgr, SpellTargetMask.SELF)
+            if not self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
+                self.unit_mgr.spell_manager.handle_cast_attempt(effect_spell_value,
+                                                                self.unit_mgr, SpellTargetMask.SELF,
+                                                                triggered=True)
+
+        enchantment_type = ItemEnchantmentType.PROC_SPELL
+        for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
+            if remove:
+                self._applied_proc_enchants.pop(enchantment.entry, None)
+                continue
+
+            effect_spell_value = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
+            proc_chance = enchantment.get_enchantment_effect_points_by_type(enchantment_type)
+            if not effect_spell_value or not proc_chance:
+                continue
+            self._applied_proc_enchants[enchantment.entry] = (effect_spell_value, proc_chance)
 
     @staticmethod
     def get_effect_value_for_enchantment_type(item, enchantment_type):
