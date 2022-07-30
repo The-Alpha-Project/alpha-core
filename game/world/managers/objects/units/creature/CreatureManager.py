@@ -575,12 +575,6 @@ class CreatureManager(UnitManager):
     def leave_combat(self, force=False):
         super().leave_combat(force=force)
         self.threat_manager.reset()
-        # Creature might have just killed a player out of spawn location, return home.
-        if force:
-            if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
-                self.set_health(self.max_health)
-                self.recharge_power()
-            self._return_home()
 
     # TODO: Finish implementing evade mechanic.
     def evade(self):
