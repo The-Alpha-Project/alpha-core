@@ -7550,5 +7550,30 @@ begin not atomic
     
         insert into applied_updates values ('280720222');
     end if;
+
+    -- 31/07/2022 1
+    if (select count(*) from applied_updates where id='310720221') = 0 then
+        -- Elaine Trias display id
+        UPDATE `creature_template` SET 
+        display_id1=285
+        WHERE entry=483;
+
+        -- Elaine Trias location
+        UPDATE `spawns_creatures` SET 
+        `position_x`=-8847.16796875,
+        `position_y`=564.8961791992188,
+        `position_z`=94.68733978271484
+        WHERE `spawn_id`=79665;
+
+        -- Corbett Schneiner spawn
+        INSERT INTO `spawns_creatures` VALUES (NULL, 1433, 0, 0, 0, 0, 0, 0, -8848.2265625, 568.747314453125, 94.68733978271484, 0.6557942628860474, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Corbett Schneider display id
+        UPDATE `creature_template` SET 
+        `display_id1`=88
+        WHERE `entry`=1433;
+
+        insert into applied_updates values ('310720221');
+    end if;
 end $
 delimiter ;
