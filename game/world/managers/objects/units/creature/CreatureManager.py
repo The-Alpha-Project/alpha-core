@@ -574,21 +574,25 @@ class CreatureManager(UnitManager):
     # override
     def leave_combat(self, force=False):
         super().leave_combat(force=force)
-        self.threat_manager.reset()
+        self.evade()
 
     # TODO: Finish implementing evade mechanic.
     def evade(self):
-        # Already evading.
-        if self.is_evading:
+        # Already evading or dead, ignore.
+        if self.is_evading or not self.is_alive:
             return
+
+        # Flag creature as currently evading.
+        self.is_evading = True
+
+        # Reset threat table.
+        self.threat_manager.reset()
 
         # Get the path we are using to get back to spawn location.
         waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
-        self.leave_combat(force=True)
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
             self.set_health(self.max_health)
             self.recharge_power()
-        self.is_evading = True
 
         # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
         spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_locked else SplineFlags.SPLINEFLAG_FLYING
@@ -662,7 +666,7 @@ class CreatureManager(UnitManager):
         if self.combat_target and not self.is_casting() and not self.is_evading:
             if not self.combat_target.is_alive and len(self.attackers) == 0 or \
                     (self.combat_target.get_type_id() == ObjectTypeIds.ID_PLAYER and not self.combat_target.online):
-                self.evade()
+                self.leave_combat(True)
                 return
 
             target_distance = self.location.distance(self.combat_target.location)
@@ -673,7 +677,7 @@ class CreatureManager(UnitManager):
             #     "Creature pursuit is now timer based rather than distance based."
             if self.location.distance(self.spawn_position) > Distances.CREATURE_EVADE_DISTANCE \
                     or target_distance > Distances.CREATURE_EVADE_DISTANCE:
-                self.evade()
+                self.leave_combat(True)
                 return
 
             # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
@@ -684,11 +688,11 @@ class CreatureManager(UnitManager):
             #   - Most humanoids NPCs have gained the ability to swim.
             if self.is_on_water():
                 if not self.can_swim():
-                    self.evade()
+                    self.leave_combat(True)
                     return
             else:
                 if not self.can_exit_water():
-                    self.evade()
+                    self.leave_combat(True)
                     return
 
             # If target is within combat distance, don't move but do check creature orientation.
