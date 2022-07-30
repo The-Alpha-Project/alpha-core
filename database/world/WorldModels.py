@@ -788,9 +788,6 @@ class CreatureLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('CreatureTemplate')
-    item_template = relationship('ItemTemplate')
-
 
 t_creature_quest_starter = Table(
     'creature_quest_starter', metadata,
@@ -831,9 +828,6 @@ class GameobjectLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    gameobject = relationship('GameobjectTemplate')
-    item_template = relationship('ItemTemplate')
-
 
 class FishingLootTemplate(Base):
     __tablename__ = 'fishing_loot_template'
@@ -845,8 +839,6 @@ class FishingLootTemplate(Base):
     mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-
-    item_template = relationship('ItemTemplate')
 
 
 class SkillFishingBaseLevel(Base):
@@ -866,9 +858,6 @@ class ItemLootTemplate(Base):
     mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-
-    container = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.entry == ItemTemplate.entry')
-    item_loot = relationship('ItemTemplate', primaryjoin='ItemLootTemplate.item == ItemTemplate.entry')
 
 
 class TrainerTemplate(Base):
@@ -937,9 +926,6 @@ class PickpocketingLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    creature = relationship('CreatureTemplate')
-    item_template = relationship('ItemTemplate')
-
 
 class ReferenceLootTemplate(Base):
     __tablename__ = 'reference_loot_template'
@@ -952,8 +938,6 @@ class ReferenceLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
-    item_template = relationship('ItemTemplate')
-
 
 class SkinningLootTemplate(Base):
     __tablename__ = 'skinning_loot_template'
@@ -965,9 +949,6 @@ class SkinningLootTemplate(Base):
     mincountOrRef = Column(MEDIUMINT(9), nullable=False, server_default=text("'1'"))
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-
-    creature = relationship('CreatureTemplate')
-    item_template = relationship('ItemTemplate')
 
 
 class SpawnsCreatures(Base):

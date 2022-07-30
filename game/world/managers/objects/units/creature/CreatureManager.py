@@ -575,6 +575,12 @@ class CreatureManager(UnitManager):
     def leave_combat(self, force=False):
         super().leave_combat(force=force)
         self.threat_manager.reset()
+        # Creature might have just killed a player out of spawn location, return home.
+        if force:
+            if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
+                self.set_health(self.max_health)
+                self.recharge_power()
+            self._return_home()
 
     # TODO: Finish implementing evade mechanic.
     def evade(self):
@@ -582,14 +588,12 @@ class CreatureManager(UnitManager):
         if self.is_evading:
             return
 
+        self.is_evading = True
+        self.leave_combat(force=True)
+
+    def _return_home(self):
         # Get the path we are using to get back to spawn location.
         waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
-        self.leave_combat(force=True)
-        if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
-            self.set_health(self.max_health)
-            self.recharge_power()
-        self.is_evading = True
-
         # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
         spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_locked else SplineFlags.SPLINEFLAG_FLYING
         self.movement_manager.send_move_normal(waypoints_to_spawn, self.running_speed, spline_flag)
@@ -841,8 +845,6 @@ class CreatureManager(UnitManager):
     def die(self, killer=None):
         if not self.is_alive:
             return False
-
-        self.threat_manager.reset()
 
         if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
             # Attribute non-player kills to the creature's summoner.

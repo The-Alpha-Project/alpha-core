@@ -255,13 +255,16 @@ class ActiveQuest:
     # 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 [0 0 0 0 0 0 0 0 0 0 0 1] [0 0 0 0 1]
     # 3 kills on each
     # 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 [0 0 0 0 0 0 0 0 0 1 1 1] [0 0 1 1 1]
+    # Extras:
+    # Last bit ON (LittleEndian) = Failed
+    # Bit before last ON (LE) = Completed
     def get_progress(self):
-        total_count = 0
 
-        # Handle exploration, all bits set if completed.
+        # Handle exploration. (Read 'Extras')
         if self.is_exploration_quest() and self.get_quest_state() == QuestState.QUEST_REWARD:
-            return total_count ^ 0xFFFFFFFF
+            return 1 << 30
 
+        total_count = 0
         # Creature or gameobject.
         req_creature_or_go = QuestHelpers.generate_req_creature_or_go_list(self.quest)
         req_creature_or_go_count = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)

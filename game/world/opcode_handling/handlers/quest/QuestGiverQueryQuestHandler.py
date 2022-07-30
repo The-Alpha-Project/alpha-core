@@ -21,7 +21,7 @@ class QuestGiverQueryQuestHandler(object):
                     return 0
 
                 quest_giver_is_related = world_session.player_mgr.quest_manager.check_quest_giver_npc_is_related(
-                    quest_giver.entry, quest_entry)
+                    quest_giver, quest_entry)
                 if not quest_giver_is_related:
                     return 0
             # Gameobject
