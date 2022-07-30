@@ -242,7 +242,7 @@ class QuestManager(object):
                 return
             else:
                 self.send_quest_giver_quest_details(quest_menu_item.quest, quest_giver_guid, True)
-        # We have 1 or more items and a custom greeting, send the greeting and quest menu item/s.
+        # We have 1 or more items and a custom greeting, send the greeting and quest menu item(s).
         elif len(quest_menu.items) > 0 or has_greeting:
             self.send_quest_giver_quest_list(greeting_text, emote, quest_giver_guid, quest_menu.items)
         # Landed here because player is talking to a trainer, which can't train the player and does not have any quest.
@@ -251,8 +251,9 @@ class QuestManager(object):
             text = QuestManager.get_default_greeting_text(quest_giver)
             self.send_quest_giver_quest_list(text, 0, quest_giver_guid, quest_menu.items)
         else:
-            # e.g. Stone of Remembrance - Needs broadcast_text table.
-            Logger.warning(f'Missing handling for quest giver entry {quest_giver.entry}.')
+            # TODO: e.g. Stone of Remembrance - Needs broadcast_text table.
+            Logger.warning(f'Missing handling for quest giver entry {quest_giver.entry} of type '
+                           f'{quest_giver.get_type_id()}.')
 
     def get_quest_state(self, quest_entry):
         if quest_entry in self.active_quests:
@@ -826,8 +827,9 @@ class QuestManager(object):
                 self.active_quests[quest_id].save(is_new=True)
 
         # TODO: Mysterious Dovah crash, no one can reproduce.
+        #  https://www.youtube.com/watch?v=vGtCHEKg9Qk
         if quest_id not in self.active_quests:
-            Logger.error(f'Unable to locate active quest for id {quest_id}')
+            Logger.error(f'Unable to locate active quest for id {quest_id}.')
             return
 
         active_quest = self.active_quests[quest_id]
@@ -840,7 +842,7 @@ class QuestManager(object):
         if item_choice < len(rew_item_choice_list) and rew_item_choice_list[item_choice] > 0:
             reward_items[rew_item_choice_list[item_choice]] = 1
 
-        # Check not chosen reward item/s.
+        # Check not chosen reward item(s).
         rew_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_item_list(active_quest.quest)))
         rew_item_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_count_list(active_quest.quest)))
         for index, rew_item in enumerate(rew_item_list):
@@ -889,7 +891,7 @@ class QuestManager(object):
         for req_item, count in required_items.items():
             self.player_mgr.inventory.remove_items(req_item, count)
 
-        # Quest item/s rewards. (Client will announce them)
+        # Quest item(s) rewards. (Client will announce them).
         data += pack('<I', len(rew_item_list))
         for rew_item, count in reward_items.items():
             data += pack('<2I', rew_item, count)
@@ -934,8 +936,8 @@ class QuestManager(object):
 
         return None
 
-    @staticmethod
     # Quest starters.
+    @staticmethod
     def get_quest_giver_relations(quest_giver):
         if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
             return WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
@@ -944,8 +946,8 @@ class QuestManager(object):
         else:
             return []
 
-    @staticmethod
     # Quest finishers.
+    @staticmethod
     def get_quest_giver_involved_relations(quest_giver):
         if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
             return WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)

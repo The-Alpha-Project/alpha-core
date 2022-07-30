@@ -26,7 +26,7 @@ class ActiveQuest:
         if self.quest.entry in WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION:
             self.area_triggers = WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[self.quest.entry]
         else:
-            Logger.warning(f'Unable to locate area trigger/s for quest {self.quest.entry}')
+            Logger.warning(f'Unable to locate area trigger(s) for quest {self.quest.entry}')
 
     def is_exploration_quest(self):
         return self.quest.QuestFlags & QuestFlags.QUEST_FLAGS_EXPLORATION
