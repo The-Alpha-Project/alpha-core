@@ -8,13 +8,15 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
 from database.world.WorldDatabaseManager import WorldDatabaseManager, ItemTemplate
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
-from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, HitInfo
+from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, HitInfo, LockType
 from utils.constants.OpCodes import OpCode
+from utils.constants.SpellCodes import SpellCheckCastResult
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -214,6 +216,8 @@ class Proficiency:
 
 
 class SkillManager(object):
+    MAX_PROFESSION_SKILL = 225
+
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.skills = {}
@@ -506,6 +510,32 @@ class SkillManager(object):
         self.build_update()
         return True
 
+    def get_unlocking_attempt_result(self, lock_type: LockType, lock_id: int,
+                                     used_item: Optional[ItemManager] = None,
+                                     bonus_skill: int = 0) -> SpellCheckCastResult:
+        from game.world.managers.objects.locks.LockManager import LockManager
+        lock_result = LockManager.can_open_lock(self.player_mgr, lock_type, lock_id,
+                                                cast_item=used_item,
+                                                bonus_points=bonus_skill)
+
+        if lock_result.result != SpellCheckCastResult.SPELL_NO_ERROR:
+            return lock_result.result
+
+        skill_value = lock_result.skill_value
+        bonus_skill_value = lock_result.bonus_skill_value
+        required_skill_value = lock_result.required_skill_value
+        skill_type = lock_result.skill_type
+
+        # Chance for fail at orange mining, herbs or lock picking.
+        if (skill_type == SkillTypes.HERBALISM or skill_type == SkillTypes.MINING
+                or lock_result.skill_type == SkillTypes.LOCKPICKING):
+            can_fail_at_max_skill = skill_type != SkillTypes.HERBALISM and skill_type != SkillTypes.MINING
+            can_fail = can_fail_at_max_skill or skill_value < SkillManager.MAX_PROFESSION_SKILL
+            if can_fail and required_skill_value > random.randint(bonus_skill_value - 25, bonus_skill_value + 37):
+                return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
+
+        return SpellCheckCastResult.SPELL_NO_ERROR
+
     def can_use_equipment(self, item_class, item_subclass):
         if item_class not in self.proficiencies:
             return False
@@ -574,6 +604,7 @@ class SkillManager(object):
         elif skill.SkillType == 4:
             # Language, Riding
             if skill.CategoryID == SkillCategories.MAX_SKILL:
+                # TODO This return value is incorrect for professions.
                 return skill.MaxRank
             else:
                 return (player_level * 5) + 25

@@ -35,7 +35,7 @@ class DuelManager(object):
     def request_duel(requester, target, arbiter):
         # If target is already dueling, fail Duel spell cast.
         if target.duel_manager:
-            return 0
+            return
 
         # If requester is already dueling, lose current duel before starting a new one.
         if requester.duel_manager:
@@ -57,12 +57,11 @@ class DuelManager(object):
                 entry.player.duel_manager = duel_manager
                 duel_manager.build_update(entry.player)
 
-            return 1
+            return
         else:
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_COMPLETE, pack('<B', DuelComplete.DUEL_CANCELED_INTERRUPTED))
             requester.enqueue_packet(packet)
-
-            return -1
+            return
 
     # Only accept the trigger from the target
     def handle_duel_accept(self, player_mgr):

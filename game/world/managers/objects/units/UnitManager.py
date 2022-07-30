@@ -366,8 +366,7 @@ class UnitManager(ObjectManager):
         if damage_info.total_damage > 0:
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
 
-        victim.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
-        self.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
+        self.handle_melee_attack_procs(damage_info)
 
         self.send_attack_state_update(damage_info)
 
@@ -379,6 +378,10 @@ class UnitManager(ObjectManager):
         while self.extra_attacks > 0:
             self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK, True)
             self.extra_attacks -= 1
+
+    def handle_melee_attack_procs(self, damage_info):
+        damage_info.target.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
+        self.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
 
     def calculate_melee_damage(self, victim, attack_type):
         damage_info = DamageInfoHolder()
@@ -864,7 +867,7 @@ class UnitManager(ObjectManager):
                                                  self, config.World.Chat.ChatRange.emote_range)
 
     def summon_mount(self, creature_entry):
-        creature_template = WorldDatabaseManager.creature_get_by_entry(creature_entry)
+        creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_entry)
         if not creature_template:
             return False
 

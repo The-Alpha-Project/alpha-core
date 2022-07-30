@@ -356,10 +356,21 @@ class WorldDatabaseManager(object):
 
     # Creature stuff.
 
+    class CreatureTemplateHolder:
+        CREATURE_TEMPLATES: [int, CreatureTemplate] = {}
+
+        @staticmethod
+        def load_creature_template(creature_template):
+            WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES[creature_template.entry] = creature_template
+
+        @staticmethod
+        def creature_get_by_entry(entry) -> Optional[CreatureTemplate]:
+            return WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.get(entry)
+
     @staticmethod
-    def creature_get_by_entry(entry) -> Optional[CreatureTemplate]:
+    def creature_template_get_all() -> list[CreatureModelInfo]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureTemplate).filter_by(entry=entry).first()
+        res = world_db_session.query(CreatureTemplate).all()
         world_db_session.close()
         return res
 
@@ -390,7 +401,7 @@ class WorldDatabaseManager(object):
     @staticmethod
     def creature_model_info_get_all() -> list[CreatureModelInfo]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureModelInfo).filter_by().all()
+        res = world_db_session.query(CreatureModelInfo).all()
         world_db_session.close()
         return res
 
@@ -638,7 +649,7 @@ class WorldDatabaseManager(object):
         def trainer_spells_get_by_trainer(trainer_entry_id: int) -> list[TrainerTemplate]:
             trainer_spells: list[TrainerTemplate] = []
 
-            creature_template: CreatureTemplate = WorldDatabaseManager.creature_get_by_entry(trainer_entry_id)
+            creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(trainer_entry_id)
             trainer_template_id = creature_template.trainer_id
 
             for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:

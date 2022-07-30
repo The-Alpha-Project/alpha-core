@@ -48,7 +48,7 @@ class LockManager:
                     skill_value = 0 if cast_item or caster.get_type_id() != ObjectTypeIds.ID_PLAYER else \
                         caster.skill_manager.get_total_skill_value(skill_type)
                     bonus_skill_value = skill_value + bonus_points
-                    if bonus_skill_value < required_skill_value:
+                    if bonus_skill_value < required_skill_value or skill_value == -1:
                         return OpenLockResult(SpellCheckCastResult.SPELL_FAILED_LOW_CASTLEVEL)
 
                 return OpenLockResult(SpellCheckCastResult.SPELL_NO_ERROR, skill_type,

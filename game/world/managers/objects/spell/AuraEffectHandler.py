@@ -218,7 +218,7 @@ class AuraEffectHandler:
     def handle_transform(aura, effect_target, remove):
         if not remove:
             creature_entry = aura.spell_effect.misc_value
-            creature = WorldDatabaseManager.creature_get_by_entry(creature_entry)
+            creature = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_entry)
             if not creature:
                 Logger.error(f'SPELL_AURA_TRANSFORM: Creature template ({creature_entry}) not found in database.')
                 return

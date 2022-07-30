@@ -22,6 +22,8 @@ class WorldLoader:
 
         # Below order matters.
 
+        WorldLoader.load_creature_templates()
+
         # Loot related, even if not loading creatures or gameobjects, loot might be referenced.
         WorldLoader.load_gameobject_loot_templates()
         WorldLoader.load_fishing_loot_templates()
@@ -145,12 +147,15 @@ class WorldLoader:
         count = 0
 
         for creature in creature_spawns:
-            if creature.creature_template:
-                creature_mgr = CreatureManager(
-                    creature_template=creature.creature_template,
-                    creature_instance=creature
+            creature_mgr = CreatureManager(creature_instance=creature)
+            if not creature_mgr.creature_template:
+                Logger.error(
+                    f'Found creature spawn with non existent creature template(s). '
+                    f'Spawn id: {creature_mgr.creature_instance.spawn_id}. '
+                    f'Spawn entry list: {creature_mgr.creature_entry_list}.'
                 )
-                creature_mgr.load()
+                continue
+            creature_mgr.load()
             count += 1
             Logger.progress('Spawning creatures...', count, length)
 
@@ -208,6 +213,19 @@ class WorldLoader:
             WorldDatabaseManager.FishingLootTemplateHolder.load_fishing_loot_template(loot_template)
             count += 1
             Logger.progress('Loading fishing loot templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_templates():
+        creature_templates = WorldDatabaseManager.creature_template_get_all()
+        length = len(creature_templates)
+        count = 0
+
+        for creature_template in creature_templates:
+            WorldDatabaseManager.CreatureTemplateHolder.load_creature_template(creature_template)
+            count += 1
+            Logger.progress('Loading creature templates...', count, length)
 
         return length
 
