@@ -71,12 +71,12 @@ class QuestManager(object):
 
         elif game_object.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             # Grab starters/finishers.
-            relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(game_object.gobject_template.entry)
-            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(game_object.gobject_template.entry)
+            relations_list = QuestManager.get_quest_giver_relations(game_object.gobject_template.entry)
+            involved_relations_list = QuestManager.get_quest_giver_involved_relations(game_object.gobject_template.entry)
 
             # Grab quest ids only.
-            relations_list = [r.quest for r in relations_list]
-            involved_relations_list = [ir.quest for ir in involved_relations_list]
+            relations_list = {r.quest for r in relations_list}
+            involved_relations_list = {ir.quest for ir in involved_relations_list}
 
             # Check if this quest has been already rewarded.
             for active_quest in list(self.active_quests.values()):
@@ -101,17 +101,17 @@ class QuestManager(object):
 
         return False
 
-    def get_dialog_status(self, world_object):
+    def get_dialog_status(self, quest_giver):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
         new_dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
 
-        if self.player_mgr.is_enemy_to(world_object):
+        if self.player_mgr.is_enemy_to(quest_giver):
             return dialog_status
 
         # Relation bounds, the quest giver; Involved relations bounds, the quest completer.
-        if world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
-            relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(world_object.entry)
-            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(world_object.entry)
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
+            relations_list = QuestManager.get_quest_giver_relations(quest_giver)
+            involved_relations_list = QuestManager.get_quest_giver_involved_relations(quest_giver)
         else:
             return QuestGiverStatus.QUEST_GIVER_NONE
 
@@ -163,14 +163,8 @@ class QuestManager(object):
     def handle_quest_giver_hello(self, quest_giver, quest_giver_guid):
         quest_menu = QuestMenu()
 
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
-            relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
-            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
-        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
-            relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(quest_giver.entry)
-            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(quest_giver.entry)
-        else:
-            return
+        relations_list = QuestManager.get_quest_giver_relations(quest_giver)
+        involved_relations_list = QuestManager.get_quest_giver_involved_relations(quest_giver)
 
         # Start quests lookup set.
         quest_giver_start_quests = {start_quest[1] for start_quest in relations_list if len(start_quest) > 0}
@@ -274,14 +268,8 @@ class QuestManager(object):
     def get_active_quest_num_from_quest_giver(self, quest_giver):
         quest_num: int = 0
 
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
-            relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
-            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
-        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
-            relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(quest_giver.entry)
-            involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(quest_giver.entry)
-        else:
-            return
+        relations_list = QuestManager.get_quest_giver_relations(quest_giver)
+        involved_relations_list = QuestManager.get_quest_giver_involved_relations(quest_giver)
 
         # Start quests lookup set.
         quest_giver_start_quests = {start_quest[1] for start_quest in relations_list if len(start_quest) > 0}
@@ -366,13 +354,11 @@ class QuestManager(object):
             return True
 
     @staticmethod
-    def check_quest_giver_npc_is_related(quest_giver_entry, quest_entry):
-        is_related = False
-        relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver_entry)
-        for relation in relations_list:
-            if relation.entry == quest_giver_entry and relation.quest == quest_entry:
-                is_related = True
-        return is_related
+    def check_quest_giver_npc_is_related(quest_giver, quest_entry):
+        for relation in QuestManager.get_quest_giver_relations(quest_giver):
+            if relation.entry == quest_giver.entry and relation.quest == quest_entry:
+                return True
+        return False
 
     @staticmethod
     def get_quest_giver_quest_greeting(quest_giver) -> tuple:
@@ -928,14 +914,7 @@ class QuestManager(object):
         if not current_quest.NextQuestInChain:
             return None
 
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
-            relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(
-                quest_giver.entry)
-        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
-            relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(
-                quest_giver.entry)
-        else:
-            return None
+        relations_list = QuestManager.get_quest_giver_relations(quest_giver)
 
         # Start quests lookup set.
         quest_giver_start_quests = {start_quest[1] for start_quest in relations_list if len(start_quest) > 0}
@@ -954,6 +933,26 @@ class QuestManager(object):
                 return quest
 
         return None
+
+    @staticmethod
+    # Quest starters.
+    def get_quest_giver_relations(quest_giver):
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
+            return WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
+        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            return WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(quest_giver.entry)
+        else:
+            return []
+
+    @staticmethod
+    # Quest finishers.
+    def get_quest_giver_involved_relations(quest_giver):
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
+            return WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
+        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            return WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(quest_giver.entry)
+        else:
+            return []
 
     def cast_reward_spell(self, quest_giver_guid, active_quest):
         quest_giver_unit = MapManager.get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
