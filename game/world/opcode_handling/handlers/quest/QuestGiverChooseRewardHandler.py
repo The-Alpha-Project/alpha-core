@@ -31,5 +31,5 @@ class QuestGiverChooseRewardHandler(object):
             if not is_item and world_session.player_mgr.is_enemy_to(quest_giver):
                 return 0
 
-            world_session.player_mgr.quest_manager.handle_choose_reward(guid, quest_id, item_choice)
+            world_session.player_mgr.quest_manager.handle_choose_reward(quest_giver, quest_id, item_choice)
         return 0

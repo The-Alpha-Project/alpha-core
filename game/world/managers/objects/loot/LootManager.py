@@ -1,3 +1,4 @@
+import random
 from random import uniform, randint, shuffle
 
 
@@ -46,11 +47,11 @@ class LootManager(object):
     def process_loot_groups(self, loot_groups, requester) -> list:
         loot_item_result = []
         for group, loot_group_items in loot_groups.items():
-            loot_item_result += self.process_loot_group(loot_group_items, requester)
+            loot_item_result += self.process_loot_group(group, loot_group_items, requester)
 
         return loot_item_result
 
-    def process_loot_group(self, group_loot_items: list, requester):
+    def process_loot_group(self, group_id, group_loot_items: list, requester):
         loot_item_result = []
         shuffle(group_loot_items)
 
@@ -59,7 +60,12 @@ class LootManager(object):
                 continue
 
             if self.roll_item(loot_item):
-                if len(loot_item_result) == 0 or loot_item.ChanceOrQuestChance < 0:
+                if loot_item.ChanceOrQuestChance < 0:
+                    loot_item_result.append(loot_item)
+                elif len(loot_item_result) > 0 and group_id:
+                    continue
+                # No group. (GroupID 0)
+                else:
                     loot_item_result.append(loot_item)
 
         return loot_item_result
@@ -74,7 +80,8 @@ class LootManager(object):
 
     # noinspection PyMethodMayBeStatic
     def roll_item(self, loot_item):
-        roll = uniform(0.0, 1.0)
+        # TODO, this might not be random enough.
+        roll = random.uniform(0.0, 1.0)
         item_chance = loot_item.ChanceOrQuestChance
 
         # Normal item.
