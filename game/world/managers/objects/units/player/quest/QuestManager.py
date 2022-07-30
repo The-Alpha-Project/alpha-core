@@ -162,8 +162,8 @@ class QuestManager(object):
 
     def handle_quest_giver_hello(self, quest_giver, quest_giver_guid):
         quest_menu = QuestMenu()
-        # Type is unit, but not player.
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.get_type_id() != ObjectTypeIds.ID_PLAYER:
+
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
             relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
         elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
@@ -274,8 +274,7 @@ class QuestManager(object):
     def get_active_quest_num_from_quest_giver(self, quest_giver):
         quest_num: int = 0
 
-        # Type is unit, but not player.
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
             relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
         elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
@@ -929,8 +928,7 @@ class QuestManager(object):
         if not current_quest.NextQuestInChain:
             return None
 
-        # Type is unit, but not player.
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
             relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(
                 quest_giver.entry)
         elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
