@@ -1,4 +1,3 @@
-import random
 from random import uniform, randint, shuffle
 
 
@@ -81,7 +80,7 @@ class LootManager(object):
     # noinspection PyMethodMayBeStatic
     def roll_item(self, loot_item):
         # TODO, this might not be random enough.
-        roll = random.uniform(0.0, 1.0)
+        roll = uniform(0.0, 1.0)
         item_chance = loot_item.ChanceOrQuestChance
 
         # Normal item.
