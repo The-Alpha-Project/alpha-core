@@ -825,8 +825,6 @@ class CreatureManager(UnitManager):
 
             self.threat_manager.add_threat(source, threat)
 
-
-
     # override
     def respawn(self):
         # Only pick between creature templates if there's more than 1 creature entry defined.
