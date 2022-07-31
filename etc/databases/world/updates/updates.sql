@@ -7571,6 +7571,7 @@ begin not atomic
         WHERE `entry`=1433;
 
         insert into applied_updates values ('310720221');
+    end if;
 
     -- 31/07/2022 2
     if (select count(*) from applied_updates where id='310720222') = 0 then
