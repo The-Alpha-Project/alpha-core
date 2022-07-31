@@ -806,7 +806,6 @@ class CreatureManager(UnitManager):
             not_attacked_by_gameobject = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
             if not self.combat_target and not_attacked_by_gameobject:
                 # Make sure to first stop any movement right away.
-                # Unit might have 0 waypoints but be on its way to one.
                 self.stop_movement()
 
             threat = amount
