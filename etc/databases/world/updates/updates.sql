@@ -7565,9 +7565,6 @@ begin not atomic
         `position_z`=94.68733978271484
         WHERE `spawn_id`=79665;
 
-        -- Corbett Schneiner spawn
-        INSERT INTO `spawns_creatures` VALUES (NULL, 1433, 0, 0, 0, 0, 0, 0, -8848.2265625, 568.747314453125, 94.68733978271484, 0.6557942628860474, 300, 300, 0, 100, 0, 0, 0, 0, 0);
-
         -- Corbett Schneider display id
         UPDATE `creature_template` SET 
         `display_id1`=88
