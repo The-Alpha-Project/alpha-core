@@ -850,9 +850,8 @@ class UnitManager(ObjectManager):
 
     def set_root(self, active):
         if active:
-            # Stop movement if the unit has pending waypoints.
-            if len(self.movement_manager.pending_waypoints) > 0:
-                self.movement_manager.send_move_stop()
+            # Stop movement if needed.
+            self.movement_manager.send_move_stop()
 
             self.movement_flags |= MoveFlags.MOVEFLAG_ROOTED
             self.unit_state |= UnitStates.ROOTED
@@ -1111,8 +1110,7 @@ class UnitManager(ObjectManager):
         self.unit_state = UnitStates.NONE
 
         # Stop movement on death.
-        if len(self.movement_manager.pending_waypoints) > 0:
-            self.movement_manager.send_move_stop()
+        self.movement_manager.send_move_stop()
 
         # Detach from controller if this unit is a pet.
         if self.summoner:

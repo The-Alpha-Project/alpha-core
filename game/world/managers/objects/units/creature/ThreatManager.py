@@ -22,6 +22,10 @@ class ThreatManager:
         self.holders: dict[int, ThreatHolder] = {}
         self.current_holder: Optional[ThreatHolder] = None
 
+    def reset(self):
+        self.holders.clear()
+        self.current_holder = None
+
     def add_threat(self, source: UnitManager, threat: float):
         if source != self:
             source_holder = self.holders.get(source.guid)
@@ -34,23 +38,25 @@ class ThreatManager:
                 Logger.warning(f'Passed non positive threat {threat} from {source.guid & ~HighGuid.HIGHGUID_UNIT}')
 
     def resolve_target(self):
-        if len(self.holders) == 0:
-            return None
-        else:
+        if any(self.holders):
             return self.get_hostile_target()
+        return None
 
     def get_hostile_target(self) -> Optional[UnitManager]:
         max_threat_holder = self._get_max_threat_holder()
 
-        if max_threat_holder:
-            if not self.current_holder or \
-                    not self._is_dangerous(self.current_holder.unit) or \
+        # Threat target switching.
+        if max_threat_holder != self.current_holder:
+            if not self.current_holder or self.can_attack_target(self.current_holder.unit) or \
                     self._is_exceeded_current_threat_melee_range(max_threat_holder.total_threat):
                 self.current_holder = max_threat_holder
 
         return None if not self.current_holder else self.current_holder.unit
 
     def select_attacking_target(self, attacking_target: AttackingTarget) -> Optional[UnitManager]:
+        if not any(self.holders):
+            return None
+
         if attacking_target == AttackingTarget.ATTACKING_TARGET_TOPAGGRO:
             return self.get_hostile_target()
         else:
@@ -77,25 +83,28 @@ class ThreatManager:
         # No suitable target found.
         return None
 
-    def reset(self):
-        self.holders.clear()
-        self.current_holder = None
-
     # TODO: Optimize this method?
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
         relevant_holders = self._get_sorted_threat_collection()
         return None if not relevant_holders else relevant_holders[-1]
 
     def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
-        relevant_holders = [holder for holder
-                            in self.holders.values()
-                            if self._is_dangerous(holder.unit)]
-        relevant_holders.sort(key=lambda holder: holder.total_threat)
+        relevant_holders = []
+        for holder in list(self.holders.values()):
+            # No reason to keep targets we cannot longer attack.
+            if not self.owner.can_attack_target(holder.unit):
+                self.current_holder = None if self.current_holder == holder else self.current_holder
+                self.holders.pop(holder.unit.guid)
+            elif self.can_attack_target(holder.unit):
+                relevant_holders.append(holder)
+
+        # Sort by threat.
+        relevant_holders.sort(key=lambda h: h.total_threat)
         return relevant_holders
 
-    def _is_dangerous(self, unit: UnitManager):
-        # TODO Checking pet relation until friendliness can be evaluated properly.
-        return unit.is_alive and not unit.is_evading and unit != self.owner.summoner
+    # TODO Checking pet relation until friendliness can be evaluated properly.
+    def can_attack_target(self, unit: UnitManager):
+        return self.owner.can_attack_target(unit) and unit != self.owner.summoner
 
     # TODO Melee/outside of melee range reach
     def _is_exceeded_current_threat_melee_range(self, threat: float):
