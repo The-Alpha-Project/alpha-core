@@ -95,8 +95,7 @@ class ThreatManager:
             if not self.owner.can_attack_target(holder.unit):
                 self.current_holder = None if self.current_holder == holder else self.current_holder
                 self.holders.pop(holder.unit.guid)
-            elif self.can_attack_target(holder.unit):
-                relevant_holders.append(holder)
+            relevant_holders.append(holder)
 
         # Sort by threat.
         relevant_holders.sort(key=lambda h: h.total_threat)
