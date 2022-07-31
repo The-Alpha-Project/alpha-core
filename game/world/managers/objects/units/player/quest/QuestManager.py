@@ -411,7 +411,7 @@ class QuestManager(object):
     def update_surrounding_quest_status(self):
         known_objects = self.player_mgr.known_objects
 
-        for guid, world_object in known_objects.items():
+        for guid, world_object in list(known_objects.items()):
             if world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
                 unit = world_object
                 if WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
