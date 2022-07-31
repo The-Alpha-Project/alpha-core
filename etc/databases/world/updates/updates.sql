@@ -7601,7 +7601,7 @@ begin not atomic
 
         -- Kendur Binder, we have a screenshot that show Kendur as ThunderBluff Binder (see alpha archives, thunderbluff)
         UPDATE `creature_template`
-        SET name='Kendur', subname='Binder', `faction`=35, `npc_flags`=16
+        SET `name`='Kendur', `subname`='Binder', `faction`=35, `npc_flags`=16
         WHERE `entry`=3427;
 
         -- Kendur Binder spawn (he was not spawned because he's not part of 1.12)
