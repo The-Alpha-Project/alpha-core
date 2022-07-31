@@ -7551,12 +7551,35 @@ begin not atomic
         insert into applied_updates values ('280720222');
     end if;
 
+    -- 31/07/2022 1
+    if (select count(*) from applied_updates where id='310720221') = 0 then
+        -- Elaine Trias display id
+        UPDATE `creature_template` SET 
+        display_id1=285
+        WHERE entry=483;
+
+        -- Elaine Trias location
+        UPDATE `spawns_creatures` SET 
+        `position_x`=-8847.16796875,
+        `position_y`=564.8961791992188,
+        `position_z`=94.68733978271484
+        WHERE `spawn_id`=79665;
+
+        -- Corbett Schneider display id
+        UPDATE `creature_template` SET 
+        `display_id1`=88
+        WHERE `entry`=1433;
+
+        insert into applied_updates values ('310720221');
+    end if;
+
     -- 31/07/2022 2
     if (select count(*) from applied_updates where id='310720222') = 0 then
         -- Fix Osric Strang not being a quest giver.
         UPDATE `creature_template` SET `npc_flags` = 3 WHERE `entry` = 1323;
 
         insert into applied_updates values ('310720222');
+
     end if;
 end $
 delimiter ;
