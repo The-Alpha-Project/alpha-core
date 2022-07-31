@@ -785,11 +785,6 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
     # override
-    def attack(self, victim: UnitManager, is_melee=True):
-        is_melee = self.is_within_interactable_distance(victim)
-        super().attack(victim, is_melee)
-
-    # override
     def attack_update(self, elapsed):
         target = self.threat_manager.get_hostile_target()
         # Has a target, check if we need to attack or switch target.
