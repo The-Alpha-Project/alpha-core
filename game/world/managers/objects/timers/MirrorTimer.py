@@ -111,18 +111,24 @@ class MirrorTimer(object):
 
     # TODO, should we halt regeneration when drowning or fatigue?
     #  Find drowning damage formula.
-    #  CombatLog should display drown and fatigue.
     def handle_damage_timer(self, dmg_multiplier):
         if self.remaining == self.duration:
             # Replenished, stop next tick since scale is greater than 1 and client needs to fill its timer bar.
             self.stop_on_next_tick = True
         elif self.remaining == 0 and self.owner.health > 0:
             damage = int(self.owner.max_health * dmg_multiplier)
+            self.send_mirror_timer_damage(damage)
             if self.owner.health - damage <= 0:
                 self.owner.die()
             else:
                 new_health = self.owner.health - damage
                 self.owner.set_health(new_health)
+
+    # Will display damage on player portrait and combat log.
+    def send_mirror_timer_damage(self, damage):
+        data = pack('<Q2I', self.owner.guid, self.type, damage)
+        packet = PacketWriter.get_packet(OpCode.SMSG_MIRRORTIMERDAMAGELOG, data)
+        self.owner.enqueue_packet(packet)
 
     def handle_feign_death_timer(self):
         if self.remaining <= 0:

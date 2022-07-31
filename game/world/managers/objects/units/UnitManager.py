@@ -703,7 +703,6 @@ class UnitManager(ObjectManager):
                                    miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
-
             combat_log_data = pack('<I2Q2If3I', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id,
                                    damage_info.total_damage, damage_info.damage, damage_info.damage_school_mask,
                                    damage_info.damage, damage_info.absorb)
@@ -713,15 +712,18 @@ class UnitManager(ObjectManager):
                                     include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
         if not healing:
-            damage_data = pack('<Q2i2IQ', damage_info.target.guid, damage_info.total_damage, damage_info.damage,
-                               miss_reason, spell_id, damage_info.attacker.guid)
+            # TODO: Need better understanding of the how the client is handling this opcode in order to produce
+            #  the right packet structure.
+            damage_data = pack('<Q2IiIQ',
+                               damage_info.target.guid,
+                               damage_info.total_damage,
+                               damage_info.damage,
+                               0,  # Unk flag enum (0 Normal, 1 Crit, 2 Absorb)
+                               0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells)
+                               damage_info.attacker.guid)
+
             MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
                                         include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
-            # TODO: SMSG_DAMAGE_DONE gets handled differently by the client by using 'DEFERREDDAMAGE' on all
-            #  cast_on_swing spells, damage never gets displayed on the client,
-            #  send SMSG_ATTACKERSTATEUPDATE in this case for now.
-            if is_cast_on_swing:
-                self.send_attack_state_update(damage_info, deal_damage=False)
 
     def set_current_target(self, guid):
         self.current_target = guid
@@ -850,9 +852,8 @@ class UnitManager(ObjectManager):
 
     def set_root(self, active):
         if active:
-            # Stop movement if the unit has pending waypoints.
-            if len(self.movement_manager.pending_waypoints) > 0:
-                self.movement_manager.send_move_stop()
+            # Stop movement if needed.
+            self.movement_manager.send_move_stop()
 
             self.movement_flags |= MoveFlags.MOVEFLAG_ROOTED
             self.unit_state |= UnitStates.ROOTED
@@ -1111,8 +1112,7 @@ class UnitManager(ObjectManager):
         self.unit_state = UnitStates.NONE
 
         # Stop movement on death.
-        if len(self.movement_manager.pending_waypoints) > 0:
-            self.movement_manager.send_move_stop()
+        self.movement_manager.send_move_stop()
 
         # Detach from controller if this unit is a pet.
         if self.summoner:

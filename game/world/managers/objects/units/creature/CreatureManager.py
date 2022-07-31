@@ -574,6 +574,8 @@ class CreatureManager(UnitManager):
     # override
     def leave_combat(self, force=False):
         super().leave_combat(force=force)
+        # Reset threat table.
+        self.threat_manager.reset()
         self.evade()
 
     # TODO: Finish implementing evade mechanic.
@@ -584,9 +586,6 @@ class CreatureManager(UnitManager):
 
         # Flag creature as currently evading.
         self.is_evading = True
-
-        # Reset threat table.
-        self.threat_manager.reset()
 
         # Get the path we are using to get back to spawn location.
         waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
@@ -610,7 +609,7 @@ class CreatureManager(UnitManager):
         self.location = waypoints[0].copy()
         last_waypoint = self.location
         # Distance we want between each waypoint.
-        d_factor = 4
+        d_factor = 3
         # Try to use waypoints only for units that have invalid z calculations.
         z_locked = False
         distance_sum = 0
@@ -761,8 +760,7 @@ class CreatureManager(UnitManager):
                 elif self.threat_manager:
                     target = self.threat_manager.resolve_target()
                     if target:
-                        is_melee = self.is_within_interactable_distance(target)
-                        self.attack(target, is_melee=is_melee)
+                        self.attack(target)
 
             # Dead
             elif not self.is_alive and self.initialized:
@@ -808,8 +806,7 @@ class CreatureManager(UnitManager):
             not_attacked_by_gameobject = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
             if not self.combat_target and not_attacked_by_gameobject:
                 # Make sure to first stop any movement right away.
-                if len(self.movement_manager.pending_waypoints) > 0:
-                    self.movement_manager.send_move_stop()
+                self.stop_movement()
 
             threat = amount
             # TODO: Threat calculation.

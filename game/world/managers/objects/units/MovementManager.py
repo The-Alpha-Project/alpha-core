@@ -190,17 +190,19 @@ class MovementManager:
         self._send_move_to(spline)
 
     def send_move_stop(self):
-        # Generate stop spline
-        spline = MovementSpline(
-            spline_type=SplineType.SPLINE_TYPE_STOP,
-            flags=SplineFlags.SPLINEFLAG_NONE,
-            spot=self.unit.location,
-            guid=self.unit.guid,
-            facing=self.unit.location.o,
-            points=[self.unit.location]
-        )
+        # Stop only if in the middle of a waypoint or has pending waypoints.
+        if self.total_waypoint_timer > 0 or any(self.pending_waypoints):
+            # Generate stop spline
+            spline = MovementSpline(
+                spline_type=SplineType.SPLINE_TYPE_STOP,
+                flags=SplineFlags.SPLINEFLAG_NONE,
+                spot=self.unit.location,
+                guid=self.unit.guid,
+                facing=self.unit.location.o,
+                points=[self.unit.location]
+            )
 
-        self._send_move_to(spline)
+            self._send_move_to(spline)
 
     def send_face_spot(self, spot):
         # Generate face spot spline
