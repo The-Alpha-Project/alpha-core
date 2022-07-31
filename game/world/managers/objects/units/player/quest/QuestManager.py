@@ -846,7 +846,7 @@ class QuestManager(object):
         rew_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_item_list(active_quest.quest)))
         rew_item_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_count_list(active_quest.quest)))
         for index, rew_item in enumerate(rew_item_list):
-            reward_items[rew_item[index]] = rew_item_count_list[index]
+            reward_items[rew_item_list[index]] = rew_item_count_list[index]
 
         # Check required quest items.
         required_items = {}
