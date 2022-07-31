@@ -35,7 +35,7 @@ class BasicCreatureAI(CreatureAI):
         if self._is_ready_for_new_attack():
             max_distance = self.creature.creature_template.detection_range
             aggro_players = self.creature.known_players
-            for guid, victim in aggro_players.items():
+            for guid, victim in list(aggro_players.items()):
                 distance = victim.location.distance(self.creature.location)
                 if self.creature.can_attack_target(victim) and distance <= max_distance:
                     if self._start_proximity_aggro_attack(victim, target_is_player=True):
@@ -50,6 +50,7 @@ class BasicCreatureAI(CreatureAI):
             detection_range = self.creature.creature_template.detection_range
             in_detection_range = target_distance <= detection_range
             if target_is_player and on_same_map and in_detection_range:
+                # noinspection PyTypeChecker
                 self._start_proximity_aggro_attack(unit, target_is_player=target_is_player)
 
     # override

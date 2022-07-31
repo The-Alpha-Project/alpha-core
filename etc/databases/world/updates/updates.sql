@@ -7571,6 +7571,14 @@ begin not atomic
         WHERE `entry`=1433;
 
         insert into applied_updates values ('310720221');
+
+    -- 31/07/2022 2
+    if (select count(*) from applied_updates where id='310720222') = 0 then
+        -- Fix Osric Strang not being a quest giver.
+        UPDATE `creature_template` SET `npc_flags` = 3 WHERE `entry` = 1323;
+
+        insert into applied_updates values ('310720222');
+
     end if;
 end $
 delimiter ;

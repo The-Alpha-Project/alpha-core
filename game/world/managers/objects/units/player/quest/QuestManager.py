@@ -71,8 +71,8 @@ class QuestManager(object):
 
         elif game_object.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             # Grab starters/finishers.
-            relations_list = QuestManager.get_quest_giver_relations(game_object.gobject_template.entry)
-            involved_relations_list = QuestManager.get_quest_giver_involved_relations(game_object.gobject_template.entry)
+            relations_list = QuestManager.get_quest_giver_relations(game_object)
+            involved_relations_list = QuestManager.get_quest_giver_involved_relations(game_object)
 
             # Grab quest ids only.
             relations_list = {r.quest for r in relations_list}
@@ -411,7 +411,7 @@ class QuestManager(object):
     def update_surrounding_quest_status(self):
         known_objects = self.player_mgr.known_objects
 
-        for guid, world_object in known_objects.items():
+        for guid, world_object in list(known_objects.items()):
             if world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
                 unit = world_object
                 if WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
@@ -846,7 +846,7 @@ class QuestManager(object):
         rew_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_item_list(active_quest.quest)))
         rew_item_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_count_list(active_quest.quest)))
         for index, rew_item in enumerate(rew_item_list):
-            reward_items[rew_item[index]] = rew_item_count_list[index]
+            reward_items[rew_item_list[index]] = rew_item_count_list[index]
 
         # Check required quest items.
         required_items = {}
@@ -938,7 +938,7 @@ class QuestManager(object):
 
     # Quest starters.
     @staticmethod
-    def get_quest_giver_relations(quest_giver):
+    def get_quest_giver_relations(quest_giver: ObjectManager):
         if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
             return WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
         elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
@@ -948,7 +948,7 @@ class QuestManager(object):
 
     # Quest finishers.
     @staticmethod
-    def get_quest_giver_involved_relations(quest_giver):
+    def get_quest_giver_involved_relations(quest_giver: ObjectManager):
         if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
             return WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
         elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
