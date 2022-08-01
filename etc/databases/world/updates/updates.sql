@@ -7639,5 +7639,89 @@ begin not atomic
         insert into applied_updates values ('010820221');
 
     end if;
+    
+    -- 02/08/2022 1
+    if (select count(*) from applied_updates where id='020820221') = 0 then
+
+        -- TELDRASSILL
+
+        -- Bloodfeather Matriarch
+        UPDATE `creature_template`
+        SET `display_id1`=3021
+        WHERE `entry`=2021;
+
+        -- Bloodfeather Rogue
+        UPDATE `creature_template`
+        SET `display_id1`=3021
+        WHERE `entry`=2017;
+
+        -- Bloodfeather Wind Witch
+        UPDATE `creature_template`
+        SET `display_id1`=3021
+        WHERE `entry`=2020;
+
+        -- Bloodfeather Sorceress (this mob already has a display id, but we have screenshot that show a different one)
+        UPDATE `creature_template`
+        SET `display_id1`=3021
+        WHERE `entry`=2018;
+
+        -- Mangy Nightsaber - display_id 892 is unused
+        UPDATE `creature_template`
+        SET `display_id1`=892
+        WHERE `entry`=2032;
+
+        -- Nightsaber - display_id 892 is unused
+        UPDATE `creature_template`
+        SET `display_id1`=892
+        WHERE `entry`=2042;
+
+        -- Zenn Foulhoof (we have screenshot of him, see alpha archives, Teldrassil)
+        UPDATE `creature_template`
+        SET `display_id1`=2018
+        WHERE `entry`=2150;
+
+        -- Teldrassil Sentinel (There is only one display id of NE guard that is not used by a named NPC, same as Darnassus/Ashenvale guards)
+        UPDATE `creature_template`
+        SET `display_id1`=2306, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=3571;
+
+        -- Gnarlpine Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=2001
+        WHERE `entry`=2008;
+
+        -- Gnarlpine Pathfinder
+        UPDATE `creature_template`
+        SET `display_id1`=2001
+        WHERE `entry`=2012;
+
+        -- Gnarlpine Defender
+        UPDATE `creature_template`
+        SET `display_id1`=2001
+        WHERE `entry`=2010;
+
+        -- Gnarlpine Ursa
+        UPDATE `creature_template`
+        SET `display_id1`=2001
+        WHERE `entry`=2006;
+
+        -- Gnarlpine Gardener
+        UPDATE `creature_template`
+        SET `display_id1`=2001
+        WHERE `entry`=2007;
+
+        -- Gnarlpine Avenger
+        UPDATE `creature_template`
+        SET `display_id1`=2001
+        WHERE `entry`=2013;
+
+        -- Timberling Bark Ripper (we have screenshot of him, see alpha archives, Teldrassil)
+        UPDATE `creature_template`
+        SET `display_id1`=3034
+        WHERE `entry`=2025;
+
+        insert into applied_updates values ('020820221');
+
+    end if;
 end $
 delimiter ;
