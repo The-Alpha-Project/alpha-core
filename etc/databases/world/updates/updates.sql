@@ -7601,11 +7601,15 @@ begin not atomic
 
         -- Kendur Binder, we have a screenshot that show Kendur as ThunderBluff Binder (see alpha archives, thunderbluff)
         UPDATE `creature_template`
-        SET `name`='Kendur', `subname`='Binder', `faction`=35, `npc_flags`=16
+        SET `name`='Kendur', `subname`='Binder', `faction`=35, `npc_flags`=16, level_min=45, level_max=45, health_min=2972, health_max=2972, scale=1.35
         WHERE `entry`=3427;
 
         -- Kendur Binder spawn (he was not spawned because he's not part of 1.12)
         INSERT INTO `spawns_creatures` VALUES (NULL, 3427, 0, 0, 0, 1, 0, 0, -1260.245849609375, 69.53073120117188, 126.65142059326172, 2.0436079502105713, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Update scale of Tauren Binders.
+        UPDATE `creature_template` SET `scale` = 1.35 WHERE `entry` = 3302;
+        UPDATE `creature_template` SET `scale` = 1.25 WHERE `entry` = 3303;
 
         -- Marna, old binder, we ignore her
         UPDATE `spawns_creatures` SET `ignored`=1
