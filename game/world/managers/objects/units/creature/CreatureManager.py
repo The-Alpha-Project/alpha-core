@@ -773,7 +773,8 @@ class CreatureManager(UnitManager):
 
     # override
     def attack(self, victim: UnitManager):
-        self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
+        if victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
         super().attack(victim)
 
     # override
