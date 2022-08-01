@@ -634,15 +634,6 @@ class CreatureManager(UnitManager):
             waypoints.append(self.spawn_position)
         return waypoints, z_locked
 
-    def is_moving(self):
-        return self.movement_manager.unit_is_moving()
-
-    def stop_movement(self):
-        self.movement_manager.send_move_stop()
-
-    def is_casting(self):
-        return self.spell_manager.is_casting()
-
     def has_observers(self):
         return any(self.known_players)
 
@@ -702,7 +693,7 @@ class CreatureManager(UnitManager):
             if not combat_location:
                 return
 
-            # If target is within combat distance or already on combat location, don't move.
+            # If target is within combat distance or already in combat location, don't move.
             if target_distance <= combat_position_distance and self.location == combat_location:
                 return
 
@@ -781,9 +772,9 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
     # override
-    def attack(self, victim: UnitManager, is_melee=True):
+    def attack(self, victim: UnitManager):
         self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
-        super().attack(victim, is_melee)
+        super().attack(victim)
 
     # override
     def attack_update(self, elapsed):

@@ -213,7 +213,7 @@ class UnitManager(ObjectManager):
         # Might be neutral, but was attacked by target.
         return target.guid in self.attackers
 
-    def attack(self, victim: UnitManager, is_melee=True):
+    def attack(self, victim: UnitManager):
         if not victim or victim == self:
             return False
 
@@ -228,7 +228,7 @@ class UnitManager(ObjectManager):
         # In fight already
         if self.combat_target:
             if self.combat_target == victim:
-                if is_melee and self.is_within_interactable_distance(self.combat_target):
+                if self.is_within_interactable_distance(self.combat_target):
                     self.send_attack_start(victim.guid)
                     return True
                 return False
@@ -848,7 +848,7 @@ class UnitManager(ObjectManager):
     def set_root(self, active):
         if active:
             # Stop movement if needed.
-            self.movement_manager.send_move_stop()
+            self.stop_movement()
 
             self.movement_flags |= MoveFlags.MOVEFLAG_ROOTED
             self.unit_state |= UnitStates.ROOTED
@@ -886,6 +886,17 @@ class UnitManager(ObjectManager):
         self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+    def is_moving(self):
+        return self.movement_manager.unit_is_moving()
+
+    def is_casting(self):
+        return self.spell_manager.is_casting()
+
+    def stop_movement(self):
+        # Stop only if unit has pending waypoints.
+        if any(self.movement_manager.pending_waypoints):
+            self.movement_manager.send_move_stop()
 
     # Implemented by Creature/PlayerManager.
     def update_power_type(self):
@@ -1107,7 +1118,7 @@ class UnitManager(ObjectManager):
         self.unit_state = UnitStates.NONE
 
         # Stop movement on death.
-        self.movement_manager.send_move_stop()
+        self.stop_movement()
 
         # Detach from controller if this unit is a pet.
         if self.summoner:

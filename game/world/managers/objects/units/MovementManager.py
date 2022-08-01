@@ -176,7 +176,7 @@ class MovementManager:
         if self.unit.movement_flags & MoveFlags.MOVEFLAG_ROOTED:
             return
 
-        # Generate movement spline
+        # Generate movement spline.
         spline = MovementSpline(
             spline_type=spline_type,
             flags=spline_flag,
@@ -192,22 +192,20 @@ class MovementManager:
         self._send_move_to(spline)
 
     def send_move_stop(self):
-        # Stop only if unit has pending waypoints.
-        if any(self.pending_waypoints):
-            # Generate stop spline
-            spline = MovementSpline(
-                spline_type=SplineType.SPLINE_TYPE_STOP,
-                flags=SplineFlags.SPLINEFLAG_NONE,
-                spot=self.unit.location,
-                guid=self.unit.guid,
-                facing=self.unit.location.o,
-                points=[self.unit.location]
-            )
+        # Generate stop spline.
+        spline = MovementSpline(
+            spline_type=SplineType.SPLINE_TYPE_STOP,
+            flags=SplineFlags.SPLINEFLAG_NONE,
+            spot=self.unit.location,
+            guid=self.unit.guid,
+            facing=self.unit.location.o,
+            points=[self.unit.location]
+        )
 
-            self._send_move_to(spline)
+        self._send_move_to(spline)
 
     def send_face_spot(self, spot):
-        # Generate face spot spline
+        # Generate face spot spline.
         spline = MovementSpline(
             spline_type=SplineType.SPLINE_TYPE_FACING_SPOT,
             flags=SplineFlags.SPLINEFLAG_SPOT,
