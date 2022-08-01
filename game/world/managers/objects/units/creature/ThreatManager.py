@@ -34,6 +34,7 @@ class ThreatManager:
                 source_holder.total_threat = max(new_threat, 0.0)
             elif threat > 0.0:
                 self.holders[source.guid] = ThreatHolder(source, threat)
+                self._update_attackers_collection(source)
             else:
                 Logger.warning(f'Passed non positive threat {threat} from {source.guid & ~HighGuid.HIGHGUID_UNIT}')
 
@@ -82,6 +83,13 @@ class ThreatManager:
                             return units_in_aggro_list[-1]
         # No suitable target found.
         return None
+
+    # Make sure both involved units update their attackers' collection if hostility did not begin from a melee swing.
+    def _update_attackers_collection(self, attacker):
+        if attacker.guid not in self.owner.attackers:
+            self.owner.attackers[attacker.guid] = attacker
+        if self.owner.guid not in attacker.attackers:
+            attacker.attackers[self.owner.guid] = self.owner
 
     # TODO: Optimize this method?
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
