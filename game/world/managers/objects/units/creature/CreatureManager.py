@@ -44,7 +44,7 @@ class CreatureManager(UnitManager):
         super().__init__(**kwargs)
 
         self.creature_instance = creature_instance
-        self.creature_template = None
+        self.creature_template = None  # Will be initialized later.
 
         if CreatureManager.CURRENT_HIGHEST_GUID < self.creature_instance.spawn_id:
             CreatureManager.CURRENT_HIGHEST_GUID = self.creature_instance.spawn_id
@@ -83,7 +83,7 @@ class CreatureManager(UnitManager):
         self.summoner = summoner
         self.known_players = {}
 
-        self.initialize_creature(self.generate_creature_template())
+        self.initialize_creature(self.generate_creature_template() if not creature_template else creature_template)
 
         # All creatures can block, parry and dodge by default.
         # TODO, Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
