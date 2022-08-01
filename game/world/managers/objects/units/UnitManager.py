@@ -669,16 +669,14 @@ class UnitManager(ObjectManager):
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
-        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID, is_periodic=is_periodic,
-                                        is_cast_on_swing=is_cast_on_swing)
+        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID)
 
         self.deal_damage(target, damage, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
         miss_info = casting_spell.object_target_results[target.guid].result
         damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
-        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True,
-                                        is_periodic=is_periodic)
+        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True)
         target.receive_healing(healing, self)
         self._threat_assist(target, healing)
 
@@ -693,17 +691,16 @@ class UnitManager(ObjectManager):
                 for creature in creature_observers:
                     creature.threat_manager.add_threat(self, threat)
 
-    def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False, is_periodic=False, is_cast_on_swing=False):
-        flags = SpellHitFlags.HIT_FLAG_HEALED if healing else SpellHitFlags.HIT_FLAG_DAMAGE
-        if is_periodic:  # Periodic damage/healing does not show in combat log - only on character frame.
-            flags |= SpellHitFlags.HIT_FLAG_PERIODIC
-
+    def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False):
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
-            combat_log_data = pack('<i2Q2i', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id,
-                                   miss_reason)
+            combat_log_data = pack('<i2Q2i',
+                                   2,  # Unk flag enum (0 Normal, 1 Crit, 2 Absorb)
+                                   damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
-            combat_log_data = pack('<I2Q2If3I', flags, damage_info.attacker.guid, damage_info.target.guid, spell_id,
+            combat_log_data = pack('<I2Q2If3I',
+                                   0,  # Unk flag enum (0 Normal, 1 Crit, 2 Absorb)
+                                   damage_info.attacker.guid, damage_info.target.guid, spell_id,
                                    damage_info.total_damage, damage_info.damage, damage_info.damage_school_mask,
                                    damage_info.damage, damage_info.absorb)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL
