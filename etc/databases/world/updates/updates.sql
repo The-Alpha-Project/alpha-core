@@ -7581,5 +7581,59 @@ begin not atomic
         insert into applied_updates values ('310720222');
 
     end if;
+
+    -- 01/08/2022 1
+    if (select count(*) from applied_updates where id='010820221') = 0 then
+        -- THUNDERBLUFF
+
+        -- Ignore unused game objects : flying signs, shop signs with no display id
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (18208, 18204, 18198, 18187, 18292, 20831, 20828, 18283, 18281, 18278, 18296, 18294, 18618, 18230, 18226, 18219, 18191, 18184, 18710, 18708, 18684, 20834, 20465, 20391, 20437, 18628, 18630, 18627, 18666, 20380, 20378, 20356, 20442, 20351, 20338, 18681, 22025, 18171, 18440, 18438, 18437, 18177, 18168, 18459, 18458, 18456, 18160, 18152, 18436, 18299, 18474, 18164, 18156, 20427, 20428, 18623, 20383, 18166, 18155, 18170, 18159, 18716, 18175, 18615, 18614, 18559, 20471, 20335, 30334, 20472, 20386, 20334, 18616, 20381);
+
+        -- Bluffwatcher, display id 3784 is already use for Brave Rainchaser but it is identical to Bluffwatcher screenshots (see alpha archives, thunderbluff)
+        UPDATE `creature_template`
+        SET `display_id1`=2141, `display_id2`=3784, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=3084;
+
+        -- Cairne Bloodhoof, fix display id, we have screenshot that show Cairne with this display id (see alpha archives, thunderbluff)
+        UPDATE `creature_template` SET 
+        `display_id1`=59
+        WHERE `entry`=3057;
+
+        -- Kendur Binder, we have a screenshot that show Kendur as ThunderBluff Binder (see alpha archives, thunderbluff)
+        UPDATE `creature_template`
+        SET `name`='Kendur', `subname`='Binder', `faction`=35, `npc_flags`=16
+        WHERE `entry`=3427;
+
+        -- Kendur Binder spawn (he was not spawned because he's not part of 1.12)
+        INSERT INTO `spawns_creatures` VALUES (NULL, 3427, 0, 0, 0, 1, 0, 0, -1260.245849609375, 69.53073120117188, 126.65142059326172, 2.0436079502105713, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Marna, old binder, we ignore her
+        UPDATE `spawns_creatures` SET `ignored`=1
+        WHERE `spawn_id`=400014;
+
+
+        -- ORGRIMMAR
+
+        -- Missing brazier in thrall room, we need to spawn it, this room does not exist in 1.12
+        INSERT INTO `spawns_gameobjects` VALUES (NULL, 173137, 1, 1907.69091796875, -4041.87548828125, 40.93000030517578, 0.04390503838658333, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        -- Missing brazier in thrall room, we need to spawn it, this room does not exist in 1.12
+        INSERT INTO `spawns_gameobjects` VALUES (NULL, 173152, 1, 1921.5054931640625, -4105.3994140625, 41.93682861328125, 5.1151533126831055, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        -- Ignore unused game objects : shop signs with no display ID
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (10641, 10002, 4570, 11142, 11591, 11580, 11798, 11601, 11731, 10221, 11098, 10680, 11600, 10212, 10172, 9909, 11572);
+
+        -- Ignore unused game objects : unused mighty blaze, forge, anvil
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (3998687, 3998688, 3998689, 3998690, 3998702, 3998694, 3998695, 3998691, 3998699, 3998682, 3998692);
+
+        -- Thrall, fix display id, display id is a guess but no unique Thrall display id is present in 0.5.3
+        -- Untextured tauren is placeholder for Cairne, we assume Untextured orc is placeholder for Thrall
+        UPDATE `creature_template` SET 
+        `display_id1`=51
+        WHERE `entry`=4949;
+
+        insert into applied_updates values ('010820221');
+
+    end if;
 end $
 delimiter ;
