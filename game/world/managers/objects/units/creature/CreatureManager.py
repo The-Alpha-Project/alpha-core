@@ -28,7 +28,7 @@ from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes,
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, Teams
+    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, Teams, AIReactionStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -650,8 +650,8 @@ class CreatureManager(UnitManager):
         return self.creature_instance.movement_type == MovementTypes.WANDER
 
     def _perform_random_movement(self, now):
-        # Do not wander in combat, while evading, without wander flag or if unit has no observers.
-        if not self.in_combat and not self.is_evading and self.has_wander_type():
+        # Do not wander if dead, in combat, while evading or without wander flag.
+        if self.is_alive and not self.in_combat and not self.is_evading and self.has_wander_type():
             if len(self.movement_manager.pending_waypoints) == 0:
                 if now > self.last_random_movement + self.random_movement_wait_time:
                     self.movement_manager.move_random(self.spawn_position,
@@ -694,26 +694,22 @@ class CreatureManager(UnitManager):
                     self.leave_combat(True)
                     return
 
-            # If target is within combat distance, don't move but do check creature orientation.
-            if target_distance <= combat_position_distance:
-                # If this creature is not facing the attacker, update its orientation (server-side).
-                if not self.location.has_in_arc(self.combat_target.location, math.pi):
-                    self.location.face_point(self.combat_target.location)
+            # If this creature is not facing the attacker, update its orientation (server-side).
+            if not self.location.has_in_arc(self.combat_target.location, math.pi):
+                self.location.face_point(self.combat_target.location)
+
+            combat_location = self.combat_target.location.get_point_in_between(combat_position_distance, vector=self.location)
+            if not combat_location:
                 return
 
-            combat_location = self.combat_target.location.get_point_in_between(combat_position_distance,
-                                                                               vector=self.location)
-
-            if not combat_location:
+            # If target is within combat distance or already on combat location, don't move.
+            if target_distance <= combat_position_distance and self.location == combat_location:
                 return
 
             # If already going to the correct spot, don't do anything.
             if len(self.movement_manager.pending_waypoints) > 0 \
                     and self.movement_manager.pending_waypoints[0].location == combat_location:
                 return
-
-            # Make sure the server knows where the creature is facing.
-            self.location.face_point(self.combat_target.location)
 
             if self.is_on_water():
                 # Force destination Z to target Z.
@@ -756,10 +752,10 @@ class CreatureManager(UnitManager):
                 # Attack Update.
                 if self.combat_target and self.is_within_interactable_distance(self.combat_target):
                     self.attack_update(elapsed)
-                # Not in combat, check if threat manager can resolve a target.
+                # Not in combat, check if threat manager can resolve a target or if unit should switch target.
                 elif self.threat_manager:
                     target = self.threat_manager.resolve_target()
-                    if target:
+                    if target and target != self.combat_target:
                         self.attack(target)
 
             # Dead
@@ -783,6 +779,11 @@ class CreatureManager(UnitManager):
                 self.reset_fields_older_than(now)
 
         self.last_tick = now
+
+    # override
+    def attack(self, victim: UnitManager, is_melee=True):
+        self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
+        super().attack(victim, is_melee)
 
     # override
     def attack_update(self, elapsed):

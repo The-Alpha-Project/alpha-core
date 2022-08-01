@@ -73,8 +73,6 @@ class BasicCreatureAI(CreatureAI):
         # Avoid attacks on characters with Beastmaster flag on.
         if target_is_player and victim.beast_master:
             return False
-
-        self.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
         threat_not_to_leave_combat = 1E-4
         self.creature.threat_manager.add_threat(victim, threat_not_to_leave_combat)
 

@@ -292,7 +292,7 @@ class GameObjectManager(ObjectManager):
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
         miss_info = casting_spell.object_target_results[target.guid].result
 
-        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, is_periodic=is_periodic)
+        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID)
         target.receive_damage(damage, self, is_periodic)
 
         # Send environmental damage log packet to the affected player.
@@ -309,7 +309,7 @@ class GameObjectManager(ObjectManager):
         miss_info = casting_spell.object_target_results[target.guid].result
         damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
 
-        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True, is_periodic=is_periodic)
+        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True)
         target.receive_healing(healing, self)
 
     def _handle_use_goober(self, player):

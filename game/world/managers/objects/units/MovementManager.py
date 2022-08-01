@@ -88,13 +88,13 @@ class MovementManager:
                 self.reset()
 
     def reset(self):
-        self.unit.movement_spline = None
         self.should_update_waypoints = False
+        self.pending_waypoints.clear()
+        self.unit.movement_spline = None
         self.last_position = None
         self.total_waypoint_time = 0
         self.total_waypoint_timer = 0
         self.waypoint_timer = 0
-        self.pending_waypoints.clear()
 
     def unit_is_moving(self):
         if self.is_player:
@@ -141,7 +141,9 @@ class MovementManager:
         for waypoint in waypoints:
             waypoints_data += waypoint.to_bytes(include_orientation=False)
             current_distance = last_waypoint.distance(waypoint)
-            current_time = current_distance / self.unit.movement_spline.speed
+            # Avoid div by zero. e.g. Facing spline.
+            current_time = 0 if not self.unit.movement_spline.speed else \
+                current_distance / self.unit.movement_spline.speed
             total_distance += current_distance
             total_time += current_time
 
@@ -190,8 +192,8 @@ class MovementManager:
         self._send_move_to(spline)
 
     def send_move_stop(self):
-        # Stop only if in the middle of a waypoint or has pending waypoints.
-        if self.total_waypoint_timer > 0 or any(self.pending_waypoints):
+        # Stop only if unit has pending waypoints.
+        if any(self.pending_waypoints):
             # Generate stop spline
             spline = MovementSpline(
                 spline_type=SplineType.SPLINE_TYPE_STOP,

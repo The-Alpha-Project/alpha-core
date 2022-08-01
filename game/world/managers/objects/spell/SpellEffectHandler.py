@@ -396,8 +396,7 @@ class SpellEffectHandler:
         charge_location.face_point(target.location)
 
         # Stop movement if target is currently moving with waypoints.
-        if len(target.movement_manager.pending_waypoints) > 0:
-            target.movement_manager.send_move_stop()
+        target.movement_manager.send_move_stop()
 
         # Instant teleport.
         caster.teleport(caster.map_, charge_location, is_instant=True)
