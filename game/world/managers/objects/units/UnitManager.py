@@ -446,7 +446,7 @@ class UnitManager(ObjectManager):
 
         return damage_info
 
-    def send_attack_state_update(self, damage_info, deal_damage=True):
+    def send_attack_state_update(self, damage_info):
         data = pack('<I2QIBIf7I',
                     damage_info.hit_info,
                     damage_info.attacker.guid,
@@ -464,9 +464,8 @@ class UnitManager(ObjectManager):
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATE, data), self,
                                     include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
-        if deal_damage:
-            # Damage effects
-            self.deal_damage(damage_info.target, damage_info.total_damage)
+        # Damage effects
+        self.deal_damage(damage_info.target, damage_info.total_damage)
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target,
                                      apply_bonuses=True):
@@ -670,7 +669,6 @@ class UnitManager(ObjectManager):
             target.handle_combat_skill_gain(damage_info)
 
         self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID)
-
         self.deal_damage(target, damage, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
