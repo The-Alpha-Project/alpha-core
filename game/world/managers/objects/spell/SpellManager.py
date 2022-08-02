@@ -585,6 +585,9 @@ class SpellManager:
         if casting_spell.has_spell_visual_pre_cast_kit():
             visual_kit = casting_spell.spell_visual_entry.precast_kit
             visual_anim_name = visual_kit.visual_anim_name
+            if not visual_anim_name:
+                return
+
             # Do not send loop animations, we can't stop them once sent to the client.
             # e.g. KneelLoop.
             if 'Loop' in visual_anim_name.Name:
