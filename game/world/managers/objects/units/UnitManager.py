@@ -724,7 +724,7 @@ class UnitManager(ObjectManager):
                                damage_info.target.guid,
                                damage_info.total_damage,
                                damage_info.damage,
-                               flags,
+                               SpellHitFlags.HIT_FLAG_NONE,
                                0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells)
                                damage_info.attacker.guid)
 
