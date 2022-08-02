@@ -690,7 +690,7 @@ class UnitManager(ObjectManager):
                     creature.threat_manager.add_threat(self, threat)
 
     def send_spell_cast_debug_info(self, damage_info, miss_reason, casting_spell, is_periodic=False, healing=False):
-        # TODO: Below use of HitFlags might not be correct, needs further investigation.
+        # TODO: Below use of SpellHitFlags might not be correct, needs further investigation.
         spell_id = casting_spell.spell_entry.ID
         flags = SpellHitFlags.HIT_FLAG_NO_DAMAGE if healing else SpellHitFlags.HIT_FLAG_NORMAL
 
