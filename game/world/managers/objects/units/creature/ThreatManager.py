@@ -27,7 +27,7 @@ class ThreatManager:
         self.current_holder = None
 
     def add_threat(self, source: UnitManager, threat: float):
-        if source != self:
+        if source is not self.owner:
             source_holder = self.holders.get(source.guid)
             if source_holder:
                 new_threat = source_holder.total_threat + threat
