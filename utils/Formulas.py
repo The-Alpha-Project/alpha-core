@@ -174,6 +174,10 @@ class PlayerFormulas:
     def talent_points_gain_per_level(level):
         return 10 + (int(level / 10) * 5)
 
+    @staticmethod
+    def skill_points_gain_per_level(level):
+        return 2 if level % 10 == 0 else 1
+
     # Basic amount of XP earned for killing a mob of level equal to the character
     @staticmethod
     def base_xp_per_mob(level):
