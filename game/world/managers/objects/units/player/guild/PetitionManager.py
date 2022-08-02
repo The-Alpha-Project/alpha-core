@@ -2,6 +2,7 @@ from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import Petition
+from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ItemCodes import PetitionError
@@ -22,14 +23,6 @@ class PetitionManager(object):
 
         RealmDatabaseManager.guild_petition_create(petition)
         return petition
-
-    @staticmethod
-    def load_petition(player_mgr):
-        petition = RealmDatabaseManager.guild_petition_get_by_owner(player_mgr.guid)
-        if petition:
-            petition_item = player_mgr.inventory.get_first_item_by_entry(PetitionManager.CHARTER_ENTRY)
-            if petition_item:
-                petition_item.set_enchantment(0, petition.petition_id, 0, 0)
 
     @staticmethod
     def get_petition(petition_item_guid):
