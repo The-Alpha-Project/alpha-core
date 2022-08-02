@@ -7639,5 +7639,28 @@ begin not atomic
         insert into applied_updates values ('010820221');
 
     end if;
+
+    -- 02/08/2022 2
+    if (select count(*) from applied_updates where id='020820222') = 0 then
+        -- DARNASSUS BINDER
+
+        -- We ignore Mirallia, old binder
+        UPDATE `spawns_creatures`
+        SET `ignored`=1
+        WHERE `spawn_id`=400025;
+
+        -- We convert Syurana to a binder
+        UPDATE `creature_template`
+        SET `subname`='Binder', `faction`=35, `npc_flags`=16
+        WHERE `entry`=3779;
+
+        -- We update Syruana spawn location and reset ignored
+        UPDATE `spawns_creatures`
+        SET `ignored`=0, `position_x`=9940.15, `position_y`=2206.46, `position_z`=1328.96, `orientation`=5.911
+        WHERE `spawn_id`=42302;
+
+        insert into applied_updates values ('020820222');
+
+    end if;
 end $
 delimiter ;
