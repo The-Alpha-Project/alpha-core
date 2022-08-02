@@ -89,7 +89,6 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.reputation_manager.load_reputations()
         GuildManager.set_character_guild(world_session.player_mgr)
         GroupManager.set_character_group(world_session.player_mgr)
-        PetitionManager.load_petition(world_session.player_mgr)
 
         first_login = world_session.player_mgr.player.totaltime == 0
         # Send cinematic.

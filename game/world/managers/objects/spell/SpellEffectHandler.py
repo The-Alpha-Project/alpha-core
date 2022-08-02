@@ -190,7 +190,7 @@ class SpellEffectHandler:
             return
 
         # Add the item to player inventory.
-        target.inventory.add_item(effect.item_type, count=amount, created_by=caster)
+        target.inventory.add_item(effect.item_type, count=amount, created_by=caster.guid)
 
         # Craft Skill gain if needed.
         target.skill_manager.handle_profession_skill_gain_chance(casting_spell.spell_entry.ID)
