@@ -153,7 +153,7 @@ class SpellManager:
 
         self.start_spell_cast(spell, spell_target, target_mask, triggered=triggered)
 
-    def try_initialize_spell(self, spell: Optional[Spell], spell_target, target_mask, source_item=None,
+    def try_initialize_spell(self, spell: Spell, spell_target, target_mask, source_item=None,
                              triggered=False, validate=True) -> Optional[CastingSpell]:
         spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item, triggered=triggered)
         if not validate:
@@ -1051,7 +1051,7 @@ class SpellManager:
         has_correct_power = self.caster.power_type == casting_spell.spell_entry.PowerType or has_health_cost
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         # Items like scrolls or creatures need to be able to cast spells even if they lack the required power type.
-        ignore_wrong_power = not is_player or casting_spell.source_item
+        ignore_wrong_power = not is_player or casting_spell.source_item or casting_spell.triggered
 
         if not has_health_cost and power_cost and not has_correct_power and not ignore_wrong_power:
             # Doesn't have the correct power type.
