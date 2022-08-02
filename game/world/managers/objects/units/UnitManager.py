@@ -668,13 +668,13 @@ class UnitManager(ObjectManager):
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
-        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID)
+        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell, is_periodic=is_periodic)
         self.deal_damage(target, damage, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
         miss_info = casting_spell.object_target_results[target.guid].result
         damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
-        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True)
+        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic)
         target.receive_healing(healing, self)
         self._threat_assist(target, healing)
 
@@ -689,31 +689,42 @@ class UnitManager(ObjectManager):
                 for creature in creature_observers:
                     creature.threat_manager.add_threat(self, threat)
 
-    def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False):
+    def send_spell_cast_debug_info(self, damage_info, miss_reason, casting_spell, is_periodic=False):
+        is_positive = casting_spell.is_positive_spell()
+        spell_id = casting_spell.spell_entry.ID
+        flags = SpellHitFlags.HIT_FLAG_HEALED if is_positive else SpellHitFlags.HIT_FLAG_DAMAGE
+
+        # TODO: Periodic makes spells like rend not to appear on combat log.
+        # flags |= SpellHitFlags.HIT_FLAG_PERIODIC
+
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
             combat_log_data = pack('<i2Q2i',
-                                   2,  # Unk flag enum (0 Normal, 1 Crit, 2 Absorb)
+                                   flags,
                                    damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
             combat_log_data = pack('<I2Q2If3I',
-                                   0,  # Unk flag enum (0 Normal, 1 Crit, 2 Absorb)
+                                   flags,
                                    damage_info.attacker.guid, damage_info.target.guid, spell_id,
                                    damage_info.total_damage, damage_info.damage, damage_info.damage_school_mask,
                                    damage_info.damage, damage_info.absorb)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL
 
-        MapManager.send_surrounding(PacketWriter.get_packet(combat_log_opcode, combat_log_data), self,
-                                    include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
+        # Healing dots are displayed to the affected player only.
+        if casting_spell.initial_target_is_player() and is_positive and is_periodic:
+            damage_info.target.enqueue_packet(PacketWriter.get_packet(combat_log_opcode, combat_log_data))
+        elif not is_positive or not is_periodic:
+            MapManager.send_surrounding(PacketWriter.get_packet(combat_log_opcode, combat_log_data), self,
+                                        include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
-        if not healing:
+        if not is_positive:
             # TODO: Need better understanding of the how the client is handling this opcode in order to produce
             #  the right packet structure.
             damage_data = pack('<Q2IiIQ',
                                damage_info.target.guid,
                                damage_info.total_damage,
                                damage_info.damage,
-                               0,  # Unk flag enum (0 Normal, 1 Crit, 2 Absorb)
+                               flags,
                                0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells)
                                damage_info.attacker.guid)
 
