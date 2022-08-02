@@ -43,9 +43,6 @@ class ActiveQuest:
         if not quest_giver:
             return False
 
-        if QuestHelpers.is_instant_complete_quest(self.quest):
-            return True
-
         if self.db_state.state != QuestState.QUEST_REWARD:
             return False
 
@@ -57,7 +54,10 @@ class ActiveQuest:
             return False
 
         # Return if this quest is finished by this quest giver.
-        return self.quest.entry in {quest_entry[1] for quest_entry in involved_relations_list}
+        if self.quest.entry not in {quest_entry[1] for quest_entry in involved_relations_list}:
+            return False
+
+        return self.can_complete_quest()
 
     def apply_exploration_completion(self, area_trigger_id):
         if self.area_triggers and area_trigger_id in self.area_triggers and \
@@ -180,11 +180,8 @@ class ActiveQuest:
         else:
             RealmDatabaseManager.character_update_quest_status(self.db_state)
 
-    # TODO: Should handle other types of quests here: exploration, game object related, item usage, etc.
+    # TODO: Should handle other types of quests here: game object related, item usage, etc.
     def can_complete_quest(self):
-        if QuestHelpers.is_instant_complete_quest(self.quest):
-            return True
-
         # Check for required kills / gameobjects.
         required_creature_go = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
         for i in range(4):
