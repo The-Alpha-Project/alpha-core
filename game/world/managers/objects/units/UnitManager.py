@@ -712,7 +712,7 @@ class UnitManager(ObjectManager):
         # Healing dots are displayed to the affected player only.
         if casting_spell.initial_target_is_player() and healing and is_periodic:
             damage_info.target.enqueue_packet(PacketWriter.get_packet(combat_log_opcode, combat_log_data))
-        elif not is_positive or not is_periodic:
+        elif not healing or not is_periodic:
             MapManager.send_surrounding(PacketWriter.get_packet(combat_log_opcode, combat_log_data), self,
                                         include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
