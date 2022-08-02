@@ -690,11 +690,9 @@ class UnitManager(ObjectManager):
                     creature.threat_manager.add_threat(self, threat)
 
     def send_spell_cast_debug_info(self, damage_info, miss_reason, casting_spell, is_periodic=False, healing=False):
+        # TODO: Below use of HitFlags might not be correct, needs further investigation.
         spell_id = casting_spell.spell_entry.ID
-        flags = SpellHitFlags.HIT_FLAG_HEALED if healing else SpellHitFlags.HIT_FLAG_DAMAGE
-
-        # TODO: Periodic makes spells like rend not to appear on combat log.
-        # flags |= SpellHitFlags.HIT_FLAG_PERIODIC
+        flags = SpellHitFlags.HIT_FLAG_NO_DAMAGE if healing else SpellHitFlags.HIT_FLAG_NORMAL
 
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
             combat_log_data = pack('<i2Q2i',
@@ -712,7 +710,7 @@ class UnitManager(ObjectManager):
         # Healing dots are displayed to the affected player only.
         if casting_spell.initial_target_is_player() and healing and is_periodic:
             damage_info.target.enqueue_packet(PacketWriter.get_packet(combat_log_opcode, combat_log_data))
-        elif not is_positive or not is_periodic:
+        else:
             MapManager.send_surrounding(PacketWriter.get_packet(combat_log_opcode, combat_log_data), self,
                                         include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
@@ -723,7 +721,7 @@ class UnitManager(ObjectManager):
                                damage_info.target.guid,
                                damage_info.total_damage,
                                damage_info.damage,
-                               SpellHitFlags.HIT_FLAG_NONE,
+                               SpellHitFlags.HIT_FLAG_NORMAL,
                                0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells)
                                damage_info.attacker.guid)
 
