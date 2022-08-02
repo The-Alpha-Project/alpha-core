@@ -707,14 +707,10 @@ class UnitManager(ObjectManager):
                                    damage_info.damage, damage_info.absorb)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL
 
-        # Healing dots are displayed to the affected player only.
-        if casting_spell.initial_target_is_player() and healing and is_periodic:
-            damage_info.target.enqueue_packet(PacketWriter.get_packet(combat_log_opcode, combat_log_data))
-        else:
+        if not healing:
             MapManager.send_surrounding(PacketWriter.get_packet(combat_log_opcode, combat_log_data), self,
                                         include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
-        if not healing:
             # TODO: Need better understanding of the how the client is handling this opcode in order to produce
             #  the right packet structure.
             damage_data = pack('<Q2IiIQ',
@@ -722,11 +718,13 @@ class UnitManager(ObjectManager):
                                damage_info.total_damage,
                                damage_info.damage,
                                SpellHitFlags.HIT_FLAG_NORMAL,
-                               0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells)
+                               0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells).
                                damage_info.attacker.guid)
 
             MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
                                         include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
+        elif casting_spell.initial_target_is_player():  # Healing effects are displayed to the affected player only.
+            damage_info.target.enqueue_packet(PacketWriter.get_packet(combat_log_opcode, combat_log_data))
 
     def set_current_target(self, guid):
         self.current_target = guid
