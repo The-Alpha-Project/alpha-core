@@ -699,12 +699,12 @@ class UnitManager(ObjectManager):
 
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
             combat_log_data = pack('<i2Q2i',
-                                   flags,
+                                   2,
                                    damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
             combat_log_data = pack('<I2Q2If3I',
-                                   flags,
+                                   2,
                                    damage_info.attacker.guid, damage_info.target.guid, spell_id,
                                    damage_info.total_damage, damage_info.damage, damage_info.damage_school_mask,
                                    damage_info.damage, damage_info.absorb)
@@ -783,8 +783,8 @@ class UnitManager(ObjectManager):
         if not self.in_combat and not force:
             return
 
-        # Remove self from attacker list of attackers
-        for guid, victim in self.attackers.items():
+        # Remove self from attacker list of attackers.
+        for guid, victim in list(self.attackers.items()):
             if self.guid in victim.attackers:
                 # Always pop self from victim attackers.
                 victim.attackers.pop(self.guid)
