@@ -931,29 +931,32 @@ class SpellManager:
 
             # OPEN_LOCK spells can provide bonus skill.
             lock_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK)
-            bonus_skill = lock_effect.get_effect_simple_points()
+            if lock_effect:
+                bonus_skill = lock_effect.get_effect_simple_points()
 
-            # Skill checks and random failure chance.
-            if casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING:
-                # Skill check only on initial validation.
-                unlock_result = LockManager.can_open_lock(self.caster, lock_effect.misc_value, validation_target.lock,
-                                                          cast_item=casting_spell.source_item, bonus_points=bonus_skill)
-                unlock_result = unlock_result.result
+                # Skill checks and random failure chance.
+                if casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING:
+                    # Skill check only on initial validation.
+                    unlock_result = LockManager.can_open_lock(self.caster, lock_effect.misc_value, validation_target.lock,
+                                                              cast_item=casting_spell.source_item, bonus_points=bonus_skill)
+                    unlock_result = unlock_result.result
+                else:
+                    # Include failure chance on cast.
+                    unlock_result = self.caster.skill_manager.get_unlocking_attempt_result(lock_effect.misc_value,
+                                                                                           validation_target.lock,
+                                                                                           used_item=casting_spell.source_item,
+                                                                                           bonus_skill=bonus_skill)
+
+                if unlock_result != SpellCheckCastResult.SPELL_NO_ERROR:
+                    self.send_cast_result(casting_spell.spell_entry.ID, unlock_result)
+                    return False
             else:
-                # Include failure chance on cast.
-                unlock_result = self.caster.skill_manager.get_unlocking_attempt_result(lock_effect.misc_value,
-                                                                                       validation_target.lock,
-                                                                                       used_item=casting_spell.source_item,
-                                                                                       bonus_skill=bonus_skill)
-
-            if unlock_result != SpellCheckCastResult.SPELL_NO_ERROR:
-                self.send_cast_result(casting_spell.spell_entry.ID, unlock_result)
-                return False
+                Logger.warning(f'No lock effect found for casting spell {casting_spell.spell_entry.ID}.')
 
         # Special case of Ritual of Summoning.
         summoning_channel_id = 698
         if casting_spell.spell_entry.ID == summoning_channel_id and not self._validate_summon_cast(casting_spell):
-            # If the summon effect fails, the channel must be interrupted.
+            # If summon effect fails, the channel must be interrupted.
             self.remove_cast_by_id(summoning_channel_id)
             return False
 
