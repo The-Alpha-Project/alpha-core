@@ -951,7 +951,7 @@ class SpellManager:
                     self.send_cast_result(casting_spell.spell_entry.ID, unlock_result)
                     return False
             else:
-                Logger.warning(f'No lock effect found for casting spell {casting_spell.spell_entry.ID}')
+                Logger.warning(f'No lock effect found for casting spell {casting_spell.spell_entry.ID}.')
 
         # Special case of Ritual of Summoning.
         summoning_channel_id = 698
