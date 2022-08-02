@@ -674,7 +674,7 @@ class UnitManager(ObjectManager):
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
         miss_info = casting_spell.object_target_results[target.guid].result
         damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
-        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic)
+        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic, healing=True)
         target.receive_healing(healing, self)
         self._threat_assist(target, healing)
 
@@ -689,10 +689,9 @@ class UnitManager(ObjectManager):
                 for creature in creature_observers:
                     creature.threat_manager.add_threat(self, threat)
 
-    def send_spell_cast_debug_info(self, damage_info, miss_reason, casting_spell, is_periodic=False):
-        is_positive = casting_spell.is_positive_spell()
+    def send_spell_cast_debug_info(self, damage_info, miss_reason, casting_spell, is_periodic=False, healing=False):
         spell_id = casting_spell.spell_entry.ID
-        flags = SpellHitFlags.HIT_FLAG_HEALED if is_positive else SpellHitFlags.HIT_FLAG_DAMAGE
+        flags = SpellHitFlags.HIT_FLAG_HEALED if healing else SpellHitFlags.HIT_FLAG_DAMAGE
 
         # TODO: Periodic makes spells like rend not to appear on combat log.
         # flags |= SpellHitFlags.HIT_FLAG_PERIODIC
@@ -711,13 +710,13 @@ class UnitManager(ObjectManager):
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL
 
         # Healing dots are displayed to the affected player only.
-        if casting_spell.initial_target_is_player() and is_positive and is_periodic:
+        if casting_spell.initial_target_is_player() and healing and is_periodic:
             damage_info.target.enqueue_packet(PacketWriter.get_packet(combat_log_opcode, combat_log_data))
         elif not is_positive or not is_periodic:
             MapManager.send_surrounding(PacketWriter.get_packet(combat_log_opcode, combat_log_data), self,
                                         include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
-        if not is_positive:
+        if not healing:
             # TODO: Need better understanding of the how the client is handling this opcode in order to produce
             #  the right packet structure.
             damage_data = pack('<Q2IiIQ',
