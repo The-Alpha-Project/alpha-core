@@ -67,14 +67,14 @@ class ContainerManager(ItemManager):
             return True
         return False
 
-    def set_item(self, item, slot, count=1, is_swap=False, perm_enchant=0, created_by=None):
+    def set_item(self, item, slot, count=1, is_swap=False, perm_enchant=0, created_by=0):
         if self.can_set_item(item, slot, is_swap=is_swap):
             if isinstance(item, ItemManager):
                 item_mgr = item
                 if item_mgr == self:
                     return None
             else:
-                item_creator = 0 if not created_by else created_by.guid
+                item_creator = created_by
                 item_mgr = ItemManager.generate_item(item, self.owner, self.current_slot, slot,
                                                      stack_count=count, perm_enchant=perm_enchant, creator=item_creator)
 
@@ -90,7 +90,7 @@ class ContainerManager(ItemManager):
             return item_mgr
         return None
 
-    def add_item(self, item_template, count, check_existing=True, created_by=None, perm_enchant=0):
+    def add_item(self, item_template, count, check_existing=True, created_by=0, perm_enchant=0):
         amount_left = count
         if not self.can_contain_item(item_template):
             return amount_left, None

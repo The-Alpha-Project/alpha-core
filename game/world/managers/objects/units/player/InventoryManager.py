@@ -88,7 +88,7 @@ class InventoryManager(object):
                 return slot
         return InventorySlots.SLOT_INBACKPACK.value
 
-    def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False, created_by=None,
+    def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False, created_by=0,
                  perm_enchant=0, send_message=True, show_item_get=True):
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
