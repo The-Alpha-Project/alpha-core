@@ -61,6 +61,10 @@ class RealmDatabaseManager(object):
             if not account:
                 return False
 
+            # Client limitation.
+            if len(new_password) > 16:
+                return False
+
             hashed_old_password = hashlib.sha256(old_password.encode('utf-8')).hexdigest()
             if account.password != hashed_old_password:
                 return False
