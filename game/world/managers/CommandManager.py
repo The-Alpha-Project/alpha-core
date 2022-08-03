@@ -665,7 +665,7 @@ class CommandManager(object):
                                                                        old_password, new_password)
             if not success:
                 return -1, 'something went wrong, make sure the current password is correct'
-            return 0, 'password updated successfully, remember to update it in your wow.ses file'
+            return 0, 'Password updated successfully, remember to update it in your wow.ses file'
         except ValueError:
             return -1, 'please use it like: .pwdchange current_password new_password new_password'
 
