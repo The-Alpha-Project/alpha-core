@@ -294,6 +294,9 @@ class CastingSpell:
 
         return has_sitting_attribute and is_regen_buff and has_refreshment_period
 
+    def is_overpower(self):
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_ENABLE_AT_DODGE
+
     def has_effect_of_type(self, effect_type: SpellEffects):
         for effect in self.get_effects():
             if effect.effect_type == effect_type:
