@@ -283,6 +283,12 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.GameobjectTemplateHolder.GAMEOBJECT_TEMPLATES.get(entry)
 
     @staticmethod
+    def gameobject_template_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(GameobjectTemplate).all()
+        return res, world_db_session
+
+    @staticmethod
     def gameobject_get_all_spawns() -> [list[SpawnsGameobjects], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(ignored=0).all()

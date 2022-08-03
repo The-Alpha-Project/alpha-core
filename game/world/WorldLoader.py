@@ -23,6 +23,7 @@ class WorldLoader:
         # Below order matters.
 
         WorldLoader.load_creature_templates()
+        WorldLoader.load_gameobject_templates()
 
         # Loot related, even if not loading creatures or gameobjects, loot might be referenced.
         WorldLoader.load_gameobject_loot_templates()
@@ -41,14 +42,14 @@ class WorldLoader:
         if config.Server.Settings.load_gameobjects:
             WorldLoader.load_gameobject_quest_starters()
             WorldLoader.load_gameobject_quest_finishers()
-            WorldLoader.load_gameobjects()
+            WorldLoader.load_gameobjects_spawns()
         else:
             Logger.info('Skipped game object loading.')
 
         # Creature spawns
         if config.Server.Settings.load_creatures:
             WorldLoader.load_creature_equip_templates()
-            WorldLoader.load_creatures()
+            WorldLoader.load_creature_spawns()
             WorldLoader.load_creature_on_kill_reputation()
             WorldLoader.load_creature_quest_starters()
             WorldLoader.load_creature_quest_finishers()
@@ -80,22 +81,42 @@ class WorldLoader:
     # World data holders
 
     @staticmethod
-    def load_gameobjects():
+    def load_gameobject_templates():
+        gobject_templates, session = WorldDatabaseManager.gameobject_template_get_all()
+        length = len(gobject_templates)
+        count = 0
+
+        for gobject_template in gobject_templates:
+            WorldDatabaseManager.GameobjectTemplateHolder.load_gameobject_template(gobject_template)
+            count += 1
+            Logger.progress('Loading gameobject templates...', count, length)
+
+        session.close()
+        return length
+
+    @staticmethod
+    def load_gameobjects_spawns():
         gobject_spawns, session = WorldDatabaseManager.gameobject_get_all_spawns()
         length = len(gobject_spawns)
         count = 0
 
         for gobject_spawn in gobject_spawns:
-            if gobject_spawn.gameobject:
-                gobject_mgr = GameObjectManager(
-                    gobject_template=gobject_spawn.gameobject,
-                    gobject_instance=gobject_spawn
+            go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(gobject_spawn.spawn_entry)
+            if not go_template:
+                Logger.warning(
+                    f'Found gameobject spawn with non existent template. '
+                    f'Spawn id: {gobject_spawn.spawn_id}. '
                 )
-                gobject_mgr.load()
-                WorldDatabaseManager.GameobjectTemplateHolder.load_gameobject_template(gobject_spawn.gameobject)
+                continue
+
+            gobject_mgr = GameObjectManager(
+                gobject_template=go_template,
+                gobject_instance=gobject_spawn
+            )
+            gobject_mgr.load()
 
             count += 1
-            Logger.progress('Spawning gameobjects...', count, length)
+            Logger.progress('Spawning gameobject spawns...', count, length)
 
         session.close()
         return length
@@ -142,7 +163,7 @@ class WorldLoader:
         return length
 
     @staticmethod
-    def load_creatures():
+    def load_creature_spawns():
         creature_spawns, session = WorldDatabaseManager.creature_get_all_spawns()
         length = len(creature_spawns)
         count = 0
@@ -150,7 +171,7 @@ class WorldLoader:
         for creature in creature_spawns:
             creature_mgr = CreatureManager(creature_instance=creature)
             if not creature_mgr.creature_template:
-                Logger.error(
+                Logger.warning(
                     f'Found creature spawn with non existent creature template(s). '
                     f'Spawn id: {creature_mgr.creature_instance.spawn_id}. '
                     f'Spawn entry list: {creature_mgr.creature_entry_list}.'
@@ -176,7 +197,6 @@ class WorldLoader:
             Logger.progress('Loading creature on kill reputations...', count, length)
 
         return length
-
 
     @staticmethod
     def load_creature_spells():

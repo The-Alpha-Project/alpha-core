@@ -930,8 +930,8 @@ class SpellManager:
                 return False
 
             # OPEN_LOCK spells can provide bonus skill.
-            lock_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK)
-            if lock_effect:
+            if casting_spell.is_unlocking_spell():
+                lock_effect = casting_spell.get_lock_effect()
                 bonus_skill = lock_effect.get_effect_simple_points()
 
                 # Skill checks and random failure chance.
@@ -946,12 +946,9 @@ class SpellManager:
                                                                                            validation_target.lock,
                                                                                            used_item=casting_spell.source_item,
                                                                                            bonus_skill=bonus_skill)
-
                 if unlock_result != SpellCheckCastResult.SPELL_NO_ERROR:
                     self.send_cast_result(casting_spell.spell_entry.ID, unlock_result)
                     return False
-            else:
-                Logger.warning(f'No lock effect found for casting spell {casting_spell.spell_entry.ID}.')
 
         # Special case of Ritual of Summoning.
         summoning_channel_id = 698
