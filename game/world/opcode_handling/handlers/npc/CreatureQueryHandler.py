@@ -16,14 +16,8 @@ class CreatureQueryHandler(object):
                 creature_mgr = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
                 if creature_mgr:
                     player_mgr.enqueue_packet(CreatureManager.query_details(creature_mgr=creature_mgr))
-                    return 0
-
-                creature_spawn, session = WorldDatabaseManager.gameobject_spawn_get_by_guid(guid)
-                if creature_spawn and creature_spawn.creature_template.entry == entry:
+                else:  # Fallback just in case.
                     creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(entry)
                     if creature_template:
                         player_mgr.enqueue_packet(CreatureManager.query_details(creature_template=creature_template))
-
-                session.close()
-
         return 0

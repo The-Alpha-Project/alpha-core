@@ -286,7 +286,8 @@ class WorldDatabaseManager(object):
     def gameobject_template_get_all():
         world_db_session = SessionHolder()
         res = world_db_session.query(GameobjectTemplate).all()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     @staticmethod
     def gameobject_get_all_spawns() -> [list[SpawnsGameobjects], scoped_session]:
@@ -298,7 +299,8 @@ class WorldDatabaseManager(object):
     def gameobject_spawn_get_by_guid(guid) -> [Optional[SpawnsGameobjects], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_GAMEOBJECT).first()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     @staticmethod
     def gameobject_template_get_by_entry(entry) -> Optional[GameobjectTemplate]:
@@ -401,7 +403,8 @@ class WorldDatabaseManager(object):
     def creature_spawn_get_by_guid(guid) -> [Optional[SpawnsCreatures], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_UNIT).first()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     class CreatureModelInfoHolder:
         CREATURE_MODEL_INFOS: [int, CreatureModelInfo] = {}

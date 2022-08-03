@@ -82,7 +82,7 @@ class WorldLoader:
 
     @staticmethod
     def load_gameobject_templates():
-        gobject_templates, session = WorldDatabaseManager.gameobject_template_get_all()
+        gobject_templates = WorldDatabaseManager.gameobject_template_get_all()
         length = len(gobject_templates)
         count = 0
 
@@ -91,7 +91,6 @@ class WorldLoader:
             count += 1
             Logger.progress('Loading gameobject templates...', count, length)
 
-        session.close()
         return length
 
     @staticmethod
@@ -101,7 +100,8 @@ class WorldLoader:
         count = 0
 
         for gobject_spawn in gobject_spawns:
-            go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(gobject_spawn.spawn_entry)
+            go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(
+                gobject_spawn.spawn_entry)
             if not go_template:
                 Logger.warning(
                     f'Found gameobject spawn with non existent template. '
@@ -116,7 +116,7 @@ class WorldLoader:
             gobject_mgr.load()
 
             count += 1
-            Logger.progress('Spawning gameobject spawns...', count, length)
+            Logger.progress('Loading gameobject spawns...', count, length)
 
         session.close()
         return length
@@ -179,7 +179,7 @@ class WorldLoader:
                 continue
             creature_mgr.load()
             count += 1
-            Logger.progress('Spawning creatures...', count, length)
+            Logger.progress('Loading creature spawns...', count, length)
 
         session.close()
         return length

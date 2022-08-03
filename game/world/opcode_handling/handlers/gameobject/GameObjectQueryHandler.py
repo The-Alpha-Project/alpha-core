@@ -16,14 +16,8 @@ class GameObjectQueryHandler(object):
                 gobject_mgr = MapManager.get_surrounding_gameobject_by_guid(player_mgr, guid)
                 if gobject_mgr:
                     player_mgr.enqueue_packet(GameObjectManager.query_details(gameobject_mgr=gobject_mgr))
-                    return 0
-
-                gobject_spawn, session = WorldDatabaseManager.gameobject_spawn_get_by_guid(guid)
-                if gobject_spawn and gobject_spawn.gameobject.entry == entry:
+                else:  # Fallback just in case.
                     go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry)
                     if go_template:
                         player_mgr.enqueue_packet(GameObjectManager.query_details(gobject_template=go_template))
-
-                session.close()
-
         return 0

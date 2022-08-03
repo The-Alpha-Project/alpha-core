@@ -257,7 +257,7 @@ class QuestManager(object):
         elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             # TODO: e.g. Stone of Remembrance - Needs broadcast_text table.
             Logger.warning(f'Missing handling for quest giver {quest_giver.gobject_template.name}, '
-                           f'Entry: {quest_giver.entry}')
+                           f'Entry: {quest_giver.entry}.')
 
     def get_quest_state(self, quest_entry):
         if quest_entry in self.active_quests:
