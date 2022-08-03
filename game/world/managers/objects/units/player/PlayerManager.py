@@ -1371,7 +1371,7 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
-    def add_combo_points_on_target(self, target, combo_points):
+    def add_combo_points_on_target(self, target, combo_points, hide_from_target=False):
         if combo_points <= 0 or not target.is_alive:  # Killing a unit with a combo generator can generate a combo point after death
             return
 
@@ -1384,8 +1384,9 @@ class PlayerManager(UnitManager):
         self.bytes_2 = self.get_bytes_2()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
-        self.combo_target = target.guid
-        self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
+        if not hide_from_target:
+            self.combo_target = target.guid
+            self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
 
     # override
     def remove_combo_points(self):
