@@ -1,6 +1,7 @@
 from struct import pack
 from typing import Tuple, Dict
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.ItemCodes import InventorySlots, ItemEnchantmentType, EnchantmentSlots
 from utils.constants.OpCodes import OpCode
@@ -73,12 +74,17 @@ class EnchantmentManager(object):
 
     def handle_melee_attack_procs(self, damage_info):
         for proc_enchant in self._applied_proc_enchants.values():
-            proc_spell, proc_chance = proc_enchant
+            proc_spell_id, proc_chance = proc_enchant
             if not self.unit_mgr.stat_manager.roll_proc_chance(proc_chance):
                 continue
 
-            self.unit_mgr.spell_manager.handle_cast_attempt(proc_spell, damage_info.attacker,
-                                                            SpellTargetMask.UNIT, triggered=True)
+            # Some enchant procs use spells that have cast times.
+            # Ignore cast time for these spells by overriding cast time info.
+            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(proc_spell_id)
+            spell = self.unit_mgr.spell_manager.try_initialize_spell(spell_template, damage_info.target,
+                                                                     SpellTargetMask.UNIT, triggered=True)
+            spell.cast_time_entry = None
+            self.unit_mgr.spell_manager.start_spell_cast(initialized_spell=spell)
 
     def _handle_aura_removal(self, item):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED

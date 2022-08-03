@@ -16,17 +16,18 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
+from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags
-from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects
-from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode
+from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes
 
 
 class SpellManager:
@@ -153,7 +154,7 @@ class SpellManager:
 
         self.start_spell_cast(spell, spell_target, target_mask, triggered=triggered)
 
-    def try_initialize_spell(self, spell: Optional[Spell], spell_target, target_mask, source_item=None,
+    def try_initialize_spell(self, spell: Spell, spell_target, target_mask, source_item=None,
                              triggered=False, validate=True) -> Optional[CastingSpell]:
         spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item, triggered=triggered)
         if not validate:
@@ -291,6 +292,15 @@ class SpellManager:
                 if casting_spell.spell_caster.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
                     casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
                 applied_targets.append(target.guid)
+
+    def handle_damage_event_procs(self, damage_info: DamageInfoHolder):
+        # Only handling Overpower procs here for now.
+        if self.caster is not damage_info.attacker or self.caster.class_ != Classes.CLASS_WARRIOR:
+            return
+
+        if any([damage_info.proc_victim & overpower_trigger for overpower_trigger in
+                [ProcFlags.DODGE, ProcFlags.PARRY, ProcFlags.BLOCK]]):
+            self.caster.add_combo_points_on_target(damage_info.target, 1)
 
     def cast_queued_melee_ability(self, attack_type) -> bool:
         melee_ability = self.get_queued_melee_ability()
@@ -585,6 +595,9 @@ class SpellManager:
         if casting_spell.has_spell_visual_pre_cast_kit():
             visual_kit = casting_spell.spell_visual_entry.precast_kit
             visual_anim_name = visual_kit.visual_anim_name
+            if not visual_anim_name:
+                return
+
             # Do not send loop animations, we can't stop them once sent to the client.
             # e.g. KneelLoop.
             if 'Loop' in visual_anim_name.Name:
@@ -776,6 +789,22 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)
                 return True
 
+        # Required nearby spell focus GO.
+        spell_focus_type = casting_spell.spell_entry.RequiresSpellFocus
+        if spell_focus_type:
+            surrounding_gos = [go for go in
+                               MapManager.get_surrounding_gameobjects(self.caster).values()]
+
+            # Check if any nearby GO is the required spell focus.
+            if not any([go.gobject_template.type == GameObjectTypes.TYPE_SPELL_FOCUS and
+                        go.gobject_template.data0 == spell_focus_type and
+                        self.caster.location.distance(go.location) <= go.gobject_template.data1
+                        for go in surrounding_gos]):
+                self.send_cast_result(casting_spell.spell_entry.ID,
+                                      SpellCheckCastResult.SPELL_FAILED_REQUIRES_SPELL_FOCUS, spell_focus_type)
+                return False
+
+
         # Target validation.
         validation_target = casting_spell.initial_target
         # In the case of the spell requiring a unit target but being cast on self,
@@ -928,29 +957,32 @@ class SpellManager:
 
             # OPEN_LOCK spells can provide bonus skill.
             lock_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK)
-            bonus_skill = lock_effect.get_effect_simple_points()
+            if lock_effect:
+                bonus_skill = lock_effect.get_effect_simple_points()
 
-            # Skill checks and random failure chance.
-            if casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING:
-                # Skill check only on initial validation.
-                unlock_result = LockManager.can_open_lock(self.caster, lock_effect.misc_value, validation_target.lock,
-                                                          cast_item=casting_spell.source_item, bonus_points=bonus_skill)
-                unlock_result = unlock_result.result
+                # Skill checks and random failure chance.
+                if casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING:
+                    # Skill check only on initial validation.
+                    unlock_result = LockManager.can_open_lock(self.caster, lock_effect.misc_value, validation_target.lock,
+                                                              cast_item=casting_spell.source_item, bonus_points=bonus_skill)
+                    unlock_result = unlock_result.result
+                else:
+                    # Include failure chance on cast.
+                    unlock_result = self.caster.skill_manager.get_unlocking_attempt_result(lock_effect.misc_value,
+                                                                                           validation_target.lock,
+                                                                                           used_item=casting_spell.source_item,
+                                                                                           bonus_skill=bonus_skill)
+
+                if unlock_result != SpellCheckCastResult.SPELL_NO_ERROR:
+                    self.send_cast_result(casting_spell.spell_entry.ID, unlock_result)
+                    return False
             else:
-                # Include failure chance on cast.
-                unlock_result = self.caster.skill_manager.get_unlocking_attempt_result(lock_effect.misc_value,
-                                                                                       validation_target.lock,
-                                                                                       used_item=casting_spell.source_item,
-                                                                                       bonus_skill=bonus_skill)
-
-            if unlock_result != SpellCheckCastResult.SPELL_NO_ERROR:
-                self.send_cast_result(casting_spell.spell_entry.ID, unlock_result)
-                return False
+                Logger.warning(f'No lock effect found for casting spell {casting_spell.spell_entry.ID}.')
 
         # Special case of Ritual of Summoning.
         summoning_channel_id = 698
         if casting_spell.spell_entry.ID == summoning_channel_id and not self._validate_summon_cast(casting_spell):
-            # If the summon effect fails, the channel must be interrupted.
+            # If summon effect fails, the channel must be interrupted.
             self.remove_cast_by_id(summoning_channel_id)
             return False
 
@@ -1051,7 +1083,7 @@ class SpellManager:
         has_correct_power = self.caster.power_type == casting_spell.spell_entry.PowerType or has_health_cost
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         # Items like scrolls or creatures need to be able to cast spells even if they lack the required power type.
-        ignore_wrong_power = not is_player or casting_spell.source_item
+        ignore_wrong_power = not is_player or casting_spell.source_item or casting_spell.triggered
 
         if not has_health_cost and power_cost and not has_correct_power and not ignore_wrong_power:
             # Doesn't have the correct power type.
@@ -1105,20 +1137,20 @@ class SpellManager:
                 if required_ammo in [ItemSubClasses.ITEM_SUBCLASS_ARROW, ItemSubClasses.ITEM_SUBCLASS_BULLET]:
                     target_bag_slot = self.caster.inventory.get_bag_slot_for_ammo(required_ammo)
                     if target_bag_slot == -1:
-                        # SPELL_FAILED_NEED_AMMO_POUCH Seems to crash client.
-                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_AMMO)
+                        required_bag = ItemSubClasses.ITEM_SUBCLASS_QUIVER if \
+                            required_ammo == ItemSubClasses.ITEM_SUBCLASS_ARROW else ItemSubClasses.ITEM_SUBCLASS_AMMO_POUCH
+                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NEED_AMMO_POUCH,
+                                              misc_data=required_bag)
                         return False
 
                     target_bag = self.caster.inventory.get_container(target_bag_slot)
                     target_ammo = next(iter(target_bag.sorted_slots.values()), None)  # Get first item in bag.
-                    if not target_ammo or target_ammo != casting_spell.used_ranged_attack_item:
-                        # Also validate against casting_spell.used_ranged_attack_item,
-                        # the initially selected ammo (inventory manipulation during casting)
 
-                        # Note: SPELL_FAILED_NEED_AMMO crashes client even though it is present in the code.
-                        # It was used later for "Ammo needs to be in the paper doll ammo slot before it can be fired",
-                        # but the slot does not exist in 0.5.3.
-                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_AMMO)
+                    # Also validate against casting_spell.used_ranged_attack_item,
+                    # the initially selected ammo (inventory manipulation during casting)
+                    if not target_ammo or target_ammo != casting_spell.used_ranged_attack_item:
+                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NEED_AMMO,
+                                              misc_data=required_ammo)
                         return False
 
             # Spells cast with consumables.
@@ -1216,7 +1248,7 @@ class SpellManager:
                 new_charges = charges-1 if charges > 0 else charges+1
                 casting_spell.source_item.set_charges(casting_spell.spell_entry.ID, new_charges)
 
-    def send_cast_result(self, spell_id, error):
+    def send_cast_result(self, spell_id, error, misc_data=-1):
         # TODO CAST_SUCCESS_KEEP_TRACKING
         #  cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED
 
@@ -1231,6 +1263,7 @@ class SpellManager:
         if error == SpellCheckCastResult.SPELL_NO_ERROR:
             data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
         else:
-            data = pack('<I2B', spell_id, SpellCastStatus.CAST_FAILED, error)
+            data = pack('<I2B', spell_id, SpellCastStatus.CAST_FAILED, error) if misc_data == -1 else \
+                   pack('<I2BI', spell_id, SpellCastStatus.CAST_FAILED, error, misc_data)
 
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))

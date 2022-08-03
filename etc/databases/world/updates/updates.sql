@@ -7640,6 +7640,7 @@ begin not atomic
 
     end if;
 
+
     -- 02/08/2022 2
     if (select count(*) from applied_updates where id='020820222') = 0 then
         -- DARNASSUS BINDER
@@ -7660,6 +7661,15 @@ begin not atomic
         WHERE `spawn_id`=42302;
 
         insert into applied_updates values ('020820222');
+        
+    end if;
+    
+    -- 03/08/2022 1
+    if (select count(*) from applied_updates where id='030820221') = 0 then
+        -- Linen/Heavy Linen/Wool/Heavy Wool Bandage.
+        UPDATE `item_template` SET `SpellCharges_1` = 0 WHERE `entry` IN (1251, 2581, 3530, 3531);
+
+        insert into applied_updates values ('030820221');
 
     end if;
 end $

@@ -282,7 +282,7 @@ class GameObjectManager(ObjectManager):
             if spell_cast:
                 self.summoner.spell_manager.start_spell_cast(initialized_spell=spell_cast)
             else:
-                # Interrupt ritual channel if the summon fails.
+                # Interrupt ritual channel if summon fails.
                 self.summoner.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
 
     def has_observers(self):
@@ -292,7 +292,7 @@ class GameObjectManager(ObjectManager):
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
         miss_info = casting_spell.object_target_results[target.guid].result
 
-        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID)
+        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic)
         target.receive_damage(damage, self, is_periodic)
 
         # Send environmental damage log packet to the affected player.
@@ -309,7 +309,7 @@ class GameObjectManager(ObjectManager):
         miss_info = casting_spell.object_target_results[target.guid].result
         damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
 
-        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True)
+        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic, healing=True)
         target.receive_healing(healing, self)
 
     def _handle_use_goober(self, player):

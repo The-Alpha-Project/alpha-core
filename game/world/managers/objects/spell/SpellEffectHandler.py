@@ -14,7 +14,7 @@ from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
-from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags
+from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags, InventoryError
 from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
@@ -177,9 +177,23 @@ class SpellEffectHandler:
         if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        target.inventory.add_item(effect.item_type,
-                                  count=effect.get_effect_points(casting_spell.caster_effective_level),
-                                  created_by=caster)
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(effect.item_type)
+
+        if not item_template:
+            target.inventory.send_equip_error(InventoryError.BAG_UNKNOWN_ITEM)
+            return
+
+        amount = effect.get_effect_points(casting_spell.caster_effective_level)
+        can_store_item = target.inventory.can_store_item(item_template, amount)
+        if can_store_item != InventoryError.BAG_OK:
+            target.inventory.send_equip_error(can_store_item)
+            return
+
+        # Add the item to player inventory.
+        target.inventory.add_item(effect.item_type, count=amount, created_by=caster.guid)
+
+        # Craft Skill gain if needed.
+        target.skill_manager.handle_profession_skill_gain_chance(casting_spell.spell_entry.ID)
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
