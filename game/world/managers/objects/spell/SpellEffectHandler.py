@@ -62,6 +62,7 @@ class SpellEffectHandler:
         if casting_spell.spell_attack_type == -1:
             # Fall back to base_attack if the attack type couldn't be resolved on init.
             # This is required for some spells that don't define the type of weapon needed for the attack.
+            # TODO This should be resolved during CastingSpell init, but more research is needed for a generic check.
             casting_spell.spell_attack_type = AttackTypes.BASE_ATTACK
 
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
