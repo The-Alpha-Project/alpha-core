@@ -1136,21 +1136,21 @@ class SpellManager:
                 # Only check consumable ammo.
                 if required_ammo in [ItemSubClasses.ITEM_SUBCLASS_ARROW, ItemSubClasses.ITEM_SUBCLASS_BULLET]:
                     target_bag_slot = self.caster.inventory.get_bag_slot_for_ammo(required_ammo)
+                    ammo_req_type = 0 if \
+                        required_ammo == ItemSubClasses.ITEM_SUBCLASS_BULLET else 1
                     if target_bag_slot == -1:
-                        # SPELL_FAILED_NEED_AMMO_POUCH Seems to crash client.
-                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_AMMO)
+                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NEED_AMMO_POUCH,
+                                              misc_data=ammo_req_type)
                         return False
 
                     target_bag = self.caster.inventory.get_container(target_bag_slot)
                     target_ammo = next(iter(target_bag.sorted_slots.values()), None)  # Get first item in bag.
-                    if not target_ammo or target_ammo != casting_spell.used_ranged_attack_item:
-                        # Also validate against casting_spell.used_ranged_attack_item,
-                        # the initially selected ammo (inventory manipulation during casting)
 
-                        # Note: SPELL_FAILED_NEED_AMMO crashes client even though it is present in the code.
-                        # It was used later for "Ammo needs to be in the paper doll ammo slot before it can be fired",
-                        # but the slot does not exist in 0.5.3.
-                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_AMMO)
+                    # Also validate against casting_spell.used_ranged_attack_item,
+                    # the initially selected ammo (inventory manipulation during casting)
+                    if not target_ammo or target_ammo != casting_spell.used_ranged_attack_item:
+                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NEED_AMMO,
+                                              misc_data=ammo_req_type)
                         return False
 
             # Spells cast with consumables.
