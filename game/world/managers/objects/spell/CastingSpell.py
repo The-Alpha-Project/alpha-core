@@ -274,6 +274,12 @@ class CastingSpell:
         unlock_effects = [SpellEffects.SPELL_EFFECT_OPEN_LOCK, SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM]
         return any(effect.effect_type in unlock_effects for effect in self.get_effects())
 
+    def get_lock_effect(self):
+        unlock_effects = [SpellEffects.SPELL_EFFECT_OPEN_LOCK, SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM]
+        for effect in self.get_effects():
+            if effect.effect_type in unlock_effects:
+                return effect
+
     def is_pickpocket_spell(self):
         return any(effect.effect_type == SpellEffects.SPELL_EFFECT_PICKPOCKET for effect in self.get_effects())
 

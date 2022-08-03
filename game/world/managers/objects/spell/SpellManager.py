@@ -956,8 +956,8 @@ class SpellManager:
                 return False
 
             # OPEN_LOCK spells can provide bonus skill.
-            lock_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK)
-            if lock_effect:
+            if casting_spell.is_unlocking_spell():
+                lock_effect = casting_spell.get_lock_effect()
                 bonus_skill = lock_effect.get_effect_simple_points()
 
                 # Skill checks and random failure chance.
@@ -972,12 +972,9 @@ class SpellManager:
                                                                                            validation_target.lock,
                                                                                            used_item=casting_spell.source_item,
                                                                                            bonus_skill=bonus_skill)
-
                 if unlock_result != SpellCheckCastResult.SPELL_NO_ERROR:
                     self.send_cast_result(casting_spell.spell_entry.ID, unlock_result)
                     return False
-            else:
-                Logger.warning(f'No lock effect found for casting spell {casting_spell.spell_entry.ID}.')
 
         # Special case of Ritual of Summoning.
         summoning_channel_id = 698
@@ -1192,6 +1189,7 @@ class SpellManager:
         if not self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
+        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         power_type = casting_spell.spell_entry.PowerType
         # Check if this spell should consume all power.
         if casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_DRAIN_ALL_POWER:
@@ -1218,14 +1216,15 @@ class SpellManager:
                 casting_spell.requires_combo_points():
             self.caster.remove_combo_points()
 
-        for reagent_info in casting_spell.get_reagents():  # Reagents.
-            if reagent_info[0] == 0:
-                break
-            self.caster.inventory.remove_items(reagent_info[0], reagent_info[1])
+        if is_player:
+            for reagent_info in casting_spell.get_reagents():  # Reagents.
+                if reagent_info[0] == 0:
+                    break
+                self.caster.inventory.remove_items(reagent_info[0], reagent_info[1])
 
         # Ammo
         used_ammo_or_weapon = casting_spell.used_ranged_attack_item
-        if casting_spell.spell_attack_type == AttackTypes.RANGED_ATTACK and used_ammo_or_weapon:
+        if is_player and casting_spell.spell_attack_type == AttackTypes.RANGED_ATTACK and used_ammo_or_weapon:
             # Validation ensures that the initially selected ammo (used_ranged_attack_item) remains the same.
             ammo_class = used_ammo_or_weapon.item_template.class_
             ammo_subclass = used_ammo_or_weapon.item_template.subclass
@@ -1239,7 +1238,7 @@ class SpellManager:
                                                             used_ammo_or_weapon.item_instance.bag)
 
         # Spells cast with consumables.
-        if casting_spell.source_item and casting_spell.source_item.has_charges():
+        if is_player and casting_spell.source_item and casting_spell.source_item.has_charges():
             charges = casting_spell.source_item.get_charges(casting_spell.spell_entry.ID)
             if charges < 0:  # Negative charges remove items.
                 self.caster.inventory.remove_items(casting_spell.source_item.item_template.entry, 1)

@@ -6,9 +6,11 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
+from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
@@ -387,7 +389,7 @@ class PlayerManager(UnitManager):
             active_objects[guid] = creature
             if guid not in self.known_objects or not self.known_objects[guid]:
                 # We don't know this creature, notify self with its update packet.
-                self.enqueue_packet(creature.query_details())
+                self.enqueue_packet(CreatureManager.query_details(creature_mgr=creature))
                 if creature.is_spawned:
                     self.enqueue_packet(creature.generate_create_packet(requester=self))
                     # Get partial movement packet if any.
@@ -410,7 +412,7 @@ class PlayerManager(UnitManager):
             active_objects[guid] = gobject
             if guid not in self.known_objects or not self.known_objects[guid]:
                 # We don't know this game object, notify self with its update packet.
-                self.enqueue_packet(gobject.query_details())
+                self.enqueue_packet(GameObjectManager.query_details(gameobject_mgr=gobject))
                 if gobject.is_spawned:
                     self.enqueue_packet(gobject.generate_create_packet(requester=self))
                     # We only consider 'known' if its spawned, the details query is still sent.
