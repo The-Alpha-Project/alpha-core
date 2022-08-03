@@ -7667,6 +7667,11 @@ begin not atomic
 
         -- # BARRENS
 
+        -- Razormane Nak (a named with no display id)
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3434;
+
         -- Razormane warfury
         UPDATE `creature_template`
         SET `display_id1`=1341
