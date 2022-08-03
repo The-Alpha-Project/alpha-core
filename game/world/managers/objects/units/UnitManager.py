@@ -1081,7 +1081,7 @@ class UnitManager(ObjectManager):
         return self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR) or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT)
 
     # Implemented by PlayerManager
-    def add_combo_points_on_target(self, target, combo_points):
+    def add_combo_points_on_target(self, target, combo_points, hide=False):
         pass
 
     # Implemented by PlayerManager
