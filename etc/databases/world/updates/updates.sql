@@ -7650,12 +7650,7 @@ begin not atomic
 
         -- # DUROTAR
 
-        -- Razormane battleguard,  this one already got a display_id, but screenshot show another
-        UPDATE `creature_template`
-        SET `display_id1`=1341
-        WHERE `entry`=3114;
-
-        -- Razormane battleguard, vanilla models not exist yet, he probably use same models as all Razormane
+        -- Razormane Dustrunner, screenshot
         UPDATE `creature_template`
         SET `display_id1`=1341
         WHERE `entry`=3113;
