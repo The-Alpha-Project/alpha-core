@@ -415,7 +415,7 @@ class SkillManager(object):
 
         return True
 
-    def handle_profession_skill_gain_chance(self, spell_id):
+    def handle_profession_skill_gain(self, spell_id):
         skill_gain_factor = 1
 
         skill_info_entries = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
@@ -435,11 +435,11 @@ class SkillManager(object):
 
         gray_threshold = skill_line_ability.TrivialSkillLineRankHigh
         yellow_threshold = skill_line_ability.TrivialSkillLineRankLow
-        chance = self.skill_gain_chance(skill.value, gray_threshold,
-                                        (gray_threshold + yellow_threshold) / 2,
-                                        yellow_threshold)
+        chance = SkillManager._get_skill_gain_chance(skill.value, gray_threshold,
+                                                     (gray_threshold + yellow_threshold) / 2,
+                                                     yellow_threshold)
 
-        self.update_skill_profession(skill_id, chance, skill_gain_factor)
+        self._roll_profession_skill_gain_chance(skill_id, chance, skill_gain_factor)
         self.build_update()
         return True
 
@@ -449,26 +449,19 @@ class SkillManager(object):
             return
         raw_skill_value = self.skills[skill_type].value
 
-        if skill_type == SkillTypes.HERBALISM or skill_type == SkillTypes.LOCKPICKING:
-            self.update_skill_profession(
-                skill_type,
-                self.skill_gain_chance(raw_skill_value,
-                                       required_skill_value + 100,
-                                       required_skill_value + 50,
-                                       required_skill_value + 25),
-                gather_skill_gain_factor)
-        elif skill_type == SkillTypes.MINING:
-            mining_skill_chance_steps = 75  # TODO, configurable.
-            self.update_skill_profession(
-                skill_type,
-                self.skill_gain_chance(raw_skill_value,
-                                       required_skill_value + 100,
-                                       required_skill_value + 50,
-                                       required_skill_value + 25) >> int(raw_skill_value / mining_skill_chance_steps),
-                gather_skill_gain_factor)
+        chance = SkillManager._get_skill_gain_chance(raw_skill_value,
+                                                     required_skill_value + 100,
+                                                     required_skill_value + 50,
+                                                     required_skill_value + 25)
 
-    # noinspection PyMethodMayBeStatic
-    def skill_gain_chance(self, skill_value, gray_level, green_level, yellow_level):
+        if skill_type == SkillTypes.MINING:
+            mining_skill_chance_steps = 75  # TODO, configurable.
+            chance = chance >> int(raw_skill_value / mining_skill_chance_steps)
+
+        self._roll_profession_skill_gain_chance(skill_type, chance, gather_skill_gain_factor)
+
+    @staticmethod
+    def _get_skill_gain_chance(skill_value, gray_level, green_level, yellow_level):
         if skill_value >= gray_level:
             return 0 * 10
         elif skill_value >= green_level:
@@ -477,11 +470,8 @@ class SkillManager(object):
             return 75 * 10
         return 100 * 10
 
-    def update_skill_profession(self, skill_type, chance, step):
-        if not skill_type:
-            return False
-
-        if chance <= 0:
+    def _roll_profession_skill_gain_chance(self, skill_type, chance, step):
+        if not skill_type or chance <= 0:
             return False
 
         skill = self.skills.get(skill_type, None)

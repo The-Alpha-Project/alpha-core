@@ -202,7 +202,7 @@ class SpellEffectHandler:
         target.inventory.add_item(effect.item_type, count=amount, created_by=caster.guid)
 
         # Craft Skill gain if needed.
-        target.skill_manager.handle_profession_skill_gain_chance(casting_spell.spell_entry.ID)
+        target.skill_manager.handle_profession_skill_gain(casting_spell.spell_entry.ID)
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
@@ -542,7 +542,7 @@ class SpellEffectHandler:
         owner_player.enchantment_manager.set_item_enchantment(target, enchantment_slot, effect.misc_value,
                                                               duration, charges)
 
-        caster.skill_manager.handle_profession_skill_gain_chance(casting_spell.spell_entry.ID)
+        caster.skill_manager.handle_profession_skill_gain(casting_spell.spell_entry.ID)
 
         # Save item.
         target.save()
