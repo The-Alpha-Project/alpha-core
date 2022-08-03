@@ -88,8 +88,8 @@ class SpellEffectHandler:
 
         damage_bonus = effect.get_effect_points(casting_spell.caster_effective_level)
 
-        # Only use combo point damage scaling for rogue; Overpower also uses combo points.
-        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER and caster.class_ == Classes.CLASS_ROGUE and \
+        # Overpower also uses combo points, but shouldn't scale.
+        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER and not casting_spell.is_overpower() and \
                 casting_spell.requires_combo_points():
             damage_bonus *= caster.combo_points
 
