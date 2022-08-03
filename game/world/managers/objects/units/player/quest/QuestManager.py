@@ -4,7 +4,9 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQ
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from game.world.managers.objects.units.player.quest.QuestMenu import QuestMenu
@@ -15,7 +17,7 @@ from utils.constants import UnitCodes
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestMethod, \
-    QuestFlags, GameObjectTypes, ObjectTypeIds, HighGuid
+    QuestFlags, GameObjectTypes, ObjectTypeIds, HighGuid, Emotes
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -252,10 +254,10 @@ class QuestManager(object):
         elif quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.is_trainer():
             text = QuestManager.get_default_greeting_text(quest_giver)
             self.send_quest_giver_quest_list(text, 0, quest_giver_guid, quest_menu.items)
-        else:
+        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             # TODO: e.g. Stone of Remembrance - Needs broadcast_text table.
-            Logger.warning(f'Missing handling for quest giver entry {quest_giver.entry} of type '
-                           f'{quest_giver.get_type_id()}.')
+            Logger.warning(f'Missing handling for quest giver {quest_giver.gobject_template.name}, '
+                           f'Entry: {quest_giver.entry}')
 
     def get_quest_state(self, quest_entry):
         if quest_entry in self.active_quests:
@@ -485,6 +487,7 @@ class QuestManager(object):
                 quest_title
             )
 
+        self.player_mgr.play_emote(Emotes.AGREE)
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_LIST, data))
 
     def send_quest_giver_quest_details(self, quest_template, quest_giver_guid, activate_accept):
@@ -526,6 +529,7 @@ class QuestManager(object):
             detail_emote_delay = eval(f'quest_template.DetailsEmoteDelay{index}')
             data += pack('<2I', detail_emote, detail_emote_delay)
 
+        self.player_mgr.play_emote(Emotes.AGREE)
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
 
     def send_quest_query_response(self, quest):
@@ -584,6 +588,16 @@ class QuestManager(object):
                 0x0  # Unknown, if missing, multiple objective quests will not display properly.
             )
 
+            # Send query details for gameobjects and creatures in case they are out of range.
+            if creature_or_go < 0:
+                go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(-creature_or_go)
+                if go_template:
+                    self.player_mgr.enqueue_packet(GameObjectManager.query_details(gobject_template=go_template))
+            elif creature_or_go > 0:
+                creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_or_go)
+                if creature_template:
+                    self.player_mgr.enqueue_packet(CreatureManager.query_details(creature_template))
+
         # Objective texts.
         req_objective_text_list = QuestHelpers.generate_objective_text_list(quest)
         for index, objective_text in enumerate(req_objective_text_list):
@@ -604,8 +618,10 @@ class QuestManager(object):
 
         # Not completable by normal means, check if this is an instant quest that requires items.
         if not is_completable and not QuestHelpers.is_instant_with_no_requirements(quest):
-            is_completable = QuestHelpers.has_required_items_for_quest(self.player_mgr, quest)
+            if QuestHelpers.has_item_requirements(quest):
+                is_completable = QuestHelpers.has_required_items_for_quest(self.player_mgr, quest)
 
+        # Doesn't have request items text or does not require items and is completable, offer reward.
         if not request_items_text or (not QuestHelpers.has_item_requirements(quest) and is_completable):
             self.send_quest_giver_offer_reward(quest, quest_giver_id, enable_next=True)
             return
@@ -1002,11 +1018,16 @@ class QuestManager(object):
                 return True
         return False
 
-    # TODO: Handle Gameobjects
-    def reward_creature_or_go(self, creature):
+    def handle_goober_use(self, gameobject, quest_id):
+        if quest_id in self.active_quests:
+            self.reward_creature_or_go(gameobject, quest_id)
+
+    def reward_creature_or_go(self, world_object, to_quest_id=0):
         for quest_id, active_quest in self.active_quests.items():
-            if active_quest.requires_creature_or_go(creature.entry):
-                active_quest.update_creature_go_count(creature, 1)
+            if to_quest_id and quest_id != to_quest_id:
+                continue
+            if active_quest.requires_creature_or_go(world_object):
+                active_quest.update_creature_go_count(world_object, 1)
                 self.update_single_quest(quest_id)
                 # If by this kill we complete the quest, update surrounding so NPC can display new complete status.
                 if active_quest.can_complete_quest():
@@ -1036,12 +1057,6 @@ class QuestManager(object):
 
         if update_surrounding:
             self.update_surrounding_quest_status()
-
-    def creature_go_is_required_by_quest(self, creature_entry):
-        for active_quest in list(self.active_quests.values()):
-            if active_quest.requires_creature_or_go(creature_entry):
-                return True
-        return False
 
     def item_is_still_needed_by_any_quest(self, item_entry):
         for active_quest in list(self.active_quests.values()):

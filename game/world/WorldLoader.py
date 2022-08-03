@@ -92,6 +92,7 @@ class WorldLoader:
                     gobject_instance=gobject_spawn
                 )
                 gobject_mgr.load()
+                WorldDatabaseManager.GameobjectTemplateHolder.load_gameobject_template(gobject_spawn.gameobject)
 
             count += 1
             Logger.progress('Spawning gameobjects...', count, length)

@@ -551,17 +551,19 @@ class CreatureManager(UnitManager):
 
             self.initialized = True
 
-    def query_details(self):
-        name_bytes = PacketWriter.string_to_bytes(self.creature_template.name)
-        subname_bytes = PacketWriter.string_to_bytes(self.creature_template.subname)
+    @staticmethod
+    def query_details(creature_template=None, creature_mgr=None):
+        template = creature_mgr.creature_template if creature_mgr else creature_template
+        name_bytes = PacketWriter.string_to_bytes(template.name)
+        subname_bytes = PacketWriter.string_to_bytes(template.subname)
         data = pack(
             f'<I{len(name_bytes)}ssss{len(subname_bytes)}s3I',
-            self.entry,
+            creature_mgr.entry if creature_mgr else template.entry,
             name_bytes, b'\x00', b'\x00', b'\x00',
             subname_bytes,
-            self.creature_template.static_flags,
-            self.creature_type,
-            self.creature_template.beast_family
+            template.static_flags,
+            creature_mgr.creature_type if creature_mgr else template.type,
+            template.beast_family
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
 

@@ -10,7 +10,7 @@ class QuestHelpers:
     @staticmethod
     def is_instant_with_no_requirements(quest_template):
         return QuestHelpers.is_instant_complete_quest(quest_template) and \
-               not QuestHelpers.has_item_requirements(quest_template)
+               not QuestHelpers.requires_items_or_gos(quest_template)
 
     @staticmethod
     def is_quest_repeatable(quest_template):

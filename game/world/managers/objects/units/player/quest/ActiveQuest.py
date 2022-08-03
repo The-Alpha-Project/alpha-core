@@ -102,16 +102,21 @@ class ActiveQuest:
         self.owner.give_xp([xp], notify=False)
         return xp
 
-    def update_creature_go_count(self, creature, value):
-        creature_go_index = QuestHelpers.generate_req_creature_or_go_list(self.quest).index(creature.entry)
+    def update_creature_go_count(self, world_object, value):
+        # Creatures > 0, Gameobjects < 0.
+        entry = world_object.entry if world_object.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT else -world_object.entry
+
+        creature_go_index = QuestHelpers.generate_req_creature_or_go_list(self.quest).index(entry)
         required = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[creature_go_index]
         current = self._get_db_mob_or_go_count(creature_go_index)
         # Current < Required is already validated on requires_creature_or_go().
         self._update_db_creature_go_count(creature_go_index, 1)  # Update db memento
-        # Notify the current objective count to the player.
-        data = pack('<4IQ', self.db_state.quest, creature.entry, current + value, required, creature.guid)
-        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_KILL, data)
-        self.owner.enqueue_packet(packet)
+
+        # Notify the current objective count to the player if this was a kill.
+        if world_object.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
+            data = pack('<4IQ', self.db_state.quest, world_object.entry, current + value, required, world_object.guid)
+            packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_KILL, data)
+            self.owner.enqueue_packet(packet)
         # Check if this makes it complete.
         if self.can_complete_quest():
             self.update_quest_state(QuestState.QUEST_REWARD)
@@ -204,11 +209,15 @@ class ActiveQuest:
         # TODO: Check ReqMoney
         return True
 
-    def requires_creature_or_go(self, creature_entry):
+    def requires_creature_or_go(self, world_object):
         req_creatures_or_gos = QuestHelpers.generate_req_creature_or_go_list(self.quest)
-        required = creature_entry in req_creatures_or_gos
+
+        # Creatures > 0, Gameobjects < 0.
+        entry = world_object.entry if world_object.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT else -world_object.entry
+
+        required = entry in req_creatures_or_gos
         if required:
-            index = req_creatures_or_gos.index(creature_entry)
+            index = req_creatures_or_gos.index(entry)
             required_kills = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[index]
             current_kills = eval(f'self.db_state.mobcount{index + 1}')
             return current_kills < required_kills
@@ -266,7 +275,7 @@ class ActiveQuest:
         req_creature_or_go = QuestHelpers.generate_req_creature_or_go_list(self.quest)
         req_creature_or_go_count = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
         for index, creature_or_go in enumerate(req_creature_or_go):
-            if req_creature_or_go[index] > 0:
+            if req_creature_or_go[index] != 0:
                 current_count = eval(f'self.db_state.mobcount{index + 1}')
                 required = req_creature_or_go_count[index]
                 # Consider how many bits the previous creature required.
@@ -278,7 +287,7 @@ class ActiveQuest:
                     else:  # Fill remaining 0s (Missing kills)
                         total_count += 0 << (1 * i) + offset
 
-                # Debug, enable this to take a look on whats happening at bit level.
-                # Logger.debug(f'{bin(mob_kills)[2:].zfill(32)}')
+                # Debug, enable this to take a look on what's happening at bit level.
+                # Logger.debug(f'{bin(total_count)[2:].zfill(32)}')
 
         return total_count
