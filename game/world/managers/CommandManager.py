@@ -654,11 +654,28 @@ class CommandManager(object):
 
         return 0, message
 
+    @staticmethod
+    def pwdchange(world_session, args):
+        try:
+            old_password, new_password, confirmation_password = args.split()
+            if new_password != confirmation_password:
+                return -1, 'please make sure the confirmation password matches the new password'
+
+            success = RealmDatabaseManager.account_try_update_password(world_session.account_mgr.account.name,
+                                                                       old_password, new_password)
+            if not success:
+                return -1, 'something went wrong, make sure the current password is correct and the new ' \
+                           'password has 16 characters maximum'
+            return 0, 'Password updated successfully, remember to update it in your wow.ses file'
+        except ValueError:
+            return -1, 'please use it like: .pwdchange current_password new_password new_password'
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': [CommandManager.help, 'print this message'],
     'suicide': [CommandManager.suicide, 'kill yourself and respawn at your binding location'],
-    'serverinfo': [CommandManager.serverinfo, 'print server information']
+    'serverinfo': [CommandManager.serverinfo, 'print server information'],
+    'pwdchange': [CommandManager.pwdchange, 'change your password']
 }
 
 # noinspection SpellCheckingInspection
