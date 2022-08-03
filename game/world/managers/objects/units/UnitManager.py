@@ -620,7 +620,7 @@ class UnitManager(ObjectManager):
         else:
             damage_info = DamageInfoHolder()
             damage_info.damage = amount
-            damage_info.victim = self
+            damage_info.target = self
             self.set_health(new_health)
             self.generate_rage(damage_info, is_attacking=False)
 

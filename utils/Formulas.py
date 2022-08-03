@@ -84,7 +84,7 @@ class UnitFormulas(object):
             level = damage_info.attacker.level
             factor = 7.5
         else:
-            level = damage_info.victim.level
+            level = damage_info.target.level
             factor = 2.5
 
         # Get rage regen value based on supplied variables.
