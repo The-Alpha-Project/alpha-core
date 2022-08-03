@@ -789,6 +789,22 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)
                 return True
 
+        # Required nearby spell focus GO.
+        spell_focus_type = casting_spell.spell_entry.RequiresSpellFocus
+        if spell_focus_type:
+            surrounding_gos = [go for go in
+                               MapManager.get_surrounding_gameobjects(self.caster).values()]
+
+            # Check if any nearby GO is the required spell focus.
+            if not any([go.gobject_template.type == GameObjectTypes.TYPE_SPELL_FOCUS and
+                        go.gobject_template.data0 == spell_focus_type and
+                        self.caster.location.distance(go.location) <= go.gobject_template.data1
+                        for go in surrounding_gos]):
+                self.send_cast_result(casting_spell.spell_entry.ID,
+                                      SpellCheckCastResult.SPELL_FAILED_REQUIRES_SPELL_FOCUS, spell_focus_type)
+                return False
+
+
         # Target validation.
         validation_target = casting_spell.initial_target
         # In the case of the spell requiring a unit target but being cast on self,
@@ -1232,7 +1248,7 @@ class SpellManager:
                 new_charges = charges-1 if charges > 0 else charges+1
                 casting_spell.source_item.set_charges(casting_spell.spell_entry.ID, new_charges)
 
-    def send_cast_result(self, spell_id, error):
+    def send_cast_result(self, spell_id, error, misc_data=-1):
         # TODO CAST_SUCCESS_KEEP_TRACKING
         #  cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED
 
@@ -1247,6 +1263,7 @@ class SpellManager:
         if error == SpellCheckCastResult.SPELL_NO_ERROR:
             data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
         else:
-            data = pack('<I2B', spell_id, SpellCastStatus.CAST_FAILED, error)
+            data = pack('<I2B', spell_id, SpellCastStatus.CAST_FAILED, error) if misc_data == -1 else \
+                   pack('<I2BI', spell_id, SpellCastStatus.CAST_FAILED, error, misc_data)
 
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
