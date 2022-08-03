@@ -140,7 +140,6 @@ class SpellEffectHandler:
                                                 bonus_points=bonus_points)
 
         caster.skill_manager.handle_gather_skill_gain(lock_result.skill_type,
-                                                      lock_result.skill_value,
                                                       lock_result.required_skill_value)
 
     @staticmethod

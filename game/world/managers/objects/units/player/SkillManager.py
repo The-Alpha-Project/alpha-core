@@ -416,23 +416,39 @@ class SkillManager(object):
         return True
 
     def handle_profession_skill_gain_chance(self, spell_id):
-        skill_template = self.get_skill_for_spell_id(spell_id)
-        if not skill_template:
+        skill_gain_factor = 1
+
+        skill_info_entries = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
+
+        # skill_template = self.get_skill_for_spell_id(spell_id)
+        if not skill_info_entries:
             return False
 
-        if skill_template.ID not in self.skills:
+        # Should always resolve to one for professions.
+        skill_line_ability = skill_info_entries[0]
+
+        skill_id = skill_line_ability.SkillLine
+        if skill_id not in self.skills:
             return False
 
-        skill = self.skills[skill_template.ID]
+        skill = self.skills[skill_id]
 
-        # TODO Roll profession skill gain chance - currently skill is always gained.
+        gray_threshold = skill_line_ability.TrivialSkillLineRankHigh
+        yellow_threshold = skill_line_ability.TrivialSkillLineRankLow
+        chance = self.skill_gain_chance(skill.value, gray_threshold,
+                                        (gray_threshold + yellow_threshold) / 2,
+                                        yellow_threshold)
 
-        self.set_skill(skill_template.ID, skill.value + 1)
+        self.update_skill_profession(skill_id, chance, skill_gain_factor)
         self.build_update()
         return True
 
-    def handle_gather_skill_gain(self, skill_type, raw_skill_value, required_skill_value):
+    def handle_gather_skill_gain(self, skill_type, required_skill_value):
         gather_skill_gain_factor = 1  # TODO, configurable.
+        if skill_type not in self.skills:
+            return
+        raw_skill_value = self.skills[skill_type].value
+
         if skill_type == SkillTypes.HERBALISM or skill_type == SkillTypes.LOCKPICKING:
             self.update_skill_profession(
                 skill_type,
