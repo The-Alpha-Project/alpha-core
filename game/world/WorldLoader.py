@@ -95,7 +95,7 @@ class WorldLoader:
 
     @staticmethod
     def load_gameobjects_spawns():
-        gobject_spawns, session = WorldDatabaseManager.gameobject_get_all_spawns()
+        gobject_spawns = WorldDatabaseManager.gameobject_get_all_spawns()
         length = len(gobject_spawns)
         count = 0
 
@@ -118,7 +118,6 @@ class WorldLoader:
             count += 1
             Logger.progress('Loading gameobject spawns...', count, length)
 
-        session.close()
         return length
 
     @staticmethod
@@ -164,7 +163,7 @@ class WorldLoader:
 
     @staticmethod
     def load_creature_spawns():
-        creature_spawns, session = WorldDatabaseManager.creature_get_all_spawns()
+        creature_spawns = WorldDatabaseManager.creature_get_all_spawns()
         length = len(creature_spawns)
         count = 0
 
@@ -181,7 +180,6 @@ class WorldLoader:
             count += 1
             Logger.progress('Loading creature spawns...', count, length)
 
-        session.close()
         return length
 
     @staticmethod

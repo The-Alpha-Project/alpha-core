@@ -487,7 +487,6 @@ class QuestManager(object):
                 quest_title
             )
 
-        self.player_mgr.play_emote(Emotes.AGREE)
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_LIST, data))
 
     def send_quest_giver_quest_details(self, quest_template, quest_giver_guid, activate_accept):
@@ -529,7 +528,6 @@ class QuestManager(object):
             detail_emote_delay = eval(f'quest_template.DetailsEmoteDelay{index}')
             data += pack('<2I', detail_emote, detail_emote_delay)
 
-        self.player_mgr.play_emote(Emotes.AGREE)
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
 
     def send_quest_query_response(self, quest):

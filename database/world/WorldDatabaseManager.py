@@ -293,7 +293,8 @@ class WorldDatabaseManager(object):
     def gameobject_get_all_spawns() -> [list[SpawnsGameobjects], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(ignored=0).all()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     @staticmethod
     def gameobject_spawn_get_by_guid(guid) -> [Optional[SpawnsGameobjects], scoped_session]:
@@ -397,7 +398,8 @@ class WorldDatabaseManager(object):
     def creature_get_all_spawns() -> [list[SpawnsCreatures], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(ignored=0).all()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     @staticmethod
     def creature_spawn_get_by_guid(guid) -> [Optional[SpawnsCreatures], scoped_session]:
