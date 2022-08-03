@@ -7665,12 +7665,12 @@ begin not atomic
         SET `display_id1`=3021
         WHERE `entry`=2018;
 
-        -- Mangy Nightsaber - display_id 892 is unused
+        -- Mangy Nightsaber -Nightsaber - Same display id as all others Teldrassil Nightsaber
         UPDATE `creature_template`
         SET `display_id1`=3029
         WHERE `entry`=2032;
 
-        -- Nightsaber - display_id 892 is unused
+        -- Nightsaber - Same display id as all others Teldrassil Nightsaber
         UPDATE `creature_template`
         SET `display_id1`=3029
         WHERE `entry`=2042;
