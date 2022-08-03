@@ -7720,6 +7720,11 @@ begin not atomic
         SET `display_id1`=3034
         WHERE `entry`=2025;
 
+        -- Yound Thistle Boar, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=3025
+        WHERE `entry`=1984;
+
         insert into applied_updates values ('020820221');
 
     end if;
