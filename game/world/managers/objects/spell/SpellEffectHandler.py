@@ -15,7 +15,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags, InventoryError
-from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
@@ -59,6 +59,11 @@ class SpellEffectHandler:
         if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
+        if casting_spell.spell_attack_type == -1:
+            # Fall back to base_attack if the attack type couldn't be resolved on init.
+            # This is required for some spells that don't define the type of weapon needed for the attack.
+            casting_spell.spell_attack_type = AttackTypes.BASE_ATTACK
+
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
                                                             casting_spell.spell_entry.School,
                                                             target,
@@ -71,6 +76,9 @@ class SpellEffectHandler:
     def handle_weapon_damage_plus(casting_spell, effect, caster, target):
         if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
+
+        if casting_spell.spell_attack_type == -1:
+            casting_spell.spell_attack_type = AttackTypes.BASE_ATTACK
 
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
                                                             casting_spell.spell_entry.School,
