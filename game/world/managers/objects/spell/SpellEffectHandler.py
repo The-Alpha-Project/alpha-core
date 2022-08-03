@@ -18,7 +18,7 @@ from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags, InventoryE
 from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UnitCodes import UnitFlags, Classes
 
 
 class SpellEffectHandler:
@@ -88,7 +88,8 @@ class SpellEffectHandler:
 
         damage_bonus = effect.get_effect_points(casting_spell.caster_effective_level)
 
-        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
+        # Only use combo point damage scaling for rogue; Overpower also uses combo points.
+        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER and caster.class_ == Classes.CLASS_ROGUE and \
                 casting_spell.requires_combo_points():
             damage_bonus *= caster.combo_points
 
