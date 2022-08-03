@@ -300,7 +300,7 @@ class SpellManager:
 
         if any([damage_info.proc_victim & overpower_trigger for overpower_trigger in
                 [ProcFlags.DODGE, ProcFlags.PARRY, ProcFlags.BLOCK]]):
-            self.caster.add_combo_points_on_target(damage_info.target, 1, hide_from_target=True)
+            self.caster.add_combo_points_on_target(damage_info.target, 1, hide=True)
 
     def cast_queued_melee_ability(self, attack_type) -> bool:
         melee_ability = self.get_queued_melee_ability()
