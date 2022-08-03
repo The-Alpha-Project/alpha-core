@@ -7725,6 +7725,9 @@ begin not atomic
         SET `display_id1`=3025
         WHERE `entry`=1984;
 
+        -- Aelyssa binder spawn, screenshot
+        INSERT INTO `spawns_creatures` VALUES (NULL, 3777, 0, 0, 0, 1, 0, 0, 10382.2294921875, 799.4705810546875, 1318.2911376953125, 4.3283305168151855, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
         insert into applied_updates values ('020820221');
 
     end if;
