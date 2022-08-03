@@ -7639,5 +7639,14 @@ begin not atomic
         insert into applied_updates values ('010820221');
 
     end if;
+
+    -- 03/08/2022 1
+    if (select count(*) from applied_updates where id='030820221') = 0 then
+        -- Linen/Heavy Linen/Wool/Heavy Wool Bandage.
+        UPDATE `item_template` SET `SpellCharges_1` = 0 WHERE `entry` IN (1251, 2581, 3530, 3531);
+
+        insert into applied_updates values ('030820221');
+
+    end if;
 end $
 delimiter ;
