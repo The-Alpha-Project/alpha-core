@@ -383,6 +383,9 @@ class UnitManager(ObjectManager):
         damage_info.target.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
         self.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
 
+        [unit.spell_manager.handle_damage_event_procs(damage_info=damage_info)
+         for unit in [damage_info.attacker, damage_info.target]]
+
     def calculate_melee_damage(self, victim, attack_type):
         damage_info = DamageInfoHolder()
 

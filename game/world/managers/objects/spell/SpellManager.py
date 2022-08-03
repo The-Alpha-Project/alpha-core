@@ -16,17 +16,18 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
+from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags
-from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects
-from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode
+from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes
 
 
 class SpellManager:
@@ -291,6 +292,15 @@ class SpellManager:
                 if casting_spell.spell_caster.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
                     casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
                 applied_targets.append(target.guid)
+
+    def handle_damage_event_procs(self, damage_info: DamageInfoHolder):
+        # Only handling Overpower procs here for now.
+        if self.caster is not damage_info.attacker or self.caster.class_ != Classes.CLASS_WARRIOR:
+            return
+
+        if any([damage_info.proc_victim & overpower_trigger for overpower_trigger in
+                [ProcFlags.DODGE, ProcFlags.PARRY, ProcFlags.BLOCK]]):
+            self.caster.add_combo_points_on_target(damage_info.target, 1)
 
     def cast_queued_melee_ability(self, attack_type) -> bool:
         melee_ability = self.get_queued_melee_ability()
