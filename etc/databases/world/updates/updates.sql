@@ -7648,6 +7648,28 @@ begin not atomic
         SET `display_id1`=1223
         WHERE `entry`=2965;
 
+        -- # DUROTAR
+
+        -- Razormane battleguard,  this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3114;
+
+        -- Razormane battleguard, vanilla models not exist yet, he probably use same models as all Razormane
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3113;
+
+        -- Kolkar drudge,  this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1258
+        WHERE `entry`=3119;
+
+        -- Kolkar outrunner
+        UPDATE `creature_template`
+        SET `display_id1`=1258
+        WHERE `entry`=3120;
+
         -- # BARRENS
 
         -- Razormane warfury
