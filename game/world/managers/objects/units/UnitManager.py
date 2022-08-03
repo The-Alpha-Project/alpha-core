@@ -383,6 +383,9 @@ class UnitManager(ObjectManager):
         damage_info.target.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
         self.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
 
+        [unit.spell_manager.handle_damage_event_procs(damage_info=damage_info)
+         for unit in [damage_info.attacker, damage_info.target]]
+
     def calculate_melee_damage(self, victim, attack_type):
         damage_info = DamageInfoHolder()
 
@@ -617,7 +620,7 @@ class UnitManager(ObjectManager):
         else:
             damage_info = DamageInfoHolder()
             damage_info.damage = amount
-            damage_info.victim = self
+            damage_info.target = self
             self.set_health(new_health)
             self.generate_rage(damage_info, is_attacking=False)
 
@@ -668,13 +671,13 @@ class UnitManager(ObjectManager):
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
-        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell.spell_entry.ID)
+        self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell, is_periodic=is_periodic)
         self.deal_damage(target, damage, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
         miss_info = casting_spell.object_target_results[target.guid].result
         damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
-        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True)
+        self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic, healing=True)
         target.receive_healing(healing, self)
         self._threat_assist(target, healing)
 
@@ -689,36 +692,42 @@ class UnitManager(ObjectManager):
                 for creature in creature_observers:
                     creature.threat_manager.add_threat(self, threat)
 
-    def send_spell_cast_debug_info(self, damage_info, miss_reason, spell_id, healing=False):
+    def send_spell_cast_debug_info(self, damage_info, miss_reason, casting_spell, is_periodic=False, healing=False):
+        # TODO: Below use of SpellHitFlags might not be correct, needs further investigation.
+        spell_id = casting_spell.spell_entry.ID
+        flags = SpellHitFlags.HIT_FLAG_NO_DAMAGE if healing else SpellHitFlags.HIT_FLAG_NORMAL
+
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
             combat_log_data = pack('<i2Q2i',
-                                   2,  # Unk flag enum (0 Normal, 1 Crit, 2 Absorb)
+                                   flags,
                                    damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
             combat_log_data = pack('<I2Q2If3I',
-                                   0,  # Unk flag enum (0 Normal, 1 Crit, 2 Absorb)
+                                   flags,
                                    damage_info.attacker.guid, damage_info.target.guid, spell_id,
                                    damage_info.total_damage, damage_info.damage, damage_info.damage_school_mask,
                                    damage_info.damage, damage_info.absorb)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL
 
-        MapManager.send_surrounding(PacketWriter.get_packet(combat_log_opcode, combat_log_data), self,
-                                    include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
-
         if not healing:
+            MapManager.send_surrounding(PacketWriter.get_packet(combat_log_opcode, combat_log_data), self,
+                                        include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
+
             # TODO: Need better understanding of the how the client is handling this opcode in order to produce
             #  the right packet structure.
             damage_data = pack('<Q2IiIQ',
                                damage_info.target.guid,
                                damage_info.total_damage,
                                damage_info.damage,
-                               0,  # Unk flag enum (0 Normal, 1 Crit, 2 Absorb)
-                               0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells)
+                               SpellHitFlags.HIT_FLAG_NORMAL,
+                               0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells).
                                damage_info.attacker.guid)
 
             MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
                                         include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
+        elif casting_spell.initial_target_is_player():  # Healing effects are displayed to the affected player only.
+            damage_info.target.enqueue_packet(PacketWriter.get_packet(combat_log_opcode, combat_log_data))
 
     def set_current_target(self, guid):
         self.current_target = guid
@@ -772,8 +781,8 @@ class UnitManager(ObjectManager):
         if not self.in_combat and not force:
             return
 
-        # Remove self from attacker list of attackers
-        for guid, victim in self.attackers.items():
+        # Remove self from attacker list of attackers.
+        for guid, victim in list(self.attackers.items()):
             if self.guid in victim.attackers:
                 # Always pop self from victim attackers.
                 victim.attackers.pop(self.guid)
@@ -1072,7 +1081,7 @@ class UnitManager(ObjectManager):
         return self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR) or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT)
 
     # Implemented by PlayerManager
-    def add_combo_points_on_target(self, target, combo_points):
+    def add_combo_points_on_target(self, target, combo_points, hide=False):
         pass
 
     # Implemented by PlayerManager

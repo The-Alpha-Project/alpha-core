@@ -271,17 +271,37 @@ class WorldDatabaseManager(object):
 
     # Gameobject stuff.
 
+    class GameobjectTemplateHolder:
+        GAMEOBJECT_TEMPLATES: [int, GameobjectTemplate] = {}
+
+        @staticmethod
+        def load_gameobject_template(gameobject_template):
+            WorldDatabaseManager.GameobjectTemplateHolder.GAMEOBJECT_TEMPLATES[gameobject_template.entry] = gameobject_template
+
+        @staticmethod
+        def gameobject_get_by_entry(entry) -> Optional[GameobjectTemplate]:
+            return WorldDatabaseManager.GameobjectTemplateHolder.GAMEOBJECT_TEMPLATES.get(entry)
+
+    @staticmethod
+    def gameobject_template_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(GameobjectTemplate).all()
+        world_db_session.close()
+        return res
+
     @staticmethod
     def gameobject_get_all_spawns() -> [list[SpawnsGameobjects], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(ignored=0).all()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     @staticmethod
     def gameobject_spawn_get_by_guid(guid) -> [Optional[SpawnsGameobjects], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_GAMEOBJECT).first()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     @staticmethod
     def gameobject_template_get_by_entry(entry) -> Optional[GameobjectTemplate]:
@@ -378,13 +398,15 @@ class WorldDatabaseManager(object):
     def creature_get_all_spawns() -> [list[SpawnsCreatures], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(ignored=0).all()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     @staticmethod
     def creature_spawn_get_by_guid(guid) -> [Optional[SpawnsCreatures], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_UNIT).first()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     class CreatureModelInfoHolder:
         CREATURE_MODEL_INFOS: [int, CreatureModelInfo] = {}

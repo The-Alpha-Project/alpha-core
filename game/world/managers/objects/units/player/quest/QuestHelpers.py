@@ -5,9 +5,12 @@ class QuestHelpers:
 
     @staticmethod
     def is_instant_complete_quest(quest_template):
-        if quest_template.Method == QuestMethod.QUEST_AUTOCOMPLETE:
-            return True
-        return False
+        return quest_template.Method == QuestMethod.QUEST_AUTOCOMPLETE
+
+    @staticmethod
+    def is_instant_with_no_requirements(quest_template):
+        return QuestHelpers.is_instant_complete_quest(quest_template) and \
+               not QuestHelpers.requires_items_or_gos(quest_template)
 
     @staticmethod
     def is_quest_repeatable(quest_template):
@@ -15,9 +18,29 @@ class QuestHelpers:
 
     @staticmethod
     # noinspection PyUnusedLocal
+    def has_required_items_for_quest(player_mgr, quest_template):
+        for index in range(1, 5):
+            req_item = eval(f'quest_template.ReqItemId{index}')
+            req_item_count = eval(f'quest_template.ReqItemCount{index}')
+            if req_item and not player_mgr.inventory.get_item_count(req_item) >= req_item_count:
+                return False
+        return True
+
+    @staticmethod
+    # noinspection PyUnusedLocal
     def has_item_reward(quest_template):
         for index in range(1, 5):
             if eval(f'quest_template.RewItemId{index}') > 0:
+                return True
+        return False
+
+    @staticmethod
+    # noinspection PyUnusedLocal
+    def requires_items_or_gos(quest_template):
+        for index in range(1, 5):
+            if eval(f'quest_template.ReqItemId{index}') > 0:
+                return True
+            if eval(f'quest_template.ReqCreatureOrGOId{index}') > 0:
                 return True
         return False
 

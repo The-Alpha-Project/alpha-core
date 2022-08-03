@@ -986,7 +986,7 @@ class SpawnsGameobjects(Base):
     __tablename__ = 'spawns_gameobjects'
 
     spawn_id = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
-    spawn_entry = Column(ForeignKey('gameobject_template.entry', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"), comment='Gameobject Identifier')
+    spawn_entry = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment='Gameobject Template Id')
     spawn_map = Column(SMALLINT(5), nullable=False, index=True, server_default=text("'0'"), comment='Map Identifier')
     spawn_positionX = Column(Float, nullable=False, server_default=text("'0'"))
     spawn_positionY = Column(Float, nullable=False, server_default=text("'0'"))
@@ -1003,8 +1003,6 @@ class SpawnsGameobjects(Base):
     spawn_flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     spawn_visibility_mod = Column(Float, nullable=True, server_default=text("'0'"))
     ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
-
-    gameobject = relationship('GameobjectTemplate', lazy='joined')
 
 
 class NpcGossip(Base):

@@ -44,7 +44,7 @@ class CreatureManager(UnitManager):
         super().__init__(**kwargs)
 
         self.creature_instance = creature_instance
-        self.creature_template = None
+        self.creature_template = None  # Will be initialized later.
 
         if CreatureManager.CURRENT_HIGHEST_GUID < self.creature_instance.spawn_id:
             CreatureManager.CURRENT_HIGHEST_GUID = self.creature_instance.spawn_id
@@ -83,7 +83,7 @@ class CreatureManager(UnitManager):
         self.summoner = summoner
         self.known_players = {}
 
-        self.initialize_creature(self.generate_creature_template())
+        self.initialize_creature(self.generate_creature_template() if not creature_template else creature_template)
 
         # All creatures can block, parry and dodge by default.
         # TODO, Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
@@ -551,17 +551,19 @@ class CreatureManager(UnitManager):
 
             self.initialized = True
 
-    def query_details(self):
-        name_bytes = PacketWriter.string_to_bytes(self.creature_template.name)
-        subname_bytes = PacketWriter.string_to_bytes(self.creature_template.subname)
+    @staticmethod
+    def query_details(creature_template=None, creature_mgr=None):
+        template = creature_mgr.creature_template if creature_mgr else creature_template
+        name_bytes = PacketWriter.string_to_bytes(template.name)
+        subname_bytes = PacketWriter.string_to_bytes(template.subname)
         data = pack(
             f'<I{len(name_bytes)}ssss{len(subname_bytes)}s3I',
-            self.entry,
+            creature_mgr.entry if creature_mgr else template.entry,
             name_bytes, b'\x00', b'\x00', b'\x00',
             subname_bytes,
-            self.creature_template.static_flags,
-            self.creature_type,
-            self.creature_template.beast_family
+            template.static_flags,
+            creature_mgr.creature_type if creature_mgr else template.type,
+            template.beast_family
         )
         return PacketWriter.get_packet(OpCode.SMSG_CREATURE_QUERY_RESPONSE, data)
 
@@ -773,7 +775,8 @@ class CreatureManager(UnitManager):
 
     # override
     def attack(self, victim: UnitManager):
-        self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
+        if victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
         super().attack(victim)
 
     # override

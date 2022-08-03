@@ -156,6 +156,9 @@ class PetManager:
         return self._get_pet_info(self.active_pet.pet_index)
 
     def handle_action(self, pet_guid, target_guid, action):
+        if not self.active_pet:
+            return
+
         # Spell ID or 0/1/2/3 for setting command/react state.
         action_id = action & 0xFFFF
 

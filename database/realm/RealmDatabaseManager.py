@@ -1,3 +1,4 @@
+import hashlib
 import os
 
 from sqlalchemy import create_engine
@@ -51,6 +52,32 @@ class RealmDatabaseManager(object):
         realm_db_session.refresh(account)
         realm_db_session.close()
         return AccountManager(account)
+
+    @staticmethod
+    def account_try_update_password(username, old_password, new_password):
+        realm_db_session = SessionHolder()
+        try:
+            account = realm_db_session.query(Account).filter_by(name=username).first()
+            if not account:
+                return False
+
+            # Client limitation.
+            if len(new_password) > 16:
+                return False
+
+            hashed_old_password = hashlib.sha256(old_password.encode('utf-8')).hexdigest()
+            if account.password != hashed_old_password:
+                return False
+
+            hashed_new_password = hashlib.sha256(new_password.encode('utf-8')).hexdigest()
+            account.password = hashed_new_password
+
+            realm_db_session.merge(account)
+            realm_db_session.flush()
+        finally:
+            realm_db_session.close()
+
+        return True
 
     @staticmethod
     def account_get_characters(account_id):

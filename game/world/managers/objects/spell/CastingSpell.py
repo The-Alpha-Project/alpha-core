@@ -274,6 +274,12 @@ class CastingSpell:
         unlock_effects = [SpellEffects.SPELL_EFFECT_OPEN_LOCK, SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM]
         return any(effect.effect_type in unlock_effects for effect in self.get_effects())
 
+    def get_lock_effect(self):
+        unlock_effects = [SpellEffects.SPELL_EFFECT_OPEN_LOCK, SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM]
+        for effect in self.get_effects():
+            if effect.effect_type in unlock_effects:
+                return effect
+
     def is_pickpocket_spell(self):
         return any(effect.effect_type == SpellEffects.SPELL_EFFECT_PICKPOCKET for effect in self.get_effects())
 
@@ -293,6 +299,9 @@ class CastingSpell:
             spell_effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE
 
         return has_sitting_attribute and is_regen_buff and has_refreshment_period
+
+    def is_overpower(self):
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_ENABLE_AT_DODGE
 
     def has_effect_of_type(self, effect_type: SpellEffects):
         for effect in self.get_effects():

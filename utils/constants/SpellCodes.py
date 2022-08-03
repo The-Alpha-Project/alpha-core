@@ -566,18 +566,12 @@ class SpellCastFlags(IntEnum):
 
 
 class SpellHitFlags(IntEnum):
-    HIT_FLAG_NONE = 0x0
-    HIT_FLAG_DAMAGE = 0x1
-    HIT_FLAG_HEALED = 0x2
-    HIT_FLAG_USE_AURA_EFFECT_ID = 0x4
-    HIT_FLAG_REFLECTED_DAMAGE = 0x8
-    HIT_FLAG_CHANCE_STRING = 0x10  # hitRollNeededFloat, hitRollFloat.
-    HIT_FLAG_ADVANCED_SPELL_LOGGING = 0x20  # Prints to console and log file.
-    HIT_FLAG_CRIT = 0x40  # General log with full details.
-    HIT_FLAG_ENERGISED = 0x80  # Restore health / power. Use in combination of HIT_FLAG_HEALED (0x82) for any form of health / power restoration.
-    HIT_FLAG_PERIODIC = 0x100  # Always add 0x100 to periodic spells, client will decide what to show.
-    HIT_FLAG_NON_DAMAGE_SPELL = 0x200  # Log for non targeted casts, terse e.g. "Player casts heal".
-    HIT_FLAG_SIMPLE_LOGGING = 0x400  # Log for targeted casts, terse e.g. "Player casts heal on Unit".
+    HIT_FLAG_NORMAL = 0x0  # CGUnit_C::AddWorldDamageText(this, damage, normalCombatDamage);
+    HIT_FLAG_CRIT = 0x1  # CGUnit_C::AddWorldCritText(this, damage, normalCombatDamage);
+    HIT_FLAG_NO_DAMAGE = 0x2  # CGUnit_C::AddWorldText(this, WORLDTEXTMISS_ABSORBED);
+    # CGPlayer_C::AddDeferredDamage(normalCombatDamage, (CDataAllocator::Data *)flags, damage, this->m_obj->m_guid);
+    # (Also used if IsCombatSwingSpell(spellID), not sure what this does.
+    HIT_FLAG_DEFERRED = 0x4
 
 
 class TotemSlots(IntEnum):

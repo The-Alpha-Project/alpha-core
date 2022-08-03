@@ -84,7 +84,7 @@ class UnitFormulas(object):
             level = damage_info.attacker.level
             factor = 7.5
         else:
-            level = damage_info.victim.level
+            level = damage_info.target.level
             factor = 2.5
 
         # Get rage regen value based on supplied variables.
@@ -173,6 +173,10 @@ class PlayerFormulas:
     @staticmethod
     def talent_points_gain_per_level(level):
         return 10 + (int(level / 10) * 5)
+
+    @staticmethod
+    def skill_points_gain_per_level(level):
+        return 2 if level % 10 == 0 else 1
 
     # Basic amount of XP earned for killing a mob of level equal to the character
     @staticmethod

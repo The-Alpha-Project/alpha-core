@@ -123,7 +123,7 @@ class GameObjectManager(ObjectManager):
 
     @staticmethod
     def spawn(entry, location, map_id, summoner=None, spell_id=0, override_faction=0, despawn_time=1):
-        go_template = WorldDatabaseManager.gameobject_template_get_by_entry(entry)
+        go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry)
 
         if not go_template:
             return None
@@ -282,7 +282,7 @@ class GameObjectManager(ObjectManager):
             if spell_cast:
                 self.summoner.spell_manager.start_spell_cast(initialized_spell=spell_cast)
             else:
-                # Interrupt ritual channel if the summon fails.
+                # Interrupt ritual channel if summon fails.
                 self.summoner.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
 
     def has_observers(self):
@@ -292,7 +292,7 @@ class GameObjectManager(ObjectManager):
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
         miss_info = casting_spell.object_target_results[target.guid].result
 
-        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID)
+        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic)
         target.receive_damage(damage, self, is_periodic)
 
         # Send environmental damage log packet to the affected player.
@@ -309,7 +309,7 @@ class GameObjectManager(ObjectManager):
         miss_info = casting_spell.object_target_results[target.guid].result
         damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
 
-        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell.spell_entry.ID, healing=True)
+        target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic, healing=True)
         target.receive_healing(healing, self)
 
     def _handle_use_goober(self, player):
@@ -322,9 +322,11 @@ class GameObjectManager(ObjectManager):
             if len(iron_clad_doors) > 0:
                 self.send_custom_animation(0)
                 iron_clad_doors[0].set_active()
+        # QuestID.
+        elif self.gobject_template.data1:
+            player.quest_manager.handle_goober_use(self, self.gobject_template.data1)
         else:
             Logger.warning(f'Unimplemented gameobject use for type Goober entry {self.entry} name {self.gobject_template.name}')
-        pass
 
     def use(self, player, target=None):
         if self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
@@ -461,24 +463,26 @@ class GameObjectManager(ObjectManager):
 
             self.initialized = True
 
-    def query_details(self):
-        name_bytes = PacketWriter.string_to_bytes(self.gobject_template.name)
+    @staticmethod
+    def query_details(gobject_template=None, gameobject_mgr=None):
+        go_template = gameobject_mgr.gobject_template if gameobject_mgr else gobject_template
+        name_bytes = PacketWriter.string_to_bytes(go_template.name)
         data = pack(
             f'<3I{len(name_bytes)}ssss10I',
-            self.gobject_template.entry,
-            self.gobject_template.type,
-            self.current_display_id,
+            go_template.entry,
+            go_template.type,
+            gameobject_mgr.current_display_id if gameobject_mgr else go_template.display_id,
             name_bytes, b'\x00', b'\x00', b'\x00',
-            self.gobject_template.data0,
-            self.gobject_template.data1,
-            self.gobject_template.data2,
-            self.gobject_template.data3,
-            self.gobject_template.data4,
-            self.gobject_template.data5,
-            self.gobject_template.data6,
-            self.gobject_template.data7,
-            self.gobject_template.data8,
-            self.gobject_template.data9
+            go_template.data0,
+            go_template.data1,
+            go_template.data2,
+            go_template.data3,
+            go_template.data4,
+            go_template.data5,
+            go_template.data6,
+            go_template.data7,
+            go_template.data8,
+            go_template.data9
         )
         return PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_QUERY_RESPONSE, data)
 

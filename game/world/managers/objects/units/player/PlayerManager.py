@@ -6,9 +6,11 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
+from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
@@ -387,7 +389,7 @@ class PlayerManager(UnitManager):
             active_objects[guid] = creature
             if guid not in self.known_objects or not self.known_objects[guid]:
                 # We don't know this creature, notify self with its update packet.
-                self.enqueue_packet(creature.query_details())
+                self.enqueue_packet(CreatureManager.query_details(creature_mgr=creature))
                 if creature.is_spawned:
                     self.enqueue_packet(creature.generate_create_packet(requester=self))
                     # Get partial movement packet if any.
@@ -410,7 +412,7 @@ class PlayerManager(UnitManager):
             active_objects[guid] = gobject
             if guid not in self.known_objects or not self.known_objects[guid]:
                 # We don't know this game object, notify self with its update packet.
-                self.enqueue_packet(gobject.query_details())
+                self.enqueue_packet(GameObjectManager.query_details(gameobject_mgr=gobject))
                 if gobject.is_spawned:
                     self.enqueue_packet(gobject.generate_create_packet(requester=self))
                     # We only consider 'known' if its spawned, the details query is still sent.
@@ -910,23 +912,25 @@ class PlayerManager(UnitManager):
                 # Store the difference between the starting level and the target level.
                 level_count = abs(level - self.level)
 
-                # Calculate total talent points for each level starting from the current character level.
+                # Calculate total talent and skill points for each level starting from the current character level.
                 talent_points = 0
+                skill_points = 0
                 for i in range(level_count):
                     if is_leveling_up:
                         level_for_calculation = self.level + (i + 1)
                     else:
                         level_for_calculation = self.level - i
                     talent_points += Formulas.PlayerFormulas.talent_points_gain_per_level(level_for_calculation)
+                    skill_points += Formulas.PlayerFormulas.skill_points_gain_per_level(level_for_calculation)
 
                 if is_leveling_up:
                     # Add Talent and Skill points.
                     self.add_talent_points(talent_points)
-                    self.add_skill_points(level_count)
+                    self.add_skill_points(skill_points)
                 else:
                     # Remove Talent and Skill points.
                     self.remove_talent_points(talent_points)
-                    self.remove_skill_points(level_count)
+                    self.remove_skill_points(skill_points)
 
                 self.level = level
                 self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
@@ -1369,7 +1373,7 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
-    def add_combo_points_on_target(self, target, combo_points):
+    def add_combo_points_on_target(self, target, combo_points, hide=False):
         if combo_points <= 0 or not target.is_alive:  # Killing a unit with a combo generator can generate a combo point after death
             return
 
@@ -1382,8 +1386,9 @@ class PlayerManager(UnitManager):
         self.bytes_2 = self.get_bytes_2()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
-        self.combo_target = target.guid
-        self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
+        if not hide:
+            self.combo_target = target.guid
+            self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
 
     # override
     def remove_combo_points(self):

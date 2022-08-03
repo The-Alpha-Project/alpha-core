@@ -14,11 +14,11 @@ from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
-from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags
-from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds
+from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags, InventoryError
+from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UnitCodes import UnitFlags, Classes
 
 
 class SpellEffectHandler:
@@ -59,6 +59,12 @@ class SpellEffectHandler:
         if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
+        if casting_spell.spell_attack_type == -1:
+            # Fall back to base_attack if the attack type couldn't be resolved on init.
+            # This is required for some spells that don't define the type of weapon needed for the attack.
+            # TODO This should be resolved during CastingSpell init, but more research is needed for a generic check.
+            casting_spell.spell_attack_type = AttackTypes.BASE_ATTACK
+
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
                                                             casting_spell.spell_entry.School,
                                                             target,
@@ -72,6 +78,9 @@ class SpellEffectHandler:
         if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
+        if casting_spell.spell_attack_type == -1:
+            casting_spell.spell_attack_type = AttackTypes.BASE_ATTACK
+
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
                                                             casting_spell.spell_entry.School,
                                                             target,
@@ -79,7 +88,8 @@ class SpellEffectHandler:
 
         damage_bonus = effect.get_effect_points(casting_spell.caster_effective_level)
 
-        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
+        # Overpower also uses combo points, but shouldn't scale.
+        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER and not casting_spell.is_overpower() and \
                 casting_spell.requires_combo_points():
             damage_bonus *= caster.combo_points
 
@@ -177,9 +187,23 @@ class SpellEffectHandler:
         if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        target.inventory.add_item(effect.item_type,
-                                  count=effect.get_effect_points(casting_spell.caster_effective_level),
-                                  created_by=caster)
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(effect.item_type)
+
+        if not item_template:
+            target.inventory.send_equip_error(InventoryError.BAG_UNKNOWN_ITEM)
+            return
+
+        amount = effect.get_effect_points(casting_spell.caster_effective_level)
+        can_store_item = target.inventory.can_store_item(item_template, amount)
+        if can_store_item != InventoryError.BAG_OK:
+            target.inventory.send_equip_error(can_store_item)
+            return
+
+        # Add the item to player inventory.
+        target.inventory.add_item(effect.item_type, count=amount, created_by=caster.guid)
+
+        # Craft Skill gain if needed.
+        target.skill_manager.handle_profession_skill_gain_chance(casting_spell.spell_entry.ID)
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
