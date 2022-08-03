@@ -7637,7 +7637,137 @@ begin not atomic
         WHERE `entry`=4949;
 
         insert into applied_updates values ('010820221');
+    end if;
 
+    -- 03/08/2022 1
+    if (select count(*) from applied_updates where id='030820221') = 0 then
+        -- # MULGORE
+
+        -- Windfury matriarch, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1223
+        WHERE `entry`=2965;
+
+        -- # BARRENS
+
+        -- Razormane warfury
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3459;
+
+        -- Razormane seer
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3458;
+
+        -- Razormane hunter, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3265;
+
+        -- Razormane mystic
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3271;
+
+        -- Razormane geomancer, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3269;
+
+        -- Razormane thornweaver, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3268;
+
+        -- Razormane water seeker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3267;
+
+        -- Razormane defender, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3266;
+
+        -- Razormane stalker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3457;
+        
+
+        --
+
+        -- Bristleback thornweaver, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3261;
+
+        -- Bristleback geomancer
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3263;
+
+        -- Bristleback hunter, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3258;
+
+        -- Bristleback water seeker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3260;
+
+        -- Bristleback defender, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3259;
+
+        --
+
+        -- Kolkar pack runner
+        UPDATE `creature_template`
+        SET `display_id1`=1347
+        WHERE `entry`=3274;
+
+        -- Kolkar marauder, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1347
+        WHERE `entry`=3275;
+
+        -- Kolkar bloodcharger
+        UPDATE `creature_template`
+        SET `display_id1`=1347
+        WHERE `entry`=3397;
+
+        -- Kolkar stormer
+        UPDATE `creature_template`
+        SET `display_id1`=1347
+        WHERE `entry`=3273;
+
+        --
+
+        -- Lost Barrens Kodo, we scale it, a screenshot show how big he is
+        UPDATE `creature_template`
+        SET `display_id1`=1451, `scale`=1.3
+        WHERE `entry`=3234;
+
+        -- Sunscale scytheclaw, same display_id as 1.12 and all others raptors in barrens
+        UPDATE `creature_template`
+        SET `display_id1`=1747
+        WHERE `entry`=3256;
+
+        -- Wizzlecrank's shredder, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1303
+        WHERE `entry`=3439;
+
+        -- Horde Guards, see issue discussion #332
+        UPDATE `creature_template`
+        SET `display_id1`=1908, `display_id2`=1909, `display_id3`=3772, `display_id4`=3773
+        WHERE `entry`=3501;
+
+        insert into applied_updates values ('030820221');
     end if;
 end $
 delimiter ;
