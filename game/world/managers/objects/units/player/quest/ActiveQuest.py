@@ -210,17 +210,16 @@ class ActiveQuest:
         return True
 
     def requires_creature_or_go(self, world_object):
-        req_creatures_or_gos = QuestHelpers.generate_req_creature_or_go_list(self.quest)
-
         # Creatures > 0, Gameobjects < 0.
         entry = world_object.entry if world_object.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT else -world_object.entry
-
+        
+        req_creatures_or_gos = QuestHelpers.generate_req_creature_or_go_list(self.quest)
         required = entry in req_creatures_or_gos
         if required:
             index = req_creatures_or_gos.index(entry)
-            required_kills = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[index]
-            current_kills = eval(f'self.db_state.mobcount{index + 1}')
-            return current_kills < required_kills
+            required_qty = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[index]
+            current_qty = eval(f'self.db_state.mobcount{index + 1}')
+            return current_qty < required_qty
         return False
 
     def still_needs_item(self, item_entry):
