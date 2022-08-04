@@ -7925,6 +7925,11 @@ begin not atomic
         SET `display_id1`=68
         WHERE `entry`=3772;
 
+        -- Mystlash hydra
+        UPDATE `creature_template`
+        SET `display_id1`=1993
+        WHERE `entry`=3721;
+
         insert into applied_updates values ('040820221');
 
     end if;
