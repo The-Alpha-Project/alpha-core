@@ -599,6 +599,11 @@ class CreatureManager(UnitManager):
             self.set_health(self.max_health)
             self.recharge_power()
 
+        # Pets should return to owner on evading, not to spawn position. This case at this moment only affects
+        # creature summoned pets since player summoned pets will never enter this method.
+        if self.is_pet():
+            return
+
         # Get the path we are using to get back to spawn location.
         waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
         # Despawn this creature if the last evade point is too far away from its current position.
