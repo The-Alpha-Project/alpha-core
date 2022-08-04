@@ -59,6 +59,7 @@ class PlayerLoginHandler(object):
         world_session.player_mgr.skill_manager.load_proficiencies()
         world_session.player_mgr.skill_manager.load_skills()
         world_session.player_mgr.spell_manager.load_spells()
+        world_session.player_mgr.skill_manager.update_skills_max_value()  # Can depend on learned spells.
 
         world_session.player_mgr.deathbind = RealmDatabaseManager.character_get_deathbind(world_session.player_mgr.guid)
         world_session.player_mgr.friends_manager.load_from_db(RealmDatabaseManager.character_get_social(world_session.player_mgr.guid))

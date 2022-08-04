@@ -175,3 +175,33 @@ class SummonedObjectPositions:
     @staticmethod
     def get_position_in_front(caster_location):
         return caster_location.get_point_in_radius_and_angle(2, 0)
+
+
+class ProfessionInfo:
+    PROFESSION_MAX_SKILL_VALUES = {
+        164: (2018, 3100, 3538),  # Blacksmithing
+        165: (2108, 3104, 3811),  # Leatherworking
+        171: (2259, 3101, 3464),  # Alchemy
+        182: (2366, 2368, 3570),  # Herbalism
+        185: (2550, 3102, 3413),  # Cooking
+        186: (2575, 2576, 3564),  # Mining
+        197: (3908, 3909, 3910),  # Tailoring
+        202: (4036, 4037, 4038),  # Engineering
+        333: (7411, 7412, 7413),  # Enchanting
+        356: (7620, 7731, 7732)   # Fishing
+    }
+
+    @staticmethod
+    def get_max_skill_value(profession_spell_id, player):
+        prof_spells = ProfessionInfo.PROFESSION_MAX_SKILL_VALUES[profession_spell_id]
+        known = player.spell_manager.spells.keys() & prof_spells
+        if not known:
+            return 0
+        return (prof_spells.index(max(known)) + 1) * 75
+
+    @staticmethod
+    def get_profession_skill_id_for_spell(spell_id):
+        for profession_spell_id, prof_spells in ProfessionInfo.PROFESSION_MAX_SKILL_VALUES.items():
+            if spell_id in prof_spells:
+                return profession_spell_id
+        return 0
