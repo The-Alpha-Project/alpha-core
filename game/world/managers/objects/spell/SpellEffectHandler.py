@@ -14,6 +14,7 @@ from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
+from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags, InventoryError
 from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes
 from utils.constants.MiscFlags import GameObjectFlags
@@ -263,6 +264,7 @@ class SpellEffectHandler:
         if not creature_manager:
             return
 
+        creature_manager.subtype = CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
         creature_manager.respawn()
 
         # TODO This should be handled in creature AI instead

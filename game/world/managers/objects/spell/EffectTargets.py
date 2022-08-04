@@ -344,13 +344,13 @@ class EffectTargets:
     def resolve_aoe_enemy_channel(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
-    # Only used with TARGET_ALL_AROUND_CASTER in A
+    # Only used with TARGET_ALL_AROUND_CASTER in A.
     @staticmethod
     def resolve_all_friendly_around_caster(casting_spell, target_effect):
         resolved_a = target_effect.targets.resolved_targets_a
         return EffectTargets.get_friends_from_unit_list(resolved_a, casting_spell.spell_caster)
 
-    # Only 6758 (party grenade)
+    # Only 6758 (party grenade).
     @staticmethod
     def resolve_all_friendly_in_area(casting_spell, target_effect):
         target = casting_spell.initial_target
@@ -363,7 +363,7 @@ class EffectTargets:
         return EffectTargets.get_friends_from_unit_list(merged, casting_spell.spell_caster)
 
     # Totems, duel flag etc.
-    # Positioning depends on effect
+    # Positioning depends on effect.
     @staticmethod
     def resolve_minion(casting_spell, target_effect):
         caster_location = casting_spell.spell_caster.location

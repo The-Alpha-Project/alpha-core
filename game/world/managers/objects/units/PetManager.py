@@ -9,7 +9,7 @@ from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
-from utils.constants import PetCodes, CustomCodes
+from utils.constants import CustomCodes
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
