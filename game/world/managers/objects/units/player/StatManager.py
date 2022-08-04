@@ -561,6 +561,26 @@ class StatManager(object):
         # Add victim buffs/debuffs after calculations to not scale them.
         damage_dealt += victim.stat_manager.get_total_stat(UnitStats.DAMAGE_TAKEN_SCHOOL, 1 << attack_school,
                                                            accept_negative=True, misc_value_is_mask=True)
+
+        # Last, account for armor mitigation if applicable.
+        # TODO Should bleed spells ignore armor? Effect mechanic fields aren't present in 0.5.3.
+        if attack_school == SpellSchools.SPELL_SCHOOL_NORMAL:
+            total_armor = victim.stat_manager.get_total_stat(UnitStats.RESISTANCE_PHYSICAL)
+
+            # Using an old formula found on Thottbot.
+            # https://web.archive.org/web/20041010045455/http://www.thottbot.com:80/?formula=1
+            reduction = (0.3 * (total_armor - 1)) / (10 * self.unit_mgr.level + 89)
+
+            # Vanilla cap. The formula can go over 1 in some extreme cases (400 armor, level 1 for example)
+            mitigation_cap = 0.75
+
+            damage_dealt *= 1 - max(0.0, min(mitigation_cap, reduction))
+
+            # Vanilla formula:
+            # reduction = total_armor / (total_armor + 400 + 85 * self.unit_mgr.level)
+            # reduction = min(0.75, reduction)
+            # damage_dealt *= 1 - reduction
+
         # Damage taken reduction can bring damage to negative, limit to 0.
         return max(0, damage_dealt)
 
