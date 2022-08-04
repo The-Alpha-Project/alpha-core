@@ -9,6 +9,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.AuraManager import AuraManager
 from game.world.managers.objects.spell.SpellManager import SpellManager
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
@@ -479,7 +480,19 @@ class UnitManager(ObjectManager):
             min_damage = max_damage
             max_damage = tmp_min
 
-        return random.randint(min_damage, max_damage)
+        rolled_damage = random.randint(min_damage, max_damage)
+
+        if apply_bonuses:
+            subclass = -1
+            equipped_weapon = self.get_current_weapon_for_attack_type(attack_type)
+            if equipped_weapon:
+                subclass = equipped_weapon.item_template.subclass
+            rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target, subclass)
+
+        return max(0, int(rolled_damage))
+
+    def get_current_weapon_for_attack_type(self, attack_type: AttackTypes) -> Optional[ItemManager]:
+        return None
 
     def regenerate(self, elapsed):
         if not self.is_alive or self.health == 0:

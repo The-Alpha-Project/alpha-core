@@ -539,7 +539,8 @@ class StatManager(object):
 
         return max(1, weapon_min_damage), max(1, weapon_max_damage)
 
-    def apply_bonuses_for_damage(self, damage, attack_school: SpellSchools, victim, weapon_type: ItemSubClasses = -1):
+    def apply_bonuses_for_damage(self, damage, attack_school: SpellSchools, victim,
+                                 weapon_type: ItemSubClasses = -1) -> float:
         if weapon_type != -1:
             weapon_type = 1 << weapon_type
         else:
