@@ -580,8 +580,7 @@ class CreatureManager(UnitManager):
         super().leave_combat(force=force)
         # Reset threat table.
         self.threat_manager.reset()
-        if not self.is_player_controlled_pet():
-            self.evade()
+        self.evade()
 
     # TODO: Finish implementing evade mechanic.
     def evade(self):
@@ -595,6 +594,10 @@ class CreatureManager(UnitManager):
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
             self.set_health(self.max_health)
             self.recharge_power()
+
+        # Pets should return to owner on evading, not to spawn position.
+        if self.is_pet():
+            return
 
         # Get the path we are using to get back to spawn location.
         waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
