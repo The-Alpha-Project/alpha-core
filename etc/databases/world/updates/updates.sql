@@ -7954,5 +7954,28 @@ begin not atomic
         insert into applied_updates values ('050820221');
 
     end if;
+
+    -- 05/08/2022 2
+    if (select count(*) from applied_updates where id='050820222') = 0 then
+        -- Fireball Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_2` = 143 WHERE `entry` IN (21910, 17260, 119170, 39910);
+        UPDATE `creature_spells` SET `spellId_3` = 143 WHERE `entry` IN (19140, 119170, 44180, 4500, 5990, 5990, 32630);
+
+        -- Lightning Bolt Rank 3 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_2` = 403 WHERE `entry` IN (15440, 29630);
+        -- Lightning Bolt Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_2` = 529 WHERE `entry` IN (15440, 29630, 29650, 20210, 57850, 4560, 19110, 10650, 113190, 95230, 119130);
+
+        -- Shadow Bolt Rank 4 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_2` = 695 WHERE `entry` = 11240;
+        -- Shadow Bolt Rank 4 -> Rank 3
+        UPDATE `creature_spells` SET `spellId_2` = 705 WHERE `entry` = 32040;
+
+        -- zzOLDArcane Missiles Effect -> Arcane Missiles Effect Rank 1
+        UPDATE `creature_spells` SET `spellId_2` = 7268, `spellId_3` = 7268 WHERE `entry` = 103580;
+
+        insert into applied_updates values ('050820222');
+
+    end if;
 end $
 delimiter ;
