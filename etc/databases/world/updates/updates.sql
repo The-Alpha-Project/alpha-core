@@ -7767,5 +7767,166 @@ begin not atomic
         insert into applied_updates values ('030820221');
 
     end if;
+
+    -- 04/08/2022 1
+    if (select count(*) from applied_updates where id='040820221') = 0 then
+        -- Foulweald Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=937
+        WHERE `entry`=3743;
+
+        -- Foulweald Totemic
+        UPDATE `creature_template`
+        SET `display_id1`=1996
+        WHERE `entry`=3750;
+
+        -- Foulweald Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=1996
+        WHERE `entry`=3748;
+
+        -- Foulweald Den Watcher
+        UPDATE `creature_template`
+        SET `display_id1`=937
+        WHERE `entry`=3746;
+
+        -- Shandethicket Stone Mover
+        UPDATE `creature_template`
+        SET `display_id1`=2023
+        WHERE `entry`=3782;
+
+        -- Xiavian Felsworn
+        UPDATE `creature_template`
+        SET `display_id1`=2880
+        WHERE `entry`=3755;
+
+        -- Xiavian Betrayer
+        UPDATE `creature_template`
+        SET `display_id1`=2878
+        WHERE `entry`=3754;
+
+        -- Xiavian Rogue
+        UPDATE `creature_template`
+        SET `display_id1`=2878
+        WHERE `entry`=3752;
+
+        -- Xiavian Hellcaller
+        UPDATE `creature_template`
+        SET `display_id1`=2880
+        WHERE `entry`=3757;
+
+        -- Felmusk Shadowstalker
+        UPDATE `creature_template`
+        SET `display_id1`=2875
+        WHERE `entry`=3763;
+
+        -- Felmusk Satyr
+        UPDATE `creature_template`
+        SET `display_id1`=2010
+        WHERE `entry`=3758;
+
+        -- Felmusk Felsworn
+        UPDATE `creature_template`
+        SET `display_id1`=2687
+        WHERE `entry`=3762;
+
+        -- Withered ancient
+        UPDATE `creature_template`
+        SET `display_id1`=2079
+        WHERE `entry`=3919;
+
+        -- Thistlefur Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=2004
+        WHERE `entry`=3924;
+
+        -- Thistlefur Avenger
+        UPDATE `creature_template`
+        SET `display_id1`=2004
+        WHERE `entry`=3925;
+
+        -- Thistlefur Pathfinder
+        UPDATE `creature_template`
+        SET `display_id1`=2004
+        WHERE `entry`=3926;
+
+        -- Thistlefur Totemic
+        UPDATE `creature_template`
+        SET `display_id1`=2004
+        WHERE `entry`=3922;
+
+        -- Dark Strand Excavator
+        UPDATE `creature_template`
+        SET `display_id1`=1643, `display_id2`=0, `display_id3`=0
+        WHERE `entry`=3730;
+
+        -- Dark Strand Cultist
+        UPDATE `creature_template`
+        SET `display_id1`=1642, `display_id2`=0, `display_id3`=0
+        WHERE `entry`=3725;
+
+        -- Dark Strand Adept
+        UPDATE `creature_template`
+        SET `display_id1`=1643, `display_id2`=0
+        WHERE `entry`=3728;
+
+        -- Dark Strand Enforcer
+        UPDATE `creature_template`
+        SET `display_id1`=1643, `display_id2`=1478, `display_id3`=0
+        WHERE `entry`=3727;
+
+        -- Wrathtail Wave Rider
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3713;
+
+        -- Wrathtail Sorceress
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3717;
+
+        -- Wrathtail Sea Witch
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3715;
+
+        -- Wrathtail Myrmidon
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3711;
+
+        -- Wrathtail Razortail
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3712;
+
+        -- Wrathtail Priestess
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3944;
+
+        -- Ruuzel, named naga
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3943;
+
+        -- Clattering Crawler
+        UPDATE `creature_template`
+        SET `display_id1`=2239
+        WHERE `entry`=3812;
+
+        -- Felslayer
+        UPDATE `creature_template`
+        SET `display_id1`=850
+        WHERE `entry`=3774;
+
+        -- Lesser Felguard (probably Burning Legionnaire)
+        UPDATE `creature_template`
+        SET `display_id1`=68
+        WHERE `entry`=3772;
+
+        insert into applied_updates values ('040820221');
+
+    end if;
 end $
 delimiter ;
