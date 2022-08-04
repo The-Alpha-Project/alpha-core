@@ -290,11 +290,11 @@ class SkillManager(object):
     def add_skill(self, skill_id):
         # Skill already learned.
         if skill_id in self.skills:
-            return
+            return False
 
         skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
         if not skill:
-            return
+            return False
 
         start_rank_value = 1
         if skill.CategoryID == SkillCategories.MAX_SKILL:
@@ -310,6 +310,7 @@ class SkillManager(object):
 
         self.skills[skill_id] = skill_to_set
         self.build_update()
+        return True
 
     def set_skill(self, skill_id, current_value, max_value=-1):
         if skill_id not in self.skills:
