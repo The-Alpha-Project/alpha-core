@@ -7874,7 +7874,7 @@ begin not atomic
 
         -- Yound Thistle Boar, screenshot
         UPDATE `creature_template`
-        SET `display_id1`=3025
+        SET `display_id1`=3027
         WHERE `entry`=1984;
 
         -- Aelyssa binder spawn, screenshot
