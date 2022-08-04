@@ -433,6 +433,9 @@ class SkillManager(object):
 
         skill = self.skills[skill_id]
 
+        if skill.value >= skill.max:
+            return False
+
         gray_threshold = skill_line_ability.TrivialSkillLineRankHigh
         yellow_threshold = skill_line_ability.TrivialSkillLineRankLow
         chance = SkillManager._get_skill_gain_chance(skill.value, gray_threshold,
@@ -447,16 +450,18 @@ class SkillManager(object):
         gather_skill_gain_factor = 1  # TODO, configurable.
         if skill_type not in self.skills:
             return
-        raw_skill_value = self.skills[skill_type].value
+        skill = self.skills[skill_type]
+        if skill.value >= skill.max:
+            return False
 
-        chance = SkillManager._get_skill_gain_chance(raw_skill_value,
+        chance = SkillManager._get_skill_gain_chance(skill.value,
                                                      required_skill_value + 100,
                                                      required_skill_value + 50,
                                                      required_skill_value + 25)
 
         if skill_type == SkillTypes.MINING:
             mining_skill_chance_steps = 75  # TODO, configurable.
-            chance = chance >> int(raw_skill_value / mining_skill_chance_steps)
+            chance = chance >> int(skill.value / mining_skill_chance_steps)
 
         self._roll_profession_skill_gain_chance(skill_type, chance, gather_skill_gain_factor)
 
