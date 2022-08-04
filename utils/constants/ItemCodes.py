@@ -325,8 +325,8 @@ class ItemEnchantmentType(IntEnum):
 
 
 class EnchantmentSlots(IntEnum):
-    PermanentSlot = 0
-    TemporarySlot = 1
-    Optional_Enchantment_0 = 2
-    Optional_Enchantment_1 = 3
-    Optional_Enchantment_2 = 4
+    PERMANENT_SLOT = 0
+    TEMPORARY_SLOT = 1
+    OPTIONAL_ENCHANTMENT_0 = 2
+    OPTIONAL_ENCHANTMENT_1 = 3
+    OPTIONAL_ENCHANTMENT_2 = 4

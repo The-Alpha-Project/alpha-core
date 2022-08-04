@@ -38,7 +38,7 @@ class PetitionBuyHandler(object):
                     petition_item = player_mgr.inventory.get_first_item_by_entry(PetitionManager.CHARTER_ENTRY)
                     petition = PetitionManager.create_petition(player_mgr.guid, guild_name, petition_item.guid)
                     # We bind this petition to the charter guild item, else it's just a dummy item for the client.
-                    player_mgr.enchantment_manager.set_item_enchantment(petition_item, EnchantmentSlots.PermanentSlot,
+                    player_mgr.enchantment_manager.set_item_enchantment(petition_item, EnchantmentSlots.PERMANENT_SLOT,
                                                                         petition.petition_id, 0, 0)
                     player_mgr.mod_money(-PetitionManager.CHARTER_COST)
 

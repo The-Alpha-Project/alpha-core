@@ -500,7 +500,7 @@ class SpellEffectHandler:
             return
 
         # Calculate slot, duration and charges.
-        enchantment_slot = EnchantmentSlots.PermanentSlot if not is_temporary else EnchantmentSlots.TemporarySlot
+        enchantment_slot = EnchantmentSlots.PERMANENT_SLOT if not is_temporary else EnchantmentSlots.TEMPORARY_SLOT
 
         duration = 0
         charges = 0

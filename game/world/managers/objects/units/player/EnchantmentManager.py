@@ -50,7 +50,7 @@ class EnchantmentManager(object):
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, charges)
 
         # Notify player with duration.
-        if slot != EnchantmentSlots.PermanentSlot:
+        if slot != EnchantmentSlots.PERMANENT_SLOT:
             self.send_enchantments_durations(slot)
 
         self._handle_equip_buffs(item, remove=not item.is_equipped())
@@ -59,7 +59,7 @@ class EnchantmentManager(object):
     def send_enchantments_durations(self, update_slot=-1):
         for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
             for slot, enchantment in enumerate(item.enchantments):
-                if slot > EnchantmentSlots.PermanentSlot:  # Temporary enchantments.
+                if slot > EnchantmentSlots.PERMANENT_SLOT:  # Temporary enchantments.
                     if update_slot != -1 and update_slot != slot:
                         continue
                     duration = 0 if enchantment.duration <= 0 else enchantment.duration
@@ -137,7 +137,7 @@ class EnchantmentManager(object):
 
     @staticmethod
     def get_permanent_enchant_value(item):
-        return item.enchantments[EnchantmentSlots.PermanentSlot].entry
+        return item.enchantments[EnchantmentSlots.PERMANENT_SLOT].entry
 
     @staticmethod
     def has_enchantments_effect_by_type(item, enchantment_type):
