@@ -9,6 +9,7 @@ from database.realm.RealmModels import CharacterSkill
 from database.world.WorldDatabaseManager import WorldDatabaseManager, ItemTemplate
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.spell import ExtendedSpellData
 from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
@@ -231,7 +232,6 @@ class SkillManager(object):
         for skill in RealmDatabaseManager.character_get_skills(self.player_mgr.guid):
             self.skills[skill.skill] = skill
         self.update_skills_max_value()
-        self.build_update()
 
     # Apply armor proficiencies and populate full_proficiency_masks.
     # noinspection PyUnusedLocal
@@ -289,11 +289,11 @@ class SkillManager(object):
     def add_skill(self, skill_id):
         # Skill already learned.
         if skill_id in self.skills:
-            return
+            return False
 
         skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
         if not skill:
-            return
+            return False
 
         start_rank_value = 1
         if skill.CategoryID == SkillCategories.MAX_SKILL:
@@ -303,12 +303,13 @@ class SkillManager(object):
         skill_to_set.guid = self.player_mgr.guid
         skill_to_set.skill = skill_id
         skill_to_set.value = start_rank_value
-        skill_to_set.max = SkillManager.get_max_rank(self.player_mgr.level, skill_id)
+        skill_to_set.max = self.get_max_rank(skill_id)
 
         RealmDatabaseManager.character_add_skill(skill_to_set)
 
         self.skills[skill_id] = skill_to_set
         self.build_update()
+        return True
 
     def set_skill(self, skill_id, current_value, max_value=-1):
         if skill_id not in self.skills:
@@ -328,9 +329,11 @@ class SkillManager(object):
             if skill.max == 1:
                 new_max = 1
             else:
-                new_max = SkillManager.get_max_rank(self.player_mgr.level, skill_id)
+                new_max = self.get_max_rank(skill_id)
 
             self.set_skill(skill_id, skill.value, new_max)
+
+        self.build_update()
 
     def handle_weapon_skill_gain_chance(self, attack_type: AttackTypes):
         # Vanilla formulae.
@@ -352,7 +355,7 @@ class SkillManager(object):
             return False
 
         current_unmodified_skill = skill.value
-        maximum_skill = SkillManager.get_max_rank(self.player_mgr.level, skill_id)
+        maximum_skill = self.get_max_rank(skill_id)
 
         if current_unmodified_skill >= maximum_skill:
             return False
@@ -361,7 +364,7 @@ class SkillManager(object):
         if maximum_skill * 0.9 > current_unmodified_skill:
             chance = (maximum_skill * 0.9 * 0.05) / current_unmodified_skill
         else:
-            level_modifier = SkillManager.get_max_rank(config.Unit.Player.Defaults.max_level, skill_id) / maximum_skill
+            level_modifier = self.get_max_rank(skill_id, level=config.Unit.Player.Defaults.max_level) / maximum_skill
 
             chance = (0.5 - 0.0168966 * current_unmodified_skill * level_modifier + 0.0152069 * maximum_skill * level_modifier) / 100
 
@@ -388,7 +391,7 @@ class SkillManager(object):
             return False
 
         current_unmodified_skill = skill.value
-        maximum_skill = SkillManager.get_max_rank(self.player_mgr.level, target_skill_type)
+        maximum_skill = self.get_max_rank(target_skill_type)
 
         if current_unmodified_skill >= maximum_skill:
             return False
@@ -415,44 +418,58 @@ class SkillManager(object):
 
         return True
 
-    def handle_profession_skill_gain_chance(self, spell_id):
-        skill_template = self.get_skill_for_spell_id(spell_id)
-        if not skill_template:
+    def handle_profession_skill_gain(self, spell_id):
+        skill_gain_factor = 1
+
+        skill_info_entries = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
+
+        # skill_template = self.get_skill_for_spell_id(spell_id)
+        if not skill_info_entries:
             return False
 
-        if skill_template.ID not in self.skills:
+        # Should always resolve to one for professions.
+        skill_line_ability = skill_info_entries[0]
+
+        skill_id = skill_line_ability.SkillLine
+        if skill_id not in self.skills:
             return False
 
-        skill = self.skills[skill_template.ID]
+        skill = self.skills[skill_id]
 
-        # TODO Roll profession skill gain chance - currently skill is always gained.
+        if skill.value >= skill.max:
+            return False
 
-        self.set_skill(skill_template.ID, skill.value + 1)
+        gray_threshold = skill_line_ability.TrivialSkillLineRankHigh
+        yellow_threshold = skill_line_ability.TrivialSkillLineRankLow
+        chance = SkillManager._get_skill_gain_chance(skill.value, gray_threshold,
+                                                     (gray_threshold + yellow_threshold) / 2,
+                                                     yellow_threshold)
+
+        self._roll_profession_skill_gain_chance(skill_id, chance, skill_gain_factor)
         self.build_update()
         return True
 
-    def handle_gather_skill_gain(self, skill_type, raw_skill_value, required_skill_value):
+    def handle_gather_skill_gain(self, skill_type, required_skill_value):
         gather_skill_gain_factor = 1  # TODO, configurable.
-        if skill_type == SkillTypes.HERBALISM or skill_type == SkillTypes.LOCKPICKING:
-            self.update_skill_profession(
-                skill_type,
-                self.skill_gain_chance(raw_skill_value,
-                                       required_skill_value + 100,
-                                       required_skill_value + 50,
-                                       required_skill_value + 25),
-                gather_skill_gain_factor)
-        elif skill_type == SkillTypes.MINING:
-            mining_skill_chance_steps = 75  # TODO, configurable.
-            self.update_skill_profession(
-                skill_type,
-                self.skill_gain_chance(raw_skill_value,
-                                       required_skill_value + 100,
-                                       required_skill_value + 50,
-                                       required_skill_value + 25) >> int(raw_skill_value / mining_skill_chance_steps),
-                gather_skill_gain_factor)
+        if skill_type not in self.skills:
+            return
+        skill = self.skills[skill_type]
+        if skill.value >= skill.max:
+            return False
 
-    # noinspection PyMethodMayBeStatic
-    def skill_gain_chance(self, skill_value, gray_level, green_level, yellow_level):
+        chance = SkillManager._get_skill_gain_chance(skill.value,
+                                                     required_skill_value + 100,
+                                                     required_skill_value + 50,
+                                                     required_skill_value + 25)
+
+        if skill_type == SkillTypes.MINING:
+            mining_skill_chance_steps = 75  # TODO, configurable.
+            chance = chance >> int(skill.value / mining_skill_chance_steps)
+
+        self._roll_profession_skill_gain_chance(skill_type, chance, gather_skill_gain_factor)
+
+    @staticmethod
+    def _get_skill_gain_chance(skill_value, gray_level, green_level, yellow_level):
         if skill_value >= gray_level:
             return 0 * 10
         elif skill_value >= green_level:
@@ -461,11 +478,8 @@ class SkillManager(object):
             return 75 * 10
         return 100 * 10
 
-    def update_skill_profession(self, skill_type, chance, step):
-        if not skill_type:
-            return False
-
-        if chance <= 0:
+    def _roll_profession_skill_gain_chance(self, skill_type, chance, step):
+        if not skill_type or chance <= 0:
             return False
 
         skill = self.skills.get(skill_type, None)
@@ -591,23 +605,26 @@ class SkillManager(object):
             return None
         return DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
 
-    @staticmethod
-    def get_max_rank(player_level, skill_id):
+    def get_max_rank(self, skill_id, level=-1):
         skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
         if not skill:
             return 0
 
+        level = self.player_mgr.level if level == -1 else level
+
         # Weapon, Defense, Spell
         if skill.SkillType == 0:
-            return player_level * 5
+            return level * 5
         # Language, Riding, Secondary profs
         elif skill.SkillType == 4:
             # Language, Riding
             if skill.CategoryID == SkillCategories.MAX_SKILL:
-                # TODO This return value is incorrect for professions.
                 return skill.MaxRank
+            elif skill.CategoryID == SkillCategories.CLASS_SKILL:
+                # Professions.
+                return ExtendedSpellData.ProfessionInfo.get_max_skill_value(skill_id, self.player_mgr)
             else:
-                return (player_level * 5) + 25
+                return (level * 5) + 25
 
         return 0
 

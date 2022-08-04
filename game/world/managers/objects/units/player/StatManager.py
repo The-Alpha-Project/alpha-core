@@ -837,7 +837,7 @@ class StatManager(object):
         if attacker_level == -1:
             attacker_level = self.unit_mgr.level
         if attacker_rating == -1:  # Use max defense skill since it follows the same values as max weapon skill
-            attacker_rating = SkillManager.get_max_rank(attacker_level, SkillTypes.DEFENSE)
+            attacker_rating = attacker_level * 5
 
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # TODO It's unclear what the block skill is used for based on patch notes.
@@ -845,7 +845,7 @@ class StatManager(object):
             # This way, block chance will be affected by block skill instead of defense skill like in vanilla.
             own_defense_rating = self.unit_mgr.skill_manager.get_total_skill_value(SkillTypes.DEFENSE if not use_block else SkillTypes.BLOCK)
         else:
-            own_defense_rating = SkillManager.get_max_rank(self.unit_mgr.level, SkillTypes.DEFENSE)
+            own_defense_rating = self.unit_mgr.level * 5
 
         return own_defense_rating - attacker_rating
 

@@ -68,7 +68,13 @@ class SpellManager:
         if spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
             self.apply_passive_spell_effects(spell)
 
-        # TODO Teach skill required as well like in CharCreateHandler
+        # If a profession spell is learned, grant the required skill.
+        # If the player already knows the skill, update max skill level.
+        related_profession_skill = ExtendedSpellData.ProfessionInfo.get_profession_skill_id_for_spell(spell_id)
+        if related_profession_skill:
+            if not self.caster.skill_manager.add_skill(related_profession_skill):
+                self.caster.skill_manager.update_skills_max_value()
+
         return True
 
     def unlearn_spell(self, spell_id) -> bool:
