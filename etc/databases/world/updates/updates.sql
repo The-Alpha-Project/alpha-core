@@ -7639,8 +7639,8 @@ begin not atomic
         insert into applied_updates values ('010820221');
     end if;
 
-    -- 03/08/2022 1
-    if (select count(*) from applied_updates where id='030820221') = 0 then
+    -- 03/08/2022 2
+    if (select count(*) from applied_updates where id='030820222') = 0 then
         -- # MULGORE
 
         -- Windfury matriarch, screenshot
@@ -7789,7 +7789,7 @@ begin not atomic
         SET `display_id1`=1908, `display_id2`=1909, `display_id3`=3772, `display_id4`=3773
         WHERE `entry`=3501;
 
-        insert into applied_updates values ('030820221');
+        insert into applied_updates values ('030820222');
     end if;
     
     -- 02/08/2022 1
