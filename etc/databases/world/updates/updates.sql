@@ -7919,5 +7919,40 @@ begin not atomic
         insert into applied_updates values ('030820221');
 
     end if;
+
+    -- 05/08/2022 1
+    if (select count(*) from applied_updates where id='050820221') = 0 then
+        -- Fireball Rank 3 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 133 WHERE `entry` IN (17320, 15070, 4760, 8810, 20180);
+        -- Fireball Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 143 WHERE `entry` IN (85030, 32690, 5890, 6190, 4410, 21920, 21600);
+
+        -- Fire Blast Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 2137 WHERE `entry` = 17320;
+
+        -- Frost Nova Rank 2 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 122 WHERE `entry` IN (17680, 32600, 19580, 1270, 37170, 34360);
+
+        -- Frostbolt Rank 2 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 116 WHERE `entry` IN (15220, 4740, 29640, 15390, 18670);
+
+        -- Lightning Bolt Rank 3 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 403 WHERE `entry` IN (29530, 13970, 20120);
+        -- Lightning Bolt Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 529 WHERE `entry` IN (31180, 11660, 32730);
+
+        -- ZZOldKick Rank 1 -> Kick Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 6554 WHERE `entry` = 65540;
+
+        -- Shadow Bolt Rank 4 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 686 WHERE `entry` = 20030;
+        -- Shadow Bolt Rank 4 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 695 WHERE `entry` IN (31980, 58220);
+        -- Shadow Bolt Rank 4 -> Rank 3
+        UPDATE `creature_spells` SET `spellId_1` = 705 WHERE `entry` IN (32030, 113240, 19150, 37280);
+
+        insert into applied_updates values ('050820221');
+
+    end if;
 end $
 delimiter ;
