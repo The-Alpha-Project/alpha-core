@@ -232,7 +232,6 @@ class SkillManager(object):
         for skill in RealmDatabaseManager.character_get_skills(self.player_mgr.guid):
             self.skills[skill.skill] = skill
         self.update_skills_max_value()
-        self.build_update()
 
     # Apply armor proficiencies and populate full_proficiency_masks.
     # noinspection PyUnusedLocal
@@ -333,6 +332,8 @@ class SkillManager(object):
                 new_max = self.get_max_rank(skill_id)
 
             self.set_skill(skill_id, skill.value, new_max)
+
+        self.build_update()
 
     def handle_weapon_skill_gain_chance(self, attack_type: AttackTypes):
         # Vanilla formulae.
