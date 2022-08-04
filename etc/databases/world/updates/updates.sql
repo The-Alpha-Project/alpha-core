@@ -7922,7 +7922,7 @@ begin not atomic
 
         -- Lesser Felguard (probably Burning Legionnaire)
         UPDATE `creature_template`
-        SET `display_id1`=68
+        SET `display_id1`=2727
         WHERE `entry`=3772;
 
         -- Mystlash hydra
