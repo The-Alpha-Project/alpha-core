@@ -407,6 +407,9 @@ class CreatureManager(UnitManager):
     def is_pet(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
 
+    def is_player_controlled_pet(self):
+        self.is_pet() and self.summoner.get_type_id() == ObjectTypeIds.ID_PLAYER
+
     def is_totem(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
 
@@ -577,7 +580,8 @@ class CreatureManager(UnitManager):
         super().leave_combat(force=force)
         # Reset threat table.
         self.threat_manager.reset()
-        self.evade()
+        if not self.is_player_controlled_pet():
+            self.evade()
 
     # TODO: Finish implementing evade mechanic.
     def evade(self):
@@ -588,13 +592,12 @@ class CreatureManager(UnitManager):
         # Flag creature as currently evading.
         self.is_evading = True
 
+        # Remove all auras on evade.
+        self.aura_manager.remove_all_auras()
+
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
             self.set_health(self.max_health)
             self.recharge_power()
-
-        # Pets should return to owner on evading, not to spawn position.
-        if self.is_pet():
-            return
 
         # Get the path we are using to get back to spawn location.
         waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()

@@ -142,7 +142,6 @@ class PetManager:
         else:
             self.remove_pet(pet_index)
 
-        creature.aura_manager.remove_all_auras()
         creature.set_summoned_by(None)
         creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, 0)
         creature.faction = creature.creature_template.faction
