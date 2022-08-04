@@ -9,7 +9,6 @@ from database.world.WorldModels import TrainerTemplate, SpellChain, SpawnsCreatu
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
-from game.world.managers.objects.ai.NullCreatureAI import NullCreatureAI
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
@@ -22,13 +21,14 @@ from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
 from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
+from utils.constants import CustomCodes
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, TrainerServices, \
     TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, Teams, AIReactionStates
+    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -81,6 +81,7 @@ class CreatureManager(UnitManager):
         self.fully_loaded = False
         self.killed_by = None
         self.summoner = summoner
+        self.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
         self.known_players = {}
 
         self.initialize_creature(self.generate_creature_template() if not creature_template else creature_template)
@@ -403,13 +404,14 @@ class CreatureManager(UnitManager):
     def is_critter(self):
         return self.creature_template.type == CreatureTypes.AMBIENT
 
-    # TODO, should be able to check 'ownership' or set a custom flag upon creature creation.
     def is_pet(self):
-        return False
+        return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
 
-    # TODO, should be able to check 'ownership' or set a custom flag upon creature creation.
+    def is_player_controlled_pet(self):
+        self.is_pet() and self.summoner.get_type_id() == ObjectTypeIds.ID_PLAYER
+
     def is_totem(self):
-        return False
+        return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
 
     def can_have_target(self):
         return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_TARGET
@@ -578,7 +580,8 @@ class CreatureManager(UnitManager):
         super().leave_combat(force=force)
         # Reset threat table.
         self.threat_manager.reset()
-        self.evade()
+        if not self.is_player_controlled_pet():
+            self.evade()
 
     # TODO: Finish implementing evade mechanic.
     def evade(self):
@@ -589,15 +592,19 @@ class CreatureManager(UnitManager):
         # Flag creature as currently evading.
         self.is_evading = True
 
-        # Get the path we are using to get back to spawn location.
-        waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
             self.set_health(self.max_health)
             self.recharge_power()
 
-        # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
-        spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_locked else SplineFlags.SPLINEFLAG_FLYING
-        self.movement_manager.send_move_normal(waypoints_to_spawn, self.running_speed, spline_flag)
+        # Get the path we are using to get back to spawn location.
+        waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
+        # Despawn this creature if the last evade point is too far away from its current position.
+        if self.location.distance(waypoints_to_spawn[-1]) > Distances.CREATURE_EVADE_DISTANCE * 2:
+            self.despawn()
+        else:
+            # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
+            spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_locked else SplineFlags.SPLINEFLAG_FLYING
+            self.movement_manager.send_move_normal(waypoints_to_spawn, self.running_speed, spline_flag)
 
     # TODO: Below return to spawn point logic should be removed once a navmesh is available.
     def _get_return_to_spawn_points(self) -> tuple:  # [waypoints], z_locked bool
@@ -751,8 +758,8 @@ class CreatureManager(UnitManager):
                     if target and target != self.combat_target:
                         self.attack(target)
 
-            # Dead
-            elif not self.is_alive and self.initialized:
+            # Dead or despawned.
+            elif (not self.is_alive or not self.is_spawned) and self.initialized:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
                     self.respawn()

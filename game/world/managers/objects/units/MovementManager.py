@@ -67,7 +67,8 @@ class MovementManager:
                 # TODO: Logic below should be removed once we have some kind of navmesh.
                 #  this temporarily allows units to return without getting stuck in walls forever.
                 # Append combat movements so this unit can use them to return to spawn point if evading.
-                if not self.is_player and self.unit.in_combat and not self.unit.is_evading:
+                if not self.is_player and self.unit.in_combat and not self.unit.is_evading and \
+                        not self.unit.is_player_controlled_pet():
                     self.unit.evading_waypoints.append(new_position.copy())
 
                 if self.is_player and self.unit.pending_taxi_destination:

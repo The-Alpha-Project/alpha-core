@@ -9,6 +9,7 @@ from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
+from utils.constants import PetCodes, CustomCodes
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
@@ -141,6 +142,7 @@ class PetManager:
         else:
             self.remove_pet(pet_index)
 
+        creature.aura_manager.remove_all_auras()
         creature.set_summoned_by(None)
         creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, 0)
         creature.faction = creature.creature_template.faction
@@ -148,7 +150,12 @@ class PetManager:
         creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, 0)
         creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, 0)
         creature.creature_instance.movement_type = creature.creature_template.movement_type
+        creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
         creature.object_ai = AIFactory.build_ai(creature)
+
+        creature.leave_combat(force=True)
+
+        # TODO: Should pet attack the owner after losing the charm in 0.5.3?
 
     def get_active_pet_info(self) -> Optional[PetData]:
         if not self.active_pet:
@@ -222,6 +229,7 @@ class PetManager:
 
         self.owner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, creature.guid)
         creature.object_ai = AIFactory.build_ai(creature)
+        creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_PET
 
         # Required?
         # creature.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, casting_spell.spell_entry.ID)
@@ -230,7 +238,7 @@ class PetManager:
         if not self.active_pet:
             return
 
-        # This packet contains the both the action bar of the pet and the spellbook entries.
+        # This packet contains both the action bar of the pet and the spellbook entries.
 
         pet_info = self._get_pet_info(self.active_pet.pet_index)
 

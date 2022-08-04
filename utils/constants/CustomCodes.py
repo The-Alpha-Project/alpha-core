@@ -28,3 +28,11 @@ class PetSelectTargetReason:
     FAIL_RETURNING = 4
     SUCCESS_OWNER_ATTACKER = 5
     SUCCESS_AGGRO_RANGE = 6
+
+
+# TODO: Replace by UnitCodes.UnitSummonType?
+class CreatureSubtype:
+    SUBTYPE_GENERIC = 0
+    SUBTYPE_PET = 1
+    SUBTYPE_TOTEM = 2
+    SUBTYPE_TEMP_SUMMON = 3
