@@ -9,6 +9,7 @@ from database.realm.RealmModels import CharacterSkill
 from database.world.WorldDatabaseManager import WorldDatabaseManager, ItemTemplate
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.spell import ExtendedSpellData
 from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
@@ -303,7 +304,7 @@ class SkillManager(object):
         skill_to_set.guid = self.player_mgr.guid
         skill_to_set.skill = skill_id
         skill_to_set.value = start_rank_value
-        skill_to_set.max = SkillManager.get_max_rank(self.player_mgr.level, skill_id)
+        skill_to_set.max = self.get_max_rank(skill_id)
 
         RealmDatabaseManager.character_add_skill(skill_to_set)
 
@@ -328,7 +329,7 @@ class SkillManager(object):
             if skill.max == 1:
                 new_max = 1
             else:
-                new_max = SkillManager.get_max_rank(self.player_mgr.level, skill_id)
+                new_max = self.get_max_rank(skill_id)
 
             self.set_skill(skill_id, skill.value, new_max)
 
@@ -352,7 +353,7 @@ class SkillManager(object):
             return False
 
         current_unmodified_skill = skill.value
-        maximum_skill = SkillManager.get_max_rank(self.player_mgr.level, skill_id)
+        maximum_skill = self.get_max_rank(skill_id)
 
         if current_unmodified_skill >= maximum_skill:
             return False
@@ -361,7 +362,7 @@ class SkillManager(object):
         if maximum_skill * 0.9 > current_unmodified_skill:
             chance = (maximum_skill * 0.9 * 0.05) / current_unmodified_skill
         else:
-            level_modifier = SkillManager.get_max_rank(config.Unit.Player.Defaults.max_level, skill_id) / maximum_skill
+            level_modifier = self.get_max_rank(skill_id, level=config.Unit.Player.Defaults.max_level) / maximum_skill
 
             chance = (0.5 - 0.0168966 * current_unmodified_skill * level_modifier + 0.0152069 * maximum_skill * level_modifier) / 100
 
@@ -388,7 +389,7 @@ class SkillManager(object):
             return False
 
         current_unmodified_skill = skill.value
-        maximum_skill = SkillManager.get_max_rank(self.player_mgr.level, target_skill_type)
+        maximum_skill = self.get_max_rank(target_skill_type)
 
         if current_unmodified_skill >= maximum_skill:
             return False
@@ -602,23 +603,26 @@ class SkillManager(object):
             return None
         return DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
 
-    @staticmethod
-    def get_max_rank(player_level, skill_id):
+    def get_max_rank(self, skill_id, level=-1):
         skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
         if not skill:
             return 0
 
+        level = self.player_mgr.level if level == -1 else level
+
         # Weapon, Defense, Spell
         if skill.SkillType == 0:
-            return player_level * 5
+            return level * 5
         # Language, Riding, Secondary profs
         elif skill.SkillType == 4:
             # Language, Riding
             if skill.CategoryID == SkillCategories.MAX_SKILL:
-                # TODO This return value is incorrect for professions.
                 return skill.MaxRank
+            elif skill.CategoryID == SkillCategories.CLASS_SKILL:
+                # Professions.
+                return ExtendedSpellData.ProfessionInfo.get_max_skill_value(skill_id, self.player_mgr)
             else:
-                return (player_level * 5) + 25
+                return (level * 5) + 25
 
         return 0
 
