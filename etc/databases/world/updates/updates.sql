@@ -7923,7 +7923,7 @@ begin not atomic
     -- 05/08/2022 1
     if (select count(*) from applied_updates where id='050820221') = 0 then
         -- Fireball Rank 3 -> Rank 1
-        UPDATE `creature_spells` SET `spellId_1` = 133 WHERE `entry` IN (17320, 15070, 4760, 8810, 20180);
+        UPDATE `creature_spells` SET `spellId_1` = 133 WHERE `entry` IN (15070, 4760, 8810, 20180);
         -- Fireball Rank 3 -> Rank 2
         UPDATE `creature_spells` SET `spellId_1` = 143 WHERE `entry` IN (85030, 32690, 5890, 6190, 4410, 21920, 21600);
 
