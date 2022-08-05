@@ -1092,6 +1092,11 @@ class UnitManager(ObjectManager):
     def has_form(self, shapeshift_form):
         return self.shapeshift_form == shapeshift_form
 
+    def form_matches_mask(self, shapeshift_mask):
+        if not self.shapeshift_form:
+            return False
+        return (1 << (self.shapeshift_form - 1)) & shapeshift_mask
+
     def is_in_feral_form(self):
         return self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR) or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT)
 

@@ -65,7 +65,8 @@ class SpellManager:
             self.start_spell_cast(spell, self.caster, SpellTargetMask.SELF)
 
         # Apply passive effects when they're learned. This will also apply talents on learn.
-        if spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+        # Shapeshift passives are only updated on shapeshift change.
+        if spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE and not spell.ShapeshiftMask:
             self.apply_passive_spell_effects(spell)
 
         # If a profession spell is learned, grant the required skill.
@@ -96,6 +97,11 @@ class SpellManager:
         # Self-cast all passive spells. This will apply learned skills, proficiencies, talents etc.
         for spell_id in self.spells.keys():
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+
+            # Shapeshift passives are only applied on shapeshift change.
+            if spell_template.ShapeshiftMask:
+                return
+
             if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
                 self.apply_passive_spell_effects(spell_template)
 
@@ -107,11 +113,25 @@ class SpellManager:
                 self.start_spell_cast(spell_template, self.caster, SpellTargetMask.SELF)
 
     def apply_passive_spell_effects(self, spell_template):
-        if spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
-            spell = self.try_initialize_spell(spell_template, self.caster, SpellTargetMask.SELF,
-                                              validate=False)
-            spell.resolve_target_info_for_effects()
-            self.apply_spell_effects(spell)
+        if not spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+            return
+
+        spell = self.try_initialize_spell(spell_template, self.caster, SpellTargetMask.SELF,
+                                          validate=False)
+        spell.resolve_target_info_for_effects()
+        self.apply_spell_effects(spell)
+
+    def update_shapeshift_passives(self):
+        for spell_id in self.spells.keys():
+            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            req_form = spell_template.ShapeshiftMask
+            if not req_form:
+                continue
+
+            if self.caster.form_matches_mask(req_form):
+                self.apply_passive_spell_effects(spell_template)
+            else:
+                self.caster.aura_manager.cancel_auras_by_spell_id(spell_id)
 
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.caster.guid)

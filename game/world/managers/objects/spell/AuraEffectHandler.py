@@ -41,6 +41,7 @@ class AuraEffectHandler:
         model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
 
         # Shapeshifting can affect current power type and stats (druid shapeshift powers/attack values).
+        effect_target.spell_manager.update_shapeshift_passives()
         effect_target.update_power_type()
         effect_target.stat_manager.apply_bonuses()
 
