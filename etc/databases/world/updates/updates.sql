@@ -7637,7 +7637,159 @@ begin not atomic
         WHERE `entry`=4949;
 
         insert into applied_updates values ('010820221');
+    end if;
 
+    -- 03/08/2022 2
+    if (select count(*) from applied_updates where id='030820222') = 0 then
+        -- # MULGORE
+
+        -- Windfury matriarch, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1223
+        WHERE `entry`=2965;
+
+        -- # DUROTAR
+
+        -- Razormane Dustrunner, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3113;
+
+        -- Kolkar drudge,  this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1258
+        WHERE `entry`=3119;
+
+        -- Kolkar outrunner
+        UPDATE `creature_template`
+        SET `display_id1`=1258
+        WHERE `entry`=3120;
+
+        -- # BARRENS
+
+        -- Razormane Nak (a named with no display id)
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3434;
+
+        -- Razormane warfury
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3459;
+
+        -- Razormane seer
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3458;
+
+        -- Razormane hunter, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3265;
+
+        -- Razormane mystic
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3271;
+
+        -- Razormane geomancer, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3269;
+
+        -- Razormane thornweaver, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3268;
+
+        -- Razormane water seeker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3267;
+
+        -- Razormane defender, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3266;
+
+        -- Razormane stalker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3457;
+        
+
+        --
+
+        -- Bristleback thornweaver, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3261;
+
+        -- Bristleback geomancer
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3263;
+
+        -- Bristleback hunter, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3258;
+
+        -- Bristleback water seeker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3260;
+
+        -- Bristleback defender, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3259;
+
+        --
+
+        -- Kolkar pack runner
+        UPDATE `creature_template`
+        SET `display_id1`=1347
+        WHERE `entry`=3274;
+
+        -- Kolkar marauder, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1347
+        WHERE `entry`=3275;
+
+        -- Kolkar bloodcharger
+        UPDATE `creature_template`
+        SET `display_id1`=1347
+        WHERE `entry`=3397;
+
+        -- Kolkar stormer
+        UPDATE `creature_template`
+        SET `display_id1`=1347
+        WHERE `entry`=3273;
+
+        --
+
+        -- Lost Barrens Kodo, we scale it, a screenshot show how big he is
+        UPDATE `creature_template`
+        SET `display_id1`=1451, `scale`=1.3
+        WHERE `entry`=3234;
+
+        -- Sunscale scytheclaw, same display_id as 1.12 and all others raptors in barrens
+        UPDATE `creature_template`
+        SET `display_id1`=1747
+        WHERE `entry`=3256;
+
+        -- Wizzlecrank's shredder, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1303
+        WHERE `entry`=3439;
+
+        -- Horde Guards, see issue discussion #332
+        UPDATE `creature_template`
+        SET `display_id1`=1908, `display_id2`=1909, `display_id3`=3772, `display_id4`=3773
+        WHERE `entry`=3501;
+
+        insert into applied_updates values ('030820222');
     end if;
     
     -- 02/08/2022 1
@@ -7722,7 +7874,7 @@ begin not atomic
 
         -- Yound Thistle Boar, screenshot
         UPDATE `creature_template`
-        SET `display_id1`=3025
+        SET `display_id1`=3027
         WHERE `entry`=1984;
 
         -- Aelyssa binder spawn, screenshot
@@ -7931,6 +8083,63 @@ begin not atomic
         WHERE `entry`=3721;
 
         insert into applied_updates values ('040820221');
+    end if;
+    
+    -- 05/08/2022 1
+    if (select count(*) from applied_updates where id='050820221') = 0 then
+        -- Fireball Rank 3 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 133 WHERE `entry` IN (15070, 4760, 8810, 20180);
+        -- Fireball Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 143 WHERE `entry` IN (85030, 32690, 5890, 6190, 4410, 21920, 21600);
+
+        -- Fire Blast Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 2137 WHERE `entry` = 17320;
+
+        -- Frost Nova Rank 2 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 122 WHERE `entry` IN (17680, 32600, 19580, 1270, 37170, 34360);
+
+        -- Frostbolt Rank 2 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 116 WHERE `entry` IN (15220, 4740, 29640, 15390, 18670);
+
+        -- Lightning Bolt Rank 3 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 403 WHERE `entry` IN (29530, 13970, 20120);
+        -- Lightning Bolt Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 529 WHERE `entry` IN (31180, 11660, 32730);
+
+        -- ZZOldKick Rank 1 -> Kick Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 6554 WHERE `entry` = 65540;
+
+        -- Shadow Bolt Rank 4 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 686 WHERE `entry` = 20030;
+        -- Shadow Bolt Rank 4 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 695 WHERE `entry` IN (31980, 58220);
+        -- Shadow Bolt Rank 4 -> Rank 3
+        UPDATE `creature_spells` SET `spellId_1` = 705 WHERE `entry` IN (32030, 113240, 19150, 37280);
+
+        insert into applied_updates values ('050820221');
+
+    end if;
+
+    -- 05/08/2022 2
+    if (select count(*) from applied_updates where id='050820222') = 0 then
+        -- Fireball Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_2` = 143 WHERE `entry` IN (21910, 17260, 119170, 39910);
+        UPDATE `creature_spells` SET `spellId_3` = 143 WHERE `entry` IN (19140, 119170, 44180, 4500, 5990, 5990, 32630);
+
+        -- Lightning Bolt Rank 3 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_2` = 403 WHERE `entry` IN (15440, 29630);
+        -- Lightning Bolt Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_2` = 529 WHERE `entry` IN (15440, 29630, 29650, 20210, 57850, 4560, 19110, 10650, 113190, 95230, 119130);
+
+        -- Shadow Bolt Rank 4 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_2` = 695 WHERE `entry` = 11240;
+        -- Shadow Bolt Rank 4 -> Rank 3
+        UPDATE `creature_spells` SET `spellId_2` = 705 WHERE `entry` = 32040;
+
+        -- zzOLDArcane Missiles Effect -> Arcane Missiles Effect Rank 1
+        UPDATE `creature_spells` SET `spellId_2` = 7268, `spellId_3` = 7268 WHERE `entry` = 103580;
+
+        insert into applied_updates values ('050820222');
 
     end if;
 end $

@@ -14,6 +14,7 @@ from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
+from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags, InventoryError
 from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes
 from utils.constants.MiscFlags import GameObjectFlags
@@ -140,7 +141,6 @@ class SpellEffectHandler:
                                                 bonus_points=bonus_points)
 
         caster.skill_manager.handle_gather_skill_gain(lock_result.skill_type,
-                                                      lock_result.skill_value,
                                                       lock_result.required_skill_value)
 
     @staticmethod
@@ -203,7 +203,7 @@ class SpellEffectHandler:
         target.inventory.add_item(effect.item_type, count=amount, created_by=caster.guid)
 
         # Craft Skill gain if needed.
-        target.skill_manager.handle_profession_skill_gain_chance(casting_spell.spell_entry.ID)
+        target.skill_manager.handle_profession_skill_gain(casting_spell.spell_entry.ID)
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
@@ -264,6 +264,7 @@ class SpellEffectHandler:
         if not creature_manager:
             return
 
+        creature_manager.subtype = CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
         creature_manager.respawn()
 
         # TODO This should be handled in creature AI instead
@@ -429,6 +430,8 @@ class SpellEffectHandler:
     def handle_tame_creature(casting_spell, effect, caster, target):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
+        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            return
 
         caster.pet_manager.add_pet_from_world(target)
 
@@ -500,7 +503,7 @@ class SpellEffectHandler:
             return
 
         # Calculate slot, duration and charges.
-        enchantment_slot = EnchantmentSlots.PermanentSlot if not is_temporary else EnchantmentSlots.TemporarySlot
+        enchantment_slot = EnchantmentSlots.PERMANENT_SLOT if not is_temporary else EnchantmentSlots.TEMPORARY_SLOT
 
         duration = 0
         charges = 0
@@ -543,7 +546,7 @@ class SpellEffectHandler:
         owner_player.enchantment_manager.set_item_enchantment(target, enchantment_slot, effect.misc_value,
                                                               duration, charges)
 
-        caster.skill_manager.handle_profession_skill_gain_chance(casting_spell.spell_entry.ID)
+        caster.skill_manager.handle_profession_skill_gain(casting_spell.spell_entry.ID)
 
         # Save item.
         target.save()

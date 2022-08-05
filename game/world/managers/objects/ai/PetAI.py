@@ -28,9 +28,6 @@ class PetAI(CreatureAI):
 
     # override
     def update_ai(self, elapsed):
-        # Set spawn point to the owner's location. This fixes issues with evading and returning after charm.
-        self.creature.spawn_position = self.creature.summoner.location.copy()
-
         if self.is_at_home or self.creature.combat_target:
             return
 

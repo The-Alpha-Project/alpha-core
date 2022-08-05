@@ -1256,18 +1256,6 @@ class PlayerManager(UnitManager):
         self.skill_points = max(0, self.skill_points - skill_points)
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
-    def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target: UnitManager, apply_bonuses=True):
-        rolled_damage = super().calculate_base_attack_damage(attack_type, attack_school, target, apply_bonuses)
-
-        if apply_bonuses:
-            subclass = -1
-            equipped_weapon = self.get_current_weapon_for_attack_type(attack_type)
-            if equipped_weapon:
-                subclass = equipped_weapon.item_template.subclass
-            rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target, subclass)
-
-        return max(0, int(rolled_damage))
-
     # override
     def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
         subclass = 0
@@ -1655,7 +1643,8 @@ class PlayerManager(UnitManager):
     def generate_object_guid(self, low_guid):
         return low_guid | HighGuid.HIGHGUID_PLAYER
 
-    def get_current_weapon_for_attack_type(self, attack_type: AttackTypes):
+    # override
+    def get_current_weapon_for_attack_type(self, attack_type: AttackTypes)  -> Optional[ItemManager]:
         if self.is_in_feral_form():
             return None  # Feral form attacks don't use a weapon.
 

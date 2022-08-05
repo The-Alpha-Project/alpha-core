@@ -53,7 +53,7 @@ class TradeData(object):
                                                              self.proposed_enchantment.duration,
                                                              self.proposed_enchantment.charges)
 
-        self.player.skill_manager.handle_profession_skill_gain_chance(self.proposed_enchantment.spell_id)
+        self.player.skill_manager.handle_profession_skill_gain(self.proposed_enchantment.spell_id)
 
     def set_item(self, slot, item):
         if self.items[slot] and self.items[slot] == item:
