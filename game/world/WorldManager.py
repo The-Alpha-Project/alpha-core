@@ -261,10 +261,11 @@ class WorldServerSessionHandler:
 
         WorldServerSessionHandler.schedule_background_tasks()
 
-        real_binding = server_socket.getsockname()
-        Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
         forward_address = os.getenv('Environment variable FORWARD_ADDRESS_OVERRIDE:', "Disabled")
         Logger.info(f'FORWARD_ADDRESS_OVERRIDE: {forward_address}')
+
+        real_binding = server_socket.getsockname()
+        Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
 
         while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
             # noinspection PyBroadException
