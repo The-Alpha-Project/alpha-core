@@ -1,5 +1,6 @@
 import time
 from database.realm.RealmDatabaseManager import *
+from utils.Logger import Logger
 
 WORLD_SESSIONS = []
 
@@ -101,13 +102,13 @@ class WorldSessionStateHandler(object):
             for session in WorldSessionStateHandler.get_world_sessions():
                 if session.player_mgr and session.player_mgr.online:
                     WorldSessionStateHandler.save_character(session.player_mgr)
-        except AttributeError:
-            pass
+        except AttributeError as ae:
+            Logger.error(f'Error while saving all active characters into db: {ae}.')
 
     @staticmethod
     def save_character(player_mgr):
         try:
             player_mgr.synchronize_db_player()
             RealmDatabaseManager.character_update(player_mgr.player)
-        except AttributeError:
-            pass
+        except AttributeError as ae:
+            Logger.error(f'Error while saving {player_mgr.player.name} ({player_mgr.player.guid}) into db: {ae}.')
