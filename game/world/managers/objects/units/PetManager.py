@@ -178,6 +178,9 @@ class PetManager:
         else:
             target_unit = MapManager.get_surrounding_unit_by_guid(active_pet_unit, target_guid, include_players=True)
 
+        if not target_unit:
+            return
+
         if action_id > PetCommandState.COMMAND_DISMISS:  # Highest action ID.
             target_mask = SpellTargetMask.SELF if target_unit.guid == active_pet_unit.guid else SpellTargetMask.UNIT
             active_pet_unit.spell_manager.handle_cast_attempt(action_id, target_unit, target_mask)
