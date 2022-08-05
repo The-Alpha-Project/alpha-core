@@ -36,10 +36,10 @@ class CreatureFormulas:
             return 0
 
         base_xp = PlayerFormulas.base_xp_per_mob(player_level)
-        multiplier = 2 if (is_elite and creature_level < player_level <= 4) else 1
+        multiplier = 2 if is_elite else 1
         if player_level < creature_level:
             if creature_level - player_level > 4:
-                player_level = creature_level - 4  # Red mobs cap out at the same experience as orange ones
+                player_level = creature_level - 4  # Red mobs cap out at the same experience as orange ones.
             base_xp = int(base_xp * (1 + (0.05 * (creature_level - player_level))))
         elif player_level > creature_level:
             base_xp = int(base_xp * (1 - (player_level - creature_level) /

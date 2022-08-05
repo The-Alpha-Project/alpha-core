@@ -891,7 +891,6 @@ class CreatureManager(UnitManager):
             return
 
         is_elite = 0 < self.creature_template.rank < 4
-
         if player.group_manager:
             player.group_manager.reward_group_xp(player, self, is_elite)
         else:
