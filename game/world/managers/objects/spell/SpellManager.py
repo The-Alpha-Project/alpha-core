@@ -935,6 +935,15 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, error)
                 return False
 
+            # Taming level restriction.
+            tame_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_TAME_CREATURE)
+            if tame_effect:
+                max_tame_level = tame_effect.get_effect_points()
+                if validation_target.level > max_tame_level:
+                    self.send_cast_result(casting_spell.spell_entry.ID,
+                                          SpellCheckCastResult.SPELL_FAILED_LEVEL_REQUIREMENT)
+                    return False
+
         # Pickpocketing target validity check.
         if casting_spell.is_pickpocket_spell() and not validation_target.pickpocket_loot_manager:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
