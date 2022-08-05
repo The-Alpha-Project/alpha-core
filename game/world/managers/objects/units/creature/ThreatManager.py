@@ -109,11 +109,11 @@ class ThreatManager:
 
     # TODO: Missing faction template flags, charmed, pacified.
     def unit_can_assist_help_call(self, unit, source):
-        if not unit or not source:
-            return False
-        elif unit == self.owner:
+        if unit == self.owner:
             return False
         elif unit.is_pet() or unit.is_evading:
+            return False
+        elif not unit.threat_manager:  # TODO: Might be better to just prevent threat manager to be None at any point.
             return False
         elif not unit.threat_manager.can_attack_target(source):
             return False
