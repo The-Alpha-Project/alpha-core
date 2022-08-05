@@ -7993,6 +7993,21 @@ begin not atomic
         SET `display_id1`=227
         WHERE `entry`=468;
 
+        -- Defias night blade
+        UPDATE `creature_template`
+        SET `display_id1`=231
+        WHERE `entry`=909;
+
+        -- Defias night runner
+        UPDATE `creature_template`
+        SET `display_id1`=208
+        WHERE `entry`=215;
+
+        -- Defias enchanter
+        UPDATE `creature_template`
+        SET `display_id1`=263
+        WHERE `entry`=910;
+
 
         insert into applied_updates values ('050820223');
 
