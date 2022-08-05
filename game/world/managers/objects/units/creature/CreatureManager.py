@@ -95,7 +95,6 @@ class CreatureManager(UnitManager):
         # Managers, will be load upon lazy loading trigger.
         self.loot_manager = None
         self.pickpocket_loot_manager = None
-        self.threat_manager = None
 
     @dataclass
     class VirtualItemInfoHolder:
@@ -338,7 +337,7 @@ class CreatureManager(UnitManager):
             # Load pickpocket loot manager if required.
             if self.creature_template.pickpocket_loot_id:
                 self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
-            self.threat_manager = ThreatManager(self)
+            self.threat_manager = ThreatManager(self, self.creature_template.call_for_help_range)
 
             creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)
             if creature_model_info:
@@ -400,6 +399,9 @@ class CreatureManager(UnitManager):
 
     def can_summon_guards(self):
         return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_SUMMON_GUARD
+
+    def can_assist_help_calls(self):
+        return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_ASSIST
 
     def is_critter(self):
         return self.creature_template.type == CreatureTypes.AMBIENT
