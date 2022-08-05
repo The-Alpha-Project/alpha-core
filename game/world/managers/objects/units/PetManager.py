@@ -81,8 +81,8 @@ class PetManager:
         if self.active_pet:
             return
 
-        creature.leave_combat(force=True)
         self._tame_creature(creature)
+        creature.leave_combat(force=True)
         index = self.add_pet(creature.creature_template, lifetime_sec)
         self._set_active_pet(index, creature)
 
