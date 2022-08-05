@@ -8008,6 +8008,15 @@ begin not atomic
         SET `display_id1`=263
         WHERE `entry`=910;
 
+        -- Binder spawn, we move him a bit
+        UPDATE `spawns_creatures`
+        SET `position_x`=-10572.599609375, `position_y`=-1149.62841796875, `position_z`=26.46806526184082, `orientation`=5.387844562530518
+        WHERE `spawn_id`=400015;
+
+        -- Bartender spawn, we move him a bit
+        UPDATE `spawns_creatures`
+        SET `position_x`=-10509.090, `position_y`=-1159.387
+        WHERE `spawn_id`=4191;
 
         insert into applied_updates values ('050820223');
 
