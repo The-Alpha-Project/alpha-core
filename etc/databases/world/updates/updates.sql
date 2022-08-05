@@ -7988,6 +7988,12 @@ begin not atomic
         SET `display_id1`=200
         WHERE `entry`=203;
 
+        -- Town crier
+        UPDATE `creature_template`
+        SET `display_id1`=227
+        WHERE `entry`=468;
+
+
         insert into applied_updates values ('050820223');
 
     end if;
