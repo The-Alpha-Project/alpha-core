@@ -58,7 +58,7 @@ class AppliedAura:
         return self.spell_effect.applied_aura_duration
 
     def get_effect_points(self):
-        return self.spell_effect.get_effect_points(self.source_spell.caster_effective_level) * self.applied_stacks
+        return self.spell_effect.get_effect_points() * self.applied_stacks
 
     def is_past_next_period(self) -> bool:
         return self.spell_effect.is_past_next_period()

@@ -897,6 +897,10 @@ class PlayerManager(UnitManager):
             data += amount_bytes
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
 
+        # Reward kill experience to pet.
+        if victim:
+            self.pet_manager.add_pet_experience(total_amount)
+
         if self.xp + total_amount >= self.next_level_xp:  # Level up!
             xp_to_level = self.next_level_xp - self.xp
             level_amount = 0

@@ -36,7 +36,7 @@ class SpellEffectHandler:
         if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        damage = effect.get_effect_points(casting_spell.caster_effective_level)
+        damage = effect.get_effect_points()
         caster.apply_spell_damage(target, damage, casting_spell)
 
     @staticmethod
@@ -44,7 +44,7 @@ class SpellEffectHandler:
         if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        healing = effect.get_effect_points(casting_spell.caster_effective_level)
+        healing = effect.get_effect_points()
         caster.apply_spell_healing(target, healing, casting_spell)
 
     @staticmethod
@@ -71,7 +71,7 @@ class SpellEffectHandler:
                                                             target,
                                                             apply_bonuses=False)  # Bonuses are applied on spell damage.
 
-        damage = weapon_damage + effect.get_effect_points(casting_spell.caster_effective_level)
+        damage = weapon_damage + effect.get_effect_points()
         caster.apply_spell_damage(target, damage, casting_spell)
 
     @staticmethod
@@ -87,7 +87,7 @@ class SpellEffectHandler:
                                                             target,
                                                             apply_bonuses=False)  # Bonuses are applied on spell damage.
 
-        damage_bonus = effect.get_effect_points(casting_spell.caster_effective_level)
+        damage_bonus = effect.get_effect_points()
 
         # Overpower also uses combo points, but shouldn't scale.
         if caster.get_type_id() == ObjectTypeIds.ID_PLAYER and not casting_spell.is_overpower() and \
@@ -101,7 +101,7 @@ class SpellEffectHandler:
         if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        caster.add_combo_points_on_target(target, effect.get_effect_points(casting_spell.caster_effective_level))
+        caster.add_combo_points_on_target(target, effect.get_effect_points())
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
@@ -152,7 +152,7 @@ class SpellEffectHandler:
         if power_type != target.power_type:
             return
 
-        amount = effect.get_effect_points(casting_spell.caster_effective_level)
+        amount = effect.get_effect_points()
         target.receive_power(amount, power_type)
 
     @staticmethod
@@ -193,7 +193,7 @@ class SpellEffectHandler:
             target.inventory.send_equip_error(InventoryError.BAG_UNKNOWN_ITEM)
             return
 
-        amount = effect.get_effect_points(casting_spell.caster_effective_level)
+        amount = effect.get_effect_points()
         can_store_item = target.inventory.can_store_item(item_template, amount)
         if can_store_item != InventoryError.BAG_OK:
             target.inventory.send_equip_error(can_store_item)
