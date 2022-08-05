@@ -98,14 +98,14 @@ class ThreatManager:
 
     def _call_for_help(self, source, threat):
         if self._call_for_help_range:
-            units = list(MapManager.get_surrounding_units_by_location(self.owner.location,
-                                                                      self.owner.map_,
-                                                                      self._call_for_help_range)[0].values())
+            units = MapManager.get_surrounding_units_by_location(self.owner.location,
+                                                                 self.owner.map_,
+                                                                 self._call_for_help_range)[0].values()
 
-            interested_units = [unit for unit in units if self.unit_can_assist_help_call(unit, source)]
+            helping_units = [unit for unit in units if self.unit_can_assist_help_call(unit, source)]
 
-            for unit in interested_units:
-                unit.threat_manager.add_threat(source, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT, is_call_for_help=True)
+            for unit in helping_units:
+                unit.threat_manager.add_threat(source, threat, is_call_for_help=True)
 
     # TODO: Missing faction template flags, charmed, pacified.
     def unit_can_assist_help_call(self, unit, source):

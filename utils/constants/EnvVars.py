@@ -1,0 +1,6 @@
+class EnvironmentalVariables:
+    FORWARD_ADDRESS_OVERRIDE = 'FORWARD_ADDRESS_OVERRIDE'
+
+    ACTIVE_ENV_VARS = [
+        FORWARD_ADDRESS_OVERRIDE
+    ]

@@ -10,6 +10,7 @@ from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
 from utils.PathManager import PathManager
+from utils.constants import EnvVars
 
 
 def release_process(process):
@@ -53,6 +54,12 @@ if __name__ == '__main__':
         context = multiprocessing.get_context('fork')
     else:
         context = multiprocessing.get_context('spawn')
+
+    # Print active env vars.
+    for env_var_name in EnvVars.EnvironmentalVariables.ACTIVE_ENV_VARS:
+        env_var = os.getenv(env_var_name, '')
+        if env_var:
+            Logger.info(f'Environment variable {env_var_name}: {env_var}')
 
     login_process = context.Process(target=RealmManager.LoginServerSessionHandler.start)
     login_process.start()

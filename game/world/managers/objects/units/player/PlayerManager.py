@@ -813,8 +813,8 @@ class PlayerManager(UnitManager):
             for loot in loot_manager.current_loot:
                 if loot:
                     # Skip conditions:
-                    # Is item quest and player does not have the involved quest.
-                    # Is quest multi-drop item and is no longer visible to this player.
+                    # - Is quest item and player does not have the involved quest.
+                    # - Is quest multi-drop item and is no longer visible to this player.
                     if loot.is_quest_item() and \
                             not self.player_or_group_require_quest_item(loot.get_item_entry(), only_self=True) or \
                             not loot.is_visible_to_player(self):
