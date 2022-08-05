@@ -7920,6 +7920,107 @@ begin not atomic
 
     end if;
 
+    -- 05/08/2022 3
+    if (select count(*) from applied_updates where id='050820223') = 0 then
+
+        -- Barkeep Hann
+        UPDATE `creature_template`
+        SET `display_id1`=191
+        WHERE `entry`=274;
+
+        -- Commandant Althea Ebonlocke 
+        UPDATE `creature_template`
+        SET `display_id1`=224
+        WHERE `entry`=264;
+
+        -- Madame Eva
+        UPDATE `creature_template`
+        SET `display_id1`=225
+        WHERE `entry`=265;
+
+        -- Morg Gnarltree
+        UPDATE `creature_template`
+        SET `display_id1`=242
+        WHERE `entry`=226;
+
+        -- Felicia Maline (gryphon master)
+        UPDATE `creature_template`
+        SET `display_id1`=186
+        WHERE `entry`=2409;
+
+        -- Watcher Fraizer
+        UPDATE `creature_template`
+        SET `display_id1`=166
+        WHERE `entry`=2470;
+
+        -- Watcher Mocarski
+        UPDATE `creature_template`
+        SET `display_id1`=166
+        WHERE `entry`=827;
+
+        -- Nefaru (rare named worgen), same display as other worgen around him
+        UPDATE `creature_template`
+        SET `display_id1`=522
+        WHERE `entry`=534;
+
+        -- Fenros (named worgen), same display as other worgen around him
+        UPDATE `creature_template`
+        SET `display_id1`=736
+        WHERE `entry`=507;
+
+        -- Skeletal healer
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=787;
+
+        -- Skeletal fiend
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=531;
+
+        -- Skeletal horror
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=202;
+
+        -- Skeletal mage
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=203;
+
+        -- Town crier
+        UPDATE `creature_template`
+        SET `display_id1`=227
+        WHERE `entry`=468;
+
+        -- Defias night blade
+        UPDATE `creature_template`
+        SET `display_id1`=231, `display_id2`=0
+        WHERE `entry`=909;
+
+        -- Defias night runner
+        UPDATE `creature_template`
+        SET `display_id1`=208,`display_id2`=0
+        WHERE `entry`=215;
+
+        -- Defias enchanter
+        UPDATE `creature_template`
+        SET `display_id1`=263, `display_id2`=0
+        WHERE `entry`=910;
+
+        -- Binder spawn, we move him a bit
+        UPDATE `spawns_creatures`
+        SET `position_x`=-10572.599609375, `position_y`=-1149.62841796875, `position_z`=26.46806526184082, `orientation`=5.387844562530518
+        WHERE `spawn_id`=400015;
+
+        -- Bartender spawn, we move him a bit
+        UPDATE `spawns_creatures`
+        SET `position_x`=-10509.090, `position_y`=-1159.387
+        WHERE `spawn_id`=4191;
+
+        insert into applied_updates values ('050820223');
+    end if;
+    
     -- 04/08/2022 1
     if (select count(*) from applied_updates where id='040820221') = 0 then
         -- Foulweald Warrior
