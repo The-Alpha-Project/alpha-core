@@ -1,5 +1,8 @@
+import time
+
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
@@ -27,6 +30,12 @@ class AuraEffectHandler:
     def handle_shapeshift(aura, effect_target, remove):
         form = aura.spell_effect.misc_value if not remove else ShapeshiftForms.SHAPESHIFT_FORM_NONE
         effect_target.set_shapeshift_form(form)
+
+        # Upon shapeshift set, we need to force the update upon player(s), else client action bars will misbehave.
+        # TODO: Forcing an update goes outside our normal UpdateSystem work flow, this needs further investigation.
+        if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER and effect_target.online and not remove:
+            MapManager.update_object(effect_target, has_changes=True)
+            effect_target.reset_fields_older_than(time.time())
 
         faction = aura.target.team if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER else 0
         model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
@@ -242,7 +251,10 @@ class AuraEffectHandler:
             # TODO Generate threat?
             return
 
-        aura.caster.pet_manager.add_pet_from_world(effect_target, aura.get_duration())
+        if effect_target.get_type_id() == ObjectTypeIds.ID_UNIT:
+            aura.caster.pet_manager.add_pet_from_world(effect_target, aura.get_duration())
+        elif effect_target.get_type_id == ObjectTypeIds.ID_PLAYER:
+            pass  # TODO: Implement behavior for charmed players.
 
     # Stat modifiers
 

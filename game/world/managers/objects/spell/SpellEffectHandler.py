@@ -430,6 +430,8 @@ class SpellEffectHandler:
     def handle_tame_creature(casting_spell, effect, caster, target):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
+        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            return
 
         caster.pet_manager.add_pet_from_world(target)
 
