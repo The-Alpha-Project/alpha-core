@@ -15,9 +15,8 @@ class LootHolder(object):
     def _set_shared_recipients(self, requester):
         if self.is_multi_drop():
             if requester.group_manager:
-                for guid, member in requester.group_manager.members.items():
-                    # TODO: Should check if the group member is online and near.
-                    self.shared_with.add(guid)
+                for player in requester.group_manager.get_surrounding_member_players(requester):
+                    self.shared_with.add(player.guid)
             else:
                 self.shared_with.add(requester.guid)
 

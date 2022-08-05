@@ -7,6 +7,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas
+from utils.Formulas import Distances
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.MiscCodes import WhoPartyStatus, LootMethods, PlayerFlags
 from utils.constants.UpdateFields import PlayerFields
@@ -20,7 +21,7 @@ class GroupManager(object):
 
     def __init__(self, group):
         self.group = group
-        self.members = {}
+        self.members: dict[GroupMember] = {}
         self.invites = {}
         self.allowed_looters = {}
         self._last_looter = None  # For Round Robin, cycle will start at leader.
@@ -274,16 +275,20 @@ class GroupManager(object):
     def is_party_member(self, player_guid):
         return player_guid in self.members
 
-    def get_surrounding_members(self, player):
-        return [m for m in MapManager.get_surrounding_players(player).values() if m.guid in self.members]
+    def get_surrounding_member_players(self, player):
+        surrounding_players = MapManager.get_surrounding_players_by_location(
+            player.location,
+            player.map_,
+            Distances.GROUP_SHARING_DISTANCE).values()
+        return [m for m in surrounding_players if m.guid in self.members]
 
     def reward_group_reputation(self, player, creature):
-        surrounding_members = self.get_surrounding_members(player)
+        surrounding_members = self.get_surrounding_member_players(player)
         for member in surrounding_members:
             member.reward_reputation_on_kill(creature)
 
     def reward_group_money(self, looter, creature):
-        surrounding_members = self.get_surrounding_members(looter)
+        surrounding_members = self.get_surrounding_member_players(looter)
         share = int(creature.loot_manager.current_money / len(surrounding_members))
 
         if share < 1:
@@ -308,8 +313,7 @@ class GroupManager(object):
         return True
 
     def reward_group_xp(self, player, creature, is_elite):
-        surrounding_players = MapManager.get_surrounding_players(player).values()
-        surrounding_members = [player for player in surrounding_players if player.guid in self.members]
+        surrounding_members = self.get_surrounding_member_players(player)
         surrounding_members.sort(key=lambda players: players.level, reverse=True)  # Highest level on top
         sum_levels = sum(player.level for player in surrounding_members)
         base_xp = Formulas.CreatureFormulas.xp_reward(creature.level, surrounding_members[0].level, is_elite)
@@ -318,8 +322,7 @@ class GroupManager(object):
             member.give_xp([base_xp * member.level / sum_levels], creature)
 
     def reward_group_creature_or_go(self, player, creature):
-        surrounding_players = MapManager.get_surrounding_players(player).values()
-        surrounding_members = [player for player in surrounding_players if player.guid in self.members]
+        surrounding_members = self.get_surrounding_member_players(player)
 
         # Party kill log packet, not sure how to display on client but, it is handled.
         data = pack('<2Q', player.guid, creature.guid)  # Player with killing blow and victim guid.
@@ -341,10 +344,11 @@ class GroupManager(object):
             packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DECLINE, data)
             player_mgr.enqueue_packet(packet)
 
-    def send_packet_to_members(self, packet, ignore=None, source=None, use_ignore=False, exclude=None, surrounding_only=False):
+    def send_packet_to_members(self, packet, ignore=None, source=None, use_ignore=False, exclude=None,
+                               surrounding_only=False):
         if surrounding_only and source:
-            surrounding_players = MapManager.get_surrounding_players(source).values()
-            members = [self.members[player.guid] for player in surrounding_players if player.guid in self.members]
+            surrounding_members = self.get_surrounding_member_players(source)
+            members = [self.members[player.guid] for player in surrounding_members if player.guid in self.members]
         else:
             members = self.members.values()
 

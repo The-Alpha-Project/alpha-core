@@ -21,7 +21,7 @@ class Distances:
 
     # Other distances (not extracted from the client).
     CREATURE_EVADE_DISTANCE = 50.0  # Guessed.
-    GROUP_SHARING_DISTANCE = 74.0  # Used for XP and loot.
+    GROUP_SHARING_DISTANCE = 74.0  # Used for XP, loot, reputation...
 
 
 class CreatureFormulas:
