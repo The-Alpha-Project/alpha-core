@@ -7995,17 +7995,17 @@ begin not atomic
 
         -- Defias night blade
         UPDATE `creature_template`
-        SET `display_id1`=231
+        SET `display_id1`=231, `display_id2`=0
         WHERE `entry`=909;
 
         -- Defias night runner
         UPDATE `creature_template`
-        SET `display_id1`=208
+        SET `display_id1`=208,`display_id2`=0
         WHERE `entry`=215;
 
         -- Defias enchanter
         UPDATE `creature_template`
-        SET `display_id1`=263
+        SET `display_id1`=263, `display_id2`=0
         WHERE `entry`=910;
 
         -- Binder spawn, we move him a bit
