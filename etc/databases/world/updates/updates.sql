@@ -7919,5 +7919,77 @@ begin not atomic
         insert into applied_updates values ('030820221');
 
     end if;
+
+    -- 04/08/2022 1
+    if (select count(*) from applied_updates where id='040820221') = 0 then
+
+        -- Barkeep Hann
+        UPDATE `creature_template`
+        SET `display_id1`=191
+        WHERE `entry`=274;
+
+        -- Commandant Althea Ebonlocke 
+        UPDATE `creature_template`
+        SET `display_id1`=224
+        WHERE `entry`=264;
+
+        -- Madame Eva
+        UPDATE `creature_template`
+        SET `display_id1`=225
+        WHERE `entry`=265;
+
+        -- Morg Gnarltree
+        UPDATE `creature_template`
+        SET `display_id1`=242
+        WHERE `entry`=226;
+
+        -- Felicia Maline (gryphon master)
+        UPDATE `creature_template`
+        SET `display_id1`=186
+        WHERE `entry`=2409;
+
+        -- Watcher Fraizer
+        UPDATE `creature_template`
+        SET `display_id1`=166
+        WHERE `entry`=2470;
+
+        -- Watcher Mocarski
+        UPDATE `creature_template`
+        SET `display_id1`=166
+        WHERE `entry`=827;
+
+        -- Nefaru (rare named worgen)
+        UPDATE `creature_template`
+        SET `display_id1`=522
+        WHERE `entry`=534;
+
+        -- Fenros (named worgen)
+        UPDATE `creature_template`
+        SET `display_id1`=736
+        WHERE `entry`=507;
+
+        -- Skeletal healer
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=787;
+
+        -- Skeletal fiend
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=531;
+
+        -- Skeletal horror
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=202;
+
+        -- Skeletal mage
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=203;
+
+        insert into applied_updates values ('040820221');
+
+    end if;
 end $
 delimiter ;
