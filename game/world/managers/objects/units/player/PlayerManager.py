@@ -263,9 +263,11 @@ class PlayerManager(UnitManager):
         if self.guild_manager:
             self.guild_manager.send_motd(player_mgr=self)
 
-        # If group, notify group members.
+        # Notify group members if needed.
         if self.group_manager:
             self.group_manager.send_update()
+
+        self.spell_manager.send_login_effect()
 
     def logout(self):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
@@ -726,11 +728,16 @@ class PlayerManager(UnitManager):
                 loot = loot_manager.get_loot_in_slot(slot)
                 if loot and loot.item:
                     if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
-                        loot_manager.do_loot(slot)
+                        loot_manager.do_loot(slot, self)
                         data = pack('<B', slot)
                         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
-                        for looter in loot_manager.get_active_looters():
-                            looter.enqueue_packet(packet)
+                        # Loot is multi-drop, notify only self about its removal.
+                        if loot.is_multi_drop():
+                            self.enqueue_packet(packet)
+                        # Notify players with loot window open about its removal.
+                        else:
+                            for looter in loot_manager.get_active_looters():
+                                looter.enqueue_packet(packet)
 
     def send_loot_release(self, loot_selection):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
@@ -805,9 +812,12 @@ class PlayerManager(UnitManager):
             # Slot should match real current_loot indexes.
             for loot in loot_manager.current_loot:
                 if loot:
-                    # If this is a quest item and player does not need it, don't show it to this player.
-                    if loot.is_quest_item() and not self.player_or_group_require_quest_item(
-                            loot.get_item_entry(), only_self=True):
+                    # Skip conditions:
+                    # - Is quest item and player does not have the involved quest.
+                    # - Is quest multi-drop item and is no longer visible to this player.
+                    if loot.is_quest_item() and \
+                            not self.player_or_group_require_quest_item(loot.get_item_entry(), only_self=True) or \
+                            not loot.is_visible_to_player(self):
                         slot += 1
                         continue
 
@@ -886,6 +896,10 @@ class PlayerManager(UnitManager):
                         )
             data += amount_bytes
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
+
+        # Reward kill experience to pet.
+        if victim:
+            self.pet_manager.add_pet_experience(total_amount)
 
         if self.xp + total_amount >= self.next_level_xp:  # Level up!
             xp_to_level = self.next_level_xp - self.xp

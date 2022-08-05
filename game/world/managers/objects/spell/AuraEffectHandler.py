@@ -41,6 +41,7 @@ class AuraEffectHandler:
         model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
 
         # Shapeshifting can affect current power type and stats (druid shapeshift powers/attack values).
+        effect_target.spell_manager.update_shapeshift_passives()
         effect_target.update_power_type()
         effect_target.stat_manager.apply_bonuses()
 
@@ -251,7 +252,10 @@ class AuraEffectHandler:
             # TODO Generate threat?
             return
 
-        aura.caster.pet_manager.add_pet_from_world(effect_target, aura.get_duration())
+        if effect_target.get_type_id() == ObjectTypeIds.ID_UNIT:
+            aura.caster.pet_manager.add_pet_from_world(effect_target, aura.get_duration())
+        elif effect_target.get_type_id == ObjectTypeIds.ID_PLAYER:
+            pass  # TODO: Implement behavior for charmed players.
 
     # Stat modifiers
 
@@ -388,6 +392,14 @@ class AuraEffectHandler:
             return
         amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPEED_RUNNING, amount, percentual=True)
+
+    @staticmethod
+    def handle_increase_mounted_speed(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
+            return
+        amount = aura.get_effect_points()
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPEED_MOUNTED, amount, percentual=True)
 
     @staticmethod
     def handle_decrease_speed(aura, effect_target, remove):
@@ -527,7 +539,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_PERCENT_STAT: AuraEffectHandler.handle_mod_percent_stat,
     AuraTypes.SPELL_AURA_MOD_POWER_COST_SCHOOL: AuraEffectHandler.handle_mod_power_cost_school,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SPEED: AuraEffectHandler.handle_increase_speed,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_speed,
+    AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_mounted_speed,
     AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED: AuraEffectHandler.handle_decrease_speed,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED: AuraEffectHandler.handle_increase_swim_speed,
 

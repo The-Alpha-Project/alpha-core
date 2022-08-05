@@ -446,7 +446,7 @@ class CastingSpell:
     def get_conjured_items(self):
         conjured_items = []
         for effect in self.get_effects():
-            item_count = abs(effect.get_effect_points(self.caster_effective_level))
+            item_count = abs(effect.get_effect_points())
             conjured_items.append([effect.item_type, item_count])
         return tuple(conjured_items)
 

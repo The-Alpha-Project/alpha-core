@@ -95,12 +95,12 @@ class LootManager(object):
 
         return roll <= chance
 
-    def add_loot(self, loot_item):
+    def add_loot(self, loot_item, requester):
         from game.world.managers.objects.loot.LootHolder import LootHolder
         from game.world.managers.objects.item.ItemManager import ItemManager
         item = ItemManager.generate_item_from_entry(loot_item.item)
         if item:
-            self.current_loot.append(LootHolder(item, randint(loot_item.mincountOrRef, loot_item.maxcount)))
+            self.current_loot.append(LootHolder(item, randint(loot_item.mincountOrRef, loot_item.maxcount), requester))
 
     # Needs overriding
     def populate_loot_template(self):
@@ -111,9 +111,12 @@ class LootManager(object):
             return self.current_loot[slot]
         return None
 
-    def do_loot(self, slot):
+    def do_loot(self, slot, requester):
         if slot < len(self.current_loot):
-            self.current_loot[slot] = None
+            # Mark as looted by requester and delete if item is not visible to anyone else.
+            if self.current_loot[slot].set_looted_by(requester):
+                # Set item to None, do not pop index.
+                self.current_loot[slot] = None
 
     def clear_money(self):
         self.current_money = 0

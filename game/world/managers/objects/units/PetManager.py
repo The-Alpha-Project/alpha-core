@@ -9,6 +9,7 @@ from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
+from utils import Formulas
 from utils.constants import CustomCodes
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState
@@ -18,16 +19,51 @@ from utils.constants.UpdateFields import UnitFields
 
 
 class PetData:
-    def __init__(self, name: str, template: CreatureTemplate, owner_guid, permanent: bool):
+    def __init__(self, name: str, template: CreatureTemplate, owner_guid,
+                 level: int, experience: int, permanent: bool):
         self.name = name
         self.creature_template = template
         self.owner_guid = owner_guid
         self.permanent = permanent
 
+        self._level = level
+        self._experience = experience
+        self.next_level_xp = PetData._get_xp_to_next_level_for(self._level)
+
         self.react_state = 1
         self.command_state = 1
 
         self.spells = self._get_default_spells()
+
+    def add_experience(self, xp_amount: int):
+        if self._experience + xp_amount < self.next_level_xp:  # Not enough xp to level up.
+            self._experience += xp_amount
+            return 0
+
+        # Level up.
+        xp_to_level = self.next_level_xp - self._experience
+        level_amount = 0
+        # Do the actual XP conversion into level(s).
+        while xp_amount >= xp_to_level:
+            level_amount += 1
+            xp_amount -= xp_to_level
+            xp_to_level = PetData._get_xp_to_next_level_for(self._level + level_amount)
+
+        self._experience = xp_amount  # Set the remaining amount XP as current.
+        self._level += level_amount
+        self.next_level_xp = PetData._get_xp_to_next_level_for(self._level + level_amount)
+
+        return level_amount
+
+    def get_experience(self):
+        return self._experience
+
+    def get_level(self):
+        return self._level
+
+    @staticmethod
+    def _get_xp_to_next_level_for(level: int) -> int:
+        return int(Formulas.PlayerFormulas.xp_to_level(level) / 4)
 
     def _get_default_spells(self) -> list[int]:
         creature_family = self.creature_template.beast_family
@@ -81,9 +117,9 @@ class PetManager:
         if self.active_pet:
             return
 
-        creature.leave_combat(force=True)
         self._tame_creature(creature)
-        index = self.add_pet(creature.creature_template, lifetime_sec)
+        creature.leave_combat(force=True)
+        index = self.add_pet(creature.creature_template, creature.level, lifetime_sec)
         self._set_active_pet(index, creature)
 
     def _set_active_pet(self, pet_index: int, creature: CreatureManager):
@@ -95,10 +131,11 @@ class PetManager:
         self.active_pet = ActivePet(pet_index, creature)
         self._send_pet_spell_info()
 
-    def add_pet(self, creature_template: CreatureTemplate, lifetime_sec=-1) -> int:
+    def add_pet(self, creature_template: CreatureTemplate, level: int, lifetime_sec=-1) -> int:
         # TODO: default name by beast_family - resolve id reference.
 
-        pet = PetData(creature_template.name, creature_template, self.owner.guid, permanent=lifetime_sec == -1)
+        pet = PetData(creature_template.name, creature_template, self.owner.guid, level,
+                      0, permanent=lifetime_sec == -1)
         self.pets.append(pet)
         return len(self.pets) - 1
 
@@ -178,6 +215,9 @@ class PetManager:
         else:
             target_unit = MapManager.get_surrounding_unit_by_guid(active_pet_unit, target_guid, include_players=True)
 
+        if not target_unit:
+            return
+
         if action_id > PetCommandState.COMMAND_DISMISS:  # Highest action ID.
             target_mask = SpellTargetMask.SELF if target_unit.guid == active_pet_unit.guid else SpellTargetMask.UNIT
             active_pet_unit.spell_manager.handle_cast_attempt(action_id, target_unit, target_mask)
@@ -193,6 +233,21 @@ class PetManager:
 
         else:
             self.get_active_pet_info().react_state = action_id
+
+    def add_pet_experience(self, experience: int):
+        active_pet_info = self.get_active_pet_info()
+        if not active_pet_info or self.owner.level <= active_pet_info.get_level():
+            return
+
+        level_gain = active_pet_info.add_experience(experience)
+        pet_creature = self.active_pet.creature
+        pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETEXPERIENCE, active_pet_info.get_experience())
+        if not level_gain:
+            return
+
+        pet_creature.level += level_gain
+        pet_creature.set_uint32(UnitFields.UNIT_FIELD_LEVEL, pet_creature.level)
+        pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETNEXTLEVELEXP, active_pet_info.next_level_xp)
 
     def get_active_pet_command_state(self):
         pet_info = self.get_active_pet_info()

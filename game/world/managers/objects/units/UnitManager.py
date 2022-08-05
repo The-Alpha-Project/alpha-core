@@ -200,6 +200,8 @@ class UnitManager(ObjectManager):
         # TODO: Support for CreatureManager is not added yet.
         from game.world.managers.objects.units.PetManager import PetManager
         self.pet_manager = PetManager(self)
+        # Initialized by creatures only.
+        self.threat_manager = None
 
     def is_within_interactable_distance(self, victim):
         current_distance = self.location.distance(victim.location)
@@ -1089,6 +1091,11 @@ class UnitManager(ObjectManager):
 
     def has_form(self, shapeshift_form):
         return self.shapeshift_form == shapeshift_form
+
+    def form_matches_mask(self, shapeshift_mask):
+        if not self.shapeshift_form:
+            return False
+        return (1 << (self.shapeshift_form - 1)) & shapeshift_mask
 
     def is_in_feral_form(self):
         return self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR) or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT)

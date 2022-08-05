@@ -772,7 +772,7 @@ class QuestManager(object):
         data = pack(f'<I{len(title_bytes)}sQ', active_quest.quest.entry, title_bytes, self.player_mgr.guid)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUEST_CONFIRM_ACCEPT, data)
 
-        surrounding_party_players = self.player_mgr.group_manager.get_surrounding_members(self.player_mgr)
+        surrounding_party_players = self.player_mgr.group_manager.get_surrounding_member_players(self.player_mgr)
         for player_mgr in surrounding_party_players:
             if player_mgr.guid == self.player_mgr.guid:
                 continue

@@ -7,6 +7,7 @@ from game.world.WorldSessionStateHandler import RealmDatabaseManager
 from network.packet.PacketWriter import *
 from utils.ConfigManager import config
 from utils.Logger import Logger
+from utils.constants import EnvVars
 
 
 class ThreadedLoginServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -29,7 +30,8 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def serve_realm(sck):
         name_bytes = PacketWriter.string_to_bytes(config.Server.Connection.RealmServer.realm_name)
-        forward_address = os.getenv('FORWARD_ADDRESS_OVERRIDE', config.Server.Connection.RealmProxy.host)
+        forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
+                                    config.Server.Connection.RealmProxy.host)
         address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{config.Server.Connection.RealmProxy.port}')
 
         # TODO: Should probably move realms to database at some point, instead of config.yml
@@ -80,7 +82,8 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def redirect_to_world(sck):
-        forward_address = os.getenv('FORWARD_ADDRESS_OVERRIDE', config.Server.Connection.WorldServer.host)
+        forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
+                                    config.Server.Connection.WorldServer.host)
         world_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{config.Server.Connection.WorldServer.port}')
         packet = pack(
             f'<{len(world_bytes)}s',

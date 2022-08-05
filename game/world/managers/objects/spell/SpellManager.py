@@ -65,7 +65,8 @@ class SpellManager:
             self.start_spell_cast(spell, self.caster, SpellTargetMask.SELF)
 
         # Apply passive effects when they're learned. This will also apply talents on learn.
-        if spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+        # Shapeshift passives are only updated on shapeshift change.
+        if spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE and not spell.ShapeshiftMask:
             self.apply_passive_spell_effects(spell)
 
         # If a profession spell is learned, grant the required skill.
@@ -96,6 +97,11 @@ class SpellManager:
         # Self-cast all passive spells. This will apply learned skills, proficiencies, talents etc.
         for spell_id in self.spells.keys():
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+
+            # Shapeshift passives are only applied on shapeshift change.
+            if spell_template.ShapeshiftMask:
+                return
+
             if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
                 self.apply_passive_spell_effects(spell_template)
 
@@ -107,11 +113,25 @@ class SpellManager:
                 self.start_spell_cast(spell_template, self.caster, SpellTargetMask.SELF)
 
     def apply_passive_spell_effects(self, spell_template):
-        if spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
-            spell = self.try_initialize_spell(spell_template, self.caster, SpellTargetMask.SELF,
-                                              validate=False)
-            spell.resolve_target_info_for_effects()
-            self.apply_spell_effects(spell)
+        if not spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+            return
+
+        spell = self.try_initialize_spell(spell_template, self.caster, SpellTargetMask.SELF,
+                                          validate=False)
+        spell.resolve_target_info_for_effects()
+        self.apply_spell_effects(spell)
+
+    def update_shapeshift_passives(self):
+        for spell_id in self.spells.keys():
+            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            req_form = spell_template.ShapeshiftMask
+            if not req_form:
+                continue
+
+            if self.caster.form_matches_mask(req_form):
+                self.apply_passive_spell_effects(spell_template)
+            else:
+                self.caster.aura_manager.cancel_auras_by_spell_id(spell_id)
 
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.caster.guid)
@@ -601,13 +621,12 @@ class SpellManager:
         if casting_spell.has_spell_visual_pre_cast_kit():
             visual_kit = casting_spell.spell_visual_entry.precast_kit
             visual_anim_name = visual_kit.visual_anim_name
-            if not visual_anim_name:
-                return
 
             # Do not send loop animations, we can't stop them once sent to the client.
             # e.g. KneelLoop.
-            if 'Loop' in visual_anim_name.Name:
+            if visual_anim_name and 'Loop' in visual_anim_name.Name:
                 return
+
             pre_cast_kit_id = casting_spell.spell_visual_entry.PrecastKit
             data = pack('<QI', self.caster.guid, pre_cast_kit_id)
             packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
@@ -636,6 +655,10 @@ class SpellManager:
 
         data = pack('<I', 0)
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
+
+    def send_login_effect(self):
+        chr_race = DbcDatabaseManager.chr_races_get_by_race(self.caster.race)
+        self.handle_cast_attempt(chr_race.LoginEffectSpellID, self.caster, SpellTargetMask.SELF, validate=False)
 
     def send_spell_go(self, casting_spell):
         # The client expects the source to only be set for unit casters.
@@ -932,6 +955,15 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, error)
                 return False
 
+            # Taming level restriction.
+            tame_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_TAME_CREATURE)
+            if tame_effect:
+                max_tame_level = tame_effect.get_effect_points()
+                if validation_target.level > max_tame_level:
+                    self.send_cast_result(casting_spell.spell_entry.ID,
+                                          SpellCheckCastResult.SPELL_FAILED_LEVEL_REQUIREMENT)
+                    return False
+
         # Pickpocketing target validity check.
         if casting_spell.is_pickpocket_spell() and not validation_target.pickpocket_loot_manager:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
@@ -1218,8 +1250,7 @@ class SpellManager:
         elif power_type == PowerTypes.TYPE_HEALTH:
             self.caster.set_health(new_power)
 
-        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
-                casting_spell.requires_combo_points():
+        if is_player and casting_spell.requires_combo_points():
             self.caster.remove_combo_points()
 
         if is_player:

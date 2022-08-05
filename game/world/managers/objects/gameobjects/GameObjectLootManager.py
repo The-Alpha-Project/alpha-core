@@ -12,7 +12,7 @@ class GameObjectLootManager(LootManager):
         super().clear()
         loot_collection = self.generate_loot_groups(self.loot_template)
         for loot_item in self.process_loot_groups(loot_collection, requester):
-            self.add_loot(loot_item)
+            self.add_loot(loot_item, requester)
 
     # override
     def populate_loot_template(self):

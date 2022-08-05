@@ -8019,6 +8019,228 @@ begin not atomic
         WHERE `spawn_id`=4191;
 
         insert into applied_updates values ('050820223');
+    end if;
+    
+    -- 04/08/2022 1
+    if (select count(*) from applied_updates where id='040820221') = 0 then
+        -- Foulweald Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=937
+        WHERE `entry`=3743;
+
+        -- Foulweald Totemic
+        UPDATE `creature_template`
+        SET `display_id1`=1996
+        WHERE `entry`=3750;
+
+        -- Foulweald Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=1996
+        WHERE `entry`=3748;
+
+        -- Foulweald Den Watcher
+        UPDATE `creature_template`
+        SET `display_id1`=937
+        WHERE `entry`=3746;
+
+        -- Shandethicket Stone Mover
+        UPDATE `creature_template`
+        SET `display_id1`=2023
+        WHERE `entry`=3782;
+
+        -- Xiavian Felsworn
+        UPDATE `creature_template`
+        SET `display_id1`=2880
+        WHERE `entry`=3755;
+
+        -- Xiavian Betrayer
+        UPDATE `creature_template`
+        SET `display_id1`=2878
+        WHERE `entry`=3754;
+
+        -- Xiavian Rogue
+        UPDATE `creature_template`
+        SET `display_id1`=2878
+        WHERE `entry`=3752;
+
+        -- Xiavian Hellcaller
+        UPDATE `creature_template`
+        SET `display_id1`=2880
+        WHERE `entry`=3757;
+
+        -- Felmusk Shadowstalker
+        UPDATE `creature_template`
+        SET `display_id1`=2875
+        WHERE `entry`=3763;
+
+        -- Felmusk Satyr
+        UPDATE `creature_template`
+        SET `display_id1`=2010
+        WHERE `entry`=3758;
+
+        -- Felmusk Felsworn
+        UPDATE `creature_template`
+        SET `display_id1`=2687
+        WHERE `entry`=3762;
+
+        -- Withered ancient
+        UPDATE `creature_template`
+        SET `display_id1`=2079
+        WHERE `entry`=3919;
+
+        -- Thistlefur Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=2004
+        WHERE `entry`=3924;
+
+        -- Thistlefur Avenger
+        UPDATE `creature_template`
+        SET `display_id1`=2004
+        WHERE `entry`=3925;
+
+        -- Thistlefur Pathfinder
+        UPDATE `creature_template`
+        SET `display_id1`=2004
+        WHERE `entry`=3926;
+
+        -- Thistlefur Totemic
+        UPDATE `creature_template`
+        SET `display_id1`=2004
+        WHERE `entry`=3922;
+
+        -- Dark Strand Excavator
+        UPDATE `creature_template`
+        SET `display_id1`=1643, `display_id2`=0, `display_id3`=0
+        WHERE `entry`=3730;
+
+        -- Dark Strand Cultist
+        UPDATE `creature_template`
+        SET `display_id1`=1642, `display_id2`=0, `display_id3`=0
+        WHERE `entry`=3725;
+
+        -- Dark Strand Adept
+        UPDATE `creature_template`
+        SET `display_id1`=1643, `display_id2`=0
+        WHERE `entry`=3728;
+
+        -- Dark Strand Enforcer
+        UPDATE `creature_template`
+        SET `display_id1`=1643, `display_id2`=1478, `display_id3`=0
+        WHERE `entry`=3727;
+
+        -- Wrathtail Wave Rider
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3713;
+
+        -- Wrathtail Sorceress
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3717;
+
+        -- Wrathtail Sea Witch
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3715;
+
+        -- Wrathtail Myrmidon
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3711;
+
+        -- Wrathtail Razortail
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3712;
+
+        -- Wrathtail Priestess
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3944;
+
+        -- Ruuzel, named naga
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=3943;
+
+        -- Clattering Crawler
+        UPDATE `creature_template`
+        SET `display_id1`=2239
+        WHERE `entry`=3812;
+
+        -- Felslayer
+        UPDATE `creature_template`
+        SET `display_id1`=850
+        WHERE `entry`=3774;
+
+        -- Lesser Felguard (probably Burning Legionnaire)
+        UPDATE `creature_template`
+        SET `display_id1`=2727, `name`='Burning Legionnaire'
+        WHERE `entry`=3772;
+
+        -- Mystlash hydra
+        UPDATE `creature_template`
+        SET `display_id1`=1993
+        WHERE `entry`=3721;
+
+        insert into applied_updates values ('040820221');
+    end if;
+    
+    -- 05/08/2022 1
+    if (select count(*) from applied_updates where id='050820221') = 0 then
+        -- Fireball Rank 3 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 133 WHERE `entry` IN (15070, 4760, 8810, 20180);
+        -- Fireball Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 143 WHERE `entry` IN (85030, 32690, 5890, 6190, 4410, 21920, 21600);
+
+        -- Fire Blast Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 2137 WHERE `entry` = 17320;
+
+        -- Frost Nova Rank 2 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 122 WHERE `entry` IN (17680, 32600, 19580, 1270, 37170, 34360);
+
+        -- Frostbolt Rank 2 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 116 WHERE `entry` IN (15220, 4740, 29640, 15390, 18670);
+
+        -- Lightning Bolt Rank 3 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 403 WHERE `entry` IN (29530, 13970, 20120);
+        -- Lightning Bolt Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 529 WHERE `entry` IN (31180, 11660, 32730);
+
+        -- ZZOldKick Rank 1 -> Kick Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 6554 WHERE `entry` = 65540;
+
+        -- Shadow Bolt Rank 4 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_1` = 686 WHERE `entry` = 20030;
+        -- Shadow Bolt Rank 4 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_1` = 695 WHERE `entry` IN (31980, 58220);
+        -- Shadow Bolt Rank 4 -> Rank 3
+        UPDATE `creature_spells` SET `spellId_1` = 705 WHERE `entry` IN (32030, 113240, 19150, 37280);
+
+        insert into applied_updates values ('050820221');
+
+    end if;
+
+    -- 05/08/2022 2
+    if (select count(*) from applied_updates where id='050820222') = 0 then
+        -- Fireball Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_2` = 143 WHERE `entry` IN (21910, 17260, 119170, 39910);
+        UPDATE `creature_spells` SET `spellId_3` = 143 WHERE `entry` IN (19140, 119170, 44180, 4500, 5990, 5990, 32630);
+
+        -- Lightning Bolt Rank 3 -> Rank 1
+        UPDATE `creature_spells` SET `spellId_2` = 403 WHERE `entry` IN (15440, 29630);
+        -- Lightning Bolt Rank 3 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_2` = 529 WHERE `entry` IN (15440, 29630, 29650, 20210, 57850, 4560, 19110, 10650, 113190, 95230, 119130);
+
+        -- Shadow Bolt Rank 4 -> Rank 2
+        UPDATE `creature_spells` SET `spellId_2` = 695 WHERE `entry` = 11240;
+        -- Shadow Bolt Rank 4 -> Rank 3
+        UPDATE `creature_spells` SET `spellId_2` = 705 WHERE `entry` = 32040;
+
+        -- zzOLDArcane Missiles Effect -> Arcane Missiles Effect Rank 1
+        UPDATE `creature_spells` SET `spellId_2` = 7268, `spellId_3` = 7268 WHERE `entry` = 103580;
+
+        insert into applied_updates values ('050820222');
 
     end if;
 end $

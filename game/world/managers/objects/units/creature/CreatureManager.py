@@ -95,7 +95,6 @@ class CreatureManager(UnitManager):
         # Managers, will be load upon lazy loading trigger.
         self.loot_manager = None
         self.pickpocket_loot_manager = None
-        self.threat_manager = None
 
     @dataclass
     class VirtualItemInfoHolder:
@@ -338,7 +337,7 @@ class CreatureManager(UnitManager):
             # Load pickpocket loot manager if required.
             if self.creature_template.pickpocket_loot_id:
                 self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
-            self.threat_manager = ThreatManager(self)
+            self.threat_manager = ThreatManager(self, self.creature_template.call_for_help_range)
 
             creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)
             if creature_model_info:
@@ -401,6 +400,9 @@ class CreatureManager(UnitManager):
     def can_summon_guards(self):
         return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_SUMMON_GUARD
 
+    def can_assist_help_calls(self):
+        return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_ASSIST
+
     def is_critter(self):
         return self.creature_template.type == CreatureTypes.AMBIENT
 
@@ -408,7 +410,7 @@ class CreatureManager(UnitManager):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
 
     def is_player_controlled_pet(self):
-        self.is_pet() and self.summoner.get_type_id() == ObjectTypeIds.ID_PLAYER
+        return self.is_pet() and self.summoner.get_type_id() == ObjectTypeIds.ID_PLAYER
 
     def is_totem(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
@@ -682,10 +684,11 @@ class CreatureManager(UnitManager):
             # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
             # From 0.5.4 patch notes:
             #     "Creature pursuit is now timer based rather than distance based."
-            if self.location.distance(self.spawn_position) > Distances.CREATURE_EVADE_DISTANCE \
-                    or target_distance > Distances.CREATURE_EVADE_DISTANCE:
-                self.leave_combat(True)
-                return
+            if not self.is_pet():
+                if self.location.distance(self.spawn_position) > Distances.CREATURE_EVADE_DISTANCE \
+                        or target_distance > Distances.CREATURE_EVADE_DISTANCE:
+                    self.leave_combat(True)
+                    return
 
             # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
             #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
@@ -693,20 +696,22 @@ class CreatureManager(UnitManager):
             #  couldn't swim before patch 1.3.0:
             #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
             #   - Most humanoids NPCs have gained the ability to swim.
-            if self.is_on_water():
-                if not self.can_swim():
-                    self.leave_combat(True)
-                    return
-            else:
-                if not self.can_exit_water():
-                    self.leave_combat(True)
-                    return
+            if not self.is_pet():
+                if self.is_on_water():
+                    if not self.can_swim():
+                        self.leave_combat(True)
+                        return
+                else:
+                    if not self.can_exit_water():
+                        self.leave_combat(True)
+                        return
 
             # If this creature is not facing the attacker, update its orientation (server-side).
             if not self.location.has_in_arc(self.combat_target.location, math.pi):
                 self.location.face_point(self.combat_target.location)
 
-            combat_location = self.combat_target.location.get_point_in_between(combat_position_distance, vector=self.location)
+            combat_location = self.combat_target.location.get_point_in_between(combat_position_distance,
+                                                                               vector=self.location)
             if not combat_location:
                 return
 
