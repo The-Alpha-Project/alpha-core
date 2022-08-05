@@ -710,7 +710,8 @@ class CreatureManager(UnitManager):
             if not self.location.has_in_arc(self.combat_target.location, math.pi):
                 self.location.face_point(self.combat_target.location)
 
-            combat_location = self.combat_target.location.get_point_in_between(combat_position_distance, vector=self.location)
+            combat_location = self.combat_target.location.get_point_in_between(combat_position_distance,
+                                                                               vector=self.location)
             if not combat_location:
                 return
 
