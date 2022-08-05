@@ -81,8 +81,8 @@ class PetManager:
         if self.active_pet:
             return
 
-        creature.leave_combat(force=True)
         self._tame_creature(creature)
+        creature.leave_combat(force=True)
         index = self.add_pet(creature.creature_template, lifetime_sec)
         self._set_active_pet(index, creature)
 
@@ -177,6 +177,9 @@ class PetManager:
             target_unit = self.owner
         else:
             target_unit = MapManager.get_surrounding_unit_by_guid(active_pet_unit, target_guid, include_players=True)
+
+        if not target_unit:
+            return
 
         if action_id > PetCommandState.COMMAND_DISMISS:  # Highest action ID.
             target_mask = SpellTargetMask.SELF if target_unit.guid == active_pet_unit.guid else SpellTargetMask.UNIT

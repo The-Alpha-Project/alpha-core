@@ -410,7 +410,7 @@ class CreatureManager(UnitManager):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
 
     def is_player_controlled_pet(self):
-        self.is_pet() and self.summoner.get_type_id() == ObjectTypeIds.ID_PLAYER
+        return self.is_pet() and self.summoner.get_type_id() == ObjectTypeIds.ID_PLAYER
 
     def is_totem(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
