@@ -31,7 +31,7 @@ class LootHolder(object):
 
     def set_looted_by(self, requester):
         if requester.guid in self.visible_to:
-            self.visible_to.pop(requester.guid, None)
+            del self.visible_to[requester.guid]
 
     def can_clear_slot(self):
         return not any(self.visible_to)
