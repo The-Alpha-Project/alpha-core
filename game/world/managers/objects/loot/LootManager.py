@@ -113,7 +113,7 @@ class LootManager(object):
 
     def do_loot(self, slot, requester):
         if slot < len(self.current_loot):
-            # Mark as looted by requester and pop if item is not visible to anyone else.
+            # Mark as looted by requester and delete if item is not visible to anyone else.
             self.current_loot[slot].set_looted_by(requester)
             if self.current_loot[slot].can_clear_slot():
                 # Set item to None, do not pop index.
