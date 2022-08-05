@@ -263,9 +263,11 @@ class PlayerManager(UnitManager):
         if self.guild_manager:
             self.guild_manager.send_motd(player_mgr=self)
 
-        # If group, notify group members.
+        # Notify group members if needed.
         if self.group_manager:
             self.group_manager.send_update()
+
+        self.spell_manager.send_login_effect()
 
     def logout(self):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
