@@ -7958,12 +7958,12 @@ begin not atomic
         SET `display_id1`=166
         WHERE `entry`=827;
 
-        -- Nefaru (rare named worgen)
+        -- Nefaru (rare named worgen), same display as other worgen around him
         UPDATE `creature_template`
         SET `display_id1`=522
         WHERE `entry`=534;
 
-        -- Fenros (named worgen)
+        -- Fenros (named worgen), same display as other worgen around him
         UPDATE `creature_template`
         SET `display_id1`=736
         WHERE `entry`=507;
