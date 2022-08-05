@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
+from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.UnitCodes import CreatureReactStates, AIReactionStates
@@ -73,8 +74,7 @@ class BasicCreatureAI(CreatureAI):
         # Avoid attacks on characters with Beastmaster flag on.
         if target_is_player and victim.beast_master:
             return False
-        threat_not_to_leave_combat = 1E-4
-        self.creature.threat_manager.add_threat(victim, threat_not_to_leave_combat)
+        self.creature.threat_manager.add_threat(victim, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT)
 
     def summon_guard(self, enemy):
         pass

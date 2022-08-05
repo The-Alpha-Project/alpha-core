@@ -601,13 +601,12 @@ class SpellManager:
         if casting_spell.has_spell_visual_pre_cast_kit():
             visual_kit = casting_spell.spell_visual_entry.precast_kit
             visual_anim_name = visual_kit.visual_anim_name
-            if not visual_anim_name:
-                return
 
             # Do not send loop animations, we can't stop them once sent to the client.
             # e.g. KneelLoop.
-            if 'Loop' in visual_anim_name.Name:
+            if visual_anim_name and 'Loop' in visual_anim_name.Name:
                 return
+
             pre_cast_kit_id = casting_spell.spell_visual_entry.PrecastKit
             data = pack('<QI', self.caster.guid, pre_cast_kit_id)
             packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
@@ -636,6 +635,10 @@ class SpellManager:
 
         data = pack('<I', 0)
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
+
+    def send_login_effect(self):
+        chr_race = DbcDatabaseManager.chr_races_get_by_race(self.caster.race)
+        self.handle_cast_attempt(chr_race.LoginEffectSpellID, self.caster, SpellTargetMask.SELF, validate=False)
 
     def send_spell_go(self, casting_spell):
         # The client expects the source to only be set for unit casters.
@@ -1218,8 +1221,7 @@ class SpellManager:
         elif power_type == PowerTypes.TYPE_HEALTH:
             self.caster.set_health(new_power)
 
-        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
-                casting_spell.requires_combo_points():
+        if is_player and casting_spell.requires_combo_points():
             self.caster.remove_combo_points()
 
         if is_player:

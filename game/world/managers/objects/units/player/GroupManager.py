@@ -284,10 +284,10 @@ class GroupManager(object):
 
     def reward_group_money(self, looter, creature):
         surrounding_members = self.get_surrounding_members(looter)
-        if int(creature.loot_manager.current_money / len(surrounding_members)) < 1:
-            return False
-
         share = int(creature.loot_manager.current_money / len(surrounding_members))
+
+        if share < 1:
+            return False
 
         # Notify the money looter 'You distribute <coinage> to your party'.
         data = pack('<QI', looter.guid, int(creature.loot_manager.current_money))
@@ -302,6 +302,7 @@ class GroupManager(object):
             data = pack('<I', player_share)
             member.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
             member.mod_money(player_share)
+            member.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
 
         creature.loot_manager.clear_money()
         return True

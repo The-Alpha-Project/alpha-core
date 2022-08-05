@@ -200,6 +200,8 @@ class UnitManager(ObjectManager):
         # TODO: Support for CreatureManager is not added yet.
         from game.world.managers.objects.units.PetManager import PetManager
         self.pet_manager = PetManager(self)
+        # Initialized by creatures only.
+        self.threat_manager = None
 
     def is_within_interactable_distance(self, victim):
         current_distance = self.location.distance(victim.location)

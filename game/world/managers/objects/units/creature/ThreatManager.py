@@ -7,6 +7,7 @@ from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid
 from utils.constants.ScriptCodes import AttackingTarget
+from utils.constants.UnitCodes import CreatureReactStates
 
 
 @dataclass
@@ -16,23 +17,27 @@ class ThreatHolder:
 
 
 class ThreatManager:
-    def __init__(self,
-                 owner: UnitManager):
+    THREAT_NOT_TO_LEAVE_COMBAT = 1E-4
+
+    def __init__(self, owner: UnitManager, call_for_help_range=0):
         self.owner = owner
         self.holders: dict[int, ThreatHolder] = {}
         self.current_holder: Optional[ThreatHolder] = None
+        self._call_for_help_range = call_for_help_range
 
     def reset(self):
         self.holders.clear()
         self.current_holder = None
 
-    def add_threat(self, source: UnitManager, threat: float):
+    def add_threat(self, source: UnitManager, threat: float, is_call_for_help=False):
         if source is not self.owner:
             source_holder = self.holders.get(source.guid)
             if source_holder:
                 new_threat = source_holder.total_threat + threat
                 source_holder.total_threat = max(new_threat, 0.0)
             elif threat > 0.0:
+                if not is_call_for_help:
+                    self._call_for_help(source, threat)
                 self.holders[source.guid] = ThreatHolder(source, threat)
                 self._update_attackers_collection(source)
             else:
@@ -90,6 +95,33 @@ class ThreatManager:
             self.owner.attackers[attacker.guid] = attacker
         if self.owner.guid not in attacker.attackers:
             attacker.attackers[self.owner.guid] = self.owner
+
+    def _call_for_help(self, source, threat):
+        if self._call_for_help_range:
+            units = list(MapManager.get_surrounding_units_by_location(self.owner.location,
+                                                                      self.owner.map_,
+                                                                      self._call_for_help_range)[0].values())
+
+            interested_units = [unit for unit in units if self.unit_can_assist_help_call(unit, source)]
+
+            for unit in interested_units:
+                unit.threat_manager.add_threat(source, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT, is_call_for_help=True)
+
+    # TODO: Missing faction template flags, charmed, pacified.
+    def unit_can_assist_help_call(self, unit, source):
+        if unit == self.owner:
+            return False
+        elif unit.is_pet() or unit.is_evading:
+            return False
+        elif not unit.threat_manager.can_attack_target(source):
+            return False
+        elif unit.in_combat:
+            return False
+        elif unit.react_state == CreatureReactStates.REACT_PASSIVE:
+            return False
+        elif not unit.can_assist_help_calls():
+            return False
+        return True
 
     # TODO: Optimize this method?
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
