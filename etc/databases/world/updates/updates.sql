@@ -7920,8 +7920,8 @@ begin not atomic
 
     end if;
 
-    -- 04/08/2022 1
-    if (select count(*) from applied_updates where id='040820221') = 0 then
+    -- 05/08/2022 3
+    if (select count(*) from applied_updates where id='050820223') = 0 then
 
         -- Barkeep Hann
         UPDATE `creature_template`
@@ -7988,7 +7988,7 @@ begin not atomic
         SET `display_id1`=200
         WHERE `entry`=203;
 
-        insert into applied_updates values ('040820221');
+        insert into applied_updates values ('050820223');
 
     end if;
 end $
