@@ -7,16 +7,19 @@ class LootHolder(object):
     def __init__(self, item: ItemManager, quantity: int, requester: PlayerManager):
         self.item = item
         self.quantity = quantity
-        self.visible_to = {}
-        self._initialize(requester)
+        if self.is_multi_drop():
+            # Used to keep track of who can loot an item with multi drop flag and who has looted it already or not.
+            self.shared_with = set()
+            self._set_shared_recipients(requester)
 
-    def _initialize(self, requester):
+    def _set_shared_recipients(self, requester):
         if self.is_multi_drop():
             if requester.group_manager:
-                for guid in requester.group_manager.members.keys():
-                    self.visible_to[guid] = None
+                for guid, member in requester.group_manager.members.items():
+                    # TODO: Should check if the group member is online and near.
+                    self.shared_with.add(guid)
             else:
-                self.visible_to[requester.guid] = None
+                self.shared_with.add(requester.guid)
 
     def is_quest_item(self):
         return self.item.item_template.class_ == ItemClasses.ITEM_CLASS_QUEST
@@ -27,14 +30,21 @@ class LootHolder(object):
     def is_visible_to_player(self, requester):
         if not self.is_multi_drop():
             return True
-        return requester.guid in self.visible_to
+        return requester.guid in self.shared_with
 
+    # Used to mark this loot slot as already looted. It will return True for items that don't have the multi drop flag,
+    # otherwise it will remove the requester from the shared loot list and return if the slot has been looted by all
+    # shared recipients or not.
     def set_looted_by(self, requester):
-        if requester.guid in self.visible_to:
-            del self.visible_to[requester.guid]
+        if not self.is_multi_drop():
+            return True
+
+        if requester.guid in self.shared_with:
+            self.shared_with.remove(requester.guid)
+        return self.can_clear_slot()
 
     def can_clear_slot(self):
-        return not any(self.visible_to)
+        return not any(self.shared_with)
 
     def get_item_entry(self):
         return self.item.item_template.entry
