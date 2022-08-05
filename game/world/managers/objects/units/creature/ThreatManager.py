@@ -17,6 +17,8 @@ class ThreatHolder:
 
 
 class ThreatManager:
+    THREAT_NOT_TO_LEAVE_COMBAT = 1E-4
+
     def __init__(self, owner: UnitManager, call_for_help_range=0):
         self.owner = owner
         self.holders: dict[int, ThreatHolder] = {}
@@ -103,7 +105,7 @@ class ThreatManager:
             interested_units = [unit for unit in units if self.unit_can_assist_help_call(unit, source)]
 
             for unit in interested_units:
-                unit.threat_manager.add_threat(source, threat, is_call_for_help=True)
+                unit.threat_manager.add_threat(source, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT, is_call_for_help=True)
 
     # TODO: Missing faction template flags, charmed, pacified.
     def unit_can_assist_help_call(self, unit, source):
