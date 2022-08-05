@@ -381,6 +381,14 @@ class AuraEffectHandler:
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPEED_RUNNING, amount, percentual=True)
 
     @staticmethod
+    def handle_increase_mounted_speed(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
+            return
+        amount = aura.get_effect_points()
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPEED_MOUNTED, amount, percentual=True)
+
+    @staticmethod
     def handle_decrease_speed(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
@@ -518,7 +526,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_PERCENT_STAT: AuraEffectHandler.handle_mod_percent_stat,
     AuraTypes.SPELL_AURA_MOD_POWER_COST_SCHOOL: AuraEffectHandler.handle_mod_power_cost_school,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SPEED: AuraEffectHandler.handle_increase_speed,
-    AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_speed,
+    AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_mounted_speed,
     AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED: AuraEffectHandler.handle_decrease_speed,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED: AuraEffectHandler.handle_increase_swim_speed,
 
