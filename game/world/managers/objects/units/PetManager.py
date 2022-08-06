@@ -53,6 +53,7 @@ class PetData:
         self._level += level_amount
         self.next_level_xp = PetData._get_xp_to_next_level_for(self._level + level_amount)
 
+        self.spells = self._get_default_spells()
         return level_amount
 
     def get_experience(self):
@@ -80,8 +81,23 @@ class PetData:
         if not skill_line_abilities:
             return []
 
-        # TODO Just returning highest ranks for now.
-        return [skill_line_ability.Spell for skill_line_ability in skill_line_abilities if not skill_line_ability.SupercededBySpell]
+        # TODO Selecting spell ranks according to pet level for now.
+        # This should be replaced when pets can be trained.
+
+        # Load spell info.
+        spell_info = [(line, DbcDatabaseManager.SpellHolder.spell_get_by_id(line.Spell)) for line in skill_line_abilities]
+
+        # Filter spells by pet level.
+        spell_info = [info for info in spell_info if info[1].SpellLevel <= self._level]
+        filtered_spell_ids = [info[1].ID for info in spell_info]
+
+        # Remove lower rank spells.
+        for line, spell in spell_info:
+            # Remove spell if a higher rank is available.
+            if line.SupercededBySpell in filtered_spell_ids:
+                filtered_spell_ids.remove(spell.ID)
+
+        return filtered_spell_ids
 
     def get_action_bar_values(self):
         pet_bar = [
@@ -248,6 +264,9 @@ class PetManager:
         pet_creature.level += level_gain
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_LEVEL, pet_creature.level)
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETNEXTLEVELEXP, active_pet_info.next_level_xp)
+
+        # Update spells in case new ones were unlocked. TODO pet spells should be trained instead.
+        self._send_pet_spell_info()
 
     def get_active_pet_command_state(self):
         pet_info = self.get_active_pet_info()
