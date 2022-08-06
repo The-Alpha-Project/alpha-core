@@ -8256,13 +8256,13 @@ begin not atomic
     -- 06/08/2022 2
     if (select count(*) from applied_updates where id='060820222') = 0 then
         -- Fix Attack Plan: Valley of Trials interaction.
-        UPDATE `alpha_world`.`gameobject_template` SET `flags` = '4' WHERE (`entry` = '3189');
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3189');
         -- Fix Attack Plan: Sen'jin Village interaction.
-        UPDATE `alpha_world`.`gameobject_template` SET `flags` = '4' WHERE (`entry` = '3190');
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3190');
         -- Fix Attack Plan: Orgrimmar interaction.
-        UPDATE `alpha_world`.`gameobject_template` SET `flags` = '4' WHERE (`entry` = '3192');
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3192');
         -- Fix Guarded Thunderbrew ale barrel interaction. (Kharanos)
-        UPDATE `alpha_world`.`gameobject_template` SET `flags` = '4' WHERE (`entry` = '269');
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '269');
 
         insert into applied_updates values ('060820222');
         
