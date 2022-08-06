@@ -87,7 +87,7 @@ class TextChecker:
         # Is text ascii?
         try:
             text_.encode('ascii')
-        except UnicodeDecodeError:
+        except (UnicodeEncodeError, UnicodeDecodeError):
             return False
 
         # Name specific checks
