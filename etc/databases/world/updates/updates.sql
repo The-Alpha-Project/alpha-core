@@ -8287,8 +8287,6 @@ begin not atomic
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '3428', '0', '0', '0');
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '3589', '0', '0', '0');
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '3590', '0', '0', '0');
-        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '16059', '0', '0', '0');
-        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '16060', '0', '0', '0');
 
         -- Laene Thundershot fix, #341
         UPDATE `creature_template` SET `npc_flags` = 1 WHERE `entry` = 5104;
@@ -8303,7 +8301,6 @@ begin not atomic
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '3025', '0', '0', '0');
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '3033', '0', '0', '0');
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '5441', '0', '0', '0');
-        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '11284', '0', '0', '0');
 
         -- Caledra Dawnbreeze display fix, #362 
         UPDATE `creature_template` SET `display_id1` = 1643 WHERE  `entry`= 1752;
