@@ -8252,7 +8252,21 @@ begin not atomic
         insert into applied_updates values ('060820221');
         
     end if;
-<<<<<<< HEAD
+    
+    -- 06/08/2022 2
+    if (select count(*) from applied_updates where id='060820222') = 0 then
+        -- Fix Attack Plan: Valley of Trials interaction.
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3189');
+        -- Fix Attack Plan: Sen'jin Village interaction.
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3190');
+        -- Fix Attack Plan: Orgrimmar interaction.
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3192');
+        -- Fix Guarded Thunderbrew ale barrel interaction. (Kharanos)
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '269');
+
+        insert into applied_updates values ('060820222');
+        
+    end if;
 
     -- 06/08/2022 3
      if (select count(*) from applied_updates where id='060820223') = 0 then
@@ -8296,23 +8310,5 @@ begin not atomic
 
         insert into applied_updates values ('060820223')
     end if;
-=======
-    
-    -- 06/08/2022 2
-    if (select count(*) from applied_updates where id='060820222') = 0 then
-        -- Fix Attack Plan: Valley of Trials interaction.
-        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3189');
-        -- Fix Attack Plan: Sen'jin Village interaction.
-        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3190');
-        -- Fix Attack Plan: Orgrimmar interaction.
-        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3192');
-        -- Fix Guarded Thunderbrew ale barrel interaction. (Kharanos)
-        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '269');
-
-        insert into applied_updates values ('060820222');
-        
-    end if;
-
->>>>>>> 7b0b6c2d6148978e581d315084371ea817f40835
 end $
 delimiter ;
