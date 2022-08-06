@@ -8250,7 +8250,23 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = 9938.881, `position_y` = 2640.370, `position_z` = 1318.052, `orientation` = 4.787 WHERE (`spawn_id` = 49938);
 
         insert into applied_updates values ('060820221');
-
+        
     end if;
+    
+    -- 06/08/2022 2
+    if (select count(*) from applied_updates where id='060820222') = 0 then
+        -- Fix Attack Plan: Valley of Trials interaction.
+        UPDATE `alpha_world`.`gameobject_template` SET `flags` = '4' WHERE (`entry` = '3189');
+        -- Fix Attack Plan: Sen'jin Village interaction.
+        UPDATE `alpha_world`.`gameobject_template` SET `flags` = '4' WHERE (`entry` = '3190');
+        -- Fix Attack Plan: Orgrimmar interaction.
+        UPDATE `alpha_world`.`gameobject_template` SET `flags` = '4' WHERE (`entry` = '3192');
+        -- Fix Guarded Thunderbrew ale barrel interaction. (Kharanos)
+        UPDATE `alpha_world`.`gameobject_template` SET `flags` = '4' WHERE (`entry` = '269');
+
+        insert into applied_updates values ('060820222');
+        
+    end if;
+
 end $
 delimiter ;
