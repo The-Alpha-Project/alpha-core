@@ -8252,5 +8252,16 @@ begin not atomic
         insert into applied_updates values ('060820221');
 
     end if;
+
+    -- 06/08/2022 2
+    if (select count(*) from applied_updates where id='060820222') = 0 then
+        DELETE FROM `npc_vendor` WHERE `item` > '6441';
+
+        DELETE FROM `item_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `item_loot_template`  WHERE `entry` > '6441';
+
+        insert into applied_updates values ('060820222');
+    end if;
 end $
 delimiter ;
