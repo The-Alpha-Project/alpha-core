@@ -8291,7 +8291,7 @@ begin not atomic
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '11284', '0', '0', '0');
 
         -- Caledra Dawnbreeze display fix, #362 
-        UPDATE `creature_template` SET `display_id1` = 1643 WHERE  `entry`= 1752; 
+        UPDATE `creature_template` SET `display_id1` = 1643 WHERE  `entry`= 1752;
 
         insert into applied_updates values ('060820223')
     end if;
