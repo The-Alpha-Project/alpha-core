@@ -867,7 +867,7 @@ class PlayerManager(UnitManager):
 
     def give_xp(self, amounts, victim=None, notify=True):
         if self.level >= config.Unit.Player.Defaults.max_level or not self.is_alive:
-            return
+            return 0
 
         """
         0.5.3 supports multiple amounts of XP and then combines them all
@@ -904,18 +904,21 @@ class PlayerManager(UnitManager):
         if self.xp + total_amount >= self.next_level_xp:  # Level up!
             xp_to_level = self.next_level_xp - self.xp
             level_amount = 0
+            remaining_amount = total_amount
             # Do the actual XP conversion into level(s).
-            while total_amount >= xp_to_level:
+            while remaining_amount >= xp_to_level:
                 level_amount += 1
-                total_amount -= xp_to_level
+                remaining_amount -= xp_to_level
                 xp_to_level = Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)
 
-            self.xp = total_amount  # Set the remaining amount XP as current.
+            self.xp = remaining_amount  # Set the remaining amount XP as current.
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
             self.mod_level(self.level + level_amount)
         else:
             self.xp = self.xp + total_amount
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
+
+        return total_amount
 
     def mod_level(self, level):
         if level != self.level:
