@@ -8305,7 +8305,7 @@ begin not atomic
         -- Caledra Dawnbreeze display fix, #362 
         UPDATE `creature_template` SET `display_id1` = 1643 WHERE  `entry`= 1752;
 
-        insert into applied_updates values ('060820223')
+        insert into applied_updates values ('060820223');
     end if;
 end $
 delimiter ;
