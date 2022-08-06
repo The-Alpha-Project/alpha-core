@@ -70,7 +70,6 @@ class QuestManager(object):
                 for active_quest in list(self.active_quests.values()):
                     if active_quest.need_item_from_go(game_object.guid, loot_template):
                         return True
-
         elif game_object.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             # Grab starters/finishers.
             relations_list = QuestManager.get_quest_giver_relations(game_object)
@@ -100,6 +99,10 @@ class QuestManager(object):
                     if quest_template and self.check_quest_requirements(quest_template):
                         # This go offers a quest we don't have, and we match the requirements for it.
                         return True
+        elif game_object.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
+            for quest_id, active_quest in self.active_quests.items():
+                if active_quest.requires_creature_or_go(game_object):
+                    return True
 
         return False
 
@@ -1016,9 +1019,8 @@ class QuestManager(object):
                 return True
         return False
 
-    def handle_goober_use(self, gameobject, quest_id):
-        if quest_id in self.active_quests:
-            self.reward_creature_or_go(gameobject, quest_id)
+    def handle_goober_use(self, gameobject, quest_id=0):
+        return self.reward_creature_or_go(gameobject, quest_id)
 
     def reward_creature_or_go(self, world_object, to_quest_id=0):
         for quest_id, active_quest in self.active_quests.items():
@@ -1056,7 +1058,7 @@ class QuestManager(object):
         if update_surrounding:
             self.update_surrounding_quest_status()
 
-    def item_is_still_needed_by_any_quest(self, item_entry):
+    def item_needed_by_quest(self, item_entry):
         for active_quest in list(self.active_quests.values()):
             if active_quest.still_needs_item(item_entry):
                 return True

@@ -8,7 +8,7 @@ class LootHolder(object):
         self.item = item
         self.quantity = quantity
         if self.is_multi_drop():
-            # Used to keep track of who can loot an item with multi drop flag and who has looted it already or not.
+            # Used to keep track of who can loot an item with multi-drop flag and who has looted it already or not.
             self.shared_with = set()
             self._set_shared_recipients(requester)
 
@@ -16,6 +16,9 @@ class LootHolder(object):
         if self.is_multi_drop():
             if requester.group_manager:
                 for player in requester.group_manager.get_surrounding_member_players(requester):
+                    # Quest item but this player no longer needs it, skip.
+                    if self.is_quest_item() and not player.quest_manager.item_needed_by_quest(self.item.entry):
+                        continue
                     self.shared_with.add(player.guid)
             else:
                 self.shared_with.add(requester.guid)
@@ -31,7 +34,7 @@ class LootHolder(object):
             return True
         return requester.guid in self.shared_with
 
-    # Used to mark this loot slot as already looted. It will return True for items that don't have the multi drop flag,
+    # Used to mark this loot slot as already looted. It will return True for items that don't have the multi-drop flag,
     # otherwise it will remove the requester from the shared loot list and return if the slot has been looted by all
     # shared recipients or not.
     def set_looted_by(self, requester):
