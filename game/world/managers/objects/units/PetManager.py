@@ -135,14 +135,17 @@ class PetManager:
         self.pets: list[PetData] = []
         self.active_pet: Optional[ActivePet] = None  # TODO Multiple active pets - totems?
 
-    def add_pet_from_world(self, creature: CreatureManager, lifetime_sec=-1):
+    def add_pet_from_world(self, creature: CreatureManager, pet_index=-1, lifetime_sec=-1):
         if self.active_pet:
             return
 
         self._tame_creature(creature)
         creature.leave_combat(force=True)
-        index = self.add_pet(creature.creature_template, creature.level, lifetime_sec)
-        self._set_active_pet(index, creature)
+
+        if pet_index == -1:
+            pet_index = self.add_pet(creature.creature_template, creature.level, lifetime_sec)
+
+        self._set_active_pet(pet_index, creature)
 
     def _set_active_pet(self, pet_index: int, creature: CreatureManager):
         pet_info = self._get_pet_info(pet_index)
@@ -165,17 +168,30 @@ class PetManager:
         if self.active_pet:
             return
 
+        # If a creature ID isn't provided, the pet to summon is the player's persistent pet (hunters).
+        # In this case, the pet ignores the summoner's levels and levels up independently.
+        match_summoner_level = creature_id != 0
+
+        pet_index = -1
+        # TODO Each warlock pet summon creates a new PetData entry.
+        # This issue is fine for now since all pet data wipes on restart/relog.
+        # This issue isn't noticeable as while warlock pets are persistent, none of it is implemented.
         if not creature_id:
             if not len(self.pets):
-                return
-            creature_id = self.pets[0].creature_template.entry
+                return  # TODO Catch in validate_cast.
+            # TODO Assume permanent pet in slot 0 for now. This might (?) lead to some unexpected behavior.
+            pet_index = 0
+            creature_id = self.pets[pet_index].creature_template.entry
 
         spawn_position = self.owner.location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
                                                                            PetAI.PET_FOLLOW_ANGLE)
         creature = CreatureManager.spawn(creature_id, spawn_position, self.owner.map_, summoner=self.owner,
                                          override_faction=self.owner.faction)
 
-        self.add_pet_from_world(creature)
+        self.add_pet_from_world(creature, pet_index)
+
+        # Match summoner level if a creature ID is provided (warlock pets). Otherwise set to the level in PetData.
+        self.set_active_pet_level(self.owner.level if match_summoner_level else -1)
         creature.respawn()
 
     def remove_pet(self, pet_index):
@@ -280,6 +296,7 @@ class PetManager:
         pet_creature = self.active_pet.creature
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETEXPERIENCE, active_pet_info.get_experience())
 
+        # TODO Creature leveling should be handled by CreatureManager.
         pet_creature.level = level
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_LEVEL, pet_creature.level)
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETNEXTLEVELEXP, active_pet_info.next_level_xp)
