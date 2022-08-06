@@ -99,8 +99,7 @@ class ActiveQuest:
 
     def reward_xp(self):
         xp = Formulas.PlayerFormulas.quest_xp_reward(self.quest.QuestLevel, self.owner.level, self.quest.RewXP)
-        self.owner.give_xp([xp], notify=False)
-        return xp
+        return self.owner.give_xp([xp], notify=False)
 
     def update_creature_go_count(self, world_object, value):
         # Creatures > 0, Gameobjects < 0.
