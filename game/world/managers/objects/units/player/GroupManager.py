@@ -21,7 +21,7 @@ class GroupManager(object):
 
     def __init__(self, group):
         self.group = group
-        self.members: dict[GroupMember] = {}
+        self.members: dict[int, GroupMember] = {}
         self.invites = {}
         self.allowed_looters = {}
         self._last_looter = None  # For Round Robin, cycle will start at leader.
