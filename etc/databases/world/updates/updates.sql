@@ -8243,5 +8243,14 @@ begin not atomic
         insert into applied_updates values ('050820222');
 
     end if;
+
+    -- 06/08/2022 1
+    if (select count(*) from applied_updates where id='060820221') = 0 then
+        -- Vesprystus location.
+        UPDATE `spawns_creatures` SET `position_x` = 9938.881, `position_y` = 2640.370, `position_z` = 1318.052, `orientation` = 4.787 WHERE (`spawn_id` = 49938);
+
+        insert into applied_updates values ('060820221');
+
+    end if;
 end $
 delimiter ;
