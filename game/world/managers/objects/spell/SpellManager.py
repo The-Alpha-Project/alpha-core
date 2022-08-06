@@ -100,7 +100,7 @@ class SpellManager:
 
             # Shapeshift passives are only applied on shapeshift change.
             if spell_template.ShapeshiftMask:
-                return
+                continue
 
             if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
                 self.apply_passive_spell_effects(spell_template)
@@ -125,7 +125,7 @@ class SpellManager:
         for spell_id in self.spells.keys():
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             req_form = spell_template.ShapeshiftMask
-            if not req_form:
+            if not req_form or not spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
                 continue
 
             if self.caster.form_matches_mask(req_form):
