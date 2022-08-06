@@ -40,7 +40,7 @@ class CommandManager(object):
         if command_func:
             code, res = command_func(world_session, args)
             if code != 0:
-                ChatManager.send_system_message(world_session, f'Wrong arguments for <{command}> command: {res}')
+                ChatManager.send_system_message(world_session, f'Error with <{command}> command: {res}')
             elif res:
                 ChatManager.send_system_message(world_session, res)
 
@@ -731,5 +731,5 @@ GM_COMMAND_DEFINITIONS = {
     'worldoff': [CommandManager.worldoff, 'stop the world server'],
     'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],
     'alltaxis': [CommandManager.alltaxis, 'discover all flightpaths'],
-    'qadd': [CommandManager.qadd, 'adds a quest']
+    'qadd': [CommandManager.qadd, 'adds a quest to your log']
 }
