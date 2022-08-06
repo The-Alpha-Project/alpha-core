@@ -681,22 +681,21 @@ class CreatureManager(UnitManager):
             target_distance = self.location.distance(self.combat_target.location)
             combat_position_distance = UnitFormulas.combat_distance(self, self.combat_target)
 
-            # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
-            # From 0.5.4 patch notes:
-            #     "Creature pursuit is now timer based rather than distance based."
             if not self.is_pet():
+                # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
+                # From 0.5.4 patch notes:
+                #     "Creature pursuit is now timer based rather than distance based."
                 if self.location.distance(self.spawn_position) > Distances.CREATURE_EVADE_DISTANCE \
                         or target_distance > Distances.CREATURE_EVADE_DISTANCE:
                     self.leave_combat(True)
                     return
 
-            # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
-            #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
-            #  will currently bug out when you try to engage in combat with them. Also seems like a lot of humanoids
-            #  couldn't swim before patch 1.3.0:
-            #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
-            #   - Most humanoids NPCs have gained the ability to swim.
-            if not self.is_pet():
+                # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
+                #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
+                #  will currently bug out when you try to engage in combat with them. Also seems like a lot of humanoids
+                #  couldn't swim before patch 1.3.0:
+                #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
+                #   - Most humanoids NPCs have gained the ability to swim.
                 if self.is_on_water():
                     if not self.can_swim():
                         self.leave_combat(True)
