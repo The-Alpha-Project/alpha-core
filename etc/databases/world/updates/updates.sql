@@ -8253,15 +8253,15 @@ begin not atomic
 
     end if;
 
-    -- 06/08/2022 2
-    if (select count(*) from applied_updates where id='060820222') = 0 then
+    -- 06/08/2022 3
+    if (select count(*) from applied_updates where id='060820223') = 0 then
         DELETE FROM `npc_vendor` WHERE `item` > '6441';
 
         DELETE FROM `item_loot_template` WHERE `item` > '6441';
 
         DELETE FROM `item_loot_template`  WHERE `entry` > '6441';
 
-        insert into applied_updates values ('060820222');
+        insert into applied_updates values ('060820223');
     end if;
 end $
 delimiter ;
