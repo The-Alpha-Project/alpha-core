@@ -55,9 +55,6 @@ class QuestManager(object):
     def is_quest_log_full(self):
         return len(self.active_quests) >= MAX_QUEST_LOG
 
-    # TODO: Cache the return value by GO guid, flush this cache on any QuestManager state change.
-    #  Need to further investigate some gameobjects that remain usable even with the proper dynamic flag set.
-    #  Client checks 'if ( (m_flags & 1) == 0 && ((m_flags & 4) == 0 || (m_gameObj->m_dynamicFlags & 1) != 0) )'
     def should_interact_with_go(self, game_object):
         if game_object.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             if game_object.gobject_template.data1 != 0:
