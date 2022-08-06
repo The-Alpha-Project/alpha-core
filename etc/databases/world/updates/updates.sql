@@ -8259,7 +8259,7 @@ begin not atomic
 
         DELETE FROM `item_loot_template` WHERE `item` > '6441';
 
-        DELETE FROM `item_loot_template`  WHERE `entry` > '6441';
+        DELETE FROM `item_template`  WHERE `entry` > '6441';
 
         insert into applied_updates values ('060820223');
     end if;
