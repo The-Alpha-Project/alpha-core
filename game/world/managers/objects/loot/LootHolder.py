@@ -1,3 +1,4 @@
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from utils.constants.ItemCodes import ItemClasses, ItemFlags
@@ -15,11 +16,13 @@ class LootHolder(object):
     def _set_shared_recipients(self, requester):
         if self.is_multi_drop():
             if requester.group_manager:
-                for player in requester.group_manager.get_surrounding_member_players(requester):
-                    # Quest item but this player no longer needs it, skip.
-                    if self.is_quest_item() and not player.quest_manager.item_needed_by_quests(self.item.entry):
-                        continue
-                    self.shared_with.add(player.guid)
+                for guid in [*requester.group_manager.members]:
+                    player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
+                    if requester.group_manager.is_close_member(requester, player_mgr):
+                        # Quest item but this player no longer needs it, skip.
+                        if self.is_quest_item() and not player_mgr.quest_manager.item_needed_by_quests(self.item.entry):
+                            continue
+                        self.shared_with.add(player_mgr.guid)
             else:
                 self.shared_with.add(requester.guid)
 

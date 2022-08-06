@@ -2,6 +2,7 @@ from database.world.WorldModels import NpcGossip, NpcText, QuestGreeting
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
@@ -772,22 +773,23 @@ class QuestManager(object):
         data = pack(f'<I{len(title_bytes)}sQ', active_quest.quest.entry, title_bytes, self.player_mgr.guid)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUEST_CONFIRM_ACCEPT, data)
 
-        surrounding_party_players = self.player_mgr.group_manager.get_surrounding_member_players(self.player_mgr)
-        for player_mgr in surrounding_party_players:
-            if player_mgr.guid == self.player_mgr.guid:
-                continue
+        for guid in [*self.player_mgr.group_manager.members]:
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
+            if self.player_mgr.group_manager.is_close_member(self.player_mgr, player_mgr):
+                if player_mgr.guid == self.player_mgr.guid:
+                    continue
 
-            # Check which party member fulfills all requirements
-            if not player_mgr.quest_manager.check_quest_requirements(active_quest.quest):
-                continue
-            if not player_mgr.quest_manager.check_quest_level(active_quest.quest, False):
-                continue
-            if active_quest.quest.entry in player_mgr.quest_manager.active_quests:
-                continue
-            if active_quest.quest.entry in player_mgr.quest_manager.completed_quests:
-                continue
+                # Check which party member fulfills all requirements
+                if not player_mgr.quest_manager.check_quest_requirements(active_quest.quest):
+                    continue
+                if not player_mgr.quest_manager.check_quest_level(active_quest.quest, False):
+                    continue
+                if active_quest.quest.entry in player_mgr.quest_manager.active_quests:
+                    continue
+                if active_quest.quest.entry in player_mgr.quest_manager.completed_quests:
+                    continue
 
-            player_mgr.enqueue_packet(packet)
+                player_mgr.enqueue_packet(packet)
 
     def handle_remove_quest(self, slot):
         quest_entry = self.player_mgr.get_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6))

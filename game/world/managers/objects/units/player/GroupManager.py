@@ -276,14 +276,14 @@ class GroupManager(object):
         return player_guid in self.members
 
     # noinspection PyMethodMayBeStatic
-    def _is_close_member(self, requester, player_mgr):
+    def is_close_member(self, requester, player_mgr):
         return requester and player_mgr and player_mgr.online and requester.map_ == player_mgr.map_ and \
                requester.location.distance(player_mgr.location) < Distances.GROUP_SHARING_DISTANCE
 
     def reward_group_reputation(self, requester, creature):
         for guid in [*self.members]:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
-            if self._is_close_member(requester, player_mgr):
+            if self.is_close_member(requester, player_mgr):
                 player_mgr.reward_reputation_on_kill(creature)
 
     def reward_group_money(self, looter, creature):
@@ -303,7 +303,7 @@ class GroupManager(object):
 
         for guid in members:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
-            if self._is_close_member(looter, player_mgr):
+            if self.is_close_member(looter, player_mgr):
                 player_share = share if player_mgr != creature.killed_by else share + remainder
                 data = pack('<I', player_share)
                 player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
@@ -320,7 +320,7 @@ class GroupManager(object):
         # Need to loop first through all members in order to find the highest level one and the total sum of levels.
         for guid in [*self.members]:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
-            if self._is_close_member(requester, player_mgr):
+            if self.is_close_member(requester, player_mgr):
                 if player_mgr.level > highest_level:
                     highest_level = player_mgr.level
                 level_sum += player_mgr.level
@@ -340,7 +340,7 @@ class GroupManager(object):
 
         for guid in [*self.members]:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
-            if self._is_close_member(requester, player_mgr):
+            if self.is_close_member(requester, player_mgr):
                 player_mgr.enqueue_packet(kill_log_packet)
                 player_mgr.quest_manager.reward_creature_or_go(creature)
 
@@ -363,7 +363,7 @@ class GroupManager(object):
                 continue
 
             player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
-            if surrounding_only and source and not self._is_close_member(source, player_mgr):
+            if surrounding_only and source and not self.is_close_member(source, player_mgr):
                 continue
             if not player_mgr or not player_mgr.online:
                 continue
