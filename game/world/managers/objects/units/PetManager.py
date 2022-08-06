@@ -33,7 +33,7 @@ class PetData:
         self.react_state = 1
         self.command_state = 1
 
-        self.spells = self._get_default_spells()
+        self.spells = self._get_available_spells()
 
     def add_experience(self, xp_amount: int):
         if self._experience + xp_amount < self.next_level_xp:  # Not enough xp to level up.
@@ -49,12 +49,18 @@ class PetData:
             xp_amount -= xp_to_level
             xp_to_level = PetData._get_xp_to_next_level_for(self._level + level_amount)
 
+        self.set_level(self._level + level_amount)
         self._experience = xp_amount  # Set the remaining amount XP as current.
-        self._level += level_amount
-        self.next_level_xp = PetData._get_xp_to_next_level_for(self._level + level_amount)
-
-        self.spells = self._get_default_spells()
         return level_amount
+
+    def set_level(self, level: int):
+        if not level:
+            return
+
+        self._level = level
+        self.next_level_xp = PetData._get_xp_to_next_level_for(self._level)
+        self.spells = self._get_available_spells()
+        self._experience = 0
 
     def get_experience(self):
         return self._experience
@@ -66,7 +72,7 @@ class PetData:
     def _get_xp_to_next_level_for(level: int) -> int:
         return int(Formulas.PlayerFormulas.xp_to_level(level) / 4)
 
-    def _get_default_spells(self) -> list[int]:
+    def _get_available_spells(self) -> list[int]:
         creature_family = self.creature_template.beast_family
         if not creature_family:
             return []
@@ -250,18 +256,31 @@ class PetManager:
         else:
             self.get_active_pet_info().react_state = action_id
 
-    def add_pet_experience(self, experience: int):
+    def add_active_pet_experience(self, experience: int):
         active_pet_info = self.get_active_pet_info()
         if not active_pet_info or self.owner.level <= active_pet_info.get_level():
             return
 
         level_gain = active_pet_info.add_experience(experience)
-        pet_creature = self.active_pet.creature
-        pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETEXPERIENCE, active_pet_info.get_experience())
         if not level_gain:
             return
 
-        pet_creature.level += level_gain
+        self.set_active_pet_level()
+
+    def set_active_pet_level(self, level=-1):
+        active_pet_info = self.get_active_pet_info()
+        if not active_pet_info:
+            return
+
+        if level == -1:
+            level = active_pet_info.get_level()
+        elif active_pet_info.get_level() != level:
+            active_pet_info.set_level(level)
+
+        pet_creature = self.active_pet.creature
+        pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETEXPERIENCE, active_pet_info.get_experience())
+
+        pet_creature.level = level
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_LEVEL, pet_creature.level)
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETNEXTLEVELEXP, active_pet_info.next_level_xp)
 

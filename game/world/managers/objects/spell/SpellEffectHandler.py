@@ -442,6 +442,9 @@ class SpellEffectHandler:
 
         caster.pet_manager.summon_pet(effect.misc_value)
 
+        # Match summoner level for now. TODO This shouldn't be the case for hunter pets and displays as level up.
+        caster.pet_manager.set_active_pet_level(caster.level)
+
     @staticmethod
     def handle_summon_wild(casting_spell, effect, caster, target):
         creature_entry = effect.misc_value
