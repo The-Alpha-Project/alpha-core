@@ -1055,7 +1055,7 @@ class QuestManager(object):
         if update_surrounding:
             self.update_surrounding_quest_status()
 
-    def item_needed_by_quest(self, item_entry):
+    def item_needed_by_quests(self, item_entry):
         for active_quest in list(self.active_quests.values()):
             if active_quest.still_needs_item(item_entry):
                 return True

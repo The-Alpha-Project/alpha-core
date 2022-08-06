@@ -17,7 +17,7 @@ class LootHolder(object):
             if requester.group_manager:
                 for player in requester.group_manager.get_surrounding_member_players(requester):
                     # Quest item but this player no longer needs it, skip.
-                    if self.is_quest_item() and not player.quest_manager.item_needed_by_quest(self.item.entry):
+                    if self.is_quest_item() and not player.quest_manager.item_needed_by_quests(self.item.entry):
                         continue
                     self.shared_with.add(player.guid)
             else:
