@@ -8273,6 +8273,9 @@ begin not atomic
         -- Gilbin fix, #341
         UPDATE `creature_template` SET `npc_flags` = 1 WHERE `entry` = 5105;
         UPDATE `creature_template` SET `faction` = 57 WHERE `entry` = 5105;
+        UPDATE `creature_template` SET `level_min` = 30, `level_max` = 30, `health_max` = 1003, `health_min` = 1003,
+        `armor` = 1200, `dmg_min` = 47, `dmg_max` = 63, `ranged_dmg_min` = 33, `ranged_dmg_max` = 49, `attack_power`=122,
+        `base_attack_time` = 2000, `ranged_attack_time` = 2000 WHERE `entry` = 5105;
         
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '837', '0', '0', '0');
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '838', '0', '0', '0');
@@ -8291,6 +8294,9 @@ begin not atomic
         -- Laene Thundershot fix, #341
         UPDATE `creature_template` SET `npc_flags` = 1 WHERE `entry` = 5104;
         UPDATE `creature_template` SET `faction` = 57 WHERE `entry` = 5104;
+        UPDATE `creature_template` SET `level_min` = 40, `level_max` = 40, `health_max` = 1753, `health_min` = 1753,
+        `armor` = 1964, `dmg_min` = 63, `dmg_max` = 85, `ranged_dmg_min` = 46, `ranged_dmg_max` = 68, `attack_power`=122,
+        `base_attack_time` = 2000, `ranged_attack_time` = 2000 WHERE `entry` = 5104;
 
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '2509', '0', '0', '0');
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '2511', '0', '0', '0');
