@@ -8376,7 +8376,7 @@ begin not atomic
 
         -- Licillin, named imp
         UPDATE `creature_template`
-        SET `display_id1`=1015
+        SET `display_id1`=1017
         WHERE `entry`=2191;
 
         -- Cracked Golem
