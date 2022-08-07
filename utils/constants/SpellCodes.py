@@ -515,6 +515,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_ALL_ENEMY_IN_AREA_INSTANT = 16
     TARGET_TABLE_X_Y_Z_COORDINATES = 17  # Used in teleport spells and some other
     TARGET_EFFECT_SELECT = 18  # Highly depends on the spell effect
+    TARGET_19 = 19  # Only used by "Zone Recall (OLD)"
     TARGET_AROUND_CASTER_PARTY = 20
     TARGET_SELECTED_FRIEND = 21
     TARGET_ALL_AROUND_CASTER = 22  # Used only in TargetA target selection dependent from TargetB
