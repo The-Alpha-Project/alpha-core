@@ -483,32 +483,35 @@ class ItemManager(ObjectManager):
     @staticmethod
     def get_item_query_packets(item_templates: List[ItemTemplate]) -> List[bytes]:
         packets = []
-        max_size = 32768
+        # Sending packets of 8192*n (for testing) seems to always work correctly.
+        max_size = 32768  # More crashes the client.
         header_size = 10
 
-        current_size = header_size
+        # The client expects a response containing all requested items (with duplicates).
+        # Attempting to optimize packet size by sending only unique items
+        # leads to some items not having an icon (in bank only? Only case noticed when testing).
+
         query_data = b''
         total_items = len(item_templates)
-        written_items = 0
 
         while item_templates:
-            item = item_templates[-1]
+            item = item_templates.pop()
             item_bytes = ItemManager.generate_query_details_data(item)
 
-            if current_size + len(item_bytes) > max_size:
-                # Single item data exceeds max size. Probably impossible, but would lead into an infinite loop.
-                if not written_items:
-                    return []
+            exceeds_max_length = header_size + len(query_data) + len(item_bytes) > max_size
+            if exceeds_max_length or not item_templates:
+                if exceeds_max_length:
+                    item_templates.append(item)
+                else:
+                    # Last item to send.
+                    query_data += item_bytes
 
-                packet = pack(f'<I{len(query_data)}s', written_items, query_data)
+                # Always sending total amount of requested items even with partial packets; client handles this fine.
+                packet = pack(f'<I{len(query_data)}s', total_items, query_data)
                 packets.append(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, packet))
                 query_data = b''
-                current_size = header_size
-                written_items = 0
-                total_items -= written_items
+                continue
 
-            item_templates.pop()
             query_data += item_bytes
-            written_items += 1
 
         return packets
