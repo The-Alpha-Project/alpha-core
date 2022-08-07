@@ -71,7 +71,8 @@ class EnchantmentManager(object):
     def handle_equipment_change(self, item):
         if not item:
             return
-        was_removed = item.current_slot > InventorySlots.SLOT_TABARD
+        was_removed = item.current_slot > InventorySlots.SLOT_TABARD or \
+            item.item_instance.bag != InventorySlots.SLOT_INBACKPACK
         self._handle_equip_buffs(item, remove=was_removed)
 
     def handle_melee_attack_procs(self, damage_info):
