@@ -1,8 +1,10 @@
 from struct import pack
+from typing import List
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterInventory, CharacterGifts
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import ItemTemplate
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.EnchantmentHolder import EnchantmentHolder
@@ -477,3 +479,36 @@ class ItemManager(ObjectManager):
     # override
     def generate_object_guid(self, low_guid):
         return low_guid | HighGuid.HIGHGUID_ITEM
+
+    @staticmethod
+    def get_item_query_packets(item_templates: List[ItemTemplate]) -> List[bytes]:
+        packets = []
+        max_size = 32768
+        header_size = 10
+
+        current_size = header_size
+        query_data = b''
+        total_items = len(item_templates)
+        written_items = 0
+
+        while item_templates:
+            item = item_templates[-1]
+            item_bytes = ItemManager.generate_query_details_data(item)
+
+            if current_size + len(item_bytes) > max_size:
+                # Single item data exceeds max size. Probably impossible, but would lead into an infinite loop.
+                if not written_items:
+                    return []
+
+                packet = pack(f'<I{len(query_data)}s', written_items, query_data)
+                packets.append(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, packet))
+                query_data = b''
+                current_size = header_size
+                written_items = 0
+                total_items -= written_items
+
+            item_templates.pop()
+            query_data += item_bytes
+            written_items += 1
+
+        return packets
