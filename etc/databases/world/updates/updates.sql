@@ -8354,6 +8354,11 @@ begin not atomic
         SET `display_id1`=1011
         WHERE `entry`=2324;
 
+        -- Carnivous the breaker, named blackwood
+        UPDATE `creature_template`
+        SET `display_id1`=1012
+        WHERE `entry`=2186;
+
         -- Stormscale Sorceress
         UPDATE `creature_template`
         SET `display_id1`=4036
