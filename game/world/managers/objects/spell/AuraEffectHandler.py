@@ -253,7 +253,7 @@ class AuraEffectHandler:
             return
 
         if effect_target.get_type_id() == ObjectTypeIds.ID_UNIT:
-            aura.caster.pet_manager.add_pet_from_world(effect_target, aura.get_duration())
+            aura.caster.pet_manager.add_pet_from_world(effect_target, lifetime_sec=aura.get_duration())
         elif effect_target.get_type_id == ObjectTypeIds.ID_PLAYER:
             pass  # TODO: Implement behavior for charmed players.
 
