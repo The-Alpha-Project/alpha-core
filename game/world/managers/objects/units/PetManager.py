@@ -78,6 +78,11 @@ class PetData:
             return []
 
         family_entry = DbcDatabaseManager.CreatureFamilyHolder.creature_family_get_by_id(creature_family)
+        if not family_entry:
+            # No spells for this type of pet yet (bats, hyenas etc.)
+            # TODO Make these pets untamable?
+            return []
+
         skill_lines = [family_entry.SkillLine_1, family_entry.SkillLine_2]  # TODO 2 is pet talents or 0, ignore for now.
 
         if not skill_lines[0]:
