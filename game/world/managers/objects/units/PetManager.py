@@ -1,8 +1,11 @@
 import time
-from struct import pack
-from typing import Optional, NamedTuple
+from struct import pack, unpack
+from typing import Optional, NamedTuple, List
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.realm.RealmModels import CharacterPet
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
@@ -19,8 +22,10 @@ from utils.constants.UpdateFields import UnitFields
 
 
 class PetData:
-    def __init__(self, name: str, template: CreatureTemplate, owner_guid,
-                 level: int, experience: int, permanent: bool):
+    def __init__(self, pet_id: int, name: str, template: CreatureTemplate, owner_guid,
+                 level: int, experience: int, permanent: bool, action_bar=None):
+        self.pet_id = pet_id
+
         self.name = name
         self.creature_template = template
         self.owner_guid = owner_guid
@@ -35,22 +40,72 @@ class PetData:
 
         self.spells = self._get_available_spells()
 
-    def add_experience(self, xp_amount: int):
-        if self._experience + xp_amount < self.next_level_xp:  # Not enough xp to level up.
-            self._experience += xp_amount
+        # TODO Not handling CMSG_PET_SET_ACTION yet.
+        self.action_bar = self.get_default_action_bar_values() if not action_bar else action_bar
+
+    def save(self, creature_instance=None):
+        if not self.permanent:
+            return
+
+        health = -1 if not creature_instance else creature_instance.health
+        mana = -1 if not creature_instance else creature_instance.power_1
+
+
+        character_pet = self._as_character_pet(health=health, mana=mana)
+
+        if self.pet_id == -1:
+            RealmDatabaseManager.character_add_pet(character_pet)
+            self.pet_id = character_pet.pet_id
+        else:
+            RealmDatabaseManager.character_update_pet(character_pet)
+
+    def _as_character_pet(self, health=-1, mana=-1) -> CharacterPet:
+        # TODO Stats probably shouldn't be directly from creature data.
+        health = health if health != -1 else self.creature_template.health_max
+        mana = mana if mana != -1 else self.creature_template.mana_max
+
+        character_pet = CharacterPet(
+            pet_id=self.pet_id if self.pet_id != -1 else None,
+            owner=self.owner_guid,
+            creature_id=self.creature_template.entry,
+            created_by_spell=883,  # TODO just filling with Summon Pet, unused.
+            level=self._level,
+            xp=self._experience,
+            react_state=self.react_state,
+            command_state=self.command_state,
+            loyalty=0,  # TODO Loyalty/training
+            loyalty_points=0,
+            training_points=0,
+            name=self.name,
+            renamed=0,  # TODO pet naming
+            health=health,
+            mana=mana,
+            happiness=0,  # TODO
+            action_bar=pack('10I', *self.action_bar)
+        )
+
+        return character_pet
+
+    def add_experience(self, xp_amount: int) -> int:
+        if not xp_amount:
             return 0
 
-        # Level up.
-        xp_to_level = self.next_level_xp - self._experience
         level_amount = 0
-        # Do the actual XP conversion into level(s).
-        while xp_amount >= xp_to_level:
-            level_amount += 1
-            xp_amount -= xp_to_level
-            xp_to_level = PetData._get_xp_to_next_level_for(self._level + level_amount)
+        if self._experience + xp_amount < self.next_level_xp:  # Not enough xp to level up.
+            self._experience += xp_amount
+        else:
+            # Level up.
+            xp_to_level = self.next_level_xp - self._experience
+            # Do the actual XP conversion into level(s).
+            while xp_amount >= xp_to_level:
+                level_amount += 1
+                xp_amount -= xp_to_level
+                xp_to_level = PetData._get_xp_to_next_level_for(self._level + level_amount)
 
-        self.set_level(self._level + level_amount)
-        self._experience = xp_amount  # Set the remaining amount XP as current.
+            self.set_level(self._level + level_amount)
+            self._experience = xp_amount  # Set the remaining amount XP as current.
+
+        self.save()
         return level_amount
 
     def set_level(self, level: int):
@@ -61,6 +116,7 @@ class PetData:
         self.next_level_xp = PetData._get_xp_to_next_level_for(self._level)
         self.spells = self._get_available_spells()
         self._experience = 0
+        self.save()
 
     def get_experience(self):
         return self._experience
@@ -110,7 +166,7 @@ class PetData:
 
         return filtered_spell_ids
 
-    def get_action_bar_values(self):
+    def get_default_action_bar_values(self) -> List[int]:
         pet_bar = [
                 2 | (0x07 << 24), 1 | (0x07 << 24), 0 | (0x07 << 24),  # Attack, Follow, Stay.
                 2 | (0x06 << 24), 1 | (0x06 << 24), 0 | (0x06 << 24)  # Aggressive, Defensive, Passive.
@@ -140,6 +196,19 @@ class PetManager:
         self.pets: list[PetData] = []
         self.active_pet: Optional[ActivePet] = None  # TODO Multiple active pets - totems?
 
+    def load_pets(self):
+        character_pets = RealmDatabaseManager.character_get_pets(self.owner.guid)
+        for character_pet in character_pets:
+            self.pets.append(PetData(
+                character_pet.pet_id,
+                character_pet.name,
+                WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(character_pet.creature_id),
+                self.owner.guid,
+                character_pet.level,
+                character_pet.xp,
+                True,
+                action_bar=unpack('10I', character_pet.action_bar)))
+
     def add_pet_from_world(self, creature: CreatureManager, pet_index=-1, lifetime_sec=-1):
         if self.active_pet:
             return
@@ -164,8 +233,10 @@ class PetManager:
     def add_pet(self, creature_template: CreatureTemplate, level: int, lifetime_sec=-1) -> int:
         # TODO: default name by beast_family - resolve id reference.
 
-        pet = PetData(creature_template.name, creature_template, self.owner.guid, level,
+        pet = PetData(-1, creature_template.name, creature_template, self.owner.guid, level,
                       0, permanent=lifetime_sec == -1)
+
+        pet.save()
         self.pets.append(pet)
         return len(self.pets) - 1
 
@@ -208,6 +279,8 @@ class PetManager:
             return
 
         creature = self.active_pet.creature
+        pet_info = self.get_active_pet_info()
+
         is_permanent = self.get_active_pet_info().permanent
         pet_index = self.active_pet.pet_index
         self.active_pet = None
@@ -217,6 +290,7 @@ class PetManager:
 
         if is_permanent:
             # TODO Not sure what correct behavior is here.
+            pet_info.save(creature)
             creature.despawn(destroy=True)
             return
         else:
@@ -362,7 +436,7 @@ class PetManager:
         signature = f'<QI4B{PetActionBarIndex.INDEX_END}I2B'
         data = [self.active_pet.creature.guid, 0, pet_info.react_state, pet_info.command_state, 0, 0]
 
-        data.extend(pet_info.get_action_bar_values())
+        data.extend(pet_info.action_bar)
 
         data.append(0)  # TODO: Spellbook entry count.
         data.append(0)  # TODO: Cooldown count.
