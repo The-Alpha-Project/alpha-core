@@ -494,7 +494,8 @@ class ItemManager(ObjectManager):
             item = item_templates.pop()
             item_bytes = ItemManager.generate_query_details_data(item)
 
-            exceeds_max_length = PacketWriter.HEADER_SIZE + len(query_data) + len(item_bytes) > PacketWriter.MAX_PACKET_SIZE
+            # Normal packet header + uint32 (written_items) + length of the total query + length of the current query.
+            exceeds_max_length = PacketWriter.HEADER_SIZE + 4 + len(query_data) + len(item_bytes) > PacketWriter.MAX_PACKET_SIZE
             if exceeds_max_length or not item_templates:
                 if exceeds_max_length:
                     item_templates.append(item)
