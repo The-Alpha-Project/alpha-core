@@ -15,7 +15,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.constants import CustomCodes
 from utils.constants.OpCodes import OpCode
-from utils.constants.PetCodes import PetActionBarIndex, PetCommandState
+from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
@@ -413,6 +413,27 @@ class PetManager:
 
         data = pack('<IB', spell_id, result)
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_CAST_FAILED, data))
+
+    def handle_tame_result(self, tame_effect, target) -> SpellCheckCastResult:
+        # Taming level restriction.
+        max_tame_level = tame_effect.get_effect_points()
+        if target.level > max_tame_level:
+            self._send_tame_result(PetTameResult.TAME_TOO_HIGH_LEVEL)
+            return SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
+
+        # Only one tamed pet at a time.
+        if self.pets:
+            self._send_tame_result(PetTameResult.TAME_TOO_MANY)
+            return SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
+
+        return SpellCheckCastResult.SPELL_NO_ERROR
+
+    def _send_tame_result(self, result):
+        if result == PetTameResult.TAME_SUCCESS:
+            return
+
+        data = pack('<B', result)
+        self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_TAME_FAILURE, data))
 
     def _get_pet_info(self, pet_index: int) -> Optional[PetData]:
         if pet_index < 0 or pet_index >= len(self.pets):
