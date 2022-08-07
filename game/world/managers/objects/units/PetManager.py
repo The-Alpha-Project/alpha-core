@@ -13,6 +13,7 @@ from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
+from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState
@@ -43,8 +44,10 @@ class PetData:
         # TODO Not handling CMSG_PET_SET_ACTION yet.
         self.action_bar = self.get_default_action_bar_values() if not action_bar else action_bar
 
+        self._dirty = pet_id == -1
+
     def save(self, creature_instance=None):
-        if not self.permanent:
+        if not self.permanent or not self._dirty:
             return
 
         health = -1 if not creature_instance else creature_instance.health
@@ -58,6 +61,12 @@ class PetData:
             self.pet_id = character_pet.pet_id
         else:
             RealmDatabaseManager.character_update_pet(character_pet)
+            Logger.info(f"Updated pet {self.pet_id}.")
+
+        self._dirty = False
+
+    def set_dirty(self):
+        self._dirty = True
 
     def _as_character_pet(self, health=-1, mana=-1) -> CharacterPet:
         # TODO Stats probably shouldn't be directly from creature data.
@@ -105,7 +114,7 @@ class PetData:
             self.set_level(self._level + level_amount)
             self._experience = xp_amount  # Set the remaining amount XP as current.
 
-        self.save()
+        self.set_dirty()
         return level_amount
 
     def set_level(self, level: int):
@@ -116,7 +125,7 @@ class PetData:
         self.next_level_xp = PetData._get_xp_to_next_level_for(self._level)
         self.spells = self._get_available_spells()
         self._experience = 0
-        self.save()
+        self.set_dirty()
 
     def get_experience(self):
         return self._experience
@@ -208,6 +217,10 @@ class PetManager:
                 character_pet.xp,
                 True,
                 action_bar=unpack('10I', character_pet.action_bar)))
+
+    def save(self):
+        if self.active_pet:
+            self.get_active_pet_info().save()
 
     def add_pet_from_world(self, creature: CreatureManager, pet_index=-1, lifetime_sec=-1):
         if self.active_pet:
