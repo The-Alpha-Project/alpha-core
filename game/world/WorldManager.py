@@ -132,7 +132,7 @@ class WorldServerSessionHandler:
 
     # We handle auth_challenge before launching queue threads and anything else.
     def auth_challenge(self, sck):
-        data = pack('<6B', 0, 0, 0, 0, 0, 0)
+        data = pack('<I', 0)  # Server seed, not used.
         try:
             sck.settimeout(10)  # Set a 10 second timeout.
             sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))  # Request challenge

@@ -483,7 +483,7 @@ class ItemManager(ObjectManager):
     @staticmethod
     def get_item_query_packets(item_templates: List[ItemTemplate]) -> List[bytes]:
         packets = []
-        header_size = 10
+        header_size = 6
 
         # The client expects a response containing all requested items (with duplicates).
         # Attempting to optimize packet size by sending only unique items
