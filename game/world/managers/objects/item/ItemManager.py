@@ -483,8 +483,6 @@ class ItemManager(ObjectManager):
     @staticmethod
     def get_item_query_packets(item_templates: List[ItemTemplate]) -> List[bytes]:
         packets = []
-        # Sending packets of 8192*n (for testing) seems to always work correctly.
-        max_size = 32768  # More crashes the client.
         header_size = 10
 
         # The client expects a response containing all requested items (with duplicates).
@@ -492,26 +490,27 @@ class ItemManager(ObjectManager):
         # leads to some items not having an icon (in bank only? Only case noticed when testing).
 
         query_data = b''
-        total_items = len(item_templates)
-
+        written_items = 0
         while item_templates:
             item = item_templates.pop()
             item_bytes = ItemManager.generate_query_details_data(item)
 
-            exceeds_max_length = header_size + len(query_data) + len(item_bytes) > max_size
+            exceeds_max_length = header_size + len(query_data) + len(item_bytes) > PacketWriter.MAX_PACKET_SIZE
             if exceeds_max_length or not item_templates:
                 if exceeds_max_length:
                     item_templates.append(item)
                 else:
                     # Last item to send.
                     query_data += item_bytes
+                    written_items += 1
 
-                # Always sending total amount of requested items even with partial packets; client handles this fine.
-                packet = pack(f'<I{len(query_data)}s', total_items, query_data)
+                packet = pack(f'<I{len(query_data)}s', written_items, query_data)
                 packets.append(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, packet))
                 query_data = b''
+                written_items = 0
                 continue
 
             query_data += item_bytes
+            written_items += 1
 
         return packets
