@@ -8314,7 +8314,7 @@ begin not atomic
         insert into applied_updates values ('060820223');
     end if;
 
-    -07/08/2022 2
+    -- 07/08/2022 2
     if (select count(*) from applied_updates where id='070820222') = 0 then
         -- despawn warlock summon imp quests 
         UPDATE `quest_template` SET `ignored` = '1' WHERE `entry` IN (1598, 1599);
