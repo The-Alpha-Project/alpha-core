@@ -433,14 +433,16 @@ class SpellEffectHandler:
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             return
 
-        caster.pet_manager.add_pet_from_world(target)
+        # Taming will always result in the target becoming the caster's pet.
+        # Pass ID 883 (Summon Pet) as the spell creating this unit since it's saved in the database.
+        caster.pet_manager.add_pet_from_world(target, 883)
 
     @staticmethod
     def handle_summon_pet(casting_spell, effect, caster, target):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        caster.pet_manager.summon_pet(effect.misc_value)
+        caster.pet_manager.summon_pet(casting_spell.spell_entry.ID, effect.misc_value)
 
     @staticmethod
     def handle_summon_wild(casting_spell, effect, caster, target):

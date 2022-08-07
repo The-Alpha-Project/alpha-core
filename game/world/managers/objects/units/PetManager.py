@@ -23,13 +23,14 @@ from utils.constants.UpdateFields import UnitFields
 
 class PetData:
     def __init__(self, pet_id: int, name: str, template: CreatureTemplate, owner_guid,
-                 level: int, experience: int, permanent: bool, action_bar=None):
+                 level: int, experience: int, summon_spell_id: int, permanent: bool, action_bar=None):
         self.pet_id = pet_id
 
         self.name = name
         self.creature_template = template
         self.owner_guid = owner_guid
         self.permanent = permanent
+        self.summon_spell_id = summon_spell_id
 
         self._level = level
         self._experience = experience
@@ -75,7 +76,7 @@ class PetData:
             pet_id=self.pet_id if self.pet_id != -1 else None,
             owner=self.owner_guid,
             creature_id=self.creature_template.entry,
-            created_by_spell=883,  # TODO just filling with Summon Pet, unused.
+            created_by_spell=self.summon_spell_id,
             level=self._level,
             xp=self._experience,
             react_state=self.react_state,
@@ -213,6 +214,7 @@ class PetManager:
                 self.owner.guid,
                 character_pet.level,
                 character_pet.xp,
+                character_pet.created_by_spell,
                 True,
                 action_bar=unpack('10I', character_pet.action_bar)))
 
@@ -220,15 +222,16 @@ class PetManager:
         if self.active_pet:
             self.get_active_pet_info().save()
 
-    def add_pet_from_world(self, creature: CreatureManager, pet_index=-1, lifetime_sec=-1):
+    def add_pet_from_world(self, creature: CreatureManager, summon_spell_id: int, pet_index=-1, lifetime_sec=-1):
         if self.active_pet:
             return
 
-        self._tame_creature(creature)
+        self._tame_creature(creature, summon_spell_id)
         creature.leave_combat(force=True)
 
         if pet_index == -1:
-            pet_index = self.add_pet(creature.creature_template, creature.level, lifetime_sec)
+            pet_index = self.add_pet(creature.creature_template, summon_spell_id, creature.level,
+                                     lifetime_sec=lifetime_sec)
 
         self._set_active_pet(pet_index, creature)
 
@@ -241,17 +244,17 @@ class PetManager:
         self.active_pet = ActivePet(pet_index, creature)
         self._send_pet_spell_info()
 
-    def add_pet(self, creature_template: CreatureTemplate, level: int, lifetime_sec=-1) -> int:
+    def add_pet(self, creature_template: CreatureTemplate, summon_spell_id: int, level: int, lifetime_sec=-1) -> int:
         # TODO: default name by beast_family - resolve id reference.
 
         pet = PetData(-1, creature_template.name, creature_template, self.owner.guid, level,
-                      0, permanent=lifetime_sec == -1)
+                      0, summon_spell_id, permanent=lifetime_sec == -1)
 
         pet.save()
         self.pets.append(pet)
         return len(self.pets) - 1
 
-    def summon_pet(self, creature_id=0):
+    def summon_pet(self, spell_id, creature_id=0):
         if self.active_pet:
             return
 
@@ -275,7 +278,7 @@ class PetManager:
         creature = CreatureManager.spawn(creature_id, spawn_position, self.owner.map_, summoner=self.owner,
                                          override_faction=self.owner.faction)
 
-        self.add_pet_from_world(creature, pet_index)
+        self.add_pet_from_world(creature, spell_id, pet_index)
 
         # Match summoner level if a creature ID is provided (warlock pets). Otherwise set to the level in PetData.
         self.set_active_pet_level(self.owner.level if match_summoner_level else -1)
@@ -303,6 +306,9 @@ class PetManager:
             # TODO Not sure what correct behavior is here.
             pet_info.save(creature)
             creature.despawn(destroy=True)
+
+            # Summon Pet cooldown is locked by default - unlock on despawn.
+            self.owner.spell_manager.unlock_spell_cooldown(pet_info.summon_spell_id)
             return
         else:
             self.remove_pet(pet_index)
@@ -414,11 +420,12 @@ class PetManager:
 
         return self.pets[pet_index]
 
-    def _tame_creature(self, creature: CreatureManager):
+    def _tame_creature(self, creature: CreatureManager, summon_spell_id: int):
         creature.set_summoned_by(self.owner)
         creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.owner.guid)
         creature.faction = self.owner.faction
         creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
+        creature.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, summon_spell_id)
 
         # TODO pet naming/pet number?
         creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, int(time.time()))
@@ -429,9 +436,6 @@ class PetManager:
         self.owner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, creature.guid)
         creature.object_ai = AIFactory.build_ai(creature)
         creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_PET
-
-        # Required?
-        # creature.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, casting_spell.spell_entry.ID)
 
     def _send_pet_spell_info(self):
         if not self.active_pet:
