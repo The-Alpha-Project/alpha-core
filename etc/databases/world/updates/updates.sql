@@ -8313,5 +8313,19 @@ begin not atomic
 
         insert into applied_updates values ('060820223');
     end if;
+
+    if (select count(*) from applied_updates where id='070820221') = 0 then
+        -- despawn warlock summon imp quests 
+        UPDATE `quest_template` SET `ignored` = '1' WHERE `entry` IN (1598, 1599);
+
+        -- despawn Paladin quests 
+        UPDATE `quest_template` SET `ignored` = '1' WHERE `entry` IN (3681, 2997, 2998, 2999, 3000);
+
+        -- despawn warrior quests 
+        UPDATE `quest_template` SET `ignored` = '1' WHERE `entry` IN (1498, 1502, 1503, 1505, 1638, 1639, 1640, 1665, 1678, 1679, 1680, 1681, 1682, 1684, 1818, 1819, 1820, 1821);
+
+        insert into applied_updates values ('070820221');
+    end if;
+
 end $
 delimiter ;
