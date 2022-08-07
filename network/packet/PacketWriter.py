@@ -6,6 +6,7 @@ from utils.constants.OpCodes import *
 
 class PacketWriter(object):
     MAX_PACKET_SIZE = 0x8000
+    HEADER_SIZE = 6
 
     @staticmethod
     def string_to_bytes(value):

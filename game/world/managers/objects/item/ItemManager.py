@@ -483,7 +483,6 @@ class ItemManager(ObjectManager):
     @staticmethod
     def get_item_query_packets(item_templates: List[ItemTemplate]) -> List[bytes]:
         packets = []
-        header_size = 6
 
         # The client expects a response containing all requested items (with duplicates).
         # Attempting to optimize packet size by sending only unique items
@@ -495,7 +494,7 @@ class ItemManager(ObjectManager):
             item = item_templates.pop()
             item_bytes = ItemManager.generate_query_details_data(item)
 
-            exceeds_max_length = header_size + len(query_data) + len(item_bytes) > PacketWriter.MAX_PACKET_SIZE
+            exceeds_max_length = PacketWriter.HEADER_SIZE + len(query_data) + len(item_bytes) > PacketWriter.MAX_PACKET_SIZE
             if exceeds_max_length or not item_templates:
                 if exceeds_max_length:
                     item_templates.append(item)
