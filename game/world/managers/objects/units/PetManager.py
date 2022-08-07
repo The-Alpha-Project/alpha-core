@@ -13,7 +13,6 @@ from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
-from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState
@@ -61,7 +60,6 @@ class PetData:
             self.pet_id = character_pet.pet_id
         else:
             RealmDatabaseManager.character_update_pet(character_pet)
-            Logger.info(f"Updated pet {self.pet_id}.")
 
         self._dirty = False
 
