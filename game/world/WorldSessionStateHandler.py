@@ -110,5 +110,6 @@ class WorldSessionStateHandler(object):
         try:
             player_mgr.synchronize_db_player()
             RealmDatabaseManager.character_update(player_mgr.player)
+            player_mgr.pet_manager.save()
         except AttributeError as ae:
             Logger.error(f'Error while saving {player_mgr.player.name} ({player_mgr.player.guid}) into db: {ae}.')

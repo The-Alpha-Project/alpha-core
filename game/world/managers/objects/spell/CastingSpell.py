@@ -315,7 +315,7 @@ class CastingSpell:
                 return effect
         return None
 
-    def trigger_cooldown_on_aura_remove(self):
+    def unlock_cooldown_on_trigger(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE == SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE
 
     def casts_on_swing(self):
