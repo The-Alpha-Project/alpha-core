@@ -8317,7 +8317,7 @@ begin not atomic
     -- 07/08/2022 2
     if (select count(*) from applied_updates where id='070820222') = 0 then
         -- despawn warlock quests
-        UPDATE `quest_template` SET `ignored` = '1' WHERE `RequiredClasses` = 256;
+        UPDATE `quest_template` SET `ignored` = '1' WHERE `RequiredClasses` = 256 AND `entry` != 397;
 
         -- despawn Paladin quests 
         UPDATE `quest_template` SET `ignored` = '1' WHERE `RequiredClasses` = 2;
