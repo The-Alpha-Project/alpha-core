@@ -8553,7 +8553,7 @@ begin not atomic
     
     -- 08/08/2022 1
     if (select count(*) from applied_updates where id='080820221') = 0 then
-    
+
         -- SCALE FIX FOR TELDRASSIL/ASHENVALE/BARRENS
 
         -- Gnarlpine Warrior
@@ -8776,11 +8776,11 @@ begin not atomic
     end if;
 
     -- 08/08/2022 4
-    if (select count(*) from applied_updates where id='080820221') = 0 then
+    if (select count(*) from applied_updates where id='080820224') = 0 then
         -- despawn game objects associated with warlock class quests #405
         UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id`IN (12194, 12595, 12699, 17898, 26767, 29205, 42881, 45008, 45288, 3996170);
 
-        insert into applied_updates values ('080820221');
+        insert into applied_updates values ('080820224');
     end if;
 end $
 delimiter ;
