@@ -765,9 +765,7 @@ class CreatureManager(UnitManager):
                     self.object_ai.update_ai(elapsed)
                 # Attack Update.
                 if self.combat_target and self.is_within_interactable_distance(self.combat_target):
-                    # Update melee swings if creature is not casting.
-                    if not self.is_casting():
-                        self.attack_update(elapsed)
+                    self.attack_update(elapsed)
                 # Not in combat, check if threat manager can resolve a target or if unit should switch target.
                 elif self.threat_manager:
                     target = self.threat_manager.resolve_target()
