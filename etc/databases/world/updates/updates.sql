@@ -8556,9 +8556,16 @@ begin not atomic
 
         -- FIX #390
 
-        UPDATE `gameobject_template`
-        SET `data0`=57
-        WHERE `type`=3 AND `data0`=259;
+	-- Serpentbloom, Plant Bundle, Violet Tragan, Beached Sea Creature, Gloom Weed, Incendia Agave, Skeletal Sea Turtle, Doom Weed, Shadowmoon Tuber
+	UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '13891');
+	UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '17282');
+	UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '141853');
+	UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '175207');
+	UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '175566');
+	UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '175928');
+	UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '176189');
+	UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '176753');
+	UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '184691');
 
         insert into applied_updates values ('080820222');
 
