@@ -8550,6 +8550,210 @@ begin not atomic
         insert into applied_updates values ('070820223');
 
     end if;
+    
+    -- 08/08/2022 1
+    if (select count(*) from applied_updates where id='080820221') = 0 then
+
+        -- SCALE FIX FOR TELDRASSIL/ASHENVALE/BARRENS
+
+        -- Gnarlpine Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2008;
+
+        -- Gnarlpine Pathfinder
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2012;
+
+        -- Gnarlpine Defender
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2010;
+
+        -- Gnarlpine Ursa
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2006;
+
+        -- Gnarlpine Gardener
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2007;
+
+        -- Gnarlpine Avenger
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2013;
+
+        -- Ursal The mauler, named gnarlpine
+        UPDATE `creature_template`
+        SET `display_id1`=3028
+        WHERE `entry`=2039;
+
+        -- Mangy Nightsaber
+        UPDATE `creature_template`
+        SET `display_id1`=3030
+        WHERE `entry`=2032;
+
+        -- Nightsaber
+        UPDATE `creature_template`
+        SET `display_id1`=3031
+        WHERE `entry`=2042;
+
+        -- Razormane Dustrunner, durotar
+        UPDATE `creature_template`
+        SET `display_id1`=1254
+        WHERE `entry`=3113;
+
+        -- Razormane Nak (a named with no display id)
+        UPDATE `creature_template`
+        SET `display_id1`=1342
+        WHERE `entry`=3434;
+
+        -- Razormane warfury
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3459;
+
+        -- Razormane seer
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3458;
+
+        -- Razormane hunter, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1346
+        WHERE `entry`=3265;
+
+        -- Razormane mystic
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3271;
+
+        -- Razormane geomancer, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3269;
+
+        -- Razormane thornweaver, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1346
+        WHERE `entry`=3268;
+
+        -- Razormane water seeker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1346
+        WHERE `entry`=3267;
+
+        -- Razormane defender, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3266;
+
+        -- Razormane stalker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3457;
+
+        -- Bristleback thornweaver, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3261;
+
+        -- Bristleback geomancer
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3263;
+
+        -- Bristleback hunter, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3258;
+
+        -- Bristleback water seeker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3260;
+
+        -- Bristleback defender, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3259;
+
+        -- Kolkar pack runner
+        UPDATE `creature_template`
+        SET `display_id1`=1348
+        WHERE `entry`=3274;
+
+        -- Kolkar marauder, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1349
+        WHERE `entry`=3275;
+
+        -- Kolkar bloodcharger
+        UPDATE `creature_template`
+        SET `display_id1`=1348
+        WHERE `entry`=3397;
+
+        -- Kolkar stormer
+        UPDATE `creature_template`
+        SET `display_id1`=1347
+        WHERE `entry`=3273;
+
+        -- Thistlefur Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=2001
+        WHERE `entry`=3924;
+
+        -- Thistlefur Avenger
+        UPDATE `creature_template`
+        SET `display_id1`=2000
+        WHERE `entry`=3925;
+
+        -- Thistlefur Pathfinder
+        UPDATE `creature_template`
+        SET `display_id1`=2003
+        WHERE `entry`=3926;
+
+        -- Thistlefur Totemic
+        UPDATE `creature_template`
+        SET `display_id1`=1999
+        WHERE `entry`=3922;
+
+         -- Foulweald Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=1996
+        WHERE `entry`=3743;
+
+        -- Foulweald Totemic
+        UPDATE `creature_template`
+        SET `display_id1`=1996
+        WHERE `entry`=3750;
+
+        -- Foulweald Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=1997
+        WHERE `entry`=3748;
+
+        -- Foulweald Den Watcher
+        UPDATE `creature_template`
+        SET `display_id1`=1997
+        WHERE `entry`=3746;
+
+        -- Ornery Plainstrider
+        UPDATE `creature_template`
+        SET `display_id1`=1283
+        WHERE `entry`=3245;
+
+        -- Oasis Snapjaw
+        UPDATE `creature_template`
+        SET `display_id1`=1244
+        WHERE `entry`=3461;
+
+        insert into applied_updates values ('080820221');
+
+    end if;
 
     -- 08/08/2022 2
     if (select count(*) from applied_updates where id='080820222') = 0 then
