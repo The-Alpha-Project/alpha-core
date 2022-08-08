@@ -8556,7 +8556,7 @@ begin not atomic
 
         -- FIX #390
 
-	-- Serpentbloom, Plant Bundle, Violet Tragan, Beached Sea Creature, Gloom Weed, Incendia Agave, Skeletal Sea Turtle, Doom Weed, Shadowmoon Tuber
+        -- Serpentbloom, Plant Bundle, Violet Tragan, Beached Sea Creature, Gloom Weed, Incendia Agave, Skeletal Sea Turtle, Doom Weed, Shadowmoon Tuber
         UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '13891');
         UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '17282');
         UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '141853');
