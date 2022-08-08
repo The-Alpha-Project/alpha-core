@@ -8328,5 +8328,139 @@ begin not atomic
         insert into applied_updates values ('070820222');
     end if;
 
+    -- 07/08/2022 3
+    if (select count(*) from applied_updates where id='070820223') = 0 then
+
+        -- THOUSAND NEEDLES
+
+        -- Pesterhide Snarler
+        UPDATE `creature_template`
+        SET `display_id1`=1534
+        WHERE `entry`=4249;
+
+        -- Venomous Cloud Serpent
+        UPDATE `creature_template`
+        SET `display_id1`=2700
+        WHERE `entry`=4118;
+
+        -- Thundering Boulderkin
+        UPDATE `creature_template`
+        SET `display_id1`=2302
+        WHERE `entry`=4120;
+
+        -- Rok'Alim the pounder
+        UPDATE `creature_template`
+        SET `display_id1`=2302
+        WHERE `entry`=4499;
+
+        -- Sparkleshell Tortoise
+        UPDATE `creature_template`
+        SET `display_id1`=2307
+        WHERE `entry`=4142;
+
+        -- Saltstone Crystalhide
+        UPDATE `creature_template`
+        SET `display_id1`=2310
+        WHERE `entry`=4151;
+
+        -- Saltstone Basilik
+        UPDATE `creature_template`
+        SET `display_id1`=2309
+        WHERE `entry`=4147;
+
+        -- Saltstone Gazer
+        UPDATE `creature_template`
+        SET `display_id1`=2235
+        WHERE `entry`=4150;
+
+        -- Salt Flats Vulture
+        UPDATE `creature_template`
+        SET `display_id1`=2305
+        WHERE `entry`=4158;
+
+        -- Silithid Hive Drone
+        UPDATE `creature_template`
+        SET `display_id1`=2303
+        WHERE `entry`=4133;
+        
+        -- Silithid searcher
+        UPDATE `creature_template`
+        SET `display_id1`=2304
+        WHERE `entry`=4130;
+
+        -- Silithid invader
+        UPDATE `creature_template`
+        SET `display_id1`=2304
+        WHERE `entry`=4131;
+
+        -- Highperch Patriarch
+        UPDATE `creature_template`
+        SET `display_id1`=2298
+        WHERE `entry`=4110;
+
+        -- Galak centaur : Mauler, Marauder
+        UPDATE `creature_template`
+        SET `display_id1`=2290
+        WHERE `entry` IN ( 4095, 4099 );
+
+        -- Galak centaur : Stormer, Wrangler (caster)
+        UPDATE `creature_template`
+        SET `display_id1`=2290
+        WHERE `entry` IN ( 4097, 4093);
+
+        -- Galak Windchaser
+        UPDATE `creature_template`
+        SET `display_id1`=2291
+        WHERE `entry`=4096;
+
+        -- Galak Scout
+        UPDATE `creature_template`
+        SET `display_id1`=2292
+        WHERE `entry`=4094;
+
+        -- Gnome NPC placeholder
+        UPDATE `creature_template`
+        SET `display_id1`=2456, `display_id2`=0, `display_id3`=0
+        WHERE `entry` IN ( 4720, 4454, 4453, 4430, 4452, 4495 );   
+
+        -- Screeching Windcaller
+        UPDATE `creature_template`
+        SET `display_id1`=1351
+        WHERE `entry`=4104;
+
+        -- Globin Racer -> Goblin Car
+        UPDATE `creature_template`
+        SET `display_id1`=2280, `name`='Goblin Car',  `subname`='Placeholder for Rocket Car'
+        WHERE `entry`=4251;
+
+        -- Globin Drag Car
+        UPDATE `creature_template`
+        SET `display_id1`=2280,  `subname`='Placeholder for Rocket Car'
+        WHERE `entry`=4945;
+
+        -- Zuzubee
+        UPDATE `creature_template`
+        SET `display_id1`=458
+        WHERE `entry`=4707;
+
+        -- Forbee
+        UPDATE `creature_template`
+        SET `display_id1`=458
+        WHERE `entry`=4620;
+
+        -- Gnome Racer -> Gnome Car
+        UPDATE `creature_template`
+        SET `display_id1`=378, `scale`=4, `name`='Gnome Car',  `subname`='Placeholder for Rocket Car'
+        WHERE `entry`=4252;
+
+        -- Gnome Drag Car
+        UPDATE `creature_template`
+        SET `display_id1`=378, `scale`=4, `subname`='Placeholder for Rocket Car'
+        WHERE `entry`=4946;
+
+        insert into applied_updates values ('070820223');
+
+    end if;
+
 end $
 delimiter ;
