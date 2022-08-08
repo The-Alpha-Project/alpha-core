@@ -8558,10 +8558,10 @@ begin not atomic
 
         UPDATE `gameobject_template`
         SET `data0`=57
-        WHERE `type`=3;
+        WHERE `type`=3 AND `data0`=259;
 
         insert into applied_updates values ('080820222');
-        
+
     end if;
 end $
 delimiter ;
