@@ -8755,8 +8755,8 @@ begin not atomic
 
     end if;
 
-    -- 08/08/2022 2
-    if (select count(*) from applied_updates where id='080820222') = 0 then
+    -- 08/08/2022 3
+    if (select count(*) from applied_updates where id='080820223') = 0 then
 
         -- FIX #390
 
@@ -8771,8 +8771,18 @@ begin not atomic
         UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '176753');
         UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '184691');
 
-        insert into applied_updates values ('080820222');
+        insert into applied_updates values ('080820223');
 
+    end if;
+
+    -- 08/08/2022 4
+    if (select count(*) from applied_updates where id='080820224') = 0 then
+        -- despawn game objects associated with warlock class quests #405
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id`IN (12194, 12595, 12699, 17898, 26767, 29205, 42881, 45008, 45288, 3996170);
+
+        insert into applied_updates values ('080820224');
     end if;
 end $
 delimiter ;
+
+
