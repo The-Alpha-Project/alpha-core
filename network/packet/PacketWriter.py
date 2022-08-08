@@ -5,6 +5,9 @@ from utils.constants.OpCodes import *
 
 
 class PacketWriter(object):
+    MAX_PACKET_SIZE = 0x8000
+    HEADER_SIZE = 6
+
     @staticmethod
     def string_to_bytes(value):
         if value is None:
@@ -16,18 +19,8 @@ class PacketWriter(object):
         if data is None:
             data = b''
 
-        # Packet header for SMSG_AUTH_CHALLENGE : Size: 2 bytes + Cmd: 2 bytes
-        # Packet header : Size: 2 bytes + Cmd: 4 bytes
-        size = (4 if opcode == OpCode.SMSG_AUTH_CHALLENGE else 6) + len(data) - 2
-        base_header = pack('<4B',
-                           int(size / 0x100),
-                           int(size % 0x100),
-                           int(opcode % 0x100),
-                           int(opcode / 0x100))
-        if opcode == OpCode.SMSG_AUTH_CHALLENGE:
-            return base_header + data
-        else:
-            return base_header + pack('<BB', 0, 0) + data
+        data = pack('<I', opcode) + data
+        return pack('>H', len(data)) + data
 
     @staticmethod
     def deflate(data):
