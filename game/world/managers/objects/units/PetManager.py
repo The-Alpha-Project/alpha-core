@@ -42,7 +42,9 @@ class PetData:
         self.spells = self._get_available_spells()
 
         # TODO Not handling CMSG_PET_SET_ACTION yet.
-        self.action_bar = self.get_default_action_bar_values() if not action_bar else action_bar
+        # TODO Use saved action bar once pet spellbook is working;
+        # otherwise pets will be stuck with the spells they had when first summoned.
+        self.action_bar = self.get_default_action_bar_values()
 
         self._dirty = pet_id == -1
 
@@ -222,7 +224,8 @@ class PetManager:
         if self.active_pet:
             self.get_active_pet_info().save()
 
-    def add_pet_from_world(self, creature: CreatureManager, summon_spell_id: int, pet_index=-1, lifetime_sec=-1):
+    def add_pet_from_world(self, creature: CreatureManager, summon_spell_id: int,
+                           pet_level=-1, pet_index=-1, lifetime_sec=-1):
         if self.active_pet:
             return
 
@@ -230,10 +233,18 @@ class PetManager:
         creature.leave_combat(force=True)
 
         if pet_index == -1:
-            pet_index = self.add_pet(creature.creature_template, summon_spell_id, creature.level,
+            # Pet not in database.
+            if pet_level == -1:
+                # No level given and no pet data - default to creature level.
+                # If pet data exists, set_active_pet_level will assign the proper level.
+                pet_level = creature.level
+
+            # Add as a new pet.
+            pet_index = self.add_pet(creature.creature_template, summon_spell_id, pet_level,
                                      lifetime_sec=lifetime_sec)
 
         self._set_active_pet(pet_index, creature)
+        self.set_active_pet_level(pet_level)
 
     def _set_active_pet(self, pet_index: int, creature: CreatureManager):
         pet_info = self._get_pet_info(pet_index)
@@ -254,34 +265,39 @@ class PetManager:
         self.pets.append(pet)
         return len(self.pets) - 1
 
-    def summon_pet(self, spell_id, creature_id=0):
+    def summon_permanent_pet(self, spell_id, creature_id=0):
         if self.active_pet:
             return
 
-        # If a creature ID isn't provided, the pet to summon is the player's persistent pet (hunters).
+        # If a creature ID isn't provided, the pet to summon is the player's only pet (hunters).
         # In this case, the pet ignores the summoner's levels and levels up independently.
         match_summoner_level = creature_id != 0
 
         pet_index = -1
-        # TODO Each warlock pet summon creates a new PetData entry.
-        # This issue is fine for now since all pet data wipes on restart/relog.
-        # This issue isn't noticeable as while warlock pets are persistent, none of it is implemented.
         if not creature_id:
             if not len(self.pets):
                 return  # TODO Catch in validate_cast.
             # TODO Assume permanent pet in slot 0 for now. This might (?) lead to some unexpected behavior.
             pet_index = 0
             creature_id = self.pets[pet_index].creature_template.entry
+        else:
+            # Other summon casts happen by creature ID reference.
+            # If no pet is found, a new entry is simply created as pet_index remains -1.
+            for i in range(len(self.pets)):
+                if self.pets[i].creature_template.entry == creature_id:
+                    pet_index = i
+                    break
 
         spawn_position = self.owner.location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
                                                                            PetAI.PET_FOLLOW_ANGLE)
         creature = CreatureManager.spawn(creature_id, spawn_position, self.owner.map_, summoner=self.owner,
                                          override_faction=self.owner.faction)
 
-        self.add_pet_from_world(creature, spell_id, pet_index)
-
         # Match summoner level if a creature ID is provided (warlock pets). Otherwise set to the level in PetData.
-        self.set_active_pet_level(self.owner.level if match_summoner_level else -1)
+        pet_level = self.owner.level if match_summoner_level else -1
+
+        self.add_pet_from_world(creature, spell_id, pet_level=pet_level, pet_index=pet_index)
+
         creature.respawn()
 
     def remove_pet(self, pet_index):

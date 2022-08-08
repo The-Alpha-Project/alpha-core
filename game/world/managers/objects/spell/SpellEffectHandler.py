@@ -442,7 +442,7 @@ class SpellEffectHandler:
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        caster.pet_manager.summon_pet(casting_spell.spell_entry.ID, effect.misc_value)
+        caster.pet_manager.summon_permanent_pet(casting_spell.spell_entry.ID, effect.misc_value)
 
     @staticmethod
     def handle_summon_wild(casting_spell, effect, caster, target):
