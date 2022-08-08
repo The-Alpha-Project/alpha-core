@@ -8593,12 +8593,12 @@ begin not atomic
 
         -- Mangy Nightsaber
         UPDATE `creature_template`
-        SET `display_id1`=3029
+        SET `display_id1`=3030
         WHERE `entry`=2032;
 
         -- Nightsaber
         UPDATE `creature_template`
-        SET `display_id1`=3030
+        SET `display_id1`=3031
         WHERE `entry`=2042;
 
         -- Razormane Dustrunner, durotar
